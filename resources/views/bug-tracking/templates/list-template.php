@@ -1,45 +1,48 @@
 <script type="text/x-jsrender" id="template-result-block">
 	<div class="mt-3">
-		<table class="table table-bordered">
+		<table class="table table-bordered" id="bug_tracking_maintable">
 		    <thead>
 		      <tr>
-		      	<th>ID</th>
-                <th>Date</th>
-                <th>Summary</th>
-                <th>Type</th>
-                <th>Steps to reproduce</th>
-                <th>Environment</th>
-                <th class='break'>Screenshot/Video url</th>
-                <th>Created By</th>
-                <th width="200px">Assign to</th>
-                <th width="200px">Severity</th>
-                <th width="200px">Status</th>
-                <th>Module</th>
-                <th width="300px">Communicaton</th>
-                <th>Website</th>
-                <th>Action</th>
+		      	<th width="4%">ID</th>
+                <th width="6%">Date</th>
+                <th width="3%">Summary</th>
+                <th width="5%">Type</th>
+                <th width="6%">Steps to reproduce</th>
+                <th width="4%">Environment</th>
+                <th width="4%">Expected Result</th>
+                <th class='break' width="7%">Screenshot / Video url</th>
+                <th width="5%">Created By</th>
+                <th width="8%">Assign to</th>
+                <th width="8%">Severity</th>
+                <th width="8%">Status</th>
+                <th width="8%">Module</th>
+                <th width="15%">Communicaton</th>
+                <th width="5%">Website</th>
+                <th width="4%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody class="pending-row-render-view infinite-scroll-pending-inner">
 		    	{{props data}}
 			      <tr>
 			      	<td class='break'>{{:prop.id}}</td>
-			      	<td class='break'>{{:prop.created_at}}</td>
-			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="{{:prop.id}}"><span class="show-short-summary-{{:prop.id}}" onclick="copySumText()">{{:prop.summary_short}}</span>
+			      	<td>{{:prop.created_at}}</td>
+			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="{{:prop.id}}" data-toggle="tooltip" title="{{:prop.summary}}"><span class="show-short-summary-{{:prop.id}}" onclick="copySumText()">{{:prop.summary_short}}</span>
                         <span class="show-full-summary-{{:prop.id}} hidden" >{{:prop.summary}}</span>
                     </td>
-			        <td class='break'>{{:prop.bug_type_id}}</td>
+			        <td class='break'  data-bug_type="{{:prop.bug_type_id_val}}">{{:prop.bug_type_id}}</td>
 			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="{{:prop.id}}"><span class="show-short-Steps to reproduce-{{:prop.id}}">{{:prop.step_to_reproduce_short}}</span>
                         <span class="show-full-step_to_reproduce-{{:prop.id}} hidden" >{{:prop.step_to_reproduce}}</span>
                     </td>
 			        <td class='break'>{{:prop.bug_environment_id}} {{:prop.bug_environment_ver}}</td>
+			        <td class='break'>{{:prop.expected_result}}</td>
+
 			        <td class='break expand-row-msg' data-name="url" data-id="{{:prop.id}}">
 			            <a href="{{:prop.url}}" target="_blank">
 			                <span href="" class="show-short-url-{{:prop.id}}">{{:prop.url_short}}</span>
                             <span href="" class="show-full-url-{{:prop.id}} hidden" >{{:prop.url}}</span>
                         </a>
 
-                        <button type="button"  class="btn btn-copy-url btn-sm" data-id="{{:prop.url}}" style="border:1px solid">
+                        <button type="button"  class="btn btn-copy-url btn-sm" data-id="{{:prop.url}}" >
                             <i class="fa fa-clone" aria-hidden="true"></i></button>
                      </td>
                      <td class='break'>{{:prop.created_by}}</td>
@@ -80,26 +83,40 @@
                     <div class="d-flex">
                        <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{>prop.id}}" name="message" placeholder="Message" value=""><div style="max-width: 30px;">
                        <button class="btn btn-sm btn-image send-message" title="Send message" data-id="{{>prop.id}}"><img src="images/filled-sent.png" /></button> </div>
-                        <div style="max-width: 30px;">
+                        
+                        </div>
+						<div style="max-width: 100%;text-align: right;padding-top: 10px;">
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='bug' data-id="{{:prop.id}}" title="Load messages"><img src="images/chat.png" alt=""></button>
                          </div>
-                        </div>
                     </div>
 			        </td>
-			        <td class='break'>{{:prop.website}}</td>
+			        <td>{{:prop.website}}</td>
 			        <td>
-			        <div class="d-flex">
-			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
+						
+			       
+						<div  class="d-flex">
+							<input type="checkbox" id="chkBug{{>prop.id}}" data-user="{{>prop.assign_to}}" name="chkBugName" class="chkBugNameCls"  value="{{>prop.id}}">					 
+							 <button  title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="{{>prop.id}}"  data-category_title="{{:prop.module_id}}"  data-module_id="{{:prop.module_id}}" data-website_id="{{:prop.website_id_val}}"  data-website="{{:prop.website}}" data-bug_type_id="{{:prop.bug_type_id_val}}" data-title="{{:prop.website}} - {{:prop.module_id}}"><img style="width:12px !important;" src="/images/add.png" /></button>
+							 
+							 <button type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="{{:prop.id}}" data-category="297"><i class="fa fa-info-circle"></i></button>
+						 </div>
+						
+						 <div  class="d-flex">
+							<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
-			        	</button>
-			        	<button type="button" title="Push"  data-id="{{:prop.id}}" class="btn btn-push">
-			        	<i class="fa fa-eye" aria-hidden="true"></i>
-			        	</button>
+							</button>
+							
+							<button type="button" title="Push"  data-id="{{:prop.id}}" class="btn btn-push">
+							<i class="fa fa-eye" aria-hidden="true"></i>
+							</button>
 
-			        	<button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
-			        		<i class="fa fa-trash" aria-hidden="true"></i>
-			        	</button>
-			        </div>
+							<button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
+								<i class="fa fa-trash" aria-hidden="true"></i>
+							</button>
+						 </div>
+						 
+			        	
+			        
 			        </td>
 			      </tr>
 			    {{/props}}  

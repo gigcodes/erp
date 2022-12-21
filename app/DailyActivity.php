@@ -45,11 +45,11 @@ class DailyActivity extends Model
 
     public function remarks()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'task')->latest();
     }
 
     public function generalCategory()
     {
-        return $this->hasOne('App\GeneralCategory', 'id', 'general_category_id');
+        return $this->hasOne(\App\GeneralCategory::class, 'id', 'general_category_id');
     }
 }

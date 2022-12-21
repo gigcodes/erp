@@ -66,7 +66,7 @@ class assignIncompleteProducts extends Command
 
                 'assigned_to' => 6,
             ]);
-            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+            app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
             $pids[] = $product->id;
         }
         $update_scraped_products = ScrapedProducts::whereIn('id', $pids)->update('cron_executed', 1);

@@ -75,7 +75,7 @@ class VoucherCouponController extends Controller
             $plate->save();
 
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -88,7 +88,7 @@ class VoucherCouponController extends Controller
             $plate->save();
 
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -138,7 +138,7 @@ class VoucherCouponController extends Controller
             $vou->save();
 
             return response()->json(['code' => 200, 'message' => 'Remark Updated successfully!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -156,7 +156,7 @@ class VoucherCouponController extends Controller
             $vou->delete();
 
             return response()->json(['code' => 200, 'message' => 'Deleted successfully!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -177,7 +177,7 @@ class VoucherCouponController extends Controller
             $code->save();
 
             return response()->json(['code' => 200, 'message' => 'Coupon Code Added successfully!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -202,7 +202,7 @@ class VoucherCouponController extends Controller
             $vou->delete();
 
             return response()->json(['code' => 200, 'message' => 'Deleted successfully!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -227,7 +227,7 @@ class VoucherCouponController extends Controller
             $code->save();
 
             return response()->json(['code' => 200, 'message' => 'Coupon Code Order Added successfully!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -252,7 +252,7 @@ class VoucherCouponController extends Controller
             $vou->delete();
 
             return response()->json(['code' => 200, 'message' => 'Deleted successfully!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }

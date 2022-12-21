@@ -13,6 +13,7 @@ use App\StoreWebsite;
 use App\User;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AssetsManagerController extends Controller
 {
@@ -90,7 +91,7 @@ class AssetsManagerController extends Controller
         $whatsappCon = \DB::table('whatsapp_configs')->get();
 
         //Cash Flows
-        $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => 'App\AssetsManager'])->get();
+        $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => \App\AssetsManager::class])->get();
         $users = User::get()->toArray();
         //dd($users);
         return view('assets-manager.index', compact('assets', 'category', 'cashflows', 'users', 'websites', 'plateforms', 'whatsappCon', 'emailAddress'))
@@ -163,7 +164,7 @@ class AssetsManagerController extends Controller
                     'amount' => $request->input('amount'),
                     'type' => 'pending',
                     'currency' => $insertData->currency,
-                    'cash_flow_able_type' => 'App\AssetsManager',
+                    'cash_flow_able_type' => \App\AssetsManager::class,
                     'cash_flow_able_id' => $insertData->id,
 
                 ]
@@ -309,7 +310,7 @@ class AssetsManagerController extends Controller
         $asset_id = $request->input('asset_id');
         $html = '';
         $paymentData = CashFlow::where('cash_flow_able_id', $asset_id)
-            ->where('cash_flow_able_type', 'App\AssetsManager')
+            ->where('cash_flow_able_type', \App\AssetsManager::class)
             ->where('type', 'paid')
             ->orderBy('date', 'DESC')
             ->get();
@@ -385,15 +386,15 @@ class AssetsManagerController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="ip" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-ip-'.$res->id.'">'.str_limit($res->ip, 15, '...').'</span>
+                    <span class="show-short-ip-'.$res->id.'">'.Str::limit($res->ip, 15, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-ip-'.$res->id.' hidden">'.$res->website.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 25, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-command-'.$res->id.'">'.str_limit($res->command_name, 25, '...').'</span>
+                    <span class="show-short-command-'.$res->id.'">'.Str::limit($res->command_name, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
                     </td>';
 

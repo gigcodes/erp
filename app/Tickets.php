@@ -63,17 +63,17 @@ class Tickets extends Model
     public function whatsappAll($needBroadcast = false)
     {
         if ($needBroadcast) {
-            return $this->hasMany('App\ChatMessage', 'ticket_id')->where(function ($q) {
+            return $this->hasMany(\App\ChatMessage::class, 'ticket_id')->where(function ($q) {
                 $q->whereIn('status', ['7', '8', '9', '10'])->orWhere('group_id', '>', 0);
             })->latest();
         } else {
-            return $this->hasMany('App\ChatMessage', 'ticket_id')->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'ticket_id')->latest();
         }
     }
 
     public function sendMessageToSite()
     {
-        return $this->hasMany('App\ChatMessage', 'ticket_id')->where('send_to_tickets', 1)->select(['id', 'message', 'created_at'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'ticket_id')->where('send_to_tickets', 1)->select(['id', 'message', 'created_at'])->latest();
     }
 
     public function customer()

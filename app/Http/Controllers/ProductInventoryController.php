@@ -24,7 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductInventoryController extends Controller
 {
@@ -700,11 +700,11 @@ class ProductInventoryController extends Controller
                 $params['status'] = 2;
                 $params['user_id'] = $user->id;
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
                 $chat_message = \App\ChatMessage::create($params);
                 if ($product->hasMedia(config('constants.media_tags'))) {
                     foreach ($product->getMedia(config('constants.media_tags')) as $image) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $image->getUrl());
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $image->getUrl());
                         $chat_message->attachMedia($image, config('constants.media_tags'));
                     }
                 }
@@ -732,11 +732,11 @@ class ProductInventoryController extends Controller
                     $params['status'] = 2;
                     $params['user_id'] = $user->id;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
                     $chat_message = \App\ChatMessage::create($params);
                     if ($product->hasMedia(config('constants.media_tags'))) {
                         foreach ($product->getMedia(config('constants.media_tags')) as $image) {
-                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $image->getUrl());
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $image->getUrl());
                             $chat_message->attachMedia($image, config('constants.media_tags'));
                         }
                     }
@@ -845,12 +845,12 @@ class ProductInventoryController extends Controller
                         foreach ($productDispatch->getMedia(config('constants.media_tags')) as $image) {
                             $url = createProductTextImage($image->getAbsolutePath(), 'product-dispatch', $messageData, $color = '000000', $fontSize = '15', $needAbs = false);
                             if (! empty($url)) {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, $customer->whatsapp_number, null, $url);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($customer->phone, $customer->whatsapp_number, null, $url);
                             }
                             $chat_message->attachMedia($image, config('constants.media_tags'));
                         }
                     } else {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $messageData);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $messageData);
                     }
                 }
             }
@@ -1168,21 +1168,21 @@ class ProductInventoryController extends Controller
         return \Excel::download(new \App\Exports\ReportExport($reportDatas), 'exports.xls');
     }
 
-  public function inventoryHistory($id)
-  {
-      $inventory_history = \App\InventoryStatusHistory::getInventoryHistoryFromProductId($id);
+    public function inventoryHistory($id)
+    {
+        $inventory_history = \App\InventoryStatusHistory::getInventoryHistoryFromProductId($id);
 
-      foreach ($inventory_history as $each) {
-          $supplier = \App\Supplier::find($each['supplier_id']);
-          if ($supplier) {
-              $each['supplier'] = $supplier->supplier;
-          } else {
-              $each['supplier'] = '';
-          }
-      }
+        foreach ($inventory_history as $each) {
+            $supplier = \App\Supplier::find($each['supplier_id']);
+            if ($supplier) {
+                $each['supplier'] = $supplier->supplier;
+            } else {
+                $each['supplier'] = '';
+            }
+        }
 
-      return response()->json(['data' => $inventory_history]);
-  }
+        return response()->json(['data' => $inventory_history]);
+    }
 
     public function getSuppliers($id)
     {
@@ -2385,7 +2385,7 @@ class ProductInventoryController extends Controller
 
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong, please check your file!');
         }
 
@@ -2429,7 +2429,7 @@ class ProductInventoryController extends Controller
             }
 
             return response()->json(['code' => 200, 'message' => 'Header Data Get Successfully , Please do Mapping', 'header_data' => $data, 'column_index' => $column_index]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 400, 'message' => 'Something went wrong, please check your file!']);
         }
 
@@ -2597,7 +2597,7 @@ class ProductInventoryController extends Controller
             $excel_log = ProductDiscountExcelFile::create($params_file);
 
             return response()->json(['code' => 200, 'message' => 'Excel Imported Successfully!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 400, 'message' => 'Something went wrong, please check your file!']);
         }
 

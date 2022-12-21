@@ -24,12 +24,12 @@ class ChatbotQuestionExample extends Model
 
     public function questionModal()
     {
-        return $this->hasOne("\App\ChatbotQuestion", 'id', 'chatbot_question_id');
+        return $this->hasOne(\App\ChatbotQuestion::class, 'id', 'chatbot_question_id');
     }
 
     public function annotations()
     {
-        return $this->hasMany("\App\ChatbotIntentsAnnotation", 'question_example_id', 'id');
+        return $this->hasMany(\App\ChatbotIntentsAnnotation::class, 'question_example_id', 'id');
     }
 
     public function highLightQuestion()
@@ -48,6 +48,6 @@ class ChatbotQuestionExample extends Model
 
     public function chatbotKeywordValueTypes()
     {
-        return $this->hasMany("App\ChatbotKeywordValueTypes", 'chatbot_keyword_value_id', 'id');
+        return $this->hasMany(\App\ChatbotKeywordValueTypes::class, 'chatbot_keyword_value_id', 'id');
     }
 }

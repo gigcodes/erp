@@ -38,7 +38,7 @@ class PleskHelper
                     if (! in_array($temp, $domains)) {
                         $domains[] = $temp;
                     }
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     // echo $e;
                 }
             }

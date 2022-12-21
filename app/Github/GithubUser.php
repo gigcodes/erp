@@ -17,14 +17,14 @@ class GithubUser extends Model
 
     public function platformUser()
     {
-        return $this->belongsTo('App\User', 'user_id', 'id');
+        return $this->belongsTo(\App\User::class, 'user_id', 'id');
     }
 
     public function repositories()
     {
         return $this->hasManyThrough(
-            'App\Github\GithubRepository',
-            'App\Github\GithubRepositoryUser',
+            \App\Github\GithubRepository::class,
+            \App\Github\GithubRepositoryUser::class,
             'github_users_id',
             'id',
             'id',

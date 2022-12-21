@@ -7,7 +7,7 @@ use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
 use App\GitMigrationErrorLog;
-use App\Helpers\githubTrait;
+use App\Helpers\GithubTrait;
 use App\Helpers\MessageHelper;
 use App\Http\Controllers\Controller;
 use Artisan;
@@ -17,11 +17,11 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Str;
 
 class RepositoryController extends Controller
 {
-    use githubTrait;
+    use GithubTrait;
 
     private $client;
 
@@ -95,11 +95,11 @@ class RepositoryController extends Controller
         //print_r($repository);
     }
 
-    public function deployBranch($repoId)
+    public function deployBranch($repoId, Request $request)
     {
         //dd($repoId);
         $source = 'master';
-        $destination = Input::get('branch');
+        $destination = $request->branch;
         $pullOnly = request('pull_only', 0);
 
         $url = 'https://api.github.com/repositories/'.$repoId.'/merges';
@@ -128,7 +128,7 @@ class RepositoryController extends Controller
             // Deploy branch
             $repository = GithubRepository::find($repoId);
 
-            $branch = Input::get('branch');
+            $branch = $request->branch;
             $composerupdate = request('composer', false);
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
@@ -140,7 +140,7 @@ class RepositoryController extends Controller
             $result = exec($cmd, $allOutput);
 
             $migrationError = is_array($result) ? json_encode($result) : $result;
-            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') || str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) {
+            if (Str::contains($migrationError, 'database/migrations') || Str::contains($migrationError, 'migrations') || Str::contains($migrationError, 'Database/Migrations') || Str::contains($migrationError, 'Migrations')) {
                 if ($source == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $destination, $migrationError);
                 } elseif ($destination == 'master') {
@@ -161,7 +161,7 @@ class RepositoryController extends Controller
                 $errorArr = $errorArr;
             }
             $migrationError = is_array($result) ? json_encode($errorArr) : $errorArr;
-            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') || str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) {
+            if (Str::contains($migrationError, 'database/migrations') || Str::contains($migrationError, 'migrations') || Str::contains($migrationError, 'Database/Migrations') || Str::contains($migrationError, 'Migrations')) {
                 if ($source == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $destination, $migrationError);
                 } elseif ($destination == 'master') {
@@ -213,7 +213,7 @@ class RepositoryController extends Controller
             $gitDbError = GitMigrationErrorLog::orderBy('id', 'desc')->take(100)->get();
 
             return view('github.deploy_branch_error', compact('gitDbError'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
@@ -271,7 +271,7 @@ class RepositoryController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
 
                 MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message.'. kindly test task in live if possible and put test result as comment in task.');
                 $devTask->update(['is_pr_merged' => 1]);
@@ -293,11 +293,11 @@ class RepositoryController extends Controller
         }
     }
 
-    public function mergeBranch($id)
+    public function mergeBranch($id, Request $request)
     {
-        $source = Input::get('source');
-        $destination = Input::get('destination');
-        $pull_request_id = Input::get('task_id');
+        $source = $request->source;
+        $destination = $request->destination;
+        $pull_request_id = $request->task_id;
 
         $url = 'https://api.github.com/repositories/'.$id.'/merges';
 
@@ -352,7 +352,7 @@ class RepositoryController extends Controller
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
-                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
                 }
 
                 //Merged to master get migration error
@@ -373,7 +373,7 @@ class RepositoryController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
             }
 
             return redirect(url('/github/pullRequests'))->with(
@@ -409,7 +409,7 @@ class RepositoryController extends Controller
                     'destination' => $pullRequest->base->ref,
                 ];
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
         }
 
         return $pullRequests;

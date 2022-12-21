@@ -20,6 +20,6 @@ class FlowLog extends Model
 
     public function messages()
     {
-        return $this->hasMany('App\Loggers\FlowLogMessages');
+        return $this->hasMany(\App\Loggers\FlowLogMessages::class);
     }
 }

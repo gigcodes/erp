@@ -18,12 +18,12 @@ class OrderReport extends Model
 
     public function status()
     {
-        return $this->belongsTo('App\OrderStatus', 'status_id');
+        return $this->belongsTo(\App\OrderStatus::class, 'status_id');
     }
 
     public function statusName()
     {
-        return $this->belongsTo('App\OrderStatus', 'status_id')->first()->status;
+        return $this->belongsTo(\App\OrderStatus::class, 'status_id')->first()->status;
     }
 
     public function getStatusAttribute()

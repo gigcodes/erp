@@ -21,6 +21,6 @@ class ChatMessageWord extends Model
 
     public function pharases()
     {
-        return $this->hasMany('App\ChatMessagePhrase', 'word_id', 'id');
+        return $this->hasMany(\App\ChatMessagePhrase::class, 'word_id', 'id');
     }
 }

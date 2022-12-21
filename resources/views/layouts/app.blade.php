@@ -470,6 +470,12 @@ if (!empty($notifications)) {
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="dropdown-item" href="{{ route('products.magentoConditionsCheck') }}">Mangento condition check</a>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="dropdown-item" href="{{ route('products.magentoPushStatus') }}">Magento push status</a>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Supervisor<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productsupervisor.index') }}">Supervisor Grid</a>
@@ -1017,18 +1023,6 @@ if (!empty($notifications)) {
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Zabbix<span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('zabbix.index') }}">Items</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Problems</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Users <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
@@ -1363,16 +1357,6 @@ if (!empty($notifications)) {
                                             </ul>
                                 </li>
 
-                                <!-- mailchimp -->
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">MailChimp<span class="caret">
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
-                                                <li class="nav-item dropdown dropdown-submenu">
-                                                    <a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a>
-
-                                                </li>
-                                            </ul>
-                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1772,6 +1756,20 @@ if (!empty($notifications)) {
 													</li>
 												</ul>
 											</li>
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="queueDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Zabbix<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right"aria-labelledby="zabbixDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('zabbix.index') }}">Items</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Problems</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li class="nav-item dropdown ">
+                                                <a id="queueDropdown" href="{{ url('todolist') }}" class="nav-link "  role="button" aria-haspopup="true" aria-expanded="false">TodoList</a>
+                                            </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
                                             </li> <li class="nav-item">
@@ -2304,6 +2302,9 @@ if (!empty($notifications)) {
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
+                                <li>
+                                    <a class="quick-icon todolist-request" href="#"><span><i class="fa fa-plus fa-2x"></i></span></a>
+                                </li>
                             <li>
                                 <a class="quick-icon permission-request" href="#"><span><i class="fa fa-reply fa-2x"></i>{{-- $permissionRequest --}}</span></a>
                             </li>
@@ -2394,6 +2395,85 @@ if (!empty($notifications)) {
             </div>
 
         </nav>
+        <div id="todolist-request-model" class="modal fade" role="dialog">
+            <div class="modal-content modal-dialog modal-md">
+                <form action="{{ route('todolist.store') }}" method="POST">
+                    @csrf
+
+                    <div class="modal-header">
+                        <h4 class="modal-title">Create Todo List</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body show-list-records" id="todolist-request">
+                        <div class="form-group">
+                            <strong>Title:</strong>
+                            <input type="text" name="title" class="form-control add_todo_title"
+                                   value="{{ old('title') }}" required="">
+
+                            @if ($errors->has('title'))
+                                <div class="alert alert-danger">{{ $errors->first('title') }}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Subject:</strong>
+                            <input type="text" name="subject" class="form-control add_todo_subject"
+                                   value="{{ old('subject') }}" required="">
+
+                            @if ($errors->has('subject'))
+                                <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Status:</strong>
+                            @php
+                                $statuses = App\TodoStatus::all()->toArray();
+                            @endphp
+                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
+                            <select name="status" class="form-control" required="">
+                                @foreach ($statuses as $status )
+                                    <option value="{{$status['id']}}"
+                                            @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                @endforeach
+                            </select>
+                            @if ($errors->has('status'))
+                                <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Date:</strong>
+
+                            <div class='input-group date' id='todo-date' required="">
+                                <input type="text" class="form-control global" name="todo_date"
+                                       placeholder="Date"
+                                       value="{{ old('todo_date') }}">
+                                <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+                            </div>
+
+                            @if ($errors->has('todo_date'))
+                                <div class="alert alert-danger">{{ $errors->first('todo_date') }}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Remark:</strong>
+                            <input type="text" name="remark" class="form-control"
+                                   value="{{ old('remark') }}" required>
+
+                            @if ($errors->has('remark'))
+                                <div class="alert alert-danger">{{ $errors->first('remark') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Store</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         @if (Auth::check())
 
@@ -3755,6 +3835,19 @@ if (!\Auth::guest()) {
                 }
             });
         });
+         $('.add_todo_title').change(function () {
+             if ($('.add_todo_subject').val() == "") {
+                 $('.add_todo_subject').val("");
+                 $('.add_todo_subject').val($('.add_todo_title').val());
+             }
+         })
+         $('#todo-date').datetimepicker({
+             format: 'YYYY-MM-DD',
+         });
+         $(document).on("click", ".todolist-request", function (e) {
+             e.preventDefault();
+             $("#todolist-request-model").modal("show");
+         });
 
         $(document).on("click", ".permission-grant", function(e) {
             e.preventDefault();

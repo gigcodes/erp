@@ -15,8 +15,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class SendMessageToCustomer implements ShouldQueue
 {
@@ -126,7 +126,7 @@ class SendMessageToCustomer implements ShouldQueue
             ];
 
             $allMediaIds = ($haveMedia) ? $medias->pluck('id')->toArray() : [];
-            $mediable = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', 'App\Product')->get();
+            $mediable = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', \App\Product::class)->get();
 
             $availableMedia = [];
             $productIds = [];

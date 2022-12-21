@@ -21,6 +21,6 @@ class ChatbotQuestionReply extends Model
 
     public function storeWebsite()
     {
-        return $this->belongsTo('App\StoreWebsite', 'store_website_id');
+        return $this->belongsTo(\App\StoreWebsite::class, 'store_website_id');
     }
 }

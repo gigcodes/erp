@@ -2,7 +2,6 @@
 
 namespace App\Services\Bots;
 
-use App\Console\Commands\Bots\Chrome;
 use NunoMaduro\LaravelConsoleDusk\Manager;
 
 class Screenshot

@@ -67,7 +67,7 @@ class WayBillTrackHistories extends Command
                                     $params['message'] = 'Your order with order ID '.$order->id.' has been reached at '.$shipmentEvent->ServiceArea->Description.' location.';
                                     $params['status'] = 2;
                                     $requestData->request->add($params);
-                                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+                                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'priority');
                                 }
                             }
                             $i++;

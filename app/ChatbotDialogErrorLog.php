@@ -19,11 +19,11 @@ class ChatbotDialogErrorLog extends Model
 
     public function storeWebsite()
     {
-        return $this->belongsTo("App\StoreWebsite");
+        return $this->belongsTo(\App\StoreWebsite::class);
     }
 
     public function chatbot_dialog()
     {
-        return $this->belongsTo("App\ChatbotDialog");
+        return $this->belongsTo(\App\ChatbotDialog::class);
     }
 }

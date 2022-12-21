@@ -28,7 +28,7 @@ class PostmanRequestCreateController extends Controller
                 'parent_table' => $tabName,
                 'error' => $error,
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             PostmanError::create([
                 'user_id' => \Auth::user()->id,
                 'parent_id' => $id,

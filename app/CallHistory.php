@@ -19,7 +19,7 @@ class CallHistory extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function store_website()

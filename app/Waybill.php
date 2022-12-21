@@ -87,7 +87,7 @@ class Waybill extends Model
      */
     public function order()
     {
-        return $this->belongsTo('App\Order', 'order_id');
+        return $this->belongsTo(\App\Order::class, 'order_id');
     }
 
     public function getDimensionAttribute()
@@ -97,12 +97,12 @@ class Waybill extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer', 'customer_id');
+        return $this->belongsTo(\App\Customer::class, 'customer_id');
     }
 
     public function waybill_track_histories()
     {
-        return $this->hasMany('App\waybillTrackHistories');
+        return $this->hasMany(\App\waybillTrackHistories::class);
     }
 
     public static function PaymentMode()

@@ -21,16 +21,16 @@ class Store_order_status extends Model
 
     public function order_status()
     {
-        return $this->belongsTo('App\OrderStatus');
+        return $this->belongsTo(\App\OrderStatus::class);
     }
 
     public function store_website()
     {
-        return $this->belongsTo('App\StoreWebsite');
+        return $this->belongsTo(\App\StoreWebsite::class);
     }
 
     public function store_master_status()
     {
-        return $this->belongsTo('App\StoreMasterStatus');
+        return $this->belongsTo(\App\StoreMasterStatus::class);
     }
 }

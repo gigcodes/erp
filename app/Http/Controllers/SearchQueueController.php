@@ -52,7 +52,7 @@ class SearchQueueController extends Controller
             $response['data'] = $list;
 
             return response()->json($response, 200);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $response['success'] = false;
             $response['message'] = $e->getMessage();
 
@@ -129,7 +129,7 @@ class SearchQueueController extends Controller
                     }
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $response['success'] = false;
             $response['message'] = $e->getMessage();
 

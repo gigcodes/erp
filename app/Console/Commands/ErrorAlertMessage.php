@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
-class errorAlertMessage extends Command
+class ErrorAlertMessage extends Command
 {
     const CRON_ISSUE_MODULE_NAME = '268';
 
@@ -79,7 +79,7 @@ class errorAlertMessage extends Command
                                     'subject' => $subject,
                                     'assigned_to' => \App\Setting::get('cron_issue_assinged_to', self::DEFAULT_ASSIGNED_TO),
                                 ]);
-                                app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+                                app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
                             }
                         }
                     }

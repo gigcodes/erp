@@ -28,6 +28,9 @@
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-generate-pem-file"> Store Generate Reindex</button>
 					&nbsp;
 					<button class="btn btn-secondary magento-setting-update"> Magento Setting Update</button>
+					&nbsp;
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-api-token"> Api Token Update</button>
+
 
 				</div>
 			</div>
@@ -218,6 +221,69 @@
 								<div class="col-md-12">
 									<div class="form-group">
 										<button type="submit" class="btn btn-secondary submit-generete-file-btn">Generate</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="store-api-token" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Store Api Token</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<div style="display:flex !important; float:right !important;"><input type="text" class="form-control api-token-search" name="search"
+																	 placeholder="Search">
+							&nbsp;
+							<button style="display: inline-block;width: 10%"
+									class="btn btn-sm btn-image btn-secondary btn-search-api-token">
+								<img src="/images/search.png" style="cursor: default;">
+							</button>
+							&nbsp;
+							<button style="display: inline-block;width: 10%"
+									class="btn btn-sm btn-image btn-secondary btn-refresh-api-token">
+								<img src="/images/resend2.png" style="cursor: default;">
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="/store-website/generate-api-token" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+										<table class="table table-bordered overlay api-token-table"  >
+											<thead>
+											<tr>
+												<th>Id</th>
+												<th width="15%">Title</th>
+												<th width="45%">Api Token</th>
+												<th width="30%">Server Ip</th>
+											</tr>
+											</thead>
+											<tbody>
+												@include('storewebsite::api-token')
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update Api Token</button>
 									</div>
 								</div>
 							</div>
@@ -421,7 +487,76 @@
 		else
 			$(cls).css('height', '44px');
 	});
+	$(document).on("click",".btn-copy-api-token",function() {
+		var apiToken = $(this).data('value');
+		var $temp = $("<input>");
+		$("body").append($temp);
+		$temp.val(apiToken).select();
+		document.execCommand("copy");
+		$temp.remove();
+		alert("Copied!");
+	});
+	$(document).on("click",".btn-copy-server-ip",function() {
+		var serverip = $(this).data('value');
+		var $temp = $("<input>");
+		$("body").append($temp);
+		$temp.val(serverip).select();
+		document.execCommand("copy");
+		$temp.remove();
+		alert("Copied!");
+	});
 
+		$(document).on('click','.btn-search-api-token',function(){
+		src = 'store-website/get-api-token'
+		search = $('.api-token-search').val()
+		$.ajax({
+			url: src,
+			dataType: "json",
+			type: "GET",
+			data: {
+				search : search,
+			},
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+
+		}).done(function (data) {
+			$("#loading-image").hide();
+			$(".api-token-table tbody").empty().html(data.tbody);
+
+
+
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			alert('No response from server');
+		});
+
+	})
+
+	$(document).on('click','.btn-refresh-api-token',function(){
+		src = 'store-website/get-api-token'
+		$.ajax({
+			url: src,
+			dataType: "json",
+			type: "GET",
+			data: {
+
+			},
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+
+		}).done(function (data) {
+			$("#loading-image").hide();
+			$(".api-token-search").val("");
+			$(".api-token-table tbody").empty().html(data.tbody);
+
+
+
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			alert('No response from server');
+		});
+
+	})
 </script>
 
 @endsection

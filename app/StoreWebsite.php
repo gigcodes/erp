@@ -157,7 +157,7 @@ class StoreWebsite extends Model
      */
     public function brands()
     {
-        return $this->belongsToMany('App\Brand', 'store_website_brands', 'store_website_id', 'brand_id');
+        return $this->belongsToMany(\App\Brand::class, 'store_website_brands', 'store_website_id', 'brand_id');
     }
 
     /**
@@ -165,17 +165,17 @@ class StoreWebsite extends Model
      */
     public function categories()
     {
-        return $this->belongsToMany('App\Category', 'store_website_categories', 'store_website_id', 'category_id');
+        return $this->belongsToMany(\App\Category::class, 'store_website_categories', 'store_website_id', 'category_id');
     }
 
     public function sizeCategory()
     {
-        return $this->belongsToMany('App\Category', 'brand_category_size_charts', 'store_website_id', 'category_id');
+        return $this->belongsToMany(\App\Category::class, 'brand_category_size_charts', 'store_website_id', 'category_id');
     }
 
     public function sizeBrand()
     {
-        return $this->belongsToMany('App\Brand', 'brand_category_size_charts', 'store_website_id', 'brand_id');
+        return $this->belongsToMany(\App\Brand::class, 'brand_category_size_charts', 'store_website_id', 'brand_id');
     }
 
     public static function shopifyWebsite()
@@ -190,13 +190,13 @@ class StoreWebsite extends Model
 
     public function websites()
     {
-        return $this->hasMany('App\Website', 'store_website_id', 'id');
+        return $this->hasMany(\App\Website::class, 'store_website_id', 'id');
     }
 
-     public function productCsvPath()
-     {
-         return $this->hasOne('App\WebsiteProductCsv', 'store_website_id', 'id');
-     }
+    public function productCsvPath()
+    {
+        return $this->hasOne(\App\WebsiteProductCsv::class, 'store_website_id', 'id');
+    }
 
     public static function listMagentoSite()
     {
@@ -216,6 +216,6 @@ class StoreWebsite extends Model
     //return exchange status
     public function returnExchangeStatus()
     {
-        return $this->hasMany('App\ReturnExchangeStatus', 'store_website_id', 'id');
+        return $this->hasMany(\App\ReturnExchangeStatus::class, 'store_website_id', 'id');
     }
 }

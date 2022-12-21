@@ -36,10 +36,10 @@ class WebsiteStore extends Model
         return $this->hasMany(\App\WebsiteStoreView::class, 'id', 'website_id');
     }
 
-     public function scrapperImage()
-     {
-         return $this->hasMany(\App\scraperImags::class, 'website_id', 'code');
-     }
+    public function scrapperImage()
+    {
+        return $this->hasMany(\App\scraperImags::class, 'website_id', 'code');
+    }
 
     public function website_code()
     {

@@ -25,6 +25,6 @@ class DeveloperTaskDocument extends Model
 
     public function creator()
     {
-        return $this->belongsTo("\App\User", 'created_by', 'id');
+        return $this->belongsTo(\App\User::class, 'created_by', 'id');
     }
 }

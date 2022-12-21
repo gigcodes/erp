@@ -16,6 +16,7 @@ use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class InstructionController extends Controller
@@ -106,7 +107,7 @@ class InstructionController extends Controller
         $completed_instructions = $completed_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
         // if ($request->sortby != 'created_at') {
-        //   $instructions = array_values(array_sort($instructions, function ($value) {
+        //   $instructions = array_values(Arr::sort($instructions, function ($value) {
         //     if ($value['remarks']) {
         //       return $value['remarks'][0]['created_at'];
         //     }
@@ -222,7 +223,7 @@ class InstructionController extends Controller
         $user = $request->user ? $request->user : [];
 
         // if ($request->sortby != 'created_at') {
-        //   $instructions = array_values(array_sort($instructions, function ($value) {
+        //   $instructions = array_values(Arr::sort($instructions, function ($value) {
         //     if ($value['remarks']) {
         //       return $value['remarks'][0]['created_at'];
         //     }
@@ -311,8 +312,8 @@ class InstructionController extends Controller
             $myRequest->setMethod('POST');
             $myRequest->request->add(['remark' => 'Auto message was sent.', 'id' => $instruction->id, 'module_type' => 'instruction']);
 
-            app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
-            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
+            app(\App\Http\Controllers\TaskModuleController::class)->addRemark($myRequest);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
         }
 
         $a = new UserActions();
@@ -425,8 +426,8 @@ class InstructionController extends Controller
         //
         // app('App\Http\Controllers\MessageController')->store($myRequest);
 
-        NotificationQueue::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
-        PushNotification::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
+        NotificationQueue::where('model_type', \App\Instruction::class)->where('model_id', $instruction->id)->delete();
+        PushNotification::where('model_type', \App\Instruction::class)->where('model_id', $instruction->id)->delete();
 
         $url = route('customer.show', $instruction->customer->id).'#internal-message-body';
 
@@ -482,7 +483,7 @@ class InstructionController extends Controller
     {
         $instruction = Instruction::find($request->id);
 
-        PushNotification::where('model_type', 'App\Instruction')->where('model_id', $request->id)->delete();
+        PushNotification::where('model_type', \App\Instruction::class)->where('model_id', $request->id)->delete();
 
         // NotificationQueueController::createNewNotification([
         //   'message' => 'Reminder for Instructions',

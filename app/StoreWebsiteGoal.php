@@ -25,6 +25,6 @@ class StoreWebsiteGoal extends Model
 
     public function remarks()
     {
-        return $this->hasMany("App\StoreWebsiteGoalRemark", 'store_website_goal_id', 'id');
+        return $this->hasMany(\App\StoreWebsiteGoalRemark::class, 'store_website_goal_id', 'id');
     }
 }

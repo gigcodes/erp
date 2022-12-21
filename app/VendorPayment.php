@@ -31,8 +31,6 @@ class VendorPayment extends Model
 
     protected $fillable = ['vendor_id', 'payment_date', 'paid_date', 'payable_amount', 'paid_amount', 'service_provided', 'module', 'work_hour', 'description', 'other', 'status', 'user_id', 'updated_byupdated_by', 'currency'];
 
-    protected $dates = ['deleted_at'];
-
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);

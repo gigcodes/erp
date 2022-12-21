@@ -23,6 +23,6 @@ class CustomerOrderCharities extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 }

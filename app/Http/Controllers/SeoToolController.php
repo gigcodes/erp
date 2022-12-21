@@ -355,7 +355,7 @@ class SeoToolController extends Controller
                     return $this->parseSemrushResponse($response);
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return '';
         }
     }

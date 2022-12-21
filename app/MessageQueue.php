@@ -27,12 +27,12 @@ class MessageQueue extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function chat_message()
     {
-        return $this->belongsTo('App\ChatMessage');
+        return $this->belongsTo(\App\ChatMessage::class);
     }
 
     /**

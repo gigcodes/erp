@@ -28,7 +28,7 @@ class Category_translation extends Model
 
     public function category()
     {
-        return $this->belongsTo('App\Category');
+        return $this->belongsTo(\App\Category::class);
     }
 
     public function site()

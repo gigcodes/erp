@@ -23,6 +23,6 @@ class QuickSellGroup extends Model
 
     public function getProductsIds()
     {
-        return $this->hasMany('\App\ProductQuicksellGroup', 'quicksell_group_id', 'group');
+        return $this->hasMany(\App\ProductQuicksellGroup::class, 'quicksell_group_id', 'group');
     }
 }

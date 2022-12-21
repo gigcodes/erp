@@ -53,7 +53,7 @@ class SendImagesOfProduct
                     if (! empty($return)) {
                         $this->log[] = 'Total product found for message : '.$return['total_product'];
                     }
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     $this->log[] = 'Exception found erro thrown : '.$e->getMessage().' '.$e->getTraceAsString();
                 }
             } else {

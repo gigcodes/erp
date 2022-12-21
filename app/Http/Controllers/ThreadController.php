@@ -7,7 +7,7 @@ use App\ComplaintThread;
 use App\StatusChange;
 use Auth;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
 
 class ThreadController extends Controller
@@ -19,7 +19,7 @@ class ThreadController extends Controller
      */
     public function __construct()
     {
-    //    $this->middleware('permission:review-view');
+        //    $this->middleware('permission:review-view');
     }
 
     public function index()

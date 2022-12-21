@@ -19,14 +19,14 @@ class UserEvent extends Model
     public function attendees()
     {
         return $this->hasMany(
-            'App\UserEvent\UserEventAttendee'
+            \App\UserEvent\UserEventAttendee::class
         );
     }
 
     public function user()
     {
         return $this->belongsTo(
-            'App\User'
+            \App\User::class
         );
     }
 }

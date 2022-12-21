@@ -26,7 +26,7 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Log;
 use Maatwebsite\Excel\Facades\Excel;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
 class LogListMagentoController extends Controller
@@ -1195,7 +1195,7 @@ class LogListMagentoController extends Controller
             foreach ($logListMagentos as $log) {
                 //if(isset($response[$log["created_at"]])){
                 $response[$log['dateonly']][$log['store_website_id']] = $log['count'];
-            //    }
+                //    }
             }
         }
 

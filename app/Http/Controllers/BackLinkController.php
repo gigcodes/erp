@@ -6,7 +6,6 @@ use App\BackLinking;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Input;
 use Response;
 use Storage;
 
@@ -18,14 +17,14 @@ class BackLinkController extends Controller
      *
      * @return json response
      */
-    public function displayBackLinkDetails()
+    public function displayBackLinkDetails(Request $request)
     {
         if (! empty($_GET['title'])) {
             $title = $_GET['title'];
             $details = BackLinking::where('title', $title)->paginate(50)->setPath('');
             $pagination = $details->appends(
                 [
-                    'title' => Input::get('title'),
+                    'title' => $request->title,
                 ]
             );
         } else {

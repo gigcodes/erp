@@ -24,6 +24,6 @@ class ChatbotKeywordValue extends Model
 
     public function chatbotKeywordValueTypes()
     {
-        return $this->hasMany("App\ChatbotKeywordValueTypes", 'chatbot_keyword_value_id', 'id');
+        return $this->hasMany(\App\ChatbotKeywordValueTypes::class, 'chatbot_keyword_value_id', 'id');
     }
 }

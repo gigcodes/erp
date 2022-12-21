@@ -1,8 +1,10 @@
 <nav class="breadcrumbs text-center" aria-label="{{ trans('bookstack::common.breadcrumb') }}">
     <?php $breadcrumbCount = 0; ?>
 
+use Illuminate\Support\Arr;
+
     {{-- Show top level books item --}}
-    @if (count($crumbs) > 0 && array_first($crumbs) instanceof  \Modules\BookStack\Entities\Book)
+    @if (count($crumbs) > 0 && Arr::first($crumbs) instanceof  \Modules\BookStack\Entities\Book)
         <a href="{{  url('/kb/books')  }}" class="text-book icon-list-item outline-hover">
             <span>@icon('books')</span>
             <span>{{ trans('bookstack::entities.books') }}</span>
@@ -11,7 +13,7 @@
     @endif
 
     {{-- Show top level shelves item --}}
-    @if (count($crumbs) > 0 && array_first($crumbs) instanceof  \Modules\BookStack\Entities\Bookshelf)
+    @if (count($crumbs) > 0 && Arr::first($crumbs) instanceof  \Modules\BookStack\Entities\Bookshelf)
         <a href="{{  url('/kb/shelves')  }}" class="text-bookshelf icon-list-item outline-hover">
             <span>@icon('bookshelf')</span>
             <span>{{ trans('bookstack::entities.shelves') }}</span>

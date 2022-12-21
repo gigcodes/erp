@@ -223,7 +223,7 @@ class InstantMessagingHelper
 
                 return false;
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             if ($type == 1) {
                 $customer->broadcast_number = null;
                 if ($customer->phone != 0) {

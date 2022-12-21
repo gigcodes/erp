@@ -129,12 +129,12 @@ class SocialAdsetController extends Controller
         $this->user_access_token = $config->token;
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
-      //
+        //
 
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-        //        dd($data);
+                    //        dd($data);
                     $data['access_token'] = $this->user_access_token;
                     $data['name'] = $request->input('name');
                     //	$data['destination_type']=$request->input('destination_type');
@@ -170,11 +170,11 @@ class SocialAdsetController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create adset', $resp);
-            //    dd($resp);
+                    //    dd($resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
 
-            //    dd($resp);
+                    //    dd($resp);
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
                         //  $post->ref_campaign_id=$resp->id;
@@ -189,7 +189,7 @@ class SocialAdsetController extends Controller
                     }
 
                     return redirect()->route('social.adset.index');
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
                     Session::flash('message', $e);
 
@@ -197,7 +197,7 @@ class SocialAdsetController extends Controller
                 }
             } else {
                 try {
-                //        dd($data);
+                    //        dd($data);
                     $data['access_token'] = $this->user_access_token;
                     $data['name'] = $request->input('name');
                     //	$data['destination_type']=$request->input('destination_type');
@@ -213,7 +213,7 @@ class SocialAdsetController extends Controller
                     $data['daily_budget'] = (int) $request->input('daily_budget');
                     $data['status'] = $request->input('status');
 
-             //    $data["bid_amount"]=1000;
+                    //    $data["bid_amount"]=1000;
                     //$data["daily_budget"]=10000;
 
                     $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/adsets';
@@ -230,11 +230,11 @@ class SocialAdsetController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create adset', $resp);
-                //    dd($resp);
+                    //    dd($resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
 
-                //    dd($resp);
+                    //    dd($resp);
                     if (isset($resp->error->message)) {
                         // dd($resp);
                         $post->live_status = 'error';
@@ -250,7 +250,7 @@ class SocialAdsetController extends Controller
                     }
 
                     return redirect()->route('social.adset.index');
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     // dd($e);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
                     Session::flash('message', $e);
@@ -348,7 +348,7 @@ class SocialAdsetController extends Controller
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
-        } catch(\Facebook\Exceptions\FacebookSDKException $e) {
+        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
         }
         if ($response != '') {
@@ -379,7 +379,7 @@ class SocialAdsetController extends Controller
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
-        } catch(\Facebook\Exceptions\FacebookSDKException $e) {
+        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
         }
         if ($response != '') {

@@ -33,31 +33,31 @@ class Complaint extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function threads()
     {
-        return $this->hasMany('App\ComplaintThread');
+        return $this->hasMany(\App\ComplaintThread::class);
     }
 
     public function internal_messages()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'internal-complaint')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'internal-complaint')->latest();
     }
 
     public function plan_messages()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'complaint-plan-comment')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'complaint-plan-comment')->latest();
     }
 
     public function remarks()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'complaint')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'complaint')->latest();
     }
 
     public function status_changes()
     {
-        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Complaint')->latest();
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\Complaint::class)->latest();
     }
 }

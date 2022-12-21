@@ -23,6 +23,6 @@ class SiteDevelopmentHiddenCategory extends Model
 
     public function storeWebsite()
     {
-        return $this->hasOne('\App\StoreWebsite', 'store_website_id', 'id');
+        return $this->hasOne(\App\StoreWebsite::class, 'store_website_id', 'id');
     }
 }

@@ -23,12 +23,12 @@ class BlockWebMessageList extends Model
 
     public function reviews()
     {
-        return $this->hasMany('App\Review');
+        return $this->hasMany(\App\Review::class);
     }
 
     public function has_posted_reviews()
     {
-        $count = $this->hasMany('App\Review')->where('status', 'posted')->count();
+        $count = $this->hasMany(\App\Review::class)->where('status', 'posted')->count();
 
         return $count > 0;
     }

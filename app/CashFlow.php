@@ -39,12 +39,12 @@ class CashFlow extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     public function files()
     {
-        return $this->hasMany('App\File', 'model_id')->where('model_type', 'App\CashFlow');
+        return $this->hasMany(\App\File::class, 'model_id')->where('model_type', \App\CashFlow::class);
     }
 
     public function cashFlowAble()

@@ -18,9 +18,9 @@
     <td class="expand-row-msg Website-task" data-name="category" data-id="{{$vendor->id}}">
         <span class="show-short-category-{{$vendor->id}}">
             @if(isset($vendor->category->title))
-            {{ str_limit($vendor->category->title, 7, '..')}}
+            {{ Str::limit($vendor->category->title, 7, '..')}}
             @endif
-            {{ str_limit($vendor->category_name, 7, '..')}}
+            {{ Str::limit($vendor->category_name, 7, '..')}}
         </span>
         <span style="word-break:break-all;" class="show-full-category-{{$vendor->id}} hidden">
             @if(isset($vendor->category->title))
@@ -37,7 +37,7 @@
     </td>
     <td class="expand-row-msg" data-name="name" data-id="{{$vendor->id}}">
         <span class="show-short-name-{{$vendor->id}}">
-            {{ str_limit($vendor->name, 5, '..')}}
+            {{ Str::limit($vendor->name, 5, '..')}}
         </span>
         <span style="word-break:break-all;" class="show-full-name-{{$vendor->id}} hidden">
             {{$vendor->name}}
@@ -62,7 +62,7 @@
     </td>
     <td class="expand-row-msg" data-name="phone" data-id="{{$vendor->id}}">
         <div class="d-flex">
-            <span class="show-short-phone-{{$vendor->id}} Website-task">{{ str_limit($vendor->phone, 8, '..')}}</span>
+            <span class="show-short-phone-{{$vendor->id}} Website-task">{{ Str::limit($vendor->phone, 8, '..')}}</span>
             <span style="word-break:break-all;" class="show-full-phone-{{$vendor->id}} Website-task hidden" >{{$vendor->phone}}</span>
             @if ($vendor->status == 1)
               <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="On" data-id="{{ $vendor->id }}" id="do_not_disturb" style="margin-top: -2px;"><i class="fa fa-ban"></i></button>
@@ -74,7 +74,7 @@
         </div>
     </td>
     <td class="expand-row-msg Website-task" data-name="email" data-id="{{$vendor->id}}">
-        <span class="show-short-email-{{$vendor->id}}">{{ str_limit($vendor->email, 10, '..')}}</span>
+        <span class="show-short-email-{{$vendor->id}}">{{ Str::limit($vendor->email, 10, '..')}}</span>
         <span style="word-break:break-all;" class="show-full-email-{{$vendor->id}} hidden">{{$vendor->email}}</span>
     </td>
     {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>

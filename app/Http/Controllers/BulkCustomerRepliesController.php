@@ -8,6 +8,7 @@ use App\CustomerBulkMessageDND;
 use App\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BulkCustomerRepliesController extends Controller
 {
@@ -147,7 +148,7 @@ class BulkCustomerRepliesController extends Controller
         $keyword->count = 0;
         $keyword->save();
 
-        return redirect()->back()->with('message', title_case($type).' added successfully!');
+        return redirect()->back()->with('message', Str::title($type).' added successfully!');
     }
 
     public function sendMessagesByKeyword(Request $request)
@@ -167,7 +168,7 @@ class BulkCustomerRepliesController extends Controller
                 'status' => 1,
             ]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($myRequest, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($myRequest, 'customer');
 
             // DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->where("keyword_id",$request->get("keyword_id",0))->delete();
         }

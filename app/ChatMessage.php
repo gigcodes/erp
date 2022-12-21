@@ -81,7 +81,8 @@ class ChatMessage extends Model
 
     //Purpose - Add learning_id - DEVTASK-4020
     //Purpose : Add additional_data - DEVATSK-4236
-    protected $fillable = ['is_queue', 'unique_id', 'bug_id', 'test_suites_id',  'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'charity_id', 'user_id', 'ticket_id', 'task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id', 'old_id', 'message_application_id', 'is_chatbot', 'sent_to_user_id', 'site_development_id', 'social_strategy_id', 'store_social_content_id', 'quoted_message_id', 'is_reviewed', 'hubstaff_activity_summary_id', 'question_id', 'is_email', 'payment_receipt_id', 'learning_id', 'additional_data', 'hubstuff_activity_user_id', 'user_feedback_id', 'user_feedback_category_id', 'user_feedback_status', 'send_by', 'sop_user_id', 'message_en', 'from_email', 'to_email', 'email_id', 'scheduled_at', 'broadcast_numbers_id', 'flow_exit', 'task_time_reminder', 'order_status', 'ui_check_id'];
+
+    protected $fillable = ['is_queue', 'unique_id', 'bug_id', 'test_case_id', 'test_suites_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'charity_id', 'user_id', 'ticket_id', 'task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id', 'old_id', 'message_application_id', 'is_chatbot', 'sent_to_user_id', 'site_development_id', 'social_strategy_id', 'store_social_content_id', 'quoted_message_id', 'is_reviewed', 'hubstaff_activity_summary_id', 'question_id', 'is_email', 'payment_receipt_id', 'learning_id', 'additional_data', 'hubstuff_activity_user_id', 'user_feedback_id', 'user_feedback_category_id', 'user_feedback_status', 'send_by', 'sop_user_id', 'message_en', 'from_email', 'to_email', 'email_id', 'scheduled_at', 'broadcast_numbers_id', 'flow_exit', 'task_time_reminder', 'order_status', 'ui_check_id'];
 
     protected $table = 'chat_messages';
 
@@ -220,12 +221,12 @@ class ChatMessage extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function lawyer()
     {
-        return $this->belongsTo('App\Lawyer');
+        return $this->belongsTo(\App\Lawyer::class);
     }
 
     /**
@@ -236,7 +237,7 @@ class ChatMessage extends Model
     public function isSentBroadcastPrice()
     {
         // Get count
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\ChatMessage')->where('type', 'broadcast-prices')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\ChatMessage::class)->where('type', 'broadcast-prices')->count();
 
         // Return true or false
         return $count > 0 ? true : false;
@@ -252,18 +253,18 @@ class ChatMessage extends Model
 
     public function taskUser()
     {
-        return $this->hasOne("\App\User", 'id', 'user_id');
+        return $this->hasOne(\App\User::class, 'id', 'user_id');
     }
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     //START - Purpose : Add relationship - DEVTASK-4203
     public function chatmsg()
     {
-        return $this->hasOne("\App\ChatMessage", 'user_id', 'user_id')->latest();
+        return $this->hasOne(\App\ChatMessage::class, 'user_id', 'user_id')->latest();
     }
     //END - DEVTASK-4203
 
@@ -361,7 +362,7 @@ class ChatMessage extends Model
 
     public function suggestion()
     {
-        return $this->hasOne("App\SuggestedProduct", 'chat_message_id', 'id');
+        return $this->hasOne(\App\SuggestedProduct::class, 'chat_message_id', 'id');
     }
 
     public static function getLastImgProductId($customerId)
@@ -445,7 +446,7 @@ class ChatMessage extends Model
 
     public function vendor()
     {
-        return $this->belongsTo('App\Vendor', 'vendor_id');
+        return $this->belongsTo(\App\Vendor::class, 'vendor_id');
     }
 
     /**
@@ -466,7 +467,7 @@ class ChatMessage extends Model
                 $log_comment = $log_comment.' Mediable found for customer with ID : '.$customer->id;
                 \Log::channel('customer')->info('Mediable for customer id : '.$customer->id);
                 try {
-                    app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
+                    app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
                     $log_comment = $log_comment.' Mediable dispatched with ID : '.$mediable->mediable_id;
                 } catch (\Exception $e) {
                     \Log::channel('customer')->info($e->getMessage());
@@ -495,7 +496,7 @@ class ChatMessage extends Model
             if (! empty($mediable)) {
                 \Log::channel('customer')->info('Mediable for customer id : '.$customer->id);
                 try {
-                    app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]), true);
+                    app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]), true);
                 } catch (\Exception $e) {
                     \Log::channel('customer')->info($e->getMessage());
                 }

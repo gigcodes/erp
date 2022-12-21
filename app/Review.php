@@ -27,21 +27,21 @@ class Review extends Model
 
     public function review_schedule()
     {
-        return $this->belongsTo('App\ReviewSchedule');
+        return $this->belongsTo(\App\ReviewSchedule::class);
     }
 
     public function account()
     {
-        return $this->belongsTo('App\Account');
+        return $this->belongsTo(\App\Account::class);
     }
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function status_changes()
     {
-        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Review')->latest();
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\Review::class)->latest();
     }
 }

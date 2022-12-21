@@ -23,8 +23,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductCropperController extends Controller
 {
@@ -925,11 +925,11 @@ class ProductCropperController extends Controller
         $medias = $request->get('images');
         foreach ($medias as $mediaId => $order) {
             if ($order !== null) {
-                DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', 'App\Product')->update([
+                DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', \App\Product::class)->update([
                     'order' => $order,
                 ]);
             } else {
-                DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', 'App\Product')->delete();
+                DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', \App\Product::class)->delete();
                 DB::table('media')->where('id', $mediaId)->delete();
             }
         }

@@ -16,7 +16,7 @@ use App\Voucher;
 use App\VoucherCategory;
 use Auth;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class VoucherController extends Controller
 {
@@ -452,7 +452,7 @@ class VoucherController extends Controller
         $request1 = new \Illuminate\Http\Request();
         $request1->replace($message);
 
-        $sendMessage = app('App\Http\Controllers\WhatsAppController')->sendMessage($request1, 'user');
+        $sendMessage = app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($request1, 'user');
         /*$cashData    = [
             'user_id'             => $request->user_id,
             'description'         => 'Vendor paid',
@@ -672,14 +672,14 @@ class VoucherController extends Controller
                     $request1 = new \Illuminate\Http\Request();
                     $request1->replace($message);
 
-                    $sendMessage = app('App\Http\Controllers\WhatsAppController')->sendMessage($request1, 'user');
+                    $sendMessage = app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($request1, 'user');
                     $cashData = [
                         'user_id' => $preceipt->user_id,
                         'description' => 'Vendor paid',
                         'date' => $request->input('date'),
                         'amount' => $newTotal,
                         'type' => 'paid',
-                        'cash_flow_able_type' => 'App\PaymentReceipt',
+                        'cash_flow_able_type' => \App\PaymentReceipt::class,
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_by' => \Auth::user()->id,
                     ];
@@ -702,7 +702,7 @@ class VoucherController extends Controller
         $task_id = $request->input('task_id');
         $html = '';
         $paymentData = \App\CashFlow::where('cash_flow_able_id', $task_id)
-            ->where('cash_flow_able_type', 'App\PaymentReceipt')
+            ->where('cash_flow_able_type', \App\PaymentReceipt::class)
             ->where('type', 'paid')
             ->orderBy('date', 'DESC')
             ->get();

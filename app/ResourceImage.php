@@ -24,12 +24,12 @@ class ResourceImage extends Model
 
     public function category()
     {
-        return $this->hasOne('App\ResourceCategory', 'id', 'cat_id');
+        return $this->hasOne(\App\ResourceCategory::class, 'id', 'cat_id');
     }
 
     public function sub_category()
     {
-        return $this->hasOne('App\ResourceCategory', 'id', 'sub_cat_id');
+        return $this->hasOne(\App\ResourceCategory::class, 'id', 'sub_cat_id');
     }
 
     public static function create($input)

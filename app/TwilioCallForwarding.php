@@ -24,6 +24,6 @@ class TwilioCallForwarding extends Model
 
     public function forwarded_number_details()
     {
-        return $this->hasOne('App\User', 'id', 'forwarding_on');
+        return $this->hasOne(\App\User::class, 'id', 'forwarding_on');
     }
 }

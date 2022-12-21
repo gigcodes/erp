@@ -40,21 +40,21 @@ class ChatbotQuestion extends Model
 
     public function chatbotQuestionExamples()
     {
-        return $this->hasMany("App\ChatbotQuestionExample", 'chatbot_question_id', 'id');
+        return $this->hasMany(\App\ChatbotQuestionExample::class, 'chatbot_question_id', 'id');
     }
 
     public function chatbotErrorLogs()
     {
-        return $this->hasMany("App\ChatbotErrorLog", 'chatbot_question_id', 'id');
+        return $this->hasMany(\App\ChatbotErrorLog::class, 'chatbot_question_id', 'id');
     }
 
     public function chatbotKeywordValues()
     {
-        return $this->hasMany("App\ChatbotKeywordValue", 'chatbot_keyword_id', 'id');
+        return $this->hasMany(\App\ChatbotKeywordValue::class, 'chatbot_keyword_id', 'id');
     }
 
     public function chatbotQuestionReplies()
     {
-        return $this->hasMany("App\ChatbotQuestionReply", 'chatbot_question_id', 'id');
+        return $this->hasMany(\App\ChatbotQuestionReply::class, 'chatbot_question_id', 'id');
     }
 }

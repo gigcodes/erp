@@ -49,7 +49,7 @@ class ProductMoveBrand extends Command
                     echo "Product {$product->id} updated {$oldBrand} to {$product->last_brand}";
                     echo PHP_EOL;
                 }
-            } catch(\Exeception $e) {
+            } catch (\Exeception $e) {
                 echo "Product {$product->id} having issue {$oldBrand} to {$product->last_brand}";
                 echo PHP_EOL;
             }

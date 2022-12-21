@@ -99,9 +99,11 @@ var page = {
             page.push($(this));
         });
         page.config.bodyView.on("click",".show-user-history",function(e) {
+            console.log("onclick.show-user-history")
             page.userHistory($(this));
         });
         page.config.bodyView.on("click",".show-status-history",function(e) {
+            console.log("onclick.show-status-history")
             page.statusHistory($(this));
         });
 
@@ -231,12 +233,13 @@ var page = {
         $('.url').val('')
         $('.bug_type_id').val('')
         $('.bug_environment_id').val('')
-        $('.assign_to').val('')
-        $('.bug_severity_id').val('')
-        $('.bug_status_id').val('')
+        $('#assign_to_update').val('')
+        $('#bug_severity_id_update').val('')
+        $('#bug_status_id_update').val('')
         $('.module_id').val('')
         $('.remark').val('')
         $('.website').val('')
+		$('.parent_id').val('')				 
 
         $('.id').val(response.data.id)
         //$('.summary').val(response.data.summary)
@@ -249,12 +252,13 @@ var page = {
         $('.bug_type_id').val(response.data.bug_type_id)
         $('.bug_environment_id').val(response.data.bug_environment_id)
 		$('.bug_environment_ver').val(response.data.bug_environment_ver)
-        $('.assign_to').val(response.data.assign_to)
-        $('.bug_severity_id').val(response.data.bug_severity_id)
-        $('.bug_status_id').val(response.data.bug_status_id)
+        $('#assign_to_update').val(response.data.assign_to)
+        $('#bug_severity_id_update').val(response.data.bug_severity_id)
+        $('#bug_status_id_update').val(response.data.bug_status_id)
         $('.module_id').val(response.data.module_id)
         $('.remark').val(response.data.remark)
         $('.website').val(response.data.website)
+		$('.parent_id').val(response.data.parent_id)									  
     },
 
     submitFormSite : function(ele) {
@@ -507,6 +511,7 @@ var page = {
         this.sendAjax(_z, 'afterPush');
     },
     userHistory : function(ele) {
+        console.log("afterclick.show-user-history")
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-history/"+ele.data("id"),
             method: "get",
@@ -514,6 +519,7 @@ var page = {
         this.sendAjax(_z, 'afterUser');
     },
      statusHistory : function(ele) {
+         console.log("afterclick.show-status-history")
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/status-history/"+ele.data("id"),
             method: "get",
@@ -544,6 +550,7 @@ var page = {
                     html+=" <th>"+ item.created_at +"</th>"
                     html+=" <th>"+ item.bug_type_id +"</th>"
                     html+=" <th>"+ item.summary +"</th>"
+                    html+=" <th>"+ item.expected_result +"</th>"
                     html+=" <th>"+ item.bug_environment_id +"</th>"
                     html+=" <th>"+ item.assign_to +"</th>"
                     html+=" <th>"+ item.bug_status_id +"</th>"
@@ -563,6 +570,7 @@ var page = {
     },
 
     afterUser : function(response) {
+        console.log("afterresponse.show-user-history")
         if(response.code  == 200) {
             console.log(response)
             $('#newuserHistoryModal').modal('show');
@@ -592,6 +600,7 @@ var page = {
         }
     },
     afterStatus : function(response) {
+        console.log("afterresponse.show-status-history")
         if(response.code  == 200) {
             console.log(response)
             $('#newstatusHistoryModal').modal('show');

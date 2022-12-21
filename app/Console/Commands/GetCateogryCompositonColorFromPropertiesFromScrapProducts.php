@@ -59,7 +59,7 @@ class GetCateogryCompositonColorFromPropertiesFromScrapProducts extends Command
                 } else {
                     dump('Category not present in this properties');
                 }
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 dump('Facing issue in category');
             }
 
@@ -74,7 +74,7 @@ class GetCateogryCompositonColorFromPropertiesFromScrapProducts extends Command
                 } else {
                     dump('Color not present in this properties');
                 }
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 dump('Facing issue in color');
             }
 
@@ -89,7 +89,7 @@ class GetCateogryCompositonColorFromPropertiesFromScrapProducts extends Command
                 } else {
                     dump('Composition not present in this properties');
                 }
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 dump('Facing issue in composition');
             }
 

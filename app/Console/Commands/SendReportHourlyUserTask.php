@@ -62,7 +62,7 @@ class SendReportHourlyUserTask extends Command
             \Log::info('Hubstaff task not select Total user : '.count($users));
             foreach ($users as $key => $user) {
                 if ($user->whatsapp_number) {
-                    app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, 'Please select task on hubstaff', true);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, 'Please select task on hubstaff', true);
                 }
             }
 

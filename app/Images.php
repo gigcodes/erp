@@ -16,7 +16,7 @@ class Images extends Model
 
     public function tags()
     {
-        return $this->belongsToMany('App\Tag', 'image_tags', 'image_id', 'tag_id');
+        return $this->belongsToMany(\App\Tag::class, 'image_tags', 'image_id', 'tag_id');
     }
 
     public function saveFromSearchQueues($path, $link, $filename)
@@ -30,7 +30,7 @@ class Images extends Model
 
     public function product()
     {
-        return $this->belongsTo('App\Product', 'product_id');
+        return $this->belongsTo(\App\Product::class, 'product_id');
     }
 
     public function productImg($id, $notId)

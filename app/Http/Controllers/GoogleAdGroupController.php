@@ -232,7 +232,7 @@ class GoogleAdGroupController extends Controller
             \App\GoogleAdsGroup::create($addgroupArray);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup added successfully');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return redirect('google-campaigns/'.$campaignId.'/adgroups/create')->with('actError', $this->exceptionError);
         }
     }
@@ -339,7 +339,7 @@ class GoogleAdGroupController extends Controller
             $adGroupUpdate = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->update($addgroupArray);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup updated successfully');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return redirect('google-campaigns/'.$campaignId.'/adgroups/update/'.$request->adGroupId)->with('actError', $this->exceptionError);
         }
     }
@@ -381,7 +381,7 @@ class GoogleAdGroupController extends Controller
             \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->delete();
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup deleted successfully');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actError', $this->exceptionError);
         }
     }

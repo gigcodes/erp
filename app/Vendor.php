@@ -92,27 +92,27 @@ class Vendor extends Model
 
     public function products()
     {
-        return $this->hasMany('App\VendorProduct');
+        return $this->hasMany(\App\VendorProduct::class);
     }
 
     public function agents()
     {
-        return $this->hasMany('App\Agent', 'model_id')->where('model_type', 'App\Vendor');
+        return $this->hasMany(\App\Agent::class, 'model_id')->where('model_type', \App\Vendor::class);
     }
 
     public function chat_messages()
     {
-        return $this->hasMany('App\ChatMessage')->orderBy('id', 'desc');
+        return $this->hasMany(\App\ChatMessage::class)->orderBy('id', 'desc');
     }
 
     public function category()
     {
-        return $this->belongsTo('App\VendorCategory');
+        return $this->belongsTo(\App\VendorCategory::class);
     }
 
     public function vendorStatusDetail()
     {
-        return $this->belongsTo('App\VendorStatusDetail', 'vendor_id', 'id');
+        return $this->belongsTo(\App\VendorStatusDetail::class, 'vendor_id', 'id');
     }
 
     public function payments()
@@ -128,20 +128,20 @@ class Vendor extends Model
     public function whatsappAll($needBroadCast = false)
     {
         if ($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'vendor_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'vendor_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
 
-        return $this->hasMany('App\ChatMessage', 'vendor_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'vendor_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function emails()
     {
-        return $this->hasMany('App\Email', 'model_id', 'id');
+        return $this->hasMany(\App\Email::class, 'model_id', 'id');
     }
 
     public function whatsappLastTwentyFourHours()
     {
-        return $this->hasMany('App\ChatMessage')->where('created_at', '>=', Carbon::now()->subDay()->toDateTimeString())->orderBy('id', 'desc');
+        return $this->hasMany(\App\ChatMessage::class)->where('created_at', '>=', Carbon::now()->subDay()->toDateTimeString())->orderBy('id', 'desc');
     }
 
     /**

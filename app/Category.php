@@ -60,17 +60,17 @@ class Category extends Model
 
     public function parent()
     {
-        return $this->hasOne('App\Category', 'id', 'parent_id');
+        return $this->hasOne(\App\Category::class, 'id', 'parent_id');
     }
 
     public function parentC()
     {
-        return $this->hasOne('App\Category', 'id', 'parent_id');
+        return $this->hasOne(\App\Category::class, 'id', 'parent_id');
     }
 
     public function parentM()
     {
-        return $this->hasOne('App\Category', 'id', 'parent_id');
+        return $this->hasOne(\App\Category::class, 'id', 'parent_id');
     }
 
     public static function isParent($id)
@@ -100,123 +100,123 @@ class Category extends Model
         return $products_count ? true : false;
     }
 
-        public function categorySegmentId()
-        {
-            return $this->hasOne(CategorySegment::class, 'id', 'category_segment_id');
+    public function categorySegmentId()
+    {
+        return $this->hasOne(CategorySegment::class, 'id', 'category_segment_id');
+    }
+
+    public static function getCategoryIdByKeyword($keyword, $gender = null, $genderAlternative = null)
+    {
+        // Set gender
+        if (empty($gender)) {
+            $gender = $genderAlternative;
         }
 
-        public static function getCategoryIdByKeyword($keyword, $gender = null, $genderAlternative = null)
-        {
-            // Set gender
-            if (empty($gender)) {
-                $gender = $genderAlternative;
-            }
+        // Check database for result
+        $dbResult = self::where('title', $keyword)->get();
 
-            // Check database for result
-            $dbResult = self::where('title', $keyword)->get();
+        // No result? Try where like
+        if ($dbResult->count() == 0) {
+            $dbResult = self::where('references', 'like', '%'.$keyword.'%')->whereNotIn('id', [self::UNKNOWN_CATEGORIES, 1])->get();
+            $matchIds = [];
+            foreach ($dbResult as $db) {
+                if ($db->references) {
+                    $referenceArrays = explode(',', $db->references);
+                    foreach ($referenceArrays as $referenceArray) {
+                        //reference
+                        $referenceArray = preg_replace('/\s+/', '', $referenceArray);
+                        $referenceArray = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $referenceArray);
 
-            // No result? Try where like
-            if ($dbResult->count() == 0) {
-                $dbResult = self::where('references', 'like', '%'.$keyword.'%')->whereNotIn('id', [self::UNKNOWN_CATEGORIES, 1])->get();
-                $matchIds = [];
-                foreach ($dbResult as $db) {
-                    if ($db->references) {
-                        $referenceArrays = explode(',', $db->references);
-                        foreach ($referenceArrays as $referenceArray) {
-                            //reference
-                            $referenceArray = preg_replace('/\s+/', '', $referenceArray);
-                            $referenceArray = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $referenceArray);
-
-                            //category
-                            $input = $keyword;
-                            $input = preg_replace('/\s+/', '', $input);
-                            $input = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $input);
-                            similar_text(strtolower($input), strtolower($referenceArray), $percent);
-                            if ($percent >= 80) {
-                                $matchIds[] = $db->id;
-                                break;
-                            }
+                        //category
+                        $input = $keyword;
+                        $input = preg_replace('/\s+/', '', $input);
+                        $input = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $input);
+                        similar_text(strtolower($input), strtolower($referenceArray), $percent);
+                        if ($percent >= 80) {
+                            $matchIds[] = $db->id;
+                            break;
                         }
                     }
                 }
-                $dbResult = self::whereIn('id', $matchIds)->get();
+            }
+            $dbResult = self::whereIn('id', $matchIds)->get();
+        }
+
+        // Still no result
+        if ($dbResult === null) {
+            return 0;
+        }
+
+        // Just one result
+        if ($dbResult->count() == 1) {
+            // Check if the category has subcategories
+            $dbSubResult = Category::where('parent_id', $dbResult->first()->id)->first();
+            // No results?
+            if ($dbSubResult == null) {
+                // Return
+                return $dbResult->first()->id;
+            }
+        }
+
+        // Checking the result by gender only works if the gender is set
+        if (empty($gender)) {
+            return 0;
+        }
+
+        // Check results
+        foreach ($dbResult as $result) {
+            // Get parent Id
+            $parentId = $result->parent_id;
+
+            // Return 0 for a top category
+            if ($parentId == 0) {
+                return $result->id;
             }
 
-            // Still no result
-            if ($dbResult === null) {
+            // Category directly under women? We don't want this - return 0
+            if ($parentId == 2 && strtolower($gender) == 'women') {
                 return 0;
             }
 
-            // Just one result
-            if ($dbResult->count() == 1) {
-                // Check if the category has subcategories
-                $dbSubResult = Category::where('parent_id', $dbResult->first()->id)->first();
-                // No results?
-                if ($dbSubResult == null) {
-                    // Return
-                    return $dbResult->first()->id;
-                }
-            }
-
-            // Checking the result by gender only works if the gender is set
-            if (empty($gender)) {
+            // Category directly under men? We don't want this - return 0
+            if ($parentId == 3 && strtolower($gender) == 'men') {
                 return 0;
             }
 
-            // Check results
-            foreach ($dbResult as $result) {
-                // Get parent Id
-                $parentId = $result->parent_id;
+            if ($parentId == 146 && strtolower($gender) == 'kids') {
+                return 0;
+            }
 
-                // Return 0 for a top category
-                if ($parentId == 0) {
-                    return $result->id;
-                }
+            // Other
+            if ($parentId > 0) {
+                // Store category ID
+                $categoryId = $result->id;
 
-                // Category directly under women? We don't want this - return 0
-                if ($parentId == 2 && strtolower($gender) == 'women') {
+                // Get parent
+                $dbParentResult = Category::find($result->parent_id);
+
+                // No result
+                if ($dbParentResult->count() == 0) {
                     return 0;
                 }
 
-                // Category directly under men? We don't want this - return 0
-                if ($parentId == 3 && strtolower($gender) == 'men') {
-                    return 0;
+                // Return correct result for women
+                if ($dbParentResult->parent_id == 2 && strtolower($gender) == 'women') {
+                    return $categoryId;
                 }
 
-                if ($parentId == 146 && strtolower($gender) == 'kids') {
-                    return 0;
+                // Return correct result for men
+                if ($dbParentResult->parent_id == 3 && strtolower($gender) == 'men') {
+                    return $categoryId;
                 }
 
-                // Other
-                if ($parentId > 0) {
-                    // Store category ID
-                    $categoryId = $result->id;
-
-                    // Get parent
-                    $dbParentResult = Category::find($result->parent_id);
-
-                    // No result
-                    if ($dbParentResult->count() == 0) {
-                        return 0;
-                    }
-
-                    // Return correct result for women
-                    if ($dbParentResult->parent_id == 2 && strtolower($gender) == 'women') {
-                        return $categoryId;
-                    }
-
-                    // Return correct result for men
-                    if ($dbParentResult->parent_id == 3 && strtolower($gender) == 'men') {
-                        return $categoryId;
-                    }
-
-                    // Return correct result for kids
-                    if ($dbParentResult->parent_id == 146 && strtolower($gender) == 'kids') {
-                        return $categoryId;
-                    }
+                // Return correct result for kids
+                if ($dbParentResult->parent_id == 146 && strtolower($gender) == 'kids') {
+                    return $categoryId;
                 }
             }
         }
+    }
 
     public static function getCategoryPathById($categoryId = '')
     {
@@ -791,7 +791,7 @@ class Category extends Model
                                     }
                                 }
                             }
-                        } catch(\Exception $e) {
+                        } catch (\Exception $e) {
                             \Log::error($e);
                         }
                     }
@@ -821,7 +821,7 @@ class Category extends Model
         // // dd($categoryy[0]);
         // foreach($categoryy as $key=> $cat){
 
-    //     self::$categories_with_childs[$cat->title] = $cat;
+        //     self::$categories_with_childs[$cat->title] = $cat;
         // }
         // dd(self::$categories_with_childs);
         if (! empty($expression)) {

@@ -24,6 +24,6 @@ class waybillTrackHistories extends Model
 
     public function waybill()
     {
-        return $this->belongsto('App\Waybill');
+        return $this->belongsto(\App\Waybill::class);
     }
 }

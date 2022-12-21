@@ -19,6 +19,6 @@ class ChatbotErrorLog extends Model
 
     public function storeWebsite()
     {
-        return $this->belongsTo("App\StoreWebsite");
+        return $this->belongsTo(\App\StoreWebsite::class);
     }
 }

@@ -26,27 +26,27 @@ class ChatbotDialog extends Model
 
     public function response()
     {
-        return $this->hasMany("App\ChatbotDialogResponse", 'chatbot_dialog_id', 'id');
+        return $this->hasMany(\App\ChatbotDialogResponse::class, 'chatbot_dialog_id', 'id');
     }
 
     public function parentResponse()
     {
-        return $this->hasMany("App\ChatbotDialog", 'parent_id', 'id');
+        return $this->hasMany(\App\ChatbotDialog::class, 'parent_id', 'id');
     }
 
     public function previous()
     {
-        return $this->hasOne("App\ChatbotDialog", 'id', 'previous_sibling');
+        return $this->hasOne(\App\ChatbotDialog::class, 'id', 'previous_sibling');
     }
 
     public function parent()
     {
-        return $this->hasOne("App\ChatbotDialog", 'id', 'parent_id');
+        return $this->hasOne(\App\ChatbotDialog::class, 'id', 'parent_id');
     }
 
     public function singleResponse()
     {
-        return $this->hasOne("App\ChatbotDialogResponse", 'chatbot_dialog_id', 'id');
+        return $this->hasOne(\App\ChatbotDialogResponse::class, 'chatbot_dialog_id', 'id');
     }
 
     public function getPreviousSiblingName()
@@ -61,7 +61,7 @@ class ChatbotDialog extends Model
 
     public function multipleCondition()
     {
-        return $this->hasMany("App\ChatbotDialog", 'parent_id', 'id');
+        return $this->hasMany(\App\ChatbotDialog::class, 'parent_id', 'id');
     }
 
     public static function allSuggestedOptions()

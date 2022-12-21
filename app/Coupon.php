@@ -79,7 +79,7 @@ class Coupon extends Model
     public function usage()
     {
         return $this->hasMany(
-            'App\Order',
+            \App\Order::class,
             'coupon_id'
         );
     }

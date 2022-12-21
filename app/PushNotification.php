@@ -81,14 +81,14 @@ class PushNotification extends Model
 
     public function setSubjectAttribute($model_type, $model_id)
     {
-        switch($model_type) {
-            case 'App\\Task':
+        switch ($model_type) {
+            case \App\Task::class:
                 if ($task = Task::find($model_id)) {
                     $this->subject = $task->task_subject ? $task->task_subject : 'Task Subject';
                 }
 
                 break;
-            case 'App\\SatutoryTask':
+            case \App\SatutoryTask::class:
                 if ($task = SatutoryTask::find($model_id)) {
                     $this->subject = $task->task_subject ? $task->task_subject : 'Task Subject';
                 }

@@ -49,7 +49,7 @@ class CreateLidiaProducts extends Command
             $scraped_products = ScrapedProducts::where('website', 'lidiashopping')->get();
 
             foreach ($scraped_products as $scraped_product) {
-                app('App\Services\Products\LidiaProductsCreator')->createProduct($scraped_product);
+                app(\App\Services\Products\LidiaProductsCreator::class)->createProduct($scraped_product);
             }
 
             $report->update(['end_time' => Carbon::now()]);

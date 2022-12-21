@@ -30,7 +30,7 @@ class Product_translation extends Model
 
     public function product()
     {
-        return $this->belongsTo('App\Product');
+        return $this->belongsTo(\App\Product::class);
     }
 
     public function site()

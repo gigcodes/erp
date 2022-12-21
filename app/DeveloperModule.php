@@ -24,6 +24,6 @@ class DeveloperModule extends Model
 
     public function tasks()
     {
-        return $this->hasMany('App\DeveloperTask', 'module_id');
+        return $this->hasMany(\App\DeveloperTask::class, 'module_id');
     }
 }

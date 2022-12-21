@@ -17,32 +17,32 @@ class MagentoProductCommonError implements FromArray, WithHeadings, ShouldAutoSi
         $this->lists = $lists;
     }
 
-      /**
-       * @return \Illuminate\Support\Collection
-       */
-      public function array(): array
-      {
-          return $this->lists;
-      }
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function array(): array
+    {
+        return $this->lists;
+    }
 
-      public function headings(): array
-      {
-          return [
-              'count',
-              'Message',
-          ];
-      }
+    public function headings(): array
+    {
+        return [
+            'count',
+            'Message',
+        ];
+    }
 
-      //START - Purpose : Set width - DEVTASK-20123
-      public function registerEvents(): array
-      {
-          return [
-              // Handle by a closure.
-              AfterSheet::class => function (AfterSheet $event) {
-                  $event->sheet->getDelegate()->getColumnDimension('A')->setAutoSize(true);
-                  $event->sheet->getDelegate()->getColumnDimension('B')->setAutoSize(true);
-              },
-          ];
-      }
-      //END - DEVTASK-20123
+    //START - Purpose : Set width - DEVTASK-20123
+    public function registerEvents(): array
+    {
+        return [
+            // Handle by a closure.
+            AfterSheet::class => function (AfterSheet $event) {
+                $event->sheet->getDelegate()->getColumnDimension('A')->setAutoSize(true);
+                $event->sheet->getDelegate()->getColumnDimension('B')->setAutoSize(true);
+            },
+        ];
+    }
+    //END - DEVTASK-20123
 }

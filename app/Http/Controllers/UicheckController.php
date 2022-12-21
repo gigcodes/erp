@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Language;
 use App\Models\UicheckHistory;
 use App\SiteDevelopmentCategory;
+use App\SiteDevelopmentStatus;
 /*use Illuminate\Http\Request;
 use App\SiteDevelopment;
 use App\SiteDevelopmentArtowrkHistory;
@@ -13,7 +14,6 @@ use App\SiteDevelopmentMasterCategory;
 use App\StoreWebsite;
 use DB;
 */
-use App\SiteDevelopmentStatus;
 use App\StoreWebsite;
 use App\UiAdminStatusHistoryLog;
 use App\Uicheck;
@@ -37,7 +37,8 @@ use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Support\Str;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
 
 class UicheckController extends Controller
@@ -904,7 +905,7 @@ class UicheckController extends Controller
             $createdHistory = UicheckLanguageMessageHistory::create(
                 $data
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return respException($e);
         }
     }
@@ -928,7 +929,7 @@ class UicheckController extends Controller
                         '<td>'.($value->userName ?: '-').'</td>',
                         '<td>
                             <div style="width: 86%;float: left;" class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'">
-                                <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 30, '...').' </span>
+                                <span class="show-short-lan_message-'.$value->id.'">'.Str::limit($value->message, 30, '...').' </span>
                                 <span style="word-break:break-all;" id="show-full-lan_message-'.$value->id.'" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.' </span>
                             </div>
                             <i class="fa fa-copy" data-text="'.$value->message.'"></i>
@@ -951,7 +952,7 @@ class UicheckController extends Controller
             return respJson(200, '', [
                 'html' => implode('', $html),
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return respException($e);
         }
     }
@@ -1099,7 +1100,7 @@ class UicheckController extends Controller
             $allUsers = User::where('is_active', '1')->get();
 
             return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories', 'allUsers'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e]);
         }
@@ -1125,7 +1126,7 @@ class UicheckController extends Controller
             $this->uicheckResponsiveUpdateHistory($request);
 
             return response()->json(['code' => 200, 'message' => 'Status updated succesfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -1145,7 +1146,7 @@ class UicheckController extends Controller
                     'old_status' => $data->old_status ?? '',
                 ]
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return respException($e);
         }
     }
@@ -1162,7 +1163,7 @@ class UicheckController extends Controller
             ->get();
 
             return response()->json(['code' => 200, 'message' => 'Listed succesfully', 'data' => $createdHistory]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()], 500);
         }
     }
@@ -1211,7 +1212,7 @@ class UicheckController extends Controller
             $site_development_categories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
 
             return view('uicheck.language', compact('uiLanguages', 'status', 'languages', 'allStatus', 'lanid', 'site_development_categories', 'allUsers'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return \Redirect::back()->withErrors(['msg' => $e]);
         }
     }
@@ -1233,7 +1234,7 @@ class UicheckController extends Controller
             $this->uicheckTranslatorUpdateHistory($request);
 
             return response()->json(['code' => 200, 'message' => 'Status updated succesfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -1252,7 +1253,7 @@ class UicheckController extends Controller
                     'status' => $data->status ?? '',
                     'old_status' => $data->old_status ?? '',
                 ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return respException($e);
         }
     }
@@ -1270,7 +1271,7 @@ class UicheckController extends Controller
             ->get();
 
             return response()->json(['code' => 200, 'message' => 'Listed succesfully', 'data' => $createdHistory]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()], 500);
         }
     }
@@ -1281,7 +1282,7 @@ class UicheckController extends Controller
             $createdHistory = UiDeviceHistory::create(
                 $data
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return respException($e);
         }
     }
@@ -1390,7 +1391,7 @@ class UicheckController extends Controller
                         '<td>'.($value->userName ?: '-').'</td>',
                         '<td >
                             <div style="width: 86%;float: left;" class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
-                                <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 30, '...').'<i class="fa-solid fa-copy"></i></span>
+                                <span class="show-short-dev_message-'.$value->id.'">'.Str::limit($value->message, 30, '...').'<i class="fa-solid fa-copy"></i></span>
                                 <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'<i class="fa-solid fa-copy "></i></span>
                             </div>
                             <i class="fa fa-copy" data-text="'.$value->message.'"></i>
@@ -1411,7 +1412,7 @@ class UicheckController extends Controller
             return respJson(200, '', [
                 'html' => implode('', $html),
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return respException($e);
         }
     }
@@ -1443,7 +1444,7 @@ class UicheckController extends Controller
             $retunData1 = Uicheck::where('id', $request->id)->get();
 
             return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'error' => $e->getMessage()]);
         }
     }
@@ -1474,7 +1475,7 @@ class UicheckController extends Controller
             $retunData1 = Uicheck::where('id', $request->id)->get();
 
             return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'error' => $e->getMessage()]);
         }
     }

@@ -23,11 +23,11 @@ class PageNotes extends Model
 
     public function user()
     {
-        return $this->hasOne("\App\User", 'id', 'user_id');
+        return $this->hasOne(\App\User::class, 'id', 'user_id');
     }
 
     public function pageNotesCategories()
     {
-        return $this->hasOne("\App\PageNotesCategories", 'id', 'category_id');
+        return $this->hasOne(\App\PageNotesCategories::class, 'id', 'category_id');
     }
 }

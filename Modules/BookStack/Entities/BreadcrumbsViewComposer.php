@@ -2,6 +2,7 @@
 
 namespace Modules\BookStack\Entities;
 
+use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
 class BreadcrumbsViewComposer
@@ -26,8 +27,8 @@ class BreadcrumbsViewComposer
     public function compose(View $view)
     {
         $crumbs = $view->getData()['crumbs'];
-        if (array_first($crumbs) instanceof Book) {
-            $shelf = $this->entityContextManager->getContextualShelfForBook(array_first($crumbs));
+        if (Arr::first($crumbs) instanceof Book) {
+            $shelf = $this->entityContextManager->getContextualShelfForBook(Arr::first($crumbs));
             if ($shelf) {
                 array_unshift($crumbs, $shelf);
                 $view->with('crumbs', $crumbs);

@@ -78,27 +78,27 @@ class Leads extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function messages()
     {
-        return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'leads')->latest()->first();
+        return $this->hasMany(\App\Message::class, 'moduleid')->where('moduletype', 'leads')->latest()->first();
     }
 
     public function whatsapps()
     {
-        return $this->hasMany('App\ChatMessage', 'lead_id')->latest()->first();
+        return $this->hasMany(\App\ChatMessage::class, 'lead_id')->latest()->first();
     }
 
     public function status_changes()
     {
-        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Leads')->latest();
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\Leads::class)->latest();
     }
 
     public function instagram()
     {
-        return $this->hasMany('App\InstaMessages', 'lead_id')->latest()->first();
+        return $this->hasMany(\App\InstaMessages::class, 'lead_id')->latest()->first();
     }
 
     public function getCommunicationAttribute()

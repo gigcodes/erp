@@ -204,7 +204,7 @@ class ProductSearch
                     case 'source_of_search':
                         if ($value == 'attach_media') {
                             $products = $products->join('mediables', function ($query) {
-                                $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', "App\Product");
+                                $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', \App\Product::class);
                             })->groupBy('products.id');
                         }
                         break;

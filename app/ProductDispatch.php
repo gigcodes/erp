@@ -34,6 +34,6 @@ class ProductDispatch extends Model
 
     public function user()
     {
-        return $this->hasOne("\App\User", 'id', 'created_by');
+        return $this->hasOne(\App\User::class, 'id', 'created_by');
     }
 }

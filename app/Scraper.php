@@ -49,32 +49,32 @@ class Scraper extends Model
 
     public function scraperMadeBy()
     {
-        return $this->hasOne('App\User', 'id', 'scraper_made_by');
+        return $this->hasOne(\App\User::class, 'id', 'scraper_made_by');
     }
 
     public function scraperParent()
     {
-        return $this->hasOne('App\Scraper', 'supplier_id', 'parent_supplier_id');
+        return $this->hasOne(\App\Scraper::class, 'supplier_id', 'parent_supplier_id');
     }
 
     public function supplier()
     {
-        return $this->hasOne('App\Scraper', 'id', 'supplier_id');
+        return $this->hasOne(\App\Scraper::class, 'id', 'supplier_id');
     }
 
     public function mainSupplier()
     {
-        return $this->hasOne('App\Supplier', 'id', 'supplier_id');
+        return $this->hasOne(\App\Supplier::class, 'id', 'supplier_id');
     }
 
     public function mapping()
     {
-        return $this->hasMany('App\ScraperMapping', 'scrapers_id', 'id');
+        return $this->hasMany(\App\ScraperMapping::class, 'scrapers_id', 'id');
     }
 
     public function parent()
     {
-        return $this->hasOne('App\Scraper', 'id', 'parent_id');
+        return $this->hasOne(\App\Scraper::class, 'id', 'parent_id');
     }
 
     public function getChildrenScraper($name)
@@ -93,7 +93,7 @@ class Scraper extends Model
 
     public function getScrapHistory()
     {
-        return $this->hasMany('App\ScrapRequestHistory', 'scraper_id', 'id')->orderBy('updated_at', 'desc')->take(20);
+        return $this->hasMany(\App\ScrapRequestHistory::class, 'scraper_id', 'id')->orderBy('updated_at', 'desc')->take(20);
     }
 
     public function scraperRemark()

@@ -37,11 +37,11 @@ class DigitalMarketingPlatform extends Model
 
     public function solutions()
     {
-        return $this->hasMany("\App\DigitalMarketingSolution", 'digital_marketing_platform_id', 'id');
+        return $this->hasMany(\App\DigitalMarketingSolution::class, 'digital_marketing_platform_id', 'id');
     }
 
     public function components()
     {
-        return $this->hasMany("App\DigitalMarketingPlatformComponent", 'digital_marketing_platform_id', 'id');
+        return $this->hasMany(\App\DigitalMarketingPlatformComponent::class, 'digital_marketing_platform_id', 'id');
     }
 }

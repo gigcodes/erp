@@ -9,6 +9,7 @@ use App\StoreWebsite;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 class EmailAddressesController extends Controller
@@ -376,7 +377,7 @@ class EmailAddressesController extends Controller
         $data = [];
         foreach ($users as $key) {
             // Generate new password
-            $newPassword = str_random(12);
+            $newPassword = Str::random(12);
 
             $user = EmailAddress::findorfail($key);
             $user->password = $newPassword;

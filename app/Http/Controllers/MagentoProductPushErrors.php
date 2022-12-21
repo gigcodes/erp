@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MagentoProductPushErrors extends Controller
@@ -81,12 +82,12 @@ class MagentoProductPushErrors extends Controller
                 'product_id' => '<a class="show-product-information" data-id="'.$row->product_id.'" href="/products/'.$row->product_id.'" target="__blank">'.$row->product_id.'</a>',
                 'updated_at' => $row->created_at->format('d-m-y H:i:s'),
                 'store_website' => ($row->store_website) ? $row->store_website->title : '-',
-                'message' => str_limit(strip_tags($row->message), 30,
+                'message' => Str::limit(strip_tags($row->message), 30,
                     '<a data-logid='.$row->id.' class="message_load">...</a>'),
-                'request_data' => str_limit($row->request_data, 30,
+                'request_data' => Str::limit($row->request_data, 30,
                     '<a data-logid='.$row->id.' class="request_data_load">...</a>'),
                 'condition_id' => $condition,
-                'response_data' => str_limit($row->response_data, 30,
+                'response_data' => Str::limit($row->response_data, 30,
                     '<a data-logid='.$row->id.' class="response_data_load">...</a>'),
                 //                'response_status' => $row->response_status,
                 'response_status' => ' <div style="display:flex;"><select class="form-control globalSelect2" name="error_status" id="error_status" data-log_id="'.$row->id.'">

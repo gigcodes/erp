@@ -23,6 +23,6 @@ class TwilioCredential extends Model
 
     public function numbers()
     {
-        return $this->hasMany('App\TwilioActiveNumber', 'account_sid', 'account_id');
+        return $this->hasMany(\App\TwilioActiveNumber::class, 'account_sid', 'account_id');
     }
 }

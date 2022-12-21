@@ -37,7 +37,7 @@ class AuthenticateWhatsapp extends Command
      */
     public function handle()
     {
-        $controller = app()->make('App\Http\Controllers\Marketing\WhatsappConfigController');
+        $controller = app()->make(\App\Http\Controllers\Marketing\WhatsappConfigController::class);
         app()->call([$controller, 'checkInstanceAuthentication'], []);
     }
 }
