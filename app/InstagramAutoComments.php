@@ -12,6 +12,7 @@ class InstagramAutoComments extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="options",type="string")
      */
     protected $casts = [

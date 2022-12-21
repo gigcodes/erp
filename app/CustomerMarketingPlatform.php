@@ -12,6 +12,7 @@ class CustomerMarketingPlatform extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="marketing_platform_id",type="integer")
      * @SWG\Property(property="active",type="string")

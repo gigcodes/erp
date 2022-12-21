@@ -12,6 +12,7 @@ class EstimatedDeliveryHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="field",type="string")
      * @SWG\Property(property="updated_by",type="integer")
      * @SWG\Property(property="order_id",type="integer")

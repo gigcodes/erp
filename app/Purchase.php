@@ -13,6 +13,7 @@ class Purchase extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="communication",type="string")
      * @SWG\Property(property="whatsapp_number",type="string")
      */

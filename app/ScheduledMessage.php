@@ -11,6 +11,7 @@ class ScheduledMessage extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="category",type="string")
      * @SWG\Property(property="assign_from",type="strintergering")
      * @SWG\Property(property="assign_to",type="interger")

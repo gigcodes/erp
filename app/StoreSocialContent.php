@@ -12,6 +12,7 @@ class StoreSocialContent extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="store_social_content_category_id",type="integer")
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="store_social_content_status_id",type="integer")

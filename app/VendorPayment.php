@@ -12,6 +12,7 @@ class VendorPayment extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="vendor_id",type="integer")
      * @SWG\Property(property="payment_date",type="datetime")
      * @SWG\Property(property="paid_date",type="datetime")

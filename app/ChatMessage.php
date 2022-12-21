@@ -42,6 +42,7 @@ class ChatMessage extends Model
     use Mediable;
     /**
      * @var string
+     *
      * @SWG\Property(property="is_queue",type="boolean")
      * @SWG\Property(property="unique_id",type="integer")
      * @SWG\Property(property="lead_id",type="integer")

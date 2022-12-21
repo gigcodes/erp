@@ -17,6 +17,7 @@ class Article extends Model
      */
     /**
      * @var string
+     *
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="description",type="text")
      * @SWG\Property(property="status",type="string")

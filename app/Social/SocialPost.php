@@ -13,6 +13,7 @@ class SocialPost extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="config_id",type="integer")
      * @SWG\Property(property="caption",type="string")
      * @SWG\Property(property="post_body",type="string")

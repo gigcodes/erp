@@ -12,6 +12,7 @@ class LogStoreWebsiteCategory extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="log_case_id",type="string")
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="log_detail",type="string")

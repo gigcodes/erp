@@ -11,6 +11,7 @@ class ReviewSchedule extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="account_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="date",type="datetime")

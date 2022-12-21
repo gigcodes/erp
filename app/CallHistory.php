@@ -11,6 +11,7 @@ class CallHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="status",type="string")
      */

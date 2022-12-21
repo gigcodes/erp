@@ -48,6 +48,7 @@ class ZoomMeetingController extends Controller
     *
     * @param  Request  $request Request
     * @return \Illuminate\Http\Response
+    *
     * @Rest\Post("twilio/token")
     *
     * @uses Auth

@@ -11,6 +11,7 @@ class StoreWebsiteBrand extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="brand_id",type="integer")
      * @SWG\Property(property="markup",type="string")
      * @SWG\Property(property="store_website_id",type="integer")

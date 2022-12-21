@@ -13,6 +13,7 @@ class Leads extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="client_name",type="string")
      * @SWG\Property(property="city",type="string")

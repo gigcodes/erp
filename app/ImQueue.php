@@ -12,6 +12,7 @@ class ImQueue extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="im_client",type="string")
      * @SWG\Property(property="number_to",type="string")

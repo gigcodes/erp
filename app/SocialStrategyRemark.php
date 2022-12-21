@@ -11,6 +11,7 @@ class SocialStrategyRemark extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="remarks",type="string")
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="social_strategy_id",type="integer")

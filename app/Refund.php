@@ -13,6 +13,7 @@ class Refund extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="order_id",type="integer")
      * @SWG\Property(property="type",type="string")

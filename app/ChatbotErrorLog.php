@@ -11,6 +11,7 @@ class ChatbotErrorLog extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="status",type="string")
      * @SWG\Property(property="response",type="string")
      */

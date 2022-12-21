@@ -14,6 +14,7 @@ class Complaint extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="platform",type="string")
      * @SWG\Property(property="complaint",type="string")

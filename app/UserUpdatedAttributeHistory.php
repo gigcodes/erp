@@ -11,6 +11,7 @@ class UserUpdatedAttributeHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="old_value",type="string")
      * @SWG\Property(property="new_value",type="string")
      * @SWG\Property(property="attribute_name",type="string")

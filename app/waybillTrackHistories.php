@@ -11,6 +11,7 @@ class waybillTrackHistories extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="waybill_track_histories",type="string")
      * @SWG\Property(property="waybill_id",type="integer")
      * @SWG\Property(property="comment",type="string")

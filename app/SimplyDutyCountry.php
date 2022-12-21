@@ -11,6 +11,7 @@ class SimplyDutyCountry extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="country_code",type="string")
      * @SWG\Property(property="country_name",type="string")
      * @SWG\Property(property="default_duty",type="string")

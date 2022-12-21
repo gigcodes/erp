@@ -12,6 +12,7 @@ class VendorProduct extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="vendor_id",type="integer")
      * @SWG\Property(property="date_of_order",type="datetime")
      * @SWG\Property(property="name",type="string")

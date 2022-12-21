@@ -13,6 +13,7 @@ class Customer extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="phone",type="string")
      * @SWG\Property(property="city",type="string")

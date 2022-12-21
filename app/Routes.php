@@ -12,6 +12,7 @@ class Routes extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="url",type="string")
      * @SWG\Property(property="page_title",type="string")
      * @SWG\Property(property="page_description",type="string")

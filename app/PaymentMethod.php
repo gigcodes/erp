@@ -11,6 +11,7 @@ class PaymentMethod extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="strng")
      */
     protected $fillable = [

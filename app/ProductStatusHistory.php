@@ -11,6 +11,7 @@ class ProductStatusHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="product_status_histories",type="string")
      */
     public $table = 'product_status_histories';

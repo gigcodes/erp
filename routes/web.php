@@ -2396,7 +2396,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('test-cases/sendmessage', 'TestCaseController@sendMessage')->name('test-cases.sendmessage');
     Route::post('test-cases/add-test-cases', 'TestCaseController@sendTestCases')->name('test-cases.sendtestcases');
 
-
     Route::get('test-suites', 'TestSuitesController@index')->name('test-suites.index');
     Route::get('test-suites/records', 'TestSuitesController@records')->name('test-suites.records');
     Route::get('test-suites/create', 'TestSuitesController@create')->name('test-suites.create');

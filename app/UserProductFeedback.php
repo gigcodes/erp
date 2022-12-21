@@ -11,6 +11,7 @@ class UserProductFeedback extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="content",type="string")
      */
     protected $casts = [

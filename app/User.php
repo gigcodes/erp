@@ -21,6 +21,7 @@ class User extends Authenticatable implements JWTSubject
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="email",type="string")
      * @SWG\Property(property="phone",type="string")

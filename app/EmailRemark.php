@@ -12,6 +12,7 @@ class EmailRemark extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="email_id",type="string")
      * @SWG\Property(property="user_name",type="string")
      * @SWG\Property(property="remarks",type="string")

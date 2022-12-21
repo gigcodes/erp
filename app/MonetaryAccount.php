@@ -14,6 +14,7 @@ class MonetaryAccount extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="date",type="datetime")
      * @SWG\Property(property="currency",type="string")
      * @SWG\Property(property="amount",type="float")

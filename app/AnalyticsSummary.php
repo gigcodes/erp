@@ -17,6 +17,7 @@ class AnalyticsSummary extends Model
      */
     /**
      * @var string
+     *
      * @SWG\Property(property="brand_name",type="string")
      * @SWG\Property(property="gender",type="string")
      * @SWG\Property(property="time",type="time")

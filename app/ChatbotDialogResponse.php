@@ -13,6 +13,7 @@ class ChatbotDialogResponse extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="response_type",type="string")
      * @SWG\Property(property="value",type="string")
      * @SWG\Property(property="message_to_human_agent",type="string")

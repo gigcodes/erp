@@ -12,6 +12,7 @@ class Contact extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="phone",type="string")
