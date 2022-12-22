@@ -31,7 +31,7 @@
 
 			        <td class='break'>
 						<div class="d-flex">
-							<select class='form-control assign_to'  data-id="<?php echo  $prop->id;  ?>" data-token=<?php echo csrf_token(); ?> >
+							<select class='form-control assign_to'  data-id="<?php echo  $prop->id;  ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?> >
 								<?php
 									foreach ($users as $user) { ?>
 									 <option <?php if ($prop->assign_to == $user->id) { echo " selected"; }  ?>   value="<?php echo $user->id; ?>"><?php echo $user->name; ?></option>
@@ -44,7 +44,7 @@
 						</div>
 			        </td>
 			        <td class='break'>
-			           <select class='form-control bug_severity_id'  data-id="<?php echo  $prop->id  ?>" data-token=<?php echo csrf_token(); ?>>
+			           <select class='form-control bug_severity_id'  data-id="<?php echo  $prop->id  ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 					   <option value="">-Select-</option>
 			            <?php
 			            foreach ($bugSeveritys as $bugSeverity) { ?>
@@ -58,7 +58,7 @@
 			        </td>
 			        <td class='break'>
 						<div class="d-flex">
-							<select class='form-control bug_status_id'  data-id="<?php echo  $prop->id;  ?>" data-token=<?php echo csrf_token(); ?>>
+							<select class='form-control bug_status_id'  data-id="<?php echo  $prop->id;  ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 								<?php
 								foreach ($bugStatuses as $bugStatus) { ?>
 								
@@ -81,9 +81,23 @@
                        <button class="btn btn-sm btn-image send-message" title="Send message" data-id="<?php echo  $prop->id;  ?>"><img src="images/filled-sent.png" data-id="<?php echo  $prop->id;  ?>" /></button> </div>
                         
                         </div>
-						<div style="max-width: 100%;text-align: right;padding-top: 10px;">
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='bug' data-id="<?php echo  $prop->id;  ?>" title="Load messages"><img src="images/chat.png" alt=""></button>
-                         </div>
+						<div class="d-flex">
+							<div style="margin-bottom:10px;width: 100%;">
+								<div class="d-flex justify-content-between expand-row-msg-chat" data-id="<?php echo  $prop->id;  ?>">
+									<span class="td-mini-container-<?php echo  $prop->id;  ?> text-danger" style="margin:0px;">
+										<?php echo $prop->last_chat_message_short; ?>
+									</span>
+								</div>
+								<div class="expand-row-msg-chat" data-id="<?php echo  $prop->id;  ?>">
+									<span class="td-full-container-<?php echo  $prop->id;  ?> hidden text-danger">
+										<?php echo $prop->last_chat_message_long; ?>
+									</span>
+								</div>
+							</div>
+							<div style="max-width: 100%;text-align: right;padding-top: 10px;">
+								<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='bug' data-id="<?php echo  $prop->id;  ?>" title="Load messages"><img src="images/chat.png" alt=""></button>
+							</div>
+						</div> 
                     </div>
 			        </td>
 			        <td><?php echo $prop->website;  ?></td>
