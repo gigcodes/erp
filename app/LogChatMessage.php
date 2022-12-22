@@ -11,6 +11,7 @@ class LogChatMessage extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="log_case_id",type="integer")
      * @SWG\Property(property="task_id",type="integer")
      * @SWG\Property(property="message",type="string")

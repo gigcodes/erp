@@ -12,6 +12,7 @@ class GmailData extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="gmail_data",type="string")
      * @SWG\Property(property="images",type="string")
      * @SWG\Property(property="tags",type="string")

@@ -373,6 +373,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
     Route::get('products/listing/conditions-check', 'ProductController@magentoConditionsCheck')->name('products.magentoConditionsCheck');
+    Route::get('products/listing/conditions-check-logs/{llm_id}', 'ProductController@magentoConditionsCheckLogs')->name('products.magentoConditionsCheckLogs');
     Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
     Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
@@ -2364,6 +2365,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('bug-tracking/severity_user', 'BugTrackingController@severityUser')->name('bug-tracking.severity_user');
     Route::post('bug-tracking/status_user', 'BugTrackingController@statusUser')->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', 'BugTrackingController@sendMessage')->name('bug-tracking.sendmessage');
+    Route::get('bug-tracking/record-tracking-ajax', 'BugTrackingController@recordTrackingAjax')->name('bug-tracking.index_ajax');
 
     Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
     Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
@@ -2376,7 +2378,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
     Route::post('bug-tracking/websitelist', 'BugTrackingController@getWebsiteList')->name('bug-tracking.websitelist');
     Route::get('bug-tracking/countdevtask/{id}', 'BugTrackingController@taskCount');
-
     Route::get('bug-trackinghistory', 'BugTrackingController@getTrackedHistory')->name('bug-tracking.history');
     Route::post('bug-tracking/hubstaff_task', 'BugTrackingController@createHubstaffManualTask')->name('bug-tracking.hubstaff_task');
 
@@ -4145,4 +4146,15 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
+});
+
+//Queue Management::
+Route::prefix('queue')->middleware('auth')->group(function () {
+    Route::get('/', 'RedisQueueController@index')->name('redisQueue.list');
+    Route::post('/store', 'RedisQueueController@store')->name('redisQueue.store');
+    Route::post('/edit', 'RedisQueueController@edit')->name('redisQueue.edit');
+    Route::post('/update', 'RedisQueueController@update')->name('redisQueue.update');
+    Route::post('/delete', 'RedisQueueController@delete')->name('redisQueue.delete');
+    Route::post('/execute', 'RedisQueueController@execute')->name('redisQueue.execute');
+    Route::get('/command-logs/{id}', 'RedisQueueController@commandLogs')->name('redisQueue.commandLogs');
 });

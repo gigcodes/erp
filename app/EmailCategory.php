@@ -12,6 +12,7 @@ class EmailCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="email_category",type="string")
      * @SWG\Property(property="category_name",type="string")
      */

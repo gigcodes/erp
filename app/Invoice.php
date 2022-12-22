@@ -11,6 +11,7 @@ class Invoice extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="invoice_number",type="integer")
      * @SWG\Property(property="invoice_date",type="datetime")
      */

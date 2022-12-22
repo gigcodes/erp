@@ -11,6 +11,7 @@ class Suggestion extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="chat_message_id",type="integer")
      * @SWG\Property(property="category",type="string")

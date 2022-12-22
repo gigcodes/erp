@@ -11,6 +11,7 @@ class ErpLeadSendingHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="erp_lead_sending_histories",type="string")
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")

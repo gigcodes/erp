@@ -79,6 +79,8 @@ class ProductController extends Controller
                     } elseif ($cancellationType == 'products') {
                         $skus = explode(',', rtrim($request->product_sku, ','));
                         $orderProducts = OrderProduct::where('order_id', '=', $request->order_id)->whereIn('sku', $skus)->get();
+                    }else{
+                        $orderProducts = [];
                     }
                     if (count($orderProducts) > 0) {
                         $results = [];
@@ -157,8 +159,13 @@ class ProductController extends Controller
                 $category = Product::select('id', 'category')->withTrashed()->where('sku', $sku[0])->first();
                 if ($category) {
                     $categories = Category::select('days_refund')->where('id', '=', $category->category)->first();
-                    $categoriesRef = $categories->days_refund;
-                    $productRef = $productCanDays->days_refund;
+                    if($categories){
+                        $categoriesRef = $categories->days_refund;
+                        $productRef = $productCanDays->days_refund;
+                    }else{
+                        $categoriesRef = null;
+                        $productRef = null;
+                    }
                 }
 
                 $order = Order::select('created_at', 'order_return_request')->withTrashed()->where('id', $request->order_id)->first();

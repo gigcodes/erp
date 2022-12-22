@@ -18,7 +18,18 @@
 th {border: 1px solid black;}
 table{border-collapse: collapse;}
 .ui-icon, .ui-widget-content .ui-icon {background-image: none;}
-</style>	
+
+#bug_tracking_maintable {
+	font-size:12.5px;
+}
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+	padding:5px;
+}
+#bug_tracking_maintable .btn {
+	padding: 1px 3px 0px 4px !important;
+	margin-top:0px !important;
+}
+</style>
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
 			<h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
@@ -96,8 +107,12 @@ table{border-collapse: collapse;}
 										</select>
 									</div>
 									<div class="form-group" style="width: 200px;">
+										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true" />
+									</div>
+									<div class="form-group" style="width: 200px;">
 										<input name="step_to_reproduce" type="text" class="form-control" placeholder="Search Reproduce" id="bug-search" data-allow-clear="true" />
 									</div>
+									
 									<div class="form-group m-3" style="width: 200px;">
 										<input name="summary" type="text" class="form-control" placeholder="Search Summary" id="bug-summary" data-allow-clear="true" />
 									</div>
@@ -512,6 +527,82 @@ table{border-collapse: collapse;}
       })
 	</script>
 	<script type="text/javascript">
+	
+		// Bug tracking ajax starts
+		function GetParameterValues(param) {  
+			var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');  
+			for (var i = 0; i < url.length; i++) {  
+				var urlparam = url[i].split('=');  
+				if (urlparam[0] == param) {  
+					return urlparam[1];  
+				}  
+			}  
+		}
+		
+		var page_bug = 0; 
+		var total_limit_bug = 19;
+		var action_bug = 'inactive';
+		$(window).scroll(function(){
+			let urlString_bug = window.location.href;
+			let paramString_bug = urlString_bug.split('?')[1];
+			let queryString_bug = new URLSearchParams(paramString_bug);
+			var arr = 0;
+			for(let pair of queryString_bug.entries()) {
+				console.log("Key is:" + pair[0]);
+				console.log("Value is:" + pair[1]);
+				arr = 1;
+			}
+			if(arr==0) {
+				if($(window).scrollTop() + $(window).height() > $("#bug_tracking_maintable").height() && action_bug == 'inactive')
+				{
+					action_bug = 'active';
+					page_bug++;				   
+					setTimeout(function(){
+						load_more(page_bug);
+					}, 1000);
+				}
+			}
+			  
+		});
+		
+		function load_more(page_bug){
+						
+			$.ajax({
+			   url: "/bug-tracking/record-tracking-ajax?page="+page_bug+"&"+$(".message-search-handler").serialize(),
+			   type: "get",
+			   datatype: "html",			  
+			   beforeSend: function()
+			   {
+				  $('#loading-image-preview').css("display","block");
+			   }
+			})
+			.done(function(data)
+			{
+				$('#loading-image-preview').css("display","none");
+				
+				
+				if(data.length == 0){
+					console.log(data.length);
+					//notify user if nothing to load
+					//$('.ajax-loading').html("No more records!");
+					return;
+				}
+				 $('.loading-image-preview').hide(); //hide loading animation once data is received
+				 $('#loading-image-preview').css("display","none");			  
+				$('#bug_tracking_maintable > tbody:last').append(data); 
+				 action_bug = "inactive";
+				
+			   
+		   })
+		   .fail(function(jqXHR, ajaxOptions, thrownError)
+		   {
+			  alert('No response from server');
+		   });
+		}
+		
+		// Bug tracking ajax ends
+	
+	
 		$(document).on('click', '.expand-row-msg', function() {
 			$('#bugtrackingShowFullTextModel').modal('toggle');
 			$(".bugtrackingmanShowFullTextBody").html("");
@@ -548,6 +639,9 @@ table{border-collapse: collapse;}
 			$(".text-task-development").val('');
 			$('#site_id').val('');	
 			$('#website_id').val('');
+			$('.text-task-bugids').val('');
+			$('.text-task-bugids').val('');
+			$('.text-task-development').val('');
 			
 						
 			if (!title || title == '') {
@@ -818,6 +912,8 @@ table{border-collapse: collapse;}
 			var thiss = $(this);
 			var data = new FormData();
 			var task_id = $(this).data('taskid');
+			var bid = $(this).data('id');
+			
 			var message = $(this).closest('tr').find('.quick-message-field').val();
 			var mesArr = $(this).closest('tr').find('.quick-message-field');
 			$.each(mesArr, function(index, value) {
@@ -853,14 +949,16 @@ table{border-collapse: collapse;}
 						//   }).fail(function(response) {
 						//     console.log(response);
 						//     alert(response.responseJSON.message);
-						//   });
+						//   });						
+						$('#getMsg'+bid).val('')
 
 						$(thiss).attr('disabled', false);
 					}).fail(function(errObj) {
-						$(thiss).attr('disabled', false);
-
-						alert("Could not send message");
+						$(thiss).attr('disabled', false);						
+						$('#getMsg'+bid).val('')
+						//alert("Could not send message");
 						console.log(errObj);
+						
 					});
 				}
 			} else {

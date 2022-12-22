@@ -11,6 +11,7 @@ class OrderProduct extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="order_id",type="integer")
      * @SWG\Property(property="sku",type="string")
      * @SWG\Property(property="product_id",type="integer")

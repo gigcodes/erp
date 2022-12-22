@@ -11,6 +11,7 @@ class ScrapLog extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="scraper_id",type="integer")
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="folder_name",type="string")

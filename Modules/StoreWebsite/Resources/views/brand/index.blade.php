@@ -130,7 +130,7 @@
 	  	</div>	
 
 		<div class="col-md-12 margin-tb" id="page-view-result">
-			<div class="row">
+			<div class="row table-horizontal-scroll">
 				<table class="table table-bordered">
 				<thead>
 				      <tr>
@@ -329,7 +329,14 @@
             	$("#loading-image").show();
             },
             success: function(response) {
-				console.log(ele.attr('id'));
+				$.each(response.storeWebsites, function (index, item) {
+					let element = $('.push-brand[data-brand="' + brand + '"][data-sw="'+item+'"]');
+					if(ele.is(":checked") && store !== item) {
+						element.prop('checked', true);
+					} else if(!ele.is(":checked") && store !== item) {
+						element.prop('checked', false);
+					}
+				});
             	$("#loading-image").hide();
 				if($('#'+ele.attr('id')).prop("checked") == true){
 					$('#'+ele.attr('id')).prop('checked', false);

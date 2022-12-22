@@ -11,6 +11,7 @@ class CaseCost extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="case_id",type="integer")
      * @SWG\Property(property="billed_date",type="datetime")
      * @SWG\Property(property="amount",type="integer")

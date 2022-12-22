@@ -11,6 +11,7 @@ class ScrappedFacebookUser extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="url",type="string")
      * @SWG\Property(property="owner",type="string")
      * @SWG\Property(property="bio",type="string")

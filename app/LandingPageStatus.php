@@ -12,6 +12,7 @@ class LandingPageStatus extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="landing_page_statuses",type="string")
      */
     protected $table = 'landing_page_statuses';

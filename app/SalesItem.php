@@ -11,6 +11,7 @@ class SalesItem extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="sales_item",type="string")
      * @SWG\Property(property="images",type="string")
      * @SWG\Property(property="sizes",type="string")

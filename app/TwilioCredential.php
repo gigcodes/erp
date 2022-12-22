@@ -11,6 +11,7 @@ class TwilioCredential extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="twilio_credentials",type="string")
      * @SWG\Property(property="account_id",type="integer")
      * @SWG\Property(property="twilio_email",type="string")

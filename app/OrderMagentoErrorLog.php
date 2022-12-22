@@ -13,6 +13,7 @@ class OrderMagentoErrorLog extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="order_id",type="integer")
      * @SWG\Property(property="country_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")

@@ -12,6 +12,7 @@ class DailyCashFlow extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="received_from",type="datetime")
      * @SWG\Property(property="paid_to",type="string")
      * @SWG\Property(property="date",type="datetime")

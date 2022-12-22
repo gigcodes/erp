@@ -55,9 +55,15 @@ class BugTrackingController extends Controller
     public function records(Request $request)
     {
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
-            $records = BugTracker::orderBy('id', 'desc');
+            $records = BugTracker::orderBy('id', 'desc')->take(10);
+            $records_cnt = BugTracker::orderBy('id', 'desc');
         } else {
-            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
+            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->take(10);
+            $records_cnt = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
+        }
+
+        if ($keyword = request('bug_id')) {
+            $records = $records->where('id', $keyword);
         }
 
         if ($keyword = request('summary')) {
@@ -105,25 +111,135 @@ class BugTrackingController extends Controller
             });
         }
         $records = $records->get();
+
+        $records_cnt = $records_cnt->get();
+
+        $records = $records->map(function ($bug) {
+            $bug->bug_type_id_val = $bug->bug_type_id;
+            $bug->website_id_val = $bug->website;           
+            $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
+            $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
+            $bug->created_by = User::where('id', $bug->created_by)->value('name');
+            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
+//            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
+//            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
+            $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
+            $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
+            $bug->summary_short = Str::limit($bug->summary, 10, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 20, '..');
+            $bug->url_short = Str::limit($bug->url, 5, '..');
+
+            return $bug;
+        });
+
+       
+        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records_cnt)]);
+    }
+
+    public function recordTrackingAjax(Request $request)
+    {
+        $title = 'Bug Tracking';
+
+        $page = $_REQUEST['page'];
+
+        $page = $page * 10;
+
+        $bugStatuses = BugStatus::get();
+        $bugEnvironments = BugEnvironment::get();
+        $bugSeveritys = BugSeverity::get();
+        $bugTypes = BugType::get();
+        $users = User::get();
+        $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
+        $filterWebsites = StoreWebsite::orderBy('website')->get();
+
+        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
+            $records = BugTracker::orderBy('id', 'desc')->offset($page)->limit(10);
+        } else {
+            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
+        }
+
+        if ($keyword = request('bug_id')) {
+            $records = $records->where('id', $keyword);
+        }
+
+        if ($keyword = request('summary')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('summary', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('bug_type')) {
+            $records = $records->orWhereIn('bug_type_id', $keyword);
+        }
+        if ($keyword = request('bug_enviornment')) {
+            $records = $records->orWhereIn('bug_environment_id', $keyword);
+        }
+        if ($keyword = request('bug_severity')) {
+            $records = $records->orWhereIn('bug_severity_id', $keyword);
+        }
+        if ($keyword = request('created_by')) {
+            $records = $records->orWhereIn('created_by', $keyword);
+        }
+        if ($keyword = request('assign_to_user')) {
+            $records = $records->orWhereIn('assign_to', $keyword);
+        }
+        if ($keyword = request('bug_status')) {
+            $records = $records->orWhereIn('bug_status_id', $keyword);
+        }
+        if ($keyword = request('module_id')) {
+            $records = $records->orWhereIn('module_id', 'LIKE', "%$keyword%");
+        }
+        if ($keyword = request('step_to_reproduce')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('step_to_reproduce', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('url')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('url', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('website')) {
+            $records = $records->orWhereIn('website', $keyword);
+        }
+        if ($keyword = request('date')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->whereDate('created_at', $keyword);
+            });
+        }
+
+        $records = $records->get();
+
         $records = $records->map(function ($bug) {
             $bug->bug_type_id_val = $bug->bug_type_id;
             $bug->website_id_val = $bug->website;
             $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
             $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
             $bug->created_by = User::where('id', $bug->created_by)->value('name');
-            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y  H:i');
+            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
 //            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
 //            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
-            $bug->summary_short = Str::limit($bug->summary, 5, '..');
-            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
+            $bug->summary_short = Str::limit($bug->summary, 10, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 20, '..');
             $bug->url_short = Str::limit($bug->url, 5, '..');
 
             return $bug;
         });
 
-        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
+        // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
+
+        return view('bug-tracking.index-ajax', ['title' => $title,
+            'bugTypes' => $bugTypes,
+            'bugEnvironments' => $bugEnvironments,
+            'bugSeveritys' => $bugSeveritys,
+            'bugStatuses' => $bugStatuses,
+            'filterCategories' => $filterCategories,
+            'users' => $users,
+            'allUsers' => $users,
+            'filterWebsites' => $filterWebsites,
+            'data' => $records, 'total' => count($records),
+        ]);
     }
 
     public function create()
@@ -181,20 +297,20 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $records]);
     }
 
-   public function environment(Request $request)
-   {
-       $environment = $request->all();
-       $validator = Validator::make($environment, [
-           'name' => 'required|string',
-       ]);
-       if ($validator->fails()) {
-           return response()->json(['code' => 500, 'error' => 'Name is required']);
-       }
-       $data = $request->except('_token');
-       $records = BugEnvironment::create($data);
+    public function environment(Request $request)
+    {
+        $environment = $request->all();
+        $validator = Validator::make($environment, [
+            'name' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['code' => 500, 'error' => 'Name is required']);
+        }
+        $data = $request->except('_token');
+        $records = BugEnvironment::create($data);
 
-       return response()->json(['code' => 200, 'data' => $records]);
-   }
+        return response()->json(['code' => 200, 'data' => $records]);
+    }
 
     public function type(Request $request)
     {
@@ -439,6 +555,7 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $bugStatuses]);
     }
 
+    
      public function assignUser(Request $request)
      {
          $bugTracker = BugTracker::where('id', $request->id)->first();

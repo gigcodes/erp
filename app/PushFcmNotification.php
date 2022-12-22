@@ -11,6 +11,7 @@ class PushFcmNotification extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="token",type="string")
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="body",type="string")

@@ -12,6 +12,7 @@ class ProductCategoryHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="old_category_id",type="integer")
      * @SWG\Property(property="category_id",type="integer")

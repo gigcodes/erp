@@ -11,6 +11,7 @@ class Voucher extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="delivery_approval_id",type="integer")
      * @SWG\Property(property="category_id",type="integer")
