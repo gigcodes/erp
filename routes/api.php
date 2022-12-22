@@ -18,6 +18,9 @@
 /**
  *Routes added by Hitesh Start
  **/
+
+Route::get('crop', 'ProductController@giveImage');
+
 Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 /**
  *Routes added by Hitesh Ends
@@ -44,7 +47,7 @@ Route::post('save-product-images', 'ScrapController@saveImagesToProducts'); // T
 Route::post('save-product-images2', 'ScrapController@saveImagesToProducts2'); // This function is not found in controller
 Route::post('save-supplier', 'ScrapController@saveSupplier');
 Route::get('hashtags', 'HashtagController@sendHashtagsApi');
-Route::get('crop', 'ProductController@giveImage');
+
 Route::post('link/image-crop', 'ProductController@saveImage');
 Route::post('instagram/create', 'AccountController@createAccount');
 Route::resource('stat', 'ScrapStatisticsController');
