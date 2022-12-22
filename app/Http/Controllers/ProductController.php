@@ -1452,7 +1452,7 @@ class ProductController extends Controller
         $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
 
         $products = $products->orderBy('llm_id', 'desc');
-        $products = $products->groupBy('LLM.store_website_id');
+        $products = $products->groupBy('LLM.product_id','LLM.store_website_id');
         $products = $products->select(['products.*', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.id as sw_id','SW.title as sw_title'])->paginate(20);
         $productsCount = $products->total();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
