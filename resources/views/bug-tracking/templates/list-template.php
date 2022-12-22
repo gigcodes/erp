@@ -52,9 +52,9 @@
 						<div class="d-flex">
 							<select class='form-control assign_to'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?> >
 								<?php
-									foreach ($users as $user) {
-										echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
-									}
+                                    foreach ($users as $user) {
+                                        echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
+                                    }
 							?>
 							</select>
 							<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
@@ -64,19 +64,19 @@
 			           <select class='form-control bug_severity_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?>>
 					   <option value="">-Select-</option>
 			            <?php
-			            foreach ($bugSeveritys as $bugSeverity) {
-			                echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
-			            }
-			            ?>
+                        foreach ($bugSeveritys as $bugSeverity) {
+                            echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
+                        }
+							?>
 			            </select>
 			        </td>
 			        <td class='break'>
 						<div class="d-flex">
 							<select class='form-control bug_status_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?>>
 								<?php
-								foreach ($bugStatuses as $bugStatus) {
-									echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
-								}
+							        foreach ($bugStatuses as $bugStatus) {
+							            echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
+							        }
 							?>
 							</select>
 							<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>

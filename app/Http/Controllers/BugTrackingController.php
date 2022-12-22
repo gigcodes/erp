@@ -116,7 +116,7 @@ class BugTrackingController extends Controller
 
         $records = $records->map(function ($bug) {
             $bug->bug_type_id_val = $bug->bug_type_id;
-            $bug->website_id_val = $bug->website;           
+            $bug->website_id_val = $bug->website;
             $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
             $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
             $bug->created_by = User::where('id', $bug->created_by)->value('name');
@@ -132,7 +132,6 @@ class BugTrackingController extends Controller
             return $bug;
         });
 
-       
         return response()->json(['code' => 200, 'data' => $records, 'total' => count($records_cnt)]);
     }
 
@@ -554,7 +553,7 @@ class BugTrackingController extends Controller
 
         return response()->json(['code' => 200, 'data' => $bugStatuses]);
     }
-    
+
     public function assignUser(Request $request)
     {
         $bugTracker = BugTracker::where('id', $request->id)->first();
@@ -576,7 +575,6 @@ class BugTrackingController extends Controller
 
         return response()->json(['code' => 200, 'data' => $data]);
     }
-
 
     public function severityUser(Request $request)
     {
