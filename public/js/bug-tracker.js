@@ -125,7 +125,7 @@ var page = {
             }
         })
     },
-    loadFirst: function() {
+    loadFirst: function() {       
         var _z = {
             url: this.config.baseUrl + "/records",
             method: "get",
@@ -135,7 +135,7 @@ var page = {
         }
         this.sendAjax(_z, "showResults");
     },
-    getResults: function(href) {
+    getResults: function(href) {        
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/records",
             method: "get",
@@ -408,11 +408,11 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
-    saveMessage : function(response) {
+    saveMessage : function(response) {        
         if(response.code  == 200) {
             $("#loading-image").hide();
 
-            page.loadFirst();
+            //page.loadFirst();
             // $(".common-modal").modal("hide");
             toastr["success"](response.message,"Bug Tracking Saved Successfully");
 
