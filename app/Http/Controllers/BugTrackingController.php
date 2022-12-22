@@ -730,7 +730,6 @@ class BugTrackingController extends Controller
 
     public function taskCount($bug_id)
     {
-        
         $model_site_development = SiteDevelopment::where('bug_id', $bug_id)->get()->toArray();
 
         $site_developement_id = 0;
