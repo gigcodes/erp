@@ -1993,7 +1993,6 @@ class TaskModuleController extends Controller
 
     public function createMultipleTaskFromSortcutBugtrack(Request $request)
     {
-        
         try {
             $this->validate($request, [
                 'task_subject' => 'required',
@@ -2081,7 +2080,7 @@ class TaskModuleController extends Controller
 
                             $task = $this->taskCreateMaster($data);
 
-                            if ($task) {                              
+                            if ($task) {
                                 if (count($bug_list_ids) > 0) {
                                     $task_asssigned_user_to = $data['assigned_to'];
                                     for ($k = 0; $k < count($bug_list_ids); $k++) {
@@ -2101,7 +2100,6 @@ class TaskModuleController extends Controller
                                 $reviewTask = $cntrl->developerTaskCreate($data);
                             }
                         } else {
-                           
                             $data['site_developement_id'] = $site_developement_primary_id;
                             $data['task_subject'] = $website;
                             $data['task_type'] = $taskType;
@@ -2120,7 +2118,7 @@ class TaskModuleController extends Controller
                                         $data['assigned_to'] = $request->task_asssigned_to;
                                     }
                                     $task_asssigned_user_to = $data['assigned_to'];
-                                    for ($k = 0; $k < count($bug_list_ids); $k++) {                                       
+                                    for ($k = 0; $k < count($bug_list_ids); $k++) {
                                         $bug_tacker_id = $bug_list_ids[$k];
                                         $bug_tracking = BugTracker::find($bug_tacker_id);
                                         $bug_tracking->bug_status_id = 6;
@@ -2144,23 +2142,22 @@ class TaskModuleController extends Controller
 
                 if (count($bug_list_ids) > 0) {
                     if (is_array($request->task_asssigned_to)) {
-                        $task_asssigned_user_to =  $request->task_asssigned_to[0];
+                        $task_asssigned_user_to = $request->task_asssigned_to[0];
                     } else {
-                        $task_asssigned_user_to =  $request->task_asssigned_to;
-                    }                  
+                        $task_asssigned_user_to = $request->task_asssigned_to;
+                    }
                     for ($k = 0; $k < count($bug_list_ids); $k++) {
                         $bug_tacker_id = $bug_list_ids[$k];
                         $bug_tracking = BugTracker::find($bug_tacker_id);
                         $bug_tracking->bug_status_id = 6;
-                        if($task_asssigned_user_to>0) {
+                        if ($task_asssigned_user_to > 0) {
                             $bug_tracking->assign_to = $task_asssigned_user_to;
-                        }                        
+                        }
                         $bug_tracking->updated_at = date('Y-m-d H:i:s');
                         $bug_tracking->updated_by = Auth::user()->name;
                         $bug_tracking->save();
                     }
                 }
-
             }
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Your quick task has been created!']);
