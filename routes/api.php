@@ -18,7 +18,6 @@
 /**
  *Routes added by Hitesh Start
  **/
-
 Route::get('crop', 'ProductController@giveImage');
 
 Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
