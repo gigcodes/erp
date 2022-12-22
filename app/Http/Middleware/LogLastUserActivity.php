@@ -31,21 +31,47 @@ class LogLastUserActivity
     {
         if (Auth::check()) {
             $expiresAt = Carbon::now()->addMinutes(5);
-            Cache::put('user-is-online-'.Auth::user()->id, true, $expiresAt);
+            $cacheKey = 'user-is-online-'.Auth::user()->id;
 
-            if ($user_login = UserLogin::where('user_id', Auth::id())->latest()->first()) {
-                if (Carbon::now()->diffInDays($user_login->login_at) != 0) {
-                    UserLogin::create([
-                        'user_id' => Auth::id(),
-                        'login_at' => Carbon::now(),
-                    ]);
-                }
-            } else {
+            // cache with 5 min expiry.
+            $lastLogin = Cache::has($cacheKey, true, $expiresAt);
+
+            // if cache doesn't exists, add cache and db entry.
+            if (! $lastLogin) {
+                // else add cache and add in db.
+                Cache::put($cacheKey, true, $expiresAt);
+
                 UserLogin::create([
                     'user_id' => Auth::id(),
                     'login_at' => Carbon::now(),
                 ]);
             }
+
+//            // expired
+//            if($lastLogin < Carbon::now()){
+//                Cache::rememberForever($cacheKey, function() use ($expiresAt) {
+//                    return $expiresAt;
+//                });
+//                UserLogin::create([
+//                    'user_id' => Auth::id(),
+//                    'login_at' => Carbon::now(),
+//                ]);
+//            }
+
+//            dd(Cache::get('user-is-online-'.Auth::user()->id) < Carbon::now());
+//            if ($user_login = UserLogin::where('user_id', Auth::id())->first()) {
+//                if (Carbon::now()->diffInDays($user_login->login_at) != 0) {
+//                    UserLogin::create([
+//                        'user_id' => Auth::id(),
+//                        'login_at' => Carbon::now(),
+//                    ]);
+//                }
+//            } else {
+//                UserLogin::create([
+//                    'user_id' => Auth::id(),
+//                    'login_at' => Carbon::now(),
+//                ]);
+//            }
         }
 
         if (! $this->session->has('lastActivityTimeU')) {

@@ -43,6 +43,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -444,20 +445,31 @@ class DevelopmentController extends Controller
             $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
-                $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere('task', 'LIKE', "%$subject%")
+                $query->where('developer_tasks.id', 'LIKE', "%$subject%")
+                    ->orWhere('subject', 'LIKE', "%$subject%")
+                    ->orWhere('task', 'LIKE', "%$subject%")
                     ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
             });
         }
         // if ($request->get('language') != '') {
         //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
         // }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 '.$whereCondition.' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(
+            DB::raw('(SELECT MAX(id) as  max_id, issue_id, message
+            FROM `chat_messages` where issue_id > 0
+             '.$whereCondition.' GROUP BY issue_id )
+             m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+
         if ($request->get('last_communicated', 'off') == 'on') {
             $issues = $issues->orderBy('chat_messages.id', 'desc');
         }
 
-        $issues = $issues->select('developer_tasks.*', 'chat_messages.message', 'chat_messages.user_id AS message_user_id', 'chat_messages.is_reminder AS message_is_reminder', 'chat_messages.status as message_status', 'chat_messages.sent_to_user_id');
+        $issues = $issues->select('developer_tasks.*',
+            'chat_messages.message',
+            'chat_messages.user_id AS message_user_id', 'chat_messages.is_reminder AS message_is_reminder', 'chat_messages.status as message_status', 'chat_messages.sent_to_user_id'
+        );
 
         // for devloper time
         // $issues->selectRaw('IF(developer_tasks.assigned_to IS NOT NULL, sum(mot.time) , 0) as assigned_to_time');
@@ -486,14 +498,18 @@ class DevelopmentController extends Controller
         // });
 
         // Set variables with modules and users
-        $modules = DeveloperModule::orderBy('name')->get();
+        $modules = Cache::remember('DeveloperModule::orderBy::name', 60 * 60 * 24 * 1, function () {
+            return  DeveloperModule::orderBy('name')->get();
+        });
 
         $usrlst = User::orderBy('name')->where('is_active', 1)->get();
         $users = Helpers::getUserArray($usrlst);
 
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
-        $statusList = \DB::table('task_statuses')->select('name')->pluck('name', 'name')->toArray();
+        $statusList = Cache::remember('task_status_select_name', 60 * 60 * 24 * 7, function () {
+            return TaskStatus::select('name')->pluck('name', 'name')->toArray();
+        });
 
         /*$statusList = array_merge([
             "" => "Select Status",
@@ -516,10 +532,14 @@ class DevelopmentController extends Controller
         }
         // category filter start count
         $issuesGroups = clone $issues;
-        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')
+            ->groupBy('developer_tasks.assigned_to')
+            ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
+            ->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
-
+        $userModel = Cache::remember('User::whereIn::'.implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
+            return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        });
         $countPlanned = [];
         if (! empty($issuesGroups) && ! empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -532,10 +552,15 @@ class DevelopmentController extends Controller
         }
         // category filter start count
         $issuesGroups = clone $issues;
-        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')
+            ->groupBy('developer_tasks.assigned_to')
+            ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
+            ->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = Cache::remember('User::whereIn::'.implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
+            return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        });
         $countInProgress = [];
         if (! empty($issuesGroups) && ! empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -549,16 +574,16 @@ class DevelopmentController extends Controller
 
         // Sort
         if ($request->order == 'priority') {
-            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
+            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC'); // ->with('communications');
         } elseif ($request->order == 'latest_task_first') {
             $issues = $issues->orderBy('developer_tasks.id', 'DESC');
         } else {
             $issues = $issues->orderBy('chat_messages.id', 'desc');
         }
 
-        $issues = $issues->groupBy('developer_tasks.id');
+//        $issues = $issues->groupBy('developer_tasks.id');
 
-        $issues = $issues->with('communications');
+//        $issues = $issues->with('communications');
         //DB::enableQueryLog();
         // return $issues = $issues->limit(20)->get();
 
@@ -582,7 +607,9 @@ class DevelopmentController extends Controller
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
-        $respositories = GithubRepository::all();
+        $respositories = Cache::remember('GithubRepository::all()', 60 * 60 * 24 * 7, function () {
+            return GithubRepository::all();
+        });
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
@@ -962,6 +989,7 @@ class DevelopmentController extends Controller
                 ];
             }
         }
+
         // Sort
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
