@@ -295,11 +295,12 @@ table{border-collapse: collapse;}
 				</div>
 				<table class="table">
 					<tr>
-
+						<th>Created At</th>						
 						<th>Type of Bug</th>
 						<th>Summary</th>
 						<th>Expected Result</th>
 						<th>Environment</th>
+						<th>Assigned To</th>
 						<th>Status</th>
 						<th>Severity</th>
 						<th>Module/Feature</th>
@@ -729,16 +730,26 @@ table{border-collapse: collapse;}
 			var form = $(this).closest("form");
 			
 			var values = new Array();
+			var web = new Array();
 			$.each($("input[name='chkBugId[]']:checked"), function() {
 			  values.push($(this).val());
 			  // or you can do something to the actual checked checkboxes by working directly with  'this'
 			  // something like $(this).hide() (only something useful, probably) :P
-			})				
+			})	
+			$.each($(".website-list input[type='checkbox']:checked"), function() {
+			  web.push($(this).val());
+			  // or you can do something to the actual checked checkboxes by working directly with  'this'
+			  // something like $(this).hide() (only something useful, probably) :P
+			})
+			
 			if(values.length ==0 && $("input[name='chkBugId[]']").length>0) {
 				toastr["error"]("Please select atleast 1 bugs list ");
 				return;
 			} 
-			
+			if(web.length ==0) {
+				toastr["error"]("Please select website ");
+				return;
+			}
 			
 			$.ajax({
 				url: form.attr("action"),
