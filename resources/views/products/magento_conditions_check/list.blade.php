@@ -249,7 +249,11 @@
                 @endif
             </td>
             <td>
-                {{ $product->llm_message }}
+                @php
+                  $logList = \App\Loggers\LogListMagento::select('message')
+                        ->where('product_id', $product->id)->where('store_website_id', $product->sw_id)->orderBy('id', 'desc')->first();
+                    echo $logList->message;
+                @endphp
             </td>
             <td>
 {{--                @if($product->magentoLog)--}}
