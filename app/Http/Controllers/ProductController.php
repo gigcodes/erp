@@ -3184,6 +3184,7 @@ class ProductController extends Controller
      */
     public function giveImage(Request $request)
     {
+
         $productId = request('product_id', null);
         $supplierId = request('supplier_id', null);
         if ($productId != null) {
@@ -3204,14 +3205,21 @@ class ProductController extends Controller
             // Add order
             $product = QueryHelper::approvedListingOrder($product);
             //get priority
-            $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
-                // $query->where('priority','!=',null);
-            })->whereHasMedia('original')->get()->transform(function ($productData) {
-                $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
 
-                return $productData;
-            });
-            $product = $product->sortBy('priority')->first();
+            ///Commented due to query taking long time
+            // $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
+            //     // $query->where('priority','!=',null);
+            // })->whereHasMedia('original')->get()->transform(function ($productData) {
+            //     $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
+
+            //     return $productData;
+            // });
+            //$product = $product->sortBy('priority')->first();
+            // Comment End  
+
+            $product = $product->first();
+
+
             unset($product->priority);
             // return response()->json([
             //     'status' => $product
@@ -4815,18 +4823,12 @@ class ProductController extends Controller
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
-<<<<<<< HEAD
                         \Log::info('Product started website found For website'.$website->website);
                         $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
-=======
-                        \Log::info('Product started website found For website '.$website->website);
-                        $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
->>>>>>> master
                         //currently we have 3 queues assigned for this task.
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-<<<<<<< HEAD
                         
                         try {
                             PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
@@ -4837,10 +4839,6 @@ class ProductController extends Controller
                             $log->save();
                             ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $log->id, null);
                         }
-=======
-
-                        PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
->>>>>>> master
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);

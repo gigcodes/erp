@@ -62,6 +62,10 @@ class BugTrackingController extends Controller
             $records_cnt = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
         }
 
+        if ($keyword = request('bug_id')) {
+            $records = $records->where('id', $keyword);
+        }
+
         if ($keyword = request('summary')) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where('summary', 'LIKE', "%$keyword%");
@@ -112,22 +116,23 @@ class BugTrackingController extends Controller
 
         $records = $records->map(function ($bug) {
             $bug->bug_type_id_val = $bug->bug_type_id;
-            $bug->website_id_val = $bug->website;
+            $bug->website_id_val = $bug->website;           
             $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
             $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
             $bug->created_by = User::where('id', $bug->created_by)->value('name');
-            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y  H:i');
+            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
 //            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
 //            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
-            $bug->summary_short = Str::limit($bug->summary, 5, '..');
-            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
+            $bug->summary_short = Str::limit($bug->summary, 10, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 20, '..');
             $bug->url_short = Str::limit($bug->url, 5, '..');
 
             return $bug;
         });
 
+       
         return response()->json(['code' => 200, 'data' => $records, 'total' => count($records_cnt)]);
     }
 
@@ -151,6 +156,10 @@ class BugTrackingController extends Controller
             $records = BugTracker::orderBy('id', 'desc')->offset($page)->limit(10);
         } else {
             $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
+        }
+
+        if ($keyword = request('bug_id')) {
+            $records = $records->where('id', $keyword);
         }
 
         if ($keyword = request('summary')) {
@@ -206,13 +215,13 @@ class BugTrackingController extends Controller
             $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
             $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
             $bug->created_by = User::where('id', $bug->created_by)->value('name');
-            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y  H:i');
+            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
 //            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
 //            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
-            $bug->summary_short = Str::limit($bug->summary, 5, '..');
-            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
+            $bug->summary_short = Str::limit($bug->summary, 10, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 20, '..');
             $bug->url_short = Str::limit($bug->url, 5, '..');
 
             return $bug;
