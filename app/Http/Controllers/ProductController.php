@@ -1453,7 +1453,7 @@ class ProductController extends Controller
 
         $products = $products->orderBy('llm_id', 'desc');
         $products = $products->groupBy('LLM.store_website_id');
-        $products = $products->select(['products.*', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.id as sw_id','SW.title as sw_title'])->paginate(20);
+        $products = $products->select(['products.*', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.id as sw_id', 'SW.title as sw_title'])->paginate(20);
         $productsCount = $products->total();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
