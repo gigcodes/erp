@@ -257,7 +257,7 @@
 {{--                @else--}}
 {{--                    Product not entered to the queue for conditions check--}}
 {{--                @endif--}}
-                <a onclick="getConditionCheckLog({{ $product->llm_id }})" class="btn" title="View log">
+                <a onclick="getConditionCheckLog({{ $product->id }}, {{ $product->sw_id }})" class="btn" title="View log">
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </a>
             </td>

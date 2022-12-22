@@ -1506,9 +1506,9 @@ class ProductController extends Controller
         return view('products.magento_push_status.index', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
     }
 
-    public function magentoConditionsCheckLogs($id)
+    public function magentoConditionsCheckLogs($pId, $swId)
     {
-        $logs = ProductPushErrorLog::where('log_list_magento_id', '=', $id)->get();
+        $logs = ProductPushErrorLog::where('product_id', '=', $pId)->where('store_website_id', '=', $swId)->get();
 
         return response()->json(['code' => 200, 'data' => $logs]);
     }
