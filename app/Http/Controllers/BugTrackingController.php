@@ -58,8 +58,8 @@ class BugTrackingController extends Controller
             $records = BugTracker::orderBy('id', 'desc')->take(10);
             $records_cnt = BugTracker::orderBy('id', 'desc');
         } else {
-            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->take(10);
-            $records_cnt = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
+            $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc')->take(10);
+            $records_cnt = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc');
         }
 
         if ($keyword = request('bug_id')) {
@@ -114,7 +114,7 @@ class BugTrackingController extends Controller
 
         $records_cnt = $records_cnt->get();
 
-        $records = $records->map(function ($bug) {
+        $records = $records->map(function ($bug) {            
             $bug->bug_type_id_val = $bug->bug_type_id;
             $bug->website_id_val = $bug->website;
             $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
@@ -126,8 +126,15 @@ class BugTrackingController extends Controller
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
             $bug->summary_short = Str::limit($bug->summary, 10, '..');
-            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 20, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 60, '..');
             $bug->url_short = Str::limit($bug->url, 5, '..');
+            $last_chat_res = ChatMessage::select('message')->where('bug_id', $bug->id)->orderBy('id', 'desc')->limit(1)->get()->toArray();
+            $last_chat_message = '';
+            if(isset($last_chat_res[0]['message']) && $last_chat_res[0]['message']!='') {
+                $last_chat_message = $last_chat_res[0]['message'];
+            }
+            $bug->last_chat_message_short = substr($last_chat_message,0,28);
+            $bug->last_chat_message_long = $last_chat_message;
 
             return $bug;
         });
@@ -154,7 +161,7 @@ class BugTrackingController extends Controller
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
             $records = BugTracker::orderBy('id', 'desc')->offset($page)->limit(10);
         } else {
-            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
+            $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
         }
 
         if ($keyword = request('bug_id')) {
@@ -220,8 +227,15 @@ class BugTrackingController extends Controller
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
             $bug->summary_short = Str::limit($bug->summary, 10, '..');
-            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 20, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce,60, '..');
             $bug->url_short = Str::limit($bug->url, 5, '..');
+            $last_chat_res = ChatMessage::select('message')->where('bug_id', $bug->id)->orderBy('id', 'desc')->limit(1)->get()->toArray();
+            $last_chat_message = '';
+            if(isset($last_chat_res[0]['message']) && $last_chat_res[0]['message']!='') {
+                $last_chat_message = $last_chat_res[0]['message'];
+            }
+            $bug->last_chat_message_short = substr($last_chat_message,0,28);
+            $bug->last_chat_message_long = $last_chat_message;
 
             return $bug;
         });

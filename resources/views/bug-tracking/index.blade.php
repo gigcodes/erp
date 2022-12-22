@@ -20,7 +20,7 @@ table{border-collapse: collapse;}
 .ui-icon, .ui-widget-content .ui-icon {background-image: none;}
 
 #bug_tracking_maintable {
-	font-size:12.5px;
+	font-size:12px;
 }
 .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
 	padding:5px;
@@ -43,11 +43,11 @@ table{border-collapse: collapse;}
 							<form class="form-inline message-search-handler" method="get">
 								<div class="col">
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-3" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 150px;">
 										<?php
 										$bug_type = request('bugtype');
 										?>
-										<select class="form-control selectpicker" name="bug_type[]" multiple id="bug_type" title="Select BugType">
+										<select class="form-control selectpicker" name="bug_type[]" multiple id="bug_type" title="Select BugType"  >
 											<option value="">Select BugType</option>
 											<?php
 											foreach ($bugTypes as $bugtype) { ?>
@@ -56,7 +56,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$bug_environment = request('bug_enviornment');
 										?>
@@ -69,7 +69,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 170px;">
 										<?php
 										$bug_severity = request('bug_severity');
 										?>
@@ -82,7 +82,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 160px;">
 										<?php
 										$bug_status = request('bugstatus');
 										?>
@@ -95,7 +95,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-                <div class="form-group  cls_filter_inputbox p-2 mr-3" style="width: 200px;">
+                <div class="form-group  cls_filter_inputbox p-2 mr-3" style="width: 200px;margin-bottom: 10px;">
 										<?php
 										$module_id = request('module_id');
 										?>
@@ -106,14 +106,14 @@ table{border-collapse: collapse;}
 											@endforeach
 										</select>
 									</div>
-									<div class="form-group" style="width: 200px;">
-										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true" />
+									<div class="form-group" style="width: 120px;margin-bottom: 10px;">
+										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true"  style="width: 120px;" />
 									</div>
-									<div class="form-group" style="width: 200px;">
+									<div class="form-group" style="width: 200px;margin-bottom: 10px;">
 										<input name="step_to_reproduce" type="text" class="form-control" placeholder="Search Reproduce" id="bug-search" data-allow-clear="true" />
 									</div>
 									
-									<div class="form-group m-3" style="width: 200px;">
+									<div class="form-group" style="width: 200px;margin-bottom: 10px;">
 										<input name="summary" type="text" class="form-control" placeholder="Search Summary" id="bug-summary" data-allow-clear="true" />
 									</div>
 									<div class="form-group m-1" style="width: 200px;">
@@ -131,7 +131,7 @@ table{border-collapse: collapse;}
 											@endforeach
 										</select>
 									</div>
-                <div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+                <div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 150px;">
 										<?php
 										$assign_to_user = request('assign_to_user');
 										?>
@@ -145,7 +145,7 @@ table{border-collapse: collapse;}
 									</div>
 
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 160px;">
 										<?php
 										$created_by = request('created_by');
 										?>
@@ -527,6 +527,17 @@ table{border-collapse: collapse;}
       })
 	</script>
 	<script type="text/javascript">
+		
+		$(document).on('click', '.expand-row-msg-chat', function() {
+			var id = $(this).data('id');
+			var full = '.expand-row-msg-chat .td-full-container-' + id;
+			var mini = '.expand-row-msg-chat .td-mini-container-' + id;
+			$(full).toggleClass('hidden');
+			$(mini).toggleClass('hidden');
+		});
+
+		
+	
 	
 		// Bug tracking ajax starts
 		function GetParameterValues(param) {  
