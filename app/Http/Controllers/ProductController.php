@@ -1470,29 +1470,131 @@ class ProductController extends Controller
 
     public function magentoPushStatus(Request $request)
     {
+        
+        if($request->ajax()){
+            $value = $request->get('value');
+            $fieldName = $request->get('fieldname');
+            if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+                $products = Product::query();
+            } else {
+                $products = Product::query()->where('assigned_to', auth()->user()->id);
+            }
+            // $products = $products->where(function ($query) {
+            //     $query->where('status_id', StatusHelper::$pushToMagento);
+            //     $query->orWhere('status_id', StatusHelper::$inMagento);
+            // });
+            // $products = $products->where('is_push_attempted', 1);
+            // $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
+            //     $join->on('pvu.product_id', 'products.id');
+            //     $join->where('pvu.user_id', '!=', auth()->user()->id);
+            // });
+    
+            $products = $products->leftJoin('status as s', function ($join) {
+                $join->on('products.status_id', 's.id');
+            });
+    
+            // $products = $products->where('isUploaded', 0);
+            // $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
+
+
+            if($request->get('id') != ""){
+                $products =  $products->where("products.id",$request->get('id'));
+            }
+            if($request->get('name') != ""){
+                $products =  $products->where("products.name",$request->get('name'));
+            }
+            if($request->get('title') != ""){
+                $products =  $products->where("products.name",$request->get('title'));
+            }
+            if($request->get('color') != ""){
+                $products =  $products->where("products.color",$request->get('color'));
+            }
+            if($request->get('composition') != ""){
+                $composition = $request->get('compositon');
+                $products =  $products->where("products.composition","LIKE","%$composition%");
+            }
+            if($request->get('status') != ""){
+                $products =  $products->where("products.status",$request->get('status'));
+            }
+            if($request->get('price') != ""){
+                $products =  $products->where("products.price_usd",$request->get('price'));
+                $products =  $products->orWhere("products.price_usd_special",$request->get('price'));
+                $products =  $products->orWhere("products.price",$request->get('price'));
+            }
+
+
+            if(isset($fieldName)){
+                if($fieldName === 'title' || $fieldName === 'name'){
+                    $products =  $products->where("products.name","LIKE","%$value%");
+                }
+                if($fieldName === 'category'){
+                    $products =  $products->where("categories.title","LIKE","%$value%");
+                }
+                else{
+                    $products =  $products->where("products.$fieldName","LIKE","%$value%");
+                }
+            }
+
+            $products = $products->select(['products.*', 's.name as product_status'])->paginate(10);
+
+            $productsCount = $products->total();
+            $imageCropperRole = auth()->user()->hasRole('ImageCropers');
+            $categoryArray = Category::renderAsArray();
+            $colors = (new Colors)->all();
+            if (! Setting::has('auto_push_product')) {
+                $auto_push_product = Setting::add('auto_push_product', 0, 'int');
+            } else {
+                $auto_push_product = Setting::get('auto_push_product');
+            }
+            
+            $users = User::all();
+            return view('products.magento_push_status.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+        }else{
+            return view('products.magento_push_status.index');
+        }
+       
+    }
+    public function autocompleteSearchPushStatus(Request $request){
+        
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $products = Product::query();
         } else {
             $products = Product::query()->where('assigned_to', auth()->user()->id);
         }
-        $products = $products->where(function ($query) {
-            $query->where('status_id', StatusHelper::$pushToMagento);
-            $query->orWhere('status_id', StatusHelper::$inMagento);
-        });
-        $products = $products->where('is_push_attempted', 1);
-        $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
-            $join->on('pvu.product_id', 'products.id');
-            $join->where('pvu.user_id', '!=', auth()->user()->id);
-        });
+        $fieldName = $request->get('filedname');
+        // $products = $products->where(function ($query) {
+        //     $query->where('status_id', StatusHelper::$pushToMagento);
+        //     $query->orWhere('status_id', StatusHelper::$inMagento);
+        // });
+        // $products = $products->where('is_push_attempted', 1);
+        // $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
+        //     $join->on('pvu.product_id', 'products.id');
+        //     $join->where('pvu.user_id', '!=', auth()->user()->id);
+        // });
 
         $products = $products->leftJoin('status as s', function ($join) {
             $join->on('products.status_id', 's.id');
         });
 
-        $products = $products->where('isUploaded', 0);
-        $products = $products->select(['products.*', 's.name as product_status'])->paginate(10);
+        // $products = $products->where('isUploaded', 0);
+        $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
 
-        $productsCount = $products->total();
+
+        $value = $request->get('value');
+        if(isset($fieldName)){
+            if($fieldName === 'title' || $fieldName === 'name'){
+                $products =  $products->where("products.name","LIKE","%$value%");
+            }
+            if($fieldName === 'category'){
+                $products =  $products->where("c.title","LIKE","%$value%");
+            }
+            else{
+                $products =  $products->where("products.$fieldName","LIKE","%$value%");
+            }
+        }
+
+        $products = $products->select(['products.*', 's.name as product_status']);
+        $products = $products->get()->toArray();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
         $colors = (new Colors)->all();
@@ -1501,10 +1603,9 @@ class ProductController extends Controller
         } else {
             $auto_push_product = Setting::get('auto_push_product');
         }
-        $users = User::all();
-
-        return view('products.magento_push_status.index', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
-    }
+ 
+        return response()->json(['status'=>200,'data'=> array_unique(array_column($products,$fieldName))]);
+  }
 
     public function magentoConditionsCheckLogs($pId, $swId)
     {
@@ -1797,7 +1898,7 @@ class ProductController extends Controller
             }
         }
 
-        \Zipper::make(public_path("$product->sku.zip"))->add($products_array)->close();
+        // \Zipper::make(public_path("$product->sku.zip"))->add($products_array)->close();
 
         return response()->download(public_path("$product->sku.zip"))->deleteFileAfterSend();
     }
