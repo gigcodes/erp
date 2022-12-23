@@ -82,9 +82,7 @@ class PushToMagento implements ShouldQueue
                 $charity = 1;
             }
         }
-
         try {
-            //$jobId = app(JobRepository::class)->id;
             if ((in_array('status_condition', $conditions) && $topParent == 'NEW') || ($topParent == 'PREOWNED' && in_array('status_condition', $upteamconditions))) {
                 if ($product->status_id == StatusHelper::$finalApproval) {
                     if ($this->log) {
@@ -208,6 +206,9 @@ class PushToMagento implements ShouldQueue
                         \Log::error($errorMessage);
                     }
                 }
+            } else {
+                $errorMessage = 'Either one of the following condition failed: Top parent is NEW and status_condition exists in '.json_encode($conditions).' || Top parent is PREOWNED and status_condition exists in upteamconditions';
+                ProductPushErrorLog::log('', $product->id, $errorMessage, 'error', $website->id, null, null, $this->log->id, null);
             }
         } catch (\Exception $e) {
             if ($this->log) {

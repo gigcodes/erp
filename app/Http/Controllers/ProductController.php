@@ -1447,21 +1447,13 @@ class ProductController extends Controller
             $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
         });
         $products = $products->where('is_conditions_checked', 1);
-        $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
-            $join->on('pvu.product_id', 'products.id');
-            $join->where('pvu.user_id', '!=', auth()->user()->id);
-        });
 
         $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
         $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
 
-        $products = $products->leftJoin('status as s', function ($join) {
-            $join->on('products.status_id', 's.id');
-        });
-
-        $products = $products->where('isUploaded', 0);
         $products = $products->orderBy('llm_id', 'desc');
-        $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title'])->paginate(20);
+        $products = $products->groupBy('LLM.product_id', 'LLM.store_website_id');
+        $products = $products->select(['products.*', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.id as sw_id', 'SW.title as sw_title'])->paginate(20);
         $productsCount = $products->total();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
@@ -1514,9 +1506,9 @@ class ProductController extends Controller
         return view('products.magento_push_status.index', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
     }
 
-    public function magentoConditionsCheckLogs($id)
+    public function magentoConditionsCheckLogs($pId, $swId)
     {
-        $logs = ProductPushErrorLog::where('log_list_magento_id', '=', $id)->get();
+        $logs = ProductPushErrorLog::where('product_id', '=', $pId)->where('store_website_id', '=', $swId)->latest()->get();
 
         return response()->json(['code' => 200, 'data' => $logs]);
     }
@@ -4886,7 +4878,7 @@ class ProductController extends Controller
                         \Log::info('Product conditions check started website found For website '.$website->website);
                         $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
                         //currently we have 3 queues assigned for this task.
-                        $log->queue = \App\Helpers::createQueueName('magentoconditionscheckqueue');
+                        $log->queue = \App\Helpers::createQueueName('default');
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
                         PushToMagento::dispatch($product, $website, $log, $mode);
