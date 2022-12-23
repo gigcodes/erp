@@ -11,6 +11,7 @@ class Mailinglist extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="remote_id",type="integer")

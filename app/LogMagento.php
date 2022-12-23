@@ -12,6 +12,7 @@ class LogMagento extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="log_magento",type="string")
      * @SWG\Property(property="timestamps",type="boolean")
      */

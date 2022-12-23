@@ -11,6 +11,7 @@ class RejectedImages extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="website_id",type="integer")
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="status",type="string")

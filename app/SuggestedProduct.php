@@ -12,6 +12,7 @@ class SuggestedProduct extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="brands",type="string")
      * @SWG\Property(property="categories",type="string")
      * @SWG\Property(property="keyword",type="string")

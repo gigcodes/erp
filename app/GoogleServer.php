@@ -12,6 +12,7 @@ class GoogleServer extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="google_server",type="string")
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="key",type="string")

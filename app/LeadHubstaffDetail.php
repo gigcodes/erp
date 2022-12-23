@@ -11,6 +11,7 @@ class LeadHubstaffDetail extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="hubstaff_task_id",type="integer")
      * @SWG\Property(property="task_id",type="integer")

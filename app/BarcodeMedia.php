@@ -14,6 +14,7 @@ class BarcodeMedia extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="media_id",type="integer")
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="type_id",type="integer")

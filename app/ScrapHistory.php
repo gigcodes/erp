@@ -11,6 +11,7 @@ class ScrapHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="operation",type="string")
      * @SWG\Property(property="model",type="string")
      * @SWG\Property(property="model_id",type="integer")

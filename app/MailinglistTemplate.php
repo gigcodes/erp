@@ -11,6 +11,7 @@ class MailinglistTemplate extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="mail_class",type="string")
      * @SWG\Property(property="mail_tpl",type="string")

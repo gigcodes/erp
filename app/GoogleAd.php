@@ -12,6 +12,7 @@ class GoogleAd extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="googleads",type="string")
      * @SWG\Property(property="adgroup_google_campaign_id",type="integer")
      * @SWG\Property(property="google_adgroup_id",type="integer")

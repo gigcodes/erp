@@ -11,6 +11,7 @@ class InstagramThread extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="scrap_influencer_id",type="integer")
      */
     protected $fillable = ['scrap_influencer_id'];

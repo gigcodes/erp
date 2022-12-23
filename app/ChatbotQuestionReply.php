@@ -11,6 +11,7 @@ class ChatbotQuestionReply extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="suggested_reply",type="string")
      * @SWG\Property(property="chatbot_questions_reply",type="string")
      */

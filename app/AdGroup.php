@@ -11,6 +11,7 @@ class AdGroup extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="campaign_id",type="integer")
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="group_name",type="string")

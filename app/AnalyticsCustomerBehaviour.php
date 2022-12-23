@@ -17,6 +17,7 @@ class AnalyticsCustomerBehaviour extends Model
      */
     /**
      * @var string
+     *
      * @SWG\Property(property="pages",type="string")
      * @SWG\Property(property="pageviews",type="string")
      * @SWG\Property(property="uniquePageviews",type="string")

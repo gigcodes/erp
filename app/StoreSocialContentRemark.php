@@ -11,6 +11,7 @@ class StoreSocialContentRemark extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="store_social_content_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="remarks",type="string")

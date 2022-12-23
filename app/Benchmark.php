@@ -11,6 +11,7 @@ class Benchmark extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="selections",type="string")
      * @SWG\Property(property="searches",type="string")
      * @SWG\Property(property="attributes",type="string")

@@ -12,6 +12,7 @@ class SiteDevelopment extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="site_development_category_id",type="integer")
      * @SWG\Property(property="status",type="string")
 
@@ -55,22 +56,22 @@ class SiteDevelopment extends Model
     public function whatsappAll($needBroadcast = false)
     {
         if ($needBroadcast) {
-            return $this->hasMany('App\ChatMessage', 'site_development_id')->where(function ($q) {
+            return $this->hasMany(\App\ChatMessage::class, 'site_development_id')->where(function ($q) {
                 $q->whereIn('status', ['7', '8', '9', '10'])->orWhere('group_id', '>', 0);
             })->latest();
         } else {
-            return $this->hasMany('App\ChatMessage', 'site_development_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'site_development_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
         }
     }
 
     public function developer()
     {
-        return $this->hasOne('App\User', 'id', 'developer_id');
+        return $this->hasOne(\App\User::class, 'id', 'developer_id');
     }
 
     public function designer()
     {
-        return $this->hasOne('App\User', 'id', 'designer_id');
+        return $this->hasOne(\App\User::class, 'id', 'designer_id');
     }
 
     public function statusHistories()

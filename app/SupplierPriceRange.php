@@ -12,6 +12,7 @@ class SupplierPriceRange extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="supplier_price_range",type="string")
      * @SWG\Property(property="timestamps",type="datetime")
      * @SWG\Property(property="price_from",type="string")
