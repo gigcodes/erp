@@ -43,125 +43,125 @@ class ZoomMeetingController extends Controller
         $this->zoomuser = config('env.ZOOM_USER');
     }
 
-    /**
-     * Create a meeting with zoom based on the params send through form
-     *
-     * @param  Request  $request Request
-     * @return \Illuminate\Http\Response
-     *
-     * @Rest\Post("twilio/token")
-     *
-     * @uses Auth
-     * @uses ClientToken
-     */
-    public function createMeeting(Request $request)
-    {
-        $this->validate($request, [
-            'meeting_topic' => 'required|min:3|max:255',
-            //  'start_date_time' => 'required',
-            //  'meeting_duration' => 'required',
-            //'timezone' => 'required'
-        ]);
+   /**
+    * Create a meeting with zoom based on the params send through form
+    *
+    * @param  Request  $request Request
+    * @return \Illuminate\Http\Response
+    *
+    * @Rest\Post("twilio/token")
+    *
+    * @uses Auth
+    * @uses ClientToken
+    */
+   public function createMeeting(Request $request)
+   {
+       $this->validate($request, [
+           'meeting_topic' => 'required|min:3|max:255',
+           //  'start_date_time' => 'required',
+           //  'meeting_duration' => 'required',
+           //'timezone' => 'required'
+       ]);
 
-        $input = $request->all();
+       $input = $request->all();
 
-        $startDate = strtotime(new Carbon($request->get('start_date_time', date('Y-m-d H:i', strtotime('+5 minutes')))));
-        $currentDate = strtotime(Carbon::now());
+       $startDate = strtotime(new Carbon($request->get('start_date_time', date('Y-m-d H:i', strtotime('+5 minutes')))));
+       $currentDate = strtotime(Carbon::now());
 
-        if ($startDate < $currentDate) {
-            $data = ['msg' => 'Start date time should not be less than current date time.'];
+       if ($startDate < $currentDate) {
+           $data = ['msg' => 'Start date time should not be less than current date time.'];
 
-            return Response::json([
-                'success' => false,
-                'data' => $data,
-            ]);
-        }
+           return Response::json([
+               'success' => false,
+               'data' => $data,
+           ]);
+       }
 
-        $userId = $this->zoomuser;
-        // Default settings for zoommeeting
-        $settings = [
-            'join_before_host' => true,
-            'host_video' => true,
-            'participant_video' => true,
-            'mute_upon_entry' => false,
-            'enforce_login' => false,
-            'auto_recording' => 'cloud',
-        ];
+       $userId = $this->zoomuser;
+       // Default settings for zoommeeting
+       $settings = [
+           'join_before_host' => true,
+           'host_video' => true,
+           'participant_video' => true,
+           'mute_upon_entry' => false,
+           'enforce_login' => false,
+           'auto_recording' => 'cloud',
+       ];
 
-        // add default setting in meeting
-        $input['start_date_time'] = date('Y-m-d H:i', $startDate);
-        $input['meeting_duration'] = $request->get('meeting_duration', 5);
-        $input['timezone'] = $request->get('timezone', 'Asia/Dubai');
-        $input['meeting_agenda'] = $request->get('agenda', '');
-        $input['timezone'] = ($input['timezone'] != '') ? $input['timezone'] : 'Asia/Dubai';
-        // gethering all data to pass to model function
-        $input['timezone'] = ($input['timezone'] != '') ? $input['timezone'] : 'Asia/Dubai';
-        $data = [
-            'user_id' => $userId,
-            'topic' => $input['meeting_topic'],
-            'agenda' => $input['meeting_agenda'],
-            'settings' => $settings,
-            'startTime' => new Carbon($input['start_date_time']),
-            'duration' => $input['meeting_duration'],
-            'timezone' => $input['timezone'],
-        ];
-        // Calling model calss
-        $meetings = new ZoomMeetings();
-        $zoomKey = $this->zoomkey;
-        $zoomSecret = $this->zoomsecret;
+       // add default setting in meeting
+       $input['start_date_time'] = date('Y-m-d H:i', $startDate);
+       $input['meeting_duration'] = $request->get('meeting_duration', 5);
+       $input['timezone'] = $request->get('timezone', 'Asia/Dubai');
+       $input['meeting_agenda'] = $request->get('agenda', '');
+       $input['timezone'] = ($input['timezone'] != '') ? $input['timezone'] : 'Asia/Dubai';
+       // gethering all data to pass to model function
+       $input['timezone'] = ($input['timezone'] != '') ? $input['timezone'] : 'Asia/Dubai';
+       $data = [
+           'user_id' => $userId,
+           'topic' => $input['meeting_topic'],
+           'agenda' => $input['meeting_agenda'],
+           'settings' => $settings,
+           'startTime' => new Carbon($input['start_date_time']),
+           'duration' => $input['meeting_duration'],
+           'timezone' => $input['timezone'],
+       ];
+       // Calling model calss
+       $meetings = new ZoomMeetings();
+       $zoomKey = $this->zoomkey;
+       $zoomSecret = $this->zoomsecret;
 
-        $createMeeting = $meetings->createMeeting($zoomKey, $zoomSecret, $data);
-        // dd($createMeeting);
-        if ($createMeeting) {
-            $input['meeting_id'] = empty($createMeeting['body']['id']) ? '' : $createMeeting['body']['id'];
-            $input['host_zoom_id'] = $this->zoomuser;
-            $input['meeting_type'] = 'scheduled';
-            $input['join_meeting_url'] = empty($createMeeting['body']['join_url']) ? '' : $createMeeting['body']['join_url'];
-            $input['start_meeting_url'] = empty($createMeeting['body']['start_url']) ? '' : $createMeeting['body']['start_url'];
-            // saving data in db
-            $createMeeting = ZoomMeetings::create($input);
-            if ($createMeeting) {
-                $getUserDetails = $meetings->getUserDetails($input['user_id'], $input['user_type']);
-                if (! empty($getUserDetails)) {
-                    $phonenumber = isset($getUserDetails->number) ? $getUserDetails->number : $getUserDetails->phone;
-                    $msg = 'New meeting has been scheduled for you. Kindly find below the link to join the meeting. '.$input['join_meeting_url'];
-                    $html = "New meeting has been scheduled for you. Kindly find below the link to join the meeting. <br><br> <a href='".$input['join_meeting_url']."' target='_blank'>".$input['join_meeting_url'].'</a>';
-                    if (! empty($phonenumber)) {
-                        $message = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($phonenumber, $getUserDetails->whatsapp_number, $msg);
-                    }
-                    $email = $getUserDetails->email;
-                    if (! empty($email)) {
-                        if ('supplier' == $input['user_type']) {
-                            $name = $getUserDetails->supplier;
-                        } else {
-                            $name = $getUserDetails->name;
-                        }
-                        $data = ['name' => 'SoloLuxury'];
-                    }
-                }
-                $data = ['msg' => 'New Meeting added successfully.', 'meeting_link' => $input['join_meeting_url'], 'start_meeting' => $input['start_meeting_url']];
+       $createMeeting = $meetings->createMeeting($zoomKey, $zoomSecret, $data);
+       // dd($createMeeting);
+       if ($createMeeting) {
+           $input['meeting_id'] = empty($createMeeting['body']['id']) ? '' : $createMeeting['body']['id'];
+           $input['host_zoom_id'] = $this->zoomuser;
+           $input['meeting_type'] = 'scheduled';
+           $input['join_meeting_url'] = empty($createMeeting['body']['join_url']) ? '' : $createMeeting['body']['join_url'];
+           $input['start_meeting_url'] = empty($createMeeting['body']['start_url']) ? '' : $createMeeting['body']['start_url'];
+           // saving data in db
+           $createMeeting = ZoomMeetings::create($input);
+           if ($createMeeting) {
+               $getUserDetails = $meetings->getUserDetails($input['user_id'], $input['user_type']);
+               if (! empty($getUserDetails)) {
+                   $phonenumber = isset($getUserDetails->number) ? $getUserDetails->number : $getUserDetails->phone;
+                   $msg = 'New meeting has been scheduled for you. Kindly find below the link to join the meeting. '.$input['join_meeting_url'];
+                   $html = "New meeting has been scheduled for you. Kindly find below the link to join the meeting. <br><br> <a href='".$input['join_meeting_url']."' target='_blank'>".$input['join_meeting_url'].'</a>';
+                   if (! empty($phonenumber)) {
+                       $message = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($phonenumber, $getUserDetails->whatsapp_number, $msg);
+                   }
+                   $email = $getUserDetails->email;
+                   if (! empty($email)) {
+                       if ('supplier' == $input['user_type']) {
+                           $name = $getUserDetails->supplier;
+                       } else {
+                           $name = $getUserDetails->name;
+                       }
+                       $data = ['name' => 'SoloLuxury'];
+                   }
+               }
+               $data = ['msg' => 'New Meeting added successfully.', 'meeting_link' => $input['join_meeting_url'], 'start_meeting' => $input['start_meeting_url']];
 
-                return Response::json([
-                    'success' => true,
-                    'data' => $data,
-                ]);
-            } else {
-                $data = ['msg' => 'Token is expired. Please try to add the meeting again.'];
+               return Response::json([
+                   'success' => true,
+                   'data' => $data,
+               ]);
+           } else {
+               $data = ['msg' => 'Token is expired. Please try to add the meeting again.'];
 
-                return Response::json([
-                    'success' => false,
-                    'data' => $data,
-                ]);
-            }
-        } else {
-            $data = ['msg' => 'Meeting not added.'];
+               return Response::json([
+                   'success' => false,
+                   'data' => $data,
+               ]);
+           }
+       } else {
+           $data = ['msg' => 'Meeting not added.'];
 
-            return Response::json([
-                'success' => false,
-                'data' => $data,
-            ]);
-        }
-    }
+           return Response::json([
+               'success' => false,
+               'data' => $data,
+           ]);
+       }
+   }
 
     public function getMeetings()
     {

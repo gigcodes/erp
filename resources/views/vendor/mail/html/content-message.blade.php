@@ -1,19 +1,19 @@
 @component('mail::layout')
-    {{-- Header --}}
-    @slot('header')
+{{-- Header --}}
+@slot('header')
 
-    @endslot
+@endslot
 
-    {{-- Body --}}
-    {{ $slot }}
+{{-- Body --}}
+{{ $slot }}
 
-    {{-- Subcopy --}}
-    @isset($subcopy)
-        @slot('subcopy')
-            @component('mail::subcopy')
-                {{ $subcopy }}
-            @endcomponent
-        @endslot
-    @endisset
+{{-- Subcopy --}}
+@isset($subcopy)
+@slot('subcopy')
+@component('mail::subcopy')
+{{ $subcopy }}
+@endcomponent
+@endslot
+@endisset
 
 @endcomponent

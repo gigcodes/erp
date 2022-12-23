@@ -20,10 +20,14 @@ table{border-collapse: collapse;}
 .ui-icon, .ui-widget-content .ui-icon {background-image: none;}
 
 #bug_tracking_maintable {
-	font-size:13px;
+	font-size:12px;
 }
 .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
 	padding:5px;
+}
+#bug_tracking_maintable .btn {
+	padding: 1px 3px 0px 4px !important;
+	margin-top:0px !important;
 }
 </style>
 	<div class="row" id="common-page-layout">
@@ -39,11 +43,11 @@ table{border-collapse: collapse;}
 							<form class="form-inline message-search-handler" method="get">
 								<div class="col">
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-3" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 150px;">
 										<?php
 										$bug_type = request('bugtype');
 										?>
-										<select class="form-control selectpicker" name="bug_type[]" multiple id="bug_type" title="Select BugType">
+										<select class="form-control selectpicker" name="bug_type[]" multiple id="bug_type" title="Select BugType"  >
 											<option value="">Select BugType</option>
 											<?php
 											foreach ($bugTypes as $bugtype) { ?>
@@ -52,7 +56,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$bug_environment = request('bug_enviornment');
 										?>
@@ -65,7 +69,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 170px;">
 										<?php
 										$bug_severity = request('bug_severity');
 										?>
@@ -78,7 +82,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 160px;">
 										<?php
 										$bug_status = request('bugstatus');
 										?>
@@ -91,7 +95,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-                <div class="form-group  cls_filter_inputbox p-2 mr-3" style="width: 200px;">
+                <div class="form-group  cls_filter_inputbox p-2 mr-3" style="width: 200px;margin-bottom: 10px;">
 										<?php
 										$module_id = request('module_id');
 										?>
@@ -102,10 +106,14 @@ table{border-collapse: collapse;}
 											@endforeach
 										</select>
 									</div>
-									<div class="form-group" style="width: 200px;">
+									<div class="form-group" style="width: 120px;margin-bottom: 10px;">
+										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true"  style="width: 120px;" />
+									</div>
+									<div class="form-group" style="width: 200px;margin-bottom: 10px;">
 										<input name="step_to_reproduce" type="text" class="form-control" placeholder="Search Reproduce" id="bug-search" data-allow-clear="true" />
 									</div>
-									<div class="form-group m-3" style="width: 200px;">
+									
+									<div class="form-group" style="width: 200px;margin-bottom: 10px;">
 										<input name="summary" type="text" class="form-control" placeholder="Search Summary" id="bug-summary" data-allow-clear="true" />
 									</div>
 									<div class="form-group m-1" style="width: 200px;">
@@ -123,7 +131,7 @@ table{border-collapse: collapse;}
 											@endforeach
 										</select>
 									</div>
-                <div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+                <div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 150px;">
 										<?php
 										$assign_to_user = request('assign_to_user');
 										?>
@@ -137,7 +145,7 @@ table{border-collapse: collapse;}
 									</div>
 
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 160px;">
 										<?php
 										$created_by = request('created_by');
 										?>
@@ -287,11 +295,12 @@ table{border-collapse: collapse;}
 				</div>
 				<table class="table">
 					<tr>
-
+						<th>Created At</th>						
 						<th>Type of Bug</th>
 						<th>Summary</th>
 						<th>Expected Result</th>
 						<th>Environment</th>
+						<th>Assigned To</th>
 						<th>Status</th>
 						<th>Severity</th>
 						<th>Module/Feature</th>
@@ -519,6 +528,17 @@ table{border-collapse: collapse;}
       })
 	</script>
 	<script type="text/javascript">
+		
+		$(document).on('click', '.expand-row-msg-chat', function() {
+			var id = $(this).data('id');
+			var full = '.expand-row-msg-chat .td-full-container-' + id;
+			var mini = '.expand-row-msg-chat .td-mini-container-' + id;
+			$(full).toggleClass('hidden');
+			$(mini).toggleClass('hidden');
+		});
+
+		
+	
 	
 		// Bug tracking ajax starts
 		function GetParameterValues(param) {  
@@ -710,16 +730,26 @@ table{border-collapse: collapse;}
 			var form = $(this).closest("form");
 			
 			var values = new Array();
+			var web = new Array();
 			$.each($("input[name='chkBugId[]']:checked"), function() {
 			  values.push($(this).val());
 			  // or you can do something to the actual checked checkboxes by working directly with  'this'
 			  // something like $(this).hide() (only something useful, probably) :P
-			})				
+			})	
+			$.each($(".website-list input[type='checkbox']:checked"), function() {
+			  web.push($(this).val());
+			  // or you can do something to the actual checked checkboxes by working directly with  'this'
+			  // something like $(this).hide() (only something useful, probably) :P
+			})
+			
 			if(values.length ==0 && $("input[name='chkBugId[]']").length>0) {
 				toastr["error"]("Please select atleast 1 bugs list ");
 				return;
 			} 
-			
+			if(web.length ==0) {
+				toastr["error"]("Please select website ");
+				return;
+			}
 			
 			$.ajax({
 				url: form.attr("action"),
@@ -904,6 +934,8 @@ table{border-collapse: collapse;}
 			var thiss = $(this);
 			var data = new FormData();
 			var task_id = $(this).data('taskid');
+			var bid = $(this).data('id');
+			
 			var message = $(this).closest('tr').find('.quick-message-field').val();
 			var mesArr = $(this).closest('tr').find('.quick-message-field');
 			$.each(mesArr, function(index, value) {
@@ -939,14 +971,16 @@ table{border-collapse: collapse;}
 						//   }).fail(function(response) {
 						//     console.log(response);
 						//     alert(response.responseJSON.message);
-						//   });
+						//   });						
+						$('#getMsg'+bid).val('')
 
 						$(thiss).attr('disabled', false);
 					}).fail(function(errObj) {
-						$(thiss).attr('disabled', false);
-
-						alert("Could not send message");
+						$(thiss).attr('disabled', false);						
+						$('#getMsg'+bid).val('')
+						//alert("Could not send message");
 						console.log(errObj);
+						
 					});
 				}
 			} else {

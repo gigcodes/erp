@@ -374,7 +374,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
     Route::get('products/listing/conditions-check', 'ProductController@magentoConditionsCheck')->name('products.magentoConditionsCheck');
-    Route::get('products/listing/conditions-check-logs/{llm_id}', 'ProductController@magentoConditionsCheckLogs')->name('products.magentoConditionsCheckLogs');
+    Route::get('products/listing/conditions-check-logs/{p_id}/{sw_id}', 'ProductController@magentoConditionsCheckLogs')->name('products.magentoConditionsCheckLogs');
     Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
     Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
@@ -2379,7 +2379,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
     Route::post('bug-tracking/websitelist', 'BugTrackingController@getWebsiteList')->name('bug-tracking.websitelist');
     Route::get('bug-tracking/countdevtask/{id}', 'BugTrackingController@taskCount');
-
     Route::get('bug-trackinghistory', 'BugTrackingController@getTrackedHistory')->name('bug-tracking.history');
     Route::post('bug-tracking/hubstaff_task', 'BugTrackingController@createHubstaffManualTask')->name('bug-tracking.hubstaff_task');
 
