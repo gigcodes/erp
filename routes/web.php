@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/website/stores', 'MagentoSettingsController@websiteStores')->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', 'MagentoSettingsController@websiteStoreViews')->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', 'MagentoSettingsController@deleteSetting')->name('delete.setting');
+    Route::get('get-all/store-websites/{id}', 'MagentoSettingsController@getAllStoreWebsites')->name('get.all.store.websites');
 });
 //Google Web Master Routes
 Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
