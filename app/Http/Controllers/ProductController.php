@@ -1479,22 +1479,22 @@ class ProductController extends Controller
             } else {
                 $products = Product::query()->where('assigned_to', auth()->user()->id);
             }
-            // $products = $products->where(function ($query) {
-            //     $query->where('status_id', StatusHelper::$pushToMagento);
-            //     $query->orWhere('status_id', StatusHelper::$inMagento);
-            // });
-            // $products = $products->where('is_push_attempted', 1);
-            // $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
-            //     $join->on('pvu.product_id', 'products.id');
-            //     $join->where('pvu.user_id', '!=', auth()->user()->id);
-            // });
+            $products = $products->where(function ($query) {
+                $query->where('status_id', StatusHelper::$pushToMagento);
+                $query->orWhere('status_id', StatusHelper::$inMagento);
+            });
+            $products = $products->where('is_push_attempted', 1);
+            $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
+                $join->on('pvu.product_id', 'products.id');
+                $join->where('pvu.user_id', '!=', auth()->user()->id);
+            });
     
             $products = $products->leftJoin('status as s', function ($join) {
                 $join->on('products.status_id', 's.id');
             });
     
-            // $products = $products->where('isUploaded', 0);
-            // $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
+            $products = $products->where('isUploaded', 0);
+            $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
 
 
             if($request->get('id') != ""){
@@ -1562,21 +1562,21 @@ class ProductController extends Controller
             $products = Product::query()->where('assigned_to', auth()->user()->id);
         }
         $fieldName = $request->get('filedname');
-        // $products = $products->where(function ($query) {
-        //     $query->where('status_id', StatusHelper::$pushToMagento);
-        //     $query->orWhere('status_id', StatusHelper::$inMagento);
-        // });
-        // $products = $products->where('is_push_attempted', 1);
-        // $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
-        //     $join->on('pvu.product_id', 'products.id');
-        //     $join->where('pvu.user_id', '!=', auth()->user()->id);
-        // });
+        $products = $products->where(function ($query) {
+            $query->where('status_id', StatusHelper::$pushToMagento);
+            $query->orWhere('status_id', StatusHelper::$inMagento);
+        });
+        $products = $products->where('is_push_attempted', 1);
+        $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
+            $join->on('pvu.product_id', 'products.id');
+            $join->where('pvu.user_id', '!=', auth()->user()->id);
+        });
 
         $products = $products->leftJoin('status as s', function ($join) {
             $join->on('products.status_id', 's.id');
         });
 
-        // $products = $products->where('isUploaded', 0);
+        $products = $products->where('isUploaded', 0);
         $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
 
 
