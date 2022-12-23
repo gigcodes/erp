@@ -67,7 +67,6 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
 use Qoraiche\MailEclipse\MailEclipse;
 use seo2websites\MagentoHelper\MagentoHelper;
-
 class ProductController extends Controller
 {
     /**
@@ -77,13 +76,13 @@ class ProductController extends Controller
      */
     public function __construct()
     {
-//      $this->middleware( 'permission:product-list', [ 'only' => [ 'show' ]]);
-        //      $this->middleware('permission:product-lister', ['only' => ['listing']]);
+     $this->middleware( 'permission:product-list', [ 'only' => [ 'show' ]]);
+             $this->middleware('permission:product-lister', ['only' => ['listing']]);
         $this->middleware('permission:product-lister', ['only' => ['listing']]);
-//      $this->middleware('permission:product-create', ['only' => ['create','store']]);
-        //      $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
+     $this->middleware('permission:product-create', ['only' => ['create','store']]);
+             $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
 
-//      $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+     $this->middleware('permission:product-delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -1435,8 +1434,109 @@ class ProductController extends Controller
         ]);
     }
 
+
+
+
     public function magentoConditionsCheck(Request $request)
     {
+
+       
+        if($request->ajax()){
+          
+            $query = $request->get('fieldname');
+            $fieldName = $request->get('filedname');
+            $value = $request->get('value');
+
+            if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+                $products = Product::query();
+            } else {
+                $products = Product::query()->where('assigned_to', auth()->user()->id);
+            }
+            $products = $products->where(function ($query) {
+                $query->where('status_id', StatusHelper::$finalApproval);
+                $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
+            });
+            
+            $products = $products->where('is_conditions_checked', 1);
+            $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
+                $join->on('pvu.product_id', 'products.id');
+                $join->where('pvu.user_id', '!=', auth()->user()->id);
+            });
+    
+            $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
+            $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
+            $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
+    
+            $products = $products->leftJoin('status as s', function ($join) {
+                $join->on('products.status_id', 's.id');
+            });
+
+            if($request->get('id') != ""){
+                $products =  $products->where("products.id",$request->get('id'));
+            }
+            if($request->get('name') != ""){
+                $products =  $products->where("products.name",$request->get('name'));
+            }
+            if($request->get('title') != ""){
+                $products =  $products->where("SW.title",$request->get('title'));
+            }
+            if($request->get('color') != ""){
+                $products =  $products->where("products.color",$request->get('color'));
+            }
+            if($request->get('compositon') != ""){
+                $products =  $products->where("products.composition",$request->get('compositon'));
+            }
+            if($request->get('status') != ""){
+                $products =  $products->where("products.status",$request->get('status'));
+            }
+            if($request->get('price') != ""){
+                $products =  $products->where("products.price_usd",$request->get('price'));
+                $products =  $products->orWhere("products.price_usd_special",$request->get('price'));
+            }
+    
+            $products = $products->where('isUploaded', 0);
+            
+            
+            
+            if(isset($fieldName)){
+                if($fieldName === 'title'){
+                    $products =  $products->where("SW.$fieldName","LIKE","%$value%");
+                }
+                if($fieldName === 'category'){
+                    $products =  $products->where("categories.$fieldName","LIKE","%$value%");
+                }
+                else{
+                    $products =  $products->where("products.$fieldName","LIKE","%$value%");
+                }
+            }
+            $products = $products->orderBy('llm_id', 'desc');
+            $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title'])->paginate(20);
+            // dd($products->get());
+            $products = $products->paginate(20);
+            $productsCount = $products->total();
+            $imageCropperRole = auth()->user()->hasRole('ImageCropers');
+            $categoryArray = Category::renderAsArray();
+            $colors = (new Colors)->all();
+            if (! Setting::has('auto_push_product')) {
+                $auto_push_product = Setting::add('auto_push_product', 0, 'int');
+            } else {
+                $auto_push_product = Setting::get('auto_push_product');
+            }
+            // dd(Product::all());
+            $users = User::all();
+
+            return view("products.magento_conditions_check.list",compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+        }else{
+            return view('products.magento_conditions_check.index');
+        }
+    }
+    public function autocompleteSearch(Request $request)
+    {
+        // dd($request->all());
+        $query = $request->get('fieldname');
+        $fieldName = $request->get('filedname');
+        $value = $request->get('value');
+
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $products = Product::query();
         } else {
@@ -1446,6 +1546,7 @@ class ProductController extends Controller
             $query->where('status_id', StatusHelper::$finalApproval);
             $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
         });
+        
         $products = $products->where('is_conditions_checked', 1);
         $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
             $join->on('pvu.product_id', 'products.id');
@@ -1454,15 +1555,33 @@ class ProductController extends Controller
 
         $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
         $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
+        $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
 
         $products = $products->leftJoin('status as s', function ($join) {
             $join->on('products.status_id', 's.id');
         });
+   
 
         $products = $products->where('isUploaded', 0);
         $products = $products->orderBy('llm_id', 'desc');
-        $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title'])->paginate(20);
-        $productsCount = $products->total();
+        $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title','c.title as category_title']);
+        // dd($products->get());
+  
+            if($fieldName == 'title'){
+                $products =  $products->where("SW.$fieldName","LIKE","%$value%");
+               
+            }
+            if($fieldName == 'category')
+              $products =  $products->where("c.title","LIKE","%$value%");
+            else{   
+            $products = $products->where("products.$fieldName","LIKE","%$value%");
+            }
+        
+            $products = $products->get()->toArray();
+
+
+        
+        // $productsCount = $products->total();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
         $colors = (new Colors)->all();
@@ -1471,10 +1590,9 @@ class ProductController extends Controller
         } else {
             $auto_push_product = Setting::get('auto_push_product');
         }
-        $users = User::all();
-
-        return view('products.magento_conditions_check.index', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
-    }
+        // dd(Product::all());
+        return response()->json(['status'=>200,'data'=> array_unique(array_column($products,$fieldName))]);
+    } 
 
     public function magentoPushStatus(Request $request)
     {

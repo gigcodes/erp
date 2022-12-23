@@ -8,7 +8,7 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": "^7.2.5|^8.0",
+        "php": "^7.2|^8.1",
         "ext-json": "*",
         "apility/laravel-fcm": "*",
         "barryvdh/laravel-ide-helper": "^2.6",
@@ -34,7 +34,7 @@
         "jenkins-khan/jenkins-api": "dev-master",
         "kosinix/grafika": "^2.0",
         "ksubileau/color-thief-php": "^1.4",
-        "laravel/framework": "^7.29",
+        "laravel/framework": "^7.2",
         "laravel/horizon": "*",
         "laravel/passport": "^7.4",
         "laravel/helpers": "^1.5",
@@ -59,7 +59,7 @@
         "plank/laravel-mediable": "*",
         "plesk/api-php-lib": "^1.0",
         "pragmarx/tracker": "^4.0",
-        "predis/predis": "^2.0",
+        "predis/predis": "^1.1",
         "pusher/pusher-http-laravel": "*",
         "pusher/pusher-php-server": "*",
         "qoraiche/laravel-mail-editor": "*",
@@ -179,6 +179,9 @@
         "optimize-autoloader": true,
         "allow-plugins": {
             "kylekatarnls/update-helper": true
+        },
+        "github-oauth": {
+            "github.com": "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"
         }
     },
     "minimum-stability": "dev",

@@ -261,7 +261,7 @@ Route::prefix('seo')->middleware('auth')->group(function () {
     Route::post('save-keyword', 'SeoToolController@saveKeyword');
 });
 
-Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
+// Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
@@ -373,6 +373,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
     Route::get('products/listing/conditions-check', 'ProductController@magentoConditionsCheck')->name('products.magentoConditionsCheck');
+    Route::post('products/listing/autocompleteSearch', 'ProductController@autocompleteSearch')->name('products.autocompleteSearch');
+    
     Route::get('products/listing/conditions-check-logs/{llm_id}', 'ProductController@magentoConditionsCheckLogs')->name('products.magentoConditionsCheckLogs');
     Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
     Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
@@ -2151,7 +2153,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         //     Route::get('cost/index', 'DevelopmentController@historyCost')->name('development.history.cost.index');
         // });
     });
-});
+// });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 

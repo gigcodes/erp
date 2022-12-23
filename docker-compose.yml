@@ -48,6 +48,7 @@ services:
         environment:
             - PMA_ARBITRARY=1
             - PMA_HOST=${DB_HOST}
+            - PHP_VERSION=8.1
         restart: always
         depends_on:
             - erp-mysql
