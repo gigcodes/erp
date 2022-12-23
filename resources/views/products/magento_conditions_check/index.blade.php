@@ -89,9 +89,9 @@
                 });
         });
 
-        function getConditionCheckLog(llmId) {
+        function getConditionCheckLog(pID, swId) {
             $.ajax({
-                url: "{{ url('products/listing/conditions-check-logs/') }}" + "/" + llmId,
+                url: "{{ url('products/listing/conditions-check-logs/') }}" + "/" + pID + "/" + swId,
                 type: "get"
             }).done(function(response) {
                 if (response.code = '200') {

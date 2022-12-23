@@ -13,7 +13,6 @@
         <th style="width:5%">Price</th>
         <th style="width:5%">Status</th>
         <th style="width:5%">Log</th>
-        <th style="width:5%">User</th>
     </tr>
     </thead>
     <tbody>
@@ -172,7 +171,7 @@
                     @endif
                 </div>
             </td>
-            <td>{{ $product->sw_title }}</td>
+            <td>{{ $product->sw_title . ' - '. $product->sw_id  }}</td>
             <td style="word-break: break-all; word-wrap: break-word">
                 <button type="button" class="btn-link quick-view_image__"
                         data-id="{{ $product->id }}" data-target="#product_image_{{ $product->id }}"
@@ -250,7 +249,11 @@
                 @endif
             </td>
             <td>
-                {{ $product->llm_message }}
+                @php
+                  $logList = \App\Loggers\LogListMagento::select('message')
+                        ->where('product_id', $product->id)->where('store_website_id', $product->sw_id)->orderBy('id', 'desc')->first();
+                    echo $logList->message;
+                @endphp
             </td>
             <td>
 {{--                @if($product->magentoLog)--}}
@@ -258,18 +261,9 @@
 {{--                @else--}}
 {{--                    Product not entered to the queue for conditions check--}}
 {{--                @endif--}}
-                <a onclick="getConditionCheckLog({{ $product->llm_id }})" class="btn" title="View log">
+                <a onclick="getConditionCheckLog({{ $product->id }}, {{ $product->sw_id }})" class="btn" title="View log">
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </a>
-            </td>
-            <td>
-                <select class="form-control select-multiple approved_by" name="approved_by"
-                        id="approved_by" data-id="{{ $product->id }}" data-placeholder="Select user">
-                    <option></option>
-                    @foreach($users as $user)
-                        <option value="{{$user->id}}" {{ $product->approved_by == $user->id ? 'selected' : '' }} >{{ $user->name }}</option>
-                    @endforeach
-                </select>
             </td>
         </tr>
     @endforeach
