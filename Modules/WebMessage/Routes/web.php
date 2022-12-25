@@ -14,7 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('web-message')->middleware('auth')->group(function () {
+Route::group([
+    'prefix' => 'web-message',
+    'middleware' => 'auth'
+],function () {
     Route::get('/', [WebMessageController::class, 'index']);
     Route::post('/send', [WebMessageController::class, 'send']);
     Route::get('/message-list/{id}', [WebMessageController::class, 'messageList']);

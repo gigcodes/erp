@@ -197,14 +197,22 @@ Route::get('local/instagram-user-post', [InstagramPostsController::class, 'getUs
 Route::post('node/get-status', [ScrapController::class, 'getStatus']);
 Route::get('node/get-log', [ScrapController::class, 'getLatestLog'])->name('scraper.get.log.list');
 
-Route::prefix('v1')->group(function () {
-    Route::prefix('product')->group(function () {
-        Route::prefix('{sku}')->group(function () {
+Route::group([
+    'prefix' => 'v1'
+],function () {
+    Route::group([
+        'prefix' => 'product'
+    ],function () {
+        Route::group([
+            'prefix' => '{sku}'
+        ],function () {
             Route::get('price', [\App\Http\Controllers\Api\v1\ProductController::class, 'price']);
         });
     });
 
-    Route::prefix('account')->group(function () {
+    Route::group([
+        'prefix' => 'account'
+    ],function () {
         Route::post('create', [\App\Http\Controllers\Api\v1\AccountController::class, 'create']);
     });
 });

@@ -32,7 +32,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('store-website')->middleware('auth')->group(function () {
+Route::group([
+    'prefix' => 'store-website',
+    'middleware' => 'auth'
+],function () {
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');
     Route::post('generate-reindex', [StoreWebsiteController::class, 'generateReIndexfile']);
     Route::post('generate-api-token', [StoreWebsiteController::class, 'generateApiToken']);
@@ -51,7 +54,9 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/save-user-in-magento', [StoreWebsiteController::class, 'saveUserInMagento'])->name('store-website.save-user-in-magento');
     Route::post('/delete-user-in-magento', [StoreWebsiteController::class, 'deleteUserInMagento'])->name('store-website.delete-user-in-magento');
     Route::post('/update-company-website-address', [StoreWebsiteController::class, 'updateCompanyWebsiteAddress']);
-    Route::prefix('{id}')->group(function () {
+    Route::group([
+        'prefix' => '{id}',
+    ],function () {
         Route::post('magento-setting-update-history', [StoreWebsiteController::class, 'getMagentoUpdateWebsiteSetting']);
 
         Route::post('magento-dev-update-script-history', [StoreWebsiteController::class, 'getMagentoDevScriptUpdatesLogs']);
@@ -80,13 +85,17 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
         Route::post('/submit-social-remarks', [StoreWebsiteController::class, 'updateSocialRemarks'])->name('store-website.update.social-remarks');
 
-        Route::prefix('build-process')->group(function () {
+        Route::group([
+            'prefix' => 'build-process'
+        ],function () {
             Route::get('/', [StoreWebsiteController::class, 'buildProcess'])->name('store-website.build.process');
             Route::get('/history', [StoreWebsiteController::class, 'buildProcessHistory'])->name('store-website.build.process.history');
             Route::post('save', [StoreWebsiteController::class, 'buildProcessSave'])->name('store-website.build.process.save');
         });
 
-        Route::prefix('social-strategy')->group(function () {
+        Route::group([
+            'prefix' => 'social-strategy',
+        ],function () {
             Route::get('/', [StoreWebsiteController::class, 'socialStrategy'])->name('store-website.social-strategy');
             Route::post('/add-subject', [StoreWebsiteController::class, 'submitSubject'])->name('store-website.social-strategy.add-subject');
             Route::post('/add-strategy', [StoreWebsiteController::class, 'submitStrategy'])->name('store-website.social-strategy.add-strategy');
@@ -101,31 +110,33 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
             Route::post('/edit-subject', [StoreWebsiteController::class, 'submitSubjectChange'])->name('store-website.social-strategy.submit-edit-subject');
         });
 
-        Route::prefix('attached-category')->group(function () {
+        Route::group([
+            'prefix' => 'attached-category'
+        ],function () {
             Route::get('/', [CategoryController::class, 'index'])->name('store-website.attached-category.index');
             Route::post('/', [CategoryController::class, 'store'])->name('store-website.attached-category.store');
-            Route::prefix('{store_category_id}')->group(function () {
+            Route::group(['prefix' => '{store_category_id}'],function () {
                 Route::get('/delete', [CategoryController::class, 'delete'])->name('store-website.attached-category.delete');
             });
         });
 
-        Route::prefix('attached-categories')->group(function () {
+        Route::group(['prefix'=> 'attached-categories'],function () {
             Route::post('/', [CategoryController::class, 'storeMultipleCategories'])->name('store-website.attached-categories.store');
         });
 
-        Route::prefix('attached-brand')->group(function () {
+        Route::group(['prefix' => 'attached-brand'],function () {
             Route::get('/', [BrandController::class, 'index'])->name('store-website.attached-brand.index');
             Route::post('/', [BrandController::class, 'store'])->name('store-website.attached-brand.store');
-            Route::prefix('{store_brand_id}')->group(function () {
+            Route::group(['prefix'=> '{store_brand_id}'],function () {
                 Route::get('/delete', [BrandController::class, 'delete'])->name('store-website.attached-brand.delete');
             });
         });
 
-        Route::prefix('goal')->group(function () {
+        Route::group(['prefix' => 'goal'],function () {
             Route::get('/', [GoalController::class, 'index'])->name('store-website.goal.index');
             Route::get('records', [GoalController::class, 'records'])->name('store-website.goal.records');
             Route::post('save', [GoalController::class, 'save'])->name('store-website.goal.save');
-            Route::prefix('{goalId}')->group(function () {
+            Route::group(['prefix' => '{goalId}'],function () {
                 Route::get('edit', [GoalController::class, 'edit'])->name('store-website.goal.edit');
                 Route::get('delete', [GoalController::class, 'delete'])->name('store-website.goal.delete');
                 Route::get('remarks', [GoalController::class, 'remarks'])->name('store-website.goal.remarks');
@@ -133,13 +144,13 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
             });
         });
 
-        Route::prefix('seo-format')->group(function () {
+        Route::group(['prefix' => 'seo-format'],function () {
             Route::get('/', [SeoController::class, 'index'])->name('store-website.seo.index');
             Route::post('save', [SeoController::class, 'save'])->name('store-website.seo.save');
         });
     });
 
-    Route::prefix('brand')->group(function () {
+    Route::group(['prefix'=> 'brand'],function () {
         Route::get('/', [BrandController::class, 'list'])->name('store-website.brand.list');
         Route::get('records', [BrandController::class, 'records'])->name('store-website.brand.records');
         Route::post('push-to-store', [BrandController::class, 'pushToStore'])->name('store-website.brand.push-to-store');
@@ -152,18 +163,18 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('push-brand-history-log', [BrandController::class, 'pushBrandsLog'])->name('push-brands-history-log');
     });
 
-    Route::prefix('price-override')->group(function () {
+    Route::group(['prefix'=> 'price-override'],function () {
         Route::get('/', [PriceOverrideController::class, 'index'])->name('store-website.price-override.index');
         Route::get('records', [PriceOverrideController::class, 'records'])->name('store-website.price-override.records');
         Route::post('save', [PriceOverrideController::class, 'save'])->name('store-website.price-override.save');
         Route::get('calculate', [PriceOverrideController::class, 'calculate'])->name('store-website.price-override.calculate');
-        Route::prefix('{id}')->group(function () {
+        Route::group(['prefix' => '{id}'],function () {
             Route::get('edit', [PriceOverrideController::class, 'edit'])->name('store-website.price-override.edit');
             Route::get('delete', [PriceOverrideController::class, 'delete'])->name('store-website.price-override.delete');
         });
     });
 
-    Route::prefix('category')->group(function () {
+    Route::group(['prefix' => 'category'],function () {
         Route::get('/', [CategoryController::class, 'list'])->name('store-website.category.list');
         Route::post('category-history', [CategoryController::class, 'categoryHistory'])->name('store-website.category,categoryHistory');
         Route::post('website-category-user-history', [CategoryController::class, 'webiteCategoryUserHistory'])->name('store-website.category,webiteCategoryUserHistory');
@@ -171,7 +182,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('/delete-category', [CategoryController::class, 'deleteCategory'])->name('store-website.delete-category');
     });
 
-    Route::prefix('color')->group(function () {
+    Route::group(['prefix' => 'color'],function () {
         Route::get('/', [ColorController::class, 'index'])->name('store-website.color.list');
         Route::post('save', [ColorController::class, 'store'])->name('store-website.color.save');
         Route::put('/{id}', [ColorController::class, 'update'])->name('store-website.color.edit');
@@ -179,7 +190,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('push-to-store', [ColorController::class, 'pushToStore'])->name('store-website.color.push-to-store');
     });
 
-    Route::prefix('websites')->group(function () {
+    Route::group(['prefix' =>'websites'],function () {
         Route::get('/', [WebsiteController::class, 'index'])->name('store-website.websites.index');
         Route::get('/records', [WebsiteController::class, 'records'])->name('store-website.websites.records');
         Route::post('save', [WebsiteController::class, 'store'])->name('store-website.websites.save');
@@ -196,7 +207,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/copy-website-struct', [WebsiteController::class, 'copyWebsiteStructure'])->name('store-website.websites.copyWebsiteStructure');
     });
 
-    Route::prefix('website-stores')->group(function () {
+    Route::group(['prefix' => 'website-stores'],function () {
         Route::get('/', [WebsiteStoreController::class, 'index'])->name('store-website.website-stores.index');
         Route::get('/records', [WebsiteStoreController::class, 'records'])->name('store-website.website-stores.records');
         Route::post('save', [WebsiteStoreController::class, 'store'])->name('store-website.website-stores.save');
@@ -208,7 +219,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     });
 
     //Site Attributes
-    Route::prefix('site-attributes')->group(function () {
+    Route::group(['prefix'=> 'site-attributes'],function () {
         Route::get('/', [SiteAttributesControllers::class, 'index'])->name('store-website.site-attributes.index');
         Route::post('save', [SiteAttributesControllers::class, 'store'])->name('store-website.site-attributes-views.save');
         Route::post('attributeshistory', [SiteAttributesControllers::class, 'attributesHistory'])->name('store-website.site-attributes-views.attributeshistory');
@@ -218,7 +229,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', [SiteAttributesControllers::class, 'edit'])->name('store-website.site-attributes-views.edit');
     });
 
-    Route::prefix('website-store-views')->group(function () {
+    Route::group(['prefix' => 'website-store-views'],function () {
         Route::get('/', [WebsiteStoreViewController::class, 'index'])->name('store-website.website-store-views.index');
         Route::get('/records', [WebsiteStoreViewController::class, 'records'])->name('store-website.website-store-views.records');
         Route::post('save', [WebsiteStoreViewController::class, 'store'])->name('store-website.website-store-views.save');
@@ -232,7 +243,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/agents', [WebsiteStoreViewController::class, 'agents'])->name('store-website.website-store-views.group.agents');
         Route::get('/groups', [WebsiteStoreViewController::class, 'groups'])->name('store-website.website-store-views.group.groups');
     });
-    Route::prefix('page')->group(function () {
+    Route::group(['prefix' => 'page'],function () {
         Route::get('/', [PageController::class, 'index'])->name('store-website.page.index');
         Route::get('/meta-title-keywords', [PageController::class, 'pageMetaTitleKeywords'])->name('store-website.page.keywords');
         Route::get('/records', [PageController::class, 'records'])->name('store-website.page.records');
@@ -255,7 +266,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('/copy-to', [PageController::class, 'copyTo'])->name('store_website_page.copy.to');
     });
 
-    Route::prefix('category-seo')->group(function () {
+    Route::group(['prefix' => 'category-seo'],function () {
         Route::get('/', [CategorySeoController::class, 'index'])->name('store-website.category-seo.index');
         Route::get('/records', [CategorySeoController::class, 'records'])->name('store-website.category-seo.records');
         Route::post('save', [CategorySeoController::class, 'store'])->name('store-website.category-seo.save');
@@ -269,7 +280,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('/copy-to', [CategorySeoController::class, 'copyTo'])->name('store_website_page.category.seo.copy.to');
     });
 
-    Route::prefix('product-attribute')->group(function () {
+    Route::group(['prefix' => 'product-attribute'],function () {
         Route::get('/', [StoreWebsiteProductAttributeController::class, 'index'])->name('store-website.product-attribute.index');
         Route::get('/records', [StoreWebsiteProductAttributeController::class, 'records'])->name('store-website.product-attribute.records');
         Route::post('save', [StoreWebsiteProductAttributeController::class, 'store'])->name('store-website.product-attribute.save');
@@ -285,7 +296,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::prefix('site-development')->group(function () {
+    Route::group(['prefix' => 'site-development'],function () {
         Route::get('status/update', [SiteDevelopmentController::class, 'siteDevlopmentStatusUpdate'])->name('site_devlopment.status.update');
         Route::post('remark/user_flag', [SiteDevelopmentController::class, 'userRemarkFlag'])->name('remark.flag.user');
         Route::post('remark/admin_flag', [SiteDevelopmentController::class, 'adminRemarkFlag'])->name('remark.flag.admin');
@@ -319,38 +330,38 @@ Route::middleware('auth')->group(function () {
         Route::get('/latest-reamrks/{website_id}', [SiteDevelopmentController::class, 'latestRemarks'])->name('site-development.latest-reamrks');
         Route::get('/artwork-history/all-histories/{website_id}', [SiteDevelopmentController::class, 'allartworkHistory'])->name('site-development.artwork-history.all-histories');
         Route::post('/save-site-asset-data', [SiteDevelopmentController::class, 'saveSiteAssetData'])->name('site-development.save-site-asset-data');
-        Route::prefix('{id}')->group(function () {
+        Route::group(['prefix' => '{id}'],function () {
             Route::get('list-documents', [SiteDevelopmentController::class, 'listDocuments'])->name('site-development.list-documents');
-            Route::prefix('remarks')->group(function () {
+            Route::group(['prefix' => 'remarks'],function () {
                 Route::get('/', [SiteDevelopmentController::class, 'remarks'])->name('site-development.remarks');
                 Route::post('/', [SiteDevelopmentController::class, 'saveRemarks'])->name('site-development.saveRemarks');
             });
         });
     });
 
-    Route::prefix('site-development-status')->group(function () {
+    Route::group(['prefix' => 'site-development-status'],function () {
         Route::get('/', [SiteDevelopmentStatusController::class, 'index'])->name('site-development-status.index');
         Route::get('records', [SiteDevelopmentStatusController::class, 'records'])->name('site-development-status.records');
         Route::get('stats', [SiteDevelopmentStatusController::class, 'statusStats'])->name('site-development-status.stats');
         Route::post('save', [SiteDevelopmentStatusController::class, 'save'])->name('site-development-status.save');
         Route::post('merge-status', [SiteDevelopmentStatusController::class, 'mergeStatus'])->name('site-development-status.merge-status');
-        Route::prefix('{id}')->group(function () {
+        Route::group(['prefix' => '{id}'],function () {
             Route::get('edit', [SiteDevelopmentStatusController::class, 'edit'])->name('site-development-status.edit');
             Route::get('delete', [SiteDevelopmentStatusController::class, 'delete'])->name('site-development-status.delete');
         });
     });
 
-    Route::prefix('country-group')->group(function () {
+    Route::group(['prefix' => 'country-group'],function () {
         Route::get('/', [CountryGroupController::class, 'index'])->name('store-website.country-group.index');
         Route::get('records', [CountryGroupController::class, 'records'])->name('store-website.country-group.records');
         Route::post('save', [CountryGroupController::class, 'save'])->name('store-website.country-group.save');
-        Route::prefix('{id}')->group(function () {
+        Route::group(['prefix' => '{id}'],function () {
             Route::get('edit', [CountryGroupController::class, 'edit'])->name('store-website.country-group.edit');
             Route::get('delete', [CountryGroupController::class, 'delete'])->name('store-website.country-group.delete');
         });
     });
 
-    Route::prefix('site-assets')->group(function () {
+    Route::group(['prefix' => 'site-assets'],function () {
         Route::get('/', [SiteAssetController::class, 'index'])->name('site-asset.index');
         Route::post('/download-site-asset-data', [SiteAssetController::class, 'downaloadSiteAssetData'])->name('site-asset.download');
     });
@@ -360,7 +371,7 @@ Route::middleware('auth')->group(function () {
     Route::post('site-check-list/download', [SiteAssetController::class, 'downaloadSiteCheckListData'])->name('site-check-list.download');
 
     //Payment Responses Routes
-    Route::prefix('payment-responses')->group(function () {
+    Route::group(['prefix' => 'payment-responses'],function () {
         Route::get('/', [PaymentResponseController::class, 'index'])->name('payment-responses.index');
         Route::get('/records', [PaymentResponseController::class, 'records'])->name('payment-responses.records');
     });

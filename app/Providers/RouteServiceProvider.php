@@ -26,7 +26,8 @@ class RouteServiceProvider extends ServiceProvider
 
             //
         });
-//dd(auth()->check());    }
+    }
+
 
 
 

@@ -406,7 +406,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('show-magento-cron-data', [Cron\ShowMagentoCronDataController::class, 'MagentoCron'])->name('magento-cron-data');
 });
-
 /** Magento Module */
 Route::middleware('auth')->group(function () {
     Route::get('magento_modules/remark/{magento_module}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
@@ -432,7 +431,6 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 });
-
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
     Route::get('redis-jobs', [RedisjobController::class, 'index'])->name('redis.jobs');
@@ -442,7 +440,6 @@ Route::middleware('auth')->group(function () {
     Route::post('redis-jobs-clearQue/{id?}', [RedisjobController::class, 'clearQue'])->name('redis.clear_que');
     Route::post('redis-jobs-restart_management/{id?}', [RedisjobController::class, 'restartManagement'])->name('redis.restart_management');
 });
-
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', [MagentoSettingsController::class, 'namehistrory']);
@@ -475,7 +472,6 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
     Route::get('/get-account-notifications', [GoogleWebMasterController::class, 'getAccountNotifications'])->name('googlewebmaster.get.account.notifications');
     Route::get('/all-records', [GoogleWebMasterController::class, 'allRecords'])->name('googlewebmaster.get.records');
 });
-
 Route::prefix('product')->middleware('auth')->group(function () {
     Route::get('manual-crop/assign-products', [Products\ManualCroppingController::class, 'assignProductsToUser']);
     Route::resource('manual-crop', Products\ManualCroppingController::class);
@@ -485,7 +481,6 @@ Route::prefix('product')->middleware('auth')->group(function () {
     Route::post('store-website-description', [ProductController::class, 'storeWebsiteDescription'])->name('product.store.website.description');
     Route::post('test', [ProductController::class, 'test'])->name('product.test.template');
 });
-
 Route::prefix('logging')->middleware('auth')->group(function () {
     Route::any('list/api/logs', [LaravelLogController::class, 'apiLogs'])->name('api-log-list');
     Route::any('list/api/logs/generate-report', [LaravelLogController::class, 'generateReport'])->name('api-log-list-generate-report');
@@ -542,10 +537,8 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::get('log-magento-apis-ajax', [Logging\LogListMagentoController::class, 'logMagentoApisAjax'])->name('logging.magento.logMagentoApisAjax');
     Route::get('log-magento-product-push-journey', [Logging\LogListMagentoController::class, 'productPushJourney'])->name('logging.magento.product_push_journey');
 });
-
 Route::get('log-scraper-api', [Logging\LogScraperController::class, 'scraperApiLog'])->middleware('auth')->name('log-scraper.api');
 Route::get('log-scraper', [Logging\LogScraperController::class, 'index'])->middleware('auth')->name('log-scraper.index');
-
 Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::post('bulk-messages/addToDND', [BulkCustomerRepliesController::class, 'addToDND']);
     Route::post('bulk-messages/removeFromDND', [BulkCustomerRepliesController::class, 'removeFromDND']);
@@ -2120,7 +2113,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::put('account/{id}', [ReviewController::class, 'accountUpdate'])->name('account.update');
     Route::delete('account/{id}/destroy', [ReviewController::class, 'accountDestroy'])->name('account.destroy');
 
-    Route::resource('brand-review/get', [BrandReviewController::class, 'getAllBrandReview']);
+    Route::get('brand-review/get', [BrandReviewController::class, 'getAllBrandReview']);
+
+    Route::resource('brand-review/get', BrandReviewController::class);
     // Threads Routes
     Route::resource('thread', ThreadController::class);
     Route::post('thread/{id}/status', [ThreadController::class, 'updateStatus'])->name('thread.updateStatus');
@@ -2517,7 +2512,6 @@ Route::get(
 Route::get('exotel/outgoing', [ExotelController::class, 'call'])->name('exotel.call');
 Route::get('exotel/checkNumber', [ExotelController::class, 'checkNumber']);
 Route::post('exotel/recordingCallback', [ExotelController::class, 'recordingCallback']);
-
 /* ---------------------------------------------------------------------------------- */
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
@@ -2556,7 +2550,6 @@ Route::prefix('livechat')->group(function () {
     Route::post('/get-livechat-coupon-code', [LiveChatController::class, 'getLiveChatCouponCode'])->name('get-livechat-coupon-code');
     Route::post('/send-livechat-coupon-code', [LiveChatController::class, 'sendLiveChatCouponCode'])->name('send-livechat-coupon-code');
 });
-
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveChatInc'])->name('livechat.upload.file');
@@ -2734,7 +2727,7 @@ Route::middleware('auth')->group(function () {
  * feature in this ERP
  */
 
-Route::middleware('auth')->group(function () {
+ Route::middleware('auth')->group(function () {
     Route::get('cold-leads/delete', [ColdLeadsController::class, 'deleteColdLead']);
     Route::resource('cold-leads-broadcasts', ColdLeadBroadcastsController::class);
     Route::resource('cold-leads', ColdLeadsController::class);
@@ -2914,7 +2907,6 @@ Route::prefix('social-media')->middleware('auth')->group(function () {
     Route::post('/instagram/message-queue/settings', [InstagramPostsController::class, 'messageQueueSetting'])->name('instagram.message-queue.settings');
     Route::post('/instagram/message-queue/approve/approved', [InstagramPostsController::class, 'messageQueueApproved'])->name('instagram.message-queue.approved');
 });
-
 /*
  * @date 1/17/2019
  * @author Rishabh Aryal
@@ -2922,7 +2914,7 @@ Route::prefix('social-media')->middleware('auth')->group(function () {
  * from Facebook API
  */
 
-Route::prefix('facebook')->middleware('auth')->group(function () {
+ Route::prefix('facebook')->middleware('auth')->group(function () {
     Route::get('/influencers', [ScrappedFacebookUserController::class, 'index']);
 });
 
@@ -3307,7 +3299,7 @@ Route::middleware('auth')->prefix('flow')->group(function () {
     Route::post('/create/type', [FlowController::class, 'createType'])->name('flow-type-create');
 });
 
-Route::middleware('auth')->group(['admin'], function () {
+Route::group(['prefix' => 'admin','middleware' => 'auth'], function () {
     Route::get('category/brand/min-max-pricing', [CategoryController::class, 'brandMinMaxPricing']);
     Route::get('category/brand/min-max-pricing-update-default', [CategoryController::class, 'updateMinMaxPriceDefault']);
     Route::post('category/brand/update-min-max-pricing', [CategoryController::class, 'updateBrandMinMaxPricing']);
@@ -4172,11 +4164,11 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 
 // DEV MANISH
 //System size
-Route::middleware('auth')->group(['admin'], function () {
+Route::group(['prefix' => 'admin','middleware'=> 'auth'], function () {
     Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
 });
 
-Route::middleware('auth')->group(['admin'], function () {
+Route::group(['prefix' => 'admin','middleware' => 'auth'], function () {
     Route::any('/database-log', [ScrapLogsController::class, 'databaseLog']);
     Route::get('/database-log/enable', [ScrapLogsController::class, 'enableMysqlAccess']);
     Route::get('/database-log/disable', [ScrapLogsController::class, 'disableMysqlAccess']);
@@ -4234,8 +4226,7 @@ Route::post('product-segment-price', [product_price\ProductPriceController::clas
 Route::post('product-update', [product_price\ProductPriceController::class, 'updateProduct'])->name('product_update');
 
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
-
-Route::middleware('auth')->group(['admin'], function () {
+Route::group(['prefix' => 'admin','middleware'=> 'auth'], function () {
     Route::prefix('plan')->group(static function () {
         Route::get('/', [PlanController::class, 'index'])->name('plan.index');
         Route::post('/create', [PlanController::class, 'store'])->name('plan.store');
@@ -4264,7 +4255,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin-menu/db-query/command_execution_history', [DBQueryController::class, 'command_execution_history'])->name('admin.command_execution_history'); //Purpose : Add Route for Command Exicution History data - DEVTASK-19941
     Route::get('/admin-menu/db-query/report-download', [DBQueryController::class, 'ReportDownload'])->name('admin.db-query.download');
 });
-
 Route::middleware('auth')->prefix('totem')->group(function () {
     Route::get('/', [TasksController::class, 'dashboard'])->name('totem.dashboard');
 
@@ -4291,7 +4281,6 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('websites', [Select2Controller::class, 'allWebsites'])->name('select2.websites');
     Route::get('tasks', [Select2Controller::class, 'allTasks'])->name('select2.tasks');
 });
-
 Route::get('whatsapp-log', [Logging\WhatsappLogsController::class, 'getWhatsappLog'])->name('whatsapp.log');
 Route::get('chatbot-message-log', [ChatbotMessageLogsController::class, 'index'])->name('chatbot.messages.logs');
 Route::get('watson-journey', [LiveChatController::class, 'watsonJourney'])->name('watson.journey');
@@ -4322,7 +4311,6 @@ Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand
 Route::post('magento/command/edit', [MagentoCommandController::class, 'edit'])->name('magento.command.edit');
 Route::post('magento/command/history', [MagentoCommandController::class, 'commandHistoryLog'])->name('magento.command.history');
 Route::delete('magento/command/delete', [MagentoCommandController::class, 'destroy'])->name('magento.command.delete');
-
 Route::prefix('message-queue-history')->middleware('auth')->group(function () {
     Route::get('/', [MessageQueueHistoryController::class, 'index'])->name('message-queue-history.index');
     Route::get('/records', [MessageQueueHistoryController::class, 'records'])->name('message-queue-history.records');

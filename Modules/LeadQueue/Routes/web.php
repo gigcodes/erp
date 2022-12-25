@@ -14,17 +14,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('leadqueue')->middleware('auth')->group(function () {
+Route::group([
+    'prefix' => 'leadqueue',
+    'middleware' => 'auth'
+],function () {
     Route::get('/', [LeadQueueController::class, 'index']);
 });
 
-Route::prefix('lead-queue')->middleware('auth')->group(function () {
+Route::group([
+    'prefix' => 'lead-queue',
+    'middleware' => 'auth'
+],function () {
     Route::get('/', [LeadQueueController::class, 'index'])->name('lead-queue.index');
     Route::get('/approve', [LeadQueueController::class, 'approve'])->name('lead-queue.approve');
     Route::get('/approve/approved', [LeadQueueController::class, 'approved'])->name('lead-queue.approved');
     Route::get('/status', [LeadQueueController::class, 'status'])->name('lead-queue.status');
     Route::get('delete', [LeadQueueController::class, 'deleteRecord'])->name('lead-queue.delete.record');
-    Route::prefix('records')->group(function () {
+    Route::group(['prefix' => 'records'],function () {
         Route::get('/', [LeadQueueController::class, 'records']);
         Route::post('/action-handler', [LeadQueueController::class, 'actionHandler']);
         // Route::prefix('{id}')->group(function() {
@@ -32,11 +38,11 @@ Route::prefix('lead-queue')->middleware('auth')->group(function () {
         // });
     });
 
-    Route::prefix('report')->group(function () {
+    Route::group(['prefix' => 'report'],function () {
         Route::get('/', [LeadQueueController::class, 'report'])->name('lead-queue.report');
     });
 
-    Route::prefix('setting')->group(function () {
+    Route::group(['prefix' => 'setting'],function () {
         Route::post('update-limit', [LeadQueueController::class, 'updateLimit']);
         Route::get('recall', [LeadQueueController::class, 'recall']);
     });
