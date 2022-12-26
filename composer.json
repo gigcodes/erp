@@ -35,7 +35,7 @@
         "ksubileau/color-thief-php": "^1.4",
         "laravel/framework": "^8.83",
         "laravel/helpers": "^1.5",
-        "laravel/horizon": "*",
+        "laravel/horizon": "^5.10",
         "laravel/passport": "^10.0",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.0",

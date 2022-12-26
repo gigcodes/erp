@@ -1,24 +1,24 @@
 <?php
 
-use App\Http\Controllers\BrandController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\CategorySeoController;
-use App\Http\Controllers\ColorController;
-use App\Http\Controllers\CountryGroupController;
-use App\Http\Controllers\GoalController;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\PaymentResponseController;
-use App\Http\Controllers\PriceOverrideController;
-use App\Http\Controllers\SeoController;
-use App\Http\Controllers\SiteAssetController;
-use App\Http\Controllers\SiteAttributesControllers;
-use App\Http\Controllers\SiteDevelopmentController;
-use App\Http\Controllers\SiteDevelopmentStatusController;
-use App\Http\Controllers\StoreWebsiteController;
-use App\Http\Controllers\StoreWebsiteProductAttributeController;
-use App\Http\Controllers\WebsiteController;
-use App\Http\Controllers\WebsiteStoreController;
-use App\Http\Controllers\WebsiteStoreViewController;
+use Modules\StoreWebsite\Http\Controllers\BrandController;
+use Modules\StoreWebsite\Http\Controllers\CategoryController;
+use Modules\StoreWebsite\Http\Controllers\CategorySeoController;
+use Modules\StoreWebsite\Http\Controllers\ColorController;
+use Modules\StoreWebsite\Http\Controllers\CountryGroupController;
+use Modules\StoreWebsite\Http\Controllers\GoalController;
+use Modules\StoreWebsite\Http\Controllers\PageController;
+use Modules\StoreWebsite\Http\Controllers\PaymentResponseController;
+use Modules\StoreWebsite\Http\Controllers\PriceOverrideController;
+use Modules\StoreWebsite\Http\Controllers\SeoController;
+use Modules\StoreWebsite\Http\Controllers\SiteAssetController;
+use Modules\StoreWebsite\Http\Controllers\SiteAttributesControllers;
+use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentController;
+use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentStatusController;
+use Modules\StoreWebsite\Http\Controllers\StoreWebsiteController;
+use Modules\StoreWebsite\Http\Controllers\StoreWebsiteProductAttributeController;
+use Modules\StoreWebsite\Http\Controllers\WebsiteController;
+use Modules\StoreWebsite\Http\Controllers\WebsiteStoreController;
+use Modules\StoreWebsite\Http\Controllers\WebsiteStoreViewController;
 use Illuminate\Support\Facades\Route;
 
 /*
