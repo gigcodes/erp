@@ -75,6 +75,8 @@ class ZabbixStore extends Command
     public function login_api()
     {
         //Get API ENDPOINT response
+        // echo env('ZABBIX_HOST').'/api_jsonrpc.php';
+        // exit;
         $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
         $data = [
             'jsonrpc' => '2.0',
@@ -86,14 +88,14 @@ class ZabbixStore extends Command
             'id' => 1,
         ];
         $datas = json_encode([$data]);
-
+        
         curl_setopt($curl, CURLOPT_POSTFIELDS, $datas);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($curl);
         curl_close($curl);
         $results = json_decode($result);
-
+        // dd($results);
         if (isset($results[0]->result)) {
             return $results[0]->result;
         } else {

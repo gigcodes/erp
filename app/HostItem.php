@@ -9,6 +9,6 @@ class HostItem extends Model
     protected $table = 'host_items';
 
     protected $fillable = [
-        'hostid', 'host_id',
+        'hostid', 'host_id'
     ];
 }

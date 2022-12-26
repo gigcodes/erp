@@ -35,6 +35,30 @@
   .table-responsive select.select {
     width: 110px !important;
   }
+  .modal-body{
+    max-height: 500px;
+    overflow-y: scroll;
+  }
+  #email-table{
+    width: 100% !important;
+  }
+  .singleline-flex{
+    display: flex;
+    justify-content: space-between;
+    column-gap: 5px;
+    align-items: flex-start;
+  }
+  .modal-body{
+    padding: 0;
+  }
+  .modal-table{
+    position: sticky;
+    top:0;
+    background: rgb(191 184 184);
+  }
+  #email-table_wrapper{
+    overflow: auto;
+  }
 
 
   @media (max-width: 1280px) {
@@ -65,7 +89,7 @@
     </div>
 <div class="row">
 	<div class="col-md-12 p-0">
-		<h2 class="page-heading">Host Item List</h2>
+		<h2 class="page-heading ">Host Item List</h2>
 	</div>
 </div>
 
@@ -96,7 +120,45 @@
       </div> 
 </div>
 
-
+<div class="modal fade" id="task-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title float-left position-absolute">Detail History</h4>
+              {{-- <p>of <strong>To do List 1</strong></p> --}}
+          </div>
+          <div id="task-table-body" class="modal-body">
+              <div class="panel">
+                  <table class="table">
+                      <thead class="modal-table">
+                            <tr>
+                              <th>Host</th>
+                              <th>Free inodes in %</th>
+                              <th>Space utilization</th>
+                              <th>Total Space</th>
+                              <th>Used Space</th>
+                              <th>Available memory</th>
+                              <th>Available memory in %</th>
+                              <th>CPU Idle time</th>
+                              <th>CPU utlization</th>
+                              <th>Interrupts per second</th>
+                              <th>Created At</th>
+                              <th>Updated At</th>
+                            </tr>   
+                      </thead>
+                      <tbody id="renderData">
+                     
+                          
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="modal-footer clearfix">
+          </div>
+      </div>
+  </div>
+</div>
 
 
 @endsection
@@ -114,7 +176,7 @@
                 processing: true,
                 serverSide: true,
                 sScrollX:false,
-                searching: false,
+                searching: true,
                
                 targets: 'no-sort',
                 bSort: false,
@@ -126,14 +188,14 @@
                 },
                 columnDefs: [{
                     targets: [],
-                    orderable: false,
-                    searchable: false
+                    orderable: true,
+                    searchable: true
                 }],
                 columns: [
                     {
                       data: 'name',                                             
                       render: function(data, type, row, meta) {
-                        return data;
+                        return '<div class="singleline-flex">'+data+'<a href="#" data-id="'+row.hostid+'" class="btn btn-primary infobtn float-right"> <i class="fa fa-info"></i></a></div>';
                       }
                     },
                     {
@@ -196,7 +258,41 @@
                 ],
             });
         });
+
+        
+        $(document).on('click','.infobtn',function(){
+          var hostId = $(this).data('id');
+          $.ajax({
+            url:'/zabbix/history',
+            method:'GET',
+            data:{hostid:hostId},
+            success:function(response){
+              var html;
+              $("#renderData").html('');
+              $.each(response.data,function(key,value){
+                  html += `<tr>
+                    <td>${value.hostname}</td>
+                    <td>${value.free_inode_in}</td>
+                    <td>${value.space_utilization}</td>
+                    <td>${value.total_space}</td>
+                    <td>${value.used_space}</td>
+                    <td>${value.available_memory}</td>
+                    <td>${value.available_memory_in}</td>
+                    <td>${value.cpu_idle_time}</td>
+                    <td>${value.cpu_utilization}</td>
+                    <td>${value.interrupts_per_second}</td>
+                    <td>${value.created_at}</td>
+                    <td>${value.updated_at}</td>
+                    </tr>`;
+                })
+              $("#renderData").append(html);
+                $('#task-modal').modal('show');
+            }
+          })
+        })
     </script>
+
+
 
 
 @endsection

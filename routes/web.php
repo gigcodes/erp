@@ -29,6 +29,8 @@ Route::get('/test/translation', 'GoogleTranslateController@testTranslation');
 
 Route::get('/zabbix', 'ZabbixController@index');
 Route::get('/zabbix/problems', 'ZabbixController@problems')->name('zabbix.problem');
+Route::get('zabbix/history', 'ZabbixController@history')->name('zabbix.history');
+
 
 Route::get('/test/testPrice', 'TmpTaskController@testEmail');
 Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');

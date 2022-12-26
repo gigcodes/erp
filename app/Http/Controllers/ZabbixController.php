@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Host;
 use App\Problem;
+use App\ZabbixHistory;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ZabbixController extends Controller
 {
@@ -22,11 +24,24 @@ class ZabbixController extends Controller
     public function problems(Request $request)
     {
         if ($request->ajax()) {
-            $query = Problem::select('eventid', 'objectid', 'name');
-
+            $query = Problem::select('eventid', 'objectid', 'name','hostname');
             return datatables()->eloquent($query)->toJson();
         }
-        //dd($query);
+       
         return view('zabbix.problem');
+    }
+
+    public function history(Request $request){
+        if ($request->ajax()) {
+            $dueDate = Carbon::now()->subDays(2);
+            $query = ZabbixHistory::whereDate('created_at','>',$dueDate)->where('hostid',$request->hostid)->orderBy('created_at','desc')->get();
+
+            foreach($query as $val){
+                $host = Host::where('hostid',$val->hostid)->first();
+                $val['hostname'] =$host->name; 
+            }
+            // dd($query);
+            return response()->json(['status'=>200,'data'=>$query]);
+        }
     }
 }
