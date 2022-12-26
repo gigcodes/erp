@@ -106,7 +106,6 @@
             <th style="width: 10%;overflow-wrap: anywhere;">Action</th>
           </tr>
         </thead>
-
         <tbody>
 			  @foreach ($magentoCommand as $key => $magentoCom)
               <tr>
@@ -120,8 +119,10 @@
                         <span class="show-short-websites-{{$magentoCom->id}}">ERP</span>
                         <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">ERP</span>
                     @else
-                        <span class="show-short-websites-{{$magentoCom->id}}">{{ str_limit($magentoCom->website->title, 20, '..')}}</span>
-                        <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">{{$magentoCom->website->title}}</span>
+{{--                        <span class="show-short-websites-{{$magentoCom->id}}">{{ str_limit($magentoCom->website->title, 20, '..')}}</span>--}}
+{{--                        <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">{{$magentoCom->website->title}}</span>--}}
+                        <span class="show-short-websites-{{$magentoCom->id}}">{{ str_limit($magentoCom->website_ids, 20, '..')}}</span>
+                        <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">{{$magentoCom->website_ids}}</span>
                     @endif
                 </td>
                 <td class="expand-row-msg" data-name="command_name" data-id="{{$magentoCom->id}}">
