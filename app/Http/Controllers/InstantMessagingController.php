@@ -8,7 +8,8 @@ use App\ImQueue;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Support\Str;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class InstantMessagingController extends Controller
 {
@@ -230,7 +231,7 @@ class InstantMessagingController extends Controller
                                 $image = $message->Images;
                                 $image = str_replace('data:image/png;base64,', '', $image);
                                 $image = str_replace(' ', '+', $image);
-                                $imageName = str_random(10).'.'.'png';
+                                $imageName = Str::random(10).'.'.'png';
                                 //Image
                                 $image = base64_decode($image);
 

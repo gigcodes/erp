@@ -11,6 +11,7 @@ class HashTag extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="hashtag",type="string")
      */
     protected $fillable = ['hashtag', 'instagram_account_id'];

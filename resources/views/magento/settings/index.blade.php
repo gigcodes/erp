@@ -31,7 +31,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
              <div class="pull-left cls_filter_box">
                  <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET" style="width: 100%;"> 
                     <div class="form-group cls_filter_inputbox" >
-                        <button style="color: #999999;border:1px solid #ddd;" type="button" class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-setting-popup">Add Setting</button>
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                        <select class="form-control select2" name="scope" data-placeholder="scope">
@@ -255,7 +255,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
                     <div class="form-group">
                         <label for="single_website">Website</label><br>
-                        <select class="form-control website" name="single_website" data-placeholder="Select setting website" style="width: 100%">
+                        <select class="form-control website store-website-select" name="single_website" data-placeholder="Select setting website" style="width: 100%">
                             <option value="">Select Website</option>
                             @foreach($storeWebsites as $w)
                                 <option value="{{ $w->id }}">{{ $w->website }}</option>
@@ -513,44 +513,64 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script> 
 <script type="text/javascript">
-$(document).ready(function() {
-    $(".multiselect").multiselect({
-        nonSelectedText: 'Website',
-        allSelectedText: 'All',
-        includeSelectAllOption: true
+    $(function (){
+        $('.store-website-select').on('change', function() {
+            $.ajax({
+                url: '{{ url("get-all/store-websites/") }}/' + $(this).val(),
+                method: 'get',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                let childWebsites = new Array();
+                $.each(response, function (key, val) {
+                    childWebsites[key] = val.id;
+                });
+                $('.select2-hidden-accessible').select2().val(childWebsites).trigger("change")
+                $("#loading-image").hide();
+            });
+        });
+    })
+    $(document).ready(function () {
+        $(".multiselect").multiselect({
+            nonSelectedText: 'Website',
+            allSelectedText: 'All',
+            includeSelectAllOption: true
+        });
     });
-});
-    
-    $(document).on('change', '[name="single_website"]', function(e) {
+
+    $(document).on('change', '[name="single_website"]', function (e) {
         //$('#add-setting-popup [name="website[]"]').select2("val", this.value);
         $('#single_website').val(this.value);
     });
 
     $(".select2").select2();
 
-    $(document).on('submit', '[name="add-magento-setting-form"]', function(e) {
+    $(document).on('submit', '[name="add-magento-setting-form"]', function (e) {
         e.preventDefault();
 
-        if($('#add-setting-popup .website').val() == ''){
+        if ($('#add-setting-popup .website').val() == '') {
             toastr['error']('please select the website.');
             return false;
-        };
+        }
 
-        if($('#add-setting-popup input[name="name"]').val() == ''){
+        if ($('#add-setting-popup input[name="name"]').val() == '') {
             toastr['error']('please add the name.');
             return false;
-        };
+        }
 
-        if($('#add-setting-popup input[name="path"]').val() == ''){
+        if ($('#add-setting-popup input[name="path"]').val() == '') {
             toastr['error']('please add the path.');
             return false;
-        };
+        }
 
-        if($('#add-setting-popup input[name="value"]').val() == ''){
+        if ($('#add-setting-popup input[name="value"]').val() == '') {
             toastr['error']('please add the value.');
             return false;
-        };
-
+        }
 
         let formData = new FormData(this);
 
@@ -561,45 +581,46 @@ $(document).ready(function() {
             method: $(this).attr('method'),
             data: formData,
             processData: false,
-        contentType: false,
-        enctype: 'multipart/form-data',
-        //     dataType: 'json',
-        beforeSend: function() {
-            $("#loading-image").show();
-        }
-        }).done(function(response) {
+            contentType: false,
+            enctype: 'multipart/form-data',
+            //     dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
             $("#loading-image").hide();
-            location.reload();
-        }).fail(function() {
+            // location.reload();
+        }).fail(function () {
             console.log("error");
             $("#loading-image").hide();
         });
 
         return false;
     });
-	
-	$(document).on('click', '.push_logs', function(e) { 
-		var settingId = $(this).data('id');
-		$.ajax({
-          url: 'magento-admin-settings/pushLogs/'+ $(this).data('id'),
-          success: function (data) { console.log(data);
-            $('#settingsPushLogs').html(data);
-            $('#settingsPushLogsModal').modal('show');
-          },
-        });
-	});
 
-    $(document).on('click', '.edit-setting', function(e) { 
+    $(document).on('click', '.push_logs', function (e) {
+        var settingId = $(this).data('id');
+        $.ajax({
+            url: 'magento-admin-settings/pushLogs/' + $(this).data('id'),
+            success: function (data) {
+                console.log(data);
+                $('#settingsPushLogs').html(data);
+                $('#settingsPushLogsModal').modal('show');
+            },
+        });
+    });
+
+    $(document).on('click', '.edit-setting', function (e) {
         $('.edit-magento-setting-form select[name="websites"]').val('');
         $('.edit-magento-setting-form select[name="websites"]').trigger('change');
-        
+
         var data = $(this).data('setting');
         $('.edit-magento-setting-form input[name="name"]').val(data.name);
         $('.edit-magento-setting-form input[name="path"]').val(data.path);
         $('.edit-magento-setting-form input[name="value"]').val(data.value);
-        var scope = $('.scope').val(data.scope);  
-        if(data.scope == 'default'){
-            if(jQuery.isEmptyObject(data.website) == false)
+        var scope = $('.scope').val(data.scope);
+        if (data.scope == 'default') {
+            if (jQuery.isEmptyObject(data.website) == false)
                 $('#edit-setting-popup .website').val(data.website.website);
             else
                 $('#edit-setting-popup .website').val(data.from_store_id.website);
@@ -607,20 +628,20 @@ $(document).ready(function() {
             $('#edit-setting-popup .website_form').removeClass('d-none');
             $('#edit-setting-popup .website_store_form').addClass('d-none');
             $('#edit-setting-popup .website_store_view_form').addClass('d-none');
-        }else if(data.scope == 'websites'){
-            if(jQuery.isEmptyObject(data.store) == false)
+        } else if (data.scope == 'websites') {
+            if (jQuery.isEmptyObject(data.store) == false)
                 $('#edit-setting-popup .website').val(data.store.website.store_website.website);
             else
                 $('#edit-setting-popup .website').val(data.from_store_id.website);
-            if(jQuery.isEmptyObject(data.store) == false)
+            if (jQuery.isEmptyObject(data.store) == false)
                 $('#edit-setting-popup .website_store').val(data.store.website.name);
             else
                 $('#edit-setting-popup .website_store').val(data.from_store_id.title);
             $('#edit-setting-popup .website_form').removeClass('d-none');
             $('#edit-setting-popup .website_store_form').removeClass('d-none');
             $('#edit-setting-popup .website_store_view_form').addClass('d-none');
-        }else {
-            
+        } else {
+
             $('#edit-setting-popup .website').val(data.storeview.website_store.website.store_website.website);
             $('#edit-setting-popup .website_store').val(data.storeview.website_store.website.name);
             $('#edit-setting-popup .website_store_view').val(data.storeview.code);
@@ -632,24 +653,27 @@ $(document).ready(function() {
 
         $('#edit-setting-popup').attr('data-id', data.id).modal('show');
     });
-    
-    $(document).on('submit', '[name="edit-magento-setting-form"]', function(e) {
+
+    $(document).on('submit', '[name="edit-magento-setting-form"]', function (e) {
         e.preventDefault();
 
-        if($('#edit-setting-popup input[name="name"]').val() == ''){
+        if ($('#edit-setting-popup input[name="name"]').val() == '') {
             toastr['error']('please add the name.');
             return false;
-        };
+        }
+        ;
 
-        if($('#edit-setting-popup input[name="path"]').val() == ''){
+        if ($('#edit-setting-popup input[name="path"]').val() == '') {
             toastr['error']('please add the path.');
             return false;
-        };
+        }
+        ;
 
-        if($('#edit-setting-popup input[name="value"]').val() == ''){
+        if ($('#edit-setting-popup input[name="value"]').val() == '') {
             toastr['error']('please add the value.');
             return false;
-        };
+        }
+        ;
 
         let formData = new FormData(this);
 
@@ -661,21 +685,21 @@ $(document).ready(function() {
             method: $(this).attr('method'),
             data: formData,
             processData: false,
-        contentType: false,
-        //enctype: 'multipart/form-data',
-         dataType: 'json',
-        beforeSend: function() {
-            $("#loading-image").show();
-        }
-        }).done(function(response) {
+            contentType: false,
+            //enctype: 'multipart/form-data',
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
             $("#loading-image").hide();
-            if(response.code == 200) {
+            if (response.code == 200) {
                 toastr['success'](response.message);
-            }else{
+            } else {
                 toastr['error'](response.message);
             }
             location.reload();
-        }).fail(function() {
+        }).fail(function () {
             console.log("error");
             $("#loading-image").hide();
         });
@@ -684,99 +708,99 @@ $(document).ready(function() {
     });
 
 
-    $(document).on('change', '#add-setting-popup .scope', function(){
-        var scope = $(this).val(); 
-        if(scope == 'default'){
+    $(document).on('change', '#add-setting-popup .scope', function () {
+        var scope = $(this).val();
+        if (scope == 'default') {
             $('#add-setting-popup .website_store').addClass('d-none');
             $('#add-setting-popup .website_store_form').addClass('d-none');
             return false;
-        }else if(scope == 'websites'){
+        } else if (scope == 'websites') {
             //$('#add-setting-popup .website').attr('multiple', false).val('');
-            $('#add-setting-popup .website').trigger('change'); 
+            $('#add-setting-popup .website').trigger('change');
             $('#add-setting-popup .website_store').attr('multiple', true);
-            $('#add-setting-popup .website_store').trigger('change'); 
+            $('#add-setting-popup .website_store').trigger('change');
             $('#add-setting-popup .website_store_form').removeClass('d-none');
             $('#add-setting-popup .website_store_view_form').addClass('d-none');
-        }else if(scope == 'stores'){
+        } else if (scope == 'stores') {
             //$('#add-setting-popup .website').attr('multiple', false).val('');
-            $('#add-setting-popup .website').trigger('change'); 
+            $('#add-setting-popup .website').trigger('change');
             $('#add-setting-popup .website_store').attr('multiple', false).val('');
-            $('#add-setting-popup .website_store').trigger('change'); 
+            $('#add-setting-popup .website_store').trigger('change');
             $('#add-setting-popup .website_store_view').attr('multiple', true);
-            $('#add-setting-popup .website_store_view').trigger('change'); 
+            $('#add-setting-popup .website_store_view').trigger('change');
             $('#add-setting-popup .website_store_form').removeClass('d-none');
             $('#add-setting-popup .website_store_view_form').removeClass('d-none');
-        } 
+        }
     })
 
-    $(document).on('click', '.search_sync_clear', function(){
-        var syncDate = $('.sync_search_date').val(); 
-        
+    $(document).on('click', '.search_sync_clear', function () {
+        var syncDate = $('.sync_search_date').val();
+
         $.ajax({
             url: '{{ route("get.magento.sync.data") }}',
             method: 'get',
             data: {
-                _token : '{{ csrf_token() }}',
-                },
-        beforeSend: function() {
-            $("#loading-image").show();
-        }
-        }).done(function(response) {
+                _token: '{{ csrf_token() }}',
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
             $("#loading-image").hide();
             var html = '';
-            response.data.forEach(function(value, index){
+            response.data.forEach(function (value, index) {
                 var statusError = 'Success';
-                if(value.status){
+                if (value.status) {
                     statusError = value.status;
                 }
                 html += `<tr><td>${value.website}</td>`;
                 html += `<td>${value.created_at}</td>`;
                 html += `<td>${statusError}</td></tr>`;
-            }) 
+            })
             $('#sync_data_log').html(html);
             toastr['success'](response.msg);
-        }).fail(function() {
+        }).fail(function () {
             $("#loading-image").hide();
             toastr['error'](response.msg);
         });
     });
 
-    $(document).on('click', '.search_sync', function(){
-        var syncDate = $('.sync_search_date').val(); 
-        
+    $(document).on('click', '.search_sync', function () {
+        var syncDate = $('.sync_search_date').val();
+
         $.ajax({
             url: '{{ route("get.magento.sync.data") }}',
             method: 'get',
             data: {
-                _token : '{{ csrf_token() }}',
-                sync_date : syncDate
-                },
-        beforeSend: function() {
-            $("#loading-image").show();
-        }
-        }).done(function(response) {
+                _token: '{{ csrf_token() }}',
+                sync_date: syncDate
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
             $("#loading-image").hide();
             var html = '';
-            response.data.forEach(function(value, index){
+            response.data.forEach(function (value, index) {
                 var statusError = 'Success';
-                if(value.status){
+                if (value.status) {
                     statusError = value.status;
                 }
                 html += `<tr><td>${value.website}</td>`;
                 html += `<td>${value.created_at}</td>`;
                 html += `<td>${statusError}</td></tr>`;
-            }) 
+            })
             $('#sync_data_log').html(html);
             toastr['success'](response.msg);
-        }).fail(function() {
+        }).fail(function () {
             $("#loading-image").hide();
             toastr['error'](response.msg);
         });
     });
 
-    $(document).on('change', '#add-setting-popup .website', function(){
-        var scope = $('#add-setting-popup .scope:checked').val(); 
-        if(scope == 'default'){
+    $(document).on('change', '#add-setting-popup .website', function () {
+        var scope = $('#add-setting-popup .scope:checked').val();
+        if (scope == 'default') {
             return false;
         }
         var website_id = $(this).val();
@@ -784,33 +808,33 @@ $(document).ready(function() {
             url: '{{ route("get.website.stores") }}',
             method: 'POST',
             data: {
-                _token : '{{ csrf_token() }}',
-                website_id : website_id
-                },
-        beforeSend: function() {
-            $("#loading-image").show();
-        }
-        }).done(function(response) {
+                _token: '{{ csrf_token() }}',
+                website_id: website_id
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
             $("#loading-image").hide();
             var html = '';
-            response.data.forEach(function(value, index){
+            response.data.forEach(function (value, index) {
                 html += `<option value="${value.id}">${value.name}</option>`
-            }) 
+            })
             $('#add-setting-popup .website_store').append(html);
-			$('#add-setting-popup .website_store').attr('multiple','multiple');
+            $('#add-setting-popup .website_store').attr('multiple', 'multiple');
             $('#add-setting-popup .website_store').select2();
-        }).fail(function() {
+        }).fail(function () {
             console.log("error");
         });
     });
 
-    function opnModal(message){
-      $(document).find('#more-content').html(message);
+    function opnModal(message) {
+        $(document).find('#more-content').html(message);
     }
 
-    $(document).on('change', '#add-setting-popup .website_store', function(){
-        var scope = $('#add-setting-popup .scope:checked').val(); 
-        if(scope == 'websites'){
+    $(document).on('change', '#add-setting-popup .website_store', function () {
+        var scope = $('#add-setting-popup .scope:checked').val();
+        if (scope == 'websites') {
             return false;
         }
         var website_id = $(this).val();
@@ -818,103 +842,101 @@ $(document).ready(function() {
             url: '{{ route("get.website.store.views") }}',
             method: 'POST',
             data: {
-                _token : '{{ csrf_token() }}',
-                website_id : website_id
-                },
-        beforeSend: function() {
-            $("#loading-image").show();
-        }
-        }).done(function(response) {
+                _token: '{{ csrf_token() }}',
+                website_id: website_id
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
             $("#loading-image").hide();
             var html = '';
-            response.data.forEach(function(value, index){
+            response.data.forEach(function (value, index) {
                 html += `<option value="${value.id}">${value.code}</option>`
-            }) 
+            })
             $('#add-setting-popup .website_store_view').append(html);
             $('#add-setting-popup .website_store_view').select2();
-        }).fail(function() {
+        }).fail(function () {
             console.log("error");
         });
     });
 
 
-    $(document).on('click', '.delete-setting', function(){
-        var id = $(this).data('id'); 
-        if(confirm('Do you really want to delete this magento-setting?')){
+    $(document).on('click', '.delete-setting', function () {
+        var id = $(this).data('id');
+        if (confirm('Do you really want to delete this magento-setting?')) {
             $.ajax({
-            url: '/magento-admin-settings/delete/'+id,   
-            }).done(function(response) {
-                $("#loading-image").hide(); 
+                url: '/magento-admin-settings/delete/' + id,
+            }).done(function (response) {
+                $("#loading-image").hide();
                 location.reload();
-            }).fail(function() {
+            }).fail(function () {
                 console.log("error");
             });
-        } 
+        }
     });
 
 
-   
-        
-        var isLoading = false;
-        var page = 1;
-        $(document).ready(function () {
-            
-            $(window).scroll(function() {
-                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
-                    loadMore();
-                }
-            });
+    var isLoading = false;
+    var page = 1;
+    $(document).ready(function () {
 
-            function loadMore() {
-                var searchOpt = location.search
-                if (isLoading)
-                    return;
-                isLoading = true;
-                var $loader = $('.infinite-scroll-products-loader');
-                page = page + 1;
-                if(searchOpt) {
-                    searchOptUrl = searchOpt+"&ajax=1&page="+page;
-                } else {
-                    searchOptUrl = "?ajax=1&page="+page;
-                }
-                $.ajax({
-                    url: "{{url('magento-admin-settings')}}"+searchOptUrl,
-                    type: 'GET',
-                    data: $('.form-search-data').serialize(),
-                    beforeSend: function() {
-                        $loader.show();
-                    },
-                    success: function (data) {
-                        
-                        $loader.hide();
-                        if('' === data.trim())
-                            return;
-                        $('.infinite-scroll-cashflow-inner').append(data);
-                        
-
-                        isLoading = false;
-                    },
-                    error: function () {
-                        $loader.hide();
-                        isLoading = false;
-                    }
-                });
-            }            
+        $(window).scroll(function () {
+            if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
+                loadMore();
+            }
         });
-        function showlog()
-        {
-            id=$('#edit-setting-popup').attr('data-id');
+
+        function loadMore() {
+            var searchOpt = location.search
+            if (isLoading)
+                return;
+            isLoading = true;
+            var $loader = $('.infinite-scroll-products-loader');
+            page = page + 1;
+            if (searchOpt) {
+                searchOptUrl = searchOpt + "&ajax=1&page=" + page;
+            } else {
+                searchOptUrl = "?ajax=1&page=" + page;
+            }
             $.ajax({
-            url: '{{url("/magento-admin-settings/namehistrory/")}}/'+id,   
-            }).done(function(response) {
-                $('#modal-body').html(response);
-                $('#namepopup').modal('show');
-               
-            }).fail(function() {
-                console.log("error");
+                url: "{{url('magento-admin-settings')}}" + searchOptUrl,
+                type: 'GET',
+                data: $('.form-search-data').serialize(),
+                beforeSend: function () {
+                    $loader.show();
+                },
+                success: function (data) {
+
+                    $loader.hide();
+                    if ('' === data.trim())
+                        return;
+                    $('.infinite-scroll-cashflow-inner').append(data);
+
+
+                    isLoading = false;
+                },
+                error: function () {
+                    $loader.hide();
+                    isLoading = false;
+                }
             });
-            
-            
         }
+    });
+
+    function showlog() {
+        id = $('#edit-setting-popup').attr('data-id');
+        $.ajax({
+            url: '{{url("/magento-admin-settings/namehistrory/")}}/' + id,
+        }).done(function (response) {
+            $('#modal-body').html(response);
+            $('#namepopup').modal('show');
+
+        }).fail(function () {
+            console.log("error");
+        });
+
+
+    }
 </script>
 @endsection

@@ -11,6 +11,7 @@ class StoreWebsiteCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="remote_id",type="integer")
      * @SWG\Property(property="category_name",type="string")

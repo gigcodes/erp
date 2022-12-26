@@ -12,6 +12,7 @@ class DatabaseHistoricalRecord extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="database_name",type="string")
      * @SWG\Property(property="size",type="string")
      * @SWG\Property(property="created_at",type="datetime")

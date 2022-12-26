@@ -13,6 +13,7 @@ class Payment extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="payment_method_id",type="integer")
      * @SWG\Property(property="note",type="string")

@@ -12,6 +12,7 @@ class LogScraperVsAi extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="log_scraper_vs_ai",type="string")
      */
     protected $table = 'log_scraper_vs_ai';

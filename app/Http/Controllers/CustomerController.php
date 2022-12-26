@@ -51,6 +51,7 @@ use Dompdf\Dompdf;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Plank\Mediable\Media as PlunkMediable;
@@ -1597,7 +1598,7 @@ class CustomerController extends Controller
         }
         }
 
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
         return $value[ 'date' ];
         }));*/
 
@@ -1618,7 +1619,7 @@ class CustomerController extends Controller
             $emails_array[$count + $key]['message'] = $email->message;
             $emails_array[$count + $key]['date'] = $email->created_at;
         }
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
         $emails_array = array_reverse($emails_array);
@@ -1982,13 +1983,13 @@ class CustomerController extends Controller
                 $products = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
                 $products = $products->whereIn('ps.supplier_id', $request->supplier);
                 $products = $products->groupBy('products.id');
-            /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
-            return $query->where(function ($q) use ($request) {
-            foreach ($request->supplier as $supplier) {
-            $q->orWhere('suppliers.id', $supplier);
-            }
-            });
-            });*/
+                /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
+                return $query->where(function ($q) use ($request) {
+                foreach ($request->supplier as $supplier) {
+                $q->orWhere('suppliers.id', $supplier);
+                }
+                });
+                });*/
             } else {
                 $products = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
                 $products = $products->whereIn('ps.supplier_id', $request->supplier);
@@ -3037,20 +3038,24 @@ class CustomerController extends Controller
         $customers_all->select('customers.*', 'store_websites.title');
         $customers_all->join('store_websites', 'store_websites.id', 'customers.store_website_id');
 
+        if ($request->from_date != '' && $request->from_date != '') {
+            $customers_all->whereBetween('customers.created_at', [$request->from_date, $request->to_date]);
+        }
+
         if ($request->name != '') {
             $customers_all->where('name', 'like', '%'.$request->name.'%');
         }
 
         if ($request->email != '') {
-            $customers_all->where('email', 'like', '%'.$request->email.'%');
+            $customers_all->orwhere('email', 'like', '%'.$request->email.'%');
         }
 
         if ($request->phone != '') {
-            $customers_all->where('phone', 'like', '%'.$request->phone.'%');
+            $customers_all->orwhere('phone', 'like', '%'.$request->phone.'%');
         }
 
         if ($request->store_website != '') {
-            $customers_all->where('store_website_id', 'like', $request->store_website);
+            $customers_all->orwhere('store_website_id', 'like', $request->store_website);
         }
 
         $customers_all->orderBy('created_at', 'desc');

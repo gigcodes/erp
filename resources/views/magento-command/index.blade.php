@@ -126,7 +126,7 @@
                     @endif
                 </td>
                 <td class="expand-row-msg" data-name="command_name" data-id="{{$magentoCom->id}}">
-                  <span class="show-short-command_name-{{$magentoCom->id}}">{{ str_limit($magentoCom->command_name, 20, '..')}}</span>
+                  <span class="show-short-command_name-{{$magentoCom->id}}">{{ Str::limit($magentoCom->command_name, 20, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-command_name-{{$magentoCom->id}} hidden">{{$magentoCom->command_name}}</span>
                 </td>
                 <td>

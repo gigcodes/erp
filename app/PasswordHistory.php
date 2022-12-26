@@ -11,6 +11,7 @@ class PasswordHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="website",type="strng")
      * @SWG\Property(property="url",type="string")
      * @SWG\Property(property="username",type="string")

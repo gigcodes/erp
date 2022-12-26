@@ -12,6 +12,7 @@ class MailingTemplateFile extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="mailing_id",type="integer")
      * @SWG\Property(property="path",type="string")
      */

@@ -15,7 +15,7 @@ use App\Stock;
 use App\User;
 use Auth;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class StockController extends Controller
 {

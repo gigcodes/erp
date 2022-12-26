@@ -8,7 +8,14 @@
 @else
 
 @foreach ($managers as $manager)
+    @php
+        $mainCategory='-';
+        if($manager->category_parent_id !=0){
+            $mainCategory = \App\Category::where('id',$manager->category_parent_id)->value('title');
+        }
+    @endphp
     <tr>
+        <td>{{ $mainCategory}}</td>
         <td>{{ $manager->category}}</td>
         <td>{{ $manager->erp_size}}</td>
         <td>{{ $manager->sizes }}</td>

@@ -20,7 +20,7 @@ use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SiteDevelopmentController extends Controller
 {

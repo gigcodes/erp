@@ -47,7 +47,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Support\Str;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
 class StoreWebsiteController extends Controller
@@ -62,8 +63,9 @@ class StoreWebsiteController extends Controller
         $title = 'List | Store Website';
         $services = Service::get();
         $assetManager = AssetsManager::whereNotNull('ip');
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites'));
     }
 
     public function logWebsiteUsers($id)
@@ -275,6 +277,7 @@ class StoreWebsiteController extends Controller
             unset($copyStoreWebsite->id);
             unset($copyStoreWebsite->title);
             $copyStoreWebsite->title = $title.' '.$i;
+            $copyStoreWebsite->parent_id = $storeWebsiteId;
             $copyStoreWebsite->save();
 
             $copyStoreWebsiteId = $copyStoreWebsite->id;
@@ -762,93 +765,96 @@ class StoreWebsiteController extends Controller
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
-        $this->savelogwebsiteuser('#2', $post['store_id'], $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website '.$post['store_id'].' ,A user has been updated.');
+        $storeWebsites = StoreWebsite::where('id', '=', $post['store_id'])->orWhere('parent_id', '=', $post['store_id'])->get();
+        $count = 0;
+        foreach ($storeWebsites as $key => $storeWebsite) {
+            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website '.$storeWebsite->id.' ,A user has been updated.');
 
-        $checkUserNameExist = '';
-        if (! empty($post['store_website_userid'])) {
-            $checkUserExist = StoreWebsiteUsers::where('store_website_id', $post['store_id'])->where('is_deleted', 0)->where('email', $post['userEmail'])->where('id', '<>', $post['store_website_userid'])->first();
-            if (empty($checkUserExist)) {
-                $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $post['store_id'])->where('is_deleted', 0)->where('username', $post['username'])->where('id', '<>', $post['store_website_userid'])->first();
-            }
-        } else {
-            $checkUserExist = StoreWebsiteUsers::where('store_website_id', $post['store_id'])->where('is_deleted', 0)->where('email', $post['userEmail'])->first();
-            if (empty($checkUserExist)) {
-                $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $post['store_id'])->where('is_deleted', 0)->where('username', $post['username'])->first();
-            }
-        }
-
-        if (! empty($checkUserExist)) {
-            return response()->json(['code' => 500, 'error' => 'User Email already exist!']);
-        }
-        if (! empty($checkUserNameExist)) {
-            return response()->json(['code' => 500, 'error' => 'Username already exist!']);
-        }
-
-        $uppercase = preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9_@.\/#&+-]+)$/', $post['password']);
-        if (! $uppercase || strlen($post['password']) < 7) {
-            return response()->json(['code' => 500, 'error' => 'Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters.']);
-        }
-
-        $storeWebsite = StoreWebsite::find($post['store_id']);
-        if (! empty($post['store_website_userid'])) {
-            $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
-            $getUser->first_name = $post['firstName'];
-            $getUser->last_name = $post['lastName'];
-            $getUser->email = $post['userEmail'];
-            $getUser->password = $post['password'];
-            $getUser->website_mode = $post['websitemode'];
-            $getUser->save();
-
-            StoreWebsiteUserHistory::create([
-                'store_website_id' => $getUser->store_website_id,
-                'store_website_user_id' => $getUser->id,
-                'model' => \App\StoreWebsiteUsers::class,
-                'attribute' => 'username_password',
-                'old_value' => 'updated',
-                'new_value' => 'updated',
-                'user_id' => Auth::id(),
-            ]);
-
-            if ($getUser->is_deleted == 0) {
-                $magentoHelper = new MagentoHelperv2();
-                $result = $magentoHelper->updateMagentouser($storeWebsite, $post);
-
-                return response()->json(['code' => 200, 'messages' => 'User details updated Sucessfully']);
+            $checkUserNameExist = '';
+            if (! empty($post['store_website_userid'])) {
+                $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->where('id', '<>', $post['store_website_userid'])->first();
+                if (empty($checkUserExist)) {
+                    $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['username'])->where('id', '<>', $post['store_website_userid'])->first();
+                }
             } else {
-                return response()->json(['code' => 200, 'messages' => 'User details updated Sucessfully']);
+                $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->first();
+                if (empty($checkUserExist)) {
+                    $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['username'])->first();
+                }
             }
+
+            if (! empty($checkUserExist)) {
+                return response()->json(['code' => 500, 'error' => 'User Email already exist!']);
+            }
+            if (! empty($checkUserNameExist)) {
+                return response()->json(['code' => 500, 'error' => 'Username already exist!']);
+            }
+
+            $uppercase = preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9_@.\/#&+-]+)$/', $post['password']);
+            if (! $uppercase || strlen($post['password']) < 7) {
+                return response()->json(['code' => 500, 'error' => 'Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters.']);
+            }
+
+            if (! empty($post['store_website_userid'])) {
+                $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
+                $getUser->first_name = $post['firstName'];
+                $getUser->last_name = $post['lastName'];
+                $getUser->email = $post['userEmail'];
+                $getUser->password = $post['password'];
+                $getUser->website_mode = $post['websitemode'];
+                $getUser->save();
+
+                StoreWebsiteUserHistory::create([
+                    'store_website_id' => $getUser->store_website_id,
+                    'store_website_user_id' => $getUser->id,
+                    'model' => \App\StoreWebsiteUsers::class,
+                    'attribute' => 'username_password',
+                    'old_value' => 'updated',
+                    'new_value' => 'updated',
+                    'user_id' => Auth::id(),
+                ]);
+
+                if ($getUser->is_deleted == 0) {
+                    $magentoHelper = new MagentoHelperv2();
+                    $magentoHelper->updateMagentouser($storeWebsite, $post);
+                }
+            } else {
+                $params['username'] = $post['username'];
+                $params['first_name'] = $post['firstName'];
+                $params['last_name'] = $post['lastName'];
+                $params['email'] = $post['userEmail'];
+                $params['password'] = $post['password'];
+                $params['store_website_id'] = $storeWebsite->id;
+                $params['website_mode'] = $post['websitemode'];
+
+                $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
+
+                if ($post['userEmail'] && $post['password']) {
+                    $message = 'Email: '.$post['userEmail'].', Password is: '.$post['password'];
+                    $params['user_id'] = Auth::id();
+                    $params['message'] = $message;
+                    ChatMessage::create($params);
+                }
+
+                $magentoHelper = new MagentoHelperv2();
+                $magentoHelper->addMagentouser($storeWebsite, $post);
+
+                StoreWebsiteUserHistory::create([
+                    'store_website_id' => $StoreWebsiteUsersid->store_website_id,
+                    'store_website_user_id' => $StoreWebsiteUsersid->id,
+                    'model' => \App\StoreWebsiteUsers::class,
+                    'attribute' => 'username_password',
+                    'old_value' => 'new_added',
+                    'new_value' => 'new_added',
+                    'user_id' => Auth::id(),
+                ]);
+            }
+            $count++;
+        }
+        if ($count == $key + 1) {
+            return response()->json(['code' => 200, 'messages' => 'User details saved Successfully']);
         } else {
-            $params['username'] = $post['username'];
-            $params['first_name'] = $post['firstName'];
-            $params['last_name'] = $post['lastName'];
-            $params['email'] = $post['userEmail'];
-            $params['password'] = $post['password'];
-            $params['store_website_id'] = $post['store_id'];
-            $params['website_mode'] = $post['websitemode'];
-
-            $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
-
-            if ($post['userEmail'] && $post['password']) {
-                $message = 'Email: '.$post['userEmail'].', Password is: '.$post['password'];
-                $params['user_id'] = Auth::id();
-                $params['message'] = $message;
-                $chat_message = ChatMessage::create($params);
-            }
-
-            $magentoHelper = new MagentoHelperv2();
-            $result = $magentoHelper->addMagentouser($storeWebsite, $post);
-
-            StoreWebsiteUserHistory::create([
-                'store_website_id' => $StoreWebsiteUsersid->store_website_id,
-                'store_website_user_id' => $StoreWebsiteUsersid->id,
-                'model' => \App\StoreWebsiteUsers::class,
-                'attribute' => 'username_password',
-                'old_value' => 'new_added',
-                'new_value' => 'new_added',
-                'user_id' => Auth::id(),
-            ]);
-
-            return response()->json(['code' => 200, 'messages' => 'User details saved Sucessfully']);
+            return response()->json(['code' => 500, 'messages' => 'Something went wrong']);
         }
     }
 
@@ -1410,7 +1416,7 @@ class StoreWebsiteController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 100, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 100, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '</tr>';
@@ -1448,15 +1454,15 @@ class StoreWebsiteController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="website" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-website-'.$res->id.'">'.str_limit($res->website, 15, '...').'</span>
+                    <span class="show-short-website-'.$res->id.'">'.Str::limit($res->website, 15, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-website-'.$res->id.' hidden">'.$res->website.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 25, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-command-'.$res->id.'">'.str_limit($res->command_name, 25, '...').'</span>
+                    <span class="show-short-command-'.$res->id.'">'.Str::limit($res->command_name, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
                     </td>';
 
@@ -1559,5 +1565,38 @@ class StoreWebsiteController extends Controller
         } else {
             return response()->json(['code' => 500, 'message' => 'Token is invalid']);
         }
+    }
+
+    public function generateApiToken(Request $request)
+    {
+        $apiTokens = $request->api_token;
+
+        if ($request->api_token) {
+            foreach ($apiTokens as $key => $apiToken) {
+                StoreWebsite::where('id', $key)->update(['api_token' => $apiToken, 'server_ip' => $request->server_ip[$key]]);
+            }
+            session()->flash('msg', 'Api Token Updated Successfully.');
+
+            return redirect()->back();
+        } else {
+            session()->flash('msg', 'Api Token is invalid.');
+
+            return redirect()->back();
+        }
+    }
+
+    public function getApiToken(Request $request)
+    {
+        $search = $request->search;
+        $storeWebsites = StoreWebsite::whereNull('deleted_at');
+        if ($search != null) {
+            $storeWebsites = $storeWebsites->where('title', 'Like', '%'.$search.'%');
+        }
+        $storeWebsites = $storeWebsites->get();
+
+        return response()->json([
+            'tbody' => view('storewebsite::api-token', compact('storeWebsites'))->render(),
+
+        ], 200);
     }
 }

@@ -11,7 +11,7 @@ use App\Setting;
 use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Validator;
 
 class UpdateCucciniProducts extends Command

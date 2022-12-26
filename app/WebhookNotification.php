@@ -12,6 +12,7 @@ class WebhookNotification extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="url",type="string")
      * @SWG\Property(property="method",type="string")

@@ -12,6 +12,7 @@ class HistorialData extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="historical_datas",type="string")
      */
     protected $table = 'historical_datas';

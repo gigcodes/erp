@@ -11,6 +11,7 @@ class StoreWebsiteAnalytic extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="store_website_analytics",type="string")
      * @SWG\Property(property="website",type="string")

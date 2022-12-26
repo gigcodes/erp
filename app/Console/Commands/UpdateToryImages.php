@@ -6,7 +6,7 @@ use App\CronJobReport;
 use App\ScrapedProducts;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class UpdateToryImages extends Command
 {

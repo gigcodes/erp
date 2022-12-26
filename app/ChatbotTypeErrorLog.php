@@ -14,6 +14,7 @@ class ChatbotTypeErrorLog extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="chatbot_id",type="integer")
      * @SWG\Property(property="phone_number",type="string")

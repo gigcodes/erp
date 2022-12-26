@@ -269,7 +269,7 @@ class SimplyDutyCountryController extends Controller
     public function update_store_website_product_prices($code, $amount)
     {
         $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price',
-           'store_website_product_prices.product_id', 'store_website_product_prices.store_website_id', 'websites.code')
+            'store_website_product_prices.product_id', 'store_website_product_prices.store_website_id', 'websites.code')
        ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
        ->where('websites.code', strtolower($code))
        ->get(); //dd($ps);

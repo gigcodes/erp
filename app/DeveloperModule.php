@@ -13,6 +13,7 @@ class DeveloperModule extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      */
     use SoftDeletes;

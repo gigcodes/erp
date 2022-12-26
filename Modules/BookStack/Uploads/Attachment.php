@@ -2,6 +2,7 @@
 
 namespace Modules\BookStack\Uploads;
 
+use Illuminate\Support\Str;
 use Modules\BookStack\Entities\Page;
 use Modules\BookStack\Ownable;
 
@@ -16,7 +17,7 @@ class Attachment extends Ownable
      */
     public function getFileName()
     {
-        if (str_contains($this->name, '.')) {
+        if (Str::contains($this->name, '.')) {
             return $this->name;
         }
 

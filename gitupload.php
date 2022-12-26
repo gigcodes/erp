@@ -104,7 +104,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'process') {
 
             exit;
         }
-        // ****************
+    // ****************
     } else {
         $msg = 'No files to upload';
     }

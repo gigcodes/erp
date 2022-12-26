@@ -16,6 +16,7 @@ class ChatMessagePhrase extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="phrase",type="string")
      * @SWG\Property(property="word_id",type="integer")
      * @SWG\Property(property="total",type="string")

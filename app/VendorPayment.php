@@ -12,6 +12,7 @@ class VendorPayment extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="vendor_id",type="integer")
      * @SWG\Property(property="payment_date",type="datetime")
      * @SWG\Property(property="paid_date",type="datetime")
@@ -29,8 +30,6 @@ class VendorPayment extends Model
     use SoftDeletes;
 
     protected $fillable = ['vendor_id', 'payment_date', 'paid_date', 'payable_amount', 'paid_amount', 'service_provided', 'module', 'work_hour', 'description', 'other', 'status', 'user_id', 'updated_byupdated_by', 'currency'];
-
-    protected $dates = ['deleted_at'];
 
     public function vendor()
     {

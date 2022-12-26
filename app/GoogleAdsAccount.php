@@ -12,6 +12,7 @@ class GoogleAdsAccount extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="googleadsaccounts",type="string")
      * @SWG\Property(property="account_name",type="string")
      * @SWG\Property(property="store_websites",type="string")
