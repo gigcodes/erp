@@ -74,10 +74,8 @@ class BugTrackingController extends Controller
                     
                 })->orderBy('chat_messages.created_at', 'desc');
 
-            } else {
-          
+            } else {          
                 // $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc');
-
                 $records = BugTracker::where(function($query) {
                     $query->where('assign_to', Auth::user()->id);
                     $query->orWhere('created_by', Auth::user()->id);
