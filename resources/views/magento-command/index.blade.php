@@ -119,10 +119,8 @@
                         <span class="show-short-websites-{{$magentoCom->id}}">ERP</span>
                         <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">ERP</span>
                     @else
-{{--                        <span class="show-short-websites-{{$magentoCom->id}}">{{ str_limit($magentoCom->website->title, 20, '..')}}</span>--}}
-{{--                        <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">{{$magentoCom->website->title}}</span>--}}
-                        <span class="show-short-websites-{{$magentoCom->id}}">{{ str_limit($magentoCom->website_ids, 20, '..')}}</span>
-                        <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">{{$magentoCom->website_ids}}</span>
+                        <span class="show-short-websites-{{$magentoCom->id}}">@if($magentoCom->website){{ str_limit($magentoCom->website->title, 20, '..')}}@endif</span>
+                        <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">@if($magentoCom->website){{$magentoCom->website->title}}@endif</span>
                     @endif
                 </td>
                 <td class="expand-row-msg" data-name="command_name" data-id="{{$magentoCom->id}}">
