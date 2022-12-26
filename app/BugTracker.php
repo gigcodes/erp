@@ -40,8 +40,8 @@ class BugTracker extends Model
     }
 
     public function chatlatest()
-    {       
-       //return $this->hasMany(\App\ChatMessage::class, 'bug_id')->latest()->orderBy('id', 'desc')->limit(1);
-       return $this->hasMany(\App\ChatMessage::class, 'bug_id');
+    {
+        //return $this->hasMany(\App\ChatMessage::class, 'bug_id')->latest()->orderBy('id', 'desc')->limit(1);
+        return $this->hasMany(\App\ChatMessage::class, 'bug_id');
     }
 }

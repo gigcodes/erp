@@ -54,22 +54,17 @@ class BugTrackingController extends Controller
 
     public function records(Request $request)
     {
-       
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
-           
-           if(request('sort') == '1') { 
-               $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->orderBy('chat_messages.created_at', 'desc');
-             
-           } else {
-             $records = BugTracker::orderBy('id', 'desc');
-           }           
-           
+            if (request('sort') == '1') {
+                $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id', '!=', '')->orderBy('chat_messages.created_at', 'desc');
+            } else {
+                $records = BugTracker::orderBy('id', 'desc');
+            }
         } else {
-            if(request('sort') == '1') {
-                 $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc');
+            if (request('sort') == '1') {
+                $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id', '!=', '')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc');
             } else {
                 $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc');
-
             }
         }
 
@@ -100,7 +95,7 @@ class BugTrackingController extends Controller
         if ($keyword = request('bug_status')) {
             $records = $records->orWhereIn('bug_status_id', $keyword);
         }
-        if ($keyword = request('module_id')) {           
+        if ($keyword = request('module_id')) {
             $records = $records->orWhereIn('module_id', 'LIKE', "%$keyword%");
         }
         if ($keyword = request('step_to_reproduce')) {
@@ -121,13 +116,9 @@ class BugTrackingController extends Controller
                 $q->whereDate('created_at', $keyword);
             });
         }
-       
 
-      
         $records_count = $records->count();
         $records = $records->take(10)->get();
-
-        
 
         $records = $records->map(function ($bug) {
             $bug->bug_type_id_val = $bug->bug_type_id;
@@ -174,22 +165,18 @@ class BugTrackingController extends Controller
         $filterWebsites = StoreWebsite::orderBy('website')->get();
 
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
-           
-            if(request('sort') == '1') { 
-                $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->orderBy('chat_messages.created_at', 'desc')->offset($page)->limit(10);
-              
+            if (request('sort') == '1') {
+                $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id', '!=', '')->orderBy('chat_messages.created_at', 'desc')->offset($page)->limit(10);
             } else {
-              $records = BugTracker::orderBy('id', 'desc')->offset($page)->limit(10);
-            }           
-            
-         } else {
-             if(request('sort') == '1') {
-                  $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc')->offset($page)->limit(10);
-             } else {
-                 $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
- 
-             }
-         }
+                $records = BugTracker::orderBy('id', 'desc')->offset($page)->limit(10);
+            }
+        } else {
+            if (request('sort') == '1') {
+                $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id', '!=', '')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc')->offset($page)->limit(10);
+            } else {
+                $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
+            }
+        }
 
         /*
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
@@ -246,7 +233,7 @@ class BugTrackingController extends Controller
             $records = $records->where(function ($q) use ($keyword) {
                 $q->whereDate('created_at', $keyword);
             });
-        }        
+        }
         $records = $records->get();
 
         $records = $records->map(function ($bug) {
