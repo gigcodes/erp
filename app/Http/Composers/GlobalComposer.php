@@ -7,7 +7,6 @@ use App\Permission;
 use App\PermissionRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Route;
 
 class GlobalComposer
