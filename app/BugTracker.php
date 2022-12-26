@@ -38,4 +38,10 @@ class BugTracker extends Model
             return $this->hasMany(\App\ChatMessage::class, 'bug_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
         }
     }
+
+    public function chatlatest()
+    {       
+       //return $this->hasMany(\App\ChatMessage::class, 'bug_id')->latest()->orderBy('id', 'desc')->limit(1);
+       return $this->hasMany(\App\ChatMessage::class, 'bug_id');
+    }
 }
