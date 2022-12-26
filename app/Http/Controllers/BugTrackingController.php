@@ -57,18 +57,32 @@ class BugTrackingController extends Controller
        
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
            
-           if(request('sort') == '1') { 
+            if(request('sort') == '1') { 
                $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->orderBy('chat_messages.created_at', 'desc');
              
            } else {
-             $records = BugTracker::orderBy('id', 'desc');
-           }           
+              $records = BugTracker::orderBy('id', 'desc');
+           }  
            
         } else {
             if(request('sort') == '1') {
-                 $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc');
+                // $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc');
+
+                $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where(function($query) {
+                    $query->where('assign_to', Auth::user()->id);
+                    $query->orWhere('created_by', Auth::user()->id);
+                    
+                })->orderBy('chat_messages.created_at', 'desc');
+
             } else {
-                $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc');
+          
+                // $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc');
+
+                $records = BugTracker::where(function($query) {
+                    $query->where('assign_to', Auth::user()->id);
+                    $query->orWhere('created_by', Auth::user()->id);
+                    
+                })->orderBy('id', 'desc');
 
             }
         }
@@ -183,12 +197,26 @@ class BugTrackingController extends Controller
             }           
             
          } else {
-             if(request('sort') == '1') {
-                  $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc')->offset($page)->limit(10);
-             } else {
-                 $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
- 
-             }
+
+            if(request('sort') == '1') {
+
+                // $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc');
+
+                $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where(function($query) {
+                    $query->where('assign_to', Auth::user()->id);
+                    $query->orWhere('created_by', Auth::user()->id);
+                    
+                })->orderBy('chat_messages.created_at', 'desc');
+
+            } else {
+                 // $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc');
+                $records = BugTracker::where(function($query) {
+                    $query->where('assign_to', Auth::user()->id);
+                    $query->orWhere('created_by', Auth::user()->id);
+                    
+                })->orderBy('id', 'desc');
+
+            }
          }
 
         /*
