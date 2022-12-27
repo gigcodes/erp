@@ -2382,7 +2382,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/countdevtask/{id}', 'BugTrackingController@taskCount');
     Route::get('bug-trackinghistory', 'BugTrackingController@getTrackedHistory')->name('bug-tracking.history');
     Route::post('bug-tracking/hubstaff_task', 'BugTrackingController@createHubstaffManualTask')->name('bug-tracking.hubstaff_task');
-    
 
     Route::get('test-cases', 'TestCaseController@index')->name('test-cases.index');
     Route::get('test-cases/create', 'TestCaseController@create')->name('test-cases.create');
