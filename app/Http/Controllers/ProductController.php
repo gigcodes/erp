@@ -4935,8 +4935,8 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-
-                        PushToMagentoJob::dispatch($product, $website, $log, $category)->onQueue($log->queue);
+                        if($log->queue == 'sololuxury')
+                            PushToMagentoJob::dispatch($product, $website, $log, $category)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
