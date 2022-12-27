@@ -111,7 +111,10 @@ var page = {
             console.log("onclick.show-status-history")
             page.statusHistory($(this));
         });
-
+        page.config.bodyView.on("click",".show-severity-history",function(e) {
+            console.log("onclick.show-severity-history")
+            page.severityHistory($(this));
+        });
         page.config.bodyView.on("click", ".btn-update", function (e) {
             page.updateData($(this));
         });
@@ -550,6 +553,15 @@ var page = {
         }
         this.sendAjax(_z, 'afterCommunication');
     },
+    severityHistory : function(ele) {
+        console.log("afterclick.show-severity-history")
+       var _z = {
+           url: (typeof href != "undefined") ? href : this.config.baseUrl + "/severity-history/"+ele.data("id"),
+           method: "get",
+       }
+       this.sendAjax(_z, 'afterSeverity');
+   },
+
     afterPush : function(response) {
         if(response.code  == 200) {
             console.log(response)
@@ -667,6 +679,44 @@ var page = {
                 $('.tbhc').html(html)
             }
             // toastr["success"](response.message,"Bug Tracking History Listed Successfully");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"Something went wrong");
+        }
+    },
+    afterSeverity : function(response) {
+        console.log("afterresponse.show-severity-history")
+        if(response.code  == 200) {
+            console.log(response)
+            $('#newSeverityHistoryModal').modal('show');
+
+            $('.tbhseverity').html("")
+            if(response.data.length >0){
+
+                var html ="";
+
+                $.each(response.data, function (i,item){
+                    console.log(item)
+
+                    if(item.old_severity_id == null) {
+                        var old_severity_id = '-';
+                    } else {
+                        var old_severity_id = item.old_severity_id;
+                    }
+
+
+                    html+="<tr>"
+                    html+=" <td>"+ item.created_at +"</td>"                    
+                    html+=" <td>"+ old_severity_id +"</td>"
+                    html+=" <td>"+ item.severity_id +"</td>"
+                    html+=" <td>"+ item.updated_by +"</td>"
+
+                    html+="</tr>"
+                })
+
+                $('.tbhseverity').html(html)
+            }
+            toastr["success"](response.message,"Bug Severity History Listed Successfully");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"Something went wrong");

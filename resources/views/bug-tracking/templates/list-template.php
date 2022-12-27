@@ -61,14 +61,17 @@
 						</div>
 			        </td>
 			        <td class='break'>
-			           <select class='form-control bug_severity_id'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
-					   <option value="">-Select-</option>
-			            <?php
-                        foreach ($bugSeveritys as $bugSeverity) {
-                            echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
-                        }
-							?>
-			            </select>
+						<div class="d-flex">
+						   <select class='form-control bug_severity_id'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
+						   <option value="">-Select-</option>
+							<?php
+							foreach ($bugSeveritys as $bugSeverity) {
+								echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
+							}
+								?>
+							</select>
+							<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-severity-history" title="Show Severity History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
+						</div>
 			        </td>
 			        <td class='break'>
 						<div class="d-flex">

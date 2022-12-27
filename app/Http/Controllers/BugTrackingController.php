@@ -19,6 +19,7 @@ use App\Task;
 use App\TestCase;
 use App\TestCaseHistory;
 use App\User;
+use App\BugSeveritiesHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -460,6 +461,15 @@ class BugTrackingController extends Controller
 
         BugUserHistory::create($userHistory);
         BugStatusHistory::create($statusHistory);
+
+        $severity_his = [
+            'assign_to' => $request->assign_to,            
+            'severity_id' => $request->bug_severity_id,
+            'bug_id' => $records->id,
+            'updated_by' => \Auth::user()->id
+        ];
+        BugSeveritiesHistory::create($severity_his);
+
         $bugTrackerHistory = BugTrackerHistory::create($bug);
 
         return redirect()->back();
@@ -500,6 +510,8 @@ class BugTrackingController extends Controller
 
         $data = $request->except('_token', 'id');
         $bug = BugTracker::where('id', $request->id)->first();
+
+        $old_severity_id = $bug->bug_severity_id;
 
         $data['created_by'] = \Auth::user()->id;
         $bug['updated_by'] = \Auth::user()->id;
@@ -555,6 +567,15 @@ class BugTrackingController extends Controller
         BugUserHistory::create($userHistory);
         BugStatusHistory::create($statusHistory);
 
+        $severity_his = [
+            'assign_to' => $request->assign_to,
+            'old_severity_id' => $old_severity_id,
+            'severity_id' => $request->bug_severity_id,
+            'bug_id' => $request->id,
+            'updated_by' => \Auth::user()->id
+        ];
+        BugSeveritiesHistory::create($severity_his);
+
         return redirect()->route('bug-tracking.index')->with('success', 'You have successfully updated a Bug Tracker!');
     }
 
@@ -607,6 +628,22 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $bugStatuses]);
     }
 
+    public function severityHistory($id)
+    {
+        $bugStatuses = BugSeveritiesHistory::where('bug_id', $id)->orderBy('id', 'desc')->get();
+
+        $bugStatuses = $bugStatuses->map(function ($bug) {
+            $bug->old_severity_id = BugSeverity::where('id', $bug->old_severity_id)->value('name');
+            $bug->assign_to = User::where('id', $bug->assign_to)->value('name');
+            $bug->severity_id = BugSeverity::where('id', $bug->severity_id)->value('name');
+            $bug->updated_by = User::where('id', $bug->updated_by)->value('name');
+
+            return $bug;
+        });
+
+        return response()->json(['code' => 200, 'data' => $bugStatuses]);
+    }
+
     public function assignUser(Request $request)
     {
         $bugTracker = BugTracker::where('id', $request->id)->first();
@@ -631,7 +668,11 @@ class BugTrackingController extends Controller
 
     public function severityUser(Request $request)
     {
+
+        
+
         $bugTracker = BugTracker::where('id', $request->id)->first();
+        $old_severity_id = $bugTracker->bug_severity_id;
         $bugTracker->bug_severity_id = $request->severity_id;
         if ($request->status_id == 8) {
             $created_by = $bugTracker->created_by;
@@ -645,6 +686,15 @@ class BugTrackingController extends Controller
             'updated_by' => \Auth::user()->id,
         ];
         BugTrackerHistory::create($data);
+
+        $record = [
+            'assign_to' => $bugTracker->assign_to,
+            'old_severity_id' => $old_severity_id,
+            'severity_id' =>$request->severity_id,
+            'bug_id' => $bugTracker->id,
+            'updated_by' => \Auth::user()->id
+        ];
+        BugSeveritiesHistory::create($record);
 
         return response()->json(['code' => 200, 'data' => $data]);
     }
