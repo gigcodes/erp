@@ -24,6 +24,11 @@ var page = {
             page.getResults();
         });
 
+        page.config.bodyView.on("click",".btn-sorting-action",function(e) {
+            e.preventDefault();
+            page.getSortResults();
+        });
+
         // page.config.bodyView.on("click",".btn-add-action",function(e) {
         //     e.preventDefault();
         //     page.createRecord();
@@ -140,6 +145,17 @@ var page = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/records",
             method: "get",
             data : $(".message-search-handler").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "showResults");
+    },
+    getSortResults: function(href) {        
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/records",
+            method: "get",
+            data : $(".message-search-handler").serialize()+'&sort=1',
             beforeSend : function() {
                 $("#loading-image").show();
             }

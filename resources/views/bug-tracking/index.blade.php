@@ -118,7 +118,7 @@ table{border-collapse: collapse;}
 									</div>
 									<div class="form-group m-1" style="width: 200px;">
 										<input name="url" type="text" class="form-control" placeholder="Search Url" id="bug-url" data-allow-clear="true" />
-									</div>
+									</div>									
                 <div class="form-group cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$website = request('website');
@@ -166,6 +166,8 @@ table{border-collapse: collapse;}
 											<img src="/images/search.png" style="cursor: default;">
 										</button>
 										<a href="/bug-tracking" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+										<button type="submit" class="btn btn-secondary btn-xs btn-sorting-action" value="sort-comm" style="color:white;">Sort By Comm
+										</button>&nbsp;&nbsp;
 									</div>
 								</div>
 							</form>
