@@ -63,7 +63,7 @@ var page = {
            page.sendAssign($(this));
         });
         page.config.bodyView.on("change", ".bug_severity_id", function (e) {
-            e.preventDefault();
+            e.preventDefault();           
             page.sendSeverity($(this));
         });
         page.config.bodyView.on("change", ".bug_status_id", function (e) {

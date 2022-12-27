@@ -45,13 +45,14 @@
 			        </td>
 			        <td class='break'>
 						<div class="d-flex">
-						   <select class='form-control bug_severity_id'  data-id="<?php echo  $prop->id  ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
+						
+						   <select class='form-control bug_severity_id' id="bug_severity_id_<?php echo  $prop->id  ?>"  data-id="<?php echo  $prop->id  ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 						   <option value="">-Select-</option>
 							<?php
 							foreach ($bugSeveritys as $bugSeverity) { ?>
 								
 								
-								<option <?php if ($prop->bug_severity_id == $bugSeverity->id) { echo " selected"; }  ?>  value="<?php $bugSeverity->id ?>" ><?php echo $bugSeverity->name; ?></option>
+								<option <?php if ($prop->bug_severity_id == $bugSeverity->id) { echo " selected"; }  ?>  value="<?php echo $bugSeverity->id; ?>" ><?php echo $bugSeverity->name; ?></option>
 							<?php
 							}
 							?>

@@ -669,7 +669,6 @@ class BugTrackingController extends Controller
     public function severityUser(Request $request)
     {
 
-        
 
         $bugTracker = BugTracker::where('id', $request->id)->first();
         $old_severity_id = $bugTracker->bug_severity_id;
