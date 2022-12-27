@@ -51,7 +51,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script src="{{asset('/js/generic.js')}}" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-    <style type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+   <style type="text/css">
         .select2-container--open{
             z-index:9999999
         }
@@ -2952,7 +2953,9 @@ if (!empty($notifications)) {
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
     <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
+    
     <script>
         // $('#chat-list-history').on('hidden.bs.modal', function (e) {
         //     document.body.addClass('sasadasd')
