@@ -4908,7 +4908,9 @@ class ProductController extends Controller
         $limit = $request->get('no_of_product', 100);
         $products = Product::select('*')
             ->where('short_description', '!=', '')->where('name', '!=', '')
-            ->where('status_id', StatusHelper::$productConditionsChecked)
+//            ->where('status_id', StatusHelper::$productConditionsChecked)
+            ->where('status_id', StatusHelper::$finalApproval)
+//            $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
             ->groupBy('brand', 'category')
             ->limit($limit)
             ->get();
