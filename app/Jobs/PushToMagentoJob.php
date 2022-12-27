@@ -51,6 +51,6 @@ class PushToMagentoJob implements ShouldQueue
     {
         set_time_limit(0);
         $magentoService = new MagentoService($this->_product, $this->_website, $this->log, $this->category, $this->mode);
-        $magentoService->pushProduct();
+        $magentoService->assignOperation();
     }
 }
