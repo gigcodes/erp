@@ -4905,6 +4905,7 @@ class ProductController extends Controller
      */
     public function pushProductsToMagento(Request $request)
     {
+        $mode = 'product-push';
         $limit = $request->get('no_of_product', 100);
         $products = Product::select('*')
             ->where('short_description', '!=', '')->where('name', '!=', '')
@@ -4936,7 +4937,7 @@ class ProductController extends Controller
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
                         if ($log->queue == 'sololuxury') {
-                            PushToMagentoJob::dispatch($product, $website, $log, $category)->onQueue($log->queue);
+                            PushToMagentoJob::dispatch($product, $website, $log, $category, $mode)->onQueue($log->queue);
                         }
                         $i++;
                     } else {
