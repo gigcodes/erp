@@ -314,11 +314,10 @@ class MagentoService
             $productRow->save();
 
             return true;
-        } 
+        }
         \Log::info('product-push');
 
         return $this->assignProductOperation();
-        
     }
 
     private function getActiveLanguages()
