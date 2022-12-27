@@ -178,7 +178,7 @@ class MagentoService
         return $this->assignOperation();
     }
 
-    private function assignOperation()
+    public function assignOperation()
     {
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id.' #1 => '.date('Y-m-d H:i:s'));
