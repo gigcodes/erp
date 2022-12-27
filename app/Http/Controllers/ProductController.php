@@ -1489,37 +1489,37 @@ class ProductController extends Controller
                 $join->on('pvu.product_id', 'products.id');
                 $join->where('pvu.user_id', '!=', auth()->user()->id);
             });
-    
+
             $products = $products->leftJoin('status as s', function ($join) {
                 $join->on('products.status_id', 's.id');
             });
-    
+
             $products = $products->where('isUploaded', 0);
             $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
 
             if($request->get('id') != ""){
                 $products =  $products->where("products.id",$request->get('id'));
             }
-            if($request->get('name') != ""){
-                $products =  $products->where("products.name",$request->get('name'));
+            if ($request->get('name') != '') {
+                $products = $products->where('products.name', $request->get('name'));
             }
-            if($request->get('title') != ""){
-                $products =  $products->where("products.name",$request->get('title'));
+            if ($request->get('title') != '') {
+                $products = $products->where('products.name', $request->get('title'));
             }
-            if($request->get('color') != ""){
-                $products =  $products->where("products.color",$request->get('color'));
+            if ($request->get('color') != '') {
+                $products = $products->where('products.color', $request->get('color'));
             }
-            if($request->get('composition') != ""){
+            if ($request->get('composition') != '') {
                 $composition = $request->get('compositon');
-                $products =  $products->where("products.composition","LIKE","%$composition%");
+                $products = $products->where('products.composition', 'LIKE', "%$composition%");
             }
-            if($request->get('status') != ""){
-                $products =  $products->where("products.status",$request->get('status'));
+            if ($request->get('status') != '') {
+                $products = $products->where('products.status', $request->get('status'));
             }
-            if($request->get('price') != ""){
-                $products =  $products->where("products.price_usd",$request->get('price'));
-                $products =  $products->orWhere("products.price_usd_special",$request->get('price'));
-                $products =  $products->orWhere("products.price",$request->get('price'));
+            if ($request->get('price') != '') {
+                $products = $products->where('products.price_usd', $request->get('price'));
+                $products = $products->orWhere('products.price_usd_special', $request->get('price'));
+                $products = $products->orWhere('products.price', $request->get('price'));
             }
 
             if(isset($search)){
@@ -1545,11 +1545,11 @@ class ProductController extends Controller
                 $auto_push_product = Setting::get('auto_push_product');
             }
             $users = User::all();
+
             return view('products.magento_push_status.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
-        }else{
+        } else {
             return view('products.magento_push_status.index');
         }
-       
     }
 
     public function autocompleteSearchPushStatus(Request $request){
