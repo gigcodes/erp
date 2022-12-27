@@ -4936,7 +4936,7 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        if ($log->queue == 'sololuxury') {
+                        if ($log->queue == 'sololuxury' && ($product->id == '371297' || $product->id == '388465')) {
                             PushToMagentoJob::dispatch($product, $website, $log, $category, $mode)->onQueue($log->queue);
                         }
                         $i++;
