@@ -62,7 +62,7 @@
 			        </td>
 			        <td class='break'>
 						<div class="d-flex">
-						   <select class='form-control bug_severity_id' id="bug_severity_id_{{>prop.id}}"  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
+						   <select class='form-control bug_severity_id' id="bug_severity_id_{{>prop.id}}"   data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 						   <option value="">-Select-</option>
 							<?php
 							foreach ($bugSeveritys as $bugSeverity) {

@@ -704,7 +704,6 @@ var page = {
                         var old_severity_id = item.old_severity_id;
                     }
 
-
                     html+="<tr>"
                     html+=" <td>"+ item.created_at +"</td>"                    
                     html+=" <td>"+ old_severity_id +"</td>"

@@ -611,6 +611,7 @@ class BugTrackingController extends Controller
         });
 
         return response()->json(['code' => 200, 'data' => $bugUsers]);
+        
     }
 
     public function statusHistory($id)

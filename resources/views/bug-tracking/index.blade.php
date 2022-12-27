@@ -379,7 +379,6 @@ table{border-collapse: collapse;}
 				<div class="modal-body">
 					<table class="table" border="1">
 					<tr>
-
 						<td style="text-align: center;"><b>Created Date</b></td>						
 						<td style="text-align: center;"><b>Old Severity</b></td>
 						<td style="text-align: center;"><b>New Severity</b></td>							 
