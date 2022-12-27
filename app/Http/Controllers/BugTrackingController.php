@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\BugEnvironment;
+use App\BugSeveritiesHistory;
 use App\BugSeverity;
 use App\BugStatus;
 use App\BugStatusHistory;
@@ -19,7 +20,6 @@ use App\Task;
 use App\TestCase;
 use App\TestCaseHistory;
 use App\User;
-use App\BugSeveritiesHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -463,10 +463,10 @@ class BugTrackingController extends Controller
         BugStatusHistory::create($statusHistory);
 
         $severity_his = [
-            'assign_to' => $request->assign_to,            
+            'assign_to' => $request->assign_to,
             'severity_id' => $request->bug_severity_id,
             'bug_id' => $records->id,
-            'updated_by' => \Auth::user()->id
+            'updated_by' => \Auth::user()->id,
         ];
         BugSeveritiesHistory::create($severity_his);
 
@@ -572,7 +572,7 @@ class BugTrackingController extends Controller
             'old_severity_id' => $old_severity_id,
             'severity_id' => $request->bug_severity_id,
             'bug_id' => $request->id,
-            'updated_by' => \Auth::user()->id
+            'updated_by' => \Auth::user()->id,
         ];
         BugSeveritiesHistory::create($severity_his);
 
@@ -668,8 +668,6 @@ class BugTrackingController extends Controller
 
     public function severityUser(Request $request)
     {
-
-
         $bugTracker = BugTracker::where('id', $request->id)->first();
         $old_severity_id = $bugTracker->bug_severity_id;
         $bugTracker->bug_severity_id = $request->severity_id;
@@ -689,9 +687,9 @@ class BugTrackingController extends Controller
         $record = [
             'assign_to' => $bugTracker->assign_to,
             'old_severity_id' => $old_severity_id,
-            'severity_id' =>$request->severity_id,
+            'severity_id' => $request->severity_id,
             'bug_id' => $bugTracker->id,
-            'updated_by' => \Auth::user()->id
+            'updated_by' => \Auth::user()->id,
         ];
         BugSeveritiesHistory::create($record);
 

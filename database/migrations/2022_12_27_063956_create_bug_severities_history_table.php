@@ -15,11 +15,11 @@ class CreateBugSeveritiesHistoryTable extends Migration
     {
         Schema::create('bug_severities_history', function (Blueprint $table) {
             $table->id();
-			$table->integer('bug_id');
-			$table->integer('old_severity_id')->nullable();
-			$table->integer('severity_id');
-			$table->integer('assign_to')->nullable();
-			$table->integer('updated_by');
+            $table->integer('bug_id');
+            $table->integer('old_severity_id')->nullable();
+            $table->integer('severity_id');
+            $table->integer('assign_to')->nullable();
+            $table->integer('updated_by');
             $table->timestamps();
         });
     }

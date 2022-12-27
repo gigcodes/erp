@@ -66,9 +66,9 @@
 						   <option value="">-Select-</option>
 							<?php
 							foreach ($bugSeveritys as $bugSeverity) {
-								echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
+							    echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
 							}
-								?>
+							?>
 							</select>
 							<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-severity-history" title="Show Severity History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
 						</div>
@@ -77,9 +77,9 @@
 						<div class="d-flex">
 							<select class='form-control bug_status_id'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 								<?php
-							        foreach ($bugStatuses as $bugStatus) {
-							            echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
-							        }
+							    foreach ($bugStatuses as $bugStatus) {
+							        echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
+							    }
 							?>
 							</select>
 							<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
