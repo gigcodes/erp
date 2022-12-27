@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/website/stores', 'MagentoSettingsController@websiteStores')->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', 'MagentoSettingsController@websiteStoreViews')->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', 'MagentoSettingsController@deleteSetting')->name('delete.setting');
+    Route::get('get-all/store-websites/{id}', 'MagentoSettingsController@getAllStoreWebsites')->name('get.all.store.websites');
 });
 //Google Web Master Routes
 Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
@@ -374,8 +375,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
     Route::get('products/listing/conditions-check', 'ProductController@magentoConditionsCheck')->name('products.magentoConditionsCheck');
     Route::post('products/listing/filter', 'ProductController@autocompleteForFilter')->name('products.autocompleteForFilter');
-    
     Route::get('products/listing/conditions-check-logs/{llm_id}', 'ProductController@magentoConditionsCheckLogs')->name('products.magentoConditionsCheckLogs');
+    Route::get('products/listing/conditions-check-logs/{p_id}/{sw_id}', 'ProductController@magentoConditionsCheckLogs')->name('products.magentoConditionsCheckLogs');
     Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
     Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
