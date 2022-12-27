@@ -22,7 +22,7 @@ class PushToMagentoJob implements ShouldQueue
     protected $log;
 
     protected $category;
-    
+
     protected $mode;
 
     /**
