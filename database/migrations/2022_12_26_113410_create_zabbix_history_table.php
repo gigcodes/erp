@@ -16,7 +16,6 @@ class CreateZabbixHistoryTable extends Migration
         Schema::table('zabbix_history', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('host_item_id');
-            // $table->foreign('host_id')->references('id')->on('hosts')->onDelete('cascade');
             $table->integer('item_id');
             $table->integer('hostid');
             $table->double('free_inode_in', 6, 2);

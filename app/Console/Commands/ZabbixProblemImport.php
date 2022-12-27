@@ -102,9 +102,9 @@ class ZabbixProblemImport extends Command
     public function problem_api($auth_key)
     {
         //Get API ENDPOINT response
-        $hostid =  \App\Host::pluck('hostid');
+        $hostIds =  \App\Host::pluck('hostid');
         $errorarray =  array();
-            foreach($hostid as $val){
+            foreach($hostIds as $val){
                 $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
                 $data = [
                     'jsonrpc' => '2.0',
@@ -134,9 +134,7 @@ class ZabbixProblemImport extends Command
                 }
        
             }
-            // echo "<pre/>";
-            // print_r(array_filter($errorarray));
-            // exit;
             return $errorarray;
     }
+    
 }
