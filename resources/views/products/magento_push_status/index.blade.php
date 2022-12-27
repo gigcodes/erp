@@ -38,7 +38,7 @@
                         <input type="text" name="status" class="form-control" id="status" placeholder="status" />
                     </div>
                     <div class="col-md-4 mt-3 mb-3">
-                        <a class="filterdata" href="#"><i class="fa fa-search"></i></a>
+                        <a class="filter-data" href="#"><i class="fa fa-search"></i></a>
                     </div>
                     <div class="col-md-2 mt-3">
                         <button class="btn btn-secondary float-right push-to-magento">Push to magento</button>
@@ -55,9 +55,6 @@
     </div>
 @endsection
 @push('scripts')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
     <script>
         $(document).ready(function() {
             var formData = new FormData($("#magentoPushStatusForm")[0]);
@@ -70,7 +67,7 @@
             })
         })
 
-        function commonAjax(field, val) {
+        function filterFunction(field, val) {
             var fieldData = field;
             $.ajax({
                 url: "{{ route('products.autocompleteSearchPushStatus') }}",
@@ -102,48 +99,47 @@
 
         $("input[name='id']").keyup(function() {
             var value = $(this).val();
-            commonAjax("id", value);
+            filterFunction("id", value);
         })
         $("input[name='name']").keyup(function() {
             var value = $(this).val();
-            commonAjax('name', value);
+            filterFunction('name', value);
         })
         $("input[name='brand']").keyup(function() {
             var value = $(this).val();
-            commonAjax('brand', value);
+            filterFunction('brand', value);
         })
         $("input[name='category']").keyup(function() {
             var value = $(this).val();
-            commonAjax('category', value);
+            filterFunction('category', value);
         })
         $("input[name='composition']").keyup(function() {
             var value = $(this).val();
-            commonAjax('composition', value);
+            filterFunction('composition', value);
         })
         $("input[name='color']").keyup(function() {
             var value = $(this).val();
-            commonAjax('color', value);
+            filterFunction('color', value);
         })
         $("input[name='price']").keyup(function() {
             var value = $(this).val();
-            commonAjax('price', value);
+            filterFunction('price', value);
         })
         $("input[name='status']").keyup(function() {
             var value = $(this).val();
-            commonAjax('status', value);
+            filterFunction('status', value);
         })
 
-
-        $(".filterdata").on('click', function() {
+        $(".filter-data").on('click', function() {
             let id = $("#id").val();
             let compisition = $("#compisition").val();
             let color = $("#color").val();
             let status = $("#status").val();
             let price = $("#price").val();
             let name = $("#name").val();
-
-
-            var url = '/products/listing/magento-push-status?id=' + id + "&name=" + name +"&composition=" + composition + "&color=" + color + "&status=" + status + "&price=" + price;
+            var url = '/products/listing/magento-push-status?id=' + id + "&name=" + name 
+            +"&composition=" + composition + "&color=" + color + "&status=" + status + "&price=" + price;
+            
             $.ajax({
                 url: url,
                 type: 'GET',

@@ -1470,10 +1470,11 @@ class ProductController extends Controller
 
     public function magentoPushStatus(Request $request)
     {
-        
         if($request->ajax()){
+            
             $value = $request->get('value');
-            $fieldName = $request->get('fieldname');
+            $search = $request->get('fieldname');
+            
             if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
                 $products = Product::query();
             } else {
@@ -1495,7 +1496,6 @@ class ProductController extends Controller
     
             $products = $products->where('isUploaded', 0);
             $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
-
 
             if($request->get('id') != ""){
                 $products =  $products->where("products.id",$request->get('id'));
@@ -1522,21 +1522,19 @@ class ProductController extends Controller
                 $products =  $products->orWhere("products.price",$request->get('price'));
             }
 
-
-            if(isset($fieldName)){
-                if($fieldName === 'title' || $fieldName === 'name'){
+            if(isset($search)){
+                if($search === 'title' || $search === 'name'){
                     $products =  $products->where("products.name","LIKE","%$value%");
                 }
-                if($fieldName === 'category'){
+                if($search === 'category'){
                     $products =  $products->where("categories.title","LIKE","%$value%");
                 }
                 else{
-                    $products =  $products->where("products.$fieldName","LIKE","%$value%");
+                    $products =  $products->where("products.$search","LIKE","%$value%");
                 }
             }
 
             $products = $products->select(['products.*', 's.name as product_status'])->paginate(10);
-
             $productsCount = $products->total();
             $imageCropperRole = auth()->user()->hasRole('ImageCropers');
             $categoryArray = Category::renderAsArray();
@@ -1546,7 +1544,6 @@ class ProductController extends Controller
             } else {
                 $auto_push_product = Setting::get('auto_push_product');
             }
-            
             $users = User::all();
             return view('products.magento_push_status.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
         }else{
@@ -1554,14 +1551,14 @@ class ProductController extends Controller
         }
        
     }
+
     public function autocompleteSearchPushStatus(Request $request){
-        
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $products = Product::query();
         } else {
             $products = Product::query()->where('assigned_to', auth()->user()->id);
         }
-        $fieldName = $request->get('filedname');
+        $search = $request->get('filedname');
         $products = $products->where(function ($query) {
             $query->where('status_id', StatusHelper::$pushToMagento);
             $query->orWhere('status_id', StatusHelper::$inMagento);
@@ -1578,18 +1575,17 @@ class ProductController extends Controller
 
         $products = $products->where('isUploaded', 0);
         $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
-
-
         $value = $request->get('value');
-        if(isset($fieldName)){
-            if($fieldName === 'title' || $fieldName === 'name'){
+
+        if(isset($search)){
+            if($search === 'title' || $search === 'name'){
                 $products =  $products->where("products.name","LIKE","%$value%");
             }
-            if($fieldName === 'category'){
+            if($search === 'category'){
                 $products =  $products->where("c.title","LIKE","%$value%");
             }
             else{
-                $products =  $products->where("products.$fieldName","LIKE","%$value%");
+                $products =  $products->where("products.$search","LIKE","%$value%");
             }
         }
 
@@ -1598,19 +1594,18 @@ class ProductController extends Controller
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
         $colors = (new Colors)->all();
+        
         if (! Setting::has('auto_push_product')) {
             $auto_push_product = Setting::add('auto_push_product', 0, 'int');
         } else {
             $auto_push_product = Setting::get('auto_push_product');
-        }
- 
-        return response()->json(['status'=>200,'data'=> array_unique(array_column($products,$fieldName))]);
+        } 
+        return response()->json(['status'=>200,'data'=> array_unique(array_column($products,$search))]);
   }
 
     public function magentoConditionsCheckLogs($pId, $swId)
     {
         $logs = ProductPushErrorLog::where('product_id', '=', $pId)->where('store_website_id', '=', $swId)->latest()->get();
-
         return response()->json(['code' => 200, 'data' => $logs]);
     }
 
