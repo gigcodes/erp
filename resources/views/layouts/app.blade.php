@@ -1772,9 +1772,18 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
-                                            </li> <li class="nav-item">
-                                                <a class="dropdown-item" href="{{route('bug-tracking.index')}}">Bug Track</a>
-                                            </li>
+                                            </li>                                            
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="queueDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Bug Track<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right"aria-labelledby="bugtrackDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('bug-tracking.index')}}">Bug Track</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('bug-tracking.website')}}">Bug Track Website</a>
+                                                    </li>
+                                                </ul
+
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
                                             </li>
