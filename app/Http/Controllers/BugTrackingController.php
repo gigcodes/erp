@@ -78,6 +78,11 @@ class BugTrackingController extends Controller
             }
         }
 
+        
+
+        
+        
+
         if ($keyword = request('bug_id')) {
             $records = $records->where('id', $keyword);
         }
@@ -205,6 +210,7 @@ class BugTrackingController extends Controller
         }
         */
 
+       
         if ($keyword = request('bug_id')) {
             $records = $records->where('id', $keyword);
         }
@@ -879,4 +885,88 @@ class BugTrackingController extends Controller
 
         return response()->json(['code' => 200, 'taskStatistics' => $str]);
     }
+
+
+    public function website(Request $request)
+    {
+        
+        $title = 'Bug Tracking Websites';
+
+        $bug_tracker = DB::select(DB::raw("SELECT bug_trackers.website as website_id, store_websites.website as website, store_websites.title as title, count(bug_trackers.id) as bug_count, GROUP_CONCAT(concat(bug_trackers.id,'-',bug_trackers.bug_severity_id)) as bug_ids  FROM bug_trackers left join store_websites on bug_trackers.website = store_websites.id where bug_trackers.website>0 AND bug_trackers.bug_status_id !=3 group by bug_trackers.website" ));
+
+        $arr = json_decode(json_encode ( $bug_tracker ) , true);
+
+        if(count($arr)>0) {
+            for($i=0;$i<count($arr);$i++) {
+                $bug_ids = $arr[$i]['bug_ids'];
+                $bug_ids_arrays = explode(',',$bug_ids);
+
+                $critical_array = array();
+                $high_array = array();
+                $medium_array = array();
+                $low_array = array();
+
+                if(count($bug_ids_arrays)>0) {
+
+                    for($j=0;$j<count($bug_ids_arrays);$j++) {
+                        $single_bug_array = explode('-',$bug_ids_arrays[$j]);
+    
+                        if(count($single_bug_array) == 2) {
+                            if($single_bug_array[1] == '1') {
+                                $critical_array[] = $single_bug_array[0];
+                            } else if($single_bug_array[1] == '2') {
+                                $high_array[] = $single_bug_array[0];
+                            }  else if($single_bug_array[1] == '3') {
+                                $medium_array[] = $single_bug_array[0];
+                            }  else if($single_bug_array[1] == '4') {
+                                $low_array[] = $single_bug_array[0];
+                            }
+
+                        }
+                        
+    
+                    }
+
+                }    
+               
+
+                $arr[$i]['critical'] = count($critical_array);
+                $arr[$i]['high'] = count($high_array);
+                $arr[$i]['medium'] = count($medium_array);
+                $arr[$i]['low'] = count($low_array);
+
+            }
+
+        }
+
+       
+        return view('bug-tracking.website', [
+            'title' => $title,
+            'bug_tracker' => $arr
+           
+        ]);
+    }
+
+    public function websiteHistory(Request $request)
+    {
+        $serverity_id = 0;
+        $bug_id = 0;
+        if($request->servid) {
+            $serverity_id = $request->servid;
+        }
+        if($request->id) {
+            $bug_id = $request->id;
+        }
+        $bugTracker = BugTracker::where('website', $bug_id)->where('bug_severity_id',$serverity_id)->where('bug_status_id','!=',3)->orderBy('id', 'desc')->get();
+
+        $bugTracker = $bugTracker->map(function ($bug) {          
+            $bug->bug_type_id =  BugType::where('id', $bug->bug_type_id)->value('name');
+            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
+            $bug->summary_short = Str::limit($bug->summary, 40, '..');
+            return $bug;
+        });
+
+        return response()->json(['code' => 200, 'data' => $bugTracker]);
+    }
+
 }
