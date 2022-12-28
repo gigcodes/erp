@@ -1782,8 +1782,8 @@ if (!empty($notifications)) {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('bug-tracking.website')}}">Bug Track Website</a>
                                                     </li>
-                                                </ul
-
+                                                </ul>
+                                            </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
                                             </li>
