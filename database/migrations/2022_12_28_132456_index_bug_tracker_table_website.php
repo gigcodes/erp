@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 
 class IndexBugTrackerTableWebsite extends Migration
 {
@@ -14,7 +13,6 @@ class IndexBugTrackerTableWebsite extends Migration
     {
         //
         \DB::statement('ALTER TABLE `bug_trackers` ADD INDEX(`website`);');
-       
     }
 
     /**
