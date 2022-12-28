@@ -562,6 +562,7 @@ var page = {
        this.sendAjax(_z, 'afterSeverity');
    },
 
+
     afterPush : function(response) {
         if(response.code  == 200) {
             console.log(response)
@@ -721,6 +722,7 @@ var page = {
             toastr["error"](response.error,"Something went wrong");
         }
     },
+    
 
 }
 

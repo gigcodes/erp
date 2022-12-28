@@ -107,7 +107,7 @@ table{border-collapse: collapse;}
 										</select>
 									</div>
 									<div class="form-group" style="width: 120px;margin-bottom: 10px;">
-										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true"  style="width: 120px;" />
+										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true"  style="width: 120px;" value="<?php if(isset($_REQUEST['bug_main_id']) && $_REQUEST['bug_main_id']>0) { echo $_REQUEST['bug_main_id']; } ?>" />
 									</div>
 									<div class="form-group" style="width: 200px;margin-bottom: 10px;">
 										<input name="step_to_reproduce" type="text" class="form-control" placeholder="Search Reproduce" id="bug-search" data-allow-clear="true" />
@@ -1040,5 +1040,12 @@ table{border-collapse: collapse;}
 		$(window).on('load', function() {
 			$( "th" ).resizable();
 		});
+		
+		var uriv = window.location.href.toString();
+		if (uriv.indexOf("?") > 0) {
+			var clean_uri = uriv.substring(0, uriv.indexOf("?"));
+			$('#bug-id-search').val("");
+			window.history.replaceState({}, document.title, clean_uri);
+		}
 	</script>
 @endsection
