@@ -254,6 +254,7 @@ class StoreWebsiteController extends Controller
      */
     public function saveDuplicateStore(Request $request)
     {
+        set_time_limit(0);
         $numberOfDuplicates = $request->get('number') - 1;
         if ($numberOfDuplicates <= 0) {
             return response()->json(['code' => 500, 'error' => 'Number of duplicates must be 1 or more!']);
