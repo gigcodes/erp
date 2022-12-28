@@ -88,25 +88,26 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('bug_type')) {
-            $records = $records->orWhereIn('bug_type_id', $keyword);
+            $records = $records->WhereIn('bug_type_id', $keyword);
         }
         if ($keyword = request('bug_enviornment')) {
-            $records = $records->orWhereIn('bug_environment_id', $keyword);
+            $records = $records->WhereIn('bug_environment_id', $keyword);
         }
         if ($keyword = request('bug_severity')) {
-            $records = $records->orWhereIn('bug_severity_id', $keyword);
+            $records = $records->WhereIn('bug_severity_id', $keyword);
         }
         if ($keyword = request('created_by')) {
-            $records = $records->orWhereIn('created_by', $keyword);
+            $records = $records->WhereIn('created_by', $keyword);
         }
-        if ($keyword = request('assign_to_user')) {
-            $records = $records->orWhereIn('assign_to', $keyword);
+        if ($keyword = request('assign_to_user')) {           
+            $records = $records->WhereIn('assign_to', $keyword);
         }
         if ($keyword = request('bug_status')) {
-            $records = $records->orWhereIn('bug_status_id', $keyword);
+            $records = $records->WhereIn('bug_status_id', $keyword);
         }
         if ($keyword = request('module_id')) {
-            $records = $records->orWhereIn('module_id', 'LIKE', "%$keyword%");
+            //$records = $records->WhereIn('module_id', 'LIKE', "%$keyword%");
+            $records = $records->WhereIn('module_id', $keyword);
         }
         if ($keyword = request('step_to_reproduce')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -119,7 +120,7 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('website')) {
-            $records = $records->orWhereIn('website', $keyword);
+            $records = $records->WhereIn('website', $keyword);
         }
         if ($keyword = request('date')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -215,25 +216,26 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('bug_type')) {
-            $records = $records->orWhereIn('bug_type_id', $keyword);
+            $records = $records->WhereIn('bug_type_id', $keyword);
         }
         if ($keyword = request('bug_enviornment')) {
-            $records = $records->orWhereIn('bug_environment_id', $keyword);
+            $records = $records->WhereIn('bug_environment_id', $keyword);
         }
         if ($keyword = request('bug_severity')) {
-            $records = $records->orWhereIn('bug_severity_id', $keyword);
+            $records = $records->WhereIn('bug_severity_id', $keyword);
         }
         if ($keyword = request('created_by')) {
-            $records = $records->orWhereIn('created_by', $keyword);
+            $records = $records->WhereIn('created_by', $keyword);
         }
         if ($keyword = request('assign_to_user')) {
-            $records = $records->orWhereIn('assign_to', $keyword);
+            $records = $records->WhereIn('assign_to', $keyword);
         }
         if ($keyword = request('bug_status')) {
-            $records = $records->orWhereIn('bug_status_id', $keyword);
+            $records = $records->WhereIn('bug_status_id', $keyword);
         }
         if ($keyword = request('module_id')) {
-            $records = $records->orWhereIn('module_id', 'LIKE', "%$keyword%");
+           // $records = $records->WhereIn('module_id', 'LIKE', "%$keyword%");
+           $records = $records->WhereIn('module_id', $keyword);
         }
         if ($keyword = request('step_to_reproduce')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -246,7 +248,7 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('website')) {
-            $records = $records->orWhereIn('website', $keyword);
+            $records = $records->WhereIn('website', $keyword);
         }
         if ($keyword = request('date')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -511,6 +513,7 @@ class BugTrackingController extends Controller
         $data = $request->except('_token', 'id');
         $bug = BugTracker::where('id', $request->id)->first();
 
+
         $old_severity_id = $bug->bug_severity_id;
 
         $data['created_by'] = \Auth::user()->id;
@@ -551,6 +554,11 @@ class BugTrackingController extends Controller
             $testCaseHistory->save();
         }
 
+        
+        if($bug->bug_status_id == '7') {
+            $data['assign_to'] = $bug->created_by;
+        }
+
         $bug->update($data);
         $data['bug_id'] = $request->id;
         BugTrackerHistory::create($data);
@@ -575,6 +583,17 @@ class BugTrackingController extends Controller
             'updated_by' => \Auth::user()->id,
         ];
         BugSeveritiesHistory::create($severity_his);
+
+        if ($request->bug_status_id == 3 || $request->bug_status_id == 7) {
+            $Task = Task::where('task_bug_ids', $request->id)->first();
+            if($request->bug_status_id == 3) {
+                $Task->status = 22;
+            } else if($request->bug_status_id == 7) {
+                $Task->status = 15;
+            }
+            
+            $Task->save();
+        } 
 
         return redirect()->route('bug-tracking.index')->with('success', 'You have successfully updated a Bug Tracker!');
     }
@@ -708,10 +727,21 @@ class BugTrackingController extends Controller
         if ($request->status_id == 7) {
             $prev_created_by = $bugTracker->created_by;
             $bugTracker->assign_to = $prev_created_by;
-        }
+        } 
 
         $bugTracker->bug_status_id = $request->status_id;
         $bugTracker->save();
+
+        if ($request->status_id == 3 || $request->status_id == 7) {
+            $Task = Task::where('task_bug_ids', $request->id)->first();
+            if($request->status_id == 3) {
+                $Task->status = 22;
+            } else if($request->status_id == 7) {
+                $Task->status = 15;
+            }
+            
+            $Task->save();
+        } 
 
         $data = [
             'bug_status_id' => $bugTracker->bug_status_id,

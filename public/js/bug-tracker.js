@@ -481,9 +481,10 @@ var page = {
     },
     saveEnvironment: function (response) {
         if (response.code == 200) {
-            page.loadFirst();
+            // page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Environment Saved Successfully");
+            $("#loading-image").hide();
 
         }else {
             $("#loading-image").hide();
@@ -492,9 +493,10 @@ var page = {
     },
     saveSeverity : function(response) {
         if(response.code  == 200) {
-            page.loadFirst();
+           // page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Severity Saved Successfully");
+            $("#loading-image").hide();
 
         }else {
             $("#loading-image").hide();
@@ -503,9 +505,10 @@ var page = {
     },
     saveType : function(response) {
         if(response.code  == 200) {
-            page.loadFirst();
+           // page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Type Saved Successfully");
+            $("#loading-image").hide();
 
         }else {
             $("#loading-image").hide();
@@ -514,9 +517,10 @@ var page = {
     },
     saveStatus : function(response) {
         if(response.code  == 200) {
-            page.loadFirst();
+           // page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Status Saved Successfully");
+            $("#loading-image").hide();
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -561,7 +565,6 @@ var page = {
        }
        this.sendAjax(_z, 'afterSeverity');
    },
-
 
     afterPush : function(response) {
         if(response.code  == 200) {
@@ -722,7 +725,6 @@ var page = {
             toastr["error"](response.error,"Something went wrong");
         }
     },
-    
 
 }
 
