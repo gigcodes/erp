@@ -14,8 +14,8 @@ class AddKeyChatbotDialogTableStoreWebsite extends Migration
     {
         //
         DB::statement('ALTER TABLE `chatbot_dialog_responses` CHANGE `store_website_id` `store_website_id` INT(11) NULL DEFAULT NULL;');
-		DB::statement('update chatbot_dialog_responses set store_website_id= NULL where store_website_id =0;');
-		DB::statement('ALTER TABLE `chatbot_dialog_responses` ADD FOREIGN KEY (`store_website_id`) REFERENCES `store_websites`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;');
+        DB::statement('update chatbot_dialog_responses set store_website_id= NULL where store_website_id =0;');
+        DB::statement('ALTER TABLE `chatbot_dialog_responses` ADD FOREIGN KEY (`store_website_id`) REFERENCES `store_websites`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;');
     }
 
     /**
