@@ -193,6 +193,9 @@ table{border-collapse: collapse;}
 							</button>&nbsp;&nbsp;
 							<button class="btn btn-secondary btn-xs btn-add-severity" style="color:white;"
 									data-toggle="modal" data-target="#newSeverity"> Severity
+							</button>&nbsp;&nbsp;
+							<button class="btn btn-secondary btn-xs btn-add-status-color" style="color:white;"
+									data-toggle="modal" data-target="#newStatusColor"> Status Color
 							</button>
 						</div>&nbsp;&nbsp;
 					</div>
@@ -230,6 +233,7 @@ table{border-collapse: collapse;}
 	@include("bug-tracking.templates.bug-severity")
 	@include("bug-tracking.templates.bug-status")
 	@include("bug-tracking.templates.bug-type")
+	@include("bug-tracking.templates.bug-status-color")
 	
 	
 	<div id="dev_task_statistics" class="modal fade" role="dialog">
@@ -530,6 +534,19 @@ table{border-collapse: collapse;}
 	<script src="{{ asset('/js/jquery-ui.js')}}"></script>
 	<script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('/js/bug-tracker.js') }}"></script>
+	
+	
+	<script type="text/javascript" src="{{ asset('/js/jquery.simple-color-picker.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+           // $('input#color').simpleColorPicker();
+            $('input#color_name').simpleColorPicker({ colorsPerLine: 16 });
+           // var colors = ['#000000', '#444444', '#666666', '#999999', '#cccccc', '#eeeeee', '#f3f3f3', '#ffffff'];
+           // $('input#color3').simpleColorPicker({ colors: colors });
+           // $('input#color_name').simpleColorPicker({ showEffect: 'fade', hideEffect: 'slide' });
+           // $('button#color5').simpleColorPicker({ onChangeColor: function(color) { $('label#color-result').text(color); } });
+        });
+    </script>
 
 	<script type="text/javascript">
 		page.init({
