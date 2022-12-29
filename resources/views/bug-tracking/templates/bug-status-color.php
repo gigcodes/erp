@@ -17,7 +17,7 @@
 								<td style="text-align:center;"><b>Color</b></td>								
 							</tr>
 							<?php
-							foreach ($bugStatuses as $bugstatus) { ?>
+                            foreach ($bugStatuses as $bugstatus) { ?>
 							<tr>
 								<td>&nbsp;&nbsp;&nbsp;<?php echo $bugstatus->name; ?></td>
 								<td style="text-align:center;"><?php echo $bugstatus->bug_color; ?></td>
