@@ -293,7 +293,6 @@ class StoreWebsiteController extends Controller
         $swUsers = StoreWebsiteUsers::where('store_website_id', '=', $storeWebsiteId)->get();
 
         for ($i = 1; $i <= $numberOfDuplicates; $i++) {
-
             $copyStoreWebsite = $storeWebsite->replicate();
             $title = $copyStoreWebsite->title;
             unset($copyStoreWebsite->id);
