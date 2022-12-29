@@ -85,6 +85,7 @@ class ZabbixStore extends Command
             ],
             'id' => 1,
         ];
+
         $datas = json_encode([$data]);
         
         curl_setopt($curl, CURLOPT_POSTFIELDS, $datas);
@@ -93,11 +94,11 @@ class ZabbixStore extends Command
         $result = curl_exec($curl);
         curl_close($curl);
         $results = json_decode($result);
+        
         if (isset($results[0]->result)) {
             return $results[0]->result;
         } else {
             \Log::channel('general')->info(Carbon::now().$results[0]->error->data);
-
             return 0;
         }
     }
@@ -122,7 +123,6 @@ class ZabbixStore extends Command
         $result = curl_exec($curl);
         curl_close($curl);
         $results = json_decode($result);
-
         return $results[0]->result;
     }
 

@@ -17,7 +17,6 @@ class ZabbixController extends Controller
 
             return datatables()->eloquent($query)->toJson();
         }
-        //dd($query);
         return view('zabbix.index');
     }
 
@@ -27,7 +26,7 @@ class ZabbixController extends Controller
             $query = Problem::select('eventid', 'objectid', 'name','hostname');
             return datatables()->eloquent($query)->toJson();
         }
-       
+        
         return view('zabbix.problem');
     }
 
@@ -40,7 +39,6 @@ class ZabbixController extends Controller
                 $host = Host::where('hostid',$val->hostid)->first();
                 $val['hostname'] =$host->name; 
             }
-            // dd($query);
             return response()->json(['status'=>200,'data'=>$query]);
         }
     }

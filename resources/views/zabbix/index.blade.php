@@ -35,30 +35,7 @@
   .table-responsive select.select {
     width: 110px !important;
   }
-  .modal-body{
-    max-height: 500px;
-    overflow-y: scroll;
-  }
-  #email-table{
-    width: 100% !important;
-  }
-  .singleline-flex{
-    display: flex;
-    justify-content: space-between;
-    column-gap: 5px;
-    align-items: flex-start;
-  }
-  .modal-body{
-    padding: 0;
-  }
-  .modal-table{
-    position: sticky;
-    top:0;
-    background: rgb(191 184 184);
-  }
-  #email-table_wrapper{
-    overflow: auto;
-  }
+
 
 
   @media (max-width: 1280px) {
@@ -89,14 +66,14 @@
     </div>
 <div class="row">
 	<div class="col-md-12 p-0">
-		<h2 class="page-heading ">Host Item List</h2>
+		<h2 class="page-heading">Host Item List</h2>
 	</div>
 </div>
 
 
 
 <div class="table-responsive mt-3" style="margin-top:20px;">
-      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="zabbix-table">
         <thead>       
             <tr>
                 <th>Host</th>
@@ -120,13 +97,12 @@
       </div> 
 </div>
 
-<div class="modal fade" id="task-modal" tabindex="-1" role="dialog">
+<div class="modal fade zabbix" id="task-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-xl">
       <div class="modal-content">
           <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title float-left position-absolute">Detail History</h4>
-              {{-- <p>of <strong>To do List 1</strong></p> --}}
           </div>
           <div id="task-table-body" class="modal-body">
               <div class="panel">
@@ -159,17 +135,17 @@
       </div>
   </div>
 </div>
-
-
 @endsection
+
 @section('scripts')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
-   var oTable;
+
+      var oTable;
         $(document).ready(function() {
-            oTable = $('#email-table').DataTable({
+            oTable = $('#zabbix-table').DataTable({
                 lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 responsive: true,
                 searchDelay: 500,
