@@ -107,7 +107,7 @@ table{border-collapse: collapse;}
 										</select>
 									</div>
 									<div class="form-group" style="width: 120px;margin-bottom: 10px;">
-										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true"  style="width: 120px;" />
+										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true"  style="width: 120px;" value="<?php if(isset($_REQUEST['bug_main_id']) && $_REQUEST['bug_main_id']>0) { echo $_REQUEST['bug_main_id']; } ?>" />
 									</div>
 									<div class="form-group" style="width: 200px;margin-bottom: 10px;">
 										<input name="step_to_reproduce" type="text" class="form-control" placeholder="Search Reproduce" id="bug-search" data-allow-clear="true" />
@@ -118,7 +118,7 @@ table{border-collapse: collapse;}
 									</div>
 									<div class="form-group m-1" style="width: 200px;">
 										<input name="url" type="text" class="form-control" placeholder="Search Url" id="bug-url" data-allow-clear="true" />
-									</div>
+									</div>									
                 <div class="form-group cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$website = request('website');
@@ -166,6 +166,8 @@ table{border-collapse: collapse;}
 											<img src="/images/search.png" style="cursor: default;">
 										</button>
 										<a href="/bug-tracking" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+										<button type="submit" class="btn btn-secondary btn-xs btn-sorting-action" value="sort-comm" style="color:white;">Sort By Comm
+										</button>&nbsp;&nbsp;
 									</div>
 								</div>
 							</form>
@@ -361,6 +363,33 @@ table{border-collapse: collapse;}
 
 					</tbody>
 				</table>
+			</div>
+		</div>
+	</div>
+	
+	<div id="newSeverityHistoryModal" class="modal fade" role="dialog">
+															
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>Severity History</h3>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					<table class="table" border="1">
+					<tr>
+						<td style="text-align: center;"><b>Created Date</b></td>						
+						<td style="text-align: center;"><b>Old Severity</b></td>
+						<td style="text-align: center;"><b>New Severity</b></td>							 
+						<td style="text-align: center;"><b>Updated By</b></td>
+					</tr>
+					<tbody class="tbhseverity">
+
+					</tbody>
+				</table>
+				</div>
+				
 			</div>
 		</div>
 	</div>
@@ -1011,5 +1040,12 @@ table{border-collapse: collapse;}
 		$(window).on('load', function() {
 			$( "th" ).resizable();
 		});
+		
+		var uriv = window.location.href.toString();
+		if (uriv.indexOf("?") > 0) {
+			var clean_uri = uriv.substring(0, uriv.indexOf("?"));
+			$('#bug-id-search').val("");
+			window.history.replaceState({}, document.title, clean_uri);
+		}
 	</script>
 @endsection
