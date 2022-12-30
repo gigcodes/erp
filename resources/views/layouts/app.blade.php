@@ -2293,7 +2293,7 @@ if (!empty($notifications)) {
                     @endif
                     <div >
                         <div class="nav-item dropdown" id="search_li">
-                            <input type="text" class="form-control nav-link w-100" placeholder="Search" style="margin-top : 1%;" onkeyup="filterFunction()" id="search">
+                            <input type="text" class="form-control nav-link w-100" placeholder="Search" style="margin-top : 1%;min-width:200px !important;" onkeyup="filterFunction()" id="search">
                             <ul class="dropdown-menu multi-level" id="search_container">
                             </ul>
                         </div>
