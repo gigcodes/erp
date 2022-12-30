@@ -3332,7 +3332,7 @@ class TaskModuleController extends Controller
                 }
             }
 
-            if ($task->status == 3 || $task->status == 2 || $task->status == 6) {
+            if ($task->status == 3 || $task->status == 2 || $task->status == 6 || $task->status == 15 || $task->status == 16) {
                 if ($task->task_bug_ids != '') {
                     $task_details_info = explode(',', $task->task_bug_ids);
                     if (count($task_details_info) > 0) {
@@ -3352,11 +3352,9 @@ class TaskModuleController extends Controller
                             $bug_tracking = BugTracker::find($bug_tacker_id);
                             if ($task->status == 3) { // In progress
                                 $bug_tracking->bug_status_id = 6;
-                            } elseif ($task->status == 1) { // complete
+                            } elseif ($task->status == 15 || $task->status == 16) { // complete
                                 $bug_tracking->bug_status_id = 7;
-                                if ($admin_user_id > 0) {
-                                    $bug_tracking->assign_to = $admin_user_id;
-                                }
+                                $bug_tracking->assign_to = $bug_tracking->created_by;
                             } elseif ($task->status == 2) { // Discussing
                                 $bug_tracking->bug_status_id = 8;
                                 if ($admin_user_id > 0) {
