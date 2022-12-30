@@ -304,7 +304,7 @@ class StoreWebsiteController extends Controller
 
             $copyStoreWebsiteId = $copyStoreWebsite->id;
 
-            DuplicateStoreWebsiteJob::dispatch($copyStoreWebsiteId, $copyStoreWebsite, $siteDevelopmentCategories, $swCountryShipping, $swAnalytics, $swAttributes, $swBrands, $swCategories, $swCategoriesSeo, $swColor, $swGoal, $swImage, $swProduct, $swPage, $swProductAttributes, $swProductPrices, $swProductScreenshots, $swSeoFormat, $swSizes, $swTwilioNumbers, $swUsers, $i)->onQueue('default');
+            DuplicateStoreWebsiteJob::dispatch($copyStoreWebsiteId, $copyStoreWebsite, $siteDevelopmentCategories, $swCountryShipping, $swAnalytics, $swAttributes, $swBrands, $swCategories, $swCategoriesSeo, $swColor, $swGoal, $swImage, $swProduct, $swPage, $swProductAttributes, $swProductPrices, $swProductScreenshots, $swSeoFormat, $swSizes, $swTwilioNumbers, $swUsers, $i)->onQueue('sololuxury');
 
             if ($i == $numberOfDuplicates) {
                 return response()->json(['code' => 200, 'error' => 'Store website created successfully']);
