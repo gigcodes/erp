@@ -2293,7 +2293,7 @@ if (!empty($notifications)) {
                     @endif
                     <div >
                         <div class="nav-item dropdown" id="search_li">
-                            <input type="text" class="form-control nav-link" placeholder="Search" style="margin-top : 1%;" onkeyup="filterFunction()" id="search">
+                            <input type="text" class="form-control nav-link w-100" placeholder="Search" style="margin-top : 1%;" onkeyup="filterFunction()" id="search">
                             <ul class="dropdown-menu multi-level" id="search_container">
                             </ul>
                         </div>
@@ -2302,6 +2302,9 @@ if (!empty($notifications)) {
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
+                            <li>
+                            <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg" class="mt-2 ml-4 system-request" data-toggle="modal" style="width:25px; height:25px;background: #dddddd9c;padding: 0px;" data-target="#system-request" title="System Request" />
+                            </li>
                                 <li>
                                     <a class="quick-icon todolist-request" href="#"><span><i class="fa fa-plus fa-2x"></i></span></a>
                                 </li>
@@ -2329,6 +2332,10 @@ if (!empty($notifications)) {
                            </span>
                                 </a>
                             </li>
+
+                           
+
+
                             <li>
                                 <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
                                     <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
