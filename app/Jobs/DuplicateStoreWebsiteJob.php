@@ -626,4 +626,9 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             return false;
         }
     }
+
+    public function tags()
+    {
+        return ['WebsiteDuplicates', $this->copyStoreWebsite->title];
+    }
 }
