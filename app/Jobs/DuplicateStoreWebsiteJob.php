@@ -125,7 +125,7 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('DB log enabled.');
         }
 
-        DB::beginTransaction();
+//        DB::beginTransaction();
         try {
             foreach ($this->siteDevelopmentCategories as $develop) {
                 $site = new SiteDevelopment;
@@ -577,9 +577,9 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server of '.$this->copyStoreWebsite->title.'!']);
             }
             \Log::info('Update store view server of '.$this->copyStoreWebsite->title.' completed.');
-            DB::commit();
+//            DB::commit();
         } catch (\Exception $e) {
-            DB::rollback();
+//            DB::rollback();
 
             return response()->json(['code' => 500, 'error' => $e->getMessage()]);
             \Log::error($e->getMessage());
