@@ -24,7 +24,7 @@
 		    <tbody class="pending-row-render-view infinite-scroll-pending-inner">
 		    	{{props data}}
 				
-			      <tr>
+			      <tr style="background-color:{{:prop.bug_color}}">
 			      	<td class='break'>{{:prop.id}}</td>
 			      	<td>{{:prop.created_at_date}}</td>
 			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="{{:prop.id}}" data-toggle="tooltip"><span class="show-short-summary-{{:prop.id}}" onclick="copySumText()">{{:prop.summary_short}}</span>

@@ -5,7 +5,7 @@
 
 
 	?>
-			      <tr>
+			      <tr style="background-color:<?php echo  $prop->bug_color;  ?>">
 			      	<td class='break'><?php echo $prop->id; ?></td>
 			      	<td><?php echo  $prop->created_at_date;  ?></td>
 			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="<?php echo  $prop->id;  ?>"><span class="show-short-summary-<?php echo $prop->id; ?>" onclick="copySumText()"><?php echo  $prop->summary_short  ?></span>
