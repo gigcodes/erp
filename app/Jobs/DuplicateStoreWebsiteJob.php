@@ -36,26 +36,47 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $copyStoreWebsiteId;
+
     protected $copyStoreWebsite;
+
     protected $siteDevelopmentCategories;
+
     protected $swCountryShipping;
+
     protected $swAnalytics;
+
     protected $swAttributes;
+
     protected $swBrands;
+
     protected $swCategories;
+
     protected $swCategoriesSeo;
+
     protected $swColor;
+
     protected $swGoal;
+
     protected $swImage;
+
     protected $swProduct;
+
     protected $swPage;
+
     protected $swProductAttributes;
+
     protected $swProductPrices;
+
     protected $swProductScreenshots;
+
     protected $swSeoFormat;
+
     protected $swSizes;
+
     protected $swTwilioNumbers;
+
     protected $swUsers;
+
     protected $i;
 
     /**
@@ -113,7 +134,7 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 $site->website_id = $copyStoreWebsiteId;
                 $site->save();
             }
-            \Log::info('Site development categories created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Site development categories created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites Country Shipping
             $copySwCountryShippingResult = [];
@@ -131,11 +152,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsitesCountryShipping::insert($copySwCountryShippingResult);
-            if (!$response) {
-                \Log::error('Store website country shipping creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website country shipping creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website country shipping creation failed!']);
             }
-            \Log::info('Store website country shipping created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website country shipping created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites Analytics
             $copySwAnalyticsResult = [];
@@ -155,11 +177,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteAnalytic::insert($copySwAnalyticsResult);
-            if (!$response) {
-                \Log::error('Store website Analytics creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website Analytics creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website Analytics creation failed!']);
             }
-            \Log::info('Store website Analytics created ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website Analytics created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites Attributes
             $copySwAttributesResult = [];
@@ -175,11 +198,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteAttributes::insert($copySwAttributesResult);
-            if (!$response) {
-                \Log::error('Store website attributes creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website attributes creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website attributes creation failed!']);
             }
-            \Log::info('Store website attributes created ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website attributes created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites brands
             $copySwBrandsResult = [];
@@ -196,11 +220,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteBrand::insert($copySwBrandsResult);
-            if (!$response) {
-                \Log::error('Store website brands creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website brands creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website brands creation failed!']);
             }
-            \Log::info('Store website brands created ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website brands created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites categories
             $copySwCategoriesResult = [];
@@ -217,11 +242,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteCategory::insert($copySwCategoriesResult);
-            if (!$response) {
-                \Log::error('Store website categories creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website categories creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website categories creation failed!']);
             }
-            \Log::info('Store website categories created ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website categories created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites categories seo
             $copySwCategoriesSeoResult = [];
@@ -241,11 +267,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteCategorySeo::insert($copySwCategoriesSeoResult);
-            if (!$response) {
-                \Log::error('Store website categories seo creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website categories seo creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website categories seo creation failed!']);
             }
-            \Log::info('Store website categories seo created ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website categories seo created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites colors
             $copySwColorResult = [];
@@ -262,11 +289,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteColor::insert($copySwColorResult);
-            if (!$response) {
-                \Log::error('Store website colors creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website colors creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website colors creation failed!']);
             }
-            \Log::info('Store website colors created ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website colors created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites goal
             $copySwGoalResult = [];
@@ -282,11 +310,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteGoal::insert($copySwGoalResult);
-            if (!$response) {
-                \Log::error('Store website goal creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website goal creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website goal creation failed!']);
             }
-            \Log::info('Store website goal created ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website goal created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites images
             $copySwImageResult = [];
@@ -303,11 +332,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteImage::insert($copySwImageResult);
-            if (!$response) {
-                \Log::error('Store website images creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website images creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website images creation failed!']);
             }
-            \Log::info('Store website images created ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website images created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites pages
             $copySwPageResult = [];
@@ -338,11 +368,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsitePage::insert($copySwPageResult);
-            if (!$response) {
-                \Log::error('Store website page creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website page creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website page creation failed!']);
             }
-            \Log::info('Store website images page created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website images page created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products
             $copySwProductResult = [];
@@ -358,11 +389,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteProduct::insert($copySwProductResult);
-            if (!$response) {
-                \Log::error('Store website product creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website product creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website product creation failed!']);
             }
-            \Log::info('Store website product creation created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website product creation created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products attributes
             $copySwProductAttributesResult = [];
@@ -383,11 +415,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteProductAttribute::insert($copySwProductAttributesResult);
-            if (!$response) {
-                \Log::error('Store website product attributes creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website product attributes creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website product attributes creation failed!']);
             }
-            \Log::info('Store website product attributes created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website product attributes created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products prices
             $copySwProductPricesResult = [];
@@ -408,11 +441,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteProductPrice::insert($copySwProductPricesResult);
-            if (!$response) {
-                \Log::error('Store website product price creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website product price creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website product price creation failed!']);
             }
-            \Log::info('Store website product price created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website product price created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products screenshots
             $copySwProductScreenshotsResult = [];
@@ -431,11 +465,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteProductScreenshot::insert($copySwProductScreenshotsResult);
-            if (!$response) {
-                \Log::error('Store website product screenshots creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website product screenshots creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website product screenshots failed!']);
             }
-            \Log::info('Store website product screenshots created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website product screenshots created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites seo format
             $copySwSeoFormatResult = [];
@@ -452,11 +487,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteSeoFormat::insert($copySwSeoFormatResult);
-            if (!$response) {
-                \Log::error('Store website seo format creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website seo format creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website seo format failed!']);
             }
-            \Log::info('Store website seo format created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website seo format created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites size
             $copySizesResult = [];
@@ -472,11 +508,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteSize::insert($copySizesResult);
-            if (!$response) {
-                \Log::error('Store website size creation failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website size creation failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website size failed!']);
             }
-            \Log::info('Store website size created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website size created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites twilio numbers
             $copyTwilioNumbersResult = [];
@@ -500,11 +537,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteTwilioNumber::insert($copyTwilioNumbersResult);
-            if (!$response) {
-                \Log::error('Store website twilio numbers copying failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website twilio numbers copying failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website twilio numbers failed!']);
             }
-            \Log::info('Store website twilio numbers copied for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website twilio numbers copied for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites users
             $copyUsersResult = [];
@@ -525,31 +563,33 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 }
             }
             $response = StoreWebsiteUsers::insert($copyUsersResult);
-            if (!$response) {
-                \Log::error('Store website users copying failed for ' . $this->copyStoreWebsite->title);
+            if (! $response) {
+                \Log::error('Store website users copying failed for '.$this->copyStoreWebsite->title);
+
                 return response()->json(['code' => 500, 'error' => 'Store website users failed!']);
             }
-            \Log::info('Store website users copied for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website users copied for '.$this->copyStoreWebsite->title);
 
             $response = $this->updateStoreViewServer($copyStoreWebsiteId, $this->i + 1);
-            if (!$response) {
-                \Log::error('Something went wrong in update store view server of ' . $this->copyStoreWebsite->title);
-                return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server of ' . $this->copyStoreWebsite->title . '!']);
+            if (! $response) {
+                \Log::error('Something went wrong in update store view server of '.$this->copyStoreWebsite->title);
+
+                return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server of '.$this->copyStoreWebsite->title.'!']);
             }
-            \Log::info('Update store view server of ' . $this->copyStoreWebsite->title . ' completed.');
+            \Log::info('Update store view server of '.$this->copyStoreWebsite->title.' completed.');
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
+
             return response()->json(['code' => 500, 'error' => $e->getMessage()]);
             \Log::error($e->getMessage());
         }
-
     }
 
     public function enableDBLog($website)
     {
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-debug.sh --server ' . $website->server_ip . ' --debug ' . ($website->is_debug_true ? 'true' : 'false') . ' 2>&1';
-        \Log::info('[SatyamTest] ' . $cmd);
+        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-debug.sh --server '.$website->server_ip.' --debug '.($website->is_debug_true ? 'true' : 'false').' 2>&1';
+        \Log::info('[SatyamTest] '.$cmd);
         $allOutput = [];
         $allOutput[] = $cmd;
         $result = exec($cmd, $allOutput);
@@ -565,10 +605,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
         $count = 0;
         foreach ($storeViews as $key => $view) {
             $storeView = WebsiteStoreView::find($view->id);
-            if (!$storeView->websiteStore) {
-                \Log::error('Website store not found for ' . $view->id . '!');
-            } elseif (!$storeView->websiteStore->website) {
-                \Log::error('Website not found for ' . $view->id . '!');
+            if (! $storeView->websiteStore) {
+                \Log::error('Website store not found for '.$view->id.'!');
+            } elseif (! $storeView->websiteStore->website) {
+                \Log::error('Website not found for '.$view->id.'!');
             } else {
                 $websiteId = $view->websiteStore->website->id;
                 $website = Website::find($websiteId);
