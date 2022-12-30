@@ -292,7 +292,7 @@ class StoreWebsiteController extends Controller
         $swTwilioNumbers = StoreWebsiteTwilioNumber::where('store_website_id', '=', $storeWebsiteId)->get();
         $swUsers = StoreWebsiteUsers::where('store_website_id', '=', $storeWebsiteId)->get();
 
-        echo "start";
+        echo 'start';
 
         for ($i = 1; $i <= $numberOfDuplicates; $i++) {
             echo $i;
