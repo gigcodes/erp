@@ -292,21 +292,21 @@ class StoreWebsiteController extends Controller
         $swTwilioNumbers = StoreWebsiteTwilioNumber::where('store_website_id', '=', $storeWebsiteId)->get();
         $swUsers = StoreWebsiteUsers::where('store_website_id', '=', $storeWebsiteId)->get();
 
-        echo "start";
+//        echo "start";
 
         for ($i = 1; $i <= $numberOfDuplicates; $i++) {
-            echo $i;
-//            $copyStoreWebsite = $storeWebsite->replicate();
-//            $title = $copyStoreWebsite->title;
-//            unset($copyStoreWebsite->id);
-//            unset($copyStoreWebsite->title);
-//            $copyStoreWebsite->title = $title.' '.$i;
-//            $copyStoreWebsite->parent_id = $storeWebsiteId;
-//            $copyStoreWebsite->save();
+//            echo $i;
+            $copyStoreWebsite = $storeWebsite->replicate();
+            $title = $copyStoreWebsite->title;
+            unset($copyStoreWebsite->id);
+            unset($copyStoreWebsite->title);
+            $copyStoreWebsite->title = $title.' '.$i;
+            $copyStoreWebsite->parent_id = $storeWebsiteId;
+            $copyStoreWebsite->save();
 
-//            $copyStoreWebsiteId = $copyStoreWebsite->id;
+            $copyStoreWebsiteId = $copyStoreWebsite->id;
 
-//            DuplicateStoreWebsiteJob::dispatch($copyStoreWebsiteId, $copyStoreWebsite, $siteDevelopmentCategories, $swCountryShipping, $swAnalytics, $swAttributes, $swBrands, $swCategories, $swCategoriesSeo, $swColor, $swGoal, $swImage, $swProduct, $swPage, $swProductAttributes, $swProductPrices, $swProductScreenshots, $swSeoFormat, $swSizes, $swTwilioNumbers, $swUsers, $i)->onQueue('sololuxury');
+            DuplicateStoreWebsiteJob::dispatch($copyStoreWebsiteId, $copyStoreWebsite, $siteDevelopmentCategories, $swCountryShipping, $swAnalytics, $swAttributes, $swBrands, $swCategories, $swCategoriesSeo, $swColor, $swGoal, $swImage, $swProduct, $swPage, $swProductAttributes, $swProductPrices, $swProductScreenshots, $swSeoFormat, $swSizes, $swTwilioNumbers, $swUsers, $i)->onQueue('sololuxury');
 
             if ($i == $numberOfDuplicates) {
                 return response()->json(['code' => 200, 'error' => 'Store website created successfully']);
