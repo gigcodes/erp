@@ -547,6 +547,7 @@ var page = {
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Status Saved Successfully");
             $("#loading-image").hide();
+
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
