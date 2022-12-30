@@ -256,13 +256,10 @@ class StoreWebsiteController extends Controller
     public function saveDuplicateStore(Request $request)
     {
 //        set_time_limit(0);
-        dd('start');
         $numberOfDuplicates = $request->get('number') - 1;
         if ($numberOfDuplicates <= 0) {
             return response()->json(['code' => 500, 'error' => 'Number of duplicates must be 1 or more!']);
         }
-
-        echo 1;
 
         $storeWebsiteId = $request->get('id');
         $storeWebsite = StoreWebsite::find($storeWebsiteId);
@@ -271,8 +268,6 @@ class StoreWebsiteController extends Controller
         if (! $response) {
             return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server!']);
         }
-
-        echo 2;
 
         if (! $storeWebsite) {
             return response()->json(['code' => 500, 'error' => 'No website found!']);
@@ -297,21 +292,21 @@ class StoreWebsiteController extends Controller
         $swTwilioNumbers = StoreWebsiteTwilioNumber::where('store_website_id', '=', $storeWebsiteId)->get();
         $swUsers = StoreWebsiteUsers::where('store_website_id', '=', $storeWebsiteId)->get();
 
-        echo 3;
+        echo "start";
 
         for ($i = 1; $i <= $numberOfDuplicates; $i++) {
             echo $i;
-            $copyStoreWebsite = $storeWebsite->replicate();
-            $title = $copyStoreWebsite->title;
-            unset($copyStoreWebsite->id);
-            unset($copyStoreWebsite->title);
-            $copyStoreWebsite->title = $title.' '.$i;
-            $copyStoreWebsite->parent_id = $storeWebsiteId;
-            $copyStoreWebsite->save();
+//            $copyStoreWebsite = $storeWebsite->replicate();
+//            $title = $copyStoreWebsite->title;
+//            unset($copyStoreWebsite->id);
+//            unset($copyStoreWebsite->title);
+//            $copyStoreWebsite->title = $title.' '.$i;
+//            $copyStoreWebsite->parent_id = $storeWebsiteId;
+//            $copyStoreWebsite->save();
 
-            $copyStoreWebsiteId = $copyStoreWebsite->id;
+//            $copyStoreWebsiteId = $copyStoreWebsite->id;
 
-            DuplicateStoreWebsiteJob::dispatch($copyStoreWebsiteId, $copyStoreWebsite, $siteDevelopmentCategories, $swCountryShipping, $swAnalytics, $swAttributes, $swBrands, $swCategories, $swCategoriesSeo, $swColor, $swGoal, $swImage, $swProduct, $swPage, $swProductAttributes, $swProductPrices, $swProductScreenshots, $swSeoFormat, $swSizes, $swTwilioNumbers, $swUsers, $i)->onQueue('sololuxury');
+//            DuplicateStoreWebsiteJob::dispatch($copyStoreWebsiteId, $copyStoreWebsite, $siteDevelopmentCategories, $swCountryShipping, $swAnalytics, $swAttributes, $swBrands, $swCategories, $swCategoriesSeo, $swColor, $swGoal, $swImage, $swProduct, $swPage, $swProductAttributes, $swProductPrices, $swProductScreenshots, $swSeoFormat, $swSizes, $swTwilioNumbers, $swUsers, $i)->onQueue('sololuxury');
 
             if ($i == $numberOfDuplicates) {
                 return response()->json(['code' => 200, 'error' => 'Store website created successfully']);
