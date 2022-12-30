@@ -1475,75 +1475,7 @@ if (!empty($notifications)) {
                                 @endif
                             </ul>
                         </li>
-                        <li id="developments" class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Development --}}
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/change-user') }}">Change User</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('scrap/development/list') }}">Scrapper Tasks</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/automatic/tasks') }}">Automatic Tasks</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
-                                </li>
-                                  <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/summarylist') }}">Quick Dev Task</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{url('task?daily_activity_date=&term=&selected_user=&is_statutory_query=3')}}">Discussion tasks</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('deploy-node') }}">Deploy Node</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('master.dev.task') }}">Dev Master Control</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('database.index') }}">Database Size</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage Module</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project Directory manager</a>
-                                </li>
-                            </ul>
-                        </li>
+                       
                         
                         
                     </ul>
@@ -1772,17 +1704,8 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
-                                            </li> 
-                                            <li class="nav-item dropdown dropdown-submenu">
-                                                <a id="queueDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Bug Track<span class="caret"></span></a>
-                                                <ul class="dropdown-menu dropdown-menu-right"aria-labelledby="bugtrackDropdown">
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{route('bug-tracking.index')}}">Bug Track</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{route('bug-tracking.website')}}">Bug Track Website</a>
-                                                    </li>
-                                                </ul>
+                                            </li> <li class="nav-item">
+                                                <a class="dropdown-item" href="{{route('bug-tracking.index')}}">Bug Track</a>
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
@@ -2128,6 +2051,74 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                                 </li>
+                                 <li  class="nav-item dropdown dropdown-submenu">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/change-user') }}">Change User</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('scrap/development/list') }}">Scrapper Tasks</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/automatic/tasks') }}">Automatic Tasks</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
+                                </li>
+                                  <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/summarylist') }}">Quick Dev Task</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{url('task?daily_activity_date=&term=&selected_user=&is_statutory_query=3')}}">Discussion tasks</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('deploy-node') }}">Deploy Node</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('master.dev.task') }}">Dev Master Control</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('database.index') }}">Database Size</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage Module</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project Directory manager</a>
+                                </li>
+                            </ul>
+                        </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">{{{ isset(Auth::user()->name) ? Auth::user()->name : 'Settings' }}} <span class="caret"></span></a>
 
@@ -2302,7 +2293,7 @@ if (!empty($notifications)) {
                     @endif
                     <div >
                         <div class="nav-item dropdown" id="search_li">
-                            <input type="text" class="form-control nav-link w-100" placeholder="Search" style="margin-top : 1%;min-width:200px !important;" onkeyup="filterFunction()" id="search">
+                            <input type="text" class="form-control nav-link w-100" placeholder="Search" style="margin-top : 1%;min-width:120px;" onkeyup="filterFunction()" id="search">
                             <ul class="dropdown-menu multi-level" id="search_container">
                             </ul>
                         </div>
@@ -2311,9 +2302,6 @@ if (!empty($notifications)) {
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
-                            <li>
-                            <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg" class="mt-2 ml-4 system-request" data-toggle="modal" style="width:25px; height:25px;background: #dddddd9c;padding: 0px;" data-target="#system-request" title="System Request" />
-                            </li>
                                 <li>
                                     <a class="quick-icon todolist-request" href="#"><span><i class="fa fa-plus fa-2x"></i></span></a>
                                 </li>
@@ -2341,10 +2329,6 @@ if (!empty($notifications)) {
                            </span>
                                 </a>
                             </li>
-
-                           
-
-
                             <li>
                                 <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
                                     <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
@@ -2920,84 +2904,6 @@ if (!empty($notifications)) {
 
     @endif
 
-    <div id="system-request" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">System IPs</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12" id="permission-request">
-
-                    @php
-                    use App\User;
-                    $userlist = [];
-                    $userLists = User::orderBy('name')->where('is_active', 1)->get();
-                   
-                    $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f list');
-
-                    $final_array = [];
-                    if ($shell_list != '') {
-                    $lines = explode(PHP_EOL, $shell_list);
-                    $final_array = [];
-                    foreach ($lines as $line) {
-                    $values = [];
-                    $values = explode(' ', $line);
-                    array_push($final_array, $values);
-                    }
-                    }
-                    @endphp
-                    <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
-
-                    <div>
-                        <select class="form-control col-md-3 ml-3" name="user_id" id="ipusers">
-                          <option>Select user</option>
-                                @foreach ($userLists as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                                <option value="other">Other</option>
-                        </select>
-
-                        <input type="text" name="other_user_name" id="other_user_name" class="form-control col-md-3 ml-3" style="display:none;" placeholder="other name">
-                    </div>
-
-                    <input type="text" name="ip_comment" class="form-control col-md-3 ml-3" placeholder="Add comment...">
-
-                    <button class="btn-success btn addIp ml-3 mb-5">Add</button>
-
-                    <table class="table table-bordered" id="userAllIps">
-                        <tr>
-                            <th>Index</th>
-                            <th>IP</th>
-                            <th>User</th>
-                            <th>Comment</th>
-                            <th>Action</th>
-                        </tr>
-                        <!-- @if (!empty($final_array)) @foreach (array_reverse($final_array) as $values)
-                                    <tr>
-                                        <td>{{ isset($values[0]) ? $values[0] : '' }}</td>
-                                        <td>{{ isset($values[1]) ? $values[1] : '' }}</td>
-                                        <td>{{ isset($values[2]) ? $values[2] : '' }}</td>
-                                        <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0] }}">Delete</button></td>
-                                    </tr> @endforeach
-                            @endif -->
-
-
-
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-    
     @php
 
         $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
@@ -3163,125 +3069,10 @@ if (!empty($notifications)) {
             }
         })
 
-        $(document).on('click','.system-request',function(){
-            loadUsersList();
-        })
-        $(document).on("click", ".addIp", function(e) {
-        e.preventDefault();
-        if ($('input[name="add-ip"]').val() != '') {
-            $.ajax({
-                url: '/users/add-system-ip',
-                type: 'GET',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    ip: $('input[name="add-ip"]').val(),
-                    user_id: $('#ipusers').val(),
-                    other_user_name: $('input[name="other_user_name"]').val(),
-                    comment: $('input[name="ip_comment"]').val()
-                },
-                dataType: 'json',
-                beforeSend: function() {
-                    $("#loading-image").show();
-                },
-                success: function(result) {
-                    $("#loading-image").hide();
-                    toastr["success"]("IP added successfully");
-                    location.reload();
-                },
-                error: function() {
-                    $("#loading-image").hide();
-                    toastr["Error"]("An error occured!");
-                }
-            });
-        } else {
-            alert('please enter IP');
-        }
-    });
-    $(document).ready(function() {
-        $('#ipusers').change(function() {
-            var selected = $(this).val();
-            if (selected == 'other') {
-                $('#other_user_name').show();
-            } else {
-                $('#other_user_name').hide();
-            }
-        });
-    });
-    $(document).on("click", ".deleteIp", function(e) {
-        e.preventDefault();
-        var btn = $(this);
-        $.ajax({
-            url: '/users/delete-system-ip',
-            type: 'GET',
-            data: {
-                _token: "{{ csrf_token() }}",
-                usersystemid: $(this).data('usersystemid')
-            },
-            dataType: 'json',
-            beforeSend: function() {
-                $("#loading-image").show();
-            },
-            success: function(result) {
-                btn.parents('tr').remove();
-                $("#loading-image").hide();
-                toastr["success"]("IP Deteted successfully");
-            },
-            error: function() {
-                $("#loading-image").hide();
-                toastr["Error"]("An error occured!");
-            }
-        });
-    });
-
-    function loadUsersList() {
-
-var t = "";
-var ip = "";
-$.ajax({
-    url: '{{ route("get-user-list") }}',
-    type: 'GET',
-    data: {
-        _token: "{{ csrf_token() }}",
-    },
-    dataType: 'json',
-
-    success: function(result) {
-        // console.log(result.data);
-        t += '<option>Select user</option>';
-
-        $.each(result.data, function(i, j) {
-            t += '<option value="' + i + '">' + j + '</option>'
-        });
-        t += '<option value="other">Other</option>';
-
-        // console.log(t);
-        $("#ipusers").html(t);
-
-        console.log(result.usersystemips);
-
-        $.each(result.usersystemips, function(k, v) {
-            ip += '<tr>';
-            ip += '<td> ' + v.index_txt + ' </td>';
-            ip += '<td> ' + v.ip + '</td>';
-            ip += '<td>' + v.user_id ? v.user.name : v.other_user_name + '</td>';
-            ip += '<td>' + v.notes + '</td>';
-            ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v.id + '">Delete</button></td>';
-            ip += '</tr>';
-        });
-
-        $("#userAllIps").html(ip);
-
-    },
-    error: function() {
-        // alert('fail');
-    }
-});
-
-}
-
     </script>
 
     @stack('scripts')
+
     <script>
         $(document).ready(function() {
             //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
