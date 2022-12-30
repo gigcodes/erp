@@ -49,6 +49,10 @@ var page = {
             e.preventDefault();
             page.createStatus();
         });
+        page.config.bodyView.on("click",".btn-add-status-color",function(e) {
+            e.preventDefault();
+            page.createStatusColor();
+        });
 
         page.config.bodyView.on("click",".send-message",function(e) {
             e.preventDefault();
@@ -99,6 +103,9 @@ var page = {
         });
         $(".common-modal").on("click",".submit-status",function() {
             page.submitStatus($(this));
+        });
+        $(".common-modal").on("click",".submit-status-color",function() {
+            page.submitStatusColor($(this));
         });
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
@@ -229,6 +236,14 @@ var page = {
     },
     createStatus : function(response) {
         var createWebTemplate = $.templates("#template-bug-status");
+        var tplHtml = createWebTemplate.render({data:{}});
+
+        var common =  $(".common-modal");
+        common.find(".modal-dialog").html(tplHtml);
+        common.modal("show");
+    },
+    createStatusColor : function(response) {
+        var createWebTemplate = $.templates("#template-bug-status-color");
         var tplHtml = createWebTemplate.render({data:{}});
 
         var common =  $(".common-modal");
@@ -404,6 +419,17 @@ var page = {
         }
         this.sendAjax(_z, "saveStatus");
     },
+    submitStatusColor : function(ele) {
+        var _z = {
+            url:  this.config.baseUrl + "/statuscolor",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveStatusColor");
+    },
 
     assignSelect2 : function () {
         var selectList = $("select.select-searchable");
@@ -520,6 +546,18 @@ var page = {
            // page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Status Saved Successfully");
+            $("#loading-image").hide();
+
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    saveStatusColor : function(response) {
+        if(response.code  == 200) {
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+            toastr["success"](response.message,"Status Color Saved Successfully");
             $("#loading-image").hide();
         }else {
             $("#loading-image").hide();

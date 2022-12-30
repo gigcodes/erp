@@ -139,7 +139,7 @@ class BugTrackingController extends Controller
             $bug->created_by = User::where('id', $bug->created_by)->value('name');
             $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
 //            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
-//            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
+            $bug->bug_color = BugStatus::where('id', $bug->bug_status_id)->value('bug_color');
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
             $bug->summary_short = Str::limit($bug->summary, 10, '..');
@@ -265,7 +265,7 @@ class BugTrackingController extends Controller
             $bug->created_by = User::where('id', $bug->created_by)->value('name');
             $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
 //            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
-//            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
+            $bug->bug_color = BugStatus::where('id', $bug->bug_status_id)->value('bug_color');
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
             $bug->summary_short = Str::limit($bug->summary, 10, '..');
@@ -348,6 +348,21 @@ class BugTrackingController extends Controller
         }
         $data = $request->except('_token');
         $records = BugStatus::create($data);
+
+        return response()->json(['code' => 200, 'data' => $records]);
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = BugStatus::find($key);
+            $bugstatus->bug_color = $value;
+            $bugstatus->save();
+        }
+
+        $records = $bugstatus;
 
         return response()->json(['code' => 200, 'data' => $records]);
     }
