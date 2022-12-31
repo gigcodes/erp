@@ -20,23 +20,6 @@ use App\SocialStrategySubject;
 use App\StoreReIndexHistory;
 use App\StoreViewCodeServerMap;
 use App\StoreWebsite;
-use App\StoreWebsiteAnalytic;
-use App\StoreWebsiteAttributes;
-use App\StoreWebsiteBrand;
-use App\StoreWebsiteCategory;
-use App\StoreWebsiteCategorySeo;
-use App\StoreWebsiteColor;
-use App\StoreWebsiteGoal;
-use App\StoreWebsiteImage;
-use App\StoreWebsitePage;
-use App\StoreWebsiteProduct;
-use App\StoreWebsiteProductAttribute;
-use App\StoreWebsiteProductPrice;
-use App\StoreWebsiteProductScreenshot;
-use App\StoreWebsitesCountryShipping;
-use App\StoreWebsiteSeoFormat;
-use App\StoreWebsiteSize;
-use App\StoreWebsiteTwilioNumber;
 use App\StoreWebsiteUserHistory;
 use App\StoreWebsiteUsers;
 use App\User;
@@ -282,7 +265,7 @@ class StoreWebsiteController extends Controller
             $copyStoreWebsite->parent_id = $storeWebsiteId;
             $copyStoreWebsite->save();
 
-            \Log::info($copyStoreWebsite->title. ' step 1 created.');
+            \Log::info($copyStoreWebsite->title.' step 1 created.');
 
             DuplicateStoreWebsiteJob::dispatch($storeWebsiteId, $copyStoreWebsite, $i)->onQueue('sololuxury');
 
