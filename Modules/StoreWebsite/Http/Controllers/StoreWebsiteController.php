@@ -272,30 +272,8 @@ class StoreWebsiteController extends Controller
         if (! $storeWebsite) {
             return response()->json(['code' => 500, 'error' => 'No website found!']);
         }
-        $siteDevelopmentCategories = SiteDevelopmentCategory::all();
-        $swCountryShipping = StoreWebsitesCountryShipping::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swAnalytics = StoreWebsiteAnalytic::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swAttributes = StoreWebsiteAttributes::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swBrands = StoreWebsiteBrand::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swCategories = StoreWebsiteCategory::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swCategoriesSeo = StoreWebsiteCategorySeo::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swColor = StoreWebsiteColor::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swGoal = StoreWebsiteGoal::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swImage = StoreWebsiteImage::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swProduct = StoreWebsiteProduct::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swPage = StoreWebsitePage::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swProductAttributes = StoreWebsiteProductAttribute::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swProductPrices = StoreWebsiteProductPrice::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swProductScreenshots = StoreWebsiteProductScreenshot::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swSeoFormat = StoreWebsiteSeoFormat::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swSizes = StoreWebsiteSize::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swTwilioNumbers = StoreWebsiteTwilioNumber::where('store_website_id', '=', $storeWebsiteId)->get();
-        $swUsers = StoreWebsiteUsers::where('store_website_id', '=', $storeWebsiteId)->get();
-
-//        echo "start";
 
         for ($i = 1; $i <= $numberOfDuplicates; $i++) {
-//            echo $i;
             $copyStoreWebsite = $storeWebsite->replicate();
             $title = $copyStoreWebsite->title;
             unset($copyStoreWebsite->id);
@@ -304,9 +282,9 @@ class StoreWebsiteController extends Controller
             $copyStoreWebsite->parent_id = $storeWebsiteId;
             $copyStoreWebsite->save();
 
-            $copyStoreWebsiteId = $copyStoreWebsite->id;
+            \Log::info($copyStoreWebsite->title. ' step 1 created.');
 
-            DuplicateStoreWebsiteJob::dispatch($copyStoreWebsiteId, $copyStoreWebsite, $siteDevelopmentCategories, $swCountryShipping, $swAnalytics, $swAttributes, $swBrands, $swCategories, $swCategoriesSeo, $swColor, $swGoal, $swImage, $swProduct, $swPage, $swProductAttributes, $swProductPrices, $swProductScreenshots, $swSeoFormat, $swSizes, $swTwilioNumbers, $swUsers, $i)->onQueue('sololuxury');
+            DuplicateStoreWebsiteJob::dispatch($storeWebsiteId, $copyStoreWebsite, $i)->onQueue('sololuxury');
 
             if ($i == $numberOfDuplicates) {
                 return response()->json(['code' => 200, 'error' => 'Store website created successfully']);

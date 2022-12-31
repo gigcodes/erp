@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\SiteDevelopment;
+use App\SiteDevelopmentCategory;
 use App\StoreViewCodeServerMap;
 use App\StoreWebsiteAnalytic;
 use App\StoreWebsiteAttributes;
@@ -35,47 +36,9 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $copyStoreWebsiteId;
+    protected $storeWebsiteId;
 
     protected $copyStoreWebsite;
-
-    protected $siteDevelopmentCategories;
-
-    protected $swCountryShipping;
-
-    protected $swAnalytics;
-
-    protected $swAttributes;
-
-    protected $swBrands;
-
-    protected $swCategories;
-
-    protected $swCategoriesSeo;
-
-    protected $swColor;
-
-    protected $swGoal;
-
-    protected $swImage;
-
-    protected $swProduct;
-
-    protected $swPage;
-
-    protected $swProductAttributes;
-
-    protected $swProductPrices;
-
-    protected $swProductScreenshots;
-
-    protected $swSeoFormat;
-
-    protected $swSizes;
-
-    protected $swTwilioNumbers;
-
-    protected $swUsers;
 
     protected $i;
 
@@ -84,29 +47,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($copyStoreWebsiteId, $copyStoreWebsite, $siteDevelopmentCategories, $swCountryShipping, $swAnalytics, $swAttributes, $swBrands, $swCategories, $swCategoriesSeo, $swColor, $swGoal, $swImage, $swProduct, $swPage, $swProductAttributes, $swProductPrices, $swProductScreenshots, $swSeoFormat, $swSizes, $swTwilioNumbers, $swUsers, $i)
+    public function __construct($storeWebsiteId, $copyStoreWebsite, $i)
     {
-        $this->copyStoreWebsiteId = $copyStoreWebsiteId;
+        $this->storeWebsiteId = $storeWebsiteId;
         $this->copyStoreWebsite = $copyStoreWebsite;
-        $this->siteDevelopmentCategories = $siteDevelopmentCategories;
-        $this->swCountryShipping = $swCountryShipping;
-        $this->swAnalytics = $swAnalytics;
-        $this->swAttributes = $swAttributes;
-        $this->swBrands = $swBrands;
-        $this->swCategories = $swCategories;
-        $this->swCategoriesSeo = $swCategoriesSeo;
-        $this->swColor = $swColor;
-        $this->swGoal = $swGoal;
-        $this->swImage = $swImage;
-        $this->swProduct = $swProduct;
-        $this->swPage = $swPage;
-        $this->swProductAttributes = $swProductAttributes;
-        $this->swProductPrices = $swProductPrices;
-        $this->swProductScreenshots = $swProductScreenshots;
-        $this->swSeoFormat = $swSeoFormat;
-        $this->swSizes = $swSizes;
-        $this->swTwilioNumbers = $swTwilioNumbers;
-        $this->swUsers = $swUsers;
         $this->i = $i;
     }
 
@@ -118,7 +62,7 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
     public function handle()
     {
         set_time_limit(0);
-        $copyStoreWebsiteId = $this->copyStoreWebsiteId;
+        $copyStoreWebsiteId = $this->copyStoreWebsite->id;
 
         if ($this->copyStoreWebsite->server_ip) {
             $this->enableDBLog($this->copyStoreWebsite);
@@ -126,8 +70,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
         }
 
 //        DB::beginTransaction();
+
         try {
-            foreach ($this->siteDevelopmentCategories as $develop) {
+            $siteDevelopmentCategories = SiteDevelopmentCategory::all();
+            foreach ($siteDevelopmentCategories as $develop) {
                 $site = new SiteDevelopment;
                 $site->site_development_category_id = $develop->id;
                 $site->site_development_master_category_id = $develop->master_category_id;
@@ -137,9 +83,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Site development categories created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites Country Shipping
+            $swCountryShipping = StoreWebsitesCountryShipping::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwCountryShippingResult = [];
-            if ($this->swCountryShipping->count() > 0) {
-                foreach ($this->swCountryShipping as $row) {
+            if ($swCountryShipping->count() > 0) {
+                foreach ($swCountryShipping as $row) {
                     $copySwCountryShippingRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'country_code' => $row->country_code,
@@ -160,9 +107,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website country shipping created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites Analytics
+            $swAnalytics = StoreWebsiteAnalytic::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwAnalyticsResult = [];
-            if ($this->swAnalytics->count() > 0) {
-                foreach ($this->swAnalytics as $row) {
+            if ($swAnalytics->count() > 0) {
+                foreach ($swAnalytics as $row) {
                     $copySwAnalyticsRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'website' => $row->website,
@@ -185,9 +133,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website Analytics created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites Attributes
+            $swAttributes = StoreWebsiteAttributes::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwAttributesResult = [];
-            if ($this->swAttributes->count() > 0) {
-                foreach ($this->swAttributes as $row) {
+            if ($swAttributes->count() > 0) {
+                foreach ($swAttributes as $row) {
                     $copySwAttributesRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'attribute_key' => $row->attribute_key,
@@ -206,9 +155,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website attributes created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites brands
+            $swBrands = StoreWebsiteBrand::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwBrandsResult = [];
-            if ($this->swBrands->count() > 0) {
-                foreach ($this->swBrands as $row) {
+            if ($swBrands->count() > 0) {
+                foreach ($swBrands as $row) {
                     $copySwBrandsRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'brand_id' => $row->brand_id,
@@ -228,9 +178,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website brands created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites categories
+            $swCategories = StoreWebsiteCategory::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwCategoriesResult = [];
-            if ($this->swCategories->count() > 0) {
-                foreach ($this->swCategories as $row) {
+            if ($swCategories->count() > 0) {
+                foreach ($swCategories as $row) {
                     $copySwCategoriesRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'category_id' => $row->category_id,
@@ -250,9 +201,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website categories created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites categories seo
+            $swCategoriesSeo = StoreWebsiteCategorySeo::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwCategoriesSeoResult = [];
-            if ($this->swCategoriesSeo->count() > 0) {
-                foreach ($this->swCategoriesSeo as $row) {
+            if ($swCategoriesSeo->count() > 0) {
+                foreach ($swCategoriesSeo as $row) {
                     $copySwCategoriesSeoRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'category_id' => $row->category_id,
@@ -275,9 +227,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website categories seo created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites colors
+            $swColor = StoreWebsiteColor::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwColorResult = [];
-            if ($this->swColor->count() > 0) {
-                foreach ($this->swColor as $row) {
+            if ($swColor->count() > 0) {
+                foreach ($swColor as $row) {
                     $copySwColorRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'erp_color' => $row->erp_color,
@@ -297,9 +250,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website colors created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites goal
+            $swGoal = StoreWebsiteGoal::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwGoalResult = [];
-            if ($this->swGoal->count() > 0) {
-                foreach ($this->swGoal as $row) {
+            if ($swGoal->count() > 0) {
+                foreach ($swGoal as $row) {
                     $copySwGoalRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'goal' => $row->goal,
@@ -318,9 +272,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website goal created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites images
+            $swImage = StoreWebsiteImage::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwImageResult = [];
-            if ($this->swImage->count() > 0) {
-                foreach ($this->swImage as $row) {
+            if ($swImage->count() > 0) {
+                foreach ($swImage as $row) {
                     $copySwImageRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'category_id' => $row->category_id,
@@ -340,9 +295,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website images created '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites pages
+            $swPage = StoreWebsitePage::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwPageResult = [];
-            if ($this->swPage->count() > 0) {
-                foreach ($this->swPage as $row) {
+            if ($swPage->count() > 0) {
+                foreach ($swPage as $row) {
                     $copySwPageRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'title' => $row->title,
@@ -376,9 +332,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website images page created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products
+            $swProduct = StoreWebsiteProduct::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwProductResult = [];
-            if ($this->swProduct->count() > 0) {
-                foreach ($this->swProduct as $row) {
+            if ($swProduct->count() > 0) {
+                foreach ($swProduct as $row) {
                     $copySwProductRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'product_id' => $row->product_id,
@@ -397,9 +354,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website product creation created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products attributes
+            $swProductAttributes = StoreWebsiteProductAttribute::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwProductAttributesResult = [];
-            if ($this->swProductAttributes->count() > 0) {
-                foreach ($this->swProductAttributes as $row) {
+            if ($swProductAttributes->count() > 0) {
+                foreach ($swProductAttributes as $row) {
                     $copySwProductAttributesRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'product_id' => $row->product_id,
@@ -423,9 +381,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website product attributes created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products prices
+            $swProductPrices = StoreWebsiteProductPrice::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwProductPricesResult = [];
-            if ($this->swProductPrices->count() > 0) {
-                foreach ($this->swProductPrices as $row) {
+            if ($swProductPrices->count() > 0) {
+                foreach ($swProductPrices as $row) {
                     $copySwProductPricesRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'product_id' => $row->product_id,
@@ -449,9 +408,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website product price created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products screenshots
+            $swProductScreenshots = StoreWebsiteProductScreenshot::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwProductScreenshotsResult = [];
-            if ($this->swProductScreenshots->count() > 0) {
-                foreach ($this->swProductScreenshots as $row) {
+            if ($swProductScreenshots->count() > 0) {
+                foreach ($swProductScreenshots as $row) {
                     $copySwProductScreenshotsRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'product_id' => $row->product_id,
@@ -473,9 +433,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website product screenshots created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites seo format
+            $swSeoFormat = StoreWebsiteSeoFormat::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySwSeoFormatResult = [];
-            if ($this->swSeoFormat->count() > 0) {
-                foreach ($this->swSeoFormat as $row) {
+            if ($swSeoFormat->count() > 0) {
+                foreach ($swSeoFormat as $row) {
                     $swSeoFormatRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'meta_title' => $row->meta_title,
@@ -495,9 +456,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website seo format created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites size
+            $swSizes = StoreWebsiteSize::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copySizesResult = [];
-            if ($this->swSizes->count() > 0) {
-                foreach ($this->swSizes as $row) {
+            if ($swSizes->count() > 0) {
+                foreach ($swSizes as $row) {
                     $swSizesRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'size_id' => $row->size_id,
@@ -516,9 +478,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website size created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites twilio numbers
+            $swTwilioNumbers = StoreWebsiteTwilioNumber::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copyTwilioNumbersResult = [];
-            if ($this->swTwilioNumbers->count() > 0) {
-                foreach ($this->swTwilioNumbers as $row) {
+            if ($swTwilioNumbers->count() > 0) {
+                foreach ($swTwilioNumbers as $row) {
                     $swTwilioNumbersRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'sub_category_menu_message' => $row->sub_category_menu_message,
@@ -545,9 +508,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website twilio numbers copied for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites users
+            $swUsers = StoreWebsiteUsers::where('store_website_id', '=', $this->storeWebsiteId)->get();
             $copyUsersResult = [];
-            if ($this->swUsers->count() > 0) {
-                foreach ($this->swUsers as $row) {
+            if ($swUsers->count() > 0) {
+                foreach ($swUsers as $row) {
                     $swUsersRow = [
                         'store_website_id' => $copyStoreWebsiteId,
                         'website_mode' => $row->website_mode,
