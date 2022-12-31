@@ -36,6 +36,8 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $timeout = 120;
+
     protected $storeWebsiteId;
 
     protected $copyStoreWebsite;
