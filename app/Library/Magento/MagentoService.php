@@ -513,12 +513,12 @@ class MagentoService
         }
 
         \Log::info(print_r([count($this->prices['samePrice']), count($this->prices['specialPrice']), count($this->translations)], true));
-        \Log::info('samePrice: ' . json_encode($this->prices['samePrice']));
-        \Log::info('specialPrice: ' . json_encode($this->prices['specialPrice']));
-        \Log::info('translations: ' . json_encode($this->translations));
-        \Log::info('storeWebsiteSize: ' . json_encode($this->storeWebsiteSize));
-        $storeWebsiteSize = ($this->storeWebsiteSize) ? $this->storeWebsiteSize : array();
-        \Log::info('storeWebsiteSize 2: ' . json_encode($storeWebsiteSize));
+        \Log::info('samePrice: '.json_encode($this->prices['samePrice']));
+        \Log::info('specialPrice: '.json_encode($this->prices['specialPrice']));
+        \Log::info('translations: '.json_encode($this->translations));
+        \Log::info('storeWebsiteSize: '.json_encode($this->storeWebsiteSize));
+        $storeWebsiteSize = ($this->storeWebsiteSize) ? $this->storeWebsiteSize : [];
+        \Log::info('storeWebsiteSize 2: '.json_encode($storeWebsiteSize));
         if ($pushSingle) {
             $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
             if ($this->log) {
