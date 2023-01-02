@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateZabbixHistoryTable extends Migration
 {
@@ -29,7 +29,6 @@ class CreateZabbixHistoryTable extends Migration
             $table->double('interrupts_per_second', 8, 4);
             $table->timestamps();
         });
-      
     }
 
     /**

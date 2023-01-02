@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Problem extends Model
 {
-    protected $fillable = ['eventid', 'objectid', 'name','hostname'];
+    protected $fillable = ['eventid', 'objectid', 'name', 'hostname'];
 }

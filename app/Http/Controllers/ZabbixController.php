@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Host;
 use App\Problem;
 use App\ZabbixHistory;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class ZabbixController extends Controller
 {
@@ -17,29 +17,33 @@ class ZabbixController extends Controller
 
             return datatables()->eloquent($query)->toJson();
         }
+
         return view('zabbix.index');
     }
 
     public function problems(Request $request)
     {
         if ($request->ajax()) {
-            $query = Problem::select('eventid', 'objectid', 'name','hostname');
+            $query = Problem::select('eventid', 'objectid', 'name', 'hostname');
+
             return datatables()->eloquent($query)->toJson();
         }
-        
+
         return view('zabbix.problem');
     }
 
-    public function history(Request $request){
+    public function history(Request $request)
+    {
         if ($request->ajax()) {
             $dueDate = Carbon::now()->subDays(2);
-            $query = ZabbixHistory::whereDate('created_at','>',$dueDate)->where('hostid',$request->hostid)->orderBy('created_at','desc')->get();
+            $query = ZabbixHistory::whereDate('created_at', '>', $dueDate)->where('hostid', $request->hostid)->orderBy('created_at', 'desc')->get();
 
-            foreach($query as $val){
-                $host = Host::where('hostid',$val->hostid)->first();
-                $val['hostname'] =$host->name; 
+            foreach ($query as $val) {
+                $host = Host::where('hostid', $val->hostid)->first();
+                $val['hostname'] = $host->name;
             }
-            return response()->json(['status'=>200,'data'=>$query]);
+
+            return response()->json(['status' => 200, 'data' => $query]);
         }
     }
 }
