@@ -800,17 +800,16 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $messages]);
     }
 
-    public function checkbug(Request $request) {
-
+    public function checkbug(Request $request)
+    {
         $bug_type_id = $request->bug_type_id;
         $bug_id = $request->bug_id;
         $module_id = $request->module_id;
         $website_id = $request->website_id;
-       // $bug_tracker = Task::where("FIND_IN_SET($bug_id,task_bug_ids)")->get()->asArray();
-        $bug_tracker = \DB::table("tasks")->select("*")->whereRaw("find_in_set($bug_id,task_bug_ids)")->get();
+        // $bug_tracker = Task::where("FIND_IN_SET($bug_id,task_bug_ids)")->get()->asArray();
+        $bug_tracker = \DB::table('tasks')->select('*')->whereRaw("find_in_set($bug_id,task_bug_ids)")->get();
 
         return response()->json(['code' => 200, 'data' => count($bug_tracker)]);
-
     }
 
     public function getWebsiteList(Request $request)
@@ -818,7 +817,7 @@ class BugTrackingController extends Controller
         $bug_type_id = $request->bug_type_id;
         $module_id = $request->module_id;
         $website_id = $request->website_id;
-        $bug_tracker = BugTracker::where('bug_type_id', $bug_type_id)->where('module_id', $module_id)->where('website', $website_id)->whereIn('bug_status_id', ['1', '2','4','5','6','8','9','10'])->get();
+        $bug_tracker = BugTracker::where('bug_type_id', $bug_type_id)->where('module_id', $module_id)->where('website', $website_id)->whereIn('bug_status_id', ['1', '2', '4', '5', '6', '8', '9', '10'])->get();
         $bug_list = $bug_tracker->toArray();
         $bug_ids = [];
         $website_ids = [];
@@ -879,7 +878,6 @@ class BugTrackingController extends Controller
 
         return response()->json(['code' => 200, 'taskStatistics' => $merged]);
     }
-    
 
     public function website(Request $request)
     {
