@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/website/stores', 'MagentoSettingsController@websiteStores')->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', 'MagentoSettingsController@websiteStoreViews')->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', 'MagentoSettingsController@deleteSetting')->name('delete.setting');
+    Route::get('get-all/store-websites/{id}', 'MagentoSettingsController@getAllStoreWebsites')->name('get.all.store.websites');
 });
 //Google Web Master Routes
 Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
@@ -2367,14 +2368,18 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('bug-tracking/status_user', 'BugTrackingController@statusUser')->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', 'BugTrackingController@sendMessage')->name('bug-tracking.sendmessage');
     Route::get('bug-tracking/record-tracking-ajax', 'BugTrackingController@recordTrackingAjax')->name('bug-tracking.index_ajax');
+    Route::get('bug-tracking/website', 'BugTrackingController@website')->name('bug-tracking.website');
 
     Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
+    Route::post('bug-tracking/statuscolor', 'BugTrackingController@statuscolor')->name('bug-tracking.statuscolor');
     Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
     Route::post('bug-tracking/type', 'BugTrackingController@type')->name('bug-tracking.type');
     Route::post('bug-tracking/severity', 'BugTrackingController@severity')->name('bug-tracking.severity');
     Route::get('bug-tracking/bug-history/{id}', 'BugTrackingController@bugHistory')->name('bug-tracking.bug-history');
     Route::get('bug-tracking/user-history/{id}', 'BugTrackingController@userHistory')->name('bug-tracking.user-history');
     Route::get('bug-tracking/status-history/{id}', 'BugTrackingController@statusHistory')->name('bug-tracking.status-history');
+    Route::get('bug-tracking/severity-history/{id}', 'BugTrackingController@severityHistory')->name('bug-tracking.severity-history');
+    Route::get('bug-tracking/website-history', 'BugTrackingController@websiteHistory')->name('bug-tracking.website-history');
     Route::get('bug-tracking/communicationData/{id}', 'BugTrackingController@communicationData')->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
     Route::post('bug-tracking/websitelist', 'BugTrackingController@getWebsiteList')->name('bug-tracking.websitelist');

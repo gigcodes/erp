@@ -22,7 +22,6 @@ class MagentoCommandController extends Controller
             $magentoCommand = MagentoCommand::paginate(Setting::get('pagination'))->appends(request()->except(['page']));
 
             $websites = StoreWebsite::all();
-            //dd($websites);
             $users = User::all();
 
             return view('magento-command.index', compact('magentoCommand', 'websites', 'users'));
@@ -70,14 +69,11 @@ class MagentoCommandController extends Controller
                 $mCom = new MagentoCommand();
                 $type = 'Created';
             }
-            //dd(\Auth::user()->id);
             $mCom->user_id = \Auth::user()->id ?? '';
             $mCom->website_ids = isset($request->websites_ids) ? implode(',', $request->websites_ids) : $mCom->websites_ids;
-            //dd($mCom);
             $mCom->command_name = $request->command_name;
             $mCom->command_type = $request->command_type;
             $mCom->save();
-            //$this->createPostmanHistory($mCom->id, $type);
 
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
