@@ -528,7 +528,13 @@ table{border-collapse: collapse;}
 		</div>
 		
 		
+	<script>
+	
+		var page_bug = 0; 
+		var total_limit_bug = 19;
+		var action_bug = 'inactive';
 
+	</script>
 	<script type="text/javascript" src="{{ asset('/js/jsrender.min.js')}}"></script>
 	<script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js')}}"></script>
 	<script src="{{ asset('/js/jquery-ui.js')}}"></script>
@@ -536,17 +542,7 @@ table{border-collapse: collapse;}
 	<script type="text/javascript" src="{{ asset('/js/bug-tracker.js') }}"></script>
 	
 	
-	<script type="text/javascript" src="{{ asset('/js/jquery.simple-color-picker.js') }}"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-           // $('input#color').simpleColorPicker();
-            $('input#color_name').simpleColorPicker({ colorsPerLine: 16 });
-           // var colors = ['#000000', '#444444', '#666666', '#999999', '#cccccc', '#eeeeee', '#f3f3f3', '#ffffff'];
-           // $('input#color3').simpleColorPicker({ colors: colors });
-           // $('input#color_name').simpleColorPicker({ showEffect: 'fade', hideEffect: 'slide' });
-           // $('button#color5').simpleColorPicker({ onChangeColor: function(color) { $('label#color-result').text(color); } });
-        });
-    </script>
+	
 
 	<script type="text/javascript">
 		page.init({
@@ -597,9 +593,8 @@ table{border-collapse: collapse;}
 			}  
 		}
 		
-		var page_bug = 0; 
-		var total_limit_bug = 19;
-		var action_bug = 'inactive';
+		
+
 		$(window).scroll(function(){
 			let urlString_bug = window.location.href;
 			let paramString_bug = urlString_bug.split('?')[1];
@@ -610,20 +605,31 @@ table{border-collapse: collapse;}
 				console.log("Value is:" + pair[1]);
 				arr = 1;
 			}
+			
+			//console.log("arr="+arr);
+			//console.log("window="+$(window).height());
+			//console.log("table="+$("#bug_tracking_maintable").height());
+			//console.log("action="+action_bug);
+			
 			if(arr==0) {
-				if($(window).scrollTop() + $(window).height() > $("#bug_tracking_maintable").height() && action_bug == 'inactive')
+				if($(window).scrollTop() + $(window).height() > $("#page-view-result").height() && action_bug == 'inactive')				
 				{
+					
 					action_bug = 'active';
 					page_bug++;				   
 					setTimeout(function(){
+						console.log("coming");						
 						load_more(page_bug);
+						
 					}, 1000);
+					console.log("act="+action_bug);
 				}
 			}
 			  
 		});
 		
 		function load_more(page_bug){
+			
 						
 			$.ajax({
 			   url: "/bug-tracking/record-tracking-ajax?page="+page_bug+"&"+$(".message-search-handler").serialize(),
@@ -632,6 +638,7 @@ table{border-collapse: collapse;}
 			   beforeSend: function()
 			   {
 				  $('#loading-image-preview').css("display","block");
+				  
 			   }
 			})
 			.done(function(data)
@@ -640,15 +647,19 @@ table{border-collapse: collapse;}
 				
 				
 				if(data.length == 0){
-					console.log(data.length);
+					console.log("len="+data.length);
 					//notify user if nothing to load
+					action_bug = "inactive";
 					//$('.ajax-loading').html("No more records!");
+					page_bug = 0;
+					console.log("if="+action_bug);
 					return;
 				}
 				 $('.loading-image-preview').hide(); //hide loading animation once data is received
 				 $('#loading-image-preview').css("display","none");			  
 				$('#bug_tracking_maintable > tbody:last').append(data); 
 				 action_bug = "inactive";
+				 console.log("in success="+action_bug);
 				
 			   
 		   })
