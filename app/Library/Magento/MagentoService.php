@@ -683,6 +683,7 @@ class MagentoService
                 $catLinks[] = ['position' => $category['position'], 'category_id' => $category['category_id']];
             }
         }
+        \Log::info('Meta: ' . json_encode($this->meta));
         $data['product']['extension_attributes']['category_links'] = $catLinks;
         $data['product']['custom_attributes'][12] = [
             'attribute_code' => 'meta_title',
