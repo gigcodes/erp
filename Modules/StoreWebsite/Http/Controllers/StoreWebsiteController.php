@@ -20,6 +20,23 @@ use App\SocialStrategySubject;
 use App\StoreReIndexHistory;
 use App\StoreViewCodeServerMap;
 use App\StoreWebsite;
+use App\StoreWebsiteAnalytic;
+use App\StoreWebsiteAttributes;
+use App\StoreWebsiteBrand;
+use App\StoreWebsiteCategory;
+use App\StoreWebsiteCategorySeo;
+use App\StoreWebsiteColor;
+use App\StoreWebsiteGoal;
+use App\StoreWebsiteImage;
+use App\StoreWebsitePage;
+use App\StoreWebsiteProduct;
+use App\StoreWebsiteProductAttribute;
+use App\StoreWebsiteProductPrice;
+use App\StoreWebsiteProductScreenshot;
+use App\StoreWebsitesCountryShipping;
+use App\StoreWebsiteSeoFormat;
+use App\StoreWebsiteSize;
+use App\StoreWebsiteTwilioNumber;
 use App\StoreWebsiteUserHistory;
 use App\StoreWebsiteUsers;
 use App\User;
@@ -507,6 +524,25 @@ class StoreWebsiteController extends Controller
 
         if ($storeWebsite) {
             $storeWebsite->delete();
+            SiteDevelopment::where('website_id', '=', $id)->delete();
+            StoreWebsitesCountryShipping::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteAnalytic::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteAttributes::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteBrand::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteCategory::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteCategorySeo::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteColor::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteGoal::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteImage::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteProduct::where('store_website_id', '=', $id)->delete();
+            StoreWebsitePage::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteProductAttribute::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteProductPrice::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteProductScreenshot::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteSeoFormat::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteSize::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteTwilioNumber::where('store_website_id', '=', $id)->delete();
+            StoreWebsiteUsers::where('store_website_id', '=', $id)->delete();
 
             return response()->json(['code' => 200]);
         }

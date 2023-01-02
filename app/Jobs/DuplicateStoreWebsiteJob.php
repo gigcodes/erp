@@ -390,7 +390,6 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             if ($swProductPrices->count() > 0) {
                 foreach ($swProductPrices as $row) {
                     $copySwProductPricesRow = [
-                        'store_website_id' => $copyStoreWebsiteId,
                         'product_id' => $row->product_id,
                         'default_price' => $row->default_price,
                         'segment_discount' => $row->segment_discount,
@@ -398,6 +397,7 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                         'override_price' => $row->override_price,
                         'status' => $row->status,
                         'web_store_id' => $row->web_store_id,
+                        'store_website_id' => $copyStoreWebsiteId,
                         'created_at' => date('Y-m-d H:i:s'),
                     ];
                     $copySwProductPricesResult[] = $copySwProductPricesRow;
@@ -417,9 +417,9 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             if ($swProductScreenshots->count() > 0) {
                 foreach ($swProductScreenshots as $row) {
                     $copySwProductScreenshotsRow = [
-                        'store_website_id' => $copyStoreWebsiteId,
                         'product_id' => $row->product_id,
                         'sku' => $row->sku,
+                        'store_website_id' => $copyStoreWebsiteId,
                         'store_website_name' => $row->store_website_name,
                         'image_path' => $row->image_path,
                         'status' => $row->status,
@@ -442,10 +442,10 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             if ($swSeoFormat->count() > 0) {
                 foreach ($swSeoFormat as $row) {
                     $swSeoFormatRow = [
-                        'store_website_id' => $copyStoreWebsiteId,
                         'meta_title' => $row->meta_title,
                         'meta_description' => $row->meta_description,
                         'meta_keyword' => $row->meta_keyword,
+                        'store_website_id' => $copyStoreWebsiteId,
                         'created_at' => date('Y-m-d H:i:s'),
                     ];
                     $copySwSeoFormatResult[] = $swSeoFormatRow;
@@ -465,9 +465,9 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             if ($swSizes->count() > 0) {
                 foreach ($swSizes as $row) {
                     $swSizesRow = [
-                        'store_website_id' => $copyStoreWebsiteId,
                         'size_id' => $row->size_id,
                         'platform_id' => $row->platform_id,
+                        'store_website_id' => $copyStoreWebsiteId,
                         'created_at' => date('Y-m-d H:i:s'),
                     ];
                     $copySizesResult[] = $swSizesRow;
@@ -488,17 +488,17 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 foreach ($swTwilioNumbers as $row) {
                     $swTwilioNumbersRow = [
                         'store_website_id' => $copyStoreWebsiteId,
-                        'sub_category_menu_message' => $row->sub_category_menu_message,
-                        'speech_response_not_available_message' => $row->speech_response_not_available_message,
-                        'created_at' => date('Y-m-d H:i:s'),
                         'twilio_active_number_id' => $row->twilio_active_number_id,
                         'twilio_credentials_id' => $row->twilio_credentials_id,
+                        'created_at' => date('Y-m-d H:i:s'),
                         'message_available' => $row->message_available,
                         'message_not_available' => $row->message_not_available,
                         'message_busy' => $row->message_busy,
                         'end_work_message' => $row->end_work_message,
                         'greeting_message' => $row->greeting_message,
                         'category_menu_message' => $row->category_menu_message,
+                        'sub_category_menu_message' => $row->sub_category_menu_message,
+                        'speech_response_not_available_message' => $row->speech_response_not_available_message,
                     ];
                     $copyTwilioNumbersResult[] = $swTwilioNumbersRow;
                 }
@@ -520,12 +520,12 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                         'store_website_id' => $copyStoreWebsiteId,
                         'website_mode' => $row->website_mode,
                         'username' => $row->username,
-                        'created_at' => date('Y-m-d H:i:s'),
                         'first_name' => $row->first_name,
                         'last_name' => $row->last_name,
                         'email' => $row->email,
                         'password' => $row->password,
                         'is_deleted' => $row->is_deleted,
+                        'created_at' => date('Y-m-d H:i:s'),
                     ];
                     $copyUsersResult[] = $swUsersRow;
                 }
