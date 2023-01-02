@@ -1529,7 +1529,8 @@ class ProductController extends Controller
                 if($search === 'category'){
                     $products =  $products->where("categories.title","LIKE","%$value%");
                 }
-                else{
+                else
+                {
                     $products =  $products->where("products.$search","LIKE","%$value%");
                 }
             }
@@ -1575,17 +1576,18 @@ class ProductController extends Controller
 
         $products = $products->where('isUploaded', 0);
         $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
-        $value = $request->get('value');
+        $searchValue = $request->get('searchvalue');
 
         if(isset($search)){
             if($search === 'title' || $search === 'name'){
-                $products =  $products->where("products.name","LIKE","%$value%");
+                $products =  $products->where("products.name","LIKE","%$searchValue%");
             }
             if($search === 'category'){
-                $products =  $products->where("c.title","LIKE","%$value%");
+                $products =  $products->where("c.title","LIKE","%$searchValue%");
             }
-            else{
-                $products =  $products->where("products.$search","LIKE","%$value%");
+            else
+            {
+                    $products =  $products->where("products.$search","LIKE","%$searchValue%");
             }
         }
 
