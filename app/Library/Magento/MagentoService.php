@@ -314,7 +314,8 @@ class MagentoService
 
             return true;
         } elseif ($this->mode == 'product-push') {
-            \Log::info('Mode is ' . $this->mode);
+            \Log::info('Mode is '.$this->mode);
+
             return $this->assignProductOperation();
         } else {
             return $this->assignProductOperation();
