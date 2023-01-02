@@ -1576,15 +1576,15 @@ class ProductController extends Controller
         $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
         $search_value = $request->get('search_value');
 
-        if(isset($search)){
-            if($search === 'title' || $search === 'name'){
-                $products =  $products->where("products.name","LIKE","%$search_value%");
+        if (isset($search)) {
+            if ($search === 'title' || $search === 'name') {
+                $products = $products->where('products.name', 'LIKE', "%$search_value%");
             }
-            if($search === 'category'){
-                $products =  $products->where("c.title","LIKE","%$search_value%");
-            }else{
-                    $products =  $products->where("products.$search","LIKE","%$search_value%");
-                 }
+            if ($search === 'category') {
+                $products = $products->where('c.title', 'LIKE', "%$search_value%");
+            } else {
+                $products = $products->where("products.$search", 'LIKE', "%$search_value%");
+            }
         }
 
         $products = $products->select(['products.*', 's.name as product_status']);
