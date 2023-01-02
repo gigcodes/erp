@@ -517,7 +517,8 @@ class MagentoService
         \Log::info('specialPrice: '.json_encode($this->prices['specialPrice']));
         \Log::info('translations: '.json_encode($this->translations));
         \Log::info('storeWebsiteSize: '.json_encode($this->storeWebsiteSize));
-
+        $storeWebsiteSize = ($this->storeWebsiteSize) ? $this->storeWebsiteSize : array();
+        \Log::info('storeWebsiteSize 2: ' . $storeWebsiteSize);
         if ($pushSingle) {
             $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
             if ($this->log) {
@@ -526,7 +527,7 @@ class MagentoService
             }
             $result = $this->_pushSingleProduct();
         } else {
-            $totalRequest = ((count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations) + 1) * (1 + count($this->storeWebsiteSize)));
+            $totalRequest = ((count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations) + 1) * (1 + count($storeWebsiteSize)));
             if ($this->log) {
                 $this->log->total_request_assigned = $totalRequest;
                 $this->log->save();
