@@ -122,7 +122,11 @@
                 </select>
 				<span class="text-danger"></span>
             </div>
-
+			<div class="form-group  {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                <label> Reference Bug ID </label>
+                 <input class="form-control" name="parent_id" id="parent_id_bug" type="text">
+                <span class="text-danger">{{ $errors->first('parent_id') }}</span>
+            </div> 
             <div class="form-group">
                 <button type="submit" class="btn btn-secondary btn-save-bug">Store</button>
             </div>

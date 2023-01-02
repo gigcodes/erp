@@ -11,6 +11,7 @@ class ProductColorHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="old_color",type="string")
      * @SWG\Property(property="color",type="string")

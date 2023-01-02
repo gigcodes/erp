@@ -11,6 +11,7 @@ class OrderReport extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="status",type="string")
      */
     protected $appends = ['status'];

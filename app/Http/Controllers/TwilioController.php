@@ -71,6 +71,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Twilio\Jwt\ClientToken;
@@ -114,6 +115,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @Rest\Post("twilio/token")
      *
      * @uses Auth
@@ -148,7 +150,7 @@ class TwilioController extends FindByNumberController
         if (\Auth::check()) {
             $user = \Auth::user();
             $user_id = $user->id;
-            // $agent = str_replace('-', '_', str_slug($user->name));
+            // $agent = str_replace('-', '_', Str::slug($user->name));
             // $agent = 'yogesh';
 
             $check_is_agent = TwilioAgent::where('user_id', $user_id)->where('status', 1)->first();
@@ -311,6 +313,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/incoming")
      *
      * @uses Log
@@ -363,6 +366,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/ivr")
      *
      * @uses Log
@@ -866,7 +870,7 @@ class TwilioController extends FindByNumberController
                     $response->play($endworkRing);
                 }
 
-                // $response->play(\Config::get("app.url") . "end_work_ring.mp3");
+            // $response->play(\Config::get("app.url") . "end_work_ring.mp3");
             } else {
                 TwilioLog::create(['log' => 'called in working hours, intro tone is being played', 'account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number]);
                 //Log::channel('customerDnd')->info(' working Hours >> ');
@@ -2120,6 +2124,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/gatherAction")
      *
      * @uses Log
@@ -2175,6 +2180,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/outgoing")
      *
      * @uses Log
@@ -2405,6 +2411,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio-conference")
      *
      * @uses Log
@@ -2454,6 +2461,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio-conference-mute")
      *
      * @uses Log
@@ -2491,6 +2499,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio-conference-hold")
      *
      * @uses Log
@@ -2528,6 +2537,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio-conference-remove")
      *
      * @uses Log
@@ -2548,6 +2558,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return string
+     *
      * @Rest\Post("twilio/storetranscript")
      *
      * @uses Log
@@ -2574,6 +2585,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Get("twilio/getLeadByNumber")
      *
      * @uses Customer
@@ -2634,6 +2646,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/recordingStatusCallback")
      *
      * @return void
@@ -2704,7 +2717,7 @@ class TwilioController extends FindByNumberController
                 $clients[$hod->id]['agent_name'] = $hod->name;
                 $clients[$hod->id]['agent_name_id'] = 'customer_call_agent_'.$hod->id;
             } else {
-                $clients[] = str_replace('-', '_', str_slug($hod->name));
+                $clients[] = str_replace('-', '_', Str::slug($hod->name));
             }
         }
 
@@ -2714,7 +2727,7 @@ class TwilioController extends FindByNumberController
                 $clients[$andy->id]['agent_name'] = $andy->name;
                 $clients[$andy->id]['agent_name_id'] = 'customer_call_agent_'.$andy->id;
             } else {
-                $clients[] = str_replace('-', '_', str_slug($andy->name));
+                $clients[] = str_replace('-', '_', Str::slug($andy->name));
             }
         }
 
@@ -2725,7 +2738,7 @@ class TwilioController extends FindByNumberController
                 $clients[$yogesh->id]['agent_name_id'] = 'customer_call_agent_'.$yogesh->id;
             // $clients[$yogesh->id]['agent_name_id'] = 'customer_call_agent_383';
             } else {
-                $clients[] = str_replace('-', '_', str_slug($yogesh->name));
+                $clients[] = str_replace('-', '_', Str::slug($yogesh->name));
             }
         }
 
@@ -2802,6 +2815,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/handleDialCallStatus")
      *
      * @uses CallHistory
@@ -2886,6 +2900,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/handleOutgoingDialCallStatus")
      *
      * @uses CallHistory
@@ -2964,6 +2979,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/storerecording")
      *
      * @uses CallBusyMessage
@@ -3038,6 +3054,7 @@ class TwilioController extends FindByNumberController
      * Replies with a hangup
      *
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("/twilio/hangup")
      */
     public function showHangup(Request $request)

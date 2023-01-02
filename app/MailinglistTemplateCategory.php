@@ -11,6 +11,7 @@ class MailinglistTemplateCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="mailinglist_template_categories",type="string")
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="user_id",type="integer")

@@ -11,6 +11,7 @@ class Translations extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="text",type="string")
      * @SWG\Property(property="text_original",type="string")
      * @SWG\Property(property="from",type="string")

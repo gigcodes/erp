@@ -8,7 +8,7 @@ use App\Language;
 use App\Translations;
 use File;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GoogleFileTranslator extends Controller
 {

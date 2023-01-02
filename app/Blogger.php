@@ -11,6 +11,7 @@ class Blogger extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="phone",type="string")
      * @SWG\Property(property="default_phone",type="string")
@@ -32,6 +33,7 @@ class Blogger extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(enum={"brands"})
      */
     protected $casts = [

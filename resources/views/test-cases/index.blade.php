@@ -110,7 +110,11 @@
                             <button class="btn btn-secondary btn-xs btn-add-status" style="color:white;"
                                     data-toggle="modal" data-target="#newStatus"> Status
                             </button>&nbsp;&nbsp;
-
+                            @if(Auth::user()->hasRole('Admin'))
+                            <button class="btn btn-secondary btn-xs btn-add-test-case-modal" style="color:white;"
+                                    data-toggle="modal" data-target="#newTestCaseModal"> Add Test Cases
+                            </button>&nbsp;&nbsp;
+                            @endif
                         </div>&nbsp;&nbsp;
                     </div>
                 </div>
@@ -141,6 +145,7 @@
 
     @include("test-cases.template.list-template")
     @include("test-cases.template.test-status")
+    @include("test-cases.template.test-cases")
     @include("test-cases.create")
     @include("test-cases.edit")
 
@@ -158,6 +163,7 @@
                         <th>Name</th>
                         <th>Status</th>
                         <th>Suite</th>
+                        <th>Expected Result</th>
                         <th>Assign to</th>
                         <th>Module/Feature</th>
                         <th>Updated By</th>

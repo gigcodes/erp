@@ -67,14 +67,14 @@ class SearchController extends Controller
         if ($request->brand[0] != null) {
             $products = $products->whereIn('brand', $request->brand);
             $data['brand'] = $request->brand[0];
-            Cache::put('filter-brand-'.Auth::id(), $data['brand'], 120);
+            Cache::put('filter-brand-'.Auth::id(), $data['brand'], 7200);
         }
 
         Cache::forget('filter-color-'.Auth::id());
         if ($request->color[0] != null) {
             $products = $products->whereIn('color', $request->color);
             $data['color'] = $request->color[0];
-            Cache::put('filter-color-'.Auth::id(), $data['color'], 120);
+            Cache::put('filter-color-'.Auth::id(), $data['color'], 7200);
         }
 
         Cache::forget('filter-category-'.Auth::id());
@@ -107,19 +107,19 @@ class SearchController extends Controller
 
             $products = $products->whereIn('category', $category_children);
             $data['category'] = $request->category[0];
-            Cache::put('filter-category-'.Auth::id(), $data['category'], 120);
+            Cache::put('filter-category-'.Auth::id(), $data['category'], 7200);
         }
 
         Cache::forget('filter-price-min-'.Auth::id());
         if ($request->price_min != null) {
             $products = $products->where('price_inr_special', '>=', $request->price_min);
-            Cache::put('filter-price-min-'.Auth::id(), $request->price_min, 120);
+            Cache::put('filter-price-min-'.Auth::id(), $request->price_min, 7200);
         }
 
         Cache::forget('filter-price-max-'.Auth::id());
         if ($request->price_max != null) {
             $products = $products->where('price_inr_special', '<=', $request->price_max);
-            Cache::put('filter-price-max-'.Auth::id(), $request->price_max, 120);
+            Cache::put('filter-price-max-'.Auth::id(), $request->price_max, 7200);
         }
 
         Cache::forget('filter-supplier-'.Auth::id());
@@ -128,7 +128,7 @@ class SearchController extends Controller
 
             $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
             $data['supplier'] = $request->supplier;
-            Cache::put('filter-supplier-'.Auth::id(), $data['supplier'], 120);
+            Cache::put('filter-supplier-'.Auth::id(), $data['supplier'], 7200);
         }
 
         Cache::forget('filter-size-'.Auth::id());
@@ -137,7 +137,7 @@ class SearchController extends Controller
                 $query->where('size', $request->size)->orWhere('size', 'LIKE', "%$request->size,")->orWhere('size', 'LIKE', "%,$request->size,%");
             });
             $data['size'] = $request->size;
-            Cache::put('filter-size-'.Auth::id(), $data['size'], 120);
+            Cache::put('filter-size-'.Auth::id(), $data['size'], 7200);
         }
 
         if ($request->location[0] != null) {
@@ -172,7 +172,7 @@ class SearchController extends Controller
                 }
             }
             $data['date'] = $request->date;
-            Cache::put('filter-date-'.Auth::id(), $data['date'], 120);
+            Cache::put('filter-date-'.Auth::id(), $data['date'], 7200);
         }
 
         if (trim($term) != '') {

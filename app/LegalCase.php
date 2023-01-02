@@ -12,6 +12,7 @@ class LegalCase extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="cases",type="string")
      * @SWG\Property(property="lawyer_id",type="integer")
      * @SWG\Property(property="case_number",type="string")
@@ -34,8 +35,6 @@ class LegalCase extends Model
     protected $table = 'cases';
 
     protected $fillable = ['lawyer_id', 'case_number', 'for_against', 'court_detail', 'phone', 'default_phone', 'whatsapp_number', 'status', 'resource', 'last_date', 'next_date', 'cost_per_hearing', 'remarks', 'other'];
-
-    protected $dates = ['deleted_at'];
 
     public function lawyer()
     {

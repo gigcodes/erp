@@ -77,7 +77,11 @@
                     </div>
                     <div class="form-group">
                         <label for="notification-participants">Provider(user)</label>
-                        <?php echo Form::select("users[]",\App\User::all()->pluck("name","id")->toArray(),null,[
+                        <?php
+                        $users = cache()->remember('User::all::pluck::name,id,toarray', 60 * 60 * 4, function (){
+                            return \App\User::all()->pluck("name","id")->toArray();
+                        });
+                        echo Form::select("users[]",$users,null,[
                             "id" => "users" , "class" => "form-control selectx-users", "multiple" => true , "style" => "width:100%"
                         ]); ?>
                         <span id="user_error" class="text-danger"></span>
@@ -108,7 +112,9 @@
                     <div class="form-group">
                         <label for="type">Currency</label>
                         @php
-                              $currency=\App\Currency::all();
+                              $currency= Illuminate\Support\Facades\Cache::remember('Currency::all', 60 * 60 * 24 * 7, function(){
+                                return \App\Currency::all();
+                                });
                         @endphp
                         <select name="currency" class="form-control">
                              @foreach($currency as $c)

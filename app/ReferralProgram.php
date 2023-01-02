@@ -11,6 +11,7 @@ class ReferralProgram extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="uri",type="string")
      * @SWG\Property(property="credit",type="string")

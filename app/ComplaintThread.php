@@ -11,6 +11,7 @@ class ComplaintThread extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="complaint_id",type="integer")
      * @SWG\Property(property="account_id",type="integer")
      * @SWG\Property(property="thread",type="string")

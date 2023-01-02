@@ -2512,3 +2512,12 @@ table {
 #problem-table{
   width: 100% !important;
 }
+.quick-description {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+  max-width: 140px;
+  height: 1.2em;
+  white-space: nowrap;
+}

@@ -11,6 +11,7 @@ class ScrapEntries extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="pagination",type="string")
      */
     protected $casts = [

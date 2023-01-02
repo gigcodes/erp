@@ -11,6 +11,7 @@ class ScrapActivity extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="website",type="string")
      * @SWG\Property(property="scraped_product_id",type="integer")
      * @SWG\Property(property="status",type="string")

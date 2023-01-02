@@ -11,6 +11,7 @@ class CropAmends extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="settings",type="string")
      */
     protected $casts = [

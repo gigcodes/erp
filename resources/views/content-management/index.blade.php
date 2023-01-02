@@ -92,7 +92,7 @@
                                 @if ($website->facebookAccount)
                                     <p class="no-mr" style="word-break: break-all;">User :
                                         {{ $website->facebookAccount->username }} | Pass :
-                                        {{ str_limit($website->facebookAccount->password, $limit = 10, $end = '...') }}
+                                        {{ Str::limit($website->facebookAccount->password, $limit = 10, $end = '...') }}
                                     </p>
                                 @endif
                             </td>
@@ -100,7 +100,7 @@
                                 @if ($website->instagramAccount)
                                     <p class="no-mr" style="word-break: break-all;">User :
                                         {{ $website->instagramAccount->username }} | Pass :
-                                        {{ str_limit($website->instagramAccount->password, $limit = 10, $end = '...') }}
+                                        {{ Str::limit($website->instagramAccount->password, $limit = 10, $end = '...') }}
                                     </p>
                                 @endif
                             </td>

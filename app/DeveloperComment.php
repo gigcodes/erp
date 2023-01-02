@@ -12,6 +12,7 @@ class DeveloperComment extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="size",type="string")
      * @SWG\Property(property="message",type="text")

@@ -12,6 +12,7 @@ class Reply extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="reply",type="string")
@@ -21,8 +22,6 @@ class Reply extends Model
     use SoftDeletes;
 
     protected $fillable = ['category_id', 'store_website_id', 'reply', 'model', 'push_to_watson'];
-
-    protected $dates = ['deleted_at'];
 
     public function category()
     {

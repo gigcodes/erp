@@ -41,15 +41,13 @@
             <div class="input-group">
               <select name="website" class="form-control" id="website">
                 <option value="">--Select Website--</option>
-                <?php 
-                  $ops = 'id';
-                  foreach($websites as $website){
-                    $selected  = '';
-                    if($website->id == request('website'))
-                      $selected  = 'selected';
-                      echo '<option value="'.$website->id.'" '.$selected.'>'.$website->website.'</option>';
-                  }
-                ?>
+                  <option value="ERP" @if(request('website') == 'ERP') selected @endif>ERP</option>
+                    <?php
+                      $ops = 'id';
+                    ?>
+                  @foreach($websites as $website)
+                    <option @if($website->id == request('website')) selected @endif value="{{$website->id}}">{{$website->title}}</option>
+                  @endforeach
               </select>
             </div>
           </div>
@@ -65,12 +63,7 @@
               <select name="command_name"  class="form-control" id="command_name" >
                 <option value="">--Select Command Name--</option>
                 @foreach ($magentoComArr as $key => $comName)
-                <?php $selected  = '';
-                if($comName == request('command_name')) {
-                  $selected  = 'selected = "selected"';
-                }
-                  ?>
-                    <option {{$selected}} value="{{$comName}}">{{$comName}}</option>
+                    <option @if($comName == request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
                 @endforeach
               </select>
               {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
@@ -83,12 +76,7 @@
               <select name="user_id"  class="form-control select2" id="user_id" >
                 <option value="">--Select User Name--</option>
                 @foreach ($users as $key => $user)
-                <?php $selected  = '';
-                if($user->id == request('user_id')) {
-                  $selected  = 'selected = "selected"';
-                }
-                  ?>
-                    <option {{$selected}} value="{{$user->id}}">{{$user->name}}</option>
+                    <option @if($user->id == request('user_id')) selected @endif value="{{$user->id}}">{{$user->name}}</option>
                 @endforeach
               </select>
               {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
@@ -118,31 +106,25 @@
             <th style="width: 10%;overflow-wrap: anywhere;">Action</th>
           </tr>
         </thead>
-
         <tbody>
 			  @foreach ($magentoCommand as $key => $magentoCom)
               <tr>
                 <td>{{$magentoCom->id}}</td>
-                <?php 
-                  $userName = \App\User::where('id', $magentoCom->user_id)->first();
-                ?>
                 <td class="expand-row-msg" data-name="userName" data-id="{{$magentoCom->id}}">
-                  <span class="show-short-userName-{{$magentoCom->id}}">{{ str_limit($userName->name, 5, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-userName-{{$magentoCom->id}} hidden">{{$userName->name}}</span>
+                  <span class="show-short-userName-{{$magentoCom->id}}">{{ str_limit($magentoCom->user->name, 5, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-userName-{{$magentoCom->id}} hidden">{{$magentoCom->user->name}}</span>
                 </td>
-                <?php 
-                  $websites = \App\StoreWebsite::whereIn('id', explode(',', $magentoCom->website_ids))->get();
-                  $websiteName = '';
-                  foreach ($websites as $key => $value) {
-                    $websiteName .= $value->website.", "; 
-                  }
-                ?>
                 <td class="expand-row-msg" data-name="websites" data-id="{{$magentoCom->id}}">
-                  <span class="show-short-websites-{{$magentoCom->id}}">{{ str_limit($websiteName, 20, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">{{$websiteName}}</span>
+                    @if($magentoCom->website_ids == 'ERP')
+                        <span class="show-short-websites-{{$magentoCom->id}}">ERP</span>
+                        <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">ERP</span>
+                    @else
+                        <span class="show-short-websites-{{$magentoCom->id}}">@if($magentoCom->website){{ str_limit($magentoCom->website->title, 20, '..')}}@endif</span>
+                        <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">@if($magentoCom->website){{$magentoCom->website->title}}@endif</span>
+                    @endif
                 </td>
                 <td class="expand-row-msg" data-name="command_name" data-id="{{$magentoCom->id}}">
-                  <span class="show-short-command_name-{{$magentoCom->id}}">{{ str_limit($magentoCom->command_name, 20, '..')}}</span>
+                  <span class="show-short-command_name-{{$magentoCom->id}}">{{ Str::limit($magentoCom->command_name, 20, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-command_name-{{$magentoCom->id}} hidden">{{$magentoCom->command_name}}</span>
                 </td>
                 <td>
@@ -262,9 +244,10 @@
                         <?php $websites = \App\StoreWebsite::get(); ?>
                         <select name="websites_ids[]" class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required>
                           <option>--Website--</option>
+                            <option value="ERP">ERP</option>
                           <?php 
                             foreach($websites as $website){
-                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->website.'</option>';
+                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
                             }
                           ?>
                         </select>
@@ -282,12 +265,7 @@
                         <select name="command_name"  class="form-control" id="command_name_search" style="width: 100%">
                           <option value="">--Select Command Name--</option>
                           @foreach ($magentoComArr as $key => $comName)
-                          <?php $selected  = '';
-                          if($comName == request('command_name')) {
-                            $selected  = 'selected = "selected"';
-                          }
-                            ?>
-                              <option {{$selected}} value="{{$comName}}">{{$comName}}</option>
+                              <option @if($comName == request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
                           @endforeach
                         </select>
                     </div>
@@ -302,12 +280,7 @@
                         <select name="command_type"  class="form-control" id="command_type" style="width: 100%">
                           <option value="">--Select Command Name--</option>
                           @foreach ($magentoComArr as $key => $comType)
-                          <?php $selected  = '';
-                          if($comType == request('command_type')) {
-                            $selected  = 'selected = "selected"';
-                          }
-                            ?>
-                              <option {{$selected}} value="{{$comType}}">{{$comType}}</option>
+                              <option @if($comType == request('command_type')) selected @endif value="{{$comType}}">{{$comType}}</option>
                           @endforeach
                         </select>
                     </div>
@@ -324,8 +297,6 @@
       </div>
     </div>
 </div>
-
-
 
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
@@ -558,28 +529,28 @@
         });
     });
 
-    $(document).on("click",".magentoCom-run-btn",function(e){
+    $(document).on("click", ".magentoCom-run-btn", function (e) {
         e.preventDefault();
         var $this = $(this);
         var id = $this.data('id');
         $.ajax({
-          url: "/magento/command/run",
-          type: "post",
-          headers: {
+            url: "/magento/command/run",
+            type: "post",
+            headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-          data:{
-            id:id
-          }
-        }).done(function(response) {
-          if(response.code = '200') {
-            toastr['success']('Command Run successfully!!!', 'success'); 
-          } else {
-            toastr['error'](response.message, 'error'); 
-          }
-        }).fail(function(errObj) {
-          $('#loading-image').hide();
-           toastr['error'](errObj.message, 'error');
+            data: {
+                id: id
+            }
+        }).done(function (response) {
+            if (response.code = '200') {
+                toastr['success']('Command Run successfully!!!', 'success');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+        }).fail(function (errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
         });
     });
 

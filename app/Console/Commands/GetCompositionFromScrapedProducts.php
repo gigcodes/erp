@@ -6,6 +6,7 @@ use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class GetCompositionFromScrapedProducts extends Command
 {
@@ -60,7 +61,7 @@ class GetCompositionFromScrapedProducts extends Command
                         $composition = $properties['material_used'] ?? null;
                         if ($composition !== 'null' && $composition !== null && $composition !== '') {
                             dump($composition);
-                            $product->composition = title_case($composition);
+                            $product->composition = Str::title($composition);
                             $product->save();
 
                             continue;

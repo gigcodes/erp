@@ -13,6 +13,7 @@ class GoogleAdsCampaign extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="google_campaign_id",type="integer")
      * @SWG\Property(property="default_phone",type="integer")
      * @SWG\Property(property="campaign_name",type="string")

@@ -11,6 +11,7 @@ class SupplierDiscountInfo extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="supplier_id",type="integer")
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="discount",type="float")

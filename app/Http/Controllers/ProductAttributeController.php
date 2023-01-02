@@ -17,8 +17,8 @@ use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductAttributeController extends Controller
 {

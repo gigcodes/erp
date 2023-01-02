@@ -11,6 +11,7 @@ class UserLoginIp extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="ip",type="text")
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="is_active",type="boolean")
