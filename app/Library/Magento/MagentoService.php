@@ -512,10 +512,10 @@ class MagentoService
         }
 
         \Log::info(print_r([count($this->prices['samePrice']), count($this->prices['specialPrice']), count($this->translations)], true));
-        \Log::info('samePrice: '.$this->prices['samePrice']);
-        \Log::info('specialPrice: '.$this->prices['specialPrice']);
-        \Log::info('translations: '.$this->translations);
-        \Log::info('storeWebsiteSize: '.$this->storeWebsiteSize);
+        \Log::info('samePrice: '.json_encode($this->prices['samePrice']));
+        \Log::info('specialPrice: '.json_encode($this->prices['specialPrice']));
+        \Log::info('translations: '.json_encode($this->translations));
+        \Log::info('storeWebsiteSize: '.json_encode($this->storeWebsiteSize));
 
         if ($pushSingle) {
             $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
