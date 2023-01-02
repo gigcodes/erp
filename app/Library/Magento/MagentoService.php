@@ -306,11 +306,6 @@ class MagentoService
 
         \Log::info($this->product->id.' #19 => '.date('Y-m-d H:i:s'));
 
-        \Log::info('Product: '.$this->product);
-        \Log::info('Store website: '.$this->storeWebsite);
-        \Log::info('Log: '.$this->log);
-        \Log::info('mode: '.$this->mode);
-
         if ($this->mode == 'conditions-check') {
             \Log::info('conditions-check');
             $productRow = Product::find($this->product->id);
@@ -318,10 +313,12 @@ class MagentoService
             $productRow->save();
 
             return true;
+        } elseif ($this->mode == 'product-push') {
+            \Log::info('Mode is ' . $this->mode);
+            return $this->assignProductOperation();
+        } else {
+            return $this->assignProductOperation();
         }
-        \Log::info('product-push');
-
-        return $this->assignProductOperation();
     }
 
     private function getActiveLanguages()
@@ -515,6 +512,10 @@ class MagentoService
         }
 
         \Log::info(print_r([count($this->prices['samePrice']), count($this->prices['specialPrice']), count($this->translations)], true));
+        \Log::info('samePrice: '.$this->prices['samePrice']);
+        \Log::info('specialPrice: '.$this->prices['specialPrice']);
+        \Log::info('translations: '.$this->translations);
+        \Log::info('storeWebsiteSize: '.$this->storeWebsiteSize);
 
         if ($pushSingle) {
             $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
