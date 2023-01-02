@@ -305,6 +305,9 @@ class MagentoService
 
         \Log::info($this->product->id.' #19 => '.date('Y-m-d H:i:s'));
 
+        \Log::info('Product: '.$this->product);
+        \Log::info('Store website: '.$this->storeWebsite);
+        \Log::info('Log: '.$this->log);
         \Log::info('mode: '.$this->mode);
 
         if ($this->mode == 'conditions-check') {
