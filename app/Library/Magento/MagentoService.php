@@ -1226,7 +1226,6 @@ class MagentoService
                 }
             }
         }
-        Log::info('pricesArr '.json_encode($pricesArr));
 
         // start to matching price fix
         $samePrice = [];
