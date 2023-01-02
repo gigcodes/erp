@@ -8,6 +8,7 @@
 .preview-category input.form-control {
     width: auto;
 }
+
 </style>
 
 <div class="row" id="common-page-layout">
@@ -17,7 +18,7 @@
     <br>
     <div class="col-lg-12 margin-tb">
 
-        <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action float-right"
+        <button class="btn btn-sm btn-image btn-add-action float-right attrbtnPage"
             data-toggle="modal" data-target="#colorCreateModal">
             <img src="/images/add.png" style="cursor: default;">
         </button>
@@ -29,26 +30,26 @@
             <form class="form-inline message-search-handler" method="get">
                 <div class="col">
                     <div class="form-group ml-4">
-                        <label for="keyword">Store Website:</label>
-                        <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+                        <label for="keyword">Store Website Title:</label>
+                        @php Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) @endphp
                     </div>
                     <div class="form-group ml-4">
                         <label for="keyword">Attribute Key:</label>
-                        <?php echo Form::text("attributeKey",request("attributeKey"),["class"=> "form-control","placeholder" => "Attribute Key"]) ?>
+                        @php Form::text("attribute_key",request("attribute_key"),["class"=> "form-control","placeholder" => "Attribute Key"]) @endphp
                     </div>
                     <div class="form-group ml-4">
                         <label for="keyword">Attribute Value : </label>
-                        <?php echo Form::text("attributeVal",request("attributeVal"),["class"=> "form-control","placeholder" => "Attribute Value"]) ?>
+                        @php Form::text("attribute_val",request("attribute_val"),["class"=> "form-control","placeholder" => "Attribute Value"]) @endphp
                     </div>
                     <div class="form-group ml-4">
                         <label for="keyword">Store Website Id:</label>
-                        <?php echo Form::text("storeWebisteId",request("storeWebisteId"),["class"=> "form-control","placeholder" => "store webiste"]) ?>
+                        @php Form::text("store_website_id",request("store_website_id"),["class"=> "form-control","placeholder" => "store webiste"]) @endphp
                     </div>
 
                     <div class="form-group">
                         <label for="button">&nbsp;</label>
-                        <button type="submit" style="display: inline-block;width: 10%"
-                            class="btn btn-sm btn-image btn-search-action">
+                        <button type="submit"
+                            class="btn btn-sm btn-image btn-search-action btnsearchSubmit">
                             <img src="/images/search.png" style="cursor: default;">
                         </button>
                     </div>
@@ -93,4 +94,5 @@ page.init({
     baseUrl: "<?php echo url("/"); ?>"
 });
 </script>
+
 @endsection

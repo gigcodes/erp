@@ -140,14 +140,14 @@ class SiteAttributesControllers extends Controller
         if ($request->keyword != null) {
             $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->where('store_websites.title', 'like', '%'.$request->keyword.'%');
         }
-        if ($request->attributeKey != null) {
-            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_key', 'like', '%'.$request->attributeKey.'%');
+        if ($request->attribute_key != null) {
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_key', 'like', '%'.$request->attribute_key.'%');
         }
-        if ($request->attributeVal != null) {
-            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_val', 'like', '%'.$request->attributeVal.'%');
+        if ($request->attribute_val != null) {
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_val', 'like', '%'.$request->attribute_val.'%');
         }
-        if ($request->storeWebisteId != null) {
-            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('store_website_id', 'like', '%'.$request->storeWebisteId.'%');
+        if ($request->store_website_id != null) {
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('store_website_id', 'like', '%'.$request->store_website_id.'%');
         }
 
         $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->select(['store_website_attributes.*', 'store_websites.website'])->paginate();
