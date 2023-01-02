@@ -1470,11 +1470,10 @@ class ProductController extends Controller
 
     public function magentoPushStatus(Request $request)
     {
-        if($request->ajax()){
-            
+        if ($request->ajax()) {
             $value = $request->get('value');
             $search = $request->get('fieldname');
-            
+
             if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
                 $products = Product::query();
             } else {
@@ -1497,8 +1496,8 @@ class ProductController extends Controller
             $products = $products->where('isUploaded', 0);
             $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
 
-            if($request->get('id') != ""){
-                $products =  $products->where("products.id",$request->get('id'));
+            if ($request->get('id') != '') {
+                $products = $products->where('products.id', $request->get('id'));
             }
             if ($request->get('name') != '') {
                 $products = $products->where('products.name', $request->get('name'));
@@ -1522,16 +1521,14 @@ class ProductController extends Controller
                 $products = $products->orWhere('products.price', $request->get('price'));
             }
 
-            if(isset($search)){
-                if($search === 'title' || $search === 'name'){
-                    $products =  $products->where("products.name","LIKE","%$value%");
+            if (isset($search)) {
+                if ($search === 'title' || $search === 'name') {
+                    $products = $products->where('products.name', 'LIKE', "%$value%");
                 }
-                if($search === 'category'){
-                    $products =  $products->where("categories.title","LIKE","%$value%");
-                }
-                else
-                {
-                    $products =  $products->where("products.$search","LIKE","%$value%");
+                if ($search === 'category') {
+                    $products = $products->where('categories.title', 'LIKE', "%$value%");
+                } else {
+                    $products = $products->where("products.$search", 'LIKE', "%$value%");
                 }
             }
 
@@ -1553,7 +1550,8 @@ class ProductController extends Controller
         }
     }
 
-    public function autocompleteSearchPushStatus(Request $request){
+    public function autocompleteSearchPushStatus(Request $request)
+    {
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $products = Product::query();
         } else {
@@ -1594,18 +1592,20 @@ class ProductController extends Controller
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
         $colors = (new Colors)->all();
-        
+
         if (! Setting::has('auto_push_product')) {
             $auto_push_product = Setting::add('auto_push_product', 0, 'int');
         } else {
             $auto_push_product = Setting::get('auto_push_product');
-        } 
-        return response()->json(['status'=>200,'data'=> array_unique(array_column($products,$search))]);
-  }
+        }
+
+        return response()->json(['status' => 200, 'data' => array_unique(array_column($products, $search))]);
+    }
 
     public function magentoConditionsCheckLogs($pId, $swId)
     {
-        $logs = ProductPushErrorLog::where('product_id', '=', $pId)->where('store_website_id', '=', $swId)->latest()->get();
+        $logs = ProductPushErrorLog::where('product_id', '=', $pId)->where('store_website_id', '=', $swId)->orderBy('id', 'desc')->get();
+
         return response()->json(['code' => 200, 'data' => $logs]);
     }
 

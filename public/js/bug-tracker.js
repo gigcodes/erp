@@ -21,7 +21,13 @@ var page = {
 
         page.config.bodyView.on("click",".btn-search-action",function(e) {
             e.preventDefault();
+            page_bug = 0;
             page.getResults();
+        });
+
+        page.config.bodyView.on("click",".btn-sorting-action",function(e) {
+            e.preventDefault();
+            page.getSortResults();
         });
 
         // page.config.bodyView.on("click",".btn-add-action",function(e) {
@@ -44,6 +50,10 @@ var page = {
             e.preventDefault();
             page.createStatus();
         });
+        page.config.bodyView.on("click",".btn-add-status-color",function(e) {
+            e.preventDefault();
+            page.createStatusColor();
+        });
 
         page.config.bodyView.on("click",".send-message",function(e) {
             e.preventDefault();
@@ -58,7 +68,7 @@ var page = {
            page.sendAssign($(this));
         });
         page.config.bodyView.on("change", ".bug_severity_id", function (e) {
-            e.preventDefault();
+            e.preventDefault();           
             page.sendSeverity($(this));
         });
         page.config.bodyView.on("change", ".bug_status_id", function (e) {
@@ -95,6 +105,9 @@ var page = {
         $(".common-modal").on("click",".submit-status",function() {
             page.submitStatus($(this));
         });
+        $(".common-modal").on("click",".submit-status-color",function() {
+            page.submitStatusColor($(this));
+        });
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
         });
@@ -106,7 +119,10 @@ var page = {
             console.log("onclick.show-status-history")
             page.statusHistory($(this));
         });
-
+        page.config.bodyView.on("click",".show-severity-history",function(e) {
+            console.log("onclick.show-severity-history")
+            page.severityHistory($(this));
+        });
         page.config.bodyView.on("click", ".btn-update", function (e) {
             page.updateData($(this));
         });
@@ -140,6 +156,17 @@ var page = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/records",
             method: "get",
             data : $(".message-search-handler").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "showResults");
+    },
+    getSortResults: function(href) {        
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/records",
+            method: "get",
+            data : $(".message-search-handler").serialize()+'&sort=1',
             beforeSend : function() {
                 $("#loading-image").show();
             }
@@ -210,6 +237,14 @@ var page = {
     },
     createStatus : function(response) {
         var createWebTemplate = $.templates("#template-bug-status");
+        var tplHtml = createWebTemplate.render({data:{}});
+
+        var common =  $(".common-modal");
+        common.find(".modal-dialog").html(tplHtml);
+        common.modal("show");
+    },
+    createStatusColor : function(response) {
+        var createWebTemplate = $.templates("#template-bug-status-color");
         var tplHtml = createWebTemplate.render({data:{}});
 
         var common =  $(".common-modal");
@@ -385,6 +420,17 @@ var page = {
         }
         this.sendAjax(_z, "saveStatus");
     },
+    submitStatusColor : function(ele) {
+        var _z = {
+            url:  this.config.baseUrl + "/statuscolor",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveStatusColor");
+    },
 
     assignSelect2 : function () {
         var selectList = $("select.select-searchable");
@@ -462,9 +508,10 @@ var page = {
     },
     saveEnvironment: function (response) {
         if (response.code == 200) {
-            page.loadFirst();
+            // page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Environment Saved Successfully");
+            $("#loading-image").hide();
 
         }else {
             $("#loading-image").hide();
@@ -473,9 +520,10 @@ var page = {
     },
     saveSeverity : function(response) {
         if(response.code  == 200) {
-            page.loadFirst();
+           // page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Severity Saved Successfully");
+            $("#loading-image").hide();
 
         }else {
             $("#loading-image").hide();
@@ -484,9 +532,10 @@ var page = {
     },
     saveType : function(response) {
         if(response.code  == 200) {
-            page.loadFirst();
+           // page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Type Saved Successfully");
+            $("#loading-image").hide();
 
         }else {
             $("#loading-image").hide();
@@ -495,9 +544,22 @@ var page = {
     },
     saveStatus : function(response) {
         if(response.code  == 200) {
-            page.loadFirst();
+           // page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Status Saved Successfully");
+            $("#loading-image").hide();
+
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    saveStatusColor : function(response) {
+        if(response.code  == 200) {
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+            toastr["success"](response.message,"Status Color Saved Successfully");
+            $("#loading-image").hide();
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -534,6 +596,15 @@ var page = {
         }
         this.sendAjax(_z, 'afterCommunication');
     },
+    severityHistory : function(ele) {
+        console.log("afterclick.show-severity-history")
+       var _z = {
+           url: (typeof href != "undefined") ? href : this.config.baseUrl + "/severity-history/"+ele.data("id"),
+           method: "get",
+       }
+       this.sendAjax(_z, 'afterSeverity');
+   },
+
     afterPush : function(response) {
         if(response.code  == 200) {
             console.log(response)
@@ -651,6 +722,43 @@ var page = {
                 $('.tbhc').html(html)
             }
             // toastr["success"](response.message,"Bug Tracking History Listed Successfully");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"Something went wrong");
+        }
+    },
+    afterSeverity : function(response) {
+        console.log("afterresponse.show-severity-history")
+        if(response.code  == 200) {
+            console.log(response)
+            $('#newSeverityHistoryModal').modal('show');
+
+            $('.tbhseverity').html("")
+            if(response.data.length >0){
+
+                var html ="";
+
+                $.each(response.data, function (i,item){
+                    console.log(item)
+
+                    if(item.old_severity_id == null) {
+                        var old_severity_id = '-';
+                    } else {
+                        var old_severity_id = item.old_severity_id;
+                    }
+
+                    html+="<tr>"
+                    html+=" <td>"+ item.created_at +"</td>"                    
+                    html+=" <td>"+ old_severity_id +"</td>"
+                    html+=" <td>"+ item.severity_id +"</td>"
+                    html+=" <td>"+ item.updated_by +"</td>"
+
+                    html+="</tr>"
+                })
+
+                $('.tbhseverity').html(html)
+            }
+            toastr["success"](response.message,"Bug Severity History Listed Successfully");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"Something went wrong");

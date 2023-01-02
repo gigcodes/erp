@@ -5,7 +5,7 @@
 
 
 	?>
-			      <tr>
+			      <tr style="background-color:<?php echo  $prop->bug_color;  ?>">
 			      	<td class='break'><?php echo $prop->id; ?></td>
 			      	<td><?php echo  $prop->created_at_date;  ?></td>
 			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="<?php echo  $prop->id;  ?>"><span class="show-short-summary-<?php echo $prop->id; ?>" onclick="copySumText()"><?php echo  $prop->summary_short  ?></span>
@@ -44,17 +44,20 @@
 						</div>
 			        </td>
 			        <td class='break'>
-			           <select class='form-control bug_severity_id'  data-id="<?php echo  $prop->id  ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
-					   <option value="">-Select-</option>
-			            <?php
-			            foreach ($bugSeveritys as $bugSeverity) { ?>
-							
-							
-			                <option <?php if ($prop->bug_severity_id == $bugSeverity->id) { echo " selected"; }  ?>  value="<?php $bugSeverity->id ?>" ><?php echo $bugSeverity->name; ?></option>
-			            <?php
-						}
-			            ?>
-			            </select>
+						<div class="d-flex">
+						
+						   <select class='form-control bug_severity_id' id="bug_severity_id_<?php echo  $prop->id  ?>"  data-id="<?php echo  $prop->id  ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
+						   <option value="">-Select-</option>
+							<?php
+							foreach ($bugSeveritys as $bugSeverity) { ?>								
+								
+								<option <?php if ($prop->bug_severity_id == $bugSeverity->id) { echo " selected"; }  ?>  value="<?php echo $bugSeverity->id; ?>" ><?php echo $bugSeverity->name; ?></option>
+							<?php
+							}
+							?>
+							</select>
+							<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-severity-history" title="Show Severity History" data-id="<?php echo  $prop->id  ?>"><i class="fa fa-info-circle"></i></button>
+						</div>
 			        </td>
 			        <td class='break'>
 						<div class="d-flex">
