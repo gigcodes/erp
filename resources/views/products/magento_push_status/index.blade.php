@@ -74,7 +74,7 @@
                 type: 'POST',
                 data: {
                     "filedname": field,
-                    "searchvalue": val,
+                    "search_value": val,
                     "_token": "{{ csrf_token() }}"
                 },
                 success: function(response) {

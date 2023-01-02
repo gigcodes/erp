@@ -1576,19 +1576,17 @@ class ProductController extends Controller
 
         $products = $products->where('isUploaded', 0);
         $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
-        $searchValue = $request->get('searchvalue');
+        $search_value = $request->get('search_value');
 
         if(isset($search)){
             if($search === 'title' || $search === 'name'){
-                $products =  $products->where("products.name","LIKE","%$searchValue%");
+                $products =  $products->where("products.name","LIKE","%$search_value%");
             }
             if($search === 'category'){
-                $products =  $products->where("c.title","LIKE","%$searchValue%");
-            }
-            else
-            {
-                    $products =  $products->where("products.$search","LIKE","%$searchValue%");
-            }
+                $products =  $products->where("c.title","LIKE","%$search_value%");
+            }else{
+                    $products =  $products->where("products.$search","LIKE","%$search_value%");
+                 }
         }
 
         $products = $products->select(['products.*', 's.name as product_status']);
@@ -1894,8 +1892,6 @@ class ProductController extends Controller
                 array_push($products_array, $path);
             }
         }
-
-        // \Zipper::make(public_path("$product->sku.zip"))->add($products_array)->close();
 
         return response()->download(public_path("$product->sku.zip"))->deleteFileAfterSend();
     }
