@@ -1603,19 +1603,24 @@ class MagentoService
                     $start_date = date('Y-m-d', strtotime($product_discount2->start_date));
                     $end_date = date('Y-m-d', strtotime($product_discount2->end_date));
                 } else {
+                    Log::info('Brand: '. json_encode($this->brand));
                     $brand = $this->brand;
-                    $product_discount3 = StoreWebsiteSalesPrice::where('type', 'brand')
-                        ->where('type_id', $brand->id)
-                        ->where('supplier_id', $supplier_id)
-                        ->whereDate('start_date', '>=', $date)
-                        ->whereDate('end_date', '<=', $date)
-                        //->whereRaw($date .' between date(start_date) and date(end_date)')
-                        ->first();
-                    if ($product_discount3) {
-                        $discount = $product_discount3->amount;
-                        $discount_type = $product_discount3->amount_type;
-                        $start_date = date('Y-m-d', strtotime($product_discount3->start_date));
-                        $end_date = date('Y-m-d', strtotime($product_discount3->end_date));
+                    if($brand) {
+                        $product_discount3 = StoreWebsiteSalesPrice::where('type', 'brand')
+                            ->where('type_id', $brand->id)
+                            ->where('supplier_id', $supplier_id)
+                            ->whereDate('start_date', '>=', $date)
+                            ->whereDate('end_date', '<=', $date)
+                            //->whereRaw($date .' between date(start_date) and date(end_date)')
+                            ->first();
+                        if ($product_discount3) {
+                            $discount = $product_discount3->amount;
+                            $discount_type = $product_discount3->amount_type;
+                            $start_date = date('Y-m-d', strtotime($product_discount3->start_date));
+                            $end_date = date('Y-m-d', strtotime($product_discount3->end_date));
+                        }
+                    } else {
+                        $discount = 0;
                     }
                 }
             }
