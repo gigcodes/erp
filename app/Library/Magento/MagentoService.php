@@ -687,17 +687,17 @@ class MagentoService
         $data['product']['extension_attributes']['category_links'] = $catLinks;
         $data['product']['custom_attributes'][12] = [
             'attribute_code' => 'meta_title',
-            'value' => $this->meta['meta_title'],
+            'value' => ($this->meta) ? $this->meta['meta_title'] : '',
         ];
 
         $data['product']['custom_attributes'][13] = [
             'attribute_code' => 'meta_description',
-            'value' => $this->meta['meta_description'],
+            'value' => ($this->meta) ? $this->meta['meta_description'] : '',
         ];
 
         $data['product']['custom_attributes'][14] = [
             'attribute_code' => 'meta_keyword',
-            'value' => $this->meta['meta_keyword'],
+            'value' => ($this->meta) ? $this->meta['meta_keyword'] : '',
         ];
 
         if (! empty($this->sizeChart)) {
