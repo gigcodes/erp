@@ -483,7 +483,7 @@ class MagentoService
 
         // start operation for simple or configurable
         $mainCategory = $this->category;
-        Log::info('Main category:' . json_encode($mainCategory));
+        Log::info('Main category:'.json_encode($mainCategory));
 
         $pushSingle = false;
         ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'check_category_pushtype', 'product_id' => $this->product->id,  'is_checked' => 1]);
