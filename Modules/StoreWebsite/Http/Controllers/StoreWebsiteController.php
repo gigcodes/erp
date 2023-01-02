@@ -525,24 +525,43 @@ class StoreWebsiteController extends Controller
         if ($storeWebsite) {
             $storeWebsite->delete();
             SiteDevelopment::where('website_id', '=', $id)->delete();
+            \Log::info('Deleted from SiteDevelopment with id '.$id);
             StoreWebsitesCountryShipping::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsitesCountryShipping with id '.$id);
             StoreWebsiteAnalytic::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteAnalytic with id '.$id);
             StoreWebsiteAttributes::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteAttributes with id '.$id);
             StoreWebsiteBrand::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteBrand with id '.$id);
             StoreWebsiteCategory::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteCategory with id '.$id);
             StoreWebsiteCategorySeo::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteCategorySeo with id '.$id);
             StoreWebsiteColor::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteColor with id '.$id);
             StoreWebsiteGoal::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteGoal with id '.$id);
             StoreWebsiteImage::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteImage with id '.$id);
             StoreWebsiteProduct::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteProduct with id '.$id);
             StoreWebsitePage::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsitePage with id '.$id);
             StoreWebsiteProductAttribute::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteProductAttribute with id '.$id);
             StoreWebsiteProductPrice::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteProductPrice with id '.$id);
             StoreWebsiteProductScreenshot::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteProductScreenshot with id '.$id);
             StoreWebsiteSeoFormat::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteSeoFormat with id '.$id);
             StoreWebsiteSize::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteSize with id '.$id);
             StoreWebsiteTwilioNumber::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteTwilioNumber with id '.$id);
             StoreWebsiteUsers::where('store_website_id', '=', $id)->delete();
+            \Log::info('Deleted from StoreWebsiteUsers with id '.$id);
 
             return response()->json(['code' => 200]);
         }
