@@ -55,6 +55,7 @@ class BugTrackingController extends Controller
 
     public function records(Request $request)
     {
+        
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
             if (request('sort') == '1') {
                 $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id', '!=', '')->orderBy('chat_messages.created_at', 'desc');
@@ -63,20 +64,22 @@ class BugTrackingController extends Controller
             }
         } else {
             if (request('sort') == '1') {
-                // $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc');
-
+                
                 $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id', '!=', '')->where(function ($query) {
                     $query->where('assign_to', Auth::user()->id);
                     $query->orWhere('created_by', Auth::user()->id);
                 })->orderBy('chat_messages.created_at', 'desc');
             } else {
-                // $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc');
+               
                 $records = BugTracker::where(function ($query) {
                     $query->where('assign_to', Auth::user()->id);
                     $query->orWhere('created_by', Auth::user()->id);
                 })->orderBy('id', 'desc');
             }
         }
+        
+
+      
 
         if ($keyword = request('bug_id')) {
             $records = $records->where('id', $keyword);
@@ -161,6 +164,7 @@ class BugTrackingController extends Controller
 
     public function recordTrackingAjax(Request $request)
     {
+        
         $title = 'Bug Tracking';
 
         $page = $_REQUEST['page'];
@@ -174,37 +178,32 @@ class BugTrackingController extends Controller
         $users = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
         $filterWebsites = StoreWebsite::orderBy('website')->get();
-
-        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
+      
+        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { 
+        
             if (request('sort') == '1') {
                 $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id', '!=', '')->orderBy('chat_messages.created_at', 'desc')->offset($page)->limit(10);
             } else {
                 $records = BugTracker::orderBy('id', 'desc')->offset($page)->limit(10);
             }
+           
+
         } else {
             if (request('sort') == '1') {
-                // $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id','!=','')->where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('chat_messages.created_at', 'desc');
-
+               
                 $records = BugTracker::with(['chatlatest'])->Select('bug_trackers.*')->leftJoin('chat_messages', 'chat_messages.bug_id', '=', 'bug_trackers.id')->where('bug_id', '!=', '')->where(function ($query) {
                     $query->where('assign_to', Auth::user()->id);
                     $query->orWhere('created_by', Auth::user()->id);
-                })->orderBy('chat_messages.created_at', 'desc');
+                })->orderBy('chat_messages.created_at', 'desc')->offset($page)->limit(10);
             } else {
-                // $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc');
+                
                 $records = BugTracker::where(function ($query) {
                     $query->where('assign_to', Auth::user()->id);
                     $query->orWhere('created_by', Auth::user()->id);
-                })->orderBy('id', 'desc');
+                })->orderBy('id', 'desc')->offset($page)->limit(10);
             }
         }
-
-        /*
-        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
-            $records = BugTracker::orderBy('id', 'desc')->offset($page)->limit(10);
-        } else {
-            $records = BugTracker::where('assign_to', Auth::user()->id)->orWhere('created_by', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
-        }
-        */
+        
 
         if ($keyword = request('bug_id')) {
             $records = $records->where('id', $keyword);
