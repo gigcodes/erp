@@ -17,7 +17,7 @@ class CreateZabbixHistoryTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('host_item_id');
             $table->integer('item_id');
-            $table->integer('hostid');
+            $table->integer('host_id');
             $table->double('free_inode_in', 6, 2);
             $table->double('space_utilization', 6, 2);
             $table->bigInteger('total_space');

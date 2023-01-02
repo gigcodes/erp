@@ -36,8 +36,6 @@
     width: 110px !important;
   }
 
-
-
   @media (max-width: 1280px) {
     table.table {
         width: 0px;
@@ -69,8 +67,6 @@
 		<h2 class="page-heading">Host Item List</h2>
 	</div>
 </div>
-
-
 
 <div class="table-responsive mt-3" style="margin-top:20px;">
       <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="zabbix-table">

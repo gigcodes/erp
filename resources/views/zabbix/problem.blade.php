@@ -35,9 +35,6 @@
   .table-responsive select.select {
     width: 110px !important;
   }
-  #problem-table{
-    width: 100% !important;
-  }
 
   @media (max-width: 1280px) {
     table.table {

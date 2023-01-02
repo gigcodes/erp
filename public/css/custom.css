@@ -2509,3 +2509,6 @@ table {
 #zabbix-table_wrapper{
   overflow: auto;
 }
+#problem-table{
+  width: 100% !important;
+}
