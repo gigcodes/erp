@@ -1598,7 +1598,7 @@ class MagentoService
                     $end_date = date('Y-m-d', strtotime($product_discount2->end_date));
                 } else {
                     $brand = $this->brand;
-                    if($brand) {
+                    if ($brand) {
                         $product_discount3 = StoreWebsiteSalesPrice::where('type', 'brand')
                             ->where('type_id', $brand->id)
                             ->where('supplier_id', $supplier_id)
