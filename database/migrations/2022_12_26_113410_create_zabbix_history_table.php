@@ -13,7 +13,7 @@ class CreateZabbixHistoryTable extends Migration
      */
     public function up()
     {
-        Schema::table('zabbix_history', function (Blueprint $table) {
+        Schema::create('zabbix_history', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('host_item_id');
             $table->integer('item_id');
