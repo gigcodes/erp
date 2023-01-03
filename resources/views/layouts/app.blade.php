@@ -1772,7 +1772,7 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
-                                            </li>                                            
+                                            </li> 
                                             <li class="nav-item dropdown dropdown-submenu">
                                                 <a id="queueDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Bug Track<span class="caret"></span></a>
                                                 <ul class="dropdown-menu dropdown-menu-right"aria-labelledby="bugtrackDropdown">
