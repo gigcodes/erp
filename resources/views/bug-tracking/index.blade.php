@@ -711,60 +711,107 @@ table{border-collapse: collapse;}
 			$('.text-task-bugids').val('');
 			$('.text-task-bugids').val('');
 			$('.text-task-development').val('');
+			bug_id_val = $(this).data("id");
 			
-						
-			if (!title || title == '') {
-				toastr["error"]("Please add title first");
-				return;
-			}
 			
-			//debugger;
-			let val = $("#change_website1").select2("val");
 			$.ajax({
-				url: '/bug-tracking/websitelist',
+				url: '/bug-tracking/checkbug',
 				type: 'POST',
 				headers: {
 					'X-CSRF-TOKEN': "{{ csrf_token() }}"
 				},
 				data: {
-					id: val,
-					cat_title:cat_title,
-					bug_type_id:bug_type_id,
-					module_id:module_id,
-					website_id:website_id
+					bug_id: bug_id_val
 				},
 				beforeSend: function() {
 					$("#loading-image").show();
 				}
 			}).done(function(response) {
+				
 				$("#loading-image").hide();
-				//$this.siblings('input').val("");				
-				$('.website-list').html(response.data.websiteCheckbox);	
-				//$('.text-task-development').val(response.data.bug_ids);		
-				$('#bugs_list_html').html(response.data.bug_html);					
-				//toastr["success"]("Remarks fetched successfully");
+				// inner Ajax starts
+				
+				if(response.data >0 ) {
+					if (!confirm('Task already created for this bug id, Would you like to create again')) {				  
+					  
+					  return false;
+					} 
+					
+				}
+				
+				
+					if (!title || title == '') {
+						toastr["error"]("Please add title first");
+						return;
+					}
+					
+					//debugger;
+					let val = $("#change_website1").select2("val");
+					$.ajax({
+						url: '/bug-tracking/websitelist',
+						type: 'POST',
+						headers: {
+							'X-CSRF-TOKEN': "{{ csrf_token() }}"
+						},
+						data: {
+							id: val,
+							cat_title:cat_title,
+							bug_type_id:bug_type_id,
+							module_id:module_id,
+							website_id:website_id
+						},
+						beforeSend: function() {
+							$("#loading-image").show();
+						}
+					}).done(function(response) {
+						$("#loading-image").hide();
+						//$this.siblings('input').val("");				
+						$('.website-list').html(response.data.websiteCheckbox);	
+						//$('.text-task-development').val(response.data.bug_ids);		
+						$('#bugs_list_html').html(response.data.bug_html);					
+						//toastr["success"]("Remarks fetched successfully");
+					}).fail(function(jqXHR, ajaxOptions, thrownError) {
+						toastr["error"]("Oops,something went wrong");
+						$("#loading-image").hide();
+					});
+					
+					
+					 $("#create-quick-task").modal("show");
+					
+
+					var selValue = $(".save-item-select").val();
+					if (selValue != "") {
+						$("#create-quick-task").find(".assign-to option[value=" + selValue + "]").attr('selected',
+							'selected')
+						$('.assign-to.select2').select2({
+							width: "100%"
+						});
+					}
+
+					$("#hidden-task-subject").val(title);
+					$(".text-task-development").val(development);
+					$('#site_id').val(site);	
+					$('#website_id').val(website_id);	
+					
+				
+				
+				
+				
+				// inner Ajax ends
+				
+				
+				
+				
+				
+				
 			}).fail(function(jqXHR, ajaxOptions, thrownError) {
 				toastr["error"]("Oops,something went wrong");
 				$("#loading-image").hide();
 			});
 			
 			
-			 $("#create-quick-task").modal("show");
 			
-
-			var selValue = $(".save-item-select").val();
-			if (selValue != "") {
-				$("#create-quick-task").find(".assign-to option[value=" + selValue + "]").attr('selected',
-					'selected')
-				$('.assign-to.select2').select2({
-					width: "100%"
-				});
-			}
-
-			$("#hidden-task-subject").val(title);
-			$(".text-task-development").val(development);
-			$('#site_id').val(site);	
-			$('#website_id').val(website_id);	
+			
 			
 
 			// $.ajax({
