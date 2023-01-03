@@ -5,7 +5,6 @@ $metaData = '';
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
 
     <meta charset="utf-8">
@@ -21,9 +20,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 }
 ?>
     @if (trim($__env->yieldContent('favicon')))
-    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+        <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
     @elseif (!\Auth::guest())
-    <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
+        <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
     <title>{!! $title !!}</title>
     <!-- CSRF Token -->
@@ -31,9 +30,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @if(isset($metaData->page_description) && $metaData->page_description!='')
-    <meta name="description" content="{{ $metaData->page_description }}">
+        <meta name="description" content="{{ $metaData->page_description }}">
     @else
-    <meta name="description" content="{{ config('app.name') }}">
+        <meta name="description" content="{{ config('app.name') }}">
     @endif
 
 
