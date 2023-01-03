@@ -96,9 +96,7 @@ class TicketController extends Controller
         $ticket = Tickets::find($success->id);
         $emailClass = (new TicketCreate($ticket))->build();
 
-       
-
-        $email = \App\Email::create([
+         $email = \App\Email::create([
             'model_id' => $ticket->id,
             'model_type' => Ticket::class,
             'from' => $emailClass->fromMailer,
