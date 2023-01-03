@@ -513,12 +513,7 @@ class MagentoService
         }
 
         \Log::info(print_r([count($this->prices['samePrice']), count($this->prices['specialPrice']), count($this->translations)], true));
-        \Log::info('samePrice: '.json_encode($this->prices['samePrice']));
-        \Log::info('specialPrice: '.json_encode($this->prices['specialPrice']));
-        \Log::info('translations: '.json_encode($this->translations));
-        \Log::info('storeWebsiteSize: '.json_encode($this->storeWebsiteSize));
         $storeWebsiteSize = ($this->storeWebsiteSize) ? $this->storeWebsiteSize : [];
-        \Log::info('storeWebsiteSize 2: '.json_encode($storeWebsiteSize));
         if ($pushSingle) {
             $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
             if ($this->log) {
@@ -683,7 +678,7 @@ class MagentoService
                 $catLinks[] = ['position' => $category['position'], 'category_id' => $category['category_id']];
             }
         }
-        \Log::info('Meta: '.json_encode($this->meta));
+        \Log::info('Will check meta is empty or not, if empty variable set as null.');
         $data['product']['extension_attributes']['category_links'] = $catLinks;
         $data['product']['custom_attributes'][12] = [
             'attribute_code' => 'meta_title',
@@ -904,7 +899,6 @@ class MagentoService
                 ProductPushErrorLog::log($url, $product->id, 'Product push to magento failed for product ID '.$product->id.' messaage : '.$result, 'error', $website->id, $data, $err, $this->log->id);
             }
         } catch (\SoapFault $e) {
-            // Log alert
             \Log::error($e);
             Log::channel('listMagento')->alert('option for product '.$product->id.' with failed while pushing to Magento with message: '.$e->getMessage());
         }
@@ -1603,7 +1597,6 @@ class MagentoService
                     $start_date = date('Y-m-d', strtotime($product_discount2->start_date));
                     $end_date = date('Y-m-d', strtotime($product_discount2->end_date));
                 } else {
-                    Log::info('Brand: '. json_encode($this->brand));
                     $brand = $this->brand;
                     if($brand) {
                         $product_discount3 = StoreWebsiteSalesPrice::where('type', 'brand')
@@ -1620,6 +1613,7 @@ class MagentoService
                             $end_date = date('Y-m-d', strtotime($product_discount3->end_date));
                         }
                     } else {
+                        Log::info('Brand is null so setting discount as 0.');
                         $discount = 0;
                     }
                 }
