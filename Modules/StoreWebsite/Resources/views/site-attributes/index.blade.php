@@ -61,7 +61,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <div class="alert alert-success" id="alert-msg" style="display: none;">
+        <div class="alert alert-success d-none" id="alert-msg">
             <p></p>
         </div>
     </div>
@@ -94,5 +94,4 @@ page.init({
     baseUrl: "<?php echo url("/"); ?>"
 });
 </script>
-
 @endsection
