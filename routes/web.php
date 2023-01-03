@@ -2370,6 +2370,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/website', 'BugTrackingController@website')->name('bug-tracking.website');
 
     Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
+    Route::post('bug-tracking/statuscolor', 'BugTrackingController@statuscolor')->name('bug-tracking.statuscolor');
     Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
     Route::post('bug-tracking/type', 'BugTrackingController@type')->name('bug-tracking.type');
     Route::post('bug-tracking/severity', 'BugTrackingController@severity')->name('bug-tracking.severity');
@@ -2381,6 +2382,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/communicationData/{id}', 'BugTrackingController@communicationData')->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
     Route::post('bug-tracking/websitelist', 'BugTrackingController@getWebsiteList')->name('bug-tracking.websitelist');
+    Route::post('bug-tracking/checkbug', 'BugTrackingController@checkbug')->name('bug-tracking.checkbug');
     Route::get('bug-tracking/countdevtask/{id}', 'BugTrackingController@taskCount');
     Route::get('bug-trackinghistory', 'BugTrackingController@getTrackedHistory')->name('bug-tracking.history');
     Route::post('bug-tracking/hubstaff_task', 'BugTrackingController@createHubstaffManualTask')->name('bug-tracking.hubstaff_task');
