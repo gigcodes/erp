@@ -385,6 +385,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/listing/final/process-conditions-check', 'ProductController@processProductsConditionsCheck')->name('products.processProductsConditionsCheck');
     Route::post('products/listing/push-to-magento', 'ProductController@pushProductsToMagento')->name('products.pushToMagento');
     Route::get('products/listing/magento-push-status', 'ProductController@magentoPushStatus')->name('products.magentoPushStatus');
+    Route::post('products/listing/magento-push-status/autocomplete', 'ProductController@autocompleteSearchPushStatus')->name('products.autocompleteSearchPushStatus');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     Route::post('product/image/order/change', 'ProductController@changeimageorder');
 
