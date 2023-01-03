@@ -96,14 +96,13 @@ class TicketController extends Controller
         $ticket = Tickets::find($success->id);
         $emailClass = (new TicketCreate($ticket))->build();
 
-       
         $email = \App\Email::create([
             'model_id' => $ticket->id,
             'model_type' => Ticket::class,
             'from' => $emailClass->fromMailer,
             'to' => @$ticket->email,
             'subject' => $emailClass->subject,
-            'message' =>'',//$emailClass->render()
+            'message' => '', //$emailClass->render()
             'template' => 'ticket-create',
             'additional_data' => $ticket->id,
             'status' => 'pre-send',
@@ -114,7 +113,7 @@ class TicketController extends Controller
             'email_log' => 'Email initiated',
             'message' => $email->to,
         ]);
-       // \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
+        // \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
         if (! is_null($success)) {
             $message = $this->generate_erp_response('ticket.success', 0, $default = 'Ticket #'.$data['ticket_id'].' created successfully', request('lang_code'));
