@@ -21,6 +21,7 @@ var page = {
 
         page.config.bodyView.on("click",".btn-search-action",function(e) {
             e.preventDefault();
+            page_bug = 0;
             page.getResults();
         });
 
