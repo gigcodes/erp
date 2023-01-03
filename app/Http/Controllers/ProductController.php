@@ -1503,7 +1503,6 @@ class ProductController extends Controller
             }
             $products = $products->orderBy('llm_id', 'desc');
             $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title']);
-            // dd($products->get());
             $products = $products->paginate(20);
             $productsCount = $products->total();
             $imageCropperRole = auth()->user()->hasRole('ImageCropers');
