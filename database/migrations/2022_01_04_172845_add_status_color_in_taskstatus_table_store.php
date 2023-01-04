@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 
 class AddStatusColorInTaskstatusTableStore extends Migration
 {
@@ -12,7 +11,7 @@ class AddStatusColorInTaskstatusTableStore extends Migration
      */
     public function up()
     {
-        Schema::table('task_statuses', function (\Illuminate\Database\Schema\Blueprint $table) {
+        Schema::table('task_statuses', function (Illuminate\Database\Schema\Blueprint $table) {
             $table->string('task_color')->after('name')->nullable();
         });
     }
