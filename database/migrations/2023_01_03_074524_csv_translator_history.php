@@ -29,7 +29,7 @@ class CsvTranslatorHistory extends Migration
             $table->text('zh');
             $table->text('ar');
             $table->text('ur');
-            $table->text('status');
+            $table->tinyInteger('status')->default(3);
             $table->integer('updated_by_user_id')->nullable();
             $table->string('updated_by_username')->nullable();
             $table->string('approved_by_username')->nullable();
