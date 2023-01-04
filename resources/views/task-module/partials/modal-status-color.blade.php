@@ -12,16 +12,16 @@
                 <div class="form-group col-md-12">
                     <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
                         <tr>
-                            <td style="text-align:center;"><b>Status Name</b></td>
-                            <td style="text-align:center;"><b>Color Code</b></td>
-                            <td style="text-align:center;"><b>Color</b></td>
+                            <td class="text-center"><b>Status Name</b></td>
+                            <td class="text-center"><b>Color Code</b></td>
+                            <td class="text-center"><b>Color</b></td>
                         </tr>
                         <?php
                         foreach ($taskstatus as $bugstatus) { ?>
                         <tr>
                             <td>&nbsp;&nbsp;&nbsp;<?php echo $bugstatus->name; ?></td>
-                            <td style="text-align:center;"><?php echo $bugstatus->task_color; ?></td>
-                            <td style="text-align:center;"><input type="color" name="color_name[<?php echo $bugstatus->id; ?>]" class="form-control" data-id="<?php echo $bugstatus->id; ?>" id="color_name_<?php echo $bugstatus->id; ?>" value="<?php echo $bugstatus->task_color; ?>" style="height:30px;padding:0px;"></td>
+                            <td class="text-center"><?php echo $bugstatus->task_color; ?></td>
+                            <td class="text-center"><input type="color" name="color_name[<?php echo $bugstatus->id; ?>]" class="form-control" data-id="<?php echo $bugstatus->id; ?>" id="color_name_<?php echo $bugstatus->id; ?>" value="<?php echo $bugstatus->task_color; ?>" style="height:30px;padding:0px;"></td>
                         </tr>
                         <?php } ?>
                     </table>

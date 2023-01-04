@@ -57,10 +57,8 @@ class TaskModuleController extends Controller
 
     public function __construct()
     {
-        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->githubClient = new Client(
             [
-                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
                 'auth' => [
                     config('env.GITHUB_USERNAME'),
                     config('env.GITHUB_TOKEN'),
