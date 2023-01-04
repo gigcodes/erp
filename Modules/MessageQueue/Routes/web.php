@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\MessageQueueController;
+use Modules\MessageQueue\Http\Controllers\MessageQueueController;
 use Illuminate\Support\Facades\Route;
 
 /*

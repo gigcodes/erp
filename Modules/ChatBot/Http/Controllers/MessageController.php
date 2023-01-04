@@ -30,7 +30,7 @@ class MessageController extends Controller
             ->Join('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
             ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
             ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id']); //Purpose : Add task_id - DEVTASK-4203
-
+        
         if (! empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
                 $q->where('cr.question', 'like', '%'.$search.'%')->orWhere('cr.answer', 'Like', '%'.$search.'%');
@@ -76,15 +76,15 @@ class MessageController extends Controller
         }
 
         $pendingApprovalMsg = $pendingApprovalMsg->whereRaw('chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where (customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0)  GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id)');
-
+        
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where('chat_messages.message', '!=', '');
         })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
             'cm1.message as answer',
-            'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'cm1.approved', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', ])
+            'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', ])
             ->orderBy('cr.id', 'DESC')
             ->paginate(20);
-
+            
         // dd($pendingApprovalMsg);
 
         $allCategory = ChatbotCategory::all();
@@ -96,13 +96,13 @@ class MessageController extends Controller
         }
         $page = $pendingApprovalMsg->currentPage();
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
-
+        
         if ($request->ajax()) {
             $tml = (string) view('chatbot::message.partial.list', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories'));
 
             return response()->json(['code' => 200, 'tpl' => $tml, 'page' => $page]);
         }
-
+        
         //dd($pendingApprovalMsg);
         return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories'));
     }

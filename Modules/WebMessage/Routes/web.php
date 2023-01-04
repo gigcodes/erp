@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\WebMessageController;
+use Modules\WebMessage\Http\Controllers\WebMessageController;
 use Illuminate\Support\Facades\Route;
 
 /*

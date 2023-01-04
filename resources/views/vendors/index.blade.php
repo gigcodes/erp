@@ -333,7 +333,7 @@
 @include('vendors.partials.vendor-category-modals')
 @include('vendors.partials.modal-conference')
 @include('vendors.partials.change-hubstaff-role')
-@include('vendors.partials.create-cv')
+{{-- @include('vendors.partials.create-cv') --}}
 @include('vendors.partials.add-status')
 @include('vendors.partials.add-position')
 

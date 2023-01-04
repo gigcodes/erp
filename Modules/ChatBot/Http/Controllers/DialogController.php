@@ -25,7 +25,7 @@ class DialogController extends Controller
     public function index()
     {
         $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
-
+        
         return view('chatbot::dialog.index', compact('allSuggestedOptions'));
     }
 
@@ -490,7 +490,7 @@ class DialogController extends Controller
             ->select('chatbot_dialogs.*', \DB::raw('count(cdr.chatbot_dialog_id) as `total_response`'), 'cdr.value as dialog_response')
             // ->where("chatbot_dialogs.response_type", "standard")
             ->groupBy('chatbot_dialogs.id')
-            ->orderBy('chatbot_dialogs.dialog_type', 'folder')
+            //->orderBy('chatbot_dialogs.dialog_type', 'folder')
             ->orderBy('chatbot_dialogs.previous_sibling', 'asc');
 
         $chatDialog = $chatDialog->where('parent_id', $parentId);

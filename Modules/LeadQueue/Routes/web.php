@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\LeadQueueController;
+use Modules\LeadQueue\Http\Controllers\LeadQueueController;
 use Illuminate\Support\Facades\Route;
 
 /*

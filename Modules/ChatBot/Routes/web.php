@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\AnalyticsController;
-use App\Http\Controllers\ChatBotController;
-use App\Http\Controllers\DialogController;
-use App\Http\Controllers\KeywordController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\QuestionController;
+use Modules\ChatBot\Http\Controllers\AnalyticsController;
+use Modules\ChatBot\Http\Controllers\ChatBotController;
+use Modules\ChatBot\Http\Controllers\DialogController;
+use Modules\ChatBot\Http\Controllers\KeywordController;
+use Modules\ChatBot\Http\Controllers\MessageController;
+use Modules\ChatBot\Http\Controllers\QuestionController;
 use Illuminate\Support\Facades\Route;
 
 /*

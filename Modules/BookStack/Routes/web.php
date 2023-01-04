@@ -1,18 +1,18 @@
 <?php
 
-use App\Http\Controllers\AttachmentController;
-use App\Http\Controllers\BookController;
-use App\Http\Controllers\BookshelfController;
-use App\Http\Controllers\ChapterController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Images;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\SearchController;
-use App\Http\Controllers\SettingController;
-use App\Http\Controllers\TagController;
-use App\Http\Controllers\UserController;
+use Modules\BookStack\Http\Controllers\AttachmentController;
+use Modules\BookStack\Http\Controllers\BookController;
+use Modules\BookStack\Http\Controllers\BookshelfController;
+use Modules\BookStack\Http\Controllers\ChapterController;
+use Modules\BookStack\Http\Controllers\CommentController;
+use Modules\BookStack\Http\Controllers\HomeController;
+use Modules\BookStack\Http\Controllers\Images;
+use Modules\BookStack\Http\Controllers\PageController;
+use Modules\BookStack\Http\Controllers\PermissionController;
+use Modules\BookStack\Http\Controllers\SearchController;
+use Modules\BookStack\Http\Controllers\SettingController;
+use Modules\BookStack\Http\Controllers\TagController;
+use Modules\BookStack\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
