@@ -385,6 +385,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/listing/final/process-conditions-check', 'ProductController@processProductsConditionsCheck')->name('products.processProductsConditionsCheck');
     Route::post('products/listing/push-to-magento', 'ProductController@pushProductsToMagento')->name('products.pushToMagento');
     Route::get('products/listing/magento-push-status', 'ProductController@magentoPushStatus')->name('products.magentoPushStatus');
+    Route::post('products/listing/magento-push-status/autocomplete', 'ProductController@autocompleteSearchPushStatus')->name('products.autocompleteSearchPushStatus');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     Route::post('product/image/order/change', 'ProductController@changeimageorder');
 
@@ -2383,6 +2384,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/communicationData/{id}', 'BugTrackingController@communicationData')->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
     Route::post('bug-tracking/websitelist', 'BugTrackingController@getWebsiteList')->name('bug-tracking.websitelist');
+    Route::post('bug-tracking/checkbug', 'BugTrackingController@checkbug')->name('bug-tracking.checkbug');
     Route::get('bug-tracking/countdevtask/{id}', 'BugTrackingController@taskCount');
     Route::get('bug-trackinghistory', 'BugTrackingController@getTrackedHistory')->name('bug-tracking.history');
     Route::post('bug-tracking/hubstaff_task', 'BugTrackingController@createHubstaffManualTask')->name('bug-tracking.hubstaff_task');
