@@ -31,19 +31,19 @@
                 <div class="col">
                     <div class="form-group ml-4">
                         <label for="keyword">Store Website Title:</label>
-                        @php Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) @endphp
+                        {!! Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) !!}
                     </div>
                     <div class="form-group ml-4">
                         <label for="attributeKey">Attribute Key:</label>
-                        @php Form::text("attribute_key",request("attribute_key"),["class"=> "form-control","placeholder" => "Attribute Key"]) @endphp
+                        {!! Form::text("attribute_key",request("attribute_key"),["class"=> "form-control","placeholder" => "Attribute Key"]) !!}
                     </div>
                     <div class="form-group ml-4">
                         <label for="attributeVal">Attribute Value : </label>
-                        @php Form::text("attribute_val",request("attribute_val"),["class"=> "form-control","placeholder" => "Attribute Value"]) @endphp
+                       {!! Form::text("attribute_val",request("attribute_val"),["class"=> "form-control","placeholder" => "Attribute Value"]) !!}
                     </div>
                     <div class="form-group ml-4">
                         <label for="storeWebsiteId">Store Website Id:</label>
-                        @php Form::text("store_website_id",request("store_website_id"),["class"=> "form-control","placeholder" => "store webiste"]) @endphp
+                       {!! Form::text("store_website_id",request("store_website_id"),["class"=> "form-control","placeholder" => "store webiste"]) !!}
                     </div>
 
                     <div class="form-group">
