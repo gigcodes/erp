@@ -18,6 +18,10 @@
             z-index: 60;
         }
 
+        tr th {
+            width: 20px;
+        }
+
         .nav-item a {
             color: #555;
         }
@@ -79,10 +83,12 @@
     </div>
 </div>
 <div class="float-right">
-    <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-primary btnImport">Import CSV</button>
+    <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-primary btn_import">Import CSV</button>
+    <a class="btn btn-secondary btn_export" href="{{ route('csvTranslator.export') }}" target="_blank">Export CSV</a>
+    <a class="btn btn-info btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
 </div>
 <div class="table-responsive mt-3" style="margin-top:20px;">
-    <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="csvData-table">
+    <table class="table table-bordered text-wrap" style="border: 1px solid #ddd;" id="csvData-table">
         <thead>
             <tr>
                 <th>Id</th>
@@ -100,7 +106,6 @@
                 <th>AR</th>
                 <th>UR</th>
                 <th>Status</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -110,6 +115,54 @@
     <div class="pagination-custom">
 
     </div>
+</div>
+
+<div class="modal fade" id="permissions_model" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">Edit Permission</h4>
+            </div>
+            <div class="modal-body">
+                <form class="permission_form">
+                    <div class="form-group">
+                        <label>Select User :</label>
+                        <select class="form-control" id="selectUserId" name="user">
+                            <option>Select</option>
+                            @foreach (App\User::where('is_active', '1')->get() as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Lanuage</label>
+                        <select class="form-control" name="lang" id="selectLangId">
+                            <option>Select</option>
+                            <option value="en">EN</option>
+                            <option value="es">ES</option>
+                            <option value="ru">RU</option>
+                            <option value="ko">KO</option>
+                            <option value="ja">JA</option>
+                            <option value="it">IT</option>
+                            <option value="de">DE</option>
+                            <option value="fr">FR</option>
+                            <option value="nl">NL</option>
+                            <option value="zh">ZH</option>
+                            <option value="ar">AR</option>
+                            <option value="ur">UR</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-submit-form" data-dismiss="modal">Add
+                    Permission</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 
 <div class="modal fade" id="csv_import_model" role="dialog">
@@ -134,6 +187,27 @@
 </div>
 </div>
 
+<div class="modal fade" id="edit_model" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">Upload Csv</h4>
+            </div>
+            <div class="modal-body edit_model_body">
+                <form>
+                    <input type="text" name="update_record" class="form-control update_record" />
+                    <input type="submit" value="update" name="update" class="btn btn-primary" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -142,9 +216,9 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
 </script>
 <script type="text/javascript">
-    $(document).on('click', '.btnImport', function() {
+    $(document).on('click', '.btn_import', function() {
         var myDropzone = new Dropzone("form#my-dropzone", {
-            url: "{{ route('csv-translator.uploadFile') }}"
+            url: "{{ route('csvTranslator.uploadFile') }}"
         });
         myDropzone.on('complete', function() {
             $(".successalert").removeClass('d-none');
@@ -155,8 +229,11 @@
                 window.location.reload();
             }, 500);
         })
-
     });
+    var userId;
+    var langId;
+
+
     var oTable;
     $(document).ready(function() {
         oTable = $('#csvData-table').DataTable({
@@ -168,13 +245,12 @@
             searchDelay: 500,
             processing: true,
             serverSide: true,
-            sScrollX: false,
+            sScrollX: true,
             searching: false,
-
             targets: 'no-sort',
             bSort: false,
             ajax: {
-                "url": "{{ route('csv-translator.list') }}",
+                "url": "{{ route('csvTranslator.list') }}",
                 data: function(d) {
 
                 },
@@ -182,14 +258,15 @@
             columnDefs: [{
                 targets: [],
                 orderable: false,
-                searchable: false
+                searchable: false,
             }],
             columns: [{
                     data: 'id',
                     render: function(data, type, row, meta) {
                         return data;
                     }
-                }, {
+                },
+                {
                     data: 'key',
                     render: function(data, type, row, meta) {
                         return data;
@@ -198,73 +275,170 @@
                 {
                     data: 'en',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "en") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.en +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
+
                     }
                 },
                 {
                     data: 'es',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "es") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.es +
+                                '  data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'ru',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "ru") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.eu +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'ko',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "ko") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.ko +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'ja',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "ja") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.ja +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'it',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "it") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.it +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'de',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "de") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.de +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'fr',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "fr") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.fr +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'nl',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "nl") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.nl +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'zh',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "zh") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.zh +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'ar',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "ar") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.ar +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
                     data: 'ur',
                     render: function(data, type, row, meta) {
-                        return data;
+                        if (userId != null && langId === "ur") {
+                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
+                                langId + ' data-user=' + userId + ' data-id=' + row.id +
+                                ' data-value=' +
+                                row.ur +
+                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
+                        } else {
+                            return data;
+                        }
                     }
                 },
                 {
@@ -272,16 +446,26 @@
                     render: function(data, type, row, meta) {
                         return data;
                     }
-                },
-                {
-                    data: 'action',
-                    render: function(data, type, row, meta) {
-                        return '<a href="#"> <i class="fa fa-pencil"></i></a>';
-                    }
-                },
+                }
 
             ],
         });
+    });
+    $(document).on('click', ".btn-submit-form", function() {
+        userId = $("#selectUserId").val();
+        langId = $("#selectLangId").val();
+        oTable.clear().draw();
+    });
+
+
+    $(document).on('click', ".editbtn_model", function() {
+        var id = $(this).data('id');
+        var formValue = $(this).data('value');
+        var userId = $(this).data('user');
+        var langId = $(this).data('lang');
+        $(".update_record").val(formValue);
+        $('<input type="hidden" name="update_by_user_id" value='+userId+'>').inserAfter($(".update_record"));
+        $('<input type="hidden" name="lang_id" value='+langId+'>').inserAfter($(".update_record"));
     });
 </script>
 @endsection
