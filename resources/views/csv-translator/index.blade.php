@@ -6,6 +6,9 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput-typeahead.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
+
     <style type="text/css">
         #loading-image {
             position: fixed;
@@ -67,12 +70,6 @@
     </style>
 @endsection
 
-@if ($message = Session::get('message'))
-<div class="alert alert-success mt-3">
-  <p>{{ $message }}</p>
-</div>
-@endif
-
 <div id="myDiv">
     <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
 </div>
@@ -81,11 +78,8 @@
         <h2 class="page-heading">Csv Translator Languages List</h2>
     </div>
 </div>
-<div class="float-end">
-    <button id="OpenImgUpload" class="btn btn-primary">Import CSV</button>
-
-    <input type="file" class="d-none" id="imgupload" />
-
+<div class="float-right">
+    <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-primary btnImport">Import CSV</button>
 </div>
 <div class="table-responsive mt-3" style="margin-top:20px;">
     <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="csvData-table">
@@ -117,6 +111,29 @@
 
     </div>
 </div>
+
+<div class="modal fade" id="csv_import_model" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">Upload Csv</h4>
+            </div>
+            <div class="modal-body">
+                <form action="#" class="dropzone" id="my-dropzone">
+                    @csrf
+                </form>
+                <div class="alert alert-success d-none successalert">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -125,37 +142,21 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
 </script>
 <script type="text/javascript">
-    $('#OpenImgUpload').click(function() {
-        $('#imgupload').trigger('click');
+    $(document).on('click', '.btnImport', function() {
+        var myDropzone = new Dropzone("form#my-dropzone", {
+            url: "{{ route('csv-translator.uploadFile') }}"
+        });
+        myDropzone.on('complete', function() {
+            $(".successalert").removeClass('d-none');
+            $(".successalert").addClass('mt-2');
+            $(".successalert").text('Successfully Imported');
+            setTimeout(function() {
+                $("#csv_import_model").modal('hide');
+                window.location.reload();
+            }, 500);
+        })
+
     });
-
-    $('#imgupload').on('change', function() {
-        var files = $('#imgupload')[0].files;
-        debugger
-
-        if (files.length > 0) {
-            var fd = new FormData();
-            fd.append('file', files[0]);
-            fd.append('_token', "{{ csrf_token() }}");
-
-            $.ajax({
-                url: "{{ route('csv-translator.uploadFile') }}",
-                method: 'post',
-                data: fd,
-                contentType: false,
-                processData: false,
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status == 200) {
-                      window.location.reload();
-
-                    }
-                }
-            })
-        }
-    });
-
-
     var oTable;
     $(document).ready(function() {
         oTable = $('#csvData-table').DataTable({

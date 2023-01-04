@@ -127,6 +127,13 @@ Route::middleware('auth')->group(function () {
     Route::post('redis-jobs-restart_management/{id?}', 'RedisjobController@restartManagement')->name('redis.restart_management');
 });
 
+/** CSV Translator */
+
+Route::middleware('auth')->group(function () {
+    Route::get('/csv-translator', 'CsvTranslatorController@index')->name('csv-translator.list');
+    Route::post('/csv-translator/upload', 'CsvTranslatorController@upload')->name('csv-translator.uploadFile');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', 'MagentoSettingsController@namehistrory');
