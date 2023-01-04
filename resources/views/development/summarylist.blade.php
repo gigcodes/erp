@@ -243,7 +243,7 @@
                         <th width="12%">MODULE</th>
                         <th width="13%">Assigned To</th>
                         <th width="13%">Lead</th>
-                        <th width="35%">Communication</th>
+                        <th width="15%">Communication</th>
                         <th width="10%">Send To</th>
                         <th width="10%">Status</th>
                         <th width="10%">Actions</th>
