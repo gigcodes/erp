@@ -355,7 +355,7 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
 
                 return response()->json(['code' => 500, 'error' => 'Store website product creation failed!']);
             }
-            \Log::info('Store website product creation created for ' . $this->copyStoreWebsite->title);
+            \Log::info('Store website product creation completed for ' . $this->copyStoreWebsite->title);
 
             // Inserts Store Websites products attributes
             $swProductAttributes = StoreWebsiteProductAttribute::where('store_website_id', '=', $this->storeWebsiteId)->get();
