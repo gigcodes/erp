@@ -30,7 +30,7 @@ class GithubBranchState extends Model
     {
         $keys = $this->getKeyName();
         if (! is_array($keys)) {
-            return parent::setKeysForSaveQuery($query);
+            return parent::setKeysFor($query);
         }
 
         foreach ($keys as $keyName) {
