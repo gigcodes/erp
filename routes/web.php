@@ -476,7 +476,7 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
 Route::prefix('product')->middleware('auth')->group(function () {
     Route::get('manual-crop/assign-products', [Products\ManualCroppingController::class, 'assignProductsToUser']);
     Route::resource('manual-crop', Products\ManualCroppingController::class);
-    Route::get('hscode', [ProductController::class, 'hsCodeIndex']);
+    Route::get('hscode', [ProductController::class, 'hsCodeIndex'])->name('product.hscode');
     Route::post('hscode/save-group', [ProductController::class, 'saveGroupHsCode'])->name('hscode.save.group');
     Route::post('hscode/edit-group', [ProductController::class, 'editGroup'])->name('hscode.edit.group');
     Route::post('store-website-description', [ProductController::class, 'storeWebsiteDescription'])->name('product.store.website.description');
@@ -626,15 +626,15 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::resource('descriptions', ChangeDescriptionController::class);
 
-    Route::get('crop/approved', [ProductCropperController::class, 'getApprovedImages']);
-    Route::get('order-cropped-images', [ProductCropperController::class, 'showCropVerifiedForOrdering']);
+    Route::get('crop/approved', [ProductCropperController::class, 'getApprovedImages'])->name('product.crop.approved');
+    Route::get('order-cropped-images', [ProductCropperController::class, 'showCropVerifiedForOrdering'])->name('product.order.cropped.images');
     Route::post('save-sequence/{id}', [ProductCropperController::class, 'saveSequence']);
     Route::get('skip-sequence/{id}', [ProductCropperController::class, 'skipSequence']);
     Route::get('reject-sequence/{id}', [ProductCropperController::class, 'rejectSequence']);
     Route::post('ammend-crop/{id}', [ProductCropperController::class, 'ammendCrop']);
-    Route::get('products/auto-cropped', [ProductCropperController::class, 'getListOfImagesToBeVerified']);
-    Route::get('products/crop-issue-summary', [ProductCropperController::class, 'cropIssuesPage']);
-    Route::get('products/rejected-auto-cropped', [ProductCropperController::class, 'showRejectedCrops']);
+    Route::get('products/auto-cropped', [ProductCropperController::class, 'getListOfImagesToBeVerified'])->name('product.auto.cropped');
+    Route::get('products/crop-issue-summary', [ProductCropperController::class, 'cropIssuesPage'])->name('product.crop.issue.summary');
+    Route::get('products/rejected-auto-cropped', [ProductCropperController::class, 'showRejectedCrops'])->name('product.rejected.auto.cropped');
     Route::get('products/auto-cropped/{id}', [ProductCropperController::class, 'showImageToBeVerified']);
     Route::get('products/auto-cropped/{id}/show-rejected', [ProductCropperController::class, 'showRejectedImageToBeverified']);
     Route::get('products/auto-cropped/{id}/approve', [ProductCropperController::class, 'approveCrop']);
@@ -2378,7 +2378,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('reload-image', [ProductTemplatesController::class, 'fetchImage']);
         Route::get('destroy/{id}', [ProductTemplatesController::class, 'destroy']);
         Route::get('select-product-id', [ProductTemplatesController::class, 'selectProductId']);
-        Route::get('image', [ProductTemplatesController::class, 'imageIndex']);
+        Route::get('image', [ProductTemplatesController::class, 'imageIndex'])->name('product.index.image');
         Route::get('/get-log', [ProductTemplatesController::class, 'loginstance'])->name('product.templates.getlog');
     });
 

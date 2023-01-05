@@ -452,25 +452,6 @@ if (!empty($notifications)) {
                                 aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-<<<<<<< HEAD
-								
-                                
-								<li class="nav-item dropdown dropdown-submenu">
-									<a id="navbarDropdown" class="" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
-									<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-										<li class="nav-item">
-											<a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
-										</li>
-										<li class="nav-item">
-											<a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
-										</li>
-										<li class="nav-item">
-											<a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
-										</li>
-										<li class="nav-item">
-											<a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductTemplatesController::class, 'imageIndex']) }}">Processed Image</a>
-										</li>
-=======
 
 
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -478,7 +459,6 @@ if (!empty($notifications)) {
                                         aria-haspopup="true" aria-expanded="false">Product Templates <span
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
->>>>>>> master
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
                                         </li>
@@ -490,7 +470,7 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
-                                                href="{{ action('ProductTemplatesController@imageIndex') }}">Processed
+                                                href="{{ route('product.index.image') }}">Processed
                                                 Image</a>
                                         </li>
                                         <li class="nav-item">
@@ -549,16 +529,6 @@ if (!empty($notifications)) {
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
-<<<<<<< HEAD
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Image Cropper<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">Image Cropper Grid</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'getApprovedImages']) }}">Approved Crop grid</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'getListOfImagesToBeVerified']) }}">Crop Approval Grid</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'cropIssuesPage']) }}">Crop Issue Summary</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'showRejectedCrops']) }}">Crop-Rejected Grid</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'showCropVerifiedForOrdering']) }}">Crop-Sequencer</a>
-=======
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                 v-pre>Image Cropper<span class="caret"></span></a>
@@ -568,20 +538,19 @@ if (!empty($notifications)) {
                                                     href="{{ route('productimagecropper.index') }}">Image Cropper
                                                     Grid</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ProductCropperController@getApprovedImages') }}">Approved
+                                                    href="{{ route('product.crop.approved') }}">Approved
                                                     Crop grid</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop
+                                                    href="{{ route('product.auto.cropped') }}">Crop
                                                     Approval Grid</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ProductCropperController@cropIssuesPage') }}">Crop
+                                                    href="{{ route('product.crop.issue.summary') }}">Crop
                                                     Issue Summary</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected
+                                                    href="{{ route('product.rejected.auto.cropped') }}">Crop-Rejected
                                                     Grid</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ProductCropperController@showCropVerifiedForOrdering') }}">Crop-Sequencer</a>
->>>>>>> master
+                                                    href="{{ route('product.order.cropped.images') }}">Crop-Sequencer</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -607,33 +576,24 @@ if (!empty($notifications)) {
                                                     href="{{ route('products.listing') }}?cropped=on">Attribute edit
                                                     page</a>
                                                 @endif
-<<<<<<< HEAD
-												<a class="dropdown-item" href="{{ route('products.push.conditions') }}">Magento product push conditions</a>
-												<a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'approvedListing']) }}?cropped=on">Approved listing</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'approvedListing']) }}?cropped=on&status_id=2">Listings awaiting scraping</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'approvedListing']) }}?cropped=on&status_id=13">Listings unable to scrape</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'showRejectedListedProducts']) }}">Rejected Listings</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\AttributeReplacementController::class, 'index']) }}">Attribute Replacement</a>
-=======
                                                 <a class="dropdown-item"
                                                     href="{{ route('products.push.conditions') }}">Magento product push
                                                     conditions</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved
+                                                    href="{{ action('\App\Http\Controllers\ProductController@approvedListing') }}?cropped=on">Approved
                                                     listing</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings
+                                                    href="{{ action('\App\Http\Controllers\ProductController@approvedListing') }}?cropped=on&status_id=2">Listings
                                                     awaiting scraping</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=13">Listings
+                                                    href="{{ action('\App\Http\Controllers\ProductController@approvedListing') }}?cropped=on&status_id=13">Listings
                                                     unable to scrape</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected
+                                                    href="{{ action('\App\Http\Controllers\ProductController@showRejectedListedProducts') }}">Rejected
                                                     Listings</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('AttributeReplacementController@index') }}">Attribute
+                                                    href="{{ action('\App\Http\Controllers\AttributeReplacementController@index') }}">Attribute
                                                     Replacement</a>
->>>>>>> master
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -716,19 +676,6 @@ if (!empty($notifications)) {
                                         </li>
                                         @endif
                                         <li class="nav-item dropdown dropdown-submenu">
-<<<<<<< HEAD
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-
-                                                <a class="dropdown-item" href="{{ url('scrap/statistics') }}">Statistics</a>
-                                                <a class="dropdown-item" href="{{ url('scrap/statistics/server-history') }}">Server History</a>
-                                                <a class="dropdown-item" href="{{ url('scrap/generic-scraper') }}">Generic Supplier Scraper</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\CategoryController::class, 'brandMinMaxPricing']) }}">Min/Max Pricing</a>
-                                                <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
-                                                <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
-                                                <a class="dropdown-item" href="{{ url('price-comparison-scraper') }}">Price comparison</a>
-                                                <a class="dropdown-item" href="{{ url('scrap/servers/statistics') }}">Scrap server statistics</a>
-=======
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                 v-pre>Scraping<span class="caret"></span></a>
@@ -744,7 +691,7 @@ if (!empty($notifications)) {
                                                     href="{{ url('scrap/generic-scraper') }}">Generic Supplier
                                                     Scraper</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max
+                                                    href="{{ action('\App\Http\Controllers\CategoryController@brandMinMaxPricing') }}">Min/Max
                                                     Pricing</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier
                                                     Category Count</a>
@@ -755,35 +702,25 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ url('scrap/servers/statistics') }}">Scrap server
                                                     statistics</a>
->>>>>>> master
 
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
-<<<<<<< HEAD
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>SKU<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\Logging\LogScraperController::class, 'logSKU']) }}">SKU log</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\Logging\LogScraperController::class, 'logSKUErrors']) }}">SKU warnings/errors</a>
-                                                <a class="dropdown-item" href="{{ route('sku-format.index') }}">SKU Format</a>
-                                                <a class="dropdown-item" href="{{ route('sku.color-codes') }}">SKU Color Codes</a>
-=======
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                 v-pre>SKU<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right"
                                                 aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item"
-                                                    href="{{ action('Logging\LogScraperController@logSKU') }}">SKU
+                                                    href="{{ action('\App\Http\Controllers\Logging\LogScraperController@logSKU') }}">SKU
                                                     log</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('Logging\LogScraperController@logSKUErrors') }}">SKU
+                                                    href="{{ action('\App\Http\Controllers\Logging\LogScraperController@logSKUErrors') }}">SKU
                                                     warnings/errors</a>
                                                 <a class="dropdown-item" href="{{ route('sku-format.index') }}">SKU
                                                     Format</a>
                                                 <a class="dropdown-item" href="{{ route('sku.color-codes') }}">SKU Color
                                                     Codes</a>
->>>>>>> master
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -863,70 +800,49 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'productStats']) }}">Product Statistics</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'showAutoRejectedProducts']) }}">Auto Reject Statistics</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ListingPaymentsController::class, 'index']) }}">Product Listing Payments</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ScrapStatisticsController::class, 'index']) }}">Scrap Statistics</a>
-                                            <a class="dropdown-item" href="{{ route('statistics.quick') }}">Quick Scrap Statistics</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ScrapController::class, 'scrapedUrls']) }}">Scrap Urls</a>
-                                            <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
-                                            <a class="dropdown-item" href="{{ route('scrap.scrap_server_status') }}">Scrapper Server Status</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ScrapController::class, 'showProductStat']) }}">Products Scrapped</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\SalesItemController::class, 'index']) }}">Sale Items</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\DesignerController::class, 'index']) }}">Designer List</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\GmailDataController::class, 'index']) }}">Gmail Inbox</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ScrapController::class, 'index']) }}">Google Images</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\GoogleSearchImageController::class, 'searchImageList']) }}">Image Search By Google</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\SocialTagsController::class, 'index']) }}">Social Tags</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\DubbizleController::class, 'index']) }}">Dubzzle</a>
-                                            <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
-                                            <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('ProductController@productStats') }}">Product
+                                                href="{{ action('\App\Http\Controllers\ProductController@productStats') }}">Product
                                                 Statistics</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto
+                                                href="{{ action('\App\Http\Controllers\ProductController@showAutoRejectedProducts') }}">Auto
                                                 Reject Statistics</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('ListingPaymentsController@index') }}">Product Listing
+                                                href="{{ action('\App\Http\Controllers\ListingPaymentsController@index') }}">Product Listing
                                                 Payments</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('ScrapStatisticsController@index') }}">Scrap
+                                                href="{{ action('\App\Http\Controllers\ScrapStatisticsController@index') }}">Scrap
                                                 Statistics</a>
                                             <a class="dropdown-item" href="{{ route('statistics.quick') }}">Quick Scrap
                                                 Statistics</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
+                                                href="{{ action('\App\Http\Controllers\ScrapController@scrapedUrls') }}">Scrap Urls</a>
                                             <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap
                                                 activity</a>
                                             <a class="dropdown-item"
                                                 href="{{ route('scrap.scrap_server_status') }}">Scrapper Server
                                                 Status</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('ScrapController@showProductStat') }}">Products
+                                                href="{{ action('\App\Http\Controllers\ScrapController@showProductStat') }}">Products
                                                 Scrapped</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('SalesItemController@index') }}">Sale Items</a>
+                                                href="{{ action('\App\Http\Controllers\SalesItemController@index') }}">Sale Items</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('DesignerController@index') }}">Designer List</a>
+                                                href="{{ action('\App\Http\Controllers\DesignerController@index') }}">Designer List</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
-                                            <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google
+                                                href="{{ action('\App\Http\Controllers\GmailDataController@index') }}">Gmail Inbox</a>
+                                            <a class="dropdown-item" href="{{ action('\App\Http\Controllers\ScrapController@index') }}">Google
                                                 Images</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('GoogleSearchImageController@searchImageList') }}">Image
+                                                href="{{ action('\App\Http\Controllers\GoogleSearchImageController@searchImageList') }}">Image
                                                 Search By Google</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('SocialTagsController@index') }}">Social Tags</a>
+                                                href="{{ action('\App\Http\Controllers\SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('DubbizleController@index') }}">Dubzzle</a>
+                                                href="{{ action('\App\Http\Controllers\DubbizleController@index') }}">Dubzzle</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper
                                                 log</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api
                                                 log</a>
->>>>>>> master
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
                                             <a class="dropdown-item" href="{{ url('scrap/log/list') }}">Scrapper Task
                                                 Logs</a>
@@ -939,13 +855,9 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\CroppedImageReferenceController::class, 'grid']) }}">Crop Reference Grid</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('CroppedImageReferenceController@grid') }}">Crop
+                                                href="{{ action('\App\Http\Controllers\CroppedImageReferenceController@grid') }}">Crop
                                                 Reference Grid</a>
->>>>>>> master
                                         </li>
                                     </ul>
                                 </li>
@@ -955,13 +867,9 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\Logging\LogListMagentoController::class, 'index']) }}">Log List Magento</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('Logging\LogListMagentoController@index') }}">Log List
+                                                href="{{ action('\App\Http\Controllers\Logging\LogListMagentoController@index') }}">Log List
                                                 Magento</a>
->>>>>>> master
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/magento/status">Order Status Mapping</a>
@@ -982,26 +890,16 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'productScrapLog']) }}">Status Logs</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ScrapLogsController::class, 'index']) }}">Scrap Logs</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\LaravelLogController::class, 'index']) }}">Laravel Log</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('ProductController@productScrapLog') }}">Status Logs</a>
+                                                href="{{ action('\App\Http\Controllers\ProductController@productScrapLog') }}">Status Logs</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('ScrapLogsController@index') }}">Scrap Logs</a>
+                                                href="{{ action('\App\Http\Controllers\ScrapLogsController@index') }}">Scrap Logs</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
->>>>>>> master
+                                                href="{{ action('\App\Http\Controllers\LaravelLogController@index') }}">Laravel Log</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('api-log-list') }}">Laravel API
@@ -1009,21 +907,14 @@ if (!empty($notifications)) {
                                         </li>
 
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\LaravelLogController::class, 'liveLogs']) }}">Live Laravel Log</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\LaravelLogController::class, 'scraperLiveLogs']) }}">Live Scraper Log</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('LaravelLogController@liveLogs') }}">Live Laravel
+                                                href="{{ action('\App\Http\Controllers\LaravelLogController@liveLogs') }}">Live Laravel
                                                 Log</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('LaravelLogController@scraperLiveLogs') }}">Live Scraper
+                                                href="{{ action('\App\Http\Controllers\LaravelLogController@scraperLiveLogs') }}">Live Scraper
                                                 Log</a>
->>>>>>> master
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
@@ -1041,13 +932,9 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                    <a class="dropdown-item" href="{{action([\App\Http\Controllers\ProductController::class, 'productDescription'])}}">Product Description</a>
-=======
                                     <a class="dropdown-item"
-                                        href="{{action('ProductController@productDescription')}}">Product
+                                        href="{{action('\App\Http\Controllers\ProductController@productDescription')}}">Product
                                         Description</a>
->>>>>>> master
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('products.product-translation')}}">Product
@@ -1111,16 +998,6 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ url('/erp-customer') }}">Customers - NEW</a>
-                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers - unread</a>
-                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
-                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\VisitorController::class, 'index']) }}">Livechat Visitor Logs</a>
-                                            <a class="dropdown-item" href="{{ url('livechat/setting') }}">Livechat Setting</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'attachedImageGrid']) }}">Attach Images</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'suggestedProducts']) }}">Sent Images</a>
-=======
                                             <a class="dropdown-item" href="{{ url('/erp-customer') }}">Customers -
                                                 NEW</a>
                                             <a class="dropdown-item"
@@ -1132,16 +1009,15 @@ if (!empty($notifications)) {
                                                 href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers
                                                 - refund</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
+                                                href="{{ action('\App\Http\Controllers\VisitorController@index') }}">Livechat Visitor Logs</a>
                                             <a class="dropdown-item" href="{{ url('livechat/setting') }}">Livechat
                                                 Setting</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('ProductController@attachedImageGrid') }}">Attach
+                                                href="{{ action('\App\Http\Controllers\ProductController@attachedImageGrid') }}">Attach
                                                 Images</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('ProductController@suggestedProducts') }}">Sent
+                                                href="{{ action('\App\Http\Controllers\ProductController@suggestedProducts') }}">Sent
                                                 Images</a>
->>>>>>> master
                                             <a class="dropdown-item" href="{{ route('chat.dndList') }}">DND Manage</a>
                                             <a class="dropdown-item" href="{{ url('customer/credit') }}">Customer
                                                 Credit</a>
@@ -1160,24 +1036,17 @@ if (!empty($notifications)) {
                                                 Priority Point</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
-<<<<<<< HEAD
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ColdLeadsController::class, 'index']) }}?via=hashtags">Via Hashtags</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ColdLeadsController::class, 'showImportedColdLeads']) }}">Imported Cold leads</a>
-=======
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                 v-pre>Cold Leads<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right"
                                                 aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ColdLeadsController@index') }}?via=hashtags">Via
+                                                    href="{{ action('\App\Http\Controllers\ColdLeadsController@index') }}?via=hashtags">Via
                                                     Hashtags</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported
+                                                    href="{{ action('\App\Http\Controllers\ColdLeadsController@showImportedColdLeads') }}">Imported
                                                     Cold leads</a>
->>>>>>> master
                                             </ul>
                                         </li>
                                     </ul>
@@ -1189,16 +1058,6 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown dropdown-submenu">
-<<<<<<< HEAD
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instructions<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
-                                                <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\KeywordInstructionController::class, 'index']) }}">Instruction Keyword Instructions</a>
-                                                <a class="dropdown-item" href="/instruction/quick-instruction">Quick instructions</a>
-                                                <a class="dropdown-item" href="/instruction/quick-instruction?type=price">Quick instructions (price)</a>
-                                                <a class="dropdown-item" href="/instruction/quick-instruction?type=image">Quick instructions (attach)</a>
-=======
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                 v-pre>Instructions<span class="caret"></span></a>
@@ -1209,7 +1068,7 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ route('instruction.list') }}">Instructions List</a>
                                                 <a class="dropdown-item"
-                                                    href="{{ action('KeywordInstructionController@index') }}">Instruction
+                                                    href="{{ action('\App\Http\Controllers\KeywordInstructionController@index') }}">Instruction
                                                     Keyword Instructions</a>
                                                 <a class="dropdown-item" href="/instruction/quick-instruction">Quick
                                                     instructions</a>
@@ -1219,7 +1078,6 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="/instruction/quick-instruction?type=image">Quick instructions
                                                     (attach)</a>
->>>>>>> master
                                             </ul>
                                         </li>
                                     </ul>
@@ -1260,21 +1118,14 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
-<<<<<<< HEAD
-                                        <a class="dropdown-item" href="{{ action([\App\Http\Controllers\LeadsController::class, 'erpLeads']) }}">Leads (new)</a>
-                                        <a class="dropdown-item" href="{{ action([\App\Http\Controllers\LeadsController::class, 'erpLeadsHistory']) }}">Leads History</a>
-                                        <a class="dropdown-item" href="{{ route('lead-queue.approve') }}">Leads Queue Approval</a>
-                                        <a class="dropdown-item" href="{{ route('lead-queue.index') }}">Leads Queue (Approved)</a>
-=======
-                                        <a class="dropdown-item" href="{{ action('LeadsController@erpLeads') }}">Leads
+                                        <a class="dropdown-item" href="{{ action('\App\Http\Controllers\LeadsController@erpLeads') }}">Leads
                                             (new)</a>
                                         <a class="dropdown-item"
-                                            href="{{ action('LeadsController@erpLeadsHistory') }}">Leads History</a>
+                                            href="{{ action('\App\Http\Controllers\LeadsController@erpLeadsHistory') }}">Leads History</a>
                                         <a class="dropdown-item" href="{{ route('lead-queue.approve') }}">Leads Queue
                                             Approval</a>
                                         <a class="dropdown-item" href="{{ route('lead-queue.index') }}">Leads Queue
                                             (Approved)</a>
->>>>>>> master
                                         <a class="dropdown-item" href="{{ route('leads.create') }}">Add new lead</a>
                                         <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image
                                             grid</a>
@@ -1333,14 +1184,10 @@ if (!empty($notifications)) {
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
-<<<<<<< HEAD
-                                            <a id="navbarDropdown" class="" href="{{ action([\App\Http\Controllers\OrderController::class, 'viewAllInvoices']) }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
-=======
                                             <a id="navbarDropdown" class=""
-                                                href="{{ action('OrderController@viewAllInvoices') }}" role="button"
+                                                href="{{ action('\App\Http\Controllers\OrderController@viewAllInvoices') }}" role="button"
                                                 aria-haspopup="true" aria-expanded="false"
                                                 v-pre>Invoices<span></span></a>
->>>>>>> master
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a class="" href="{{ route('store-website.all.status') }}" role="button"
@@ -1405,18 +1252,12 @@ if (!empty($notifications)) {
                                         aria-haspopup="true" aria-expanded="false" v-pre>Bulk Customer Replies<span
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-<<<<<<< HEAD
-                                        <a class="dropdown-item" href="{{ action([\App\Http\Controllers\BulkCustomerRepliesController::class, 'index']) }}">Bulk Messages</a>
-                                        <a class="dropdown-item" href="{{ action([\App\Http\Controllers\CustomerCategoryController::class, 'index']) }}">Categories</a>
-                                        <a class="dropdown-item" href="{{ action([\App\Http\Controllers\KeywordToCategoryController::class, 'index']) }}">Keywords</a>
-=======
                                         <a class="dropdown-item"
-                                            href="{{ action('BulkCustomerRepliesController@index') }}">Bulk Messages</a>
+                                            href="{{ action('\App\Http\Controllers\BulkCustomerRepliesController@index') }}">Bulk Messages</a>
                                         <a class="dropdown-item"
-                                            href="{{ action('CustomerCategoryController@index') }}">Categories</a>
+                                            href="{{ action('\App\Http\Controllers\CustomerCategoryController@index') }}">Categories</a>
                                         <a class="dropdown-item"
-                                            href="{{ action('KeywordToCategoryController@index') }}">Keywords</a>
->>>>>>> master
+                                            href="{{ action('\App\Http\Controllers\KeywordToCategoryController@index') }}">Keywords</a>
 
                                     </ul>
                                 </li>
@@ -1647,13 +1488,9 @@ if (!empty($notifications)) {
                                         </li>
 
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'showListigByUsers']) }}">User Product Assignment</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('ProductController@showListigByUsers') }}">User Product
+                                                href="{{ action('\App\Http\Controllers\ProductController@showListigByUsers') }}">User Product
                                                 Assignment</a>
->>>>>>> master
                                         </li>
                                     </ul>
                                 </li>
@@ -1668,12 +1505,8 @@ if (!empty($notifications)) {
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
                                 <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\PreAccountController::class, 'index']) }}">Other Email Accounts
-=======
-                                    <a class="dropdown-item" href="{{ action('PreAccountController@index') }}">Other
+                                    <a class="dropdown-item" href="{{ action('\App\Http\Controllers\PreAccountController@index') }}">Other
                                         Email Accounts
->>>>>>> master
                                     </a>
                                 </li>
                                 @if(auth()->user()->isAdmin())
@@ -1683,23 +1516,16 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramPostsController::class, 'grid']) }}">Instagram Posts (Grid)</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramPostsController::class, 'index']) }}">Instagram Posts</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\HashtagController::class, 'influencer']) }}">Influencers</a>
-                                            <a class="dropdown-item" href="/instagram/hashtag/comments/">Hashtag Comments</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramPostsController@grid') }}">Instagram Posts
+                                                href="{{ action('\App\Http\Controllers\InstagramPostsController@grid') }}">Instagram Posts
                                                 (Grid)</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramPostsController@index') }}">Instagram
+                                                href="{{ action('\App\Http\Controllers\InstagramPostsController@index') }}">Instagram
                                                 Posts</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('HashtagController@influencer') }}">Influencers</a>
+                                                href="{{ action('\App\Http\Controllers\HashtagController@influencer') }}">Influencers</a>
                                             <a class="dropdown-item" href="/instagram/hashtag/comments/">Hashtag
                                                 Comments</a>
->>>>>>> master
                                             <a class="dropdown-item" href="/instagram/direct-message">Direct Message</a>
                                             <a class="dropdown-item" href="/instagram/post">Posts</a>
                                             <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
@@ -1710,21 +1536,13 @@ if (!empty($notifications)) {
                                         <hr />
 
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramController::class, 'index']) }}">Dashboard</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramController::class, 'accounts']) }}">Accounts</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramController@index') }}">Dashboard</a>
+                                                href="{{ action('\App\Http\Controllers\InstagramController@index') }}">Dashboard</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramController@accounts') }}">Accounts</a>
->>>>>>> master
+                                                href="{{ action('\App\Http\Controllers\InstagramController@accounts') }}">Accounts</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
@@ -1733,130 +1551,79 @@ if (!empty($notifications)) {
 
 
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGrid'], 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\HashtagController::class, 'showNotification']) }}">Recent Comments (Notifications)</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramController::class, 'showPosts']) }}">All Posts</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\TargetLocationController::class, 'index']) }}">Target Location</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\KeywordsController::class, 'index']) }}">Keywords For comments</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\HashtagController::class, 'showProcessedComments']) }}">Processed Comments</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\CompetitorPageController::class, 'index']) }}?via=instagram">All Competitors On Instagram</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramAutoCommentsController::class, 'index']) }}">Quick Reply</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ReplyController::class, 'replyList']) }}">Quick Reply List</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\UsersAutoCommentHistoriesController::class, 'index']) }}">Bulk Commenting</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\AutoCommentHistoryController::class, 'index']) }}">Auto Comments Statistics</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramProfileController::class, 'index']) }}">Customers followers</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramProfileController::class, 'edit'], 1) }}">#tags Used by top customers.</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramController::class, 'accounts']) }}">Accounts</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag
+                                                href="{{ action('\App\Http\Controllers\HashtagController@showGrid', 'sololuxury') }}">Hashtag
                                                 monitoring & manual Commenting</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('HashtagController@showNotification') }}">Recent
+                                                href="{{ action('\App\Http\Controllers\HashtagController@showNotification') }}">Recent
                                                 Comments (Notifications)</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramController@showPosts') }}">All Posts</a>
+                                                href="{{ action('\App\Http\Controllers\InstagramController@showPosts') }}">All Posts</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('TargetLocationController@index') }}">Target
+                                                href="{{ action('\App\Http\Controllers\TargetLocationController@index') }}">Target
                                                 Location</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('KeywordsController@index') }}">Keywords For
+                                                href="{{ action('\App\Http\Controllers\KeywordsController@index') }}">Keywords For
                                                 comments</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('HashtagController@showProcessedComments') }}">Processed
+                                                href="{{ action('\App\Http\Controllers\HashtagController@showProcessedComments') }}">Processed
                                                 Comments</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('CompetitorPageController@index') }}?via=instagram">All
+                                                href="{{ action('\App\Http\Controllers\CompetitorPageController@index') }}?via=instagram">All
                                                 Competitors On Instagram</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramAutoCommentsController@index') }}">Quick
+                                                href="{{ action('\App\Http\Controllers\InstagramAutoCommentsController@index') }}">Quick
                                                 Reply</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('ReplyController@replyList') }}">Quick Reply List</a>
+                                                href="{{ action('\App\Http\Controllers\ReplyController@replyList') }}">Quick Reply List</a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item"
-                                                href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk
+                                                href="{{ action('\App\Http\Controllers\UsersAutoCommentHistoriesController@index') }}">Bulk
                                                 Commenting</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('AutoCommentHistoryController@index') }}">Auto Comments
+                                                href="{{ action('\App\Http\Controllers\AutoCommentHistoryController@index') }}">Auto Comments
                                                 Statistics</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramProfileController@index') }}">Customers
+                                                href="{{ action('\App\Http\Controllers\InstagramProfileController@index') }}">Customers
                                                 followers</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramProfileController@edit', 1) }}">#tags Used by
+                                                href="{{ action('\App\Http\Controllers\InstagramProfileController@edit', 1) }}">#tags Used by
                                                 top customers.</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramController@accounts') }}">Accounts</a>
->>>>>>> master
+                                                href="{{ action('\App\Http\Controllers\InstagramController@accounts') }}">Accounts</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad
@@ -1905,15 +1672,10 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\VisitorController::class, 'index']) }}">LiveChat Visitor Log</a>
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\LiveChatController::class, 'setting']) }}">LiveChat Settings</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('VisitorController@index') }}">LiveChat Visitor Log</a>
+                                                href="{{ action('\App\Http\Controllers\VisitorController@index') }}">LiveChat Visitor Log</a>
                                             <a class="dropdown-item"
-                                                href="{{ action('LiveChatController@setting') }}">LiveChat Settings</a>
->>>>>>> master
+                                                href="{{ action('\App\Http\Controllers\LiveChatController@setting') }}">LiveChat Settings</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1925,27 +1687,14 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramController::class, 'showImagesToBePosted']) }}">Create Post</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\InstagramController::class, 'showSchedules']) }}">Schedule A Post</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\FacebookController::class, 'index']) }}">Facebook Post</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramController@showImagesToBePosted') }}">Create
+                                                href="{{ action('\App\Http\Controllers\InstagramController@showImagesToBePosted') }}">Create
                                                 Post</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('InstagramController@showSchedules') }}">Schedule A
+                                                href="{{ action('\App\Http\Controllers\InstagramController@showSchedules') }}">Schedule A
                                                 Post</a>
                                         </li>
 
@@ -1956,44 +1705,31 @@ if (!empty($notifications)) {
                                             <ul class="dropdown-menu dropdown-menu-right"
                                                 aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item"
-                                                    href="{{ action('FacebookController@index') }}">Facebook Post</a>
->>>>>>> master
+                                                    href="{{ action('\App\Http\Controllers\FacebookController@index') }}">Facebook Post</a>
                                             </ul>
                                         </li>
 
                                         <li class="nav-item dropdown dropdown-submenu">
-<<<<<<< HEAD
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook Groups<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\FacebookController::class, 'show'], 'group') }}">Facebook Groups</a>
-=======
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                 v-pre>Facebook Groups<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right"
                                                 aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item"
-                                                    href="{{ action('FacebookController@show', 'group') }}">Facebook
+                                                    href="{{ action('\App\Http\Controllers\FacebookController@show', 'group') }}">Facebook
                                                     Groups</a>
->>>>>>> master
                                             </ul>
                                         </li>
 
                                         <li class="nav-item dropdown dropdown-submenu">
-<<<<<<< HEAD
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook Brand Fan Page<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ action([\App\Http\Controllers\FacebookController::class, 'show'], 'brand') }}">Facebook Brand Fan Page</a>
-=======
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                 v-pre>Facebook Brand Fan Page<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right"
                                                 aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item"
-                                                    href="{{ action('FacebookController@show', 'brand') }}">Facebook
+                                                    href="{{ action('\App\Http\Controllers\FacebookController@show', 'brand') }}">Facebook
                                                     Brand Fan Page</a>
->>>>>>> master
                                             </ul>
                                         </li>
 
@@ -2023,12 +1759,8 @@ if (!empty($notifications)) {
 
                                         </li>
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\FacebookPostController::class, 'index']) }}">Facebook Posts</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('FacebookPostController@index') }}">Facebook Posts</a>
->>>>>>> master
+                                                href="{{ action('\App\Http\Controllers\FacebookPostController@index') }}">Facebook Posts</a>
                                         </li>
 
                                     </ul>
@@ -2039,21 +1771,13 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\SitejabberQAController::class, 'accounts']) }}">Account</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\QuickReplyController::class, 'index']) }}">Quick Reply</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('SitejabberQAController@accounts') }}">Account</a>
+                                                href="{{ action('\App\Http\Controllers\SitejabberQAController@accounts') }}">Account</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
-                                                href="{{ action('QuickReplyController@index') }}">Quick Reply</a>
->>>>>>> master
+                                                href="{{ action('\App\Http\Controllers\QuickReplyController@index') }}">Quick Reply</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2063,12 +1787,8 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                            <a class="dropdown-item" href="{{ action([\App\Http\Controllers\PinterestAccountAcontroller::class, 'index']) }}">Accounts</a>
-=======
                                             <a class="dropdown-item"
-                                                href="{{ action('PinterestAccountAcontroller@index') }}">Accounts</a>
->>>>>>> master
+                                                href="{{ action('\App\Http\Controllers\PinterestAccountAcontroller@index') }}">Accounts</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2114,44 +1834,32 @@ if (!empty($notifications)) {
                                         aria-haspopup="true" aria-expanded="false" v-pre="">SEO<span class="caret">
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
                                                 <li class="nav-item dropdown dropdown-submenu">
-<<<<<<< HEAD
-                                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\BackLinkController::class, 'displayBackLinkDetails']) }}">Back Link Details</a>
-                                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\BrokenLinkCheckerController::class, 'displayBrokenLinkDetails']) }}">Broken Link Details</a>
-                                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\AnalyticsController::class, 'showData']) }}">New Google Analytics</a>
-                                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\AnalyticsController::class, 'customerBehaviourByPage']) }}">Customer Behaviour By Page</a>
-                                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\SERankingController::class, 'getSites']) }}">SE Ranking</a>
-                                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ArticleController::class, 'index']) }}">Article Approval</a>
-                                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'getSupplierScrappingInfo']) }}">Supplier Scrapping Info</a>
-                                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\NewDevTaskController::class, 'index']) }}">New Dev Task Planner</a>
-                                                    <a class="dropdown-item" href="{{ route('seo-tool') }}">Semrush details</a>
-=======
                                                     <a class="dropdown-item"
-                                                        href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back
+                                                        href="{{ action('\App\Http\Controllers\BackLinkController@displayBackLinkDetails') }}">Back
                                                         Link Details</a>
                                                     <a class="dropdown-item"
-                                                        href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken
+                                                        href="{{ action('\App\Http\Controllers\BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken
                                                         Link Details</a>
                                                     <a class="dropdown-item"
-                                                        href="{{ action('AnalyticsController@showData') }}">New Google
+                                                        href="{{ action('\App\Http\Controllers\AnalyticsController@showData') }}">New Google
                                                         Analytics</a>
                                                     <a class="dropdown-item"
-                                                        href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer
+                                                        href="{{ action('\App\Http\Controllers\AnalyticsController@customerBehaviourByPage') }}">Customer
                                                         Behaviour By Page</a>
                                                     <a class="dropdown-item"
-                                                        href="{{ action('SERankingController@getSites') }}">SE
+                                                        href="{{ action('\App\Http\Controllers\SERankingController@getSites') }}">SE
                                                         Ranking</a>
                                                     <a class="dropdown-item"
-                                                        href="{{ action('ArticleController@index') }}">Article
+                                                        href="{{ action('\App\Http\Controllers\ArticleController@index') }}">Article
                                                         Approval</a>
                                                     <a class="dropdown-item"
-                                                        href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier
+                                                        href="{{ action('\App\Http\Controllers\ProductController@getSupplierScrappingInfo') }}">Supplier
                                                         Scrapping Info</a>
                                                     <a class="dropdown-item"
-                                                        href="{{ action('NewDevTaskController@index') }}">New Dev Task
+                                                        href="{{ action('\App\Http\Controllers\NewDevTaskController@index') }}">New Dev Task
                                                         Planner</a>
                                                     <a class="dropdown-item" href="{{ route('seo-tool') }}">Semrush
                                                         details</a>
->>>>>>> master
                                                 </li>
                                             </ul>
                                 </li>
@@ -2306,83 +2014,9 @@ if (!empty($notifications)) {
                                 @endif
                             </ul>
                         </li>
-<<<<<<< HEAD
-                        <li id="developments" class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Development --}}
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/change-user') }}">Change User</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ action([\App\Http\Controllers\NewDevTaskController::class, 'index']) }}">Devtask Planner</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('scrap/development/list') }}">Scrapper Tasks</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/automatic/tasks') }}">Automatic Tasks</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
-                                </li>
-                                  <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/summarylist') }}">Quick Dev Task</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{url('task?daily_activity_date=&term=&selected_user=&is_statutory_query=3')}}">Discussion tasks</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('deploy-node') }}">Deploy Node</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('master.dev.task') }}">Dev Master Control</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('database.index') }}">Database Size</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage Module</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project Directory manager</a>
-                                </li>
-                            </ul>
-                        </li>
-                        
-                        
-=======
 
 
 
->>>>>>> master
                     </ul>
                     <div>
                         <div id="nav-dotes" class="nav-item dropdown dots mr-3 ml-3">
@@ -2400,460 +2034,11 @@ if (!empty($notifications)) {
 
 
                                 @if(auth()->user()->isAdmin())
-<<<<<<< HEAD
-                                    <li class="nav-item dropdown dropdown-submenu">
-                                        {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>--}}
-                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Multi Site<span class="caret"></span></a>
-
-                                        <ul class="dropdown-menu multi-level">
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ url('products/pushproductlist') }}">
-												Push Product List</a>
-                                            </li>
-											<li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
-                                            </li>
-											<li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('magento_module_categories.index') }}">Magento Module Category</a>
-                                            </li>
-											<li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('magento_module_types.index') }}">Magento Module Type</a>
-                                            </li>
-											<li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('magento_modules.index') }}">Magento Modules</a>
-                                            </li>
-											
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('payment-responses.index') }}">Payment Responses</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('site-development-status.stats') }}">Multi Site status</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('content-management.index') }}">Content Management</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.brand.list') }}">Store Brand</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.category.list') }}">Store Category</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.color.list') }}">Store Color</a>
-                                                <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
-                                                <a class="dropdown-item" href="{{ route('system.size') }}">System Size</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('newsletters.index') }}">Newsletters</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.price-override.index') }}">Price Override</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('country.duty.list') }}">Country duty list</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country duty search</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.country-group.index') }}">Country Group</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.websites.index') }}">Website</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.website-stores.index') }}">Website Store</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.website-store-views.index') }}">Website Store View</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.page.index') }}">Website Page</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.page.histories') }}">Website Page History</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Python</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('scrapper.image.urlList') }}">Scrapper Phyhon Urls</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.category-seo.index') }}">Category seo</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('store-website.cancellation') }}">Cancellation Policy</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('logging.magento.product.api.call') }}">Magento API call</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('product.pricing') }}">Magento Product Pricing</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ url('/product-generic-pricing') }}">Product Generic Pricing</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ url('/store-website-product-prices') }}">Store website product price</a>
-                                            </li>
-											 <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ url('/site-assets') }}">Site assets</a>
-                                            </li>
-											 <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ url('/site-check-list') }}">Site check  list</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('google.bigdata') }}">Google Big Data</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('zabbix.index') }}">Zabbix Items</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Zabbix Problems</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('uicheck') }}">U I Check</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('updateLog.get') }}">Update Log</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('uicheck.responsive') }}">U I Responsive</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('uicheck.translation') }}">U I Languages</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    
-                                @endif
-                                @if(auth()->user()->isAdmin())
-                                    <li class="nav-item dropdown dropdown-submenu">
-                                        {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>--}}
-
-                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin<span class="caret"></span></a>
-										
-										<ul class="dropdown-menu multi-level">
-                                            <li class="nav-item dropdown dropdown-submenu">
-												<a id="twilioDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Twilio<span class="caret"></span></a>
-												<ul class="dropdown-menu dropdown-menu-right"aria-labelledby="twilioDropdown">
-													<li class="nav-item dropdown">
-														<a class="dropdown-item" href="{{ route('twilio.errors') }}">Twilio Errors</a>
-													</li>
-													<li class="nav-item dropdown">
-														<a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
-													</li>
-													<li class="nav-item dropdown">
-														<a href="{{ route('twilio.account_logs') }}">Twilio Account Logs</a>
-													</li>
-													<li class="nav-item dropdown">
-														<a href="{{ route('twilio.view_tone') }}">Twilio Message Tones</a>
-													</li>
-													<li class="nav-item dropdown">
-														<a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>
-													</li>
-													<li class="nav-item dropdown">
-														<a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
-													</li>
-													<li class="nav-item dropdown">
-														<a href="{{ route('twilio.call_journey') }}">Twilio call journey</a>
-													</li>
-                                                    <li class="nav-item dropdown">
-														<a class="dropdown-item" href="{{ route('get.python.log') }}">Python Site Logs</a>
-													</li>
-                                                    <li class="nav-item dropdown">
-														<a class="dropdown-item" href="{{ route('twilio.get_website_wise_key_data_options') }}">Twilio Key Options</a>
-													</li>
-												</ul>
-											</li>
-										</ul>
-
-                                        <ul class="dropdown-menu multi-level">
-										
-											<li class="nav-item dropdown dropdown-submenu">
-												<a id="queueDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Queue<span class="caret"></span></a>
-												<ul class="dropdown-menu dropdown-menu-right"aria-labelledby="queueDropdown">
-													<li class="nav-item dropdown">
-														<a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
-													</li>
-													<li class="nav-item dropdown">
-														<a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
-													</li>
-													<li class="nav-item dropdown">
-														<a class="dropdown-item" href="{{ route('message-queue-history.index') }}">Queue History</a>
-													</li>
-												</ul>
-											</li>
-                                            <li class="nav-item dropdown dropdown-submenu">
-                                                <a id="queueDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Zabbix<span class="caret"></span></a>
-                                                <ul class="dropdown-menu dropdown-menu-right"aria-labelledby="zabbixDropdown">
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('zabbix.index') }}">Items</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Problems</a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                            <li class="nav-item dropdown ">
-                                                <a id="queueDropdown" href="{{ url('todolist') }}" class="nav-link "  role="button" aria-haspopup="true" aria-expanded="false">TodoList</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
-                                            </li> <li class="nav-item">
-                                                <a class="dropdown-item" href="{{route('bug-tracking.index')}}">Bug Track</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('plan.index')}}">Plan</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a href="{{ route('custom-chat-message.index') }}">Chat Messages</a>
-                                            </li>
-
-                                            {{-- Sub Menu Product --}}
-                                            <li class="nav-item dropdown dropdown-submenu">
-                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cash Flow<span class="caret"></span></a>
-                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('cashflow.hubstuff.log') }}">Hubstuff Command Log</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('monetary-account') }}">Monetary Account</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('voucher.index') }}">Convience Voucher</a>
-                                                    </li>
-
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
-                                                    </li>
-
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
-                                                    </li>
-
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{url('conversion/rates')}}">Currency Conversion Rate</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{url('magento-admin-settings')}}">Magento Admin Settings</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{route('auto.refresh.index')}}">Auto Refresh page</a>
-                                                    </li>
-
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('budget.index') }}">Hubstaff</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('page-notes') }}">Page Notes</a>
-                                                    </li>
-
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="/totem">Cron Package</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                            @if(auth()->user()->isAdmin())
-                                               
-
-                                                <li class="nav-item dropdown">
-                                                    <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
-                                                </li>
-
-                                               <li class="nav-item dropdown dropdown-submenu">
-                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Call Management<span class="caret"></span></a>
-                                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                        <li class="nav-item dropdown">
-                                                            <a class="dropdown-item" href="{{ route('twilio-call-management') }}"> Call Management</a>
-                                                        </li>
-
-                                                        <li class="nav-item dropdown">
-                                                            <a class="dropdown-item" href="{{route('twilio-speech-to-text-logs')}}">Twilio Speech to text Logs</a>
-                                                        </li>
-
-                                                        <li class="nav-item dropdown">
-                                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Twilio Chat Bot Not Recognised</a>
-                                                        </li>
-                                                        <li class="nav-item dropdown">
-                                                            <a class="dropdown-item" href="{{route('twilio.call.blocks')}}">Twilio Call Blocks</a>
-                                                        </li>
-                                                        <li class="nav-item dropdown">
-                                                            <a class="dropdown-item" href="{{route('twilio.call.statistic')}}">Twilio Call Statistic</a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-												
-                                                <li class="nav-item dropdown dropdown-submenu">
-                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
-                                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                        <li class="nav-item dropdown">
-                                                            <a class="dropdown-item" href="{{route('lawyer.index')}}"> Lawyers</a>
-                                                        </li>
-
-                                                        <li class="nav-item dropdown">
-                                                            <a class="dropdown-item" href="{{route('case.index')}}">Cases</a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                            @endif
-                                            <li class="nav-item dropdown dropdown-submenu">
-                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
-                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('/old/') }}">Old Info</a>
-                                                    </li>
-
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
-                                                    </li>
-
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                            <li class="nav-item dropdown dropdown-submenu">
-                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Duty<span class="caret"></span></a>
-                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('simplyduty.category.index') }}">SimplyDuty Categories</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('simplyduty.currency.index') }}">SimplyDuty Currency</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('simplyduty.country.index') }}">SimplyDuty Country</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('simplyduty.calculation') }}">SimplyDuty Calculation</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('simplyduty.hscode.index') }}">HsCode</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ action([\App\Http\Controllers\ProductController::class, 'hsCodeIndex']) }}">HsCode Generator</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ action([\App\Http\Controllers\HsCodeController::class, 'mostCommon']) }}">Most Common</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ action([\App\Http\Controllers\HsCodeController::class, 'mostCommonByCategory']) }}">Most Common Category</a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('assets-manager.index') }}">Assets Manager</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
-                                            </li>
-
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('api-response-message') }}">Api Response Messages</a>
-                                            </li>
-
-                                            <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('services') }}">Services</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown dropdown-submenu">
-                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>System<span class="caret"></span></a>
-                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{route('failedjobs.list')}}">Laravel Failed Queue</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-
-                                            <!-- Github -->
-                                            <li class="nav-item dropdown dropdown-submenu">
-                                                <a id="githubsubmenu" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Github<span class="caret"></span></a>
-                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="githubsubmenu">
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('/github/repos') }}">Repositories</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('/github/users') }}">Users</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('/github/groups') }}">Groups</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('/github/pullRequests') }}">Pull requests</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ route('gitDeplodError') }}">Migration Error</a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-
-                                            <!-- hubstaff -->
-                                            <li class="nav-item dropdown dropdown-submenu">
-                                                <a id="hubstaffsubmenu" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Hubstaff<span class="caret"></span></a>
-                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="hubstaffsubmenu">
-                                                    {{-- Sub Menu Product --}}
-
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('hubstaff/members')  }}">Members</a>
-                                                    </li>
-
-                                                    <li class="nav-item dropdown">
-                                                        <a class="dropdown-item" href="{{ url('hubstaff/projects') }}">Projects</a>
-                                                    </li>
-=======
                                 <li class="nav-item dropdown dropdown-submenu">
                                     {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>--}}
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre="">Multi Site<span
                                             class="caret"></span></a>
->>>>>>> master
 
                                     <ul class="dropdown-menu multi-level">
                                         <li class="nav-item">
@@ -3349,17 +2534,17 @@ if (!empty($notifications)) {
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ action('ProductController@hsCodeIndex') }}">HsCode
+                                                        href="{{ action('\App\Http\Controllers\ProductController@hsCodeIndex') }}">HsCode
                                                         Generator</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ action('HsCodeController@mostCommon') }}">Most
+                                                        href="{{ action('\App\Http\Controllers\HsCodeController@mostCommon') }}">Most
                                                         Common</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ action('HsCodeController@mostCommonByCategory') }}">Most
+                                                        href="{{ action('\App\Http\Controllers\HsCodeController@mostCommonByCategory') }}">Most
                                                         Common Category</a>
                                                 </li>
                                             </ul>
@@ -3449,12 +2634,8 @@ if (!empty($notifications)) {
                                                 {{-- Sub Menu Product --}}
 
                                                 <li class="nav-item dropdown">
-<<<<<<< HEAD
-                                                    <a class="dropdown-item" href="{{action([\App\Http\Controllers\CategoryController::class, 'mapCategory'])}}">Category Reference</a>
-=======
                                                     <a class="dropdown-item"
                                                         href="{{ url('hubstaff/members')  }}">Members</a>
->>>>>>> master
                                                 </li>
 
                                                 <li class="nav-item dropdown">
@@ -3624,7 +2805,7 @@ if (!empty($notifications)) {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item"
-                                            href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
+                                            href="{{ action('\App\Http\Controllers\NewDevTaskController@index') }}">Devtask Planner</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
@@ -3774,7 +2955,7 @@ if (!empty($notifications)) {
 
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item"
-                                                    href="{{action('CategoryController@mapCategory')}}">Category
+                                                    href="{{action('\App\Http\Controllers\CategoryController@mapCategory')}}">Category
                                                     Reference</a>
                                             </li>
 
