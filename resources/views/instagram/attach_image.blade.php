@@ -11,8 +11,8 @@
         </div>
     @endif
     <div class="mt-5">
-        <h1><u>Add Images</u> (<a href="{{ action('InstagramController@editSchedule', $schedule->id) }}">Back To Schedule</a>)</h1>
-        <form action="{{ action('InstagramController@attachMedia', $schedule->id) }}" method="post">
+        <h1><u>Add Images</u> (<a href="{{ action([\App\Http\Controllers\InstagramController::class, 'editSchedule'], $schedule->id) }}">Back To Schedule</a>)</h1>
+        <form action="{{ action([\App\Http\Controllers\InstagramController::class, 'attachMedia'], $schedule->id) }}" method="post">
             <div class="text-center">
                 {!! $products->links() !!}
             </div>

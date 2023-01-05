@@ -346,7 +346,7 @@ class ProductCropperController extends Controller
             ->whereNotIn('id', DB::table('crop_amends')->pluck('product_id')->toArray())
             ->first();
 
-        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+        return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'showImageToBeVerified'], $secondProduct->id)->with('message', 'Cropping approved successfully!');
     }
 
     /**
@@ -479,9 +479,9 @@ class ProductCropperController extends Controller
         }
 
         if (! $secondProduct || ! isset($secondProduct->id)) {
-            return redirect()->action('ProductCropperController@getListOfImagesToBeVerified');
+            return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'getListOfImagesToBeVerified']);
         } else {
-            return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+            return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'showImageToBeVerified'], $secondProduct->id)->with('message', 'Cropping approved successfully!');
         }
     }
 
@@ -594,10 +594,10 @@ class ProductCropperController extends Controller
         }
 
         if (! $secondProduct) {
-            return redirect()->action('ProductCropperController@getListOfImagesToBeVerified');
+            return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'getListOfImagesToBeVerified']);
         }
 
-        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping rejected!');
+        return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'showImageToBeVerified'], $secondProduct->id)->with('message', 'Cropping rejected!');
     }
 
     public function crop_issue_page(Request $request)
@@ -788,7 +788,7 @@ class ProductCropperController extends Controller
 
         $secondProduct = Product::where('id', '!=', $id)->where('status_id', StatusHelper::$cropRejected)->first();
 
-        return redirect()->action('ProductCropperController@showRejectedImageToBeverified', $secondProduct->id)->with('message', 'Rejected image approved and has been moved to approval grid.');
+        return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'showRejectedImageToBeverified'], $secondProduct->id)->with('message', 'Rejected image approved and has been moved to approval grid.');
     }
 
     public function updateCroppedImages(Request $request)
@@ -852,7 +852,7 @@ class ProductCropperController extends Controller
                 ], 400);
             } else {
                 // Redirect
-                return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
+                return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'showCropVerifiedForOrdering']);
             }
         }
 
@@ -877,7 +877,7 @@ class ProductCropperController extends Controller
         }
 
         // Redirect
-        return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
+        return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'showCropVerifiedForOrdering']);
     }
 
     public function rejectSequence($id, Request $request)
@@ -919,7 +919,7 @@ class ProductCropperController extends Controller
         // Is this product currently being sequenced
         if ($product->status_id != StatusHelper::$isBeingSequenced) {
             // Redirect
-            return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
+            return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'showCropVerifiedForOrdering']);
         }
 
         $medias = $request->get('images');
@@ -947,6 +947,6 @@ class ProductCropperController extends Controller
         $listingHistory->content = ['action' => 'CROP_SEQUENCED', 'page' => 'Crop Sequencer'];
         $listingHistory->save();
 
-        return redirect()->action('ProductCropperController@showCropVerifiedForOrdering')->with('message', 'Previous image ordered successfully!');
+        return redirect()->action([\App\Http\Controllers\ProductCropperController::class, 'showCropVerifiedForOrdering'])->with('message', 'Previous image ordered successfully!');
     }
 }

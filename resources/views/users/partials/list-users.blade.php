@@ -30,7 +30,7 @@
                         {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
-                        <a href="{{ action('UserActionsController@show', $user->id) }}">Info</a>
+                        <a href="{{ action([\App\Http\Controllers\UserActionsController::class, 'show'], $user->id) }}">Info</a>
                         <a title="Payments" class="btn btn-image" href="/users/{{$user->id}}/payments"><span class="glyphicon glyphicon-usd"></span></a>
                     </td>
                 </tr>

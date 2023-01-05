@@ -609,7 +609,7 @@ $(document).on('click', '.view-details', function(e) {
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
-                url: "{{action('PurchaseProductController@saveDiscount')}}",
+                url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveDiscount'])}}",
                 type: 'POST',
                 data: {
                   discount: discount,
@@ -638,7 +638,7 @@ $(document).on('click', '.view-details', function(e) {
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
-                url: "{{action('PurchaseProductController@saveFixedPrice')}}",
+                url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveFixedPrice'])}}",
                 type: 'POST',
                 data: {
                   fixed_price: fixed_price,
@@ -662,7 +662,7 @@ $(document).on('click', '.view-details', function(e) {
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
-                url: "{{action('PurchaseProductController@saveDefaultSupplier')}}",
+                url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveDefaultSupplier'])}}",
                 type: 'POST',
                 data: {
                   supplier_id: supplier_id,

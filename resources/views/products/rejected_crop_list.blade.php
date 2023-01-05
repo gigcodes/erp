@@ -80,7 +80,7 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <form method="get" action="{{action('ProductCropperController@showRejectedCrops')}}">
+                    <form method="get" action="{{action([\App\Http\Controllers\ProductCropperController::class, 'showRejectedCrops'])}}">
                         <div class="row">
                             <div class="form-group col-md-2">
                                 <input value="{{$reason}}" type="text" name="reason" id="reason" placeholder="Reason..." class="form-control">
@@ -189,9 +189,9 @@
                                 </td>
                                 <td colspan="3">
                                     <strong>Actions</strong><br>
-                                    {{--                                    <a target="_new" href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}" class="btn btn-sm btn-secondary">Show Grid</a>--}}
-                                    <a target="_new" href="{{ action('ProductCropperController@showRejectedImageToBeverified', $product->id) }}" class="btn btn-sm btn-secondary">Check Cropping</a>
-                                    <a target="_new" href="{{ action('ProductController@show', $product->id) }}" class="btn btn-default btn-sm">Show Product</a>
+                                    {{--                                    <a target="_new" href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'showImageToBeVerified'], $product->id) }}" class="btn btn-sm btn-secondary">Show Grid</a>--}}
+                                    <a target="_new" href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'showRejectedImageToBeverified'], $product->id) }}" class="btn btn-sm btn-secondary">Check Cropping</a>
+                                    <a target="_new" href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}" class="btn btn-default btn-sm">Show Product</a>
                                     <a data-id="{{$product->id}}" class="btn btn-danger btn-sm text-light delete-product btn-sm">Delete</a>&nbsp;
                                 </td>
                             </tr>
@@ -224,7 +224,7 @@
             let pid = $(this).attr('data-id');
 
             $.ajax({
-                url: '{{ action('ProductController@deleteProduct') }}',
+                url: '{{ action([\App\Http\Controllers\ProductController::class, 'deleteProduct']) }}',
                 data: {
                     product_id: pid
                 },

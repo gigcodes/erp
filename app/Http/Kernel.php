@@ -15,7 +15,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \App\Http\Middleware\CheckForMaintenanceMode::class,
+        \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
@@ -46,7 +46,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             //'throttle:1,1',
-            'bindings',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\LogAfterRequest::class,
         ],
     ];
@@ -62,7 +62,6 @@ class Kernel extends HttpKernel
         'twilio.voice.validate' => \App\Http\Middleware\VoiceValidateRequest::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,

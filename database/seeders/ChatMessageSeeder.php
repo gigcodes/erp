@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\ChatMessage;
 use Illuminate\Database\Seeder;
 
