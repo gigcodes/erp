@@ -706,13 +706,14 @@ class BugTrackingController extends Controller
 
         if ($request->bug_status_id == 3 || $request->bug_status_id == 7) {
             $Task = Task::where('task_bug_ids', $request->id)->first();
-            if ($request->bug_status_id == 3) {
-                $Task->status = 22;
-            } elseif ($request->bug_status_id == 7) {
-                $Task->status = 15;
+            if (count((array) $Task) > 0) {
+                if ($request->bug_status_id == 3) {
+                    $Task->status = 22;
+                } elseif ($request->bug_status_id == 7) {
+                    $Task->status = 15;
+                }
+                $Task->save();
             }
-
-            $Task->save();
         }
 
         return redirect()->route('bug-tracking.index')->with('success', 'You have successfully updated a Bug Tracker!');
@@ -892,13 +893,14 @@ class BugTrackingController extends Controller
 
         if ($request->status_id == 3 || $request->status_id == 7) {
             $Task = Task::where('task_bug_ids', $request->id)->first();
-            if ($request->status_id == 3) {
-                $Task->status = 22;
-            } elseif ($request->status_id == 7) {
-                $Task->status = 15;
+            if (count((array) $Task) > 0) {
+                if ($request->status_id == 3) {
+                    $Task->status = 22;
+                } elseif ($request->status_id == 7) {
+                    $Task->status = 15;
+                }
+                $Task->save();
             }
-
-            $Task->save();
         }
 
         $data = [
