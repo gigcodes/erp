@@ -14,6 +14,7 @@ class Learning extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="category",type="string")
      * @SWG\Property(property="task_details",type="string")
      * @SWG\Property(property="task_subject",type="string")

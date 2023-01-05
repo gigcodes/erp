@@ -11,6 +11,7 @@ class TranslatedProduct extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="language_id",type="integer")
      * @SWG\Property(property="name",type="string")

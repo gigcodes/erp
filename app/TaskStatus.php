@@ -12,6 +12,7 @@ class TaskStatus extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      */
     protected $fillable = ['name'];

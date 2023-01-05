@@ -73,7 +73,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Mail;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Session;
 use SoapClient;
@@ -4825,7 +4825,7 @@ class OrderController extends Controller
 
                 return response()->json(['message' => $result, 'success' => true], 200);
             }
-            //$storeWebsiteOrder->update(['order_id', $status]);
+        //$storeWebsiteOrder->update(['order_id', $status]);
         } else {
             $this->createOrderLog($request, 'Cancel Transaction', 'Store Website Orders not found');
 

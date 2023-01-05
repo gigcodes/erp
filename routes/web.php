@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/website/stores', 'MagentoSettingsController@websiteStores')->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', 'MagentoSettingsController@websiteStoreViews')->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', 'MagentoSettingsController@deleteSetting')->name('delete.setting');
+    Route::get('get-all/store-websites/{id}', 'MagentoSettingsController@getAllStoreWebsites')->name('get.all.store.websites');
 });
 //Google Web Master Routes
 Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
@@ -372,12 +373,18 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/listing/users', 'ProductController@showListigByUsers');
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
+    Route::get('products/listing/conditions-check', 'ProductController@magentoConditionsCheck')->name('products.magentoConditionsCheck');
+    Route::get('products/listing/conditions-check-logs/{p_id}/{sw_id}', 'ProductController@magentoConditionsCheckLogs')->name('products.magentoConditionsCheckLogs');
     Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
     Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::get('products/conditions/upteamstatus/update', 'ProductController@updateConditionUpteamStatus')->name('products.push.condition.update');
 
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
+    Route::post('products/listing/final/process-conditions-check', 'ProductController@processProductsConditionsCheck')->name('products.processProductsConditionsCheck');
+    Route::post('products/listing/push-to-magento', 'ProductController@pushProductsToMagento')->name('products.pushToMagento');
+    Route::get('products/listing/magento-push-status', 'ProductController@magentoPushStatus')->name('products.magentoPushStatus');
+    Route::post('products/listing/magento-push-status/autocomplete', 'ProductController@autocompleteSearchPushStatus')->name('products.autocompleteSearchPushStatus');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     Route::post('product/image/order/change', 'ProductController@changeimageorder');
 
@@ -1074,6 +1081,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/get/websitelist', 'TaskModuleController@getWebsiteList')->name('get.task.websitelist');
     Route::get('task/user/history', 'TaskModuleController@getUserHistory')->name('task/user/history');
     Route::post('task/recurring-history', 'TaskModuleController@recurringHistory')->name('task.recurringHistory');
+    Route::post('task/create-multiple-task-from-shortcut-bugtrack', 'TaskModuleController@createMultipleTaskFromSortcutBugtrack')->name('task.create.multiple.task.shortcut.bugtrack');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -2359,16 +2367,26 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('bug-tracking/severity_user', 'BugTrackingController@severityUser')->name('bug-tracking.severity_user');
     Route::post('bug-tracking/status_user', 'BugTrackingController@statusUser')->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', 'BugTrackingController@sendMessage')->name('bug-tracking.sendmessage');
+    Route::get('bug-tracking/record-tracking-ajax', 'BugTrackingController@recordTrackingAjax')->name('bug-tracking.index_ajax');
+    Route::get('bug-tracking/website', 'BugTrackingController@website')->name('bug-tracking.website');
 
     Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
+    Route::post('bug-tracking/statuscolor', 'BugTrackingController@statuscolor')->name('bug-tracking.statuscolor');
     Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
     Route::post('bug-tracking/type', 'BugTrackingController@type')->name('bug-tracking.type');
     Route::post('bug-tracking/severity', 'BugTrackingController@severity')->name('bug-tracking.severity');
     Route::get('bug-tracking/bug-history/{id}', 'BugTrackingController@bugHistory')->name('bug-tracking.bug-history');
     Route::get('bug-tracking/user-history/{id}', 'BugTrackingController@userHistory')->name('bug-tracking.user-history');
     Route::get('bug-tracking/status-history/{id}', 'BugTrackingController@statusHistory')->name('bug-tracking.status-history');
+    Route::get('bug-tracking/severity-history/{id}', 'BugTrackingController@severityHistory')->name('bug-tracking.severity-history');
+    Route::get('bug-tracking/website-history', 'BugTrackingController@websiteHistory')->name('bug-tracking.website-history');
     Route::get('bug-tracking/communicationData/{id}', 'BugTrackingController@communicationData')->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
+    Route::post('bug-tracking/websitelist', 'BugTrackingController@getWebsiteList')->name('bug-tracking.websitelist');
+    Route::post('bug-tracking/checkbug', 'BugTrackingController@checkbug')->name('bug-tracking.checkbug');
+    Route::get('bug-tracking/countdevtask/{id}', 'BugTrackingController@taskCount');
+    Route::get('bug-trackinghistory', 'BugTrackingController@getTrackedHistory')->name('bug-tracking.history');
+    Route::post('bug-tracking/hubstaff_task', 'BugTrackingController@createHubstaffManualTask')->name('bug-tracking.hubstaff_task');
 
     Route::get('test-cases', 'TestCaseController@index')->name('test-cases.index');
     Route::get('test-cases/create', 'TestCaseController@create')->name('test-cases.create');
@@ -2847,6 +2865,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('monetary-account', 'MonetaryAccountController');
 });
 
+// Mailchimp Module
+Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function () {
+    Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
+    Route::post('subscribe', ['as' => 'subscribe', 'uses' => 'MailchimpController@subscribe']);
+    Route::post('sendCompaign', ['as' => 'sendCompaign', 'uses' => 'MailchimpController@sendCompaign']);
+    Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
+});
 Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {
     Route::get('test', function () {
         return 'hello';
@@ -3802,6 +3827,7 @@ Route::prefix('system')->middleware('auth')->group(function () {
     Route::get('/size/manageredit', 'SystemSizeController@manageredit')->name('system.size.manageredit');
     Route::post('/size/managerupdate', 'SystemSizeController@managerupdate')->name('system.size.managerupdate');
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
+    Route::get('/size/exports', 'SystemSizeController@exports')->name('system.size.exports');
 
     Route::prefix('auto-refresh')->group(static function () {
         Route::get('/', 'AutoRefreshController@index')->name('auto.refresh.index');
@@ -4127,4 +4153,15 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
+});
+
+//Queue Management::
+Route::prefix('queue')->middleware('auth')->group(function () {
+    Route::get('/', 'RedisQueueController@index')->name('redisQueue.list');
+    Route::post('/store', 'RedisQueueController@store')->name('redisQueue.store');
+    Route::post('/edit', 'RedisQueueController@edit')->name('redisQueue.edit');
+    Route::post('/update', 'RedisQueueController@update')->name('redisQueue.update');
+    Route::post('/delete', 'RedisQueueController@delete')->name('redisQueue.delete');
+    Route::post('/execute', 'RedisQueueController@execute')->name('redisQueue.execute');
+    Route::get('/command-logs/{id}', 'RedisQueueController@commandLogs')->name('redisQueue.commandLogs');
 });

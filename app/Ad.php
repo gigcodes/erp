@@ -11,6 +11,7 @@ class Ad extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="campaign_id",type="integer")
      * @SWG\Property(property="adgroup_id",type="integer")
      * @SWG\Property(property="finalurl",type="string")

@@ -536,6 +536,7 @@ var page = {
                     html+=" <th>"+ item.name +"</th>"
                     html+=" <th>"+ item.test_status_id +"</th>"
                     html+=" <th>"+ item.suite +"</th>"
+                    html+=" <th>"+ item.expected_result +"</th>"
                     html+=" <th>"+ item.assign_to +"</th>"
                     html+=" <th>"+ item.module_id +"</th>"
                     html+=" <th>"+ item.updated_by +"</th>"

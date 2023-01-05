@@ -11,6 +11,7 @@ class EmailAddress extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="from_name",type="string")
      * @SWG\Property(property="from_address",type="string")
      * @SWG\Property(property="driver",type="string")

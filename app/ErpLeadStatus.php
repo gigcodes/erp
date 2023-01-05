@@ -11,6 +11,7 @@ class ErpLeadStatus extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="erp_lead_status",type="string")
      * @SWG\Property(property="name",type="string")
      */

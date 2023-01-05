@@ -16,6 +16,7 @@ class InstantMessagingHelper
      *
      * @param $numberTo , $text , $image , $priority, $numberFrom , $client , sendAfter
      * @return void
+     *
      * @static
      */
     public static function sendInstantMessage($numberTo, $text = null, $image = null, $priority = null, $numberFrom = null, $client = null, $sendAfter = null)

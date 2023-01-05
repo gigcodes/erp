@@ -11,6 +11,7 @@ class TicketStatuses extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="ticket_statuses",type="string")
      * @SWG\Property(property="name",type="string")
      */

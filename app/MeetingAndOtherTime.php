@@ -12,6 +12,7 @@ class MeetingAndOtherTime extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="model",type="integer")
      * @SWG\Property(property="model_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")

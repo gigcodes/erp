@@ -11,6 +11,7 @@ class InstructionTime extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="start",type="datetime")
      * @SWG\Property(property="end",type="datetime")
      * @SWG\Property(property="instructions_id",type="integer")

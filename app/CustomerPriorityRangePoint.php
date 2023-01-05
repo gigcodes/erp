@@ -12,6 +12,7 @@ class CustomerPriorityRangePoint extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="store_website_id",type="integet")
      * @SWG\Property(property="priority_id",type="integet")
      * @SWG\Property(property="min_point",type="integet")

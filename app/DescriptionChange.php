@@ -12,6 +12,7 @@ class DescriptionChange extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="keyword",type="string")
      * @SWG\Property(property="replace_with",type="string")
      */

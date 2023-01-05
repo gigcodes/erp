@@ -163,6 +163,7 @@
                         <th>Name</th>
                         <th>Status</th>
                         <th>Suite</th>
+                        <th>Expected Result</th>
                         <th>Assign to</th>
                         <th>Module/Feature</th>
                         <th>Updated By</th>

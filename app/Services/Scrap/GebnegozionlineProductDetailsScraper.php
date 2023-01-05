@@ -8,8 +8,8 @@ use App\ScrapedProducts;
 use App\ScrapEntries;
 use App\Setting;
 use GuzzleHttp\Client;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 

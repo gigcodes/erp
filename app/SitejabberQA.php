@@ -11,6 +11,7 @@ class SitejabberQA extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="sitejabber_q_a_s",type="string")
      */
     protected $table = 'sitejabber_q_a_s';

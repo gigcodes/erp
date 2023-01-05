@@ -12,6 +12,7 @@ class DeveloperTaskComment extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="task_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="comment",type="string")

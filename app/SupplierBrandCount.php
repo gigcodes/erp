@@ -11,6 +11,7 @@ class SupplierBrandCount extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="supplier_id",type="integer")
      * @SWG\Property(property="brand_id",type="integer")
      * @SWG\Property(property="cnt",type="string")

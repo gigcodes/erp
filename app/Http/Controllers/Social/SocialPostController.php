@@ -11,7 +11,7 @@ use Auth;
 use Crypt;
 use Facebook\Facebook;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
 use Session;
 

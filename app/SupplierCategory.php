@@ -11,6 +11,7 @@ class SupplierCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="supplier_category",type="string")
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="timestamps",type="boolean")

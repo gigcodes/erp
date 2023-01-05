@@ -319,7 +319,9 @@
                                     <div class="col-md-4">
                                         <div class="chat-rightbox">
                                             @php
-                                            $all_categories = \App\ReplyCategory::all();
+                                            $all_categories = cache()->remember('ReplyCategory::all', 60 * 60 * 24 * 7, function (){
+                                                return \App\ReplyCategory::all();
+                                            });
                                             @endphp
                                             <select class="form-control globalSelect2" id="keyword_category">
                                                 <option value="">Select Category</option>

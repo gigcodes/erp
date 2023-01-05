@@ -26,7 +26,7 @@ class RoleController extends Controller
     {
         $query = Role::query();
 
-        if ($request->term != Null) {
+        if ($request->term != null) {
             $query = $query->whereIn('id', $request->term);
         }
 

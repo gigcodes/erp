@@ -11,6 +11,7 @@ class SiteDevelopmentHiddenCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="created_at",type="datetime")

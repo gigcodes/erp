@@ -12,6 +12,7 @@ class DeveloperMessagesAlertSchedules extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="time",type="string")
      */
     protected $casts = [

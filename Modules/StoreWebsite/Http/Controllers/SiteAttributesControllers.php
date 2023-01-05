@@ -101,21 +101,27 @@ class SiteAttributesControllers extends Controller
 
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
+        $storeWebsiteId = $request->get('store_website_id');
+        $websites = \App\StoreWebsite::where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
 
         $id = $request->get('id', 0);
         $records = StoreWebsiteAttributes::find($id);
 
         if (! $records) {
-            $records = new StoreWebsiteAttributes;
-        }
-
-        $records->fill($post);
-        // if records has been save then call a request to push
-        if ($records->save()) {
-            if ($id) {
+            $dataArray = [];
+            foreach ($websites as $key => $website) {
+                $data['attribute_key'] = $request->get('attribute_key');
+                $data['attribute_val'] = $request->get('attribute_val');
+                $data['store_website_id'] = $website->id;
+                $dataArray[] = $data;
+                $this->log('#1', $key + 1, $request->input('attribute_key'), $request->input('attribute_key'), $website->id, 'Store Website Attribute has stored.');
+            }
+            StoreWebsiteAttributes::insert($dataArray);
+        } else {
+            $records->fill($post);
+            $response = $records->save();
+            if ($response) {
                 $this->log('#2', $records->id, $request->attribute_key, $request->attribute_val, $request->store_website_id, 'Store Website Attribute has updated.');
-            } else {
-                $this->log('#1', $records->id, $request->attribute_key, $request->attribute_val, $request->store_website_id, 'Store Website Attribute has stored.');
             }
         }
 
@@ -132,7 +138,16 @@ class SiteAttributesControllers extends Controller
     {
         $StoreWebsiteAttributesViews = StoreWebsiteAttributes::join('store_websites', 'store_websites.id', 'store_website_attributes.store_website_id');
         if ($request->keyword != null) {
-            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->where('store_website_id', 'like', '%'.$request->keyword.'%');
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->where('store_websites.title', 'like', '%'.$request->keyword.'%');
+        }
+        if ($request->attribute_key != null) {
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_key', 'like', '%'.$request->attribute_key.'%');
+        }
+        if ($request->attribute_val != null) {
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_val', 'like', '%'.$request->attribute_val.'%');
+        }
+        if ($request->store_website_id != null) {
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('store_website_id', 'like', '%'.$request->store_website_id.'%');
         }
 
         $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->select(['store_website_attributes.*', 'store_websites.website'])->paginate();

@@ -12,6 +12,7 @@ class LandingPageProduct extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="description",type="string")
