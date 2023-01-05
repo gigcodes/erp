@@ -7,6 +7,7 @@ use App\RedisQueueCommandExecutionLog;
 use App\Setting;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 class RedisQueueController extends Controller
 {
@@ -78,7 +79,6 @@ class RedisQueueController extends Controller
      */
     public function update(Request $request)
     {
-//        dd($request->all());
         try {
             $queue = RedisQueue::findorfail($request->id);
             $queue->user_id = Auth::user()->id ?? '';
@@ -117,12 +117,69 @@ class RedisQueueController extends Controller
      */
     public function execute(Request $request)
     {
+        $command = $request->get('command_tail');
+        if ($command == 'start') {
+            $keyword = 'work';
+        } elseif ($command == 'restart') {
+            $keyword = 'restart';
+        }
+
+        $queue = RedisQueue::find($request->get('id'));
+        $cmd = 'queue:'.$keyword.' redis --queue="'.$queue->name.'" --sleep=3 --tries=3';
         try {
-            \Artisan::call('command:QueueExecutionCommand', ['id' => $request->id, 'command_tail' => $request->command]);
+            $response = Artisan::call($cmd);
+
+            $command = new RedisQueueCommandExecutionLog();
+            $command->user_id = \Auth::user()->id;
+            $command->redis_queue_id = $queue->id;
+            $command->command = $cmd;
+            $command->server_ip = env('SERVER_IP');
+            $command->response = $response;
+            $command->save();
 
             return response()->json(['code' => 200, 'message' => 'Queue command executed successfully']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            $command = new RedisQueueCommandExecutionLog();
+            $command->user_id = \Auth::user()->id;
+            $command->redis_queue_id = $queue->id;
+            $command->command = $cmd;
+            $command->server_ip = env('SERVER_IP');
+            $command->response = $msg;
+            $command->save();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    /**
+     * Execute queue.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function executeHorizon(Request $request)
+    {
+        $cmd = $request->get('command_tail');
+        try {
+            $response = Artisan::call($cmd);
+
+            $command = new RedisQueueCommandExecutionLog();
+            $command->user_id = \Auth::user()->id;
+            $command->command = $cmd;
+            $command->server_ip = env('SERVER_IP');
+            $command->response = $response;
+            $command->save();
+
+            return response()->json(['code' => 200, 'message' => 'Queue command executed successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            $command = new RedisQueueCommandExecutionLog();
+            $command->user_id = \Auth::user()->id;
+            $command->command = $cmd;
+            $command->server_ip = env('SERVER_IP');
+            $command->response = $msg;
+            $command->save();
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }

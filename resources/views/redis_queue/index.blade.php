@@ -24,39 +24,31 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Queues ({{count($queues)}})</h2>
-            <div class="pull-left">
-                <form action="{{ route('todolist') }}" method="GET" class="form-inline align-items-start">
-                    <div class="form-group mr-3 mb-3">
-                        <input name="search_title" type="text" class="form-control global" id="search_title"
-                               value="{{ isset($search_title) ? $search_title : '' }}" placeholder="Title">
-                    </div>
-                    <div class="form-group mr-3 mb-3">
-                        <select class="form-control global" id="search_status" name="search_status">
-                            <option value="">Select Status</option>
-
-                        </select>
-                    </div>
-                    <div class="form-group ml-3">
-                        <div class='input-group date' id='filter-date'>
-                            <input type='text' class="form-control global" name="search_date"
-                                   value="{{ isset($search_date) ? $search_date : '' }}" placeholder="Date"
-                                   id="search_date"/>
-
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                        </div>
-                    </div>
-
-
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-                </form>
-            </div>
-            <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal"
-                        data-target="#queueCreateModal">+
-                </button>
-                &nbsp
+            <div class="row">
+                <div class="p-2 ml-4"><b>Horizon Commands</b></div>
+                <div class="col-md-6">
+                    <button type="button" onclick="horizonRun('horizon:status')" class="btn btn-secondary">
+                        <i class="fa fa-line-chart" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" onclick="horizonRun('horizon')" class="btn btn-secondary">
+                        <i class="fa fa-play" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" onclick="horizonRun('horizon:pause')" class="btn btn-secondary">
+                        <i class="fa fa-pause" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" onclick="horizonRun('horizon:continue')" class="btn btn-secondary">
+                        <i class="fa fa-repeat" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" onclick="horizonRun('horizon:terminate')" class="btn btn-secondary">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="col-md-2 ml-auto text-right">
+                    <button type="button" class="btn btn-secondary" data-toggle="modal"
+                            data-target="#queueCreateModal">+
+                    </button>
+                    &nbsp
+                </div>
             </div>
         </div>
     </div>
@@ -323,6 +315,32 @@
             if (confirm("Are you sure you want to run this command?")) {
                 $.ajax({
                     url: "{{ route('redisQueue.execute') }}",
+                    type: "post",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        id: id,
+                        command_tail: command
+                    }
+                }).done(function (response) {
+                    if (response.code == '200') {
+                        toastr['success'](response.message, 'success');
+                    } else {
+                        toastr['error'](response.message, 'error');
+                    }
+                }).fail(function (errObj) {
+                    toastr['error'](errObj.message, 'error');
+                });
+            } else {
+                return false;
+            }
+        }
+
+        function horizonRun(command) {
+            if (confirm("Are you sure you want to run this command?")) {
+                $.ajax({
+                    url: "{{ route('redisQueue.executeHorizon') }}",
                     type: "post",
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
