@@ -17,7 +17,6 @@
             <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
         </div>
     </div>
-
     <div id="conditionCheckLogModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
@@ -55,10 +54,7 @@
     <script>
         $(document).on('click', '.push-to-magento', function () {
             $(self).hide();
-            $this = $(this);
             var ajaxes = [];
-            var thiss = $(this);
-            $(this).addClass('fa-spinner').removeClass('fa-upload')
             url = "{{ route('products.pushToMagento') }}";
             ajaxes.push($.ajax({
                 type: 'POST',
@@ -67,21 +63,19 @@
                     _token: "{{ csrf_token() }}",
                 },
                 beforeSend: function () {
-                    $(thiss).text('Loading...');
-                    $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
+                    $("#loading-image-preview").show();
                 }
             }).done(function (response) {
-                if(response.code == 500)
-                    toastr['error'](response.message, 'Error')
-                else
-                    toastr['success'](response.message, 'Success')
+                if(response.code == 500) {
+                    toastr['error'](response.message, 'Error');
+                } else {
+                    toastr['success'](response.message, 'Success');
+                }
+                $("#loading-image-preview").hide();
                 $('#product' + id).hide();
             }).fail(function (response) {
-                console.log(response);
-                thiss.removeClass('fa-spinner').addClass('fa-upload')
                 toastr['error']('Internal server error', 'Failure')
                 $('#product' + id).hide();
-                //alert('Could not update product on magento');
             }));
             $.when.apply($, ajaxes)
                 .done(function () {
