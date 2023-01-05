@@ -1,12 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use Modules\ChatBot\Http\Controllers\AnalyticsController;
 use Modules\ChatBot\Http\Controllers\ChatBotController;
 use Modules\ChatBot\Http\Controllers\DialogController;
 use Modules\ChatBot\Http\Controllers\KeywordController;
 use Modules\ChatBot\Http\Controllers\MessageController;
 use Modules\ChatBot\Http\Controllers\QuestionController;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,28 +20,28 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::group([
-    'middleware'=>'auth', 
-    'prefix' => 'chatbot'
-],function () {
+    'middleware' => 'auth',
+    'prefix' => 'chatbot',
+], function () {
     Route::get('/', [ChatBotController::class, 'index']);
     Route::post('/edit-message', [ChatBotController::class, 'editMessage'])->name('chatbot.edit.message');
 
-    Route::group(['prefix' => 'keyword'],function () {
+    Route::group(['prefix' => 'keyword'], function () {
         Route::get('/', [KeywordController::class, 'index'])->name('chatbot.keyword.list');
         Route::post('/', [KeywordController::class, 'save'])->name('chatbot.keyword.save');
         Route::post('/submit', [KeywordController::class, 'saveAjax'])->name('chatbot.keyword.saveAjax');
         Route::get('/search', [KeywordController::class, 'search'])->name('chatbot.keyword.search');
-        Route::group(['prefix' => '{id}'],function () {
+        Route::group(['prefix' => '{id}'], function () {
             Route::get('/edit', [KeywordController::class, 'edit'])->name('chatbot.keyword.edit');
             Route::post('/edit', [KeywordController::class, 'update'])->name('chatbot.keyword.update');
             Route::get('/delete', [KeywordController::class, 'destroy'])->name('chatbot.keyword.delete');
-            Route::group(['prefix'=>'values/{valueId}'],function () {
+            Route::group(['prefix' => 'values/{valueId}'], function () {
                 Route::get('/delete', [KeywordController::class, 'destroyValue'])->name('chatbot.value.delete');
             });
         });
     });
 
-    Route::group(['prefix' => 'question'],function () {
+    Route::group(['prefix' => 'question'], function () {
         Route::get('/', [QuestionController::class, 'index'])->name('chatbot.question.list');
         Route::post('/', [QuestionController::class, 'save'])->name('chatbot.question.save');
         Route::post('/save_dymanic_task', [QuestionController::class, 'saveDynamicTask'])->name('chatbot.question.save_dymanic_task');
@@ -60,34 +60,34 @@ Route::group([
         Route::post('question-error-log', [QuestionController::class, 'showLogById'])->name('chatbot.question.error_log');
         Route::post('repeat-watson', [QuestionController::class, 'repeatWatson'])->name('chatbot.question.repeat.watson');
         Route::get('suggested-response', [QuestionController::class, 'suggestedResponse'])->name('chatbot.question.suggested.response');
-        Route::group(['prefix' => 'annotation'],function () {
+        Route::group(['prefix' => 'annotation'], function () {
             Route::post('/save', [QuestionController::class, 'saveAnnotation'])->name('chatbot.question.annotation.save');
             Route::get('/delete', [QuestionController::class, 'deleteAnnotation'])->name('chatbot.question.annotation.delete');
         });
 
-        Route::group(['prefix'=>'{id}'],function () {
+        Route::group(['prefix' => '{id}'], function () {
             Route::get('/edit', [QuestionController::class, 'edit'])->name('chatbot.question.edit');
             Route::post('/edit', [QuestionController::class, 'update'])->name('chatbot.question.update');
             Route::get('/delete', [QuestionController::class, 'destroy'])->name('chatbot.question.delete');
-            Route::group(['prefix'=> 'values/{valueId}'],function () {
+            Route::group(['prefix' => 'values/{valueId}'], function () {
                 Route::get('/delete', [QuestionController::class, 'destroyValue'])->name('chatbot.question-example.delete');
             });
         });
 
-        Route::group(['prefix'=>'autoreply'],function () {
+        Route::group(['prefix' => 'autoreply'], function () {
             Route::post('/save', [QuestionController::class, 'saveAutoreply'])->name('chatbot.question.autoreply.save');
         });
     });
 
-    Route::group(['prefix' => 'dialog'],function () {
+    Route::group(['prefix' => 'dialog'], function () {
         Route::get('/', [DialogController::class, 'index'])->name('chatbot.dialog.list');
         Route::post('/', [DialogController::class, 'save'])->name('chatbot.dialog.save');
         Route::get('/search', [DialogController::class, 'search'])->name('chatbot.dialog.search');
-        Route::group(['prefix' => '{id}'],function () {
+        Route::group(['prefix' => '{id}'], function () {
             Route::get('/edit', [DialogController::class, 'edit'])->name('chatbot.dialog.edit');
             Route::post('/edit', [DialogController::class, 'update'])->name('chatbot.dialog.update');
             Route::get('/delete', [DialogController::class, 'destroy'])->name('chatbot.dialog.delete');
-            Route::group(['prefix'=> 'values/{valueId}'],function () {
+            Route::group(['prefix' => 'values/{valueId}'], function () {
                 Route::get('/delete', [DialogController::class, 'destroyValue'])->name('chatbot.dialog-response.delete');
             });
         });
@@ -101,7 +101,7 @@ Route::group([
         Route::post('submit-reponse/{id}', [DialogController::class, 'submitResponse'])->name('chatbot.dialog.submit-reponse');
     });
 
-    Route::group(['prefix' => 'dialog-grid'],function () {
+    Route::group(['prefix' => 'dialog-grid'], function () {
         Route::get('/', [DialogController::class, 'dialogGrid'])->name('chatbot.dialog-grid.list');
     });
 
@@ -115,11 +115,11 @@ Route::group([
     //     });
     // });
 
-    Route::group(['prefix'=> 'analytics'],function () {
+    Route::group(['prefix' => 'analytics'], function () {
         Route::get('/', [AnalyticsController::class, 'index'])->name('chatbot.analytics.list');
     });
 
-    Route::group(['prefix' => 'messages'],function () {
+    Route::group(['prefix' => 'messages'], function () {
         Route::get('/', [MessageController::class, 'index'])->name('chatbot.messages.list');
         Route::get('/stop-reminder', [MessageController::class, 'stopReminder'])->name('chatbot.messages.stopReminder');
         Route::post('/approve', [MessageController::class, 'approve'])->name('chatbot.messages.approve');
@@ -131,11 +131,11 @@ Route::group([
         Route::get('/update-emailaddress', [MessageController::class, 'updateEmailAddress']);
     });
 
-    Route::group(['prefix'=>'rest/dialog'],function () {
+    Route::group(['prefix' => 'rest/dialog'], function () {
         Route::get('/create', [DialogController::class, 'restCreate'])->name('chatbot.rest.dialog.create');
         Route::post('/create', [DialogController::class, 'restCreate'])->name('chatbot.rest.dialog.create');
         Route::get('/status', [DialogController::class, 'restStatus'])->name('chatbot.rest.dialog.status');
-        Route::group(['prefix'=> '{id}'],function () {
+        Route::group(['prefix' => '{id}'], function () {
             Route::get('/', [DialogController::class, 'restDetails'])->name('chatbot.rest.dialog.detail');
             Route::get('/delete', [DialogController::class, 'restDelete'])->name('chatbot.rest.dialog.delete');
         });

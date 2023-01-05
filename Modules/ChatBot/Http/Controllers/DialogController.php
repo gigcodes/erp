@@ -25,7 +25,7 @@ class DialogController extends Controller
     public function index()
     {
         $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
-        
+
         return view('chatbot::dialog.index', compact('allSuggestedOptions'));
     }
 

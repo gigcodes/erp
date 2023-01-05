@@ -198,21 +198,21 @@ Route::post('node/get-status', [ScrapController::class, 'getStatus']);
 Route::get('node/get-log', [ScrapController::class, 'getLatestLog'])->name('scraper.get.log.list');
 
 Route::group([
-    'prefix' => 'v1'
-],function () {
+    'prefix' => 'v1',
+], function () {
     Route::group([
-        'prefix' => 'product'
-    ],function () {
+        'prefix' => 'product',
+    ], function () {
         Route::group([
-            'prefix' => '{sku}'
-        ],function () {
+            'prefix' => '{sku}',
+        ], function () {
             Route::get('price', [\App\Http\Controllers\Api\v1\ProductController::class, 'price']);
         });
     });
 
     Route::group([
-        'prefix' => 'account'
-    ],function () {
+        'prefix' => 'account',
+    ], function () {
         Route::post('create', [\App\Http\Controllers\Api\v1\AccountController::class, 'create']);
     });
 });

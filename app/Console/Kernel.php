@@ -155,6 +155,7 @@ use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
+
 //use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 
 class Kernel extends ConsoleKernel

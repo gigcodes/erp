@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use Modules\BookStack\Http\Controllers\AttachmentController;
 use Modules\BookStack\Http\Controllers\BookController;
 use Modules\BookStack\Http\Controllers\BookshelfController;
@@ -13,7 +14,6 @@ use Modules\BookStack\Http\Controllers\SearchController;
 use Modules\BookStack\Http\Controllers\SettingController;
 use Modules\BookStack\Http\Controllers\TagController;
 use Modules\BookStack\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,11 +33,11 @@ Route::middleware('auth')->group(function () {
     // Secure images routing
     Route::get('/uploads/images/{path}', [Images\ImageController::class, 'showImage'])->where('path', '.*$');
 
-    Route::group(['prefix' => 'kb'],function () {
+    Route::group(['prefix' => 'kb'], function () {
         // Shelves
         Route::get('/create-shelf', [BookshelfController::class, 'create']);
         Route::get('/', [BookshelfController::class, 'index']);
-        Route::group(['prefix' => 'shelves'],function () {
+        Route::group(['prefix' => 'shelves'], function () {
             Route::get('/', [BookshelfController::class, 'index']);
             Route::post('/{slug}/add', [BookshelfController::class, 'store']);
             Route::get('/{slug}/edit', [BookshelfController::class, 'edit']);
@@ -56,7 +56,7 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('/create-book', [BookController::class, 'create']);
-        Route::group(['prefix' => 'books'],function () {
+        Route::group(['prefix' => 'books'], function () {
             // Books
             Route::get('/', [BookController::class, 'index']);
             Route::post('/', [BookController::class, 'store']);
@@ -124,8 +124,8 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{bookSlug}/chapter/{chapterSlug}', [ChapterController::class, 'destroy']);
         });
 
-        // Settings 
-        Route::group(['prefix' => 'settings'],function () {
+        // Settings
+        Route::group(['prefix' => 'settings'], function () {
             Route::get('/', [SettingController::class, 'index'])->name('settings');
             Route::post('/', [SettingController::class, 'update']);
 
@@ -163,7 +163,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/ajax/page/{id}', [PageController::class, 'ajaxDestroy']);
 
     // Tag routes (AJAX)
-    Route::group(['prefix' => 'ajax/tags'],function () {
+    Route::group(['prefix' => 'ajax/tags'], function () {
         Route::get('/get/{entityType}/{entityId}', [TagController::class, 'getForEntity']);
         Route::get('/suggest/names', [TagController::class, 'getNameSuggestions']);
         Route::get('/suggest/values', [TagController::class, 'getValueSuggestions']);

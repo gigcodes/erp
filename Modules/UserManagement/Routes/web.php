@@ -1,8 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use Modules\UserManagement\Http\Controllers\UserDeliveredController;
 use Modules\UserManagement\Http\Controllers\UserManagementController;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,8 +17,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::group([
     'prefix' => 'user-management',
-    'middleware' => 'auth'
-],function () {
+    'middleware' => 'auth',
+], function () {
     Route::get('/', [UserManagementController::class, 'index'])->name('user-management.index');
 
     Route::get('planned-user-and-availability', [UserManagementController::class, 'plannedUserAndAvailability'])->name('user-management.planned-user-and-availability');
@@ -90,26 +90,26 @@ Route::group([
     Route::get('/user-generate-file-listing/{userid}', [UserManagementController::class, 'userPemfileHistoryListing'])->name('user-management-pem-history-list');
     Route::post('/delete-pem-file/{id}', [UserManagementController::class, 'deletePemFile'])->name('user-management-delete-pem-file');
 
-    Route::group(['prefix' => 'update'],function () {
+    Route::group(['prefix' => 'update'], function () {
         Route::post('task-plan-flag', [UserManagementController::class, 'updateTaskPlanFlag'])->name('user-management.update.flag-for-task-plan');
     });
 
-    Route::group(['prefix' => 'user-schedules'],function () {
+    Route::group(['prefix' => 'user-schedules'], function () {
         Route::get('index', [UserManagementController::class, 'userSchedulesIndex'])->name('user-management.user-schedules.index');
         Route::any('load-data', [UserManagementController::class, 'userSchedulesLoadData'])->name('user-management.user-schedules.load-data');
     });
 
     Route::group([
-        'prefix' => 'user-delivered'
+        'prefix' => 'user-delivered',
     ],
-    function () {
-        Route::get('index', [UserDeliveredController::class, 'index'])->name('user-management.user-delivered.index');
-        Route::any('load-data', [UserDeliveredController::class, 'loadData'])->name('user-management.user-delivered.load-data');
-    });
+        function () {
+            Route::get('index', [UserDeliveredController::class, 'index'])->name('user-management.user-delivered.index');
+            Route::any('load-data', [UserDeliveredController::class, 'loadData'])->name('user-management.user-delivered.load-data');
+        });
 
     Route::group([
-        'prefix' => 'user-availabilities'
-    ],function () {
+        'prefix' => 'user-availabilities',
+    ], function () {
         Route::post('/edit', [UserManagementController::class, 'userAvailabilitiesEdit'])->name('user-availabilities.edit');
         Route::post('/history', [UserManagementController::class, 'userAvaibilityHistoryLog'])->name('user-availabilities.history');
     });

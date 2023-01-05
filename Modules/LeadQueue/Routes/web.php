@@ -1,7 +1,7 @@
 <?php
 
-use Modules\LeadQueue\Http\Controllers\LeadQueueController;
 use Illuminate\Support\Facades\Route;
+use Modules\LeadQueue\Http\Controllers\LeadQueueController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,21 +16,21 @@ use Illuminate\Support\Facades\Route;
 
 Route::group([
     'prefix' => 'leadqueue',
-    'middleware' => 'auth'
-],function () {
+    'middleware' => 'auth',
+], function () {
     Route::get('/', [LeadQueueController::class, 'index']);
 });
 
 Route::group([
     'prefix' => 'lead-queue',
-    'middleware' => 'auth'
-],function () {
+    'middleware' => 'auth',
+], function () {
     Route::get('/', [LeadQueueController::class, 'index'])->name('lead-queue.index');
     Route::get('/approve', [LeadQueueController::class, 'approve'])->name('lead-queue.approve');
     Route::get('/approve/approved', [LeadQueueController::class, 'approved'])->name('lead-queue.approved');
     Route::get('/status', [LeadQueueController::class, 'status'])->name('lead-queue.status');
     Route::get('delete', [LeadQueueController::class, 'deleteRecord'])->name('lead-queue.delete.record');
-    Route::group(['prefix' => 'records'],function () {
+    Route::group(['prefix' => 'records'], function () {
         Route::get('/', [LeadQueueController::class, 'records']);
         Route::post('/action-handler', [LeadQueueController::class, 'actionHandler']);
         // Route::prefix('{id}')->group(function() {
@@ -38,11 +38,11 @@ Route::group([
         // });
     });
 
-    Route::group(['prefix' => 'report'],function () {
+    Route::group(['prefix' => 'report'], function () {
         Route::get('/', [LeadQueueController::class, 'report'])->name('lead-queue.report');
     });
 
-    Route::group(['prefix' => 'setting'],function () {
+    Route::group(['prefix' => 'setting'], function () {
         Route::post('update-limit', [LeadQueueController::class, 'updateLimit']);
         Route::get('recall', [LeadQueueController::class, 'recall']);
     });

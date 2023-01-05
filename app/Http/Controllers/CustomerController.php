@@ -1983,13 +1983,13 @@ class CustomerController extends Controller
                 $products = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
                 $products = $products->whereIn('ps.supplier_id', $request->supplier);
                 $products = $products->groupBy('products.id');
-            /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
-            return $query->where(function ($q) use ($request) {
-            foreach ($request->supplier as $supplier) {
-            $q->orWhere('suppliers.id', $supplier);
-            }
-            });
-            });*/
+                /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
+                return $query->where(function ($q) use ($request) {
+                foreach ($request->supplier as $supplier) {
+                $q->orWhere('suppliers.id', $supplier);
+                }
+                });
+                });*/
             } else {
                 $products = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
                 $products = $products->whereIn('ps.supplier_id', $request->supplier);
@@ -2978,15 +2978,15 @@ class CustomerController extends Controller
         $customers_all->latest('date')->groupBy('customers.id')->orderBy('date', 'desc');
 
         if ($request->name != '') {
-            $customers_all->where('name', 'Like','%'.$request->name.'%');
+            $customers_all->where('name', 'Like', '%'.$request->name.'%');
         }
 
         if ($request->email != '') {
-            $customers_all->where('email','Like','%'. $request->email.'%');
+            $customers_all->where('email', 'Like', '%'.$request->email.'%');
         }
 
         if ($request->phone != '') {
-            $customers_all->where('phone','Like','%'. $request->phone.'%');
+            $customers_all->where('phone', 'Like', '%'.$request->phone.'%');
         }
 
         if ($request->store_website != '') {
@@ -2995,20 +2995,20 @@ class CustomerController extends Controller
         $customers = $customers_all->get();
         $customers_all = $customers_all->paginate(Setting::get('pagination'));
         $store_website = StoreWebsite::all();
-        $users= Customer::get();
+        $users = Customer::get();
         if ($request->ajax()) {
             return view('livechat.store_credit_ajax', [
                 'customers_all' => $customers_all,
                 'store_website' => $store_website,
                 'customers' => $customers,
-                'users'=>$users
+                'users' => $users,
             ]);
         } else {
             return view('livechat.store_credit', [
                 'customers_all' => $customers_all,
                 'store_website' => $store_website,
                 'customers' => $customers,
-                'users'=>$users
+                'users' => $users,
             ]);
         }
     }

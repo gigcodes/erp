@@ -85,7 +85,7 @@ class MessageController extends Controller
             'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', ])
             ->orderBy('cr.id', 'DESC')
             ->paginate(20);
-            
+
         // dd($pendingApprovalMsg);
 
         $allCategory = ChatbotCategory::all();
@@ -97,13 +97,13 @@ class MessageController extends Controller
         }
         $page = $pendingApprovalMsg->currentPage();
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
-        
+
         if ($request->ajax()) {
             $tml = (string) view('chatbot::message.partial.list', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories'));
 
             return response()->json(['code' => 200, 'tpl' => $tml, 'page' => $page]);
         }
-        
+
         //dd($pendingApprovalMsg);
         return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories'));
     }

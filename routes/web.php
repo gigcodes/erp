@@ -2729,7 +2729,7 @@ Route::middleware('auth')->group(function () {
  * feature in this ERP
  */
 
- Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('cold-leads/delete', [ColdLeadsController::class, 'deleteColdLead']);
     Route::resource('cold-leads-broadcasts', ColdLeadBroadcastsController::class);
     Route::resource('cold-leads', ColdLeadsController::class);
@@ -2916,7 +2916,7 @@ Route::prefix('social-media')->middleware('auth')->group(function () {
  * from Facebook API
  */
 
- Route::prefix('facebook')->middleware('auth')->group(function () {
+Route::prefix('facebook')->middleware('auth')->group(function () {
     Route::get('/influencers', [ScrappedFacebookUserController::class, 'index']);
 });
 
@@ -3301,7 +3301,7 @@ Route::middleware('auth')->prefix('flow')->group(function () {
     Route::post('/create/type', [FlowController::class, 'createType'])->name('flow-type-create');
 });
 
-Route::group(['prefix' => 'admin','middleware' => 'auth'], function () {
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('category/brand/min-max-pricing', [CategoryController::class, 'brandMinMaxPricing']);
     Route::get('category/brand/min-max-pricing-update-default', [CategoryController::class, 'updateMinMaxPriceDefault']);
     Route::post('category/brand/update-min-max-pricing', [CategoryController::class, 'updateBrandMinMaxPricing']);
@@ -4166,11 +4166,11 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 
 // DEV MANISH
 //System size
-Route::group(['prefix' => 'admin','middleware'=> 'auth'], function () {
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
 });
 
-Route::group(['prefix' => 'admin','middleware' => 'auth'], function () {
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::any('/database-log', [ScrapLogsController::class, 'databaseLog']);
     Route::get('/database-log/enable', [ScrapLogsController::class, 'enableMysqlAccess']);
     Route::get('/database-log/disable', [ScrapLogsController::class, 'disableMysqlAccess']);
@@ -4228,7 +4228,7 @@ Route::post('product-segment-price', [product_price\ProductPriceController::clas
 Route::post('product-update', [product_price\ProductPriceController::class, 'updateProduct'])->name('product_update');
 
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
-Route::group(['prefix' => 'admin','middleware'=> 'auth'], function () {
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::prefix('plan')->group(static function () {
         Route::get('/', [PlanController::class, 'index'])->name('plan.index');
         Route::post('/create', [PlanController::class, 'store'])->name('plan.store');
