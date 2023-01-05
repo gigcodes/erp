@@ -506,7 +506,7 @@ class CategoryController extends Controller
             }
 
             if (count($websites) > 0 && $category) {
-                //copied code
+                //coppied code
                 foreach ($websites as $website) {
                     //Check if category
                     if ($case == 'single') {
@@ -847,12 +847,6 @@ class CategoryController extends Controller
         }
 
         return response()->json(['code' => 200, 'message' => $msg, 'storeWebsites' => $storeWebsites]);
-
-//        -> new/preowned
-//        --> Men/women/kids
-//        ---->Men > accessories
-//        ------> accessories
-
     }
 
     /**
