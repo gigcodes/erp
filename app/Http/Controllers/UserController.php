@@ -701,7 +701,7 @@ class UserController extends Controller
                 if ($user) {
                     $params = [];
                     $params['user_id'] = $userID;
-                    $params['message'] = 'Your ip address '.$value.'  whitelist request has been approved';
+                    $params['message'] = 'Your ip address '.$request->ip.'  whitelist request has been approved';
                     // send chat message
                     $chat_message = \App\ChatMessage::create($params);
                     // send

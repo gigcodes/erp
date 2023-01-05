@@ -800,12 +800,24 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $messages]);
     }
 
+    public function checkbug(Request $request)
+    {
+        $bug_type_id = $request->bug_type_id;
+        $bug_id = $request->bug_id;
+        $module_id = $request->module_id;
+        $website_id = $request->website_id;
+        // $bug_tracker = Task::where("FIND_IN_SET($bug_id,task_bug_ids)")->get()->asArray();
+        $bug_tracker = \DB::table('tasks')->select('*')->whereRaw("find_in_set($bug_id,task_bug_ids)")->get();
+
+        return response()->json(['code' => 200, 'data' => count($bug_tracker)]);
+    }
+
     public function getWebsiteList(Request $request)
     {
         $bug_type_id = $request->bug_type_id;
         $module_id = $request->module_id;
         $website_id = $request->website_id;
-        $bug_tracker = BugTracker::where('bug_type_id', $bug_type_id)->where('module_id', $module_id)->where('website', $website_id)->whereIn('bug_status_id', ['1', '2'])->get();
+        $bug_tracker = BugTracker::where('bug_type_id', $bug_type_id)->where('module_id', $module_id)->where('website', $website_id)->whereIn('bug_status_id', ['1', '2', '4', '5', '6', '8', '9', '10'])->get();
         $bug_list = $bug_tracker->toArray();
         $bug_ids = [];
         $website_ids = [];
@@ -865,48 +877,6 @@ class BugTrackingController extends Controller
         $merged = $othertaskStatistics->merge($taskStatistics);
 
         return response()->json(['code' => 200, 'taskStatistics' => $merged]);
-    }
-
-    public function taskCount123($bug_id)
-    {
-        $users_info = \DB::select('SELECT * from users');
-        $users_info = json_decode(json_encode($users_info), true);
-        if (count($users_info) > 0) {
-            for ($i = 0; $i < count($users_info); $i++) {
-                $user_id = $users_info[$i]['id'];
-                $users[$user_id] = $users_info[$i];
-            }
-        }
-        $str = '<table class="table table-bordered table-striped"><tr><td><b>Sl. No.</b></td> <td><b>Date Time</b></td> <td><b>Old Assignee</b></td> <td><b>New Assignee</b></td></tr>';
-        $task_info = \DB::select("SELECT * from tasks where FIND_IN_SET($bug_id, task_bug_ids) limit 1 ");
-        $task_info = json_decode(json_encode($task_info), true);
-        if (count($task_info) > 0) {
-            $task_id = $task_info[0]['id'];
-            //$task_id = 15485;
-            $task_history_info = \DB::select("SELECT * from tasks_history  where task_id = '$task_id' ");
-            $task_history_info = json_decode(json_encode($task_history_info), true);
-            if (count($task_history_info) > 0) {
-                for ($j = 0; $j < count($task_history_info); $j++) {
-                    $m = $j + 1;
-                    $datetime = date('d-m-Y  H:i:s', strtotime($task_history_info[$j]['date_time']));
-                    $old_assignee = $task_history_info[$j]['old_assignee'];
-                    $old_assignee = $users[$old_assignee]['name'];
-
-                    $new_assignee = $task_history_info[$j]['new_assignee'];
-                    $new_assignee = $users[$new_assignee]['name'];
-                    $str .= '<tr><td>'.$m.'.</td><td>'.$datetime.'</td><td>'.$old_assignee.'</td><td>'.$new_assignee.'</td></tr> ';
-                }
-            } else {
-                $datetime = date('d-m-Y H:i:s', strtotime($task_info[0]['created_at']));
-                $new_assignee = $task_info[0]['assign_to'];
-                $new_assignee = $users[$new_assignee]['name'];
-                $str .= '<tr><td>1.</td><td>'.$datetime.'</td><td> - </td><td>'.$new_assignee.'</td></tr> ';
-            }
-        }
-
-        $str .= '</table>';
-
-        return response()->json(['code' => 200, 'taskStatistics' => $str]);
     }
 
     public function website(Request $request)
