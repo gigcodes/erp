@@ -355,7 +355,7 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
 
                 return response()->json(['code' => 500, 'error' => 'Store website product creation failed!']);
             }
-            \Log::info('Store website product creation created for '.$this->copyStoreWebsite->title);
+            \Log::info('Store website product creation completed for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products attributes
             $swProductAttributes = StoreWebsiteProductAttribute::where('store_website_id', '=', $this->storeWebsiteId)->get();
@@ -385,10 +385,9 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website product attributes created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products prices
-            $swProductPrices = StoreWebsiteProductPrice::where('store_website_id', '=', $this->storeWebsiteId)->get();
-            $copySwProductPricesResult = [];
-            if ($swProductPrices->count() > 0) {
-                foreach ($swProductPrices as $row) {
+            StoreWebsiteProductPrice::where('store_website_id', '=', 1)->chunk(500, function ($rows) use ($copyStoreWebsiteId) {
+                $copySwProductPricesResult = [];
+                foreach ($rows as $row) {
                     $copySwProductPricesRow = [
                         'product_id' => $row->product_id,
                         'default_price' => $row->default_price,
@@ -402,13 +401,9 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                     ];
                     $copySwProductPricesResult[] = $copySwProductPricesRow;
                 }
-            }
-            $response = StoreWebsiteProductPrice::insert($copySwProductPricesResult);
-            if (! $response) {
-                \Log::error('Store website product price creation failed for '.$this->copyStoreWebsite->title);
+                StoreWebsiteProductPrice::insert($copySwProductPricesResult);
+            });
 
-                return response()->json(['code' => 500, 'error' => 'Store website product price creation failed!']);
-            }
             \Log::info('Store website product price created for '.$this->copyStoreWebsite->title);
 
             // Inserts Store Websites products screenshots
