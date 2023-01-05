@@ -4457,5 +4457,6 @@ Route::prefix('queue')->middleware('auth')->group(function () {
     Route::post('/update', [RedisQueueController::class, 'update'])->name('redisQueue.update');
     Route::post('/delete', [RedisQueueController::class, 'delete'])->name('redisQueue.delete');
     Route::post('/execute', [RedisQueueController::class, 'execute'])->name('redisQueue.execute');
+    Route::post('/execute-horizon', 'RedisQueueController@executeHorizon')->name('redisQueue.executeHorizon');
     Route::get('/command-logs/{id}', [RedisQueueController::class, 'commandLogs'])->name('redisQueue.commandLogs');
 });
