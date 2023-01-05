@@ -82,6 +82,14 @@
         <h2 class="page-heading">Csv Translator Languages List</h2>
     </div>
 </div>
+<div class="row">
+@if(session()->has('success'))
+    <div class="alert alert-success w-100">
+        {{session()->get('success')}}
+    </div>
+    @endif
+
+</div>
 <div class="float-right">
     <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-primary btn_import">Import CSV</button>
     <a class="btn btn-secondary btn_export" href="{{ route('csvTranslator.export') }}" target="_blank">Export CSV</a>
@@ -173,7 +181,7 @@
                 <h4 class="modal-title position-absolute">Upload Csv</h4>
             </div>
             <div class="modal-body">
-                <form action="#" class="dropzone" id="my-dropzone">
+                <form action="#"  class="dropzone" id="my-dropzone">
                     @csrf
                 </form>
                 <div class="alert alert-success d-none successalert">
@@ -190,19 +198,24 @@
 <div class="modal fade" id="edit_model" role="dialog">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
+        <form method="post" class="form-update" action="{{route('csvTranslator.update')}}">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title position-absolute">Upload Csv</h4>
+                <h4 class="modal-title position-absolute">Update Value</h4>
             </div>
             <div class="modal-body edit_model_body">
-                <form>
+              
+                    @csrf
                     <input type="text" name="update_record" class="form-control update_record" />
-                    <input type="submit" value="update" name="update" class="btn btn-primary" />
-                </form>
+                    <div class="d-none add_hidden_data"></div>
+                   
+              
             </div>
             <div class="modal-footer">
+            <input type="submit" value="update" name="update" class="btn btn-primary" />
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
+            </form>
         </div>
     </div>
 </div>
@@ -464,8 +477,11 @@
         var userId = $(this).data('user');
         var langId = $(this).data('lang');
         $(".update_record").val(formValue);
-        $('<input type="hidden" name="update_by_user_id" value='+userId+'>').inserAfter($(".update_record"));
-        $('<input type="hidden" name="lang_id" value='+langId+'>').inserAfter($(".update_record"));
+        let html = `<input type="hidden" name="update_by_user_id" value='`+userId+`'>
+        <input type="hidden" name="lang_id" value='`+langId+`'>
+        <input type="hidden" name="record_id" value='`+id+`'>`;
+        $(".add_hidden_data").html(html);
+        
     });
 </script>
 @endsection

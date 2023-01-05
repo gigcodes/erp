@@ -133,6 +133,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/csv-translator', 'CsvTranslatorController@index')->name('csvTranslator.list');
     Route::post('/csv-translator/upload', 'CsvTranslatorController@upload')->name('csvTranslator.uploadFile');
     Route::get('/csv-translator/export', 'CsvTranslatorController@export')->name('csvTranslator.export');
+    Route::post('/csv-translator/update', 'CsvTranslatorController@update')->name('csvTranslator.update');
+
 });
 
 /** Magento Settings */
