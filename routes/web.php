@@ -1001,6 +1001,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('task/reminder', 'TaskModuleController@updateTaskReminder');
     Route::post('task/statuscolor', 'TaskModuleController@statuscolor')->name('task.statuscolor');
+    
     Route::get('task/time/history', 'TaskModuleController@getTimeHistory')->name('task.time.history');
     Route::get('task/categories', 'TaskModuleController@getTaskCategories')->name('task.categories');
     Route::get('task/list', 'TaskModuleController@list')->name('task.list');
