@@ -138,7 +138,16 @@ class SiteAttributesControllers extends Controller
     {
         $StoreWebsiteAttributesViews = StoreWebsiteAttributes::join('store_websites', 'store_websites.id', 'store_website_attributes.store_website_id');
         if ($request->keyword != null) {
-            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->where('store_website_id', 'like', '%'.$request->keyword.'%');
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->where('store_websites.title', 'like', '%'.$request->keyword.'%');
+        }
+        if ($request->attribute_key != null) {
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_key', 'like', '%'.$request->attribute_key.'%');
+        }
+        if ($request->attribute_val != null) {
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_val', 'like', '%'.$request->attribute_val.'%');
+        }
+        if ($request->store_website_id != null) {
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('store_website_id', 'like', '%'.$request->store_website_id.'%');
         }
 
         $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->select(['store_website_attributes.*', 'store_websites.website'])->paginate();
