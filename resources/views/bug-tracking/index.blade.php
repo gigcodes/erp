@@ -20,10 +20,14 @@ table{border-collapse: collapse;}
 .ui-icon, .ui-widget-content .ui-icon {background-image: none;}
 
 #bug_tracking_maintable {
-	font-size:13px;
+	font-size:12px;
 }
 .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
 	padding:5px;
+}
+#bug_tracking_maintable .btn {
+	padding: 1px 3px 0px 4px !important;
+	margin-top:0px !important;
 }
 </style>
 	<div class="row" id="common-page-layout">
@@ -39,11 +43,11 @@ table{border-collapse: collapse;}
 							<form class="form-inline message-search-handler" method="get">
 								<div class="col">
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-3" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 150px;">
 										<?php
 										$bug_type = request('bugtype');
 										?>
-										<select class="form-control selectpicker" name="bug_type[]" multiple id="bug_type" title="Select BugType">
+										<select class="form-control selectpicker" name="bug_type[]" multiple id="bug_type" title="Select BugType"  >
 											<option value="">Select BugType</option>
 											<?php
 											foreach ($bugTypes as $bugtype) { ?>
@@ -52,7 +56,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$bug_environment = request('bug_enviornment');
 										?>
@@ -65,7 +69,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 170px;">
 										<?php
 										$bug_severity = request('bug_severity');
 										?>
@@ -78,7 +82,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 160px;">
 										<?php
 										$bug_status = request('bugstatus');
 										?>
@@ -91,7 +95,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-                <div class="form-group  cls_filter_inputbox p-2 mr-3" style="width: 200px;">
+                <div class="form-group  cls_filter_inputbox p-2 mr-3" style="width: 200px;margin-bottom: 10px;">
 										<?php
 										$module_id = request('module_id');
 										?>
@@ -102,15 +106,19 @@ table{border-collapse: collapse;}
 											@endforeach
 										</select>
 									</div>
-									<div class="form-group" style="width: 200px;">
+									<div class="form-group" style="width: 120px;margin-bottom: 10px;">
+										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true"  style="width: 120px;" value="<?php if(isset($_REQUEST['bug_main_id']) && $_REQUEST['bug_main_id']>0) { echo $_REQUEST['bug_main_id']; } ?>" />
+									</div>
+									<div class="form-group" style="width: 200px;margin-bottom: 10px;">
 										<input name="step_to_reproduce" type="text" class="form-control" placeholder="Search Reproduce" id="bug-search" data-allow-clear="true" />
 									</div>
-									<div class="form-group m-3" style="width: 200px;">
+									
+									<div class="form-group" style="width: 200px;margin-bottom: 10px;">
 										<input name="summary" type="text" class="form-control" placeholder="Search Summary" id="bug-summary" data-allow-clear="true" />
 									</div>
 									<div class="form-group m-1" style="width: 200px;">
 										<input name="url" type="text" class="form-control" placeholder="Search Url" id="bug-url" data-allow-clear="true" />
-									</div>
+									</div>									
                 <div class="form-group cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$website = request('website');
@@ -123,7 +131,7 @@ table{border-collapse: collapse;}
 											@endforeach
 										</select>
 									</div>
-                <div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+                <div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 150px;">
 										<?php
 										$assign_to_user = request('assign_to_user');
 										?>
@@ -137,7 +145,7 @@ table{border-collapse: collapse;}
 									</div>
 
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+									<div class="form-group col-md-2 cls_filter_inputbox p-2 mr-2" style="width: 160px;">
 										<?php
 										$created_by = request('created_by');
 										?>
@@ -158,6 +166,8 @@ table{border-collapse: collapse;}
 											<img src="/images/search.png" style="cursor: default;">
 										</button>
 										<a href="/bug-tracking" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+										<button type="submit" class="btn btn-secondary btn-xs btn-sorting-action" value="sort-comm" style="color:white;">Sort By Comm
+										</button>&nbsp;&nbsp;
 									</div>
 								</div>
 							</form>
@@ -183,6 +193,9 @@ table{border-collapse: collapse;}
 							</button>&nbsp;&nbsp;
 							<button class="btn btn-secondary btn-xs btn-add-severity" style="color:white;"
 									data-toggle="modal" data-target="#newSeverity"> Severity
+							</button>&nbsp;&nbsp;
+							<button class="btn btn-secondary btn-xs btn-add-status-color" style="color:white;"
+									data-toggle="modal" data-target="#newStatusColor"> Status Color
 							</button>
 						</div>&nbsp;&nbsp;
 					</div>
@@ -220,6 +233,7 @@ table{border-collapse: collapse;}
 	@include("bug-tracking.templates.bug-severity")
 	@include("bug-tracking.templates.bug-status")
 	@include("bug-tracking.templates.bug-type")
+	@include("bug-tracking.templates.bug-status-color")
 	
 	
 	<div id="dev_task_statistics" class="modal fade" role="dialog">
@@ -287,11 +301,12 @@ table{border-collapse: collapse;}
 				</div>
 				<table class="table">
 					<tr>
-
+						<th>Created At</th>						
 						<th>Type of Bug</th>
 						<th>Summary</th>
 						<th>Expected Result</th>
 						<th>Environment</th>
+						<th>Assigned To</th>
 						<th>Status</th>
 						<th>Severity</th>
 						<th>Module/Feature</th>
@@ -352,6 +367,33 @@ table{border-collapse: collapse;}
 
 					</tbody>
 				</table>
+			</div>
+		</div>
+	</div>
+	
+	<div id="newSeverityHistoryModal" class="modal fade" role="dialog">
+															
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>Severity History</h3>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					<table class="table" border="1">
+					<tr>
+						<td style="text-align: center;"><b>Created Date</b></td>						
+						<td style="text-align: center;"><b>Old Severity</b></td>
+						<td style="text-align: center;"><b>New Severity</b></td>							 
+						<td style="text-align: center;"><b>Updated By</b></td>
+					</tr>
+					<tbody class="tbhseverity">
+
+					</tbody>
+				</table>
+				</div>
+				
 			</div>
 		</div>
 	</div>
@@ -486,12 +528,21 @@ table{border-collapse: collapse;}
 		</div>
 		
 		
+	<script>
+	
+		var page_bug = 0; 
+		var total_limit_bug = 19;
+		var action_bug = 'inactive';
 
+	</script>
 	<script type="text/javascript" src="{{ asset('/js/jsrender.min.js')}}"></script>
 	<script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js')}}"></script>
 	<script src="{{ asset('/js/jquery-ui.js')}}"></script>
 	<script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('/js/bug-tracker.js') }}"></script>
+	
+	
+	
 
 	<script type="text/javascript">
 		page.init({
@@ -519,6 +570,17 @@ table{border-collapse: collapse;}
       })
 	</script>
 	<script type="text/javascript">
+		
+		$(document).on('click', '.expand-row-msg-chat', function() {
+			var id = $(this).data('id');
+			var full = '.expand-row-msg-chat .td-full-container-' + id;
+			var mini = '.expand-row-msg-chat .td-mini-container-' + id;
+			$(full).toggleClass('hidden');
+			$(mini).toggleClass('hidden');
+		});
+
+		
+	
 	
 		// Bug tracking ajax starts
 		function GetParameterValues(param) {  
@@ -531,9 +593,8 @@ table{border-collapse: collapse;}
 			}  
 		}
 		
-		var page_bug = 0; 
-		var total_limit_bug = 19;
-		var action_bug = 'inactive';
+		
+
 		$(window).scroll(function(){
 			let urlString_bug = window.location.href;
 			let paramString_bug = urlString_bug.split('?')[1];
@@ -544,20 +605,31 @@ table{border-collapse: collapse;}
 				console.log("Value is:" + pair[1]);
 				arr = 1;
 			}
+			
+			//console.log("arr="+arr);
+			//console.log("window="+$(window).height());
+			//console.log("table="+$("#bug_tracking_maintable").height());
+			//console.log("action="+action_bug);
+			
 			if(arr==0) {
-				if($(window).scrollTop() + $(window).height() > $("#bug_tracking_maintable").height() && action_bug == 'inactive')
+				if($(window).scrollTop() + $(window).height() > $("#page-view-result").height() && action_bug == 'inactive')				
 				{
+					
 					action_bug = 'active';
 					page_bug++;				   
 					setTimeout(function(){
+						console.log("coming");						
 						load_more(page_bug);
+						
 					}, 1000);
+					console.log("act="+action_bug);
 				}
 			}
 			  
 		});
 		
 		function load_more(page_bug){
+			
 						
 			$.ajax({
 			   url: "/bug-tracking/record-tracking-ajax?page="+page_bug+"&"+$(".message-search-handler").serialize(),
@@ -566,6 +638,7 @@ table{border-collapse: collapse;}
 			   beforeSend: function()
 			   {
 				  $('#loading-image-preview').css("display","block");
+				  
 			   }
 			})
 			.done(function(data)
@@ -574,15 +647,19 @@ table{border-collapse: collapse;}
 				
 				
 				if(data.length == 0){
-					console.log(data.length);
+					console.log("len="+data.length);
 					//notify user if nothing to load
+					action_bug = "inactive";
 					//$('.ajax-loading').html("No more records!");
+					page_bug = 0;
+					console.log("if="+action_bug);
 					return;
 				}
 				 $('.loading-image-preview').hide(); //hide loading animation once data is received
 				 $('#loading-image-preview').css("display","none");			  
 				$('#bug_tracking_maintable > tbody:last').append(data); 
 				 action_bug = "inactive";
+				 console.log("in success="+action_bug);
 				
 			   
 		   })
@@ -634,60 +711,107 @@ table{border-collapse: collapse;}
 			$('.text-task-bugids').val('');
 			$('.text-task-bugids').val('');
 			$('.text-task-development').val('');
+			bug_id_val = $(this).data("id");
 			
-						
-			if (!title || title == '') {
-				toastr["error"]("Please add title first");
-				return;
-			}
 			
-			//debugger;
-			let val = $("#change_website1").select2("val");
 			$.ajax({
-				url: '/bug-tracking/websitelist',
+				url: '/bug-tracking/checkbug',
 				type: 'POST',
 				headers: {
 					'X-CSRF-TOKEN': "{{ csrf_token() }}"
 				},
 				data: {
-					id: val,
-					cat_title:cat_title,
-					bug_type_id:bug_type_id,
-					module_id:module_id,
-					website_id:website_id
+					bug_id: bug_id_val
 				},
 				beforeSend: function() {
 					$("#loading-image").show();
 				}
 			}).done(function(response) {
+				
 				$("#loading-image").hide();
-				//$this.siblings('input').val("");				
-				$('.website-list').html(response.data.websiteCheckbox);	
-				//$('.text-task-development').val(response.data.bug_ids);		
-				$('#bugs_list_html').html(response.data.bug_html);					
-				//toastr["success"]("Remarks fetched successfully");
+				// inner Ajax starts
+				
+				if(response.data >0 ) {
+					if (!confirm('Task already created for this bug id, Would you like to create again')) {				  
+					  
+					  return false;
+					} 
+					
+				}
+				
+				
+					if (!title || title == '') {
+						toastr["error"]("Please add title first");
+						return;
+					}
+					
+					//debugger;
+					let val = $("#change_website1").select2("val");
+					$.ajax({
+						url: '/bug-tracking/websitelist',
+						type: 'POST',
+						headers: {
+							'X-CSRF-TOKEN': "{{ csrf_token() }}"
+						},
+						data: {
+							id: val,
+							cat_title:cat_title,
+							bug_type_id:bug_type_id,
+							module_id:module_id,
+							website_id:website_id
+						},
+						beforeSend: function() {
+							$("#loading-image").show();
+						}
+					}).done(function(response) {
+						$("#loading-image").hide();
+						//$this.siblings('input').val("");				
+						$('.website-list').html(response.data.websiteCheckbox);	
+						//$('.text-task-development').val(response.data.bug_ids);		
+						$('#bugs_list_html').html(response.data.bug_html);					
+						//toastr["success"]("Remarks fetched successfully");
+					}).fail(function(jqXHR, ajaxOptions, thrownError) {
+						toastr["error"]("Oops,something went wrong");
+						$("#loading-image").hide();
+					});
+					
+					
+					 $("#create-quick-task").modal("show");
+					
+
+					var selValue = $(".save-item-select").val();
+					if (selValue != "") {
+						$("#create-quick-task").find(".assign-to option[value=" + selValue + "]").attr('selected',
+							'selected')
+						$('.assign-to.select2').select2({
+							width: "100%"
+						});
+					}
+
+					$("#hidden-task-subject").val(title);
+					$(".text-task-development").val(development);
+					$('#site_id').val(site);	
+					$('#website_id').val(website_id);	
+					
+				
+				
+				
+				
+				// inner Ajax ends
+				
+				
+				
+				
+				
+				
 			}).fail(function(jqXHR, ajaxOptions, thrownError) {
 				toastr["error"]("Oops,something went wrong");
 				$("#loading-image").hide();
 			});
 			
 			
-			 $("#create-quick-task").modal("show");
 			
-
-			var selValue = $(".save-item-select").val();
-			if (selValue != "") {
-				$("#create-quick-task").find(".assign-to option[value=" + selValue + "]").attr('selected',
-					'selected')
-				$('.assign-to.select2').select2({
-					width: "100%"
-				});
-			}
-
-			$("#hidden-task-subject").val(title);
-			$(".text-task-development").val(development);
-			$('#site_id').val(site);	
-			$('#website_id').val(website_id);	
+			
 			
 
 			// $.ajax({
@@ -710,16 +834,26 @@ table{border-collapse: collapse;}
 			var form = $(this).closest("form");
 			
 			var values = new Array();
+			var web = new Array();
 			$.each($("input[name='chkBugId[]']:checked"), function() {
 			  values.push($(this).val());
 			  // or you can do something to the actual checked checkboxes by working directly with  'this'
 			  // something like $(this).hide() (only something useful, probably) :P
-			})				
+			})	
+			$.each($(".website-list input[type='checkbox']:checked"), function() {
+			  web.push($(this).val());
+			  // or you can do something to the actual checked checkboxes by working directly with  'this'
+			  // something like $(this).hide() (only something useful, probably) :P
+			})
+			
 			if(values.length ==0 && $("input[name='chkBugId[]']").length>0) {
 				toastr["error"]("Please select atleast 1 bugs list ");
 				return;
 			} 
-			
+			if(web.length ==0) {
+				toastr["error"]("Please select website ");
+				return;
+			}
 			
 			$.ajax({
 				url: form.attr("action"),
@@ -904,6 +1038,8 @@ table{border-collapse: collapse;}
 			var thiss = $(this);
 			var data = new FormData();
 			var task_id = $(this).data('taskid');
+			var bid = $(this).data('id');
+			
 			var message = $(this).closest('tr').find('.quick-message-field').val();
 			var mesArr = $(this).closest('tr').find('.quick-message-field');
 			$.each(mesArr, function(index, value) {
@@ -939,14 +1075,16 @@ table{border-collapse: collapse;}
 						//   }).fail(function(response) {
 						//     console.log(response);
 						//     alert(response.responseJSON.message);
-						//   });
+						//   });						
+						$('#getMsg'+bid).val('')
 
 						$(thiss).attr('disabled', false);
 					}).fail(function(errObj) {
-						$(thiss).attr('disabled', false);
-
-						alert("Could not send message");
+						$(thiss).attr('disabled', false);						
+						$('#getMsg'+bid).val('')
+						//alert("Could not send message");
 						console.log(errObj);
+						
 					});
 				}
 			} else {
@@ -977,5 +1115,12 @@ table{border-collapse: collapse;}
 		$(window).on('load', function() {
 			$( "th" ).resizable();
 		});
+		
+		var uriv = window.location.href.toString();
+		if (uriv.indexOf("?") > 0) {
+			var clean_uri = uriv.substring(0, uriv.indexOf("?"));
+			$('#bug-id-search').val("");
+			window.history.replaceState({}, document.title, clean_uri);
+		}
 	</script>
 @endsection

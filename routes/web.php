@@ -455,6 +455,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/website/stores', [MagentoSettingsController::class, 'websiteStores'])->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', [MagentoSettingsController::class, 'websiteStoreViews'])->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', [MagentoSettingsController::class, 'deleteSetting'])->name('delete.setting');
+    Route::get('get-all/store-websites/{id}', [MagentoSettingsController::class, 'getAllStoreWebsites'])->name('get.all.store.websites');
 });
 //Google Web Master Routes
 Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
@@ -693,6 +694,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/listing/push-to-magento', [ProductController::class, 'pushProductsToMagento'])->name('products.pushToMagento');
     Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatus'])->name('products.magentoPushStatus');
     Route::post('products/changeautopushvalue', [ProductController::class, 'changeAutoPushValue']);
+    Route::post('products/listing/magento-push-status/autocomplete', [ProductController::class, 'autocompleteSearchPushStatus'])->name('products.autocompleteSearchPushStatus');
     Route::post('product/image/order/change', [ProductController::class, 'changeimageorder']);
 
     Route::post('products/customer/charity/savewebsite', [CustomerCharityController::class, 'savewebsite']);

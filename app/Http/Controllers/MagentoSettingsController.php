@@ -750,4 +750,11 @@ class MagentoSettingsController extends Controller
             return redirect()->back()->withErrors('Please select valid file for update sensitive paths');
         }
     }
+
+    public function getAllStoreWebsites($id)
+    {
+        $storeWebsites = StoreWebsite::where('parent_id', '=', $id)->get();
+
+        return response()->json($storeWebsites);
+    }
 }

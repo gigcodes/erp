@@ -1447,21 +1447,13 @@ class ProductController extends Controller
             $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
         });
         $products = $products->where('is_conditions_checked', 1);
-        $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
-            $join->on('pvu.product_id', 'products.id');
-            $join->where('pvu.user_id', '!=', auth()->user()->id);
-        });
 
         $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
         $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
 
-        $products = $products->leftJoin('status as s', function ($join) {
-            $join->on('products.status_id', 's.id');
-        });
-
-        $products = $products->where('isUploaded', 0);
         $products = $products->orderBy('llm_id', 'desc');
-        $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title'])->paginate(20);
+        $products = $products->groupBy('LLM.product_id', 'LLM.store_website_id');
+        $products = $products->select(['products.*', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.id as sw_id', 'SW.title as sw_title'])->paginate(20);
         $productsCount = $products->total();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
@@ -1478,11 +1470,94 @@ class ProductController extends Controller
 
     public function magentoPushStatus(Request $request)
     {
+        if ($request->ajax()) {
+            $value = $request->get('value');
+            $search = $request->get('fieldname');
+
+            if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+                $products = Product::query();
+            } else {
+                $products = Product::query()->where('assigned_to', auth()->user()->id);
+            }
+            $products = $products->where(function ($query) {
+                $query->where('status_id', StatusHelper::$pushToMagento);
+                $query->orWhere('status_id', StatusHelper::$inMagento);
+            });
+            $products = $products->where('is_push_attempted', 1);
+            $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
+                $join->on('pvu.product_id', 'products.id');
+                $join->where('pvu.user_id', '!=', auth()->user()->id);
+            });
+
+            $products = $products->leftJoin('status as s', function ($join) {
+                $join->on('products.status_id', 's.id');
+            });
+
+            $products = $products->where('isUploaded', 0);
+            $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
+
+            if ($request->get('id') != '') {
+                $products = $products->where('products.id', $request->get('id'));
+            }
+            if ($request->get('name') != '') {
+                $products = $products->where('products.name', $request->get('name'));
+            }
+            if ($request->get('title') != '') {
+                $products = $products->where('products.name', $request->get('title'));
+            }
+            if ($request->get('color') != '') {
+                $products = $products->where('products.color', $request->get('color'));
+            }
+            if ($request->get('composition') != '') {
+                $composition = $request->get('compositon');
+                $products = $products->where('products.composition', 'LIKE', "%$composition%");
+            }
+            if ($request->get('status') != '') {
+                $products = $products->where('products.status', $request->get('status'));
+            }
+            if ($request->get('price') != '') {
+                $products = $products->where('products.price_usd', $request->get('price'));
+                $products = $products->orWhere('products.price_usd_special', $request->get('price'));
+                $products = $products->orWhere('products.price', $request->get('price'));
+            }
+
+            if (isset($search)) {
+                if ($search === 'title' || $search === 'name') {
+                    $products = $products->where('products.name', 'LIKE', "%$value%");
+                }
+                if ($search === 'category') {
+                    $products = $products->where('categories.title', 'LIKE', "%$value%");
+                } else {
+                    $products = $products->where("products.$search", 'LIKE', "%$value%");
+                }
+            }
+
+            $products = $products->select(['products.*', 's.name as product_status'])->paginate(10);
+            $productsCount = $products->total();
+            $imageCropperRole = auth()->user()->hasRole('ImageCropers');
+            $categoryArray = Category::renderAsArray();
+            $colors = (new Colors)->all();
+            if (! Setting::has('auto_push_product')) {
+                $auto_push_product = Setting::add('auto_push_product', 0, 'int');
+            } else {
+                $auto_push_product = Setting::get('auto_push_product');
+            }
+            $users = User::all();
+
+            return view('products.magento_push_status.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+        } else {
+            return view('products.magento_push_status.index');
+        }
+    }
+
+    public function autocompleteSearchPushStatus(Request $request)
+    {
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $products = Product::query();
         } else {
             $products = Product::query()->where('assigned_to', auth()->user()->id);
         }
+        $search = $request->get('filedname');
         $products = $products->where(function ($query) {
             $query->where('status_id', StatusHelper::$pushToMagento);
             $query->orWhere('status_id', StatusHelper::$inMagento);
@@ -1498,25 +1573,38 @@ class ProductController extends Controller
         });
 
         $products = $products->where('isUploaded', 0);
-        $products = $products->select(['products.*', 's.name as product_status'])->paginate(10);
+        $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
+        $searchValue = $request->get('search_value');
 
-        $productsCount = $products->total();
+        if (isset($search)) {
+            if ($search === 'title' || $search === 'name') {
+                $products = $products->where('products.name', 'LIKE', "%$searchValue%");
+            }
+            if ($search === 'category') {
+                $products = $products->where('c.title', 'LIKE', "%$searchValue%");
+            } else {
+                $products = $products->where("products.$search", 'LIKE', "%$searchValue%");
+            }
+        }
+
+        $products = $products->select(['products.*', 's.name as product_status']);
+        $products = $products->get()->toArray();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
         $colors = (new Colors)->all();
+
         if (! Setting::has('auto_push_product')) {
             $auto_push_product = Setting::add('auto_push_product', 0, 'int');
         } else {
             $auto_push_product = Setting::get('auto_push_product');
         }
-        $users = User::all();
 
-        return view('products.magento_push_status.index', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+        return response()->json(['status' => 200, 'data' => array_unique(array_column($products, $search))]);
     }
 
-    public function magentoConditionsCheckLogs($id)
+    public function magentoConditionsCheckLogs($pId, $swId)
     {
-        $logs = ProductPushErrorLog::where('log_list_magento_id', '=', $id)->get();
+        $logs = ProductPushErrorLog::where('product_id', '=', $pId)->where('store_website_id', '=', $swId)->orderBy('id', 'desc')->get();
 
         return response()->json(['code' => 200, 'data' => $logs]);
     }
@@ -1804,8 +1892,6 @@ class ProductController extends Controller
                 array_push($products_array, $path);
             }
         }
-
-        \Zipper::make(public_path("$product->sku.zip"))->add($products_array)->close();
 
         return response()->download(public_path("$product->sku.zip"))->deleteFileAfterSend();
     }
@@ -3204,14 +3290,20 @@ class ProductController extends Controller
             // Add order
             $product = QueryHelper::approvedListingOrder($product);
             //get priority
-            $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
-                // $query->where('priority','!=',null);
-            })->whereHasMedia('original')->get()->transform(function ($productData) {
-                $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
 
-                return $productData;
-            });
-            $product = $product->sortBy('priority')->first();
+            ///Commented due to query taking long time
+            // $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
+            //     // $query->where('priority','!=',null);
+            // })->whereHasMedia('original')->get()->transform(function ($productData) {
+            //     $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
+
+            //     return $productData;
+            // });
+            //$product = $product->sortBy('priority')->first();
+            // Comment End
+
+            $product = $product->first();
+
             unset($product->priority);
             // return response()->json([
             //     'status' => $product
@@ -4821,11 +4913,10 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        
                         try {
                             PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
                         } catch (\Exception $e) {
-                            $error_msg = "First Job failed: ".$e->getMessage();
+                            $error_msg = 'First Job failed: '.$e->getMessage();
                             $log->sync_status = 'error';
                             $log->message = $error_msg;
                             $log->save();
@@ -4880,7 +4971,7 @@ class ProductController extends Controller
                         \Log::info('Product conditions check started website found For website '.$website->website);
                         $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
                         //currently we have 3 queues assigned for this task.
-                        $log->queue = \App\Helpers::createQueueName('magentoconditionscheckqueue');
+                        $log->queue = \App\Helpers::createQueueName('default');
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
                         PushToMagento::dispatch($product, $website, $log, $mode);
