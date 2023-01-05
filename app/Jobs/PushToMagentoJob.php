@@ -23,6 +23,8 @@ class PushToMagentoJob implements ShouldQueue
 
     protected $category;
 
+    protected $mode;
+
     /**
      * Create a new job instance.
      *
@@ -30,13 +32,15 @@ class PushToMagentoJob implements ShouldQueue
      * @param  StoreWebsite  $website
      * @param  null  $category
      * @param  null  $log
+     * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $category = null)
+    public function __construct(Product $product, StoreWebsite $website, $log = null, $category = null, $mode = null)
     {
         $this->_product = $product;
         $this->_website = $website;
         $this->log = $log;
         $this->category = $category;
+        $this->mode = $mode;
     }
 
     /**
@@ -47,7 +51,7 @@ class PushToMagentoJob implements ShouldQueue
     public function handle()
     {
         set_time_limit(0);
-        $magentoService = new MagentoService($this->_product, $this->_website, $this->log, $this->category);
-        $magentoService->pushProduct();
+        $magentoService = new MagentoService($this->_product, $this->_website, $this->log, $this->category, $this->mode);
+        $magentoService->assignOperation();
     }
 }
