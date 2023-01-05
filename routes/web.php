@@ -1572,6 +1572,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/change-user', 'DevelopmentController@changeUserStore')->name('development.changeuser.store');
 
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
+    Route::post('development/statuscolor', 'DevelopmentController@statuscolor')->name('development.statuscolor');
+
     Route::get('development/flagtask', 'DevelopmentController@flagtask')->name('development.flagtask');
     Route::post('development/gettasktimemessage', 'DevelopmentController@gettasktimemessage')->name('development.gettasktimemessage');
     Route::post('development/getlogtasktimemessage', 'DevelopmentController@getlogtasktimemessage')->name('development.getlogtasktimemessage');

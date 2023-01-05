@@ -1,4 +1,7 @@
-<tr style="color:grey;">
+<?php
+$task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color');
+?>
+<tr style="color:grey; background-color:{{$task_color}}">
     <td style="display:table-cell;vertical-align: baseline;">
 
         <div class="d-flex align-items-center">
