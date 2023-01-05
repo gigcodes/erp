@@ -385,8 +385,6 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             \Log::info('Store website product attributes created for ' . $this->copyStoreWebsite->title);
 
             // Inserts Store Websites products prices
-            #$swProductPrices = StoreWebsiteProductPrice::where('store_website_id', '=', $this->storeWebsiteId)->get();
-
             StoreWebsiteProductPrice::where('store_website_id', '=', 1)->chunk(500, function ($rows) use ($copyStoreWebsiteId) {
                 $copySwProductPricesResult = [];
                 foreach ($rows as $row) {
@@ -406,16 +404,6 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 StoreWebsiteProductPrice::insert($copySwProductPricesResult);
             });
 
-
-//            if ($swProductPrices->count() > 0) {
-//
-//            }
-
-//            if (!$response) {
-//                \Log::error('Store website product price creation failed for ' . $this->copyStoreWebsite->title);
-//
-//                return response()->json(['code' => 500, 'error' => 'Store website product price creation failed!']);
-//            }
             \Log::info('Store website product price created for ' . $this->copyStoreWebsite->title);
 
             // Inserts Store Websites products screenshots
