@@ -12,6 +12,7 @@ class CustomerLiveChat extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="thread",type="string")
      * @SWG\Property(property="status",type="string")

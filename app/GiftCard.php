@@ -12,6 +12,7 @@ class GiftCard extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="sender_name",type="string")
      * @SWG\Property(property="sender_email",type="string")
      * @SWG\Property(property="receiver_name",type="string")

@@ -13,6 +13,7 @@ class Account extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="first_name",type="string")
      * @SWG\Property(property="last_name",type="string")
      * @SWG\Property(property="email",type="email")

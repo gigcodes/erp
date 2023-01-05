@@ -12,6 +12,7 @@ class SupplierCategoryCount extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="supplier_id",type="integer")
      * @SWG\Property(property="cnt",type="string")
      * @SWG\Property(property="category_id",type="integer")

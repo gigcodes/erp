@@ -11,6 +11,7 @@ class CallBusyMessage extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="lead_id",type="integer")
      * @SWG\Property(property="twilio_call_sid",type="string")
      * @SWG\Property(property="caller_sid",type="string")

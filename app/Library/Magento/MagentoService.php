@@ -32,6 +32,8 @@ class MagentoService
 
     public $log;
 
+    public $mode;
+
     public $categories;
 
     public $brand;
@@ -100,11 +102,13 @@ class MagentoService
 
     const SKU_SEPERATOR = '-';
 
-    public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null)
+    public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null, $category = null, $mode = null)
     {
         $this->product = $product;
         $this->storeWebsite = $storeWebsite;
         $this->log = $log;
+        $this->category = $category;
+        $this->mode = $mode;
         $this->charity = 0;
         $p = \App\CustomerCharity::where('product_id', $this->product->id)->first();
         if ($p) {
@@ -120,6 +124,11 @@ class MagentoService
 
     public function pushProduct()
     {
+        if ($this->log) {
+            $this->log->sync_status = 'second_job_started';
+            $this->log->message = 'Second job started';
+            $this->log->save();
+        }
         $website = $this->storeWebsite;
         // start to send request if there is token
         if (($this->topParent == 'NEW' && in_array('check_if_website_token_exists', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('check_if_website_token_exists', $this->upteamconditions))) {
@@ -170,7 +179,7 @@ class MagentoService
         return $this->assignOperation();
     }
 
-    private function assignOperation()
+    public function assignOperation()
     {
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id.' #1 => '.date('Y-m-d H:i:s'));
@@ -297,7 +306,20 @@ class MagentoService
 
         \Log::info($this->product->id.' #19 => '.date('Y-m-d H:i:s'));
 
-        return $this->assignProductOperation();
+        if ($this->mode == 'conditions-check') {
+            \Log::info('conditions-check');
+            $productRow = Product::find($this->product->id);
+            $productRow->status_id = StatusHelper::$productConditionsChecked;
+            $productRow->save();
+
+            return true;
+        } elseif ($this->mode == 'product-push') {
+            \Log::info('Mode is '.$this->mode);
+
+            return $this->assignProductOperation();
+        } else {
+            return $this->assignProductOperation();
+        }
     }
 
     private function getActiveLanguages()
@@ -452,7 +474,7 @@ class MagentoService
         return $sku;
     }
 
-    private function assignProductOperation()
+    public function assignProductOperation()
     {
         $product = $this->product;
         $brand = $this->brand;
@@ -463,6 +485,7 @@ class MagentoService
 
         // start operation for simple or configurable
         $mainCategory = $this->category;
+        Log::info('Main category:'.json_encode($mainCategory));
 
         $pushSingle = false;
         ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'check_category_pushtype', 'product_id' => $this->product->id,  'is_checked' => 1]);
@@ -490,7 +513,7 @@ class MagentoService
         }
 
         \Log::info(print_r([count($this->prices['samePrice']), count($this->prices['specialPrice']), count($this->translations)], true));
-
+        $storeWebsiteSize = ($this->storeWebsiteSize) ? $this->storeWebsiteSize : [];
         if ($pushSingle) {
             $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
             if ($this->log) {
@@ -499,7 +522,7 @@ class MagentoService
             }
             $result = $this->_pushSingleProduct();
         } else {
-            $totalRequest = ((count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations) + 1) * (1 + count($this->storeWebsiteSize)));
+            $totalRequest = ((count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations) + 1) * (1 + count($storeWebsiteSize)));
             if ($this->log) {
                 $this->log->total_request_assigned = $totalRequest;
                 $this->log->save();
@@ -655,20 +678,21 @@ class MagentoService
                 $catLinks[] = ['position' => $category['position'], 'category_id' => $category['category_id']];
             }
         }
+        \Log::info('Will check meta is empty or not, if empty variable set as null.');
         $data['product']['extension_attributes']['category_links'] = $catLinks;
         $data['product']['custom_attributes'][12] = [
             'attribute_code' => 'meta_title',
-            'value' => $this->meta['meta_title'],
+            'value' => ($this->meta) ? $this->meta['meta_title'] : '',
         ];
 
         $data['product']['custom_attributes'][13] = [
             'attribute_code' => 'meta_description',
-            'value' => $this->meta['meta_description'],
+            'value' => ($this->meta) ? $this->meta['meta_description'] : '',
         ];
 
         $data['product']['custom_attributes'][14] = [
             'attribute_code' => 'meta_keyword',
-            'value' => $this->meta['meta_keyword'],
+            'value' => ($this->meta) ? $this->meta['meta_keyword'] : '',
         ];
 
         if (! empty($this->sizeChart)) {
@@ -875,7 +899,6 @@ class MagentoService
                 ProductPushErrorLog::log($url, $product->id, 'Product push to magento failed for product ID '.$product->id.' messaage : '.$result, 'error', $website->id, $data, $err, $this->log->id);
             }
         } catch (\SoapFault $e) {
-            // Log alert
             \Log::error($e);
             Log::channel('listMagento')->alert('option for product '.$product->id.' with failed while pushing to Magento with message: '.$e->getMessage());
         }
@@ -1205,7 +1228,6 @@ class MagentoService
                 }
             }
         }
-        Log::info('pricesArr '.json_encode($pricesArr));
 
         // start to matching price fix
         $samePrice = [];
@@ -1349,7 +1371,7 @@ class MagentoService
         }
 
         $this->category = $category;
-        $this->storeLog('success', 'Product category found '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_product_category']]);
+        $this->storeLog('condition_true', 'Product category found '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_product_category']]);
 
         return true;
     }
@@ -1398,7 +1420,7 @@ class MagentoService
         }
 
         $this->brand = $brand;
-        $this->storeLog('success', 'Product brand found '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_brand']]);
+        $this->storeLog('condition_true', 'Product brand found '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_brand']]);
 
         return true;
     }
@@ -1416,7 +1438,7 @@ class MagentoService
         $reference->sku = $product->sku;
         $reference->color = $product->color;
         $reference->save();
-        $this->storeLog('success', 'Product references assigned'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['assign_product_references']]);
+        $this->storeLog('condition_true', 'Product references assigned'.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['assign_product_references']]);
     }
 
     private function validateReadiness()
@@ -1475,7 +1497,7 @@ class MagentoService
             return false;
         } else {
             $this->token = $token;
-            $this->storeLog('success', 'Token generated  for website '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['check_if_website_token_exists']]);
+            $this->storeLog('condition_true', 'Token generated  for website '.$this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['check_if_website_token_exists']]);
 
             return $token;
         }
@@ -1576,18 +1598,23 @@ class MagentoService
                     $end_date = date('Y-m-d', strtotime($product_discount2->end_date));
                 } else {
                     $brand = $this->brand;
-                    $product_discount3 = StoreWebsiteSalesPrice::where('type', 'brand')
-                        ->where('type_id', $brand->id)
-                        ->where('supplier_id', $supplier_id)
-                        ->whereDate('start_date', '>=', $date)
-                        ->whereDate('end_date', '<=', $date)
-                        //->whereRaw($date .' between date(start_date) and date(end_date)')
-                        ->first();
-                    if ($product_discount3) {
-                        $discount = $product_discount3->amount;
-                        $discount_type = $product_discount3->amount_type;
-                        $start_date = date('Y-m-d', strtotime($product_discount3->start_date));
-                        $end_date = date('Y-m-d', strtotime($product_discount3->end_date));
+                    if ($brand) {
+                        $product_discount3 = StoreWebsiteSalesPrice::where('type', 'brand')
+                            ->where('type_id', $brand->id)
+                            ->where('supplier_id', $supplier_id)
+                            ->whereDate('start_date', '>=', $date)
+                            ->whereDate('end_date', '<=', $date)
+                            //->whereRaw($date .' between date(start_date) and date(end_date)')
+                            ->first();
+                        if ($product_discount3) {
+                            $discount = $product_discount3->amount;
+                            $discount_type = $product_discount3->amount_type;
+                            $start_date = date('Y-m-d', strtotime($product_discount3->start_date));
+                            $end_date = date('Y-m-d', strtotime($product_discount3->end_date));
+                        }
+                    } else {
+                        Log::info('Brand is null so setting discount as 0.');
+                        $discount = 0;
                     }
                 }
             }

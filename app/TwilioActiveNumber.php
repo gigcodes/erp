@@ -11,6 +11,7 @@ class TwilioActiveNumber extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="twilio_credential_id",type="integer")
      * @SWG\Property(property="sid",type="integer")
      * @SWG\Property(property="account_sid",type="integer")

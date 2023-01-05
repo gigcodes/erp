@@ -11,6 +11,7 @@ class TaskTypes extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="task_types",type="string")
      * @SWG\Property(property="name",type="integer")
      */

@@ -11,6 +11,7 @@ class ScraperResult extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="scraper_name",type="string")
      * @SWG\Property(property="total_urls",type="string")
      * @SWG\Property(property="existing_urls",type="string")

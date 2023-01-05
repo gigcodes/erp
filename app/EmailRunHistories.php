@@ -11,6 +11,7 @@ class EmailRunHistories extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="email_run_histories",type="string")
      * @SWG\Property(property="email_address_id",type="integer")
      * @SWG\Property(property="is_success",type="boolean")

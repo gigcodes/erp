@@ -11,6 +11,7 @@ class OrderStatusHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="old_id",type="integer")
      * @SWG\Property(property="old_status",type="string")
      * @SWG\Property(property="new_status",type="string")

@@ -39,6 +39,7 @@ class ZoomMeetings extends Model
      * @param  string  $zoomSecret
      * @param  array  $data
      * @return array $meeting
+     *
      * @Rest\Post("LaravelZoom")
      *
      * @uses LaravelZoom
@@ -184,6 +185,7 @@ class ZoomMeetings extends Model
      * Get meeting recordings based on meeting id
      *
      * @return array $meeting
+     *
      * @Rest\Post("LaravelZoom")
      *
      * @uses LaravelZoom
@@ -253,6 +255,7 @@ class ZoomMeetings extends Model
      * Delete meeting recordings based on meeting id
      *
      * @return array $meeting
+     *
      * @Rest\Post("LaravelZoom")
      *
      * @uses LaravelZoom

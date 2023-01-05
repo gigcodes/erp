@@ -11,6 +11,7 @@ class OldCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="category",type="string")
      */
     protected $fillable = ['category'];

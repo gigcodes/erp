@@ -11,6 +11,7 @@ class OldRemark extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="old_id",type="integer")
      * @SWG\Property(property="remark",type="string")
      * @SWG\Property(property="user_name",type="string")

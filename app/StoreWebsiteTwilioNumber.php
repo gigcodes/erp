@@ -12,6 +12,7 @@ class StoreWebsiteTwilioNumber extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="store_website_twilio_numbers",type="string")
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="twilio_active_number_id",type="integer")

@@ -11,6 +11,7 @@ class ChatbotQuestion extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="value",type="string")
      * @SWG\Property(property="workspace_id",type="integer")
      * @SWG\Property(property="created_at",type="datetime")

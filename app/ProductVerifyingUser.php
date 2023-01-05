@@ -11,6 +11,7 @@ class ProductVerifyingUser extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="created_at",type="datetime")

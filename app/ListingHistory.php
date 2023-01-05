@@ -11,6 +11,7 @@ class ListingHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="content",type="integer")
      */
     protected $casts = [

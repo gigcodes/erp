@@ -12,6 +12,7 @@ class LiveChatUser extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      */
     protected $fillable = ['user_id'];

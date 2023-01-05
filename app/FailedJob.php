@@ -12,6 +12,7 @@ class FailedJob extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="failed_jobs",type="string")
      * @SWG\Property(property="queue",type="string")
      * @SWG\Property(property="payload",type="string")

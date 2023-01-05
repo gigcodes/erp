@@ -20,13 +20,13 @@
            		 <div class="msg-wgt-footer">					
 					<ul id="sendid">
 						<?php foreach ($users as $key => $user) {
-                    if (Auth::user()->name != $user) {
-                        ?>
+						    if (Auth::user()->name != $user) {
+						        ?>
 
 						 <li data-id="{{$key}}">{{$user}} <span class="new"></span> </li>
 						 <?php
-                    }
-                } ?>
+						    }
+						} ?>
 					</ul>
 				</div>	
 

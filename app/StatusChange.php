@@ -11,6 +11,7 @@ class StatusChange extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="model_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="model_type",type="string")

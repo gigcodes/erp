@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Google\Auth\CredentialsLoader;
 use Google\Auth\OAuth2;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Session;
 
 class GoogleAdsAccountController extends Controller

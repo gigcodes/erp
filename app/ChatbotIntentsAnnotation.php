@@ -11,6 +11,7 @@ class ChatbotIntentsAnnotation extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="question_example_id",type="string")
      * @SWG\Property(property="chatbot_keyword_id",type="integer")
      * @SWG\Property(property="start_char_range",type="string")

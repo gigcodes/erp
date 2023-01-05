@@ -13,6 +13,7 @@ class ChatbotKeywordValue extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="value",type="string")
      * @SWG\Property(property="types",type="string")
      * @SWG\Property(property="chatbot_keyword_id",type="integer")

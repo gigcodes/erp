@@ -11,6 +11,7 @@ class ListingPayments extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="product_ids",type="string")
      */
     protected $casts = [

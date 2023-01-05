@@ -14,12 +14,14 @@ class BrandCategorySizeChart extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="brand_category_size_charts",type="string")
      */
     protected $table = 'brand_category_size_charts';
 
     /**
      * @var string
+     *
      * @SWG\Property(property="brand_id",type="integer")
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="store_website_id",type="integer")
