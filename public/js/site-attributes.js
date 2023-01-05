@@ -131,10 +131,8 @@ var page = {
         $("#loading-image").hide();
     	var addProductTpl = $.templates("#template-result-block");
         var tplHtml       = addProductTpl.render(response);
-
         $(".count-text").html("("+response.total+")");
-
-    	page.config.bodyView.find("#page-view-result").html(tplHtml);
+    	$("#page-view-result").html(tplHtml);
 
     }
     ,
