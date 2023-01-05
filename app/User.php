@@ -213,7 +213,6 @@ class User extends Authenticatable implements JWTSubject
      */
     public function isAdmin()
     {
-        return true;
         $roles = $this->roles->pluck('name')->toArray();
         if (in_array('Admin', $roles)) {
             return true;
