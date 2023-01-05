@@ -847,6 +847,12 @@ class CategoryController extends Controller
         }
 
         return response()->json(['code' => 200, 'message' => $msg, 'storeWebsites' => $storeWebsites]);
+
+//        -> new/preowned
+//        --> Men/women/kids
+//        ---->Men > accessories
+//        ------> accessories
+
     }
 
     /**
