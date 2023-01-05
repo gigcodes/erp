@@ -1447,6 +1447,7 @@ class ProductController extends Controller
             $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
         });
         $products = $products->where('is_conditions_checked', 1);
+        $products = $products->where('is_push_attempted', 0);
 
         $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
         $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
@@ -1562,15 +1563,11 @@ class ProductController extends Controller
             $query->where('status_id', StatusHelper::$pushToMagento);
             $query->orWhere('status_id', StatusHelper::$inMagento);
         });
+        $products = $products->where('is_conditions_checked', 1);
         $products = $products->where('is_push_attempted', 1);
-        $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
-            $join->on('pvu.product_id', 'products.id');
-            $join->where('pvu.user_id', '!=', auth()->user()->id);
-        });
 
-        $products = $products->leftJoin('status as s', function ($join) {
-            $join->on('products.status_id', 's.id');
-        });
+        $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
+        $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
 
         $products = $products->where('isUploaded', 0);
         $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
@@ -4998,10 +4995,13 @@ class ProductController extends Controller
      */
     public function pushProductsToMagento(Request $request)
     {
+        $mode = 'product-push';
         $limit = $request->get('no_of_product', 100);
         $products = Product::select('*')
             ->where('short_description', '!=', '')->where('name', '!=', '')
-            ->where('status_id', StatusHelper::$productConditionsChecked)
+//            ->where('status_id', StatusHelper::$productConditionsChecked)
+            ->where('status_id', StatusHelper::$finalApproval)
+//            $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
             ->groupBy('brand', 'category')
             ->limit($limit)
             ->get();
@@ -5021,16 +5021,17 @@ class ProductController extends Controller
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
-                        \Log::info('Product started website found For website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Push to magento of conditions checked product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
+                        \Log::info('Product push started For the website'.$website->website);
+                        $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-
-                        PushToMagentoJob::dispatch($product, $website, $log, $category)->onQueue($log->queue);
+                        if ($log->queue == 'sololuxury' && ($product->id == '371297' || $product->id == '388465')) {
+                            PushToMagentoJob::dispatch($product, $website, $log, $category, $mode)->onQueue($log->queue);
+                        }
                         $i++;
                     } else {
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
                     }
                 }
             } else {

@@ -263,6 +263,8 @@ class StoreWebsiteController extends Controller
 
         $storeWebsiteId = $request->get('id');
         $storeWebsite = StoreWebsite::find($storeWebsiteId);
+        $existingDuplicateCount = StoreWebsite::where('parent_id', '=', $storeWebsiteId)->count();
+        $numberOfDuplicates = $numberOfDuplicates + $existingDuplicateCount;
         $serverId = 1;
         $response = $this->updateStoreViewServer($storeWebsiteId, $serverId);
         if (! $response) {
@@ -273,7 +275,7 @@ class StoreWebsiteController extends Controller
             return response()->json(['code' => 500, 'error' => 'No website found!']);
         }
 
-        for ($i = 1; $i <= $numberOfDuplicates; $i++) {
+        for ($i = $existingDuplicateCount + 1; $i <= $numberOfDuplicates; $i++) {
             $copyStoreWebsite = $storeWebsite->replicate();
             $title = $copyStoreWebsite->title;
             unset($copyStoreWebsite->id);
