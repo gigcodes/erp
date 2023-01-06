@@ -37,11 +37,6 @@ class Translations extends Model
      *
      * @var    array
      */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
-
     /**
      * This static method will create new translation
      *

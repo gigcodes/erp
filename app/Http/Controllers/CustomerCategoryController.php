@@ -119,6 +119,6 @@ class CustomerCategoryController extends Controller
 
         $category->delete();
 
-        return redirect()->action('CustomerCategoryController@index')->with('message', 'Category deleted successfully!');
+        return redirect()->action([\App\Http\Controllers\CustomerCategoryController::class, 'index'])->with('message', 'Category deleted successfully!');
     }
 }

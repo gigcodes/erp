@@ -283,7 +283,7 @@ class BrandController extends Controller
                 } else {
                     return response()->json(['code' => 500, 'message' => 'No store websites found!']);
                 }
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->createWebsiteBrandHistory($request->brand, $request->store, 'error', $user->id, $e->getMessage());
 
                 return response()->json(['code' => 500, 'message' => $e->getMessage()]);

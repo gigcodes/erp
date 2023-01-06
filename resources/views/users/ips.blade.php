@@ -49,7 +49,7 @@
         event.preventDefault();
         $.ajax({
            type: "post",
-           url: '{{ action("UserController@statusChange") }}',
+           url: '{{ action([\App\Http\Controllers\UserController::class, 'statusChange']) }}',
            data: {
              _token: "{{ csrf_token() }}",
              status: $(this).attr('data-status'),

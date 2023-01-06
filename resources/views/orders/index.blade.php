@@ -118,7 +118,7 @@
              </div>
           <div class="col-md-2" style="padding:0px;">
                   <a class="btn btn-xs btn-secondary" href="{{ route('order.create') }}">+</a>
-                  <a href="{{ action('OrderController@downloadOrderInPdf', Request::all()) }}" class="btn btn-secondary btn-xs">Download</a>
+                  <a href="{{ action([\App\Http\Controllers\OrderController::class, 'downloadOrderInPdf'], Request::all()) }}" class="btn btn-secondary btn-xs">Download</a>
               </div>
         </div>
 <div class="row">
@@ -2173,7 +2173,7 @@
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
-                url: "{{action('PurchaseProductController@saveDiscount')}}",
+                url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveDiscount'])}}",
                 type: 'POST',
                 data: {
                   discount: discount,
@@ -2202,7 +2202,7 @@
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
-                url: "{{action('PurchaseProductController@saveFixedPrice')}}",
+                url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveFixedPrice'])}}",
                 type: 'POST',
                 data: {
                   fixed_price: fixed_price,
@@ -2226,7 +2226,7 @@
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
-                url: "{{action('PurchaseProductController@saveDefaultSupplier')}}",
+                url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveDefaultSupplier'])}}",
                 type: 'POST',
                 data: {
                   supplier_id: supplier_id,

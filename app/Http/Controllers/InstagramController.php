@@ -465,7 +465,7 @@ class InstagramController extends Controller
             ]);
         }
 
-        return redirect()->action('InstagramController@editSchedule', $scheduleGroup->id);
+        return redirect()->action([\App\Http\Controllers\InstagramController::class, 'editSchedule'], $scheduleGroup->id);
     }
 
     /**
@@ -630,7 +630,7 @@ class InstagramController extends Controller
             $schedule->images = $imagesIds;
             $schedule->save();
 
-            return redirect()->action('InstagramController@editSchedule', $scheduleId);
+            return redirect()->action([\App\Http\Controllers\InstagramController::class, 'editSchedule'], $scheduleId);
         }
 
         $selectedImages = $request->get('images') ?? [];

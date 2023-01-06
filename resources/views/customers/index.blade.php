@@ -603,7 +603,7 @@
                                     @foreach($orderProduct as $orderStat)
                                         @if($orderStat['product'])
                                             <li>
-                                                <a target="_new" href="{{ action('ProductController@show', $orderStat['product']['id'])  }}">{{ $orderStat['product']['id'] }}</a>
+                                                <a target="_new" href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $orderStat['product']['id'])  }}">{{ $orderStat['product']['id'] }}</a>
                                             </li>
                                         @endif
                                     @endforeach
@@ -1257,7 +1257,7 @@
             let message = $('#reminder_message').val();
 
             $.ajax({
-                url: "{{action('CustomerController@updateReminder')}}",
+                url: "{{action([\App\Http\Controllers\CustomerController::class, 'updateReminder'])}}",
                 type: 'POST',
                 success: function () {
                     toastr['success']('Reminder updated successfully!');
@@ -1301,7 +1301,7 @@
             let instructionId = $(this).attr('data-instructionId');
             let self = this;
             $.ajax({
-                url: '{{ action('InstructionController@verify') }}',
+                url: '{{ action([\App\Http\Controllers\InstructionController::class, 'verify']) }}',
                 type: 'post',
                 data: {
                     id: instructionId
@@ -2129,7 +2129,7 @@
                 return;
             }
             $.ajax({
-                url: '{{ action('CustomerController@search') }}',
+                url: '{{ action([\App\Http\Controllers\CustomerController::class, 'search']) }}',
                 data: {
                     keyword: keyword
                 },
@@ -2356,7 +2356,7 @@
             var customerId = $(this).data('customerid');
             var groupId = $('#group' + customerId).val();
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'quicksell_group_send')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'quicksell_group_send')}}",
                 type: 'POST',
                 data: {
                     groupId: groupId,

@@ -124,7 +124,7 @@
                 <div class="modal-header">
                     <h4 class="modal-title">Create Status</h4>
                 </div>
-                <form action="{{ action('ScrapLogsController@store') }}" class="" method="POST">
+                <form action="{{ action([\App\Http\Controllers\ScrapLogsController::class, 'store']) }}" class="" method="POST">
                 	@csrf
 	                <div class="modal-body">
 	                	<div class="cls_log_popup">
