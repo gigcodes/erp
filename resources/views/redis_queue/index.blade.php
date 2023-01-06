@@ -27,19 +27,22 @@
             <div class="row">
                 <div class="p-2 ml-4"><b>Horizon Commands</b></div>
                 <div class="col-md-6">
-                    <button type="button" onclick="horizonRun('horizon:status')" class="btn btn-secondary">
+                    <button type="button" onclick="horizonRun('horizon:status')" class="btn btn-secondary" title="Horizon status">
                         <i class="fa fa-line-chart" aria-hidden="true"></i>
                     </button>
-                    <button type="button" onclick="horizonRun('horizon')" class="btn btn-secondary">
+                    <button type="button" onclick="horizonRun('horizon')" class="btn btn-secondary" title="Horizon run">
                         <i class="fa fa-play" aria-hidden="true"></i>
                     </button>
-                    <button type="button" onclick="horizonRun('horizon:pause')" class="btn btn-secondary">
+                    <button type="button" onclick="horizonRun('horizon:pause')" class="btn btn-secondary" title="Horizon pause">
                         <i class="fa fa-pause" aria-hidden="true"></i>
                     </button>
-                    <button type="button" onclick="horizonRun('horizon:continue')" class="btn btn-secondary">
+                    <button type="button" onclick="horizonRun('horizon:continue')" class="btn btn-secondary" title="Horizon continue">
                         <i class="fa fa-repeat" aria-hidden="true"></i>
                     </button>
-                    <button type="button" onclick="horizonRun('horizon:terminate')" class="btn btn-secondary">
+                    <button type="button" onclick="horizonRun('horizon:terminate')" class="btn btn-secondary" title="Horizon terminate">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" onclick="horizonRun('horizon:clear')" class="btn btn-secondary" title="Horizon clear">
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -346,7 +349,6 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: {
-                        id: id,
                         command_tail: command
                     }
                 }).done(function (response) {
