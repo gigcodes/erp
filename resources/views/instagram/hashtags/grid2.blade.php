@@ -19,8 +19,8 @@
 
         <div class="col-md-12 text-center">
             @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-info mb-4" href="{{ action('HashtagController@edit', $hashtag) }}">FIRST PAGE</a>
-                <a class="btn btn-info mb-4" href="{{ action('HashtagController@edit', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
+                <a class="btn btn-info mb-4" href="{{ action([\App\Http\Controllers\HashtagController::class, 'edit'], $hashtag) }}">FIRST PAGE</a>
+                <a class="btn btn-info mb-4" href="{{ action([\App\Http\Controllers\HashtagController::class, 'edit'], $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
             @endif
         </div>
 
@@ -42,22 +42,22 @@
                         <td>{{$k}}</td>
                         @php $k++ @endphp
                         <th>
-                            <a href="{{ action('HashtagController@showGrid', $item['name']) }}">
+                            <a href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGrid'], $item['name']) }}">
                                 #{{ $item['name'] }}
                             </a>
                         </th>
                         <td>
-                            <a class="btn btn-info" href="{{ action('HashtagController@showGrid', $item['name']) }}">
+                            <a class="btn btn-info" href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGrid'], $item['name']) }}">
                                 <i class="fa fa-eye"></i>
                             </a>
-                            <a class="btn btn-info" href="{{ action('HashtagController@edit', $item['name']) }}">
+                            <a class="btn btn-info" href="{{ action([\App\Http\Controllers\HashtagController::class, 'edit'], $item['name']) }}">
                                 <i class="fa fa-info"></i>
                             </a>
 
                             @if ($x = \App\HashTag::where('hashtag', $item['name'])->first())
                                 <strong>{{ $x->rating }} STARS</strong>
                             @else
-                                <form method="post" action="{{ action('HashtagController@store') }}" style="display: inline;">
+                                <form method="post" action="{{ action([\App\Http\Controllers\HashtagController::class, 'store']) }}" style="display: inline;">
                                     @csrf
                                     <input type="hidden" name="name" value="{{ $item['name'] }}">
                                     <div class="form-group mt-2" style="display: inline;">
@@ -127,7 +127,7 @@
                                     <i class="fa fa-reply"></i>
                                 </button>
 
-                            {{--                            <form action="{{ action('CustomerController@store') }}" method="post">--}}
+                            {{--                            <form action="{{ action([\App\Http\Controllers\CustomerController::class, 'store']) }}" method="post">--}}
                             {{--                                <button title="Add To Customers" class="btn btn-success">--}}
                             {{--                                    <i class="fa fa-plus"></i>--}}
                             {{--                                </button>--}}
@@ -146,7 +146,7 @@
 
                                             <!-- Modal body -->
                                             <div class="modal-body">
-                                                <form action="{{ action('ReviewController@replyToPost') }}">
+                                                <form action="{{ action([\App\Http\Controllers\ReviewController::class, 'replyToPost']) }}">
                                                     <input type="hidden" name="media_id" value="{{$post['media_id']}}">
                                                     <input type="hidden" name="username" value="{{$post['username']}}">
                                                     <div class="form-group">
@@ -187,8 +187,8 @@
 
         <div class="col-md-12 text-center">
             @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-info mb-4" href="{{ action('HashtagController@edit', $hashtag) }}">FIRST PAGE</a>
-                <a class="btn btn-info mb-4" href="{{ action('HashtagController@edit', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
+                <a class="btn btn-info mb-4" href="{{ action([\App\Http\Controllers\HashtagController::class, 'edit'], $hashtag) }}">FIRST PAGE</a>
+                <a class="btn btn-info mb-4" href="{{ action([\App\Http\Controllers\HashtagController::class, 'edit'], $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
             @endif
         </div>
     </div>
@@ -216,7 +216,7 @@
             let mediaId = $(this).attr('data-media-id');
             let postCode = $(this).attr('data-post-code');
             $.ajax({
-                url: '{{ action('HashtagController@loadComments', '') }}'+'/'+mediaId,
+                url: '{{ action([\App\Http\Controllers\HashtagController::class, 'loadComments'], '') }}'+'/'+mediaId,
                 success: function(response) {
                     let comments = response.comments;
                     if (response.has_more_comments==false) {
@@ -224,7 +224,7 @@
                     }
                     $('#comments-'+mediaId).html('');
                     comments.forEach(function(comment) {
-                        let form = '<form action="{{ action('ReviewController@createFromInstagramHashtag') }}" method="post">@csrf<input type="hidden" name="date" value="'+comment.created_at_time+'"><input type="hidden" name="code" value="'+postCode+'"><input type="hidden" name="post" value="'+response.caption.text+'"><input type="hidden" name="comment" value="'+comment.text+'"><input type="hidden" name="poster" value="'+response.caption.user.username+'"><input type="hidden" name="commenter" value="'+comment.user.username+'"><input type="hidden" name="media_id" value="'+mediaId+'"><button class="btn btn-sm btn-success"><i class="fa fa-check"></i></button></form>';
+                        let form = '<form action="{{ action([\App\Http\Controllers\ReviewController::class, 'createFromInstagramHashtag']) }}" method="post">@csrf<input type="hidden" name="date" value="'+comment.created_at_time+'"><input type="hidden" name="code" value="'+postCode+'"><input type="hidden" name="post" value="'+response.caption.text+'"><input type="hidden" name="comment" value="'+comment.text+'"><input type="hidden" name="poster" value="'+response.caption.user.username+'"><input type="hidden" name="commenter" value="'+comment.user.username+'"><input type="hidden" name="media_id" value="'+mediaId+'"><button class="btn btn-sm btn-success"><i class="fa fa-check"></i></button></form>';
                         let data = '<tr><td>'+comment.user.username+'</td><td>'+comment.text+'</td><td>'+comment.created_at+'</td><td>'+form+'</td></tr>';
                         $('#comments-'+mediaId).append(data);
                     });

@@ -7,7 +7,7 @@
         </div>
         <div class="col-md-12">
             <table class="table table-bordered">
-                <form action="{{ action('AttributeReplacementController@store') }}" method="post">
+                <form action="{{ action([\App\Http\Controllers\AttributeReplacementController::class, 'store']) }}" method="post">
                     @csrf
                     <tr>
                         <th>
@@ -68,7 +68,7 @@
                             <td>{{ $replacement->created_at->format('Y-m-d') }}</td>
                             <td>
                                  @if(auth()->user()->isAdmin())
-                                    <form method="post" action="{{ action('AttributeReplacementController@destroy', $replacement->id) }}">
+                                    <form method="post" action="{{ action([\App\Http\Controllers\AttributeReplacementController::class, 'destroy'], $replacement->id) }}">
                                         @method('DELETE')
                                         @csrf
                                         <button class="btn btn-danger btn-xs">
@@ -96,7 +96,7 @@
             let id = $(this).attr('data-id');
             let self = this;
             $.ajax({
-                url: '{{ action('AttributeReplacementController@show', '') }}'+ '/'+ id,
+                url: '{{ action([\App\Http\Controllers\AttributeReplacementController::class, 'show'], '') }}'+ '/'+ id,
                 success: function() {
                     toastr['success']('Authorized successfully!');
                     $(self).hide();

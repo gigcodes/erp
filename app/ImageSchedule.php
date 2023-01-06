@@ -16,10 +16,8 @@ class ImageSchedule extends Model
      * @SWG\Property(property="created_at",type="datetime")
      * @SWG\Property(property="updated_at",type="datetime")
      */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'scheduled_for',
+    protected $casts = [
+        'scheduled_for' => 'datetime',
     ];
 
     public function image()

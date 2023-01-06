@@ -13,7 +13,7 @@
             <h2 class="page-heading">Total Product found ({{$products_count}})</h2>
         </div>
     </div>
-    <form action="{{ action('ProductController@productScrapLog') }}" method="get">
+    <form action="{{ action([\App\Http\Controllers\ProductController::class, 'productScrapLog']) }}" method="get">
         <div class="row mb-5">
             <div class="col-md-2">
                 <div class="form-group">
@@ -72,7 +72,7 @@
                     <tr>
                         <td>{{isset($request->select_date) ? $request->select_date : date('Y-m-d')}}</td>
                         <td>
-                            <a href="{{ action('ProductController@show', $product->id) }}">{{$product->id}}</a>
+                            <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{$product->id}}</a>
                         </td>
                         <td>
                             {{isset($product->alllog_status[2][0]["created_at"]) ? $product->alllog_status[2][0]["created_at"] : "NA"}}

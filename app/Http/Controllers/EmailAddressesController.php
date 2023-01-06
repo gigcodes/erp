@@ -36,9 +36,11 @@ class EmailAddressesController extends Controller
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption', 'send_grid_token'];
 
         if ($request->keyword) {
-            foreach ($columns as $column) {
-                $query->orWhere($column, 'LIKE', '%'.$request->keyword.'%');
-            }
+            $query->orWhere('driver', 'LIKE', '%'.$request->keyword.'%')
+                ->orWhere('port', 'LIKE', '%'.$request->keyword.'%')
+                ->orWhere('encryption', 'LIKE', '%'.$request->keyword.'%')
+                ->orWhere('send_grid_token', 'LIKE', '%'.$request->keyword.'%')
+                ->orWhere('host', 'LIKE', '%'.$request->keyword.'%');
         }
 
         if ($request->username != '') {
@@ -61,6 +63,8 @@ class EmailAddressesController extends Controller
 
         $users = User::orderBy('name', 'asc')->get()->toArray();
         // dd($users);
+        $userEmails = EmailAddress::groupBy('username')->get(['username'])->toArray();
+
         $ops = '';
         foreach ($users as $key => $user) {
             $ops .= '<option class="form-control" value="'.$user['id'].'">'.$user['name'].'</option>';
@@ -75,6 +79,7 @@ class EmailAddressesController extends Controller
                 'allEncryption' => $allEncryption,
                 'users' => $users,
                 'uops' => $ops,
+                'userEmails' => $userEmails,
             ]);
         } else {
             return view('email-addresses.index', [
@@ -85,6 +90,7 @@ class EmailAddressesController extends Controller
                 'allEncryption' => $allEncryption,
                 'users' => $users,
                 'uops' => $ops,
+                'userEmails' => $userEmails,
             ]);
         }
     }

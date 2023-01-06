@@ -33,7 +33,7 @@
 
 		<div class="tab-content">
 			<br>
-			<form method="post" action="{{ action('SocialController@getSchedules') }}">
+			<form method="post" action="{{ action([\App\Http\Controllers\SocialController::class, 'getSchedules']) }}">
 				@csrf
 				From <input type="text" value="{{ $request->date_from ?? '' }}" name="date_from" id="min">
 				To <input type="text" value="{{ $request->date_to ?? '' }}" name="date_to" id="max"> &nbsp; <button class="btn btn-sm btn-primary">Go</button>
@@ -114,7 +114,7 @@
 				</p>
 				<div class="collapse" id="collapseExample">
 					<div class="card card-body">
-						<form method="post" action="{{action('SocialController@createAdSchedule')}}">
+						<form method="post" action="{{action([\App\Http\Controllers\SocialController::class, 'createAdSchedule'])}}">
 							@csrf
 							<div class="form-group">
 								<label for="name">Name</label>
@@ -144,7 +144,7 @@
 								<td>{{ $schedule->name }}</td>
 								<td>{{ $schedule->scheduled_for }}</td>
 								<td>
-									<a href="{{ action('SocialController@showSchedule', $schedule->id) }}">Edit</a>
+									<a href="{{ action([\App\Http\Controllers\SocialController::class, 'showSchedule'], $schedule->id) }}">Edit</a>
 								</td>
 							</tr>
 						@endforeach
@@ -176,7 +176,7 @@
 				header: {
 					right: "month,agendaWeek,agendaDay, today prev,next",
 				},
-				events: '{{ action('SocialController@getAdSchedules') }}'
+				events: '{{ action([\App\Http\Controllers\SocialController::class, 'getAdSchedules']) }}'
 			});
 
 		});

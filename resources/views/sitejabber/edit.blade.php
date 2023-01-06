@@ -6,7 +6,7 @@
             <h2 class="page-heading">Edit Review</h2>
         </div>
         <div class="col-md-12">
-            <form action="{{ action('ReviewController@update', $review->id) }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\ReviewController::class, 'update'], $review->id) }}" method="post">
                 @csrf
                 @method('PUT')
                 <div class="form-group">

@@ -1,7 +1,10 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\ReferralProgram;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class RefrerralProgramSeeder extends Seeder
 {

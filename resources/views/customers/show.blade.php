@@ -437,7 +437,7 @@
                     <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
                     <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
                     <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button>
-                    <a class="btn btn-secondary btn-xs" href="{{ action('CustomerController@exportCommunication', $customer->id) }}">Export Chat</a>
+                    <a class="btn btn-secondary btn-xs" href="{{ action([\App\Http\Controllers\CustomerController::class, 'exportCommunication'], $customer->id) }}">Export Chat</a>
                 </div>
             </div>
         </div>
@@ -2926,7 +2926,7 @@
               return;
           }
           $.ajax({
-              url: "{{ action('CustomerController@addNote', $customer->id) }}",
+              url: "{{ action([\App\Http\Controllers\CustomerController::class, 'addNote'], $customer->id) }}",
               data: {
                   note: note,
                   _token: "{{csrf_token()}}"
@@ -3092,7 +3092,7 @@
       function loadThread() {
           let threadId = "{{$customer->instagramThread->thread_id}}";
           $.ajax({
-              url: "{{ action('InstagramController@getThread', '') }}"+'/'+threadId,
+              url: "{{ action([\App\Http\Controllers\InstagramController::class, 'getThread'], '') }}"+'/'+threadId,
               success: function(response) {
                   updateThreadInChatBox(response);
               },
@@ -3160,7 +3160,7 @@
                     let self = this;
                     if (message != '') {
                         $.ajax({
-                            url: '{{ action('InstagramController@replyToThread', '') }}'+'/'+threadId,
+                            url: '{{ action([\App\Http\Controllers\InstagramController::class, 'replyToThread'], '') }}'+'/'+threadId,
                             data: {
                                 message: message,
                                 _token: "{{ csrf_token() }}"
@@ -3186,7 +3186,7 @@
                 fd.append('photo', $('#ig_image').prop('files')[0]);
                 $('#ig_image').val('');
                 $.ajax({
-                    url: '{{action('InstagramController@replyToThread', '')}}'+'/'+threadId,
+                    url: '{{action([\App\Http\Controllers\InstagramController::class, 'replyToThread'], '')}}'+'/'+threadId,
                     type: 'POST',
                     cache: false,
                     contentType: false,
@@ -4755,7 +4755,7 @@
       /*$(document).on('click', '.resend-message-js', function() {
           let messageId = $(this).attr('data-id');
           $.ajax({
-              url: "{{ action('WhatsAppController@resendMessage2') }}",
+              url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'resendMessage2']) }}",
               data: {
                     message_id: messageId
               },

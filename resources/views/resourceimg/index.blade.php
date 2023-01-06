@@ -93,7 +93,7 @@
 					                <td>@if(isset($resources->category->title)) {{ $resources->category->title }} @endif</td>
 					                <td>@if(isset($resources->sub_category->title)) {{ $resources->sub_category->title }} @endif</td>
 					                <td><a href="{{ $resources['url'] }}" title="View Url" target="_blank">Click Here</a></td>
-					                <td><a href="{{ action('ResourceImgController@imagesResource', $resources['id']) }}" title="View Images">View</a></td>
+					                <td><a href="{{ action([\App\Http\Controllers\ResourceImgController::class, 'imagesResource'], $resources['id']) }}" title="View Images">View</a></td>
 		    		                <td>{{date("l, d/m/Y",strtotime($resources['updated_at']))}}</td>
 		    		                <td>{{ucwords($resources['created_by'])}}</td>
 		    		            </tr>

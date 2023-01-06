@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\ColorController;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -12,4 +15,4 @@
 */
 
 //Giving All Brands with Reference
-Route::get('colors', 'ColorController@colorReference');
+Route::get('colors', [ColorController::class, 'colorReference']);

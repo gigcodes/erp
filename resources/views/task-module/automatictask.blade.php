@@ -579,7 +579,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@assignMasterUser') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'assignMasterUser']) }}",
                 data: {
                     master_user_id: userId,
                     issue_id: id
@@ -604,7 +604,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@assignResponsibleUser') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'assignResponsibleUser']) }}",
                 data: {
                     responsible_user_id: userId,
                     issue_id: id
@@ -624,7 +624,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@assignUser') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'assignUser']) }}",
                 data: {
                     assigned_to: userId,
                     issue_id: id
@@ -649,7 +649,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@changeModule') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'changeModule']) }}",
                 data: {
                     module_id: moduleID,
                     issue_id: id
@@ -669,7 +669,7 @@
             let self = this;
 
             $.ajax({
-                url: "{{ action('DevelopmentController@resolveIssue') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'resolveIssue']) }}",
                 data: {
                     issue_id: id,
                     is_resolved: status
@@ -821,7 +821,7 @@
             let reminder_last_reply = (reminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
 
             $.ajax({
-                url: "{{ action('VendorController@updateReminder') }}",
+                url: "{{ action([\App\Http\Controllers\VendorController::class, 'updateReminder']) }}",
                 type: 'POST',
                 success: function() {
                     toastr['success']('Reminder updated successfully!');
@@ -1124,7 +1124,7 @@
             let userId = $(this).val();
 
             $.ajax({
-                url: '{{ action('VendorController@assignUserToCategory') }}',
+                url: '{{ action([\App\Http\Controllers\VendorController::class, 'assignUserToCategory']) }}',
                 data: {
                     user_id: userId,
                     category_id: catId
@@ -1595,7 +1595,7 @@
 
         function sendImage(id) {
             $.ajax({
-                url: "{{ action('WhatsAppController@sendMessage', 'issue') }}",
+                url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue') }}",
                 type: 'POST',
                 data: {
                     issue_id: id,
@@ -1640,7 +1640,7 @@
 
                     $.ajax({
                         method: 'POST',
-                        url: "{{ action('WhatsAppController@sendMessage', 'issue') }}",
+                        url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue') }}",
                         data: image_upload,
                         async: true,
                         contentType: false,
@@ -1674,7 +1674,7 @@
             var postData = new FormData(form[0]);
             $.ajax({
                 method: "post",
-                url: "{{ action('DevelopmentController@uploadDocument') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'uploadDocument']) }}",
                 data: postData,
                 processData: false,
                 contentType: false,
@@ -1694,7 +1694,7 @@
             var id = $(this).data("id");
             $.ajax({
                 method: "GET",
-                url: "{{ action('DevelopmentController@getDocument') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'getDocument']) }}",
                 data: {
                     id: id
                 },
@@ -1725,7 +1725,7 @@
             let self = textBox;
 
             $.ajax({
-                url: "{{ action('WhatsAppController@sendMessage', 'issue') }}",
+                url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue') }}",
                 type: 'POST',
                 data: {
                     "issue_id": issueId,
@@ -1759,7 +1759,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'openNewTaskPopup']) }}",
                 type: 'GET',
                 dataType: "JSON",
                 success: function(resp) {
