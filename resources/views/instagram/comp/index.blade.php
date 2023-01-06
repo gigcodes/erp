@@ -11,7 +11,7 @@
                     alert("{{Session::get('message')}}")
                 </script>
             @endif
-            <form method="post" action="{{ action('CompetitorPageController@store') }}">
+            <form method="post" action="{{ action([\App\Http\Controllers\CompetitorPageController::class, 'store']) }}">
                 @csrf
                 <div class="row">
                     <div class="col-md-6">
@@ -67,10 +67,10 @@
                         <td>{{$page->platform}}</td>
                         <td><a href="https://instagram.com/{{$page->username}}">{{$page->username}}</a></td>
                         <td>
-                            <a href="{{ action('CompetitorPageController@edit', $page->id) }}">Show All</a>
+                            <a href="{{ action([\App\Http\Controllers\CompetitorPageController::class, 'edit'], $page->id) }}">Show All</a>
                         </td>
                         <td>
-                            <a href="{{ action('CompetitorPageController@show',$page->id) }}">
+                            <a href="{{ action([\App\Http\Controllers\CompetitorPageController::class, 'show'],$page->id) }}">
                                 Show Data
                             </a>
                         </td>

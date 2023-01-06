@@ -58,11 +58,13 @@
         </div>
     </td>
     <td data-id="{{ $issue->id }}">
-        <div class="form-group">
-            @if ($issue->developerTaskHistory)
-                <span>Approved: {{ $issue->developerTaskHistory ? $issue->developerTaskHistory->new_value : 0 }}</span>
+        <div class="form-group">		
+			@if ($issue->status == 'Approved')
+				<span>{{ $issue->status }}</span>: {{ $issue->developerTaskHistory ? $issue->developerTaskHistory->new_value : 0 }}
+            @elseif ($issue->developerTaskHistory)
+                <span style="color:#337ab7"><strong>Unapproved</strong></span>: {{ $issue->developerTaskHistory ? $issue->developerTaskHistory->new_value : 0 }}
             @else
-            <p style="color:#337ab7"><strong>Unapproved</strong> </p>
+				<span style="color:#337ab7"><strong>Unapproved</strong> </span>
             @endif
         </div>
 

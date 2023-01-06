@@ -51,7 +51,7 @@ class KeywordInstructionController extends Controller
         $keywordInstruction->remark = $request->get('remark') ?? 'N/A';
         $keywordInstruction->save();
 
-        return redirect()->action('KeywordInstructionController@index')->with('message', 'Keyword-instruction reference added successfully!');
+        return redirect()->action([\App\Http\Controllers\KeywordInstructionController::class, 'index'])->with('message', 'Keyword-instruction reference added successfully!');
     }
 
     /**

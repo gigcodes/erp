@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\CallBusyMessageStatus;
 use Illuminate\Database\Seeder;
 

@@ -26,7 +26,7 @@
     </div>
 <div class="row">
     <div class="col-md-12 pl-5 pr-5">
-    <form action="{{ action('ProductController@productDescription') }}" method="get">
+    <form action="{{ action([\App\Http\Controllers\ProductController::class, 'productDescription']) }}" method="get">
         <div class="row mb-5">
             <div class="col-md-3">
                 <div class="form-group">
