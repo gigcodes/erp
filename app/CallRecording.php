@@ -39,5 +39,4 @@ class CallRecording extends Model
      *
      * @SWG\Property(enum={"model_id", "model_type", "name", "phone", "whatsapp_number", "address", "email"})
      */
-    protected $dates = ['created_at', 'updated_at'];
 }

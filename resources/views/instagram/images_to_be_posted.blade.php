@@ -4,7 +4,7 @@
     <h3 class="text-center">Post Images On Media</h3>
     <div class="row">
         <div class="col-md-12 m-5 text-center">
-            <form class="form-inline" style="margin: 10px auto; width: 800px;" method="get" action="{{ action('InstagramController@showImagesToBePosted') }}">
+            <form class="form-inline" style="margin: 10px auto; width: 800px;" method="get" action="{{ action([\App\Http\Controllers\InstagramController::class, 'showImagesToBePosted']) }}">
                 <div class="form-group">
                     <label for="category">Categories</label>
                     {!! $category_selection !!}
@@ -121,7 +121,7 @@
                                     {!! preg_replace('/(?:^|\s)#(\w+)/', ' <a class="text-info" href="https://www.instagram.com/explore/tags/$1">#$1</a>', $image->schedule->description) !!}
                                 </div>
                             @else
-                                <form action="{{ action('InstagramController@postMedia') }}" method="post" class="post-submit" data-pid="{{$key}}">
+                                <form action="{{ action([\App\Http\Controllers\InstagramController::class, 'postMedia']) }}" method="post" class="post-submit" data-pid="{{$key}}">
                                     @csrf
                                     <input type="hidden" name="image_id" value="{{ $image->id }}">
                                     <div class="mt-4 form-group">
@@ -196,7 +196,7 @@
                 event.preventDefault();
                 let formData = $(this).serialize();
                 $.ajax({
-                    url: '{{ action('InstagramController@postMedia') }}',
+                    url: '{{ action([\App\Http\Controllers\InstagramController::class, 'postMedia']) }}',
                     data: formData,
                     type: 'POST',
                     success: function(response) {

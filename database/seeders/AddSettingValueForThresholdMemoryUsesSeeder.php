@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\MemoryUsage;
 use App\Setting;
 use Illuminate\Database\Seeder;

@@ -406,7 +406,7 @@
             event.preventDefault();
             var title=$(this).attr('data-title');
             $.ajax({
-                url: "{{action('ActivityConroller@recentActivities')}}",
+                url: "{{action([\App\Http\Controllers\ActivityConroller::class, 'recentActivities'])}}",
                 type: 'POST',
                 //data : formData,
                 data: {

@@ -151,7 +151,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'openNewTaskPopup']) }}",
                 type: 'GET',
                 dataType: "JSON",
                 success: function (resp) {

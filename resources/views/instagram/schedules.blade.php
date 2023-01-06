@@ -19,7 +19,7 @@
 
         <div class="tab-content">
             <div id="home" class="tab-pane fade in active">
-                <form action="{{ action('InstagramController@postSchedules') }}" method="post">
+                <form action="{{ action([\App\Http\Controllers\InstagramController::class, 'postSchedules']) }}" method="post">
                     @csrf
                     <div class="row mt-5">
                         <div class="col-md-12 text-center mb-4">
@@ -108,7 +108,7 @@
                                                         <button class="btn btn-danger btn-lg post-delete" data-pid="{{$schedule->id}}" data-schedule-id="{{$schedule->id}}">
                                                             <i class="fa fa-trash"></i> Delete Schedule
                                                         </button>
-                                                        <a role="button" href="{{ action('InstagramController@editSchedule', $schedule->id) }}" class="btn btn-success btn-lg"><i class="fa fa-edit"></i> Edit/Approval</a>
+                                                        <a role="button" href="{{ action([\App\Http\Controllers\InstagramController::class, 'editSchedule'], $schedule->id) }}" class="btn btn-success btn-lg"><i class="fa fa-edit"></i> Edit/Approval</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -203,7 +203,7 @@
                     let self = this;
 
                     $.ajax({
-                        url: '{{action('InstagramController@postSchedules')}}',
+                        url: '{{action([\App\Http\Controllers\InstagramController::class, 'postSchedules'])}}',
                         data: {
                             images: [imgid],
                             description: 'Added via Calender',
@@ -224,7 +224,7 @@
 
 
                 },
-                events: '{{ action('InstagramController@getScheduledEvents') }}',
+                events: '{{ action([\App\Http\Controllers\InstagramController::class, 'getScheduledEvents']) }}',
                 eventClick: function(calEvent, jsEvent, view) {
                     $('#image_container').empty();
 
@@ -256,7 +256,7 @@
                 let scheduleId = $(this).attr('data-schedule-id');
                 let self = this;
                 $.ajax({
-                    url: '{{ action('InstagramController@postMediaNow', '') }}'+'/'+scheduleId,
+                    url: '{{ action([\App\Http\Controllers\InstagramController::class, 'postMediaNow'], '') }}'+'/'+scheduleId,
                     type: 'get',
                     success: function(response) {
                         if (response.status == 'success') {
@@ -290,7 +290,7 @@
 
         function delete_schedule(scheduleId) {
             $.ajax({
-                url: '{{ action('InstagramController@cancelSchedule', '') }}'+'/'+scheduleId,
+                url: '{{ action([\App\Http\Controllers\InstagramController::class, 'cancelSchedule'], '') }}'+'/'+scheduleId,
                 type: 'get',
                 success: function(response) {
                     if (response.status == 'success') {

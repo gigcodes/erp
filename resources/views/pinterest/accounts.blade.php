@@ -8,7 +8,7 @@
     </div>
     <div class="row">
         <div class="p-5" style="background: #dddddd">
-            <form action="{{ action('PinterestAccountAcontroller@store') }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\PinterestAccountAcontroller::class, 'store']) }}" method="post">
                 @csrf
                 <div class="row">
                     <div class="col-md-4">
@@ -59,7 +59,7 @@
             </form>
         </div>
         <div class="col-md-12 mt-2">
-            <form action="{{ action('PinterestAccountAcontroller@index') }}" method="get">
+            <form action="{{ action([\App\Http\Controllers\PinterestAccountAcontroller::class, 'index']) }}" method="get">
                 <div class="row">
                     <div class="col-md-3">
                         <input value="{{$request->get('query')}}" class="form-control" type="text" name="query" id="query" placeholder="Username or email..">
@@ -135,13 +135,13 @@
                                     </td>
                                     <td>
                                         <div style="width: 150px !important;">
-                                            <a class="btn btn-image" href="{{ action('AccountController@test', $account->id) }}">
+                                            <a class="btn btn-image" href="{{ action([\App\Http\Controllers\AccountController::class, 'test'], $account->id) }}">
                                                 <i class="fa fa-check"></i>
                                             </a>
-                                            <a href="{{ action('InstagramController@edit', $account->id) }}" class="btn btn-image">
+                                            <a href="{{ action([\App\Http\Controllers\InstagramController::class, 'edit'], $account->id) }}" class="btn btn-image">
                                                 <img src="{{ asset('images/edit.png') }}" alt="Edit User" title="Edit Product">
                                             </a>
-                                            <a href="{{ action('InstagramController@deleteAccount', $account->id) }}" class="btn btn-image">
+                                            <a href="{{ action([\App\Http\Controllers\InstagramController::class, 'deleteAccount'], $account->id) }}" class="btn btn-image">
                                                 <img src="{{ asset('images/delete.png') }}" alt="Delete User" title="Delete Product">
                                             </a>
                                         </div>
@@ -169,13 +169,13 @@
                                 </td>
                                 <td>
                                     <div style="width:150px !important;">
-                                        <form method="post" action="{{action('PinterestAccountAcontroller@destroy', $account->id)}}">
+                                        <form method="post" action="{{action([\App\Http\Controllers\PinterestAccountAcontroller::class, 'destroy'], $account->id)}}">
                                             @csrf
                                             @method('delete')
-                                            <a href="{{ action('PinterestAccountAcontroller@edit', $account->id) }}" class="btn btn-image">
+                                            <a href="{{ action([\App\Http\Controllers\PinterestAccountAcontroller::class, 'edit'], $account->id) }}" class="btn btn-image">
                                                 <img src="{{ asset('images/edit.png') }}" alt="Edit User" title="Edit Product">
                                             </a>
-                                            <button href="{{ action('InstagramController@deleteAccount', $account->id) }}" class="btn btn-image">
+                                            <button href="{{ action([\App\Http\Controllers\InstagramController::class, 'deleteAccount'], $account->id) }}" class="btn btn-image">
                                                 <img src="{{ asset('images/delete.png') }}" alt="Delete User" title="Delete Product">
                                             </button>
                                         </form>
