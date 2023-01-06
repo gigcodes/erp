@@ -43,7 +43,7 @@ class MagentoRunCommand extends Command
     {
         try {
             $magCom = MagentoCommand::find($this->argument('id'));
-            if($magCom->website_ids == 'ERP') {
+            if ($magCom->website_ids == 'ERP') {
                 $cmd = $magCom->command_type;
                 $allOutput = [];
                 $allOutput[] = $cmd;
@@ -51,9 +51,9 @@ class MagentoRunCommand extends Command
                 if ($result == '') {
                     $result = 'Not any response';
                 } elseif ($result == 0) {
-                    $result = 'Command run success Response ' . $result;
+                    $result = 'Command run success Response '.$result;
                 } elseif ($result == 1) {
-                    $result = 'Command run Fail Response ' . $result;
+                    $result = 'Command run Fail Response '.$result;
                 } else {
                     $result = is_array($result) ? json_encode($result, true) : $result;
                 }
@@ -73,9 +73,9 @@ class MagentoRunCommand extends Command
                 foreach ($websites as $website) {
                     if ($magCom->command_name != '' && $website->server_ip != '') {
                         //$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH').$magCom->command_name.' --server ' . $magCom->server_ip.' --type custom --command ' . $website->command_type;
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command '" . $magCom->command_type . "'";
+                        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-commands.sh  --server '.$website->server_ip." --type custom --command '".$magCom->command_type."'";
                         if ($magCom->command_name == 'bin/magento cache:f' || $magCom->command_name == "'bin/magento cache:f'") {
-                            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command 'bin/magento cache:f'";
+                            $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-commands.sh  --server '.$website->server_ip." --type custom --command 'bin/magento cache:f'";
                         }
                         $allOutput = [];
                         $allOutput[] = $cmd;
@@ -83,9 +83,9 @@ class MagentoRunCommand extends Command
                         if ($result == '') {
                             $result = 'Not any response';
                         } elseif ($result == 0) {
-                            $result = 'Command run success Response ' . $result;
+                            $result = 'Command run success Response '.$result;
                         } elseif ($result == 1) {
-                            $result = 'Command run Fail Response ' . $result;
+                            $result = 'Command run Fail Response '.$result;
                         } else {
                             $result = is_array($result) ? json_encode($result, true) : $result;
                         }
