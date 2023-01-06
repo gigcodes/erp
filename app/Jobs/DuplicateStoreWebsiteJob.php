@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\PriceOverride;
 use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
 use App\StoreViewCodeServerMap;
@@ -531,7 +532,35 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
 
                 return response()->json(['code' => 500, 'error' => 'Store website users failed!']);
             }
-            \Log::info('Store website users copied for '.$this->copyStoreWebsite->title);
+
+            // Inserts price overrides
+            $swPriceOverrides = PriceOverride::where('store_website_id', '=', $this->storeWebsiteId)->get();
+            $copyPriceOverrideResult = [];
+            if ($swPriceOverrides->count() > 0) {
+                foreach ($swPriceOverrides as $row) {
+                    $swPriceOverrideRow = [
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'brand_id' => $row->brand_id,
+                        'brand_segment' => $row->brand_segment,
+                        'category_id' => $row->category_id,
+                        'country_code' => $row->country_code,
+                        'country_group_id' => $row->country_group_id,
+                        'type' => $row->type,
+                        'calculated' => $row->calculated,
+                        'value' => $row->value,
+                        'created_at' => date('Y-m-d H:i:s'),
+                    ];
+                    $copyPriceOverrideResult[] = $swPriceOverrideRow;
+                }
+            }
+            $response = PriceOverride::insert($copyPriceOverrideResult);
+            if (! $response) {
+                \Log::error('Price overrides copying failed for '.$this->copyStoreWebsite->title);
+
+                return response()->json(['code' => 500, 'error' => 'Price overrides copying failed!']);
+            }
+
+            \Log::info('Price overrides copied for '.$this->copyStoreWebsite->title);
 
             $response = $this->updateStoreViewServer($copyStoreWebsiteId, $this->i + 1);
             if (! $response) {
