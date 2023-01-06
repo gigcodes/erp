@@ -33,21 +33,26 @@ class CsvTranslatorController extends Controller
     }
 
     public function export(){
-         return \Excel::download(new CsvTranslatorExport, 'users.xlsx');
+         return \Excel::download(new CsvTranslatorExport, 'csv-translator.xlsx');
     }
 
     public function update(Request $request){
         $record = CsvTranslator::find($request->record_id);
         $oldRecord = $record->{$request->lang_id};
+        $oldStatus = $record->status;
         $key = $record->key;
         $record->updated_by_user_id =  $request->update_by_user_id;
+        $record->approved_by_user_id =  $request->update_by_user_id;
         $record->{$request->lang_id} = $request->update_record;
+        $record->status = 'checked';
         $record->update();
         
         $historyData = array();
         $historyData['csv_translator_id'] = $record->id;
         $historyData['updated_by_user_id'] = $request->update_by_user_id;
+        $historyData['approved_by_user_id'] = $request->update_by_user_id;
         $historyData['key'] = $key;
+        $historyData['status'] = $oldStatus;
         $historyData[$request->lang_id] = $oldRecord;
         CsvTranslatorHistory::insert($historyData);
         return Redirect::back()->with(['success' => 'Successfully Updated']);
