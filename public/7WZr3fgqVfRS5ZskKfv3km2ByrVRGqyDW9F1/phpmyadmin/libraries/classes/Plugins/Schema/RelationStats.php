@@ -47,11 +47,11 @@ abstract class RelationStats
     public $wTick = 0;
 
     /**
-     * @param object $diagram       The diagram
-     * @param string $master_table  The master table name
-     * @param string $master_field  The relation field in the master table
-     * @param string $foreign_table The foreign table name
-     * @param string $foreign_field The relation field in the foreign table
+     * @param  object  $diagram       The diagram
+     * @param  string  $master_table  The master table name
+     * @param  string  $master_field  The relation field in the master table
+     * @param  string  $foreign_table The foreign table name
+     * @param  string  $foreign_field The relation field in the foreign table
      */
     public function __construct(
         $diagram,
@@ -109,9 +109,8 @@ abstract class RelationStats
     /**
      * Gets arrows coordinates
      *
-     * @param TableStats $table  The table
-     * @param string     $column The relation column name
-     *
+     * @param  TableStats  $table  The table
+     * @param  string  $column The relation column name
      * @return array Arrows coordinates
      */
     private function getXy($table, $column)

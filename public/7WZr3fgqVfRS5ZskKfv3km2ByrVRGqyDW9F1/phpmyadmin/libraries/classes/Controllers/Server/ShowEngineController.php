@@ -27,7 +27,8 @@ final class ShowEngineController extends AbstractController
     }
 
     /**
-     * @param array $params
+     * @param  array  $params
+     *
      * @psalm-param array{engine: string, page?: string} $params
      */
     public function __invoke(ServerRequest $request, array $params): void

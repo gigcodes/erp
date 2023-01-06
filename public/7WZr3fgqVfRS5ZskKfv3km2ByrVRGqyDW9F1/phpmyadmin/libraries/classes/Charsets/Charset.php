@@ -41,10 +41,10 @@ final class Charset
     private $maxLength;
 
     /**
-     * @param string $name             Charset name
-     * @param string $description      Description
-     * @param string $defaultCollation Default collation
-     * @param int    $maxLength        Maximum length
+     * @param  string  $name             Charset name
+     * @param  string  $description      Description
+     * @param  string  $defaultCollation Default collation
+     * @param  int  $maxLength        Maximum length
      */
     private function __construct(
         string $name,
@@ -59,7 +59,8 @@ final class Charset
     }
 
     /**
-     * @param string[] $state State obtained from the database server
+     * @param  string[]  $state State obtained from the database server
+     *
      * @psalm-param array{Charset?:string, Description?:string, 'Default collation'?:string, Maxlen?:string} $state
      *
      * @return Charset
