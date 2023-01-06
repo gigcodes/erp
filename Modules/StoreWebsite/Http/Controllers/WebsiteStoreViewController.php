@@ -21,23 +21,25 @@ class WebsiteStoreViewController extends Controller
     public function index(Request $request)
     {
         $title = 'Website Store View | Store Website';
-
         $storeWebsites = StoreWebsite::orderBy('title', 'ASC')->pluck('title', 'id')->toArray();
         $websiteStores = WebsiteStore::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $languages = \App\Language::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
+        $storeCodes = \App\StoreViewCodeServerMap::groupBy('server_id')->orderBy('code', 'ASC')->select('code', 'id','server_id')->get()->toArray();
 
         return view('storewebsite::website-store-view.index', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'websiteStores' => $websiteStores,
             'languages' => $languages,
+	    'storeCodes' => $storeCodes,
         ]);
     }
 
     public function records(Request $request)
     {
         $websiteStoreViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')
-            ->leftJoin('website_stores as ws', 'ws.id', 'website_store_views.website_store_id');
+            ->leftJoin('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
+            ->leftJoin('store_view_code_server_map as svcsm', 'svcsm.id', 'website_store_views.store_code_id');
 
         // Check for keyword search
         if ($request->keyword != null) {
@@ -57,7 +59,7 @@ class WebsiteStoreViewController extends Controller
             $websiteStoreViews = $websiteStoreViews->where('website_store_id', $request->website_store_id);
         }
 
-        $websiteStoreViews = $websiteStoreViews->select(['website_store_views.*', 'ws.name as website_store_name'])
+        $websiteStoreViews = $websiteStoreViews->select(['website_store_views.*', 'ws.name as website_store_name','svcsm.code as store_code','svcsm.id as store_code_id', ])
             ->orderBy('website_store_views.id', 'desc')
             ->paginate();
 
@@ -70,6 +72,7 @@ class WebsiteStoreViewController extends Controller
         $validator = Validator::make($post, [
             'name' => 'required',
             'code' => 'required',
+            'store_code_id' => 'required',
             'website_store_id' => 'required',
         ]);
 

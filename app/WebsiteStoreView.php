@@ -28,6 +28,7 @@ class WebsiteStoreView extends Model
         'website_store_id',
         'store_group_id',
         'ref_theme_group_id',
+        'store_code_id',
     ];
 
     public function websiteStore()

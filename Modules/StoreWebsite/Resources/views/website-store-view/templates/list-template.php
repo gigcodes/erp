@@ -7,6 +7,7 @@
 					<th>Id</th>
 					<th>Website Name</th>
 					<th>Name</th>
+					<th>Store Code</th>
 					<th>Code</th>
 					<th>Sort Order</th>
 					<th>Status</th>
@@ -28,6 +29,7 @@
                         {{/if}}
                     </td>
 			        <td>{{:prop.name}}</td>
+			        <td class="code_div">{{:prop.store_code}}</td>
 			        <td class="code_div">{{:prop.code}}</td>
 			        {{if prop.status == 1}} 
 			        	<td>Active</td>
