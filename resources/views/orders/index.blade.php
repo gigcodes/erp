@@ -174,7 +174,6 @@
             <th>Price</th>
             <th>Shipping</th>
             <th>Duty</th>
-            <th >Action</th>
          </tr>
         </thead>
 
@@ -342,107 +341,107 @@
               <td>{{$orderProductPrice * $productQty}}</td>
               <td>{{$duty_shipping[$order->id]['shipping']}}</td>
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
-              <td>
-                <div class="align-items-center" style="display: grid; grid-template-columns: repeat(12, 29px);">
-                    <a type="button" title="Payment history" class="btn btn-image pd-5 btn-ht cancel-transaction-btn pull-left" data-id="{{$order->id}}">
-                      <i class="fa fa-close"></i>
-                  </a>
-                 <a type="button" title="Payment history" class="btn btn-image pd-5 btn-ht payment-history-btn pull-left" data-id="{{$order->id}}">
-                      <i class="fa fa-history"></i>
-                  </a>
-                  <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
-                    <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
-                  </a>
-                  <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.show',$order->id) }}"><img title="View order" src="{{asset('images/view.png')}}" /></a>
-                  <a class="btn btn-image send-invoice-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
-                    <img title="Send Invoice" src="{{asset('images/purchase.png')}}" />
-                  </a>
-                  <a title="Preview Order" class="btn btn-image preview-invoice-btn pd-5 btn-ht" href="{{ route('order.perview.invoice',$order->id) }}">
-                    <i class="fa fa-hourglass"></i>
-                  </a>
-                  @if ($order->waybill)
-                    <a title="Download Package Slip pd-5 btn-ht" href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn btn-image" href="javascript:;">
-                        <i class="fa fa-download" aria-hidden="true"></i>
-                    </a>
-                    <a title="Track Package Slip pd-5 btn-ht" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
-                        <i class="fa fa fa-globe" aria-hidden="true"></i>
-                    </a>
-                  @endif
-                  <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
-                    <i class="fa fa-truck" aria-hidden="true"></i>
-                  </a>
-
-                  <a title="Preview Sent Mails" data-order-id="<?php echo $order->id; ?>" class="btn btn-image preview_sent_mails pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
-
-                  <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
-                    <i class="fa fa-address-card" aria-hidden="true"></i>
-                  </a>
-                  {{-- @can('order-edit')
-                  <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
-                  @endcan --}}
-
-                  {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
-                  <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Archive Order" src="{{asset('images/archive.png')}}" /></button>
-                  {!! Form::close() !!}
-                  <?php
-                  if($order->auto_emailed)
-                  {
-                    $title_msg = "Resend Email";
-                  }
-                  else
-                  {
-                    $title_msg = "Send Email";
-                  }
-                  ?>
-                  <a title="<?php echo $title_msg;?>" class="btn btn-image send-order-email-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="javascript:;">
-                      <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                  </a>
-                  @if(auth()->user()->checkPermission('order-delete'))
-                    {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
-                    <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Delete Order" src="{{asset('images/delete.png')}}" /></button>
-                    {!! Form::close() !!}
-                  @endif
-                  @if(!$order->invoice_id)
-                <a title="Add invoice" class="btn btn-image add-invoice-btn pd-5 btn-ht" data-id='{{$order->id}}'>
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                </a>
-                @endif
-                <a title="Return / Exchange" data-id="{{$order->id}}" class="btn btn-image quick_return_exchange pd-5 btn-ht">
-                     <i class="fa fa-product-hunt" aria-hidden="true"></i>
-                </a>
-                <button type="button" class="btn btn-image pd-5 btn-ht send-email-common-btn" title="Send Mail" data-toemail="{{$order->cust_email}}" data-object="order" data-id="{{$order->customer_id}}"><i class="fa fa-envelope-square"></i></button>
-                <button type="button" class="btn btn-xs btn-image pd-5 btn load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                @if($order->cust_email)
-                <a class="btn btn-image pd-5 btn-ht" title="Order Mail PDF" href="{{route('order.generate.order-mail.pdf', ['order_id' => $order->id])}}">
-                  <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-                </a>
-                @endif
-
-                @if($order->invoice_id)
-                <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$order->invoice_id) }}">
-                  <i class="fa fa-download"></i>
-               </a>
-                @endif
-                <button type="button" class="btn btn-xs btn-image load-log-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Show Error Log"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                <button type="button" title="Payment history" class="btn btn-image pd-5 btn-ht magento-log-btn btn-xs pull-left" data-id="{{$order->id}}">
-                  <i class="fa fa-eye"></i>
-                </button>
-                <button type="button" title="Order Email send error" class="btn  btn-xs btn-image pd-5 email_exception_list" data-id="{{$order->id}}">
-                  <i style="color:#6c757d;" class="fa fa-info-circle" data-id="{{$order->id}}"  aria-hidden="true"></i>
-                </button>
-                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 order_email_send_log" data-id="{{$order->id}}">
-                    <img src="{{asset('/images/chat.png')}}" alt="">
-                </button>
-                <button type="button" title="Order return true" class="btn  btn-xs btn-image pd-5 order_return" data-status="1" data-id="{{$order->id}}">
-                  <i style="color:#6c757d;" class="fa fa-check" data-id="{{$order->id}}"  aria-hidden="true"></i>
-                </button>
-                <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
-                  <i class="fa fa-times" aria-hidden="true"></i>
-                </a>
-                </div>
-              </td>
             </tr>
+            <td>Action</td>
+            <td colspan="16">
+                <div class="align-items-center">
+                    <a type="button" title="Payment history" class="btn btn-image pd-5 btn-ht cancel-transaction-btn pull-left" data-id="{{$order->id}}">
+                        <i class="fa fa-close"></i>
+                    </a>
+                    <a type="button" title="Payment history" class="btn btn-image pd-5 btn-ht payment-history-btn pull-left" data-id="{{$order->id}}">
+                        <i class="fa fa-history"></i>
+                    </a>
+                    <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
+                        <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                    </a>
+                    <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.show',$order->id) }}"><img title="View order" src="{{asset('images/view.png')}}" /></a>
+                    <a class="btn btn-image send-invoice-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
+                        <img title="Send Invoice" src="{{asset('images/purchase.png')}}" />
+                    </a>
+                    <a title="Preview Order" class="btn btn-image preview-invoice-btn pd-5 btn-ht" href="{{ route('order.perview.invoice',$order->id) }}">
+                        <i class="fa fa-hourglass"></i>
+                    </a>
+                    @if ($order->waybill)
+                        <a title="Download Package Slip pd-5 btn-ht" href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn btn-image" href="javascript:;">
+                            <i class="fa fa-download" aria-hidden="true"></i>
+                        </a>
+                        <a title="Track Package Slip pd-5 btn-ht" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
+                            <i class="fa fa fa-globe" aria-hidden="true"></i>
+                        </a>
+                    @endif
+                    <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
+                        <i class="fa fa-truck" aria-hidden="true"></i>
+                    </a>
 
+                    <a title="Preview Sent Mails" data-order-id="<?php echo $order->id; ?>" class="btn btn-image preview_sent_mails pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
+
+                    <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
+                        <i class="fa fa-address-card" aria-hidden="true"></i>
+                    </a>
+                    {{-- @can('order-edit')
+                    <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
+                    @endcan --}}
+
+                    {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
+                    <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Archive Order" src="{{asset('images/archive.png')}}" /></button>
+                    {!! Form::close() !!}
+                    <?php
+                    if($order->auto_emailed)
+                    {
+                        $title_msg = "Resend Email";
+                    }
+                    else
+                    {
+                        $title_msg = "Send Email";
+                    }
+                    ?>
+                    <a title="<?php echo $title_msg;?>" class="btn btn-image send-order-email-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="javascript:;">
+                        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    </a>
+                    @if(auth()->user()->checkPermission('order-delete'))
+                        {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
+                        <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Delete Order" src="{{asset('images/delete.png')}}" /></button>
+                        {!! Form::close() !!}
+                    @endif
+                    @if(!$order->invoice_id)
+                        <a title="Add invoice" class="btn btn-image add-invoice-btn pd-5 btn-ht" data-id='{{$order->id}}'>
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </a>
+                    @endif
+                    <a title="Return / Exchange" data-id="{{$order->id}}" class="btn btn-image quick_return_exchange pd-5 btn-ht">
+                        <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                    </a>
+                    <button type="button" class="btn btn-image pd-5 btn-ht send-email-common-btn" title="Send Mail" data-toemail="{{$order->cust_email}}" data-object="order" data-id="{{$order->customer_id}}"><i class="fa fa-envelope-square"></i></button>
+                    <button type="button" class="btn btn-xs btn-image pd-5 btn load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @if($order->cust_email)
+                        <a class="btn btn-image pd-5 btn-ht" title="Order Mail PDF" href="{{route('order.generate.order-mail.pdf', ['order_id' => $order->id])}}">
+                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                        </a>
+                    @endif
+
+                    @if($order->invoice_id)
+                        <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$order->invoice_id) }}">
+                            <i class="fa fa-download"></i>
+                        </a>
+                    @endif
+                    <button type="button" class="btn btn-xs btn-image load-log-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Show Error Log"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    <button type="button" title="Payment history" class="btn btn-image pd-5 btn-ht magento-log-btn btn-xs pull-left" data-id="{{$order->id}}">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                    <button type="button" title="Order Email send error" class="btn  btn-xs btn-image pd-5 email_exception_list" data-id="{{$order->id}}">
+                        <i style="color:#6c757d;" class="fa fa-info-circle" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                    </button>
+                    <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 order_email_send_log" data-id="{{$order->id}}">
+                        <img src="{{asset('/images/chat.png')}}" alt="">
+                    </button>
+                    <button type="button" title="Order return true" class="btn  btn-xs btn-image pd-5 order_return" data-status="1" data-id="{{$order->id}}">
+                        <i style="color:#6c757d;" class="fa fa-check" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                    </button>
+                    <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </td>
             @endforeach
           @endforeach
         </tbody>
