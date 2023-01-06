@@ -2,7 +2,6 @@
 
 namespace App\Github;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class GithubBranchState extends Model
