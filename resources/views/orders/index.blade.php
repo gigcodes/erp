@@ -343,7 +343,7 @@
               <td>{{$duty_shipping[$order->id]['shipping']}}</td>
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
-                <div class="d-flex align-items-center">
+                <div class="align-items-center" style="display: grid; grid-template-columns: repeat(12, 29px);">
                     <a type="button" title="Payment history" class="btn btn-image pd-5 btn-ht cancel-transaction-btn pull-left" data-id="{{$order->id}}">
                       <i class="fa fa-close"></i>
                   </a>
