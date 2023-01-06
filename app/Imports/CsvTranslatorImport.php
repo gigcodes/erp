@@ -9,27 +9,26 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class CsvTranslatorImport implements ToModel, WithHeadingRow
 {
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
+     * @param  array  $row
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
     public function model(array $row)
     {
         return new CsvTranslator([
-            "key" => $row['key'],
-            "en" => $row['en'],
-            "es" => $row['es'],
-            "ru" => $row['ru'],
-            "ko" => $row['ko'],
-            "ja" => $row['ja'],
-            "it" => $row['it'],
-            "de" => $row['de'],
-            "fr" => $row['fr'],
-            "nl" => $row['nl'],
-            "zh" => $row['zh'],
-            "ar" => $row['ar'],
-            "ur" => $row['ur'],
-            "status"=> 2
+            'key' => $row['key'],
+            'en' => $row['en'],
+            'es' => $row['es'],
+            'ru' => $row['ru'],
+            'ko' => $row['ko'],
+            'ja' => $row['ja'],
+            'it' => $row['it'],
+            'de' => $row['de'],
+            'fr' => $row['fr'],
+            'nl' => $row['nl'],
+            'zh' => $row['zh'],
+            'ar' => $row['ar'],
+            'ur' => $row['ur'],
+            'status' => 2,
         ]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\CsvTranslator;
 use App\Imports\CsvTranslatorImport;
+use Illuminate\Http\Request;
 
 class CsvTranslatorController extends Controller
 {
@@ -12,10 +12,12 @@ class CsvTranslatorController extends Controller
     {
         if ($request->ajax()) {
             $query = CsvTranslator::select('*');
+
             return datatables()
                 ->eloquent($query)
                 ->toJson();
         }
+
         return view('csv-translator.index');
     }
 

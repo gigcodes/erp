@@ -442,7 +442,6 @@ Route::middleware('auth')->group(function () {
 });
 
 /** CSV Translator */
-
 Route::middleware('auth')->group(function () {
     Route::get('/csv-translator', [CsvTranslatorController::class, 'index'])->name('csvTranslator.list');
     Route::post('/csv-translator/upload', [CsvTranslatorController::class, 'upload'])->name('csvTranslator.uploadFile');
