@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\App;
 use App\Http\Middleware\SendgridEventMiddleware;
 use Illuminate\Support\Facades\Route;
 
