@@ -21,7 +21,7 @@ s
                         <td>{{$key+1}}</td>
                         <td>{{ $item->supplier }}</td>
                         <td>
-                            <a href="{{ action('SalesItemController@show', $item->supplier) }}">Show All</a>
+                            <a href="{{ action([\App\Http\Controllers\SalesItemController::class, 'show'], $item->supplier) }}">Show All</a>
                         </td>
                     </tr>
                 @endforeach

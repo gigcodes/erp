@@ -258,7 +258,7 @@
             // }
 
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'developer_task')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'developer_task')}}",
                 type: 'POST',
                 data: {
                     _token: "{{csrf_token()}}",

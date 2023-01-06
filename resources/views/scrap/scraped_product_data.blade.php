@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col-md-offset-5 col-md-2">
             <br>
-            <form action="{{ action('ScrapController@showProductStat') }}" method="get">
+            <form action="{{ action([\App\Http\Controllers\ScrapController::class, 'showProductStat']) }}" method="get">
                 <div class="form-group">
                     <label for="start_date">Start Date</label>
                     <input value="{{$request->get('start_date')}}" type="text" name="start_date" id="start_date" class="form-control date-type">

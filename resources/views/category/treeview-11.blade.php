@@ -33,7 +33,7 @@
                 <div class="col-md-6">
                     <h3>
                         <img style="width: 15px;" src="{{ asset('images/edit.png') }}" alt="">
-                        <a href="{{ action('CategoryController@mapCategory') }}">Edit References</a>
+                        <a href="{{ action([\App\Http\Controllers\CategoryController::class, 'mapCategory']) }}">Edit References</a>
                     </h3>
                     <h3>Category List</h3>
                     <ul id="tree1">

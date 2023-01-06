@@ -115,7 +115,7 @@ input:checked + .slider:before {
                             </form>
                     </div>
                 <div class="col-md-6">
-                      <form method="post" action="{{ action('HashtagController@store') }}">
+                      <form method="post" action="{{ action([\App\Http\Controllers\HashtagController::class, 'store']) }}">
                 @csrf
                 <div class="col-md-6">
                         <div class="form-group">
@@ -148,17 +148,17 @@ input:checked + .slider:before {
                     <tr>
                         <td>{{ $key+1 }}</td>
                         <td >
-                            <a href="{{ action('HashtagController@showGrid',$hashtag->id) }}"style="color:black;">
+                            <a href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGrid'],$hashtag->id) }}"style="color:black;">
                                 {{ $hashtag->hashtag }}
                             </a>
                         </td>
                         <td>
-                            <a href="{{ action('HashtagController@showGridComments',$hashtag->id) }}"style="color:black;">
+                            <a href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGridComments'],$hashtag->id) }}"style="color:black;">
                                 Link
                             </a>
                         </td>
                         <td>
-                            <a href="{{ action('HashtagController@showGridUsers',$hashtag->hashtag) }}"style="color:black;">
+                            <a href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGridUsers'],$hashtag->hashtag) }}"style="color:black;">
                                 Link
                             </a>
                         </td>
@@ -166,11 +166,11 @@ input:checked + .slider:before {
                         <td></td>
                         <!-- <td>{{ $hashtag->rating }}</td> -->
                         <!-- <td>
-                            <form method="post" action="{{ action('HashtagController@destroy', $hashtag->id) }}">
-                                <a class="btn btn-default btn-image" href="{{ action('HashtagController@showGrid', $hashtag->id) }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\HashtagController::class, 'destroy'], $hashtag->id) }}">
+                                <a class="btn btn-default btn-image" href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGrid'], $hashtag->id) }}">
                                     <img src="{{ asset('images/view.png') }}" alt="">
                                 </a>
-                                <a class="btn btn-default btn-image" href="{{ action('HashtagController@edit', $hashtag->hashtag) }}">
+                                <a class="btn btn-default btn-image" href="{{ action([\App\Http\Controllers\HashtagController::class, 'edit'], $hashtag->hashtag) }}">
                                     <i class="fa fa-info"></i> Relavent Hashtags
                                 </a>
                                 @csrf

@@ -9,7 +9,7 @@
 <div class="rejected-listings">
     <div class="row">
         <div class="col-md-12">
-            <form method="get" action="{{action('ProductController@showRejectedListedProducts')}}">
+            <form method="get" action="{{action([\App\Http\Controllers\ProductController::class, 'showRejectedListedProducts'])}}">
                 <div class="row">
                     <div class="form-group cls_filter_inputbox">
                         <input type="text"name="id" id="id" class="form-control" placeholder="Id, sku...">
@@ -171,11 +171,11 @@
                         </td>
                             <td>{{ $product->listing_rejected_on }}</td>
                             <td>
-                            <a href="{{ action('ProductController@show', $product->id) }}">
+                            <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">
                                 <img style="width: 150px;" src="{{ $product->getMedia('gallery')->first() ? $product->getMedia('gallery')->first()->getUrl() : '' }}" alt="Image">
                             </a>
                             <br>
-                            <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
+                            <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
                         </td>
                             <td>
                                
@@ -229,11 +229,11 @@
                 @foreach($products as $product)
                     <tr class="rec_{{$product->id}}">
                         <td>
-                            <a href="{{ action('ProductController@show', $product->id) }}">
+                            <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">
                                 <img style="width: 150px;" src="{{ $product->getMedia('gallery')->first() ? $product->getMedia('gallery')->first()->getUrl() : '' }}" alt="Image">
                             </a>
                             <br>
-                            <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
+                            <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
                         </td>
                         <td>{{ $product->listing_rejected_on }}</td>
                         <td>{{ $product->listing_remark ?? 'N/A' }}</td>
@@ -327,7 +327,7 @@
             let is_script_corrected = $("#script_corrected_"+pid).is(':checked') ? 1 : 0;
 
             $.ajax({
-                url: '{{ action('ProductController@updateProductListingStats') }}',
+                url: '{{ action([\App\Http\Controllers\ProductController::class, 'updateProductListingStats']) }}',
                 data: {
                     is_corrected: is_corrected,
                     is_script_corrected: is_script_corrected,
@@ -343,7 +343,7 @@
             let pid = $(this).attr('data-id');
 
             $.ajax({
-                url: '{{ action('ProductController@deleteProduct') }}',
+                url: '{{ action([\App\Http\Controllers\ProductController::class, 'deleteProduct']) }}',
                 data: {
                     product_id: pid
                 },
@@ -357,7 +357,7 @@
             let pid = $(this).attr('data-id');
 
             $.ajax({
-                url: '{{ action('ProductController@relistProduct') }}',
+                url: '{{ action([\App\Http\Controllers\ProductController::class, 'relistProduct']) }}',
                 data: {
                     product_id: pid
                 },

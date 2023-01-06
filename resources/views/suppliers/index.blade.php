@@ -707,7 +707,7 @@
         let message = $('#reminder_message').val();
 
         $.ajax({
-            url: "{{action('SupplierController@updateReminder')}}",
+            url: "{{action([\App\Http\Controllers\SupplierController::class, 'updateReminder'])}}",
             type: 'POST',
             success: function() {
                 toastr['success']('Reminder updated successfully!');
@@ -991,7 +991,7 @@
         }
 
         $.ajax({
-            url: "{{action('WhatsAppController@sendMessage', 'supplier')}}",
+            url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'supplier')}}",
             type: 'post',
             data: {
                 message: message,

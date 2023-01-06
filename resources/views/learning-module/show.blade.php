@@ -79,7 +79,7 @@
     
     <div class="row mb-2">
         <div class="col-xs-12">
-            <form action="{{ action('LearningModuleController@createLearningFromSortcut') }}" method="POST" id="taskCreateForm">
+            <form action="{{ action([\App\Http\Controllers\LearningModuleController::class, 'createLearningFromSortcut']) }}" method="POST" id="taskCreateForm">
                 @csrf
               
                 <div class="row">
@@ -977,7 +977,7 @@
             let id = $(this).val();  
 
             $.ajax({
-              url: "{{action('LearningCategoryController@getSubModule')}}",
+              url: "{{action([\App\Http\Controllers\LearningCategoryController::class, 'getSubModule'])}}",
               type: "POST",
              headers: {
                 'X-CSRF-TOKEN': "{{ csrf_token() }}"
@@ -1012,7 +1012,7 @@
             let self = textBox;
 
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'learning')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'learning')}}",
                 type: 'POST',
                 data: {
                     "issue_id": issueId,

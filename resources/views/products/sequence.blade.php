@@ -13,7 +13,7 @@
             <p>Approved By: {{ $product->cropOrderer ? $product->cropOrderer->name : 'N/A' }}</p>
         </div>
         @if($product)
-            <form action="{{ action('ProductCropperController@saveSequence', $product->id) }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\ProductCropperController::class, 'saveSequence'], $product->id) }}" method="post">
                 @csrf
                 <div class="col-md-12">
                     <div id="sortable">
@@ -32,7 +32,7 @@
                     <div class="form-group">
                         <button class="btn btn-secondary">Save Sequence</button>
                         <span class="clear-sequence btn btn-default">Clear Sequence</span>
-                        <a class="btn btn-default" href="{{action('ProductCropperController@skipSequence', $product->id)}}">Skip Product</a>
+                        <a class="btn btn-default" href="{{action([\App\Http\Controllers\ProductCropperController::class, 'skipSequence'], $product->id)}}">Skip Product</a>
                     </div>
                 </div>
             </form>

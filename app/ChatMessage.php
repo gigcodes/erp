@@ -86,8 +86,6 @@ class ChatMessage extends Model
 
     protected $table = 'chat_messages';
 
-    protected $dates = ['created_at', 'updated_at'];
-
     protected $casts = [
         'approved' => 'boolean',
     ];

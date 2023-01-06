@@ -690,23 +690,32 @@
 
             {{-- href="{{ action('DevelopmentController@exportTask',request()->all()) }}"--}}
 
-            @if(auth()->user()->isAdmin())
-                <li>
-                    <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle='modal' data-target='#taskStatusModal' id="">Create Status</button>
-                </li>&nbsp;
-            @endif
-            <li>
-                <button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
-            </li>&nbsp;
-        </ul>
-        <div class="tab-content ">
-            <!-- Pending task div start -->
-            <div class="tab-pane active" id="1">
-                <div class="row" style="margin:0px;">
-                    <!-- <h4>List Of Pending Tasks</h4> -->
-                    <div class="col-12">
-                        <table class="table table-sm table-bordered">
-                            <thead>
+        <li> <button type="button" onclick="window.location.href = '{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks </button></li> &nbsp;
+        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
+        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="send_message_button" data-selected="0">Send Message</button></li>&nbsp;
+        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
+        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
+        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
+
+
+        {{-- href="{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}"--}}
+
+        @if(auth()->user()->isAdmin())
+
+        <li><button type="button" class="btn btn-xs btn-secondary my-3" data-toggle='modal' data-target='#taskStatusModal' id="">Create Status</button></li>&nbsp;
+
+
+        @endif
+        <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button></li>&nbsp;
+    </ul>
+    <div class="tab-content ">
+        <!-- Pending task div start -->
+        <div class="tab-pane active" id="1">
+            <div class="row" style="margin:0px;">
+                <!-- <h4>List Of Pending Tasks</h4> -->
+                <div class="col-12">
+                    <table class="table table-sm table-bordered">
+                        <thead>
                             <tr>
                                 <th width="5%">ID</th>
                                 <th width="8%">Date</th>
@@ -1700,6 +1709,60 @@
                     error: function () {
                     }
                 });
+<<<<<<< HEAD
+=======
+            }
+        });
+
+        $('#task_reminder_from').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+        var TaskToRemind = null
+        $(document).on('click', '.task-set-reminder', function() {
+            let taskId = $(this).data('id');
+            let frequency = $(this).data('frequency');
+            let message = $(this).data('reminder_message');
+            let reminder_from = $(this).data('reminder_from');
+            let reminder_last_reply = $(this).data('reminder_last_reply');
+
+            $('#frequency').val(frequency);
+            $('#reminder_message').val(message);
+            $("#taskReminderModal").find("#task_reminder_from").val(reminder_from);
+            if (reminder_last_reply == 1) {
+                $("#taskReminderModal").find("#reminder_last_reply").prop("checked", true);
+            } else {
+                $("#taskReminderModal").find("#reminder_last_reply_no").prop("checked", true);
+            }
+            TaskToRemind = taskId;
+        });
+
+        $(document).on('click', '.task-submit-reminder', function() {
+            var taskReminderModal = $("#taskReminderModal");
+            let frequency = $('#frequency').val();
+            let message = $('#reminder_message').val();
+            let task_reminder_from = taskReminderModal.find("#task_reminder_from").val();
+            let reminder_last_reply = (taskReminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
+
+            $.ajax({
+                url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'updateTaskReminder'])}}",
+                type: 'POST',
+                success: function() {
+                    toastr['success']('Reminder updated successfully!');
+                    $(".set-reminder img").css("background-color", "");
+                    if (frequency > 0) {
+                        $(".task-set-reminder img").css("background-color", "red");
+                    }
+                },
+                data: {
+                    task_id: TaskToRemind,
+                    frequency: frequency,
+                    message: message,
+                    reminder_from: task_reminder_from,
+                    reminder_last_reply: reminder_last_reply,
+                    _token: "{{ csrf_token() }}"
+                }
+>>>>>>> master
             });
 
             function getPriorityTaskList(id) {
@@ -2918,6 +2981,7 @@
             $("#send-message-text-box").modal("show");
         });
 
+<<<<<<< HEAD
         $(".btn-send-brodcast-message").on("click", function () {
             if (selected_tasks.length > 0) {
                 $.ajax({
@@ -2949,6 +3013,27 @@
                 toastr["error"]("Please select atleast 1 task!");
             }
         });
+=======
+    $(document).on('keyup', '.save-milestone', function(event) {
+        if (event.keyCode != 13) {
+            return;
+        }
+        let id = $(this).attr('data-id');
+        let total = $(this).val();
+
+        $.ajax({
+            url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'saveMilestone'])}}",
+            data: {
+                total: total,
+                task_id: id
+            },
+            success: function() {
+                toastr["success"]("Milestone updated successfully!", "Message")
+            },
+            error: function(error) {
+                toastr["error"](error.responseJSON.message, "Message")
+                console.log(error.responseJSON.message);
+>>>>>>> master
 
 
         $('#taskCreateButton').on('click', function (e) {
@@ -3178,7 +3263,37 @@
                 });
             }
 
+<<<<<<< HEAD
         });
+=======
+        var is_milestone = $('#is_milestone').val();
+        if (is_milestone == '1') {
+            $('#no_of_milestone').attr('required', 'required');
+        } else {
+            $('#no_of_milestone').removeAttr('required');
+        }
+    });
+
+    $(document).on('change', '.assign-master-user', function() {
+        let id = $(this).attr('data-id');
+        let lead = $(this).attr('data-lead');
+        let userId = $(this).val();
+        if (userId == '') {
+            return;
+        }
+        $.ajax({
+            url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'assignMasterUser'])}}",
+            data: {
+                master_user_id: userId,
+                issue_id: id,
+                lead: lead
+            },
+            success: function() {
+                toastr["success"]("Master User assigned successfully!", "Message")
+            },
+            error: function(error) {
+                toastr["error"](error.responseJSON.message, "Message")
+>>>>>>> master
 
         $(document).on("click", ".show-finished-task", function () {
             var $this = $(this);

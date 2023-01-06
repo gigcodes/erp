@@ -81,7 +81,7 @@
     e.preventDefault();
     $.ajax({
         type: "POST",
-        url: "{{action('DatabaseTableController@viewList')}}",
+        url: "{{action([\App\Http\Controllers\DatabaseTableController::class, 'viewList'])}}",
         data: {
             _token: "{{ csrf_token() }}",
             table_name: $(this).data('name')

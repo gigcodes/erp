@@ -13,6 +13,8 @@ $metaData = '';
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php 
+
+use Illuminate\Support\Facades\Route;
         if(isset($metaData->page_title) && $metaData->page_title!='') {
             $title = $metaData->page_title;
         }else{
