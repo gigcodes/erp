@@ -311,7 +311,7 @@ $(document).on('click', '.product-list-btn', function(e) {
         }
 
         $.ajax({
-            url: "{{action('WhatsAppController@sendMessage', 'supplier')}}",
+            url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'supplier')}}",
             type: 'post',
             data: {
                 message: message,

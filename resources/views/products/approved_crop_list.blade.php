@@ -11,7 +11,7 @@
             </h2>
         </div>
         <div class="col-md-12">
-            <form method="get" action="{{ action('ProductCropperController@getApprovedImages') }}">
+            <form method="get" action="{{ action([\App\Http\Controllers\ProductCropperController::class, 'getApprovedImages']) }}">
                 <div class="row">
                     <div class="col-md-2">
                         <select class="form-control" name="user_id" id="user_id">
@@ -42,11 +42,11 @@
                                 <div class="card-body">
                                     <h5 class="card-title">{{ $product->title }}</h5>
                                     <p class="card-text">
-                                        <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->sku }}</a><br>
+                                        <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->sku }}</a><br>
                                         {{ $product->supplier }}<br>
                                         Approver: {{ $product->cropApprover ? $product->cropApprover->name : 'N/A' }}
                                     </p>
-                                    <a href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}" class="btn btn-primary">Check Cropping</a>
+                                    <a href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'showImageToBeVerified'], $product->id) }}" class="btn btn-primary">Check Cropping</a>
                                 </div>
                             </div>
                         </div>

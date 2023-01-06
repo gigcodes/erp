@@ -26,6 +26,4 @@ class ChatMessagesQuickData extends Model
      * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $fillable = ['model', 'model_id', 'last_unread_message', 'last_unread_message_at', 'last_communicated_messagelast_communicated_message', 'last_communicated_message_at', 'last_unread_message_id', 'last_communicated_message_id'];
-
-    protected $dates = ['created_at', 'updated_at'];
 }

@@ -8,7 +8,7 @@
     </div>
     <div class="row">
 {{--        <div class="p-5" style="background: #dddddd">--}}
-{{--            <form action="{{ action('PreAccountController@store') }}" method="post">--}}
+{{--            <form action="{{ action([\App\Http\Controllers\PreAccountController::class, 'store']) }}" method="post">--}}
 {{--                @csrf--}}
 {{--                <div class="row">--}}
 {{--                    <div class="col-md-4">--}}
@@ -51,7 +51,7 @@
 {{--            </form>--}}
 {{--        </div>--}}
         <div class="col-md-12 mt-4">
-            <form action="{{ action('PreAccountController@store') }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\PreAccountController::class, 'store']) }}" method="post">
                 @csrf
                 <table class="table table-striped table-bordered">
                     <tr>

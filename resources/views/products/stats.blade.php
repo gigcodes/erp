@@ -13,7 +13,7 @@
             <h2 class="page-heading">Product Stats ({{$products->total()}})</h2>
         </div>
     </div>
-    <form action="{{ action('ProductController@productStats') }}" method="get">
+    <form action="{{ action([\App\Http\Controllers\ProductController::class, 'productStats']) }}" method="get">
         <div class="row mb-5">
             <div class="col-md-2">
                 <input value="{{$sku}}" type="text" name="sku" id="sku" placeholder="Sku" class="form-control">
@@ -81,7 +81,7 @@
                 @foreach($products as $product)
                     <tr>
                         <td>
-                            <a href="{{ action('ProductController@show', $product->id) }}">{{$product->name}}</a>
+                            <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{$product->name}}</a>
                         </td>
                         <td>
                             @if($product->is_crop_approved)

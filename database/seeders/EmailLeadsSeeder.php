@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Customer;
 use App\EmailLead;
 use Illuminate\Database\Seeder;

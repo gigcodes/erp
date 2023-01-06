@@ -11,8 +11,8 @@
         </div>
     @endif
     <div class="mt-5">
-        <h1><u>Add Images</u> (<a href="{{ action('SocialController@showSchedule', $schedule->id) }}">Back To Schedule</a>)</h1>
-        <form action="{{ action('SocialController@attachProducts', $schedule->id) }}" method="post">
+        <h1><u>Add Images</u> (<a href="{{ action([\App\Http\Controllers\SocialController::class, 'showSchedule'], $schedule->id) }}">Back To Schedule</a>)</h1>
+        <form action="{{ action([\App\Http\Controllers\SocialController::class, 'attachProducts'], $schedule->id) }}" method="post">
             <div class="text-center">
                 {!! $products->links() !!}
             </div>

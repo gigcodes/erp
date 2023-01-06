@@ -17,7 +17,7 @@
                 <strong>Keywords, Phrases & Sentences</strong>
             </div>
             <div class="panel-body">
-                <form method="post" action="{{ action('BulkCustomerRepliesController@storeKeyword') }}">
+                <form method="post" action="{{ action([\App\Http\Controllers\BulkCustomerRepliesController::class, 'storeKeyword']) }}">
                     @csrf
                     <div class="row">
                         <div class="col-md-3">
@@ -38,13 +38,13 @@
                 <div>
                     <strong>Manually Added</strong><br>
                     @foreach($keywords as $keyword)
-                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px;" class="label label-default">{{$keyword->value}}</a>
+                        <a href="{{ action([\App\Http\Controllers\BulkCustomerRepliesController::class, 'index'], ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px;" class="label label-default">{{$keyword->value}}</a>
                     @endforeach
                 </div>
                 <div class="mt-2">
                     <strong>Auto Generated</strong><br>
                     @foreach($autoKeywords as $keyword)
-                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; margin-bottom: 2px; display:inline-block;" class="label label-default">{{$keyword->value}}({{$keyword->count}})</a>
+                        <a href="{{ action([\App\Http\Controllers\BulkCustomerRepliesController::class, 'index'], ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; margin-bottom: 2px; display:inline-block;" class="label label-default">{{$keyword->value}}({{$keyword->count}})</a>
                     @endforeach
                 </div>
             </div>
@@ -75,7 +75,7 @@
         @if($searchedKeyword)
             @if($searchedKeyword->customers)
                 
-                <form id="send-messages-by-Keyword" action="{{ action('BulkCustomerRepliesController@sendMessagesByKeyword') }}" method="post">
+                <form id="send-messages-by-Keyword" action="{{ action([\App\Http\Controllers\BulkCustomerRepliesController::class, 'sendMessagesByKeyword']) }}" method="post">
                     @csrf
                     <table class="table table-striped table-bordered">
                         <tr>
@@ -369,7 +369,7 @@
             }
             let self = textBox;
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'customer')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'customer')}}",
                 type: 'POST',
                 data: {
                     "customer_id": issueId,

@@ -110,7 +110,7 @@ input:checked + .slider:before {
                 </div>
                 <div class="col-md-6">
                      
-                    <form method="post" action="{{ action('GoogleSearchController@store') }}">
+                    <form method="post" action="{{ action([\App\Http\Controllers\GoogleSearchController::class, 'store']) }}">
                     @csrf
                     <div class="row">
                         <div class="col-md-6">
@@ -150,7 +150,7 @@ input:checked + .slider:before {
                             {{ $keyword->hashtag }}
                         </td>
                         <td>
-                            <form method="post" action="{{ action('GoogleSearchController@destroy', $keyword->id) }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\GoogleSearchController::class, 'destroy'], $keyword->id) }}">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-default btn-image btn-sm">

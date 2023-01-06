@@ -83,7 +83,7 @@
                                     {{ $product->supplier }}<br>
                                     <strong>Reason: {{ $product->crop_remark ?? 'N/A' }}</strong>
                                 </p>
-                                <a href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}?rejected=yes" class="btn btn-primary">Check Cropping</a>
+                                <a href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'showImageToBeVerified'], $product->id) }}?rejected=yes" class="btn btn-primary">Check Cropping</a>
                             </div>
                         </div>
                     </div>
@@ -116,7 +116,7 @@
                                         {{ $product->sku }}<br>
                                         {{ $product->supplier }}
                                     </p>
-                                    <a href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}" class="btn btn-primary">Check Cropping</a>
+                                    <a href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'showImageToBeVerified'], $product->id) }}" class="btn btn-primary">Check Cropping</a>
                                 </div>
                             </div>
                         </div>

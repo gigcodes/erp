@@ -361,7 +361,7 @@
         <h4 class="modal-title">Assign Platform</h4>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
-      <form action="{{ action('EmailController@platformUpdate') }}" method="POST" class="form-group labeling-form">
+      <form action="{{ action([\App\Http\Controllers\EmailController::class, 'platformUpdate']) }}" method="POST" class="form-group labeling-form">
         @csrf
         <input type="hidden" name="id" value="">
         <div class="modal-body">

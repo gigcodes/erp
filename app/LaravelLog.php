@@ -14,7 +14,7 @@ class LaravelLog extends Model
      *
      * @SWG\Property(property="log_created",type="string")
      */
-    protected $dates = [
-        'log_created',
+    protected $casts = [
+        'log_created' => 'datetime',
     ];
 }

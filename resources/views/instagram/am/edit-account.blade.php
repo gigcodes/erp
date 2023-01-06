@@ -3,12 +3,12 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading"><a href="{{ action('InstagramController@accounts') }}">Back</a> | Edit Account: {{ $account->last_name }}</h2>
+            <h2 class="page-heading"><a href="{{ action([\App\Http\Controllers\InstagramController::class, 'accounts']) }}">Back</a> | Edit Account: {{ $account->last_name }}</h2>
         </div>
     </div>
     <div class="row">
         <div class="p-5" style="background: #dddddd">
-            <form action="{{ action('InstagramController@update', $account->id) }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\InstagramController::class, 'update'], $account->id) }}" method="post">
                 @csrf
                 @method('PUT')
                 <div class="row">
