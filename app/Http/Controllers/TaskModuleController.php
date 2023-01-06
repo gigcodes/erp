@@ -2287,7 +2287,6 @@ class TaskModuleController extends Controller
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Your quick task has been created!']);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
-
         }
     }
 

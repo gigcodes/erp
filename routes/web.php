@@ -1308,8 +1308,6 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
     });
 
-
-
     Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder']);
     Route::post('task/statuscolor', [TaskModuleController::class, 'statuscolor'])->name('task.statuscolor');
 
