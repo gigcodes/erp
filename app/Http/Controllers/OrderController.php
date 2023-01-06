@@ -3738,7 +3738,7 @@ class OrderController extends Controller
     {
         $website = StoreWebsite::find($request->store_website_id);
         $magentoHelper = new MagentoHelperv2;
-        $result = $magentoHelper->fetchOrderStatus($website);       
+        $result = $magentoHelper->fetchOrderStatus($website);
         if ($result) {
             if ($result->status() == 200) {
                 $statuses = json_decode($result->getContent());
@@ -3751,7 +3751,7 @@ class OrderController extends Controller
                         'label' => $status->label,
                     ]);
                 }
-                $this->store_order_status_history_create($request,$result,$request->store_website_id);
+                $this->store_order_status_history_create($request, $result, $request->store_website_id);
             } else {
                 return redirect()->back()->with('error', $result->getContent());
             }
@@ -3783,7 +3783,7 @@ class OrderController extends Controller
         if (! $isExist) {
             Store_order_status::create($input);
 
-            store_order_status_history_create($request,'','');
+            store_order_status_history_create($request, '', '');
 
             return redirect()->back();
         } else {
@@ -3812,7 +3812,7 @@ class OrderController extends Controller
         $isExist = Store_order_status::where('order_status_id', $request->order_status_id)->where('store_website_id', $request->store_website_id)->where('store_master_status_id', $request->store_master_status_id)->first();
 
         if (! $isExist) {
-            $this->store_order_status_history_update($request,'',$id);
+            $this->store_order_status_history_update($request, '', $id);
             $store_order_status = Store_order_status::find($id);
             $store_order_status->update($input);
 
@@ -4905,81 +4905,77 @@ class OrderController extends Controller
         }
     }
 
-    public function store_order_status_history_create($request,$response,$store_website_id) {  
-        
-        if(isset($response) && $response!='') {
+    public function store_order_status_history_create($request, $response, $store_website_id)
+    {
+        if (isset($response) && $response != '') {
             $response = json_encode($response);
         }
-       $storeHistory = [       
+        $storeHistory = [
             'request' => json_encode($request->all()),
             'response' => $response,
             'store_website_id' => $store_website_id,
             'updated_by' => \Auth::user()->id,
-            'action_type'=>'Fetch Store Status'
-       ];
-       StoreOrderStatusesHistory::create($storeHistory);
+            'action_type' => 'Fetch Store Status',
+        ];
+        StoreOrderStatusesHistory::create($storeHistory);
     }
 
-    public function store_order_status_history_update($request,$response,$id) {
+    public function store_order_status_history_update($request, $response, $id)
+    {
         $store_order_status = Store_order_status::find($id);
-        if(isset($response) && $response!='') {
+        if (isset($response) && $response != '') {
             $response = json_encode($response);
         }
-       $storeHistory = [       
+        $storeHistory = [
             'request' => json_encode($request->all()),
             'response' => $response,
             'store_order_statuses_id' => $id,
-            'old_order_status_id' =>  $store_order_status->order_status_id,
-            'old_store_website_id' =>  $store_order_status->store_website_id,
-            'old_status' =>  $store_order_status->status,
-            'old_store_master_status_id' =>  $store_order_status->store_master_status_id,
+            'old_order_status_id' => $store_order_status->order_status_id,
+            'old_store_website_id' => $store_order_status->store_website_id,
+            'old_status' => $store_order_status->status,
+            'old_store_master_status_id' => $store_order_status->store_master_status_id,
 
-            'new_order_status_id' =>  $request->order_status_id,
-            'new_store_website_id' =>  $request->store_website_id,
-            'new_status' =>  $request->status,
-            'new_store_master_status_id' =>  $request->store_master_status_id,
+            'new_order_status_id' => $request->order_status_id,
+            'new_store_website_id' => $request->store_website_id,
+            'new_status' => $request->status,
+            'new_store_master_status_id' => $request->store_master_status_id,
 
             'updated_by' => \Auth::user()->id,
-            'action_type'=>'Edit'
-       ];
-      
-       StoreOrderStatusesHistory::create($storeHistory);
+            'action_type' => 'Edit',
+        ];
+
+        StoreOrderStatusesHistory::create($storeHistory);
     }
 
-    public function statusHistory() {
-
+    public function statusHistory()
+    {
         $id = $_REQUEST['id'];
 
         $statusHistorySite = StoreOrderStatusesHistory::where('store_order_statuses_id', $id)->get();
 
         $store_website_id = 0;
-        if(isset($statusHistorySite[0]->new_store_website_id) && $statusHistorySite[0]->new_store_website_id>0) {
+        if (isset($statusHistorySite[0]->new_store_website_id) && $statusHistorySite[0]->new_store_website_id > 0) {
             $store_website_id = $statusHistorySite[0]->new_store_website_id;
         }
 
         $statusHistory = StoreOrderStatusesHistory::where('store_order_statuses_id', $id)->orWhere('store_website_id', $store_website_id)->get();
 
         $statusHistory = $statusHistory->map(function ($status) {
-
-           
             $status->request = $status->request;
             $status->response = $status->response;
             $status->request_detail = $status->request;
             $status->response_detail = $status->response;
             $status->old_order_status_id = OrderStatus::where('id', $status->old_order_status_id)->value('status');
-            $status->old_store_website_id = StoreWebsite::where('id', $status->old_store_website_id)->value('website');            
-            $status->old_store_master_status_id  = StoreMasterStatus::where('id', $status->old_store_master_status_id)->value('label');
+            $status->old_store_website_id = StoreWebsite::where('id', $status->old_store_website_id)->value('website');
+            $status->old_store_master_status_id = StoreMasterStatus::where('id', $status->old_store_master_status_id)->value('label');
 
             $status->new_order_status_id = OrderStatus::where('id', $status->new_order_status_id)->value('status');
-            $status->new_store_website_id = StoreWebsite::where('id', $status->new_store_website_id)->value('website');            
-            $status->new_store_master_status_id  = StoreMasterStatus::where('id', $status->new_store_master_status_id)->value('label');
-            
+            $status->new_store_website_id = StoreWebsite::where('id', $status->new_store_website_id)->value('website');
+            $status->new_store_master_status_id = StoreMasterStatus::where('id', $status->new_store_master_status_id)->value('label');
 
             return $status;
         });
 
         return response()->json(['code' => 200, 'data' => $statusHistory]);
     }
-
-
 }

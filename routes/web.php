@@ -1040,7 +1040,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/status/fetch', [OrderController::class, 'viewFetchStatus']);
         Route::post('/status/fetch', [OrderController::class, 'fetchStatus'])->name('store-website.fetch.status');
         Route::get('/status/fetchMasterStatus/{id}', [OrderController::class, 'fetchMasterStatus']);
-        Route::get('/status/history', [OrderController::class, 'statusHistory']);     
+        Route::get('/status/history', [OrderController::class, 'statusHistory']);
     });
 
     //plesk
