@@ -328,7 +328,6 @@ class OrderController extends Controller
         $orders = $orders->groupBy('orders.id');
         $orders = $orders->select(['orders.*', 'cs.email as cust_email', \DB::raw('group_concat(b.name) as brand_name_list'), 'swo.website_id']);
 
-
         $users = Helpers::getUserArray(User::all());
         $order_status_list = OrderHelper::getStatus();
 
@@ -345,7 +344,6 @@ class OrderController extends Controller
         $orders_array = $orders->paginate(10);
 
         $quickreply = Reply::where('model', 'Order')->get();
-
 
         $duty_shipping = [];
         foreach ($orders_array as $key => $order) {
