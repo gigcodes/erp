@@ -46,7 +46,7 @@ class MagentoRunCommand extends Command
             if($magCom->website_ids == 'ERP') {
                 $cmd = $magCom->command_type;
                 $allOutput = [];
-                $allOutput[] = $cmd;
+                $allOutput[] = '../'.$cmd;
                 $result = exec($cmd, $allOutput);
                 if ($result == '') {
                     $result = 'Not any response';
