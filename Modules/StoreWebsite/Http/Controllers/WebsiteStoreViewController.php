@@ -24,14 +24,14 @@ class WebsiteStoreViewController extends Controller
         $storeWebsites = StoreWebsite::orderBy('title', 'ASC')->pluck('title', 'id')->toArray();
         $websiteStores = WebsiteStore::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $languages = \App\Language::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
-        $storeCodes = \App\StoreViewCodeServerMap::groupBy('server_id')->orderBy('code', 'ASC')->select('code', 'id','server_id')->get()->toArray();
+        $storeCodes = \App\StoreViewCodeServerMap::groupBy('server_id')->orderBy('code', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
 
         return view('storewebsite::website-store-view.index', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'websiteStores' => $websiteStores,
             'languages' => $languages,
-	    'storeCodes' => $storeCodes,
+            'storeCodes' => $storeCodes,
         ]);
     }
 
@@ -59,7 +59,7 @@ class WebsiteStoreViewController extends Controller
             $websiteStoreViews = $websiteStoreViews->where('website_store_id', $request->website_store_id);
         }
 
-        $websiteStoreViews = $websiteStoreViews->select(['website_store_views.*', 'ws.name as website_store_name','svcsm.code as store_code','svcsm.id as store_code_id', ])
+        $websiteStoreViews = $websiteStoreViews->select(['website_store_views.*', 'ws.name as website_store_name', 'svcsm.code as store_code', 'svcsm.id as store_code_id'])
             ->orderBy('website_store_views.id', 'desc')
             ->paginate();
 
