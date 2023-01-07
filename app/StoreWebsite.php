@@ -110,6 +110,7 @@ class StoreWebsite extends Model
         'project_id',
         'is_dev_website',
         'site_folder',
+	'store_code_id',
     ];
 
     const DB_CONNECTION = [

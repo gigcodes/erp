@@ -65,8 +65,9 @@ class StoreWebsiteController extends Controller
         $services = Service::get();
         $assetManager = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
+	$storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('code', 'ASC')->select('code', 'id','server_id')->get()->toArray();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites','storeCodes'));
     }
 
     public function logWebsiteUsers($id)
@@ -92,7 +93,10 @@ class StoreWebsiteController extends Controller
      */
     public function records(Request $request)
     {
-        $records = StoreWebsite::whereNull('deleted_at');
+        $records = StoreWebsite::whereNull('deleted_at')
+		->leftJoin('store_view_code_server_map as svcsm', 'svcsm.id', 'store_websites.store_code_id')
+		->select(['store_websites.*', 'svcsm.code as store_code_name','svcsm.id as store_code_id' ]);
+
 
         $keyword = request('keyword');
         if (! empty($keyword)) {

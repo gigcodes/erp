@@ -304,6 +304,19 @@
             </div>
             <div class="col-md-4">
                <div class="form-group">
+                  <label for="store_code_id">Store Code</label>
+                  <select name="store_code_id" class="form-control">
+                     <option value="">Choose store code</option>
+			<?php
+			   foreach ($storeCodes as $v) {
+				   echo "<option {{if data.store_code_id == '".(isset($v['id']) ? $v['id'] : '')."'}} selected {{/if}} value='".(isset($v['id']) ? $v['id'] : '')."'>".(isset($v['code']) ? ($v['code'].' ( '.(isset($v['server_id']) ? $v['server_id'] : 'nill').' ) ') : '').'</option>';
+			   }
+			?>
+                  </select>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
                   <label for="site_folder">Site Folder</label>
                   <select name="site_folder" id="site_folder" class="form-control siteFolder">
                      <option>--Select Site Folder--</option>

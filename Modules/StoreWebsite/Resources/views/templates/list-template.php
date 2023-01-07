@@ -10,6 +10,7 @@
 		        <th width="4%" class="Website-task"title="Country Duty">Country Duty</th>
 		        <th width="4%" class="Website-task"title="Description">Description</th>
 		        <th width="4%" class="Website-task"title="Service id">Service id</th>
+		        <th width="4%" class="Website-task"title="Store Code">Store Code</th>
 		        <th width="5%" class="Website-task"title="Remote software">Remote software</th>
 		        <th width="4%" class="Website-task"title="Facebook">Facebook</th>
 		        <th width="4%" class="Website-task"title="Instagram">Instagram</th>
@@ -29,6 +30,7 @@
 			        <td class="Website-task">{{:prop.country_duty}}</td>
 			        <td class="Website-task">{{:prop.description}}</td>
 			        <td>{{:prop.mailing_service_id}}</td>
+			        <td>{{:prop.store_code_name}}</td>
 			        <td>{{:prop.remote_software}}</td>
 			        <td>
 			        	{{:prop.facebook}}
