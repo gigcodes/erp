@@ -1444,15 +1444,23 @@ class LiveChatController extends Controller
         $query = $query->select($selectArray);
 
         if ($request->ticket_id) {
-            $query = $query->where('ticket_id', $request->ticket_id);
+            $query = $query->whereIn('ticket_id', $request->ticket_id);
         }
 
         if ($request->users_id != '') {
-            $query = $query->where('assigned_to', $request->users_id);
+            $query = $query->whereIn('assigned_to', $request->users_id);
         }
 
         if ($request->term != '') {
-            $query = $query->where('tickets.name', 'LIKE', '%'.$request->term.'%')->orWhere('tickets.email', 'LIKE', '%'.$request->term.'%');
+            $query = $query->whereIn('tickets.name', $request->term);
+        }
+
+        if ($request->user_email != '') {
+            $query = $query->whereIn('tickets.email', $request->user_email);
+        }
+
+        if ($request->user_message != '') {
+            $query = $query->where('tickets.message', 'LIKE', '%'.$request->user_message.'%');
         }
 
         if ($request->search_country != '') {
@@ -1482,7 +1490,7 @@ class LiveChatController extends Controller
         }
 
         if ($request->status_id != '') {
-            $query = $query->where('status_id', $request->status_id);
+            $query = $query->whereIn('status_id', $request->status_id);
         }
 
         if ($request->date != '') {
