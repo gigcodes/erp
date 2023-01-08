@@ -1038,6 +1038,19 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = TaskStatus::find($key);
+            $bugstatus->task_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
     public function automaticTasks(Request $request)
     {
         $users = Helpers::getUserArray(User::orderBy('name')->get());
