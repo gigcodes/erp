@@ -97,6 +97,9 @@
     tbody td{
         background: #ddd3;
     }
+    .select2-container .select2-search--inline .select2-search__field{
+        margin-top: 0px !important;
+    }
 </style>
 @extends('layouts.app')
 
@@ -120,16 +123,14 @@
             <div class="form-group mb-3">
                 <div class="row">
                     <div class="col-md-2 pr-0 mb-3">
-                        <select class="form-control globalSelect2"  name="users_id" id="users_id">
-                            <option value="">Select Users</option>
+                        <select class="form-control globalSelect21"  name="users_id" id="users_id">
                             @foreach($users as $key => $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-2 pl-3  pr-0">
-                        <select class="form-control globalSelect2" name="ticket_id" id="ticket">
-                            <option value="">Select Ticket</option>
+                        <select class="form-control globalSelect22" name="ticket_id" id="ticket">
                             @foreach($data as $key => $ticket)
                             <option value="{{ $ticket->ticket_id }}">{{ $ticket->ticket_id }}</option>
                             @endforeach
@@ -137,7 +138,7 @@
                     </div>
 
                     <div class="col-md-2 pl-3 pr-0">
-                        <?php echo Form::select("status_id", ["" => "Select Status"]+\App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect2", "id" => "status_id"]); ?>
+                        <?php echo Form::select("status_id", [''=>'']+\App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect24", "id" => "status_id"]); ?>
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
                         <div class='input-group date' id='filter_date'>
@@ -150,9 +151,25 @@
                     </div>
 
                     <div class="col-md-2 pl-3 pr-0">
-                        <input name="term" type="text" class="form-control"
-                                value="{{ isset($term) ? $term : '' }}"
-                                placeholder="Name of User" id="term">
+                        <select class="form-control globalSelect23" name="term" id="term">
+                            @foreach($data as $key => $user_name)
+                                <option value="{{ $user_name->name }}">{{ $user_name->name }}</option>
+                            @endforeach
+                        </select>
+{{--                        <input name="term" type="text" class="form-control"--}}
+{{--                                value="{{ isset($term) ? $term : '' }}"--}}
+{{--                                placeholder="Name of User" id="term">--}}
+                    </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <select class="form-control globalSelect25" name="user_email" id="user_email">
+                            @foreach($data as $key => $user_email)
+                                <option value="{{ $user_email->email }}">{{ $user_email->email }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <input name="user_message" type="text" class="form-control"
+                                    placeholder="Search Message" id="user_message">
                     </div>
                     <div class="col-md-2 pl-3 pr-3">
                         <input name="serach_inquiry_type" type="text" class="form-control"
@@ -179,20 +196,20 @@
                                 value="{{ isset($search_source) ? $search_source : '' }}"
                                 placeholder="Source." id="search_source">
                     </div>
-                    
+
                     <!-- <div class="col-md-2">
                         <input name="search_category" type="text" class="form-control"
                                 value="{{ isset($search_category) ? $search_category : '' }}"
                                 placeholder="Category" id="search_category">
                     </div> -->
                     <div>
-                    <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
+                    <button type="button" class="btn btn-image mt-2" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
                     </div>
                     <div >
-                        <button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
+                        <button type="button" class="btn btn-image mt-2" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-image" id="send-message"><img src="{{ asset('images/whatsapp-logo.png')}}"/></button>
+                        <button type="button" class="btn btn-image mt-2" id="send-message"><img src="{{ asset('images/whatsapp-logo.png')}}"/></button>
                     </div>
 
                 </div>
@@ -248,7 +265,7 @@
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
     @include('livechat.partials.modal_ticket_send_option')
-    
+
 
 
     <div id="AddStatusModal" class="modal fade" role="dialog">
@@ -413,6 +430,45 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
+    $(".globalSelect21").select2({
+        multiple: true,
+        placeholder: "Select Users",
+    });
+    $(".globalSelect22").select2({
+        multiple: true,
+        placeholder: "Select Ticket",
+    });
+    $(".globalSelect23").select2({
+        multiple: true,
+        placeholder: "Select User Name",
+    });
+    $(".globalSelect24").select2({
+        multiple: true,
+        placeholder: "Select Status",
+    });
+    $(".globalSelect25").select2({
+        multiple: true,
+        placeholder: "Select User Email",
+    });
+    $(".globalSelect26").select2({
+        multiple: true,
+        placeholder: "Select User Message",
+    });
+
+    $('.globalSelect21').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect22').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect23').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect24').val($('.globalSelect21 option:eq(1)').val()).trigger('change');
+    $('.globalSelect25').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect26').val($('option:eq(1)').val()).trigger('change');
+
+    $("#user_email option").each(function() {
+        $(this).siblings('[value="'+ this.value +'"]').remove();
+    });
+    $("#term option").each(function() {
+        $(this).siblings('[value="'+ this.value +'"]').remove();
+    });
+
 function opnMsg(email) {
       console.log(email);
       $('#emailSubject').html(email.subject);
@@ -547,6 +603,8 @@ function opnMsg(email) {
                 //src = "{{url('whatsapp/pollTicketsCustomer')}}";
                 src = "{{url('livechat/tickets')}}";
                 term = $('#term').val();
+                user_email = $('#user_email').val();
+                user_message = $('#user_message').val();
                 erp_user = 152;
                 serach_inquiry_type = $('#serach_inquiry_type').val();
                 search_country = $('#search_country').val();
@@ -564,6 +622,8 @@ function opnMsg(email) {
                     data: {
                         erpUser:erp_user,
                         term : term,
+                        user_email : user_email,
+                        user_message : user_message,
                         serach_inquiry_type : serach_inquiry_type,
                         search_country : search_country,
                         search_order_no : search_order_no,
@@ -723,7 +783,7 @@ function opnMsg(email) {
             });
         }
         $(document).on('click', '.send-message1', function () {
-           
+
            var thiss = $(this);
            var data = new FormData();
            var ticket_id = $(this).data('ticketid');
@@ -753,8 +813,8 @@ function opnMsg(email) {
             var i=0;
             $('.send_message_recepients:checked').each(function () {
                 checkedValue[i++] = $(this).val();
-            });   
-            data.append("send_ticket_options",checkedValue); 
+            });
+            data.append("send_ticket_options",checkedValue);
           //  alert(data);
 
             if (message.length > 0) {

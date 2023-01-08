@@ -1040,6 +1040,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/status/fetch', [OrderController::class, 'viewFetchStatus']);
         Route::post('/status/fetch', [OrderController::class, 'fetchStatus'])->name('store-website.fetch.status');
         Route::get('/status/fetchMasterStatus/{id}', [OrderController::class, 'fetchMasterStatus']);
+        Route::get('/status/history', [OrderController::class, 'statusHistory']);
     });
 
     //plesk
@@ -1881,6 +1882,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('development/change-user', [DevelopmentController::class, 'changeUserStore'])->name('development.changeuser.store');
 
     Route::get('development/summarylist', [DevelopmentController::class, 'summaryList'])->name('development.summarylist');
+    Route::post('development/statuscolor', [DevelopmentController::class, 'statuscolor'])->name('development.statuscolor');
     Route::get('development/flagtask', [DevelopmentController::class, 'flagtask'])->name('development.flagtask');
     Route::post('development/gettasktimemessage', [DevelopmentController::class, 'gettasktimemessage'])->name('development.gettasktimemessage');
     Route::post('development/getlogtasktimemessage', [DevelopmentController::class, 'getlogtasktimemessage'])->name('development.getlogtasktimemessage');
@@ -2674,15 +2676,20 @@ Route::middleware('auth')->group(function () {
     Route::get('bug-tracking/record-tracking-ajax', [BugTrackingController::class, 'recordTrackingAjax'])->name('bug-tracking.index_ajax');
 
     Route::post('bug-tracking/status', [BugTrackingController::class, 'status'])->name('bug-tracking.status');
+    Route::post('bug-tracking/statuscolor', [BugTrackingController::class, 'statuscolor'])->name('bug-tracking.statuscolor');
     Route::post('bug-tracking/environment', [BugTrackingController::class, 'environment'])->name('bug-tracking.environment');
     Route::post('bug-tracking/type', [BugTrackingController::class, 'type'])->name('bug-tracking.type');
     Route::post('bug-tracking/severity', [BugTrackingController::class, 'severity'])->name('bug-tracking.severity');
     Route::get('bug-tracking/bug-history/{id}', [BugTrackingController::class, 'bugHistory'])->name('bug-tracking.bug-history');
     Route::get('bug-tracking/user-history/{id}', [BugTrackingController::class, 'userHistory'])->name('bug-tracking.user-history');
+    Route::get('bug-tracking/severity-history/{id}', [BugTrackingController::class, 'severityHistory'])->name('bug-tracking.severity-history');
+    Route::get('bug-tracking/website-history', [BugTrackingController::class, 'websiteHistory'])->name('bug-tracking.website-history');
     Route::get('bug-tracking/status-history/{id}', [BugTrackingController::class, 'statusHistory'])->name('bug-tracking.status-history');
     Route::get('bug-tracking/communicationData/{id}', [BugTrackingController::class, 'communicationData'])->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', [BugTrackingController::class, 'destroy']);
     Route::post('bug-tracking/websitelist', [BugTrackingController::class, 'getWebsiteList'])->name('bug-tracking.websitelist');
+    Route::get('bug-tracking/website', [BugTrackingController::class, 'website'])->name('bug-tracking.website');
+    Route::post('bug-tracking/checkbug', [BugTrackingController::class, 'checkbug'])->name('bug-tracking.checkbug');
     Route::get('bug-tracking/countdevtask/{id}', [BugTrackingController::class, 'taskCount']);
     Route::get('bug-trackinghistory', [BugTrackingController::class, 'getTrackedHistory'])->name('bug-tracking.history');
     Route::post('bug-tracking/hubstaff_task', [BugTrackingController::class, 'createHubstaffManualTask'])->name('bug-tracking.hubstaff_task');
