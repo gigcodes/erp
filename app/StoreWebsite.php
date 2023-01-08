@@ -153,6 +153,11 @@ class StoreWebsite extends Model
         return $this->hasOne(\App\StoreWebsiteProductPrice::class, 'store_website_id', 'id');
     }
 
+    public function storeCode()
+    {
+        return $this->hasOne(\App\StoreViewCodeServerMap::class, 'store_code_id', 'id');
+    }
+
     /**
      * Get store brand
      */

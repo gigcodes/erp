@@ -65,7 +65,7 @@ class StoreWebsiteController extends Controller
         $services = Service::get();
         $assetManager = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
-        $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('code', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
+        $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
 
         return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes'));
     }

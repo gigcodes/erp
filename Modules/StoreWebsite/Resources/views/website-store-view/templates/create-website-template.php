@@ -26,17 +26,6 @@
 		?>
 		         </select>
 	         </div>
-		 <div class="form-group col-md-6">
-	            <label for="store_code_id">Store Code</label>
-	            <select name="store_code_id" class="form-control">
-		    <option value="">Choose store code</option>
-			<?php
-		                foreach ($storeCodes as $v) {
-		                    echo "<option {{if data.store_code_id == '".(isset($v['id']) ? $v['id'] : '')."'}} selected {{/if}} value='".(isset($v['id']) ? $v['id'] : '')."'>".(isset($v['code']) ? ($v['code'].' ( '.(isset($v['server_id']) ? $v['server_id'] : 'nill').' ) ') : '').'</option>';
-		                }
-		?>
-		         </select>
-		</div>
 		      <div class="form-group col-md-6">
 		         <label for="code">Code</label>
 		         <input type="text" name="code" value="{{if data}}{{:data.code}}{{/if}}" class="form-control" id="code" placeholder="Enter code">
