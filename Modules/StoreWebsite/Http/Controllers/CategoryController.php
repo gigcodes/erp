@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
 
@@ -348,9 +349,7 @@ class CategoryController extends Controller
             $categories = $categories->where('id', $request->category_id);
         }
 
-        //$categories = $categories->whereIn("id", [3]);
-
-        $categories = $categories->paginate(25);
+        $categories = $categories->paginate(10);
 
         $storeWebsite = StoreWebsite::query();
         if ($request->website_id != null) {
@@ -359,6 +358,26 @@ class CategoryController extends Controller
         $storeWebsite = $storeWebsite->get();
 
         $appliedQ = StoreWebsiteCategory::all();
+
+        $result = DB::table('store_websites as SW')
+            ->leftJoin('store_website_categories as SWC', 'SW.id', '=', 'SWC.store_website_id')
+            ->leftJoin('categories as C', 'C.id', '=', 'SWC.category_id')
+            ->select('SW.id as sw_id', 'SW.title as sw_title', 'C.id', 'C.title', 'SWC.store_website_id', 'SWC.category_id')
+            ->orderBy('SW.id', 'asc')
+            ->get();
+
+        $resultSw = [];
+        foreach ($result as $row) {
+            $data[$row->sw_id]['sw_id'] = $row->sw_id;
+            $data[$row->sw_id]['sw_title'] = $row->sw_title;
+            $data[$row->sw_id]['category'][$row->id]['id'] = $row->id;
+            $data[$row->sw_id]['category'][$row->id]['title'] = $row->title;
+            $data[$row->sw_id]['category'][$row->id]['category_id'] = $row->category_id;
+
+            $resultSw = $data;
+        }
+
+        dd($resultSw);exit;
 
         return view('storewebsite::category.index', compact(['title', 'allcategories', 'allstoreWebsite', 'categories', 'storeWebsite', 'appliedQ']));
     }
@@ -472,12 +491,16 @@ class CategoryController extends Controller
             } elseif ($category->parent->parent_id == 0) {
                 $case = 'second';
                 $this->logadd('#3', $catId, $storeId, $case, "From Category ID found parent's parent_id 0 So case created second.");
-            } else {
+            } elseif($category->parent->parentC->parent_id == 0) {
                 $case = 'third';
                 $this->logadd('#4', $catId, $storeId, $case, 'From Category ID not found parent_id  So case created third.');
+            } elseif($category->parent->parentC->parentM->parent_id == 0) {
+                $case = 'fourth ';
+                $this->logadd('#4', $catId, $storeId, $case, 'From Category ID not found parent_id  So case created third.');
             }
+
             if (count($websites) > 0 && $category) {
-                //coppied code
+                //copied code
                 foreach ($websites as $website) {
                     //Check if category
                     if ($case == 'single') {
@@ -501,12 +524,7 @@ class CategoryController extends Controller
                             $this->logadd('#8', $catId, $website->id, $category->id, 'Check Category is an exit.');
                             $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->id)->where('remote_id', $categ)->first();
                             if (empty($checkIfExist)) {
-                                $storeWebsiteCategory = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id = $category->id;
-                                $storeWebsiteCategory->store_website_id = $website->id;
-                                $storeWebsiteCategory->remote_id = $categ;
-                                $storeWebsiteCategory->save();
-
+                                $this->createStoreWebsiteCategory($category->id, $website->id, $categ);
                                 $this->logadd('#9', $catId, $website->id, $category->id, 'If Category is exit then website category stored in case single');
                             }
                         }
@@ -516,7 +534,7 @@ class CategoryController extends Controller
                     if ($case == 'second') {
                         $this->logadd('#10', $catId, $website->id, $case, 'Check second case is exit');
                         $parentCategory = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->parent->id)->whereNotNull('remote_id')->first();
-                        //if parent remote null then send to magento first
+                        //if parent remote null then send to magento first as first level category
                         if (empty($parentCategory)) {
                             $data['id'] = $category->id;
                             $data['level'] = 1;
@@ -536,18 +554,14 @@ class CategoryController extends Controller
                             if ($parentCategoryDetails) {
                                 $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->id)->where('remote_id', $parentCategoryDetails)->first();
                                 if (empty($checkIfExist)) {
-                                    $storeWebsiteCategory = new StoreWebsiteCategory();
-                                    $storeWebsiteCategory->category_id = $category->id;
-                                    $storeWebsiteCategory->store_website_id = $website->id;
-                                    $storeWebsiteCategory->remote_id = $parentCategoryDetails;
-                                    $storeWebsiteCategory->save();
-
+                                    $this->createStoreWebsiteCategory($category->id, $website->id, $parentCategoryDetails);
                                     $this->logadd('#13', $catId, $website->id, $category->id, 'If Category is exit then category stored.');
                                 }
                             }
 
                             $parentRemoteId = $parentCategoryDetails;
                         } else {
+                            // if $parentCategory exists the remote id of the $parentCategory sets as parent id.
                             $parentRemoteId = $parentCategory->remote_id;
                         }
 
@@ -569,11 +583,7 @@ class CategoryController extends Controller
                         if ($categoryDetail) {
                             $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->id)->where('remote_id', $categoryDetail)->first();
                             if (empty($checkIfExist)) {
-                                $storeWebsiteCategory = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id = $category->id;
-                                $storeWebsiteCategory->store_website_id = $website->id;
-                                $storeWebsiteCategory->remote_id = $categoryDetail;
-                                $storeWebsiteCategory->save();
+                                $this->createStoreWebsiteCategory($category->parent->id, $website->id, $categoryDetail);
 
                                 $this->logadd('#16', $catId, $website->id, $category->id, 'If Category is exit then website category stored in case second.');
                             }
@@ -612,11 +622,7 @@ class CategoryController extends Controller
                                 if ($grandCategoryDetails) {
                                     $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->parent->id)->where('remote_id', $grandCategoryDetails)->first();
                                     if (empty($checkIfExist)) {
-                                        $storeWebsiteCategory = new StoreWebsiteCategory();
-                                        $storeWebsiteCategory->category_id = $category->parent->id;
-                                        $storeWebsiteCategory->store_website_id = $website->id;
-                                        $storeWebsiteCategory->remote_id = $grandCategoryDetails;
-                                        $storeWebsiteCategory->save();
+                                        $this->createStoreWebsiteCategory($category->parent->id, $website->id, $grandCategoryDetails);
 
                                         $this->logadd('#20', $catId, $website->id, $category->id, 'If Category is exit then category stored.');
                                     }
@@ -646,11 +652,7 @@ class CategoryController extends Controller
 
                             $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->parent->id)->where('remote_id', $childCategoryDetails)->first();
                             if (empty($checkIfExist)) {
-                                $storeWebsiteCategory = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id = $category->parent->id;
-                                $storeWebsiteCategory->store_website_id = $website->id;
-                                $storeWebsiteCategory->remote_id = $childCategoryDetails;
-                                $storeWebsiteCategory->save();
+                                $this->createStoreWebsiteCategory($category->parent->id, $website->id, $childCategoryDetails);
 
                                 $this->logadd('#23', $catId, $website->id, $category->parent->id, 'If Category parent id is exit then category stored.');
                             }
@@ -673,19 +675,136 @@ class CategoryController extends Controller
                             if ($categoryDetail) {
                                 $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->id)->where('remote_id', $categoryDetail)->first();
                                 if (empty($checkIfExist)) {
-                                    $storeWebsiteCategory = new StoreWebsiteCategory();
-                                    $storeWebsiteCategory->category_id = $category->id;
-                                    $storeWebsiteCategory->store_website_id = $website->id;
-                                    $storeWebsiteCategory->remote_id = $categoryDetail;
-                                    $storeWebsiteCategory->save();
+                                    $this->createStoreWebsiteCategory($category->id, $website->id, $categoryDetail);
 
                                     $this->logadd('#26', $catId, $website->id, $category->id, 'If Category is exit then website category stored in case third.');
                                 }
                             }
                         }
                     }
-                }
 
+                    if ($case == 'fourth') {
+                        $this->logadd('#17', $catId, $website->id, $case, 'Check fourth case is exit');
+                        //Find Parent
+                        $parentCategory = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->id)->whereNotNull('remote_id')->first();
+
+                        //Check if parent had remote id
+                        if (empty($parentCategory)) {
+                            //check for grandparent
+                            $grandCategory = Category::find($category->parent->id);
+                            $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $grandCategory->parent->id)->whereNotNull('remote_id')->first();
+
+                            //Check if parent had remote id
+                            if (empty($grandCategoryDetail)) {
+                                //check for grandparent
+                                $grandParentCategory = Category::find($category->parent->ParentC->id);
+                                $grandParentCategoryDetail = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $grandParentCategory->parent->id)->whereNotNull('remote_id')->first();
+
+                                if (empty($grandParentCategoryDetail)) {
+                                    $data['id'] = $category->id;
+                                    $data['level'] = 1;
+                                    $data['name'] = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                                    $data['parentId'] = 0;
+                                    $parentId = 0;
+
+                                    if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                                        $grandParentCategoryDetails = MagentoHelper::createCategory($parentId, $data, $website->id);
+
+                                        if ($grandParentCategoryDetails == false) {
+                                            $this->logadd('#18', $catId, $website->id, 0, 'Website not found.');
+                                        } else {
+                                            $this->logadd('#19', $catId, $website->id, $grandParentCategoryDetails, "Found remote id $grandParentCategoryDetails And created category catalog.");
+                                        }
+                                    }
+
+                                    if ($grandParentCategoryDetails) {
+                                        $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->parent->id)->where('remote_id', $grandParentCategoryDetails)->first();
+                                        if (empty($checkIfExist)) {
+                                            $this->createStoreWebsiteCategory($category->parent->id, $website->id, $grandParentCategoryDetails);
+
+                                            $this->logadd('#20', $catId, $website->id, $category->id, 'If Category is exit then category stored.');
+                                        }
+                                    }
+
+                                    $grandParentRemoteId = $grandParentCategoryDetails;
+                                } else {
+                                    $grandParentRemoteId = $grandParentCategoryDetail->remote_id;
+                                }
+                                //Search for child category
+
+                                $data['id'] = $category->parent->id;
+                                $data['level'] = 2;
+                                $data['name'] = ucwords($category->parent->title);
+                                $data['parentId'] = $grandParentRemoteId;
+                                $parentId = $grandParentRemoteId;
+
+                                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                                    $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $website->id);
+
+                                    if ($grandCategoryDetails == false) {
+                                        $this->logadd('#21', $catId, $website->id, 0, 'Website not found.');
+                                    } else {
+                                        $this->logadd('#22', $catId, $website->id, $grandCategoryDetails, "Found remote id $grandCategoryDetails And created category catalog.");
+                                    }
+                                }
+
+                                $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->parent->id)->where('remote_id', $grandCategoryDetails)->first();
+                                if (empty($checkIfExist)) {
+                                    $this->createStoreWebsiteCategory($category->parent->id, $website->id, $grandCategoryDetails);
+
+                                    $this->logadd('#23', $catId, $website->id, $category->parent->id, 'If Category parent id is exit then category stored.');
+                                }
+
+                                $data['id'] = $category->parent->id;
+                                $data['level'] = 3;
+                                $data['name'] = ucwords($category->parent->title);
+                                $data['parentId'] = $grandCategoryDetails;
+                                $parentId = $grandCategoryDetails;
+
+                                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                                    $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $website->id);
+
+                                    if ($childCategoryDetails == false) {
+                                        $this->logadd('#21', $catId, $website->id, 0, 'Website not found.');
+                                    } else {
+                                        $this->logadd('#22', $catId, $website->id, $childCategoryDetails, "Found remote id $childCategoryDetails And created category catalog.");
+                                    }
+                                }
+
+                                $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->parent->id)->where('remote_id', $childCategoryDetails)->first();
+                                if (empty($checkIfExist)) {
+                                    $this->createStoreWebsiteCategory($category->parent->id, $website->id, $childCategoryDetails);
+
+                                    $this->logadd('#23', $catId, $website->id, $category->parent->id, 'If Category parent id is exit then category stored.');
+                                }
+
+                                $data['id'] = $category->id;
+                                $data['level'] = 4;
+                                $data['name'] = ucwords($category->title);
+                                $data['parentId'] = $childCategoryDetails;
+
+                                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                                    $categoryDetail = MagentoHelper::createCategory($childCategoryDetails, $data, $website->id);
+
+                                    if ($childCategoryDetails == false) {
+                                        $this->logadd('#24', $catId, $website->id, 0, 'Website not found.');
+                                    } else {
+                                        $this->logadd('#25', $catId, $website->id, $categoryDetail, "Found remote id $categoryDetail And created category catalog.");
+                                    }
+                                }
+
+                                if ($categoryDetail) {
+                                    $checkIfExist = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->id)->where('remote_id', $categoryDetail)->first();
+                                    if (empty($checkIfExist)) {
+                                        $this->createStoreWebsiteCategory($category->id, $website->id, $categoryDetail);
+
+                                        $this->logadd('#26', $catId, $website->id, $category->id, 'If Category is exit then website category stored in case third.');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 //end copy
             }
             $storeWebsites = [];
@@ -722,5 +841,19 @@ class CategoryController extends Controller
         }
 
         return response()->json(['code' => 200, 'message' => $msg, 'storeWebsites' => $storeWebsites]);
+    }
+
+    /**
+     * @param $category_id
+     * @param $store_website_id
+     * @param $remote_id
+     */
+    public function createStoreWebsiteCategory($category_id, $store_website_id, $remote_id)
+    {
+        $storeWebsiteCategory = new StoreWebsiteCategory();
+        $storeWebsiteCategory->category_id = $category_id;
+        $storeWebsiteCategory->store_website_id = $store_website_id;
+        $storeWebsiteCategory->remote_id = $remote_id;
+        $storeWebsiteCategory->save();
     }
 }

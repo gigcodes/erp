@@ -81,28 +81,31 @@
 				    	<?php foreach($categories as $category) { ?>
  					      <tr>
 					      	<td><?php echo $category->id; ?></td>
-					      	<td class="Website-task"><?php echo $category->title; ?> <span href="javascript:void(0);" class="checkinglog" data-id="{{ $category->id }}" ><i class="fa fa-history"></i></span> </td>
+					      	<td class="Website-task"><?php echo $category->title; ?>
+								<span href="javascript:void(0);" class="checkinglog" data-id="{{ $category->id }}" >
+									<i class="fa fa-history"></i></span>
+							</td>
 					      	<?php foreach($storeWebsite as $sw) { 
-					      			$checked = ""; 
-					      			$catName = ""; 
-					      			$remote_id = ""; 
-								  ?>
-								  @forelse ($appliedQ as $item)
-									  	@if($item->category_id == $category->id && $item->store_website_id == $sw->id)
-										  	@php $checked = "checked"; $catName = $item->category_name; @endphp
-									  		@php $remote_id = $item->remote_id  @endphp
-									  	@endif
-								  @empty
-								  @endforelse
-					        	<td>
-						        		<div class=" d-flex w-100 custom-checkbox">
-						        			<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" <?php echo $checked; ?> class="push-category " type="checkbox" name="category_website">
-						        			<label class="d-flex">
-														  {{ $remote_id }}
-														<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" class="rename-category ml-1" type="text" name="category_name" value="{{ $catName }}" style="width:172px !important;">
-													</label>
-												</div>
-								</td>
+								$checked = "";
+								$catName = "";
+								$remote_id = "";
+							?>
+							@forelse ($appliedQ as $item)
+								@if($item->category_id == $category->id && $item->store_website_id == $sw->id)
+									@php $checked = "checked"; $catName = $item->category_name; @endphp
+									@php $remote_id = $item->remote_id  @endphp
+								@endif
+							@empty
+							@endforelse
+							<td>
+								<div class=" d-flex w-100 custom-checkbox">
+									<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" <?php echo $checked; ?> class="push-category " type="checkbox" name="category_website">
+									<label class="d-flex">
+										  {{ $remote_id }}
+										<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" class="rename-category ml-1" type="text" name="category_name" value="{{ $catName }}" style="width:172px !important;">
+									</label>
+								</div>
+							</td>
 					        <?php } ?>
 					      </tr>
 					    <?php } ?>
