@@ -36,11 +36,11 @@ class EmailAddressesController extends Controller
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption', 'send_grid_token'];
 
         if ($request->keyword) {
-                $query->orWhere('driver', 'LIKE', '%'.$request->keyword.'%')
-                    ->orWhere('port', 'LIKE', '%'.$request->keyword.'%')
-                    ->orWhere('encryption', 'LIKE', '%'.$request->keyword.'%')
-                    ->orWhere('send_grid_token', 'LIKE', '%'.$request->keyword.'%')
-                    ->orWhere('host', 'LIKE', '%'.$request->keyword.'%');
+            $query->orWhere('driver', 'LIKE', '%'.$request->keyword.'%')
+                ->orWhere('port', 'LIKE', '%'.$request->keyword.'%')
+                ->orWhere('encryption', 'LIKE', '%'.$request->keyword.'%')
+                ->orWhere('send_grid_token', 'LIKE', '%'.$request->keyword.'%')
+                ->orWhere('host', 'LIKE', '%'.$request->keyword.'%');
         }
 
         if ($request->username != '') {
@@ -63,7 +63,7 @@ class EmailAddressesController extends Controller
 
         $users = User::orderBy('name', 'asc')->get()->toArray();
         // dd($users);
-        $userEmails =EmailAddress::groupBy('username')->get(['username'])->toArray();
+        $userEmails = EmailAddress::groupBy('username')->get(['username'])->toArray();
 
         $ops = '';
         foreach ($users as $key => $user) {

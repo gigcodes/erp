@@ -17,7 +17,7 @@
                     </div>
                     <div id="form_am" class="show" aria-labelledby="headingOne" data-parent="#accordionExample">
                         <div class="card-body">
-                            <form method="post" action="{{ action('InstagramAutomatedMessagesController@update', $reply->id) }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\InstagramAutomatedMessagesController::class, 'update'], $reply->id) }}">
                                 @csrf
                                 @method('PUT')
                                 <div class="row">

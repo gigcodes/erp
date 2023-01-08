@@ -47,7 +47,7 @@
 			</div>
 		</div>
 	@endif
-	<form action="{{ action('ScrapLogsController@databaseLog') }}" method="get">
+	<form action="{{ action([\App\Http\Controllers\ScrapLogsController::class, 'databaseLog']) }}" method="get">
 		<div class="mt-3 col-md-12">
 			<div class="col-lg-2">
 				<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="{{ $search }}">

@@ -104,7 +104,7 @@ class InstagramAutoCommentsController extends Controller
         $comment->options = $request->get('options') ?? [];
         $comment->save();
 
-        return redirect()->action('InstagramAutoCommentsController@index')->with('message', 'Updated successfully!');
+        return redirect()->action([\App\Http\Controllers\InstagramAutoCommentsController::class, 'index'])->with('message', 'Updated successfully!');
     }
 
     /**

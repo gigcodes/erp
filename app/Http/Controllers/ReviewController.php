@@ -269,7 +269,7 @@ class ReviewController extends Controller
         $review = Review::findOrFail($id);
 
         if (! $review) {
-            return redirect()->action('SitejabberQAController@accounts')->with('message', 'Edit failed!');
+            return redirect()->action([\App\Http\Controllers\SitejabberQAController::class, 'accounts'])->with('message', 'Edit failed!');
         }
 
         $review->review = $request->get('review');
@@ -277,7 +277,7 @@ class ReviewController extends Controller
 
         $review->save();
 
-        return redirect()->action('SitejabberQAController@accounts')->with('message', 'Edit successful!!');
+        return redirect()->action([\App\Http\Controllers\SitejabberQAController::class, 'accounts'])->with('message', 'Edit successful!!');
 
         $this->validate($request, [
             'review' => 'required|string',
@@ -298,7 +298,7 @@ class ReviewController extends Controller
 //        dd($review->platform);
 
 //        if ($review->platform == 'sitejabber') {
-        return redirect()->action('SitejabberQAController@accounts')->with('message', 'Review has been posted successfully!');
+        return redirect()->action([\App\Http\Controllers\SitejabberQAController::class, 'accounts'])->with('message', 'Review has been posted successfully!');
 //        }
 
         return redirect()->route('review.index')->withSuccess('You have successfully updated the review!');

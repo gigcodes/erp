@@ -1822,7 +1822,7 @@
             let total = $(this).val();
 
             $.ajax({
-                url: "{{action('TaskModuleController@saveMilestone')}}",
+                url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'saveMilestone'])}}",
                 data: {
                     total: total,
                     task_id: id

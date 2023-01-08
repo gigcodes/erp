@@ -12,7 +12,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <form method="get" action="{{action('ListingPaymentsController@index')}}">
+            <form method="get" action="{{action([\App\Http\Controllers\ListingPaymentsController::class, 'index'])}}">
                 <div class="row">
                     <div class="col-md-2">
                         <select class="form-control" name="user_id" id="user_id">
@@ -63,7 +63,7 @@
                         <td></td>
                         <td>Appr: {{ $ta }}</td>
                         <td>Rjct: {{ $tr }}</td>
-                            <form method="post" action="{{ action('ListingPaymentsController@store') }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\ListingPaymentsController::class, 'store']) }}">
                                 <input type="hidden" name="user_id" value="{{ $lastUser }}">
                                 @php $lastUser = $history->user_id; @endphp
                                 @csrf
@@ -128,7 +128,7 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <form method="post" action="{{ action('ListingPaymentsController@store') }}">
+                    <form method="post" action="{{ action([\App\Http\Controllers\ListingPaymentsController::class, 'store']) }}">
                         <input type="hidden" name="user_id" value="{{ $lastUser }}">
                         @php $lastUser = $history->user_id; @endphp
                         @csrf
@@ -162,7 +162,7 @@
             let is_script_corrected = $("#script_corrected_"+pid).is(':checked') ? 1 : 0;
 
             $.ajax({
-                url: '{{ action('ProductController@updateProductListingStats') }}',
+                url: '{{ action([\App\Http\Controllers\ProductController::class, 'updateProductListingStats']) }}',
                 data: {
                     is_corrected: is_corrected,
                     is_script_corrected: is_script_corrected,
@@ -178,7 +178,7 @@
             let pid = $(this).attr('data-id');
 
             $.ajax({
-                url: '{{ action('ProductController@deleteProduct') }}',
+                url: '{{ action([\App\Http\Controllers\ProductController::class, 'deleteProduct']) }}',
                 data: {
                     product_id: pid
                 },
@@ -192,7 +192,7 @@
             let pid = $(this).attr('data-id');
 
             $.ajax({
-                url: '{{ action('ProductController@relistProduct') }}',
+                url: '{{ action([\App\Http\Controllers\ProductController::class, 'relistProduct']) }}',
                 data: {
                     product_id: pid
                 },

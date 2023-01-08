@@ -13,7 +13,7 @@
             <p>Please enter the search query that you want to save the images of.</p>
         </div>
         <div class="col-md-12">
-            <form method="post" action="{{ action('ScrapController@scrapGoogleImages') }}">
+            <form method="post" action="{{ action([\App\Http\Controllers\ScrapController::class, 'scrapGoogleImages']) }}">
                 @csrf
                 <div class="form-group">
                     <input id="google" type="checkbox" name="google" checked>
@@ -56,7 +56,7 @@
                 let post_id = $(this).attr('data-media-id');
 
                 $.ajax({
-                    url: "{{ action('InstagramController@getComments') }}",
+                    url: "{{ action([\App\Http\Controllers\InstagramController::class, 'getComments']) }}",
                     data: {
                         post_id: post_id
                     },
@@ -113,7 +113,7 @@
                     let self = this;
                     let postId = $(this).attr('data-post-id');
                     $.ajax({
-                        url: "{{ action('InstagramController@postComment') }}",
+                        url: "{{ action([\App\Http\Controllers\InstagramController::class, 'postComment']) }}",
                         type: 'post',
                         dataType: 'json',
                         data: {

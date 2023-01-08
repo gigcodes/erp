@@ -141,7 +141,7 @@
                 $(this).attr('disabled', 'true');
                 let id = $(this).attr('data-id');
                 $.ajax({
-                    url: "{{ action('CompetitorPageController@hideLead', '') }}" + '/' + id,
+                    url: "{{ action([\App\Http\Controllers\CompetitorPageController::class, 'hideLead'], '') }}" + '/' + id,
                     success: function() {
                         $('#rec_'+id).hide('slow');
                     }
@@ -152,7 +152,7 @@
                 $(this).attr('disabled', 'true');
                 let id = $(this).attr('data-id');
                 $.ajax({
-                    url: "{{ action('CompetitorPageController@approveLead', '') }}" + '/' + id,
+                    url: "{{ action([\App\Http\Controllers\CompetitorPageController::class, 'approveLead'], '') }}" + '/' + id,
                     success: function() {
                         $('#rec_'+id).hide('slow');
                         alert("Lead Approved!");
@@ -172,7 +172,7 @@
                 let self = this;
 
                 $.ajax({
-                    url: "{{ action('InstagramProfileController@add') }}",
+                    url: "{{ action([\App\Http\Controllers\InstagramProfileController::class, 'add']) }}",
                     type: 'post',
                     data: {
                         name: nme,
@@ -205,7 +205,7 @@
                 let username = $(this).attr('data-username');
                 $("#content").html('');
                 $.ajax({
-                    url: '{{action('InstagramProfileController@show', '')}}/'+username,
+                    url: '{{action([\App\Http\Controllers\InstagramProfileController::class, 'show'], '')}}/'+username,
                     success: function(response) {
                         $("#content").html('');
                         let item = response;

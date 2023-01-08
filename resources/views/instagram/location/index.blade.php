@@ -3,10 +3,10 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h1>Targeted Country/Region (<a href="{{ action('TargetLocationController@edit', 1) }}">Show Statistics</a>)</h1>
+            <h1>Targeted Country/Region (<a href="{{ action([\App\Http\Controllers\TargetLocationController::class, 'edit'], 1) }}">Show Statistics</a>)</h1>
         </div>
         <div class="col-md-12">
-            <form action="{{ action('TargetLocationController@store') }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\TargetLocationController::class, 'store']) }}" method="post">
                 @csrf
                 <div class="row">
                     <div class="col-md-6">
@@ -55,7 +55,7 @@
                         <td>{{$location->country}}</td>
                         <td>{{$location->region}}</td>
                         <td>
-                            <a href="{{ action('TargetLocationController@show',$location->id) }}">
+                            <a href="{{ action([\App\Http\Controllers\TargetLocationController::class, 'show'],$location->id) }}">
                                 Show Users From This Location
                             </a>
                         </td>

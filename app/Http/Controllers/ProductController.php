@@ -4910,7 +4910,6 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-
                         try {
                             PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
                         } catch (\Exception $e) {

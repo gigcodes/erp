@@ -26,7 +26,9 @@ class CallBusyMessage extends Model
 
     protected $table = 'call_busy_messages';
 
-    protected $dates = ['created_atcreated_at', 'updated_at'];
+    protected $casts = [
+        'created_atcreated_at' => 'datetime',
+    ];
 
     /**
      * Function to insert large amount of data
