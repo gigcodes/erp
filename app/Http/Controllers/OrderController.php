@@ -244,8 +244,6 @@ class OrderController extends Controller
             $orderby = 'ASC';
         }
 
-        // dd($orderby);
-
         switch ($request->input('sortby')) {
             case 'type':
                 $sortby = 'order_type';
@@ -288,7 +286,7 @@ class OrderController extends Controller
         // $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
         //\DB::enableQueryLog();
         $orders = (new Order())->newQuery()->with('customer')->leftJoin('store_website_orders as swo', 'swo.order_id', 'orders.id');
-        //dd(\DB::getQueryLog());
+
         if (empty($term)) {
             $orders = $orders;
         } else {
@@ -301,10 +299,11 @@ class OrderController extends Controller
                 ->orWhere('order_type', $term)
                 ->orWhere('sales_person', Helpers::getUserIdByName($term))
                 ->orWhere('received_by', Helpers::getUserIdByName($term))
-                ->orWhere('client_name', 'like', '%'.$term.'%')
                 ->orWhere('orders.city', 'like', '%'.$term.'%')
-                ->orWhere('order_status_id', (new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
+                ->orWhere('order_status_id', (new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term))
+                ->Where('client_name', 'like', $term);
         }
+
         if ($order_status[0] != '') {
             $orders = $orders->whereIn('order_status_id', $order_status);
         }
@@ -314,7 +313,7 @@ class OrderController extends Controller
         }
 
         if ($store_site = $request->store_website_id) {
-            $orders = $orders->where('swo.website_id', $store_site);
+            $orders = $orders->whereIn('swo.website_id', $store_site);
         }
 
         $statusFilterList = clone $orders;
@@ -372,6 +371,8 @@ class OrderController extends Controller
             }
         }
         $orderStatusList = OrderStatus::all();
+
+        $store_site = $request->store_website_id;
 
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList'));

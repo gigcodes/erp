@@ -108,7 +108,8 @@ $table .= "</tbody></table>";
                   data-subject="{{ $ticket->subject }}"
                   data-message="{{ $ticket->message }}"
                   data-email="{{ $ticket->email }}"
-                  data-id="{{$ticket->id}}">
+                  data-id="{{$ticket->id}}"
+                  title="Send email to vender">
             <i class="fa fa-envelope"></i>
           </button>
           @if($ticket->customer_id > 0)
@@ -119,7 +120,7 @@ $table .= "</tbody></table>";
                       data-object="customer" data-id="{{$ticket->customer_id}}"
                       data-load-type="text"
                       data-all="1"
-                      title="Load messages">
+                      title="Load communication">
                       <i class="fa fa-whatsapp"></i>
               </button>
           @else
@@ -130,14 +131,15 @@ $table .= "</tbody></table>";
                       data-object="ticket" data-id="{{$ticket->id}}"
                       data-load-type="text"
                       data-all="1"
-                      title="Load messages">
+                      title="Load communication">
                       <i class="fa fa-whatsapp"></i>
               </button>
           @endif
 
           <button type="button"
                   class="btn btn-xs btn-assigned-to-ticket "
-                  data-id="{{$ticket->id}}">
+                  data-id="{{$ticket->id}}"
+                  title="Assigned to ticket">
                 <i class="fa fa-comments-o"></i>
             </button>
 
@@ -166,18 +168,18 @@ $table .= "</tbody></table>";
 $tableemail .= "</tbody></table>";
 
 ?>
-        <a href="javascript:void(0)" class="btn btn-xs  row-ticket " data-content="{{ $table}}">
+        <a href="javascript:void(0)" class="btn btn-xs  row-ticket " data-content="{{ $table}}" title="Row ticket">
             <i class="fa fa-envelope"></i>
         </a>
 
-        <a href="javascript:void(0)" class="btn btn-xs " onclick="message_show(this);" data-content="{{ $tableemail}}" title="Resend Email" >
+        <a href="javascript:void(0)" class="btn btn-xs " onclick="message_show(this);" data-content="{{ $tableemail}}" title="Resend Email">
             <i class="fa fa-repeat" aria-hidden="true"></i>
 
         </a>
-            <button type="button" class="btn btn-xs  btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
+            <button type="button" class="btn btn-xs  btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}" title="Delete template">
                 <i class="fa fa-trash"></i></button>
 
-		<button type="button" class="btn btn-xs  no_pd" onclick="showEmails('{{$ticket->id}}')">
+		<button type="button" class="btn btn-xs  no_pd" onclick="showEmails('{{$ticket->id}}')" title="Show email">
                 <i class="fa fa-envelope" ></i></button>
 
         </div>
