@@ -6,6 +6,7 @@ use App\Platform;
 use App\VoucherCoupon;
 use App\VoucherCouponCode;
 use App\VoucherCouponOrder;
+use App\VoucherCouponRemark;
 use DB;
 use Illuminate\Http\Request;
 
@@ -20,12 +21,15 @@ class VoucherCouponController extends Controller
     {
         $voucher = new VoucherCoupon();
 
-        $voucher = $voucher->select('voucher_coupons.*', 'wc.number', 'em.from_address', 'vcp.name AS plateform_name', 'u.name As user_name')
-        ->leftJoin('users As u', 'voucher_coupons.user_id', 'u.id')
-        ->leftJoin('whatsapp_configs As wc', 'voucher_coupons.whatsapp_config_id', 'wc.id')
-        ->leftJoin('email_addresses As em', 'voucher_coupons.email_address_id', 'em.id')
-        ->leftJoin('voucher_coupon_platforms As vcp', 'voucher_coupons.platform_id', 'vcp.id');
-        if (! empty(request('plateform_id'))) {
+	$voucher = $voucher->select('voucher_coupons.*', 'wc.number', 'em.from_address', 'vcp.name AS plateform_name', 'u.name As user_name')
+		    ->with(['voucherCouponRemarks' => function($q) {
+			    $q->select('id','voucher_coupons_id','remark');
+		    }])
+		    ->leftJoin('users As u', 'voucher_coupons.user_id', 'u.id')
+		    ->leftJoin('whatsapp_configs As wc', 'voucher_coupons.whatsapp_config_id', 'wc.id')
+		    ->leftJoin('email_addresses As em', 'voucher_coupons.email_address_id', 'em.id')
+		    ->leftJoin('voucher_coupon_platforms As vcp', 'voucher_coupons.platform_id', 'vcp.id');
+	if (! empty(request('plateform_id'))) {
             $voucher = $voucher->where('platform_id', request('plateform_id'));
         }
         if (! empty(request('email_add'))) {
@@ -185,7 +189,12 @@ class VoucherCouponController extends Controller
     public function couponCodeList(Request $request)
     {
         try {
-            $vouCode = VoucherCouponCode::select('voucher_coupon_codes.*', 'users.name AS userName')->leftJoin('users', 'users.id', 'voucher_coupon_codes.user_id')->where('voucher_coupon_codes.voucher_coupons_id', $request->voucher_coupons_id)->get();
+		$vouCode = VoucherCouponCode::select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name')
+			->leftJoin('users', 'users.id', 'voucher_coupon_codes.user_id')
+			->where('voucher_coupon_codes.voucher_coupons_id', $request->voucher_coupons_id)
+		        ->leftJoin('voucher_coupons As vc', 'vc.id', 'voucher_coupon_codes.voucher_coupons_id')
+		        ->leftJoin('voucher_coupon_platforms As vcp', 'vc.platform_id', 'vcp.id')
+			->get();
 
             return response()->json(['code' => 200, 'data' => $vouCode, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
@@ -252,6 +261,28 @@ class VoucherCouponController extends Controller
             $vou->delete();
 
             return response()->json(['code' => 200, 'message' => 'Deleted successfully!!!']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+
+    /**
+     * Store Remark the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\VoucherCoupon  $voucherCouponId
+     * @return \Illuminate\Http\Response
+     */
+    public function storeRemark(Request $request, $id)
+    {
+        try {
+            $voucherCouponRemark = new VoucherCouponRemark;
+            $voucherCouponRemark->voucher_coupons_id = $id;
+            $voucherCouponRemark->remark = $request->remark;
+            $voucherCouponRemark->save();
+
+            return response()->json(['code' => 200, 'message' => 'Remark Updated successfully!!!']);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
