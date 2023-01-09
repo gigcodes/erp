@@ -1248,7 +1248,7 @@ class BugTrackingController extends Controller
 
     public function website(Request $request)
     {
-        $title = 'Bug Tracking Websites';
+        $title = 'Bug Tracking Summary';
 
         $bug_tracker = DB::select(DB::raw("SELECT bug_trackers.website as website_id, store_websites.website as website, store_websites.title as title, count(bug_trackers.id) as bug_count, GROUP_CONCAT(concat(bug_trackers.id,'-',bug_trackers.bug_severity_id)) as bug_ids  FROM bug_trackers left join store_websites on bug_trackers.website = store_websites.id where bug_trackers.website>0 AND bug_trackers.bug_status_id !=3 group by bug_trackers.website"));
 
@@ -1315,6 +1315,8 @@ class BugTrackingController extends Controller
                 $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
                 $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
                 $bug->summary_short = Str::limit($bug->summary, 40, '..');
+                $bug->bug_status_id = BugStatus::where('id', $bug->bug_status_id)->value('name');
+                $bug->assign_to = User::where('id', $bug->assign_to)->value('name');
 
                 return $bug;
             }
