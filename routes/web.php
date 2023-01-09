@@ -2675,6 +2675,9 @@ Route::middleware('auth')->group(function () {
     Route::post('bug-tracking/status_user', [BugTrackingController::class, 'statusUser'])->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', [BugTrackingController::class, 'sendMessage'])->name('bug-tracking.sendmessage');
     Route::get('bug-tracking/record-tracking-ajax', [BugTrackingController::class, 'recordTrackingAjax'])->name('bug-tracking.index_ajax');
+    Route::post('bug-tracking/assign_user_bulk', [BugTrackingController::class, 'assignUserBulk'])->name('bug-tracking.assign_user_bulk');
+    Route::post('bug-tracking/severity_user_bulk', [BugTrackingController::class, 'severityUserBulk'])->name('bug-tracking.severity_user_bulk');
+    Route::post('bug-tracking/status_user_bulk', [BugTrackingController::class, 'statusUserBulk'])->name('bug-tracking.status_user_bulk');
 
     Route::post('bug-tracking/status', [BugTrackingController::class, 'status'])->name('bug-tracking.status');
     Route::post('bug-tracking/statuscolor', [BugTrackingController::class, 'statuscolor'])->name('bug-tracking.statuscolor');
