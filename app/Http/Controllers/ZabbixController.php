@@ -42,7 +42,6 @@ class ZabbixController extends Controller
                 $host = Host::where('hostid', $val->hostid)->first();
                 $val['hostname'] = $host->name;
             }
-
             return response()->json(['status' => 200, 'data' => $query]);
         }
     }
