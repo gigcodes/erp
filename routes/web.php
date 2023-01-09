@@ -328,7 +328,6 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
-use App\Http\Controllers\CsvTranslatorController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
