@@ -100,7 +100,7 @@
             })
         })
 
-        function filterFunction(field, val) {
+        function filterMagento(field, val) {
             var fieldData = field;
             $.ajax({
                 url: "{{ route('products.autocompleteForFilter') }}",
@@ -132,39 +132,39 @@
 
         $("input[name='id']").keyup(function() {
             var value = $(this).val();
-            filterFunction("id", value);
+            filterMagento("id", value);
         })
         $("input[name='name']").keyup(function() {
             var value = $(this).val();
-            filterFunction('name', value);
+            filterMagento('name', value);
         })
         $("input[name='brand']").keyup(function() {
             var value = $(this).val();
-            filterFunction('brand', value);
+            filterMagento('brand', value);
         })
         $("input[name='category']").keyup(function() {
             var value = $(this).val();
-            filterFunction('category', value);
+            filterMagento('category', value);
         })
         $("input[name='title']").keyup(function() {
             var value = $(this).val();
-            filterFunction('title', value);
+            filterMagento('title', value);
         })
         $("input[name='composition']").keyup(function() {
             var value = $(this).val();
-            filterFunction('composition', value);
+            filterMagento('composition', value);
         })
         $("input[name='color']").keyup(function() {
             var value = $(this).val();
-            filterFunction('color', value);
+            filterMagento('color', value);
         })
         $("input[name='price']").keyup(function() {
             var value = $(this).val();
-            filterFunction('price', value);
+            filterMagento('price', value);
         })
         $("input[name='status']").keyup(function() {
             var value = $(this).val();
-            filterFunction('status', value);
+            filterMagento('status', value);
         })
 
         $(".filter-data").on('click', function() {

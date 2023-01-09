@@ -1561,12 +1561,9 @@ class ProductController extends Controller
             $products = $products->where("products.$search", 'LIKE', "%$value%");
         }
 
-        $products = $products->get()->toArray();
-
-        $products = $products->orderBy('llm_id', 'desc');
         $products = $products->groupBy('LLM.product_id', 'LLM.store_website_id');
-        $products = $products->select(['products.*', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.id as sw_id', 'SW.title as sw_title'])->paginate(20);
-        $productsCount = $products->total();
+        $productsCount = count($products->get());
+        $products = $products->select(['products.*', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.id as sw_id', 'SW.title as sw_title'])->get()->toArray();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
         $colors = (new Colors)->all();
@@ -1576,7 +1573,7 @@ class ProductController extends Controller
             $auto_push_product = Setting::get('auto_push_product');
         }
 
-        return response()->json(['status' => 200, 'data' => array_unique(array_column($products, $searc))]);
+        return response()->json(['status' => 200, 'data' => array_unique(array_column($products, $search))]);
     }
 
     public function magentoPushStatusForMagentoCheck(Request $request)
