@@ -684,7 +684,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('products/listing/final', [ProductController::class, 'approvedListing'])->name('products.listing.approved');
     Route::get('products/listing/conditions-check', [ProductController::class, 'magentoConditionsCheck'])->name('products.magentoConditionsCheck');
     Route::post('products/listing/autocompleteForFilter', [ProductController::class, 'autocompleteForFilter'])->name('products.autocompleteForFilter');
-    
+
     Route::get('products/listing/conditions-check-logs/{llm_id}', [ProductController::class, 'magentoConditionsCheckLogs'])->name('products.magentoConditionsCheckLogs');
     Route::get('products/push/magento/conditions', [ProductController::class, 'pushToMagentoConditions'])->name('products.push.conditions');
     Route::get('products/conditions/status/update', [ProductController::class, 'updateConditionStatus'])->name('products.push.condition.update');
