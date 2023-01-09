@@ -667,35 +667,13 @@
             <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
             <li><a href="#3" data-toggle="tab" class="btn-call-data" data-type="completed">Completed Task</a></li>
             <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
-
-            <li>
-                <button type="button" onclick="window.location.href = '{{ action("DevelopmentController@exportTask",request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks</button>
-            </li> &nbsp;
-            <li>
-                <button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button>
-            </li>&nbsp;
-            <li>
-                <button type="button" class="btn btn-xs btn-secondary my-3" id="send_message_button" data-selected="0">Send Message</button>
-            </li>&nbsp;
-            <li>
-                <button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button>
-            </li>&nbsp;
-            <li>
-                <button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button>
-            </li>&nbsp;
-            <li>
-                <button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button>
-            </li>&nbsp;
-
-
             {{-- href="{{ action('DevelopmentController@exportTask',request()->all()) }}"--}}
-
-        <li> <button type="button" onclick="window.location.href = '{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks </button></li> &nbsp;
-        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
-        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="send_message_button" data-selected="0">Send Message</button></li>&nbsp;
-        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
-        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
-        <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
+            <li> <button type="button" onclick="window.location.href = '{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks </button></li> &nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="send_message_button" data-selected="0">Send Message</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
 
 
         {{-- href="{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}"--}}
@@ -1634,7 +1612,7 @@
             });
 
             var TaskToRemind = null
-            $(document).on('click', '.task-set-reminder', function () {
+            $(document).on('click', '.task-set-reminder', function() {
                 let taskId = $(this).data('id');
                 let frequency = $(this).data('frequency');
                 let message = $(this).data('reminder_message');
@@ -1652,7 +1630,7 @@
                 TaskToRemind = taskId;
             });
 
-            $(document).on('click', '.task-submit-reminder', function () {
+            $(document).on('click', '.task-submit-reminder', function() {
                 var taskReminderModal = $("#taskReminderModal");
                 let frequency = $('#frequency').val();
                 let message = $('#reminder_message').val();
@@ -1660,9 +1638,9 @@
                 let reminder_last_reply = (taskReminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
 
                 $.ajax({
-                    url: "{{action('TaskModuleController@updateTaskReminder')}}",
+                    url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'updateTaskReminder'])}}",
                     type: 'POST',
-                    success: function () {
+                    success: function() {
                         toastr['success']('Reminder updated successfully!');
                         $(".set-reminder img").css("background-color", "");
                         if (frequency > 0) {
@@ -1677,6 +1655,130 @@
                         reminder_last_reply: reminder_last_reply,
                         _token: "{{ csrf_token() }}"
                     }
+                });
+
+                function getPriorityTaskList(id) {
+                    console.log('id', id)
+                    var selected_issue = [0];
+
+                    $('input[name ="selected_issue[]"]').each(function () {
+                        if ($(this).prop("checked") == true) {
+                            selected_issue.push($(this).val());
+                        }
+                    });
+
+                    $.ajax({
+                        url: "{{route('task.list.by.user.id')}}",
+                        type: 'POST',
+                        data: {
+                            user_id: id,
+                            _token: "{{csrf_token()}}",
+                            selected_issue: selected_issue,
+                        },
+                        success: function (response) {
+
+
+                            // var html = '';
+                            // response.forEach(function (task) {
+
+                            //     html += '<tr>';
+                            //     html += '<td><input type="hidden" name="priority[]" value="' + task.id + '">' + task.id + '</td>';
+                            //     html += '<td>' + task.task_subject + '</td>';
+                            //     html += '<td>' + task.task_details + '</td>';
+                            //     html += '<td>' + task.created_at + '</td>';
+                            //     html += '<td>' + task.created_by + '</td>';
+                            //     html += '<td><a href="javascript:;" class="delete_priority" data-id="' + task.id + '">Remove<a></td>';
+                            //     html += '</tr>';
+                            // });
+                            $(".show_task_priority").html(response.html);
+                            <?php if (auth()->user()->isAdmin()) { ?>
+                            $(".show_task_priority").sortable();
+                            <?php } ?>
+                        },
+                        error: function () {
+                            alert('There was error loading priority task list data');
+                        }
+                    });
+                }
+
+                $(document).on('click', '.delete_priority', function (e) {
+                    var id = $(this).data('id');
+                    $('input[value ="' + id + '"]').prop('checked', false);
+                    $(this).closest('tr').remove();
+                });
+
+                $('.priority_model_btn').click(function () {
+                    //$("#priority_user_id").val('0');
+                    //$("#sel_user_id").val('0');
+                    $(".show_task_priority").html('');
+                    <?php if (auth()->user()->isAdmin()) { ?>
+                    getPriorityTaskList($('#priority_user_id').val());
+                    <?php } else { ?>
+                    getPriorityTaskList('{{auth()->user()->id}}');
+                    <?php } ?>
+                    $('#priority_model').modal('show');
+                })
+
+
+                $('#priority_user_id').change(function () {
+                    $("#sel_user_id").val($(this).val());
+                    if ($('#priority_model').is(':visible')) {
+                        getPriorityTaskList($(this).val())
+                    }
+                });
+
+                $(document).on('submit', '#priorityForm', function (e) {
+                    console.log($(this).serialize());
+                    //  return false;
+                    e.preventDefault();
+                    <?php if (auth()->user()->isAdmin()) { ?>
+                    $.ajax({
+                        url: "{{route('task.set.priority')}}",
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        success: function (response) {
+                            return false;
+                            //      toastr['success']('Priority successfully update!!', 'success');
+                            //    $('#priority_model').modal('hide');
+                        },
+                        error: function () {
+                            alert('There was error loading priority task list data');
+                        }
+                    });
+                    <?php } ?>
+                });
+
+                $('#task_subject, #task_details').autocomplete({
+                    source: function (request, response) {
+                        var results = $.ui.autocomplete.filter(taskSuggestions, request.term);
+                        response(results.slice(0, 10));
+                    }
+                });
+
+                $('#task_search').autocomplete({
+                    source: function (request, response) {
+                        var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+
+                        response(results.slice(0, 10));
+                    }
+                });
+
+                var hash = window.location.hash.substr(1);
+
+                if (hash == '3') {
+                    $('a[href="#3"]').click();
+                }
+
+                $('.selectpicker').selectpicker({
+                    selectOnTab: true
+                });
+
+                $('#multi_users').select2({
+                    placeholder: 'Select a User',
+                });
+
+                $('#multi_contacts').select2({
+                    placeholder: 'Select a Contact',
                 });
             });
 
@@ -1709,185 +1811,7 @@
                     error: function () {
                     }
                 });
-<<<<<<< HEAD
-=======
             }
-        });
-
-        $('#task_reminder_from').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm'
-        });
-
-        var TaskToRemind = null
-        $(document).on('click', '.task-set-reminder', function() {
-            let taskId = $(this).data('id');
-            let frequency = $(this).data('frequency');
-            let message = $(this).data('reminder_message');
-            let reminder_from = $(this).data('reminder_from');
-            let reminder_last_reply = $(this).data('reminder_last_reply');
-
-            $('#frequency').val(frequency);
-            $('#reminder_message').val(message);
-            $("#taskReminderModal").find("#task_reminder_from").val(reminder_from);
-            if (reminder_last_reply == 1) {
-                $("#taskReminderModal").find("#reminder_last_reply").prop("checked", true);
-            } else {
-                $("#taskReminderModal").find("#reminder_last_reply_no").prop("checked", true);
-            }
-            TaskToRemind = taskId;
-        });
-
-        $(document).on('click', '.task-submit-reminder', function() {
-            var taskReminderModal = $("#taskReminderModal");
-            let frequency = $('#frequency').val();
-            let message = $('#reminder_message').val();
-            let task_reminder_from = taskReminderModal.find("#task_reminder_from").val();
-            let reminder_last_reply = (taskReminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
-
-            $.ajax({
-                url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'updateTaskReminder'])}}",
-                type: 'POST',
-                success: function() {
-                    toastr['success']('Reminder updated successfully!');
-                    $(".set-reminder img").css("background-color", "");
-                    if (frequency > 0) {
-                        $(".task-set-reminder img").css("background-color", "red");
-                    }
-                },
-                data: {
-                    task_id: TaskToRemind,
-                    frequency: frequency,
-                    message: message,
-                    reminder_from: task_reminder_from,
-                    reminder_last_reply: reminder_last_reply,
-                    _token: "{{ csrf_token() }}"
-                }
->>>>>>> master
-            });
-
-            function getPriorityTaskList(id) {
-                console.log('id', id)
-                var selected_issue = [0];
-
-                $('input[name ="selected_issue[]"]').each(function () {
-                    if ($(this).prop("checked") == true) {
-                        selected_issue.push($(this).val());
-                    }
-                });
-
-                $.ajax({
-                    url: "{{route('task.list.by.user.id')}}",
-                    type: 'POST',
-                    data: {
-                        user_id: id,
-                        _token: "{{csrf_token()}}",
-                        selected_issue: selected_issue,
-                    },
-                    success: function (response) {
-
-
-                        // var html = '';
-                        // response.forEach(function (task) {
-
-                        //     html += '<tr>';
-                        //     html += '<td><input type="hidden" name="priority[]" value="' + task.id + '">' + task.id + '</td>';
-                        //     html += '<td>' + task.task_subject + '</td>';
-                        //     html += '<td>' + task.task_details + '</td>';
-                        //     html += '<td>' + task.created_at + '</td>';
-                        //     html += '<td>' + task.created_by + '</td>';
-                        //     html += '<td><a href="javascript:;" class="delete_priority" data-id="' + task.id + '">Remove<a></td>';
-                        //     html += '</tr>';
-                        // });
-                        $(".show_task_priority").html(response.html);
-                        <?php if (auth()->user()->isAdmin()) { ?>
-                        $(".show_task_priority").sortable();
-                        <?php } ?>
-                    },
-                    error: function () {
-                        alert('There was error loading priority task list data');
-                    }
-                });
-            }
-
-            $(document).on('click', '.delete_priority', function (e) {
-                var id = $(this).data('id');
-                $('input[value ="' + id + '"]').prop('checked', false);
-                $(this).closest('tr').remove();
-            });
-
-            $('.priority_model_btn').click(function () {
-                //$("#priority_user_id").val('0');
-                //$("#sel_user_id").val('0');
-                $(".show_task_priority").html('');
-                <?php if (auth()->user()->isAdmin()) { ?>
-                getPriorityTaskList($('#priority_user_id').val());
-                <?php } else { ?>
-                getPriorityTaskList('{{auth()->user()->id}}');
-                <?php } ?>
-                $('#priority_model').modal('show');
-            })
-
-
-            $('#priority_user_id').change(function () {
-                $("#sel_user_id").val($(this).val());
-                if ($('#priority_model').is(':visible')) {
-                    getPriorityTaskList($(this).val())
-                }
-            });
-
-            $(document).on('submit', '#priorityForm', function (e) {
-                console.log($(this).serialize());
-                //  return false;
-                e.preventDefault();
-                <?php if (auth()->user()->isAdmin()) { ?>
-                $.ajax({
-                    url: "{{route('task.set.priority')}}",
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function (response) {
-                        return false;
-                        //      toastr['success']('Priority successfully update!!', 'success');
-                        //    $('#priority_model').modal('hide');
-                    },
-                    error: function () {
-                        alert('There was error loading priority task list data');
-                    }
-                });
-                <?php } ?>
-            });
-
-            $('#task_subject, #task_details').autocomplete({
-                source: function (request, response) {
-                    var results = $.ui.autocomplete.filter(taskSuggestions, request.term);
-                    response(results.slice(0, 10));
-                }
-            });
-
-            $('#task_search').autocomplete({
-                source: function (request, response) {
-                    var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
-
-                    response(results.slice(0, 10));
-                }
-            });
-
-            var hash = window.location.hash.substr(1);
-
-            if (hash == '3') {
-                $('a[href="#3"]').click();
-            }
-
-            $('.selectpicker').selectpicker({
-                selectOnTab: true
-            });
-
-            $('#multi_users').select2({
-                placeholder: 'Select a User',
-            });
-
-            $('#multi_contacts').select2({
-                placeholder: 'Select a Contact',
-            });
         });
 
         $(document).on('click', '.expand-row-msg', function () {
@@ -2981,7 +2905,6 @@
             $("#send-message-text-box").modal("show");
         });
 
-<<<<<<< HEAD
         $(".btn-send-brodcast-message").on("click", function () {
             if (selected_tasks.length > 0) {
                 $.ajax({
@@ -3013,8 +2936,8 @@
                 toastr["error"]("Please select atleast 1 task!");
             }
         });
-=======
-    $(document).on('keyup', '.save-milestone', function(event) {
+
+        $(document).on('keyup', '.save-milestone', function(event) {
         if (event.keyCode != 13) {
             return;
         }
@@ -3027,14 +2950,15 @@
                 total: total,
                 task_id: id
             },
-            success: function() {
+            success: function () {
                 toastr["success"]("Milestone updated successfully!", "Message")
             },
-            error: function(error) {
+            error: function (error) {
                 toastr["error"](error.responseJSON.message, "Message")
                 console.log(error.responseJSON.message);
->>>>>>> master
-
+            }
+        });
+    });
 
         $('#taskCreateButton').on('click', function (e) {
             e.preventDefault();
@@ -3164,30 +3088,6 @@
             })
         });
 
-        $(document).on('keyup', '.save-milestone', function (event) {
-            if (event.keyCode != 13) {
-                return;
-            }
-            let id = $(this).attr('data-id');
-            let total = $(this).val();
-
-            $.ajax({
-                url: "{{action('TaskModuleController@saveMilestone')}}",
-                data: {
-                    total: total,
-                    task_id: id
-                },
-                success: function () {
-                    toastr["success"]("Milestone updated successfully!", "Message")
-                },
-                error: function (error) {
-                    toastr["error"](error.responseJSON.message, "Message")
-                    console.log(error.responseJSON.message);
-
-                }
-            });
-        });
-
 
         $(document).on("change", ".select2-task-disscussion", function () {
             var $this = $(this);
@@ -3262,10 +3162,8 @@
                     alert('Could not update!!');
                 });
             }
-
-<<<<<<< HEAD
         });
-=======
+
         var is_milestone = $('#is_milestone').val();
         if (is_milestone == '1') {
             $('#no_of_milestone').attr('required', 'required');
@@ -3274,26 +3172,28 @@
         }
     });
 
-    $(document).on('change', '.assign-master-user', function() {
-        let id = $(this).attr('data-id');
-        let lead = $(this).attr('data-lead');
-        let userId = $(this).val();
-        if (userId == '') {
-            return;
-        }
-        $.ajax({
-            url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'assignMasterUser'])}}",
-            data: {
-                master_user_id: userId,
-                issue_id: id,
-                lead: lead
-            },
-            success: function() {
-                toastr["success"]("Master User assigned successfully!", "Message")
-            },
-            error: function(error) {
-                toastr["error"](error.responseJSON.message, "Message")
->>>>>>> master
+        $(document).on('change', '.assign-master-user', function() {
+            let id = $(this).attr('data-id');
+            let lead = $(this).attr('data-lead');
+            let userId = $(this).val();
+            if (userId == '') {
+                return;
+            }
+            $.ajax({
+                url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'assignMasterUser'])}}",
+                data: {
+                    master_user_id: userId,
+                    issue_id: id,
+                    lead: lead
+                },
+                success: function () {
+                    toastr["success"]("Master User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                }
+            });
+        });
 
         $(document).on("click", ".show-finished-task", function () {
             var $this = $(this);
@@ -3307,7 +3207,6 @@
             }
         });
 
-
         $(document).on('change', '#is_milestone', function () {
 
             var is_milestone = $('#is_milestone').val();
@@ -3316,30 +3215,6 @@
             } else {
                 $('#no_of_milestone').removeAttr('required');
             }
-        });
-
-        $(document).on('change', '.assign-master-user', function () {
-            let id = $(this).attr('data-id');
-            let lead = $(this).attr('data-lead');
-            let userId = $(this).val();
-            if (userId == '') {
-                return;
-            }
-            $.ajax({
-                url: "{{action('TaskModuleController@assignMasterUser')}}",
-                data: {
-                    master_user_id: userId,
-                    issue_id: id,
-                    lead: lead
-                },
-                success: function () {
-                    toastr["success"]("Master User assigned successfully!", "Message")
-                },
-                error: function (error) {
-                    toastr["error"](error.responseJSON.message, "Message")
-
-                }
-            });
         });
 
         $(document).on("click", ".btn-file-upload", function () {
