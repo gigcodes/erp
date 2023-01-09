@@ -47,7 +47,7 @@
             <h2 class="page-heading">Voucher Coupons</h2>
               <div class="col-sm">
                 <div class="pull-right">
-                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#plateformModal"><i class="fa fa-plus"></i>Add Plateform</button>
+                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#plateformModal"><i class="fa fa-plus"></i>Add Platform</button>
                     <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#addvoucherModel"><i class="fa fa-plus"></i>Add Voucher</button>
                     
                  </div>
@@ -61,7 +61,7 @@
           <div class="row m-0 full-width" style="width: 100%;">
               <div class="col-md-2 col-sm-12">
               <select class="form-control select-multiple" name="plateform_id" id="plateform_id">
-                  <option value="">Select Plate form</option>
+                  <option value="">Select Platform</option>
                   @foreach($platform as $key => $plate)
                     <option value="{{ $key }}" @if(request('plateform_id') == $plate) selected @endif >{{ $plate }}</option>
                   @endforeach
@@ -114,18 +114,30 @@
             $totalRateEstimate = 0;
             $totalCount = 0;
             $totalBalance = 0;
+	    $index = 0;
           @endphp
           @foreach ($voucher as $vou)
             <?php $totalCount++;?>
             <tr>
-              <td>{{$totalCount}}</td>
+              <td>{{$vou->id}}</td>
               {{-- <td class="Website-task">
                 @if(isset($vou->user)) {{  $task->user->name }} @endif
               </td> --}}
               <td>{{ $vou->plateform_name}}</td>
               <td class="Website-task">{{ Str::limit($vou->from_address, 20, $end = '...') }}</td>
-              <td>{{ $vou->number }} </td>
-              <td>{{ $vou->remark }} </td>
+	      <td>{{ $vou->number }} </td>
+              @if($vou->voucherCouponRemarks->count())
+                   @foreach ($vou->voucherCouponRemarks as $voucherCouponRemark)
+                        @if(!is_null($voucherCouponRemark->remark))
+                                <td>{{ Str::limit($voucherCouponRemark->remark, 5, $end = '') }}<a data-toggle="modal" data-target="#exampleModal{{ $index++ }}">...</a></td>
+                        @else
+                                <td> - </td>
+                        @endif
+                        @break
+                   @endforeach
+              @else
+                <td> - </td>
+              @endif
               <td>
                 <button type="button" data-toggle="tooltip" title="edit" data-id="{{$vou->id}}" class="btn btn-edit pd-5">
                     <i class="fa fa-edit" aria-hidden="true"></i>
@@ -148,11 +160,36 @@
             </tr>
           @endforeach
       </table>
-      {{$voucher->links()}}
+      {{ $voucher->links()}}
     </div>
     </div>
-
-
+    @php
+            $index = 0;
+    @endphp
+    @foreach($voucher as $vou)
+          @if($vou->voucherCouponRemarks->count())
+                  <div class="modal fade" id="exampleModal{{ $index++ }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                              <div class="modal-header">
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="false">Remark for Platform - {{ $vou->plateform_name }}</span>
+                                  </button>
+                              </div>
+                              <div class="modal-body">
+                       <ul>
+                                  @foreach ($vou->voucherCouponRemarks as $voucherCouponRemark)
+                             @if(!is_null($voucherCouponRemark->remark))
+                                    <li>{{ $voucherCouponRemark->remark }}</li>
+                                     @endif
+                                  @endforeach
+                        </ul>
+                    </div>
+                   </div>
+                  </div>
+              </div>
+           @endif
+    @endforeach
     <div id="paymentModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
@@ -313,6 +350,7 @@
               <tr>
                 <th>ID</th>
                 <th>Coupon code</th>
+                <th>Platform Name</th>
                 <th>Added By</th>
                 <th>Valid Date</th>
                 <th>Remark</th>
@@ -335,7 +373,6 @@
           <div class="modal-content">
               <form action="" method="POST" id="addupdateCode" >
                   @csrf
-
                   <input type="hidden" name="voucher_coupons_id" class="voucher_coupons_id">
                   <div class="modal-header">
                       <h4 class="modal-title">Add Voucher Coupon Code</h4>
@@ -742,6 +779,7 @@
               html += "<tr>";
                 html += "<td>"+v.id+"</td>";
                 html += "<td>"+v.coupon_code+"</td>";
+                html += "<td>"+v.plateform_name+"</td>";
                 html += "<td>"+v.userName+"</td>";
                 html += "<td><div class='form-row'>"+v.valid_date+"</div></td>";
                 html += "<td><div class='form-row'>"+v.remark+"</div></td>";
@@ -873,6 +911,7 @@
             html += "<tr>";
               html += "<td>"+v.id+"</td>";
               html += "<td>"+v.coupon_code+"</td>";
+              html += "<td>"+v.plateform_name+"</td>";
               html += "<td>"+v.userName+"</td>";
               html += "<td><div class='form-row'>"+v.valid_date+"</div></td>";
               html += "<td><div class='form-row'>"+v.remark+"</div></td>";
