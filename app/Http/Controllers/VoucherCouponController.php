@@ -21,15 +21,15 @@ class VoucherCouponController extends Controller
     {
         $voucher = new VoucherCoupon();
 
-	$voucher = $voucher->select('voucher_coupons.*', 'wc.number', 'em.from_address', 'vcp.name AS plateform_name', 'u.name As user_name')
-		    ->with(['voucherCouponRemarks' => function($q) {
-			    $q->select('id','voucher_coupons_id','remark');
-		    }])
-		    ->leftJoin('users As u', 'voucher_coupons.user_id', 'u.id')
-		    ->leftJoin('whatsapp_configs As wc', 'voucher_coupons.whatsapp_config_id', 'wc.id')
-		    ->leftJoin('email_addresses As em', 'voucher_coupons.email_address_id', 'em.id')
-		    ->leftJoin('voucher_coupon_platforms As vcp', 'voucher_coupons.platform_id', 'vcp.id');
-	if (! empty(request('plateform_id'))) {
+        $voucher = $voucher->select('voucher_coupons.*', 'wc.number', 'em.from_address', 'vcp.name AS plateform_name', 'u.name As user_name')
+                ->with(['voucherCouponRemarks' => function ($q) {
+                    $q->select('id', 'voucher_coupons_id', 'remark');
+                }])
+                ->leftJoin('users As u', 'voucher_coupons.user_id', 'u.id')
+                ->leftJoin('whatsapp_configs As wc', 'voucher_coupons.whatsapp_config_id', 'wc.id')
+                ->leftJoin('email_addresses As em', 'voucher_coupons.email_address_id', 'em.id')
+                ->leftJoin('voucher_coupon_platforms As vcp', 'voucher_coupons.platform_id', 'vcp.id');
+        if (! empty(request('plateform_id'))) {
             $voucher = $voucher->where('platform_id', request('plateform_id'));
         }
         if (! empty(request('email_add'))) {
@@ -189,12 +189,12 @@ class VoucherCouponController extends Controller
     public function couponCodeList(Request $request)
     {
         try {
-		$vouCode = VoucherCouponCode::select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name')
-			->leftJoin('users', 'users.id', 'voucher_coupon_codes.user_id')
-			->where('voucher_coupon_codes.voucher_coupons_id', $request->voucher_coupons_id)
-		        ->leftJoin('voucher_coupons As vc', 'vc.id', 'voucher_coupon_codes.voucher_coupons_id')
-		        ->leftJoin('voucher_coupon_platforms As vcp', 'vc.platform_id', 'vcp.id')
-			->get();
+            $vouCode = VoucherCouponCode::select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name')
+                ->leftJoin('users', 'users.id', 'voucher_coupon_codes.user_id')
+                ->where('voucher_coupon_codes.voucher_coupons_id', $request->voucher_coupons_id)
+                    ->leftJoin('voucher_coupons As vc', 'vc.id', 'voucher_coupon_codes.voucher_coupons_id')
+                    ->leftJoin('voucher_coupon_platforms As vcp', 'vc.platform_id', 'vcp.id')
+                ->get();
 
             return response()->json(['code' => 200, 'data' => $vouCode, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
@@ -265,7 +265,6 @@ class VoucherCouponController extends Controller
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
-
 
     /**
      * Store Remark the specified resource in storage.
