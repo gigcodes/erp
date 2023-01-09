@@ -43,10 +43,6 @@
             width: 110px !important;
         }
 
-        #csvData-table {
-            width: 100% !important;
-        }
-
         @media (max-width: 1280px) {
             table.table {
                 width: 0px;
@@ -82,7 +78,7 @@
     <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-primary btnImport">Import CSV</button>
 </div>
 <div class="table-responsive mt-3" style="margin-top:20px;">
-    <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="csvData-table">
+    <table class="table table-bordered text-wrap" style="border: 1px solid #ddd;" id="csvData-table">
         <thead>
             <tr>
                 <th>Id</th>
@@ -174,7 +170,7 @@
             targets: 'no-sort',
             bSort: false,
             ajax: {
-                "url": "{{ route('csv-translator.list') }}",
+                "url": "{{ route('csvTranslator.list') }}",
                 data: function(d) {
 
                 },

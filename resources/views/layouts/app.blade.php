@@ -2791,6 +2791,9 @@ if (!empty($notifications)) {
                             </ul>
                             </li>
                             @endif
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                             </li>
@@ -2912,7 +2915,7 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource
                                             Center</a>
                                     </li>
-                                    @endif
+                                    @endif 
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>Product<span
@@ -2921,6 +2924,7 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                             </li>
+                                           
                                             <li class="nav-item dropdown">
 
                                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
