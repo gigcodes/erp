@@ -2562,6 +2562,7 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+Route::post('livechat/statuscolor', [LiveChatController::class, 'statuscolor'])->name('livechat.statuscolor');
 Route::post('tickets/email-send', [LiveChatController::class, 'sendEmail'])->name('tickets.email.send');
 Route::post('tickets/assign-ticket', [LiveChatController::class, 'AssignTicket'])->name('tickets.assign');
 Route::post('tickets/add-ticket-status', [LiveChatController::class, 'TicketStatus'])->name('tickets.add.status');
@@ -2676,6 +2677,9 @@ Route::middleware('auth')->group(function () {
     Route::post('bug-tracking/status_user', [BugTrackingController::class, 'statusUser'])->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', [BugTrackingController::class, 'sendMessage'])->name('bug-tracking.sendmessage');
     Route::get('bug-tracking/record-tracking-ajax', [BugTrackingController::class, 'recordTrackingAjax'])->name('bug-tracking.index_ajax');
+    Route::post('bug-tracking/assign_user_bulk', [BugTrackingController::class, 'assignUserBulk'])->name('bug-tracking.assign_user_bulk');
+    Route::post('bug-tracking/severity_user_bulk', [BugTrackingController::class, 'severityUserBulk'])->name('bug-tracking.severity_user_bulk');
+    Route::post('bug-tracking/status_user_bulk', [BugTrackingController::class, 'statusUserBulk'])->name('bug-tracking.status_user_bulk');
 
     Route::post('bug-tracking/status', [BugTrackingController::class, 'status'])->name('bug-tracking.status');
     Route::post('bug-tracking/statuscolor', [BugTrackingController::class, 'statuscolor'])->name('bug-tracking.statuscolor');

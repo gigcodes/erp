@@ -884,8 +884,14 @@ class DevelopmentController extends Controller
             $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
-                $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere('task', 'LIKE', "%$subject%")
-                    ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
+                $task_id = explode(',', $subject);
+                if (count($task_id) == 1) {
+                    $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere('task', 'LIKE', "%$subject%")
+                          ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
+                } else {
+                    $query->whereIn('developer_tasks.id', $task_id)->orWhere('subject', 'LIKE', "%$subject%")->orWhere('task', 'LIKE', "%$subject%")
+                        ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
+                }
             });
         }
         // if ($request->get('language') != '') {
