@@ -76,6 +76,43 @@ var page = {
             page.sendStatus($(this));
         });
 
+        page.config.bodyView.on("change", "#change_assign_to_top", function (e) {
+            e.preventDefault();
+            var values = new Array();			
+			$.each($("input[name='chkBugNameChange[]']:checked"), function() {
+			  values.push($(this).val());			  
+			})
+            if(values.length == 0) {
+                toastr["error"]("Please select atleast 1 bug ");
+                return;
+            }
+           page.sendAssignBulk($(this),values);
+        });
+        page.config.bodyView.on("change", "#change_bug_severity_top", function (e) {
+            e.preventDefault();           
+            var values = new Array();			
+			$.each($("input[name='chkBugNameChange[]']:checked"), function() {
+			  values.push($(this).val());			  
+			})
+            if(values.length == 0) {
+                toastr["error"]("Please select atleast 1 bug ");
+                return;
+            }
+            page.sendSeverityBulk($(this),values);
+        });
+        page.config.bodyView.on("change", "#change_bug_status_top", function (e) {
+            e.preventDefault();
+            var values = new Array();			
+			$.each($("input[name='chkBugNameChange[]']:checked"), function() {
+			  values.push($(this).val());			  
+			})
+            if(values.length == 0) {
+                toastr["error"]("Please select atleast 1 bug ");
+                return;
+            }
+            page.sendStatusBulk($(this),values);
+        });
+
         // delete product templates
         page.config.bodyView.on("click",".btn-delete-template",function(e) {
             if(!confirm("Are you sure you want to delete record?")) {
@@ -366,6 +403,52 @@ var page = {
             method: "POST",
             data: {
                 id: ele.data("id"),
+                status_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveStatus");
+    },
+
+    sendAssignBulk: function (ele,checkedids) {
+        var _z = {
+            url: this.config.baseUrl + "/assign_user_bulk",
+            method: "POST",
+            data: {
+                id: checkedids,
+                user_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveAssign");
+    },
+    sendSeverityBulk: function (ele,checkedids) {
+        var _z = {
+            url: this.config.baseUrl + "/severity_user_bulk",
+            method: "POST",
+            data: {
+                id: checkedids,
+                severity_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSeverity");
+    },
+    sendStatusBulk: function (ele,checkedids) {
+        var _z = {
+            url: this.config.baseUrl + "/status_user_bulk",
+            method: "POST",
+            data: {
+                id: checkedids,
                 status_id: ele.val(),
                 _token: ele.data("token")
             },
