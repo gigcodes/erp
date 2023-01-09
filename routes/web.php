@@ -4436,7 +4436,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/store', [VoucherCouponController::class, 'store'])->name('voucher.store');
     Route::post('/edit', [VoucherCouponController::class, 'edit'])->name('voucher.edit');
     Route::post('/update', [VoucherCouponController::class, 'update'])->name('voucher.update');
-    Route::post('/voucher/remark/{id}', [VoucherCouponController::class, 'update'])->name('voucher.store.remark');
+    Route::post('/voucher/remark/{id}', [VoucherCouponController::class, 'storeRemark'])->name('voucher.store.remark');
     Route::post('/voucher/delete', [VoucherCouponController::class, 'delete'])->name('voucher.coupon.delete');
     Route::post('/coupon/code/create', [VoucherCouponController::class, 'couponCodeCreate'])->name('voucher.code.create');
     Route::post('/coupon/code/list', [VoucherCouponController::class, 'couponCodeList'])->name('voucher.code.list');
