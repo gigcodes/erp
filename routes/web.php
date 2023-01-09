@@ -347,7 +347,6 @@ Route::get('/zabbix', [ZabbixController::class, 'index']);
 Route::get('/zabbix/problems', [ZabbixController::class, 'problems'])->name('zabbix.problem');
 Route::get('/zabbix/history', [ZabbixController::class, 'history'])->name('zabbix.show');
 
-
 Route::get('/test/testPrice', [TmpTaskController::class, 'testEmail']);
 Route::get('/memory', [MemoryUsesController::class, 'index'])->name('memory.index');
 Route::post('/memory/thresold-update', [MemoryUsesController::class, 'updateThresoldLimit'])->name('update.thresold-limit');
