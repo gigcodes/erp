@@ -72,6 +72,7 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\CroppedImageReferenceController;
+use App\http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\CustomerCategoryController;
 use App\Http\Controllers\CustomerCharityController;
 use App\Http\Controllers\CustomerController;
@@ -327,7 +328,6 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
-use App\http\Controllers\CsvTranslatorController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
