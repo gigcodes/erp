@@ -29,6 +29,9 @@ table{border-collapse: collapse;}
 	padding: 1px 3px 0px 4px !important;
 	margin-top:0px !important;
 }
+#change_dropdown_div .bootstrap-select{
+	width:170px;
+}
 </style>
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
@@ -200,6 +203,48 @@ table{border-collapse: collapse;}
 						</div>&nbsp;&nbsp;
 					</div>
 				</div>
+				<div class="col col-md-6">
+					<div class="row">					
+						<div class="pull-left" id="change_dropdown_div">
+								<span style="margin-top: 8px;">Change To :&nbsp;&nbsp;</span>
+								<?php
+								$bug_status = request('bugstatus');
+								?>
+								<select class="form-control selectpicker change_bug_status_top" name="change_bug_status[]"  id="change_bug_status_top" title="Select Bug Status">
+									
+									<?php
+									foreach ($bugStatuses as $bugstatus) { ?>
+									<option value="<?php echo $bugstatus->id; ?>" ><?php echo $bugstatus->name; ?></option>
+									<?php }
+									?>
+								</select>
+								&nbsp;&nbsp;&nbsp;		
+								<?php
+								$assign_to_user = request('assign_to_user');
+								?>
+								<select class="form-control selectpicker change_assign_to_top" name="change_assign_to_user[]"  id="change_assign_to_top" title="Select Assign To">
+									
+									@foreach($users as  $user)
+
+										<option value="{{$user->id}}">{{$user->name}} </option>
+									@endforeach
+								</select>
+								&nbsp;&nbsp;&nbsp;
+								<?php
+								$bug_severity = request('bug_severity');
+								?>
+								<select class="form-control selectpicker change_bug_severity_top" name="change_bug_severity[]"  id="change_bug_severity_top" title="Select Bug Severity">
+									
+									<?php
+									foreach ($bugSeveritys as $bugseverity) { ?>
+									<option value="<?php echo $bugseverity->id; ?>" <?php if ($bug_severity == $bugseverity->id) echo "selected"; ?>><?php echo $bugseverity->name; ?></option>
+									<?php }
+									?>
+								</select>
+							
+						</div>
+					</div>
+				</div>
 
 			</div>
 			<div class="row">
@@ -294,7 +339,7 @@ table{border-collapse: collapse;}
 	<div id="newHistoryModal" class="modal fade" role="dialog">
 		<div class="modal-dialog modal-lg">
 			<!-- Modal content-->
-			<div class="modal-content">
+			<div class="modal-content" style="width: 963px;">
 				<div class="modal-header">
 					<h3>Bug Tracker History</h3>
 					<button type="button" class="close" data-dismiss="modal">&times;</button>

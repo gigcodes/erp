@@ -49,14 +49,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-    <style type="text/css">
-    .select2-container--open {
-        z-index: 9999999
-    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+   <style type="text/css">
+        .select2-container--open{
+            z-index:9999999
+        }
+        #message-chat-data-box .p1[data-count]:after{
+          position:absolute;
+          right:10%;
+          top:8%;
+          content: attr(data-count);
+          font-size:90%;
+          padding:.1em;
+          border-radius:50%;
+          line-height:1em;
+          color: white;
+          background:rgba(255,0,0,.85);
+          text-align:center;
+          min-width: 1em;
+          //font-weight:bold;
+        }
+        #quick-sidebar {
+            padding-top: 35px;
+        }
+        #notification_unread{
+            color:#fff;
+        }
 
     #message-chat-data-box .p1[data-count]:after {
         position: absolute;
@@ -3869,7 +3889,9 @@ if (!empty($notifications)) {
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
     <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
+    
     <script>
     // $('#chat-list-history').on('hidden.bs.modal', function (e) {
     //     document.body.addClass('sasadasd')
