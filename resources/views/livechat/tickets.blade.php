@@ -211,9 +211,10 @@
                     <div>
                         <button type="button" class="btn btn-image mt-2" id="send-message"><img src="{{ asset('images/whatsapp-logo.png')}}"/></button>
                     </div>
-
+                    <div>
+                        <button class="btn btn-xs btn-secondary" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                    </div>
                 </div>
-
 
 
             </div>
@@ -265,8 +266,7 @@
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
     @include('livechat.partials.modal_ticket_send_option')
-
-
+    @include('livechat.partials.modal-status-color')
 
     <div id="AddStatusModal" class="modal fade" role="dialog">
         <div class="modal-dialog">

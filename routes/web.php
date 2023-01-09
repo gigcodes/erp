@@ -684,6 +684,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('products/listing', [ProductController::class, 'listing'])->name('products.listing');
     Route::get('products/listing/final', [ProductController::class, 'approvedListing'])->name('products.listing.approved');
     Route::get('products/listing/conditions-check', [ProductController::class, 'magentoConditionsCheck'])->name('products.magentoConditionsCheck');
+    Route::post('products/listing/autocompleteForFilter', [ProductController::class, 'autocompleteForFilter'])->name('products.autocompleteForFilter');
+
     Route::get('products/listing/conditions-check-logs/{llm_id}', [ProductController::class, 'magentoConditionsCheckLogs'])->name('products.magentoConditionsCheckLogs');
     Route::get('products/push/magento/conditions', [ProductController::class, 'pushToMagentoConditions'])->name('products.push.conditions');
     Route::get('products/conditions/status/update', [ProductController::class, 'updateConditionStatus'])->name('products.push.condition.update');
@@ -2561,6 +2563,7 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+Route::post('livechat/statuscolor', [LiveChatController::class, 'statuscolor'])->name('livechat.statuscolor');
 Route::post('tickets/email-send', [LiveChatController::class, 'sendEmail'])->name('tickets.email.send');
 Route::post('tickets/assign-ticket', [LiveChatController::class, 'AssignTicket'])->name('tickets.assign');
 Route::post('tickets/add-ticket-status', [LiveChatController::class, 'TicketStatus'])->name('tickets.add.status');
@@ -2675,6 +2678,9 @@ Route::middleware('auth')->group(function () {
     Route::post('bug-tracking/status_user', [BugTrackingController::class, 'statusUser'])->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', [BugTrackingController::class, 'sendMessage'])->name('bug-tracking.sendmessage');
     Route::get('bug-tracking/record-tracking-ajax', [BugTrackingController::class, 'recordTrackingAjax'])->name('bug-tracking.index_ajax');
+    Route::post('bug-tracking/assign_user_bulk', [BugTrackingController::class, 'assignUserBulk'])->name('bug-tracking.assign_user_bulk');
+    Route::post('bug-tracking/severity_user_bulk', [BugTrackingController::class, 'severityUserBulk'])->name('bug-tracking.severity_user_bulk');
+    Route::post('bug-tracking/status_user_bulk', [BugTrackingController::class, 'statusUserBulk'])->name('bug-tracking.status_user_bulk');
 
     Route::post('bug-tracking/status', [BugTrackingController::class, 'status'])->name('bug-tracking.status');
     Route::post('bug-tracking/statuscolor', [BugTrackingController::class, 'statuscolor'])->name('bug-tracking.statuscolor');
@@ -4431,7 +4437,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/store', [VoucherCouponController::class, 'store'])->name('voucher.store');
     Route::post('/edit', [VoucherCouponController::class, 'edit'])->name('voucher.edit');
     Route::post('/update', [VoucherCouponController::class, 'update'])->name('voucher.update');
-    Route::post('/voucher/remark/{id}', [VoucherCouponController::class, 'update'])->name('voucher.store.remark');
+    Route::post('/voucher/remark/{id}', [VoucherCouponController::class, 'storeRemark'])->name('voucher.store.remark');
     Route::post('/voucher/delete', [VoucherCouponController::class, 'delete'])->name('voucher.coupon.delete');
     Route::post('/coupon/code/create', [VoucherCouponController::class, 'couponCodeCreate'])->name('voucher.code.create');
     Route::post('/coupon/code/list', [VoucherCouponController::class, 'couponCodeList'])->name('voucher.code.list');
