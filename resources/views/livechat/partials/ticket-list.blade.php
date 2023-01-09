@@ -1,12 +1,13 @@
 @php
     $isAdmin = Auth::user()->hasRole('Admin');
     $isHrm = Auth::user()->hasRole('HOD of CRM');
-    $base_url = URL::to('/')
+    $base_url = URL::to('/');
+    $status_color = \App\TicketStatuses::where('id',$ticket->status_id)->first();
 @endphp
 @php($statusList = \App\TicketStatuses::all()->pluck('name','id'))
 
 @foreach ($data as $key => $ticket)
-<tr>
+<tr style="background-color: {{$status_color->ticket_color}}!important;">
     <td class="pl-2"><input type="checkbox" class="selected-ticket-ids" name="ticket_ids[]" value="{{ $ticket->id }}"></td>
 
     <td>{{ substr($ticket->ticket_id, -5) }}</td>

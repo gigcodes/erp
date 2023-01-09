@@ -179,7 +179,7 @@
                                 value="{{ isset($search_source) ? $search_source : '' }}"
                                 placeholder="Source." id="search_source">
                     </div>
-                    
+
                     <!-- <div class="col-md-2">
                         <input name="search_category" type="text" class="form-control"
                                 value="{{ isset($search_category) ? $search_category : '' }}"
@@ -194,9 +194,10 @@
                     <div>
                         <button type="button" class="btn btn-image" id="send-message"><img src="{{ asset('images/whatsapp-logo.png')}}"/></button>
                     </div>
-
+                    <div>
+                        <button class="btn btn-xs btn-secondary" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                    </div>
                 </div>
-
 
 
             </div>
@@ -248,7 +249,8 @@
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
     @include('livechat.partials.modal_ticket_send_option')
-    
+    @include('livechat.partials.modal-status-color')
+
 
 
     <div id="AddStatusModal" class="modal fade" role="dialog">
@@ -723,7 +725,7 @@ function opnMsg(email) {
             });
         }
         $(document).on('click', '.send-message1', function () {
-           
+
            var thiss = $(this);
            var data = new FormData();
            var ticket_id = $(this).data('ticketid');
@@ -753,8 +755,8 @@ function opnMsg(email) {
             var i=0;
             $('.send_message_recepients:checked').each(function () {
                 checkedValue[i++] = $(this).val();
-            });   
-            data.append("send_ticket_options",checkedValue); 
+            });
+            data.append("send_ticket_options",checkedValue);
           //  alert(data);
 
             if (message.length > 0) {

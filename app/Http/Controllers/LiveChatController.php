@@ -1503,8 +1503,22 @@ class LiveChatController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
+        $taskstatus = TicketStatuses::get();
 
-        return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+        return view('livechat.tickets', compact('data','taskstatus'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = TicketStatuses::find($key);
+            $bugstatus->ticket_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function createTickets(Request $request)
