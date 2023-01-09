@@ -1513,7 +1513,7 @@ class LiveChatController extends Controller
         }
         $taskstatus = TicketStatuses::get();
 
-        return view('livechat.tickets', compact('data','taskstatus'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+        return view('livechat.tickets', compact('data', 'taskstatus'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
     }
 
     public function statuscolor(Request $request)
