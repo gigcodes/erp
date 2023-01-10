@@ -724,36 +724,34 @@ class BugTrackingController extends Controller
         $bugHistory = BugTrackerHistory::where('bug_id', $id)->get();
         $bugHistory = $bugHistory->map(
             function ($bug) {
-
-                $bug_type_id =  BugType::where('id', $bug->bug_type_id)->value('name');
-                if(isset($bug_type_id) && $bug_type_id =='null') {
+                $bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
+                if (isset($bug_type_id) && $bug_type_id == 'null') {
                     $bug_type_id = '-';
-                }                
+                }
                 $bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name').' '.$bug->bug_environment_ver;
-                if(!isset($bug_environment_id) ) {
+                if (! isset($bug_environment_id)) {
                     $bug_environment_id = '-';
                 }
                 $assign_to = User::where('id', $bug->assign_to)->value('name');
-                if(!isset($assign_to)) {
+                if (! isset($assign_to)) {
                     $assign_to = '-';
                 }
                 $updated_by = User::where('id', $bug->updated_by)->value('name');
-                if(!isset($updated_by)) {
+                if (! isset($updated_by)) {
                     $updated_by = '-';
                 }
                 $bug_severity_id = BugSeverity::where('id', $bug->bug_severity_id)->value('name');
-                if(!isset($bug_severity_id)) {
+                if (! isset($bug_severity_id)) {
                     $bug_severity_id = '-';
                 }
                 $bug_status_id = BugStatus::where('id', $bug->bug_status_id)->value('name');
-                if(!isset($bug_status_id)) {
+                if (! isset($bug_status_id)) {
                     $bug_status_id = '-';
                 }
                 $bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
-                if(!isset($bug_history)) {
+                if (! isset($bug_history)) {
                     $bug_history = '-';
                 }
-
 
                 $bug->bug_type_id = $bug_type_id;
                 $bug->bug_environment_id = $bug_environment_id;
@@ -859,8 +857,47 @@ class BugTrackingController extends Controller
             'bug_id' => $bugTracker->id,
             'updated_by' => \Auth::user()->id,
         ];
+
+        DB::table('tasks')->where('task_bug_ids', $request->id)->update(['assign_to' => $request->user_id]);
+
         BugTrackerHistory::create($data);
         BugUserHistory::create($record);
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => $data,
+            ]
+        );
+    }
+
+    public function assignUserBulk(Request $request)
+    {
+        $data = [];
+        if (count($request->id) > 0) {
+            for ($i = 0; $i < count($request->id); $i++) {
+                $chosen_bug_id = $request->id[$i];
+                $bugTracker = BugTracker::where('id', $chosen_bug_id)->first();
+                $record = [
+                    'old_user' => $bugTracker->assign_to,
+                    'new_user' => $request->user_id,
+                    'bug_id' => $bugTracker->id,
+                    'updated_by' => \Auth::user()->id,
+                ];
+                $bugTracker->assign_to = $request->user_id;
+                $bugTracker->save();
+
+                DB::table('tasks')->where('task_bug_ids', $chosen_bug_id)->update(['assign_to' => $request->user_id]);
+
+                $data = [
+                    'assign_to' => $bugTracker->assign_to,
+                    'bug_id' => $bugTracker->id,
+                    'updated_by' => \Auth::user()->id,
+                ];
+                BugTrackerHistory::create($data);
+                BugUserHistory::create($record);
+            }
+        }
 
         return response()->json(
             [
@@ -896,6 +933,46 @@ class BugTrackingController extends Controller
             'updated_by' => \Auth::user()->id,
         ];
         BugSeveritiesHistory::create($record);
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => $data,
+            ]
+        );
+    }
+
+    public function severityUserBulk(Request $request)
+    {
+        if (count($request->id) > 0) {
+            for ($i = 0; $i < count($request->id); $i++) {
+                $chosen_bug_id = $request->id[$i];
+                $bugTracker = BugTracker::where('id', $chosen_bug_id)->first();
+                $old_severity_id = $bugTracker->bug_severity_id;
+                $bugTracker->bug_severity_id = $request->severity_id;
+                if ($request->status_id == 8) {
+                    $created_by = $bugTracker->created_by;
+                    $bugTracker->assign_to = $created_by;
+                }
+
+                $bugTracker->save();
+                $data = [
+                    'bug_severity_id' => $bugTracker->bug_severity_id,
+                    'bug_id' => $bugTracker->id,
+                    'updated_by' => \Auth::user()->id,
+                ];
+                BugTrackerHistory::create($data);
+
+                $record = [
+                    'assign_to' => $bugTracker->assign_to,
+                    'old_severity_id' => $old_severity_id,
+                    'severity_id' => $request->severity_id,
+                    'bug_id' => $bugTracker->id,
+                    'updated_by' => \Auth::user()->id,
+                ];
+                BugSeveritiesHistory::create($record);
+            }
+        }
 
         return response()->json(
             [
@@ -941,6 +1018,56 @@ class BugTrackingController extends Controller
         ];
         BugTrackerHistory::create($data);
         BugStatusHistory::create($record);
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => $data,
+            ]
+        );
+    }
+
+    public function statusUserBulk(Request $request)
+    {
+        if (count($request->id) > 0) {
+            for ($i = 0; $i < count($request->id); $i++) {
+                $chosen_bug_id = $request->id[$i];
+                $bugTracker = BugTracker::where('id', $chosen_bug_id)->first();
+                $record = [
+                    'old_status' => $bugTracker->bug_status_id,
+                    'new_status' => $request->status_id,
+                    'bug_id' => $bugTracker->id,
+                    'updated_by' => \Auth::user()->id,
+                ];
+                if ($request->status_id == 7) {
+                    $prev_created_by = $bugTracker->created_by;
+                    $bugTracker->assign_to = $prev_created_by;
+                }
+
+                $bugTracker->bug_status_id = $request->status_id;
+                $bugTracker->save();
+
+                if ($request->status_id == 3 || $request->status_id == 7) {
+                    $Task = Task::where('task_bug_ids', $chosen_bug_id)->first();
+                    if (count((array) $Task) > 0) {
+                        if ($request->status_id == 3) {
+                            $Task->status = 22;
+                        } elseif ($request->status_id == 7) {
+                            $Task->status = 15;
+                        }
+                        $Task->save();
+                    }
+                }
+
+                $data = [
+                    'bug_status_id' => $bugTracker->bug_status_id,
+                    'bug_id' => $bugTracker->id,
+                    'updated_by' => \Auth::user()->id,
+                ];
+                BugTrackerHistory::create($data);
+                BugStatusHistory::create($record);
+            }
+        }
 
         return response()->json(
             [
@@ -1121,7 +1248,7 @@ class BugTrackingController extends Controller
 
     public function website(Request $request)
     {
-        $title = 'Bug Tracking Websites';
+        $title = 'Bug Tracking Summary';
 
         $bug_tracker = DB::select(DB::raw("SELECT bug_trackers.website as website_id, store_websites.website as website, store_websites.title as title, count(bug_trackers.id) as bug_count, GROUP_CONCAT(concat(bug_trackers.id,'-',bug_trackers.bug_severity_id)) as bug_ids  FROM bug_trackers left join store_websites on bug_trackers.website = store_websites.id where bug_trackers.website>0 AND bug_trackers.bug_status_id !=3 group by bug_trackers.website"));
 
@@ -1188,6 +1315,8 @@ class BugTrackingController extends Controller
                 $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
                 $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
                 $bug->summary_short = Str::limit($bug->summary, 40, '..');
+                $bug->bug_status_id = BugStatus::where('id', $bug->bug_status_id)->value('name');
+                $bug->assign_to = User::where('id', $bug->assign_to)->value('name');
 
                 return $bug;
             }

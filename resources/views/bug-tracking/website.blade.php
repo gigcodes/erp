@@ -29,6 +29,9 @@ table{border-collapse: collapse;}
 	padding: 1px 3px 0px 4px !important;
 	margin-top:0px !important;
 }
+.chat-list-history {
+	z-index:999;
+}
 </style>
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
@@ -122,12 +125,15 @@ table{border-collapse: collapse;}
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 				</div>
 				<div class="modal-body">
-					<table class="table" border="1">
+					<table class="table" border="1" style="font-size: 13px;">
 					<tr>
 						<td style="text-align: center;"><b>Bug Id</b></td>						
 						<td style="text-align: center;"><b>Date</b></td>
 						<td style="text-align: center;"><b>Summary</b></td>							 
 						<td style="text-align: center;"><b>Type</b></td>
+						<td style="text-align: center;"><b>Assign To</b></td>
+						<td style="text-align: center;"><b>Status</b></td>
+						<td style="text-align: center;"><b>Comm</b></td>
 						<td style="text-align: center;"><b>Action</b></td>
 					</tr>
 					<tbody class="tbhbugslist">
@@ -147,7 +153,21 @@ table{border-collapse: collapse;}
 	<script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('/js/bug-tracker.js') }}"></script>
 	<script type="text/javascript">
+	
+		$(document).on('click', '.load-conv-modal', function() {
+			$('#BugWebsiteModal').css('z-index',9);	
+		});
+		
+	
+		
+		$('#chat-list-history').on("hide.bs.modal", function() {
+			$('#BugWebsiteModal').css('z-index',99999999);	
+		})
+		
+		
 		$(document).on('click', '.show-bugs-history', function() {
+			
+			
 			
 			$(".tbhbugslist").html("");
 			var id = $(this).data('id');
@@ -183,6 +203,9 @@ table{border-collapse: collapse;}
 						html+=" <td>"+ item.created_at_date  +"</td>"	
 						html+=" <td>"+ item.summary_short +"</td>"
 						html+=" <td>"+ item.bug_type_id  +"</td>"
+						html+=" <td>"+ item.assign_to  +"</td>"
+						html+=" <td>"+ item.bug_status_id  +"</td>"
+						html+=" <td><button type='button' class='btn btn-xs btn-image load-communication-modal load-conv-modal' data-object='bug' data-id='"+item.id+"' title='Load messages'><img src='../images/chat.png' alt=''></button></td>"
 						html+=" <td><a href='/bug-tracking?bug_main_id="+item.id+"' target='_blank'><button type='button' title='Push' data-id='"+item.id+"' class='btn btn-push'><i class='fa fa-eye' aria-hidden='true'></i></button></a></td>"
 
 						html+="</tr>"
