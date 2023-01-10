@@ -3240,24 +3240,37 @@ if (!empty($notifications)) {
                             <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
                             @endif
                         </div>
+                        @php
+                        $todoCategories = \App\TodoCategory::get();
+                        @endphp
+                         <div class="form-group">
+                             <strong>Category:</strong>
+                             {{-- <input type="text" name="" class="form-control" value="{{ old('') }}" required> --}}
+                             <select name="todo_category_id" class="form-control">
+                             <option value="">Select Category</option>
+                                @foreach($todoCategories as $todoCategory)
+                                    <option value="{{$todoCategory->id}}" @if($todoCategory->id == old('todo_category_id')) selected @endif>{{$todoCategory->name}}</option>
+                                @endforeach
+                             </select>
+                             @if ($errors->has('status'))
+                                 <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                             @endif
+                         </div>
+                        @php
+                        $statuses = \App\TodoStatus::all()->toArray();
+                        @endphp
                         <div class="form-group">
                             <strong>Status:</strong>
-                            @php
-                            $statuses = App\TodoStatus::all()->toArray();
-                            @endphp
-                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}"
-                            required> --}}
-                            <select name="status" class="form-control" required="">
+                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
+                            <select name="status" class="form-control">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['id']}}" @if (old('status')==$status['id']) selected @endif>
-                                    {{$status['name']}}</option>
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             @if ($errors->has('status'))
-                            <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                                <div class="alert alert-danger">{{ $errors->first('status') }}</div>
                             @endif
                         </div>
-
                         <div class="form-group">
                             <strong>Date:</strong>
 
