@@ -29,7 +29,7 @@ class CsvTranslatorHistory extends Migration
             $table->text('zh');
             $table->text('ar');
             $table->text('ur');
-            $table->tinyInteger('status')->default(2)->comment('1.checked,2.unchecked');
+            $table->string('status')->default('unchecked')->comment('1.checked,2.unchecked');
             $table->integer('updated_by_user_id')->nullable();
             $table->integer('approved_by_user_id')->nullable();
             $table->timestamps();

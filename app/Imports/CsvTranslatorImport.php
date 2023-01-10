@@ -28,7 +28,7 @@ class CsvTranslatorImport implements ToModel, WithHeadingRow
             'zh' => $row['zh'],
             'ar' => $row['ar'],
             'ur' => $row['ur'],
-            'status' => 2,
+            'status' => 'unchcked',
         ]);
     }
 }
