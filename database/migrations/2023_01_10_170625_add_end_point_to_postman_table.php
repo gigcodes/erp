@@ -23,6 +23,5 @@ class AddEndPointToPostmanTable extends Migration
      */
     public function down()
     {
-        
     }
 }
