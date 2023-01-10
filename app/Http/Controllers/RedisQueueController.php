@@ -118,6 +118,7 @@ class RedisQueueController extends Controller
     public function execute(Request $request)
     {
         $command = $request->get('command_tail');
+
         if ($command == 'start') {
             $keyword = 'work';
         } elseif ($command == 'restart') {
@@ -125,7 +126,8 @@ class RedisQueueController extends Controller
         }
 
         $queue = RedisQueue::find($request->get('id'));
-        $cmd = 'queue:'.$keyword.' redis --queue="'.$queue->name.'" --sleep=3 --tries=3';
+        $cmd = 'queue:'.$keyword.' redis --queue='.$queue->name;
+
         try {
             $response = Artisan::call($cmd);
 
@@ -197,5 +199,16 @@ class RedisQueueController extends Controller
             ->orderBy('id', 'desc')->get();
 
         return response()->json(['code' => 200, 'data' => $logs]);
+    }
+
+    public function getAllQueues()
+    {
+        $queues = RedisQueue::all();
+        $queue1 = [];
+        foreach ($queues as $queue) {
+            $queue1[] = $queue->name;
+        }
+
+        return $queue1;
     }
 }

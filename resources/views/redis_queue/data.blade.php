@@ -29,7 +29,7 @@
                 <i class="fa fa-repeat" aria-hidden="true"></i>
             </a>
             <a onclick="horizonRun('horizon:clear --queue=' . {{ $queue->name }})" class="btn p-2" title="Queue clear">
-                <i class="fa fa-repeat" aria-hidden="true"></i>
+                <i class="fa fa-eraser" aria-hidden="true"></i>
             </a>
             <a onclick="queueCommandLogs({{ $queue->id }})" class="btn p-2" title="View command execution log"><i
                         class="fa fa-eye" aria-hidden="true"></i>
