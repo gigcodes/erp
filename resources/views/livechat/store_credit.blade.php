@@ -22,10 +22,12 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                <div class="col">
                  <div class="form-group">
                    <div class='input-group'>
-                     <input type='text' placeholder="Search name" class="form-control" name="name"  value="{{ isset($_GET['name'])?$_GET['name']:''}}" />
-                   
- 
-                   
+                     <input type='text' placeholder="Search name" class="form-control" name="name" list="name-lists"  value="{{ isset($_GET['name'])?$_GET['name']:''}}" />
+                       <datalist id="name-lists">
+                           @foreach($users as $user)
+                               <option value="{{$user->name}}">
+                           @endforeach
+                       </datalist>
                    </div>
                  </div>
                </div>
@@ -33,10 +35,12 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                  <div class="form-group">
                    <div class='input-group'>
                     
-                     <input type='text' placeholder="Search Email" class="form-control" name="email"  value="{{ isset($_GET['email'])?$_GET['email']:''}}"  />
-                    
- 
-                   
+                     <input type='text' placeholder="Search Email" class="form-control" name="email" list="email-lists" value="{{ isset($_GET['email'])?$_GET['email']:''}}"  />
+                       <datalist id="email-lists">
+                           @foreach($users as $user)
+                               <option value="{{$user->email}}">
+                           @endforeach
+                       </datalist>
                    </div>
                  </div>
                </div>
@@ -76,6 +80,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
  
                <div class="col">
                  <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                   <a href="/customer/credit" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                </div>
              </form>
            </div>
@@ -164,7 +169,6 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                 </div>
         </div>
     </div>
-</div>
 
 <div id="credit_histories" class="modal fade" role="dialog" style="display: none;">
   <div class="modal-dialog modal-lg">
@@ -193,7 +197,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
               </div>
       </div>
   </div>
-</div>
+
 <div class="modal fade" id="create-customer-credit-modal" role="dialog" aria-labelledby="create-customer-credit-modal-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
       <div class="modal-content">

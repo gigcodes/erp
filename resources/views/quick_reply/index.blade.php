@@ -12,7 +12,7 @@
         </div>
 
         <div class="col-md-12">
-            <form action="{{ action('QuickReplyController@store') }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\QuickReplyController::class, 'store']) }}" method="post">
                 @csrf
                 <divr class="row">
                     <div class="col-md-4">
@@ -43,7 +43,7 @@
                         <td>{{ $reply->text }}</td>
                         <td>{{ $reply->created_at->format('Y-m-d') }}</td>
                         <td>
-                            <a class="btn btn-danger btn-sm" href="{{ action('QuickReplyController@show', $reply->id) }}">Delete</a>
+                            <a class="btn btn-danger btn-sm" href="{{ action([\App\Http\Controllers\QuickReplyController::class, 'show'], $reply->id) }}">Delete</a>
                         </td>
                     </tr>
                 @endforeach

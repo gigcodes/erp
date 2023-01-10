@@ -29,6 +29,9 @@ table{border-collapse: collapse;}
 	padding: 1px 3px 0px 4px !important;
 	margin-top:0px !important;
 }
+#change_dropdown_div .bootstrap-select{
+	width:170px;
+}
 </style>
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
@@ -200,6 +203,48 @@ table{border-collapse: collapse;}
 						</div>&nbsp;&nbsp;
 					</div>
 				</div>
+				<div class="col col-md-6">
+					<div class="row">					
+						<div class="pull-left" id="change_dropdown_div">
+								<span style="margin-top: 8px;">Change To :&nbsp;&nbsp;</span>
+								<?php
+								$bug_status = request('bugstatus');
+								?>
+								<select class="form-control selectpicker change_bug_status_top" name="change_bug_status[]"  id="change_bug_status_top" title="Select Bug Status">
+									
+									<?php
+									foreach ($bugStatuses as $bugstatus) { ?>
+									<option value="<?php echo $bugstatus->id; ?>" ><?php echo $bugstatus->name; ?></option>
+									<?php }
+									?>
+								</select>
+								&nbsp;&nbsp;&nbsp;		
+								<?php
+								$assign_to_user = request('assign_to_user');
+								?>
+								<select class="form-control selectpicker change_assign_to_top" name="change_assign_to_user[]"  id="change_assign_to_top" title="Select Assign To">
+									
+									@foreach($users as  $user)
+
+										<option value="{{$user->id}}">{{$user->name}} </option>
+									@endforeach
+								</select>
+								&nbsp;&nbsp;&nbsp;
+								<?php
+								$bug_severity = request('bug_severity');
+								?>
+								<select class="form-control selectpicker change_bug_severity_top" name="change_bug_severity[]"  id="change_bug_severity_top" title="Select Bug Severity">
+									
+									<?php
+									foreach ($bugSeveritys as $bugseverity) { ?>
+									<option value="<?php echo $bugseverity->id; ?>" <?php if ($bug_severity == $bugseverity->id) echo "selected"; ?>><?php echo $bugseverity->name; ?></option>
+									<?php }
+									?>
+								</select>
+							
+						</div>
+					</div>
+				</div>
 
 			</div>
 			<div class="row">
@@ -294,7 +339,7 @@ table{border-collapse: collapse;}
 	<div id="newHistoryModal" class="modal fade" role="dialog">
 		<div class="modal-dialog modal-lg">
 			<!-- Modal content-->
-			<div class="modal-content">
+			<div class="modal-content" style="width: 963px;">
 				<div class="modal-header">
 					<h3>Bug Tracker History</h3>
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -528,7 +573,13 @@ table{border-collapse: collapse;}
 		</div>
 		
 		
+	<script>
+	
+		var page_bug = 0; 
+		var total_limit_bug = 19;
+		var action_bug = 'inactive';
 
+	</script>
 	<script type="text/javascript" src="{{ asset('/js/jsrender.min.js')}}"></script>
 	<script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js')}}"></script>
 	<script src="{{ asset('/js/jquery-ui.js')}}"></script>
@@ -536,17 +587,7 @@ table{border-collapse: collapse;}
 	<script type="text/javascript" src="{{ asset('/js/bug-tracker.js') }}"></script>
 	
 	
-	<script type="text/javascript" src="{{ asset('/js/jquery.simple-color-picker.js') }}"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-           // $('input#color').simpleColorPicker();
-            $('input#color_name').simpleColorPicker({ colorsPerLine: 16 });
-           // var colors = ['#000000', '#444444', '#666666', '#999999', '#cccccc', '#eeeeee', '#f3f3f3', '#ffffff'];
-           // $('input#color3').simpleColorPicker({ colors: colors });
-           // $('input#color_name').simpleColorPicker({ showEffect: 'fade', hideEffect: 'slide' });
-           // $('button#color5').simpleColorPicker({ onChangeColor: function(color) { $('label#color-result').text(color); } });
-        });
-    </script>
+	
 
 	<script type="text/javascript">
 		page.init({
@@ -597,9 +638,8 @@ table{border-collapse: collapse;}
 			}  
 		}
 		
-		var page_bug = 0; 
-		var total_limit_bug = 19;
-		var action_bug = 'inactive';
+		
+
 		$(window).scroll(function(){
 			let urlString_bug = window.location.href;
 			let paramString_bug = urlString_bug.split('?')[1];
@@ -610,20 +650,31 @@ table{border-collapse: collapse;}
 				console.log("Value is:" + pair[1]);
 				arr = 1;
 			}
+			
+			//console.log("arr="+arr);
+			//console.log("window="+$(window).height());
+			//console.log("table="+$("#bug_tracking_maintable").height());
+			//console.log("action="+action_bug);
+			
 			if(arr==0) {
-				if($(window).scrollTop() + $(window).height() > $("#bug_tracking_maintable").height() && action_bug == 'inactive')
+				if($(window).scrollTop() + $(window).height() > $("#page-view-result").height() && action_bug == 'inactive')				
 				{
+					
 					action_bug = 'active';
 					page_bug++;				   
 					setTimeout(function(){
+						console.log("coming");						
 						load_more(page_bug);
+						
 					}, 1000);
+					console.log("act="+action_bug);
 				}
 			}
 			  
 		});
 		
 		function load_more(page_bug){
+			
 						
 			$.ajax({
 			   url: "/bug-tracking/record-tracking-ajax?page="+page_bug+"&"+$(".message-search-handler").serialize(),
@@ -632,6 +683,7 @@ table{border-collapse: collapse;}
 			   beforeSend: function()
 			   {
 				  $('#loading-image-preview').css("display","block");
+				  
 			   }
 			})
 			.done(function(data)
@@ -640,15 +692,19 @@ table{border-collapse: collapse;}
 				
 				
 				if(data.length == 0){
-					console.log(data.length);
+					console.log("len="+data.length);
 					//notify user if nothing to load
+					action_bug = "inactive";
 					//$('.ajax-loading').html("No more records!");
+					page_bug = 0;
+					console.log("if="+action_bug);
 					return;
 				}
 				 $('.loading-image-preview').hide(); //hide loading animation once data is received
 				 $('#loading-image-preview').css("display","none");			  
 				$('#bug_tracking_maintable > tbody:last').append(data); 
 				 action_bug = "inactive";
+				 console.log("in success="+action_bug);
 				
 			   
 		   })
@@ -700,60 +756,107 @@ table{border-collapse: collapse;}
 			$('.text-task-bugids').val('');
 			$('.text-task-bugids').val('');
 			$('.text-task-development').val('');
+			bug_id_val = $(this).data("id");
 			
-						
-			if (!title || title == '') {
-				toastr["error"]("Please add title first");
-				return;
-			}
 			
-			//debugger;
-			let val = $("#change_website1").select2("val");
 			$.ajax({
-				url: '/bug-tracking/websitelist',
+				url: '/bug-tracking/checkbug',
 				type: 'POST',
 				headers: {
 					'X-CSRF-TOKEN': "{{ csrf_token() }}"
 				},
 				data: {
-					id: val,
-					cat_title:cat_title,
-					bug_type_id:bug_type_id,
-					module_id:module_id,
-					website_id:website_id
+					bug_id: bug_id_val
 				},
 				beforeSend: function() {
 					$("#loading-image").show();
 				}
 			}).done(function(response) {
+				
 				$("#loading-image").hide();
-				//$this.siblings('input').val("");				
-				$('.website-list').html(response.data.websiteCheckbox);	
-				//$('.text-task-development').val(response.data.bug_ids);		
-				$('#bugs_list_html').html(response.data.bug_html);					
-				//toastr["success"]("Remarks fetched successfully");
+				// inner Ajax starts
+				
+				if(response.data >0 ) {
+					if (!confirm('Task already created for this bug id, Would you like to create again')) {				  
+					  
+					  return false;
+					} 
+					
+				}
+				
+				
+					if (!title || title == '') {
+						toastr["error"]("Please add title first");
+						return;
+					}
+					
+					//debugger;
+					let val = $("#change_website1").select2("val");
+					$.ajax({
+						url: '/bug-tracking/websitelist',
+						type: 'POST',
+						headers: {
+							'X-CSRF-TOKEN': "{{ csrf_token() }}"
+						},
+						data: {
+							id: val,
+							cat_title:cat_title,
+							bug_type_id:bug_type_id,
+							module_id:module_id,
+							website_id:website_id
+						},
+						beforeSend: function() {
+							$("#loading-image").show();
+						}
+					}).done(function(response) {
+						$("#loading-image").hide();
+						//$this.siblings('input').val("");				
+						$('.website-list').html(response.data.websiteCheckbox);	
+						//$('.text-task-development').val(response.data.bug_ids);		
+						$('#bugs_list_html').html(response.data.bug_html);					
+						//toastr["success"]("Remarks fetched successfully");
+					}).fail(function(jqXHR, ajaxOptions, thrownError) {
+						toastr["error"]("Oops,something went wrong");
+						$("#loading-image").hide();
+					});
+					
+					
+					 $("#create-quick-task").modal("show");
+					
+
+					var selValue = $(".save-item-select").val();
+					if (selValue != "") {
+						$("#create-quick-task").find(".assign-to option[value=" + selValue + "]").attr('selected',
+							'selected')
+						$('.assign-to.select2').select2({
+							width: "100%"
+						});
+					}
+
+					$("#hidden-task-subject").val(title);
+					$(".text-task-development").val(development);
+					$('#site_id').val(site);	
+					$('#website_id').val(website_id);	
+					
+				
+				
+				
+				
+				// inner Ajax ends
+				
+				
+				
+				
+				
+				
 			}).fail(function(jqXHR, ajaxOptions, thrownError) {
 				toastr["error"]("Oops,something went wrong");
 				$("#loading-image").hide();
 			});
 			
 			
-			 $("#create-quick-task").modal("show");
 			
-
-			var selValue = $(".save-item-select").val();
-			if (selValue != "") {
-				$("#create-quick-task").find(".assign-to option[value=" + selValue + "]").attr('selected',
-					'selected')
-				$('.assign-to.select2').select2({
-					width: "100%"
-				});
-			}
-
-			$("#hidden-task-subject").val(title);
-			$(".text-task-development").val(development);
-			$('#site_id').val(site);	
-			$('#website_id').val(website_id);	
+			
 			
 
 			// $.ajax({

@@ -9,10 +9,9 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class CsvTranslatorImport implements ToModel, WithHeadingRow
 {
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
+     * @param  array  $row
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
     public function model(array $row)
     {
         return new CsvTranslator([

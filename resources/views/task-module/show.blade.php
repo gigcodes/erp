@@ -661,7 +661,7 @@ else
         <li><a href="#3" data-toggle="tab" class="btn-call-data" data-type="completed">Completed Task</a></li>
         <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
 
-        <li> <button type="button" onclick="window.location.href = '{{ action("DevelopmentController@exportTask",request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks </button></li> &nbsp;
+        <li> <button type="button" onclick="window.location.href = '{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks </button></li> &nbsp;
         <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
         <li><button type="button" class="btn btn-xs btn-secondary my-3" id="send_message_button" data-selected="0">Send Message</button></li>&nbsp;
         <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
@@ -669,7 +669,7 @@ else
         <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
 
 
-        {{-- href="{{ action('DevelopmentController@exportTask',request()->all()) }}"--}}
+        {{-- href="{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}"--}}
 
         @if(auth()->user()->isAdmin())
 
@@ -1617,7 +1617,7 @@ else
             let reminder_last_reply = (taskReminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
 
             $.ajax({
-                url: "{{action('TaskModuleController@updateTaskReminder')}}",
+                url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'updateTaskReminder'])}}",
                 type: 'POST',
                 success: function() {
                     toastr['success']('Reminder updated successfully!');
@@ -3054,7 +3054,7 @@ else
         let total = $(this).val();
 
         $.ajax({
-            url: "{{action('TaskModuleController@saveMilestone')}}",
+            url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'saveMilestone'])}}",
             data: {
                 total: total,
                 task_id: id
@@ -3179,7 +3179,7 @@ else
             return;
         }
         $.ajax({
-            url: "{{action('TaskModuleController@assignMasterUser')}}",
+            url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'assignMasterUser'])}}",
             data: {
                 master_user_id: userId,
                 issue_id: id,

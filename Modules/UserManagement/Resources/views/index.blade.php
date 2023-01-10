@@ -309,77 +309,7 @@
     </div>
 </div>
 
-<div id="system-request" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">System IPs</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12" id="permission-request">
 
-                    @php
-                    $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f list');
-
-                    $final_array = [];
-                    if ($shell_list != '') {
-                    $lines = explode(PHP_EOL, $shell_list);
-                    $final_array = [];
-                    foreach ($lines as $line) {
-                    $values = [];
-                    $values = explode(' ', $line);
-                    array_push($final_array, $values);
-                    }
-                    }
-                    @endphp
-                    <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
-
-                    <div>
-                        <select class="form-control col-md-3 ml-3" name="user_id" id="ipusers">
-                            <!-- <option>Select user</option>
-                                @foreach ($userlist as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                                <option value="other">Other</option> -->
-                        </select>
-
-                        <input type="text" name="other_user_name" id="other_user_name" class="form-control col-md-3 ml-3" style="display:none;" placeholder="other name">
-                    </div>
-
-                    <input type="text" name="ip_comment" class="form-control col-md-3 ml-3" placeholder="Add comment...">
-
-                    <button class="btn-success btn addIp ml-3 mb-5">Add</button>
-
-                    <table class="table table-bordered" id="userAllIps">
-                        <tr>
-                            <th>Index</th>
-                            <th>IP</th>
-                            <th>User</th>
-                            <th>Comment</th>
-                            <th>Action</th>
-                        </tr>
-                        <!-- @if (!empty($final_array)) @foreach (array_reverse($final_array) as $values)
-                                    <tr>
-                                        <td>{{ isset($values[0]) ? $values[0] : '' }}</td>
-                                        <td>{{ isset($values[1]) ? $values[1] : '' }}</td>
-                                        <td>{{ isset($values[2]) ? $values[2] : '' }}</td>
-                                        <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0] }}">Delete</button></td>
-                                    </tr> @endforeach
-                            @endif -->
-
-
-
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div id="user-task-activity" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -615,16 +545,7 @@
         alert('helloooo');
     });
 
-    $(document).ready(function() {
-        $('#ipusers').change(function() {
-            var selected = $(this).val();
-            if (selected == 'other') {
-                $('#other_user_name').show();
-            } else {
-                $('#other_user_name').hide();
-            }
-        });
-    });
+   
     $('.select-multiple').select2({
         width: '100%'
     });
@@ -783,62 +704,7 @@
         });
     });
 
-    $(document).on("click", ".addIp", function(e) {
-        e.preventDefault();
-        if ($('input[name="add-ip"]').val() != '') {
-            $.ajax({
-                url: '/users/add-system-ip',
-                type: 'GET',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    ip: $('input[name="add-ip"]').val(),
-                    user_id: $('#ipusers').val(),
-                    other_user_name: $('input[name="other_user_name"]').val(),
-                    comment: $('input[name="ip_comment"]').val()
-                },
-                dataType: 'json',
-                beforeSend: function() {
-                    $("#loading-image").show();
-                },
-                success: function(result) {
-                    $("#loading-image").hide();
-                    toastr["success"]("IP added successfully");
-                    location.reload();
-                },
-                error: function() {
-                    $("#loading-image").hide();
-                    toastr["Error"]("An error occured!");
-                }
-            });
-        } else {
-            alert('please enter IP');
-        }
-    });
-    $(document).on("click", ".deleteIp", function(e) {
-        e.preventDefault();
-        var btn = $(this);
-        $.ajax({
-            url: '/users/delete-system-ip',
-            type: 'GET',
-            data: {
-                _token: "{{ csrf_token() }}",
-                usersystemid: $(this).data('usersystemid')
-            },
-            dataType: 'json',
-            beforeSend: function() {
-                $("#loading-image").show();
-            },
-            success: function(result) {
-                btn.parents('tr').remove();
-                $("#loading-image").hide();
-                toastr["success"]("IP Deteted successfully");
-            },
-            error: function() {
-                $("#loading-image").hide();
-                toastr["Error"]("An error occured!");
-            }
-        });
-    });
+
 
     $('.due-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
@@ -1142,7 +1008,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: "{{ action('UserController@statusChange') }}",
+            url: "{{ action([\App\Http\Controllers\UserController::class, 'statusChange']) }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),
@@ -1368,7 +1234,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: "{{ action('UserController@statusChange') }}",
+            url: "{{ action([\App\Http\Controllers\UserController::class, 'statusChange']) }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),
@@ -1413,51 +1279,7 @@
         });
     })
 
-    function loadUsersList() {
-
-        var t = "";
-        var ip = "";
-        $.ajax({
-            url: '{{ route("get-user-list") }}',
-            type: 'GET',
-            data: {
-                _token: "{{ csrf_token() }}",
-            },
-            dataType: 'json',
-
-            success: function(result) {
-                // console.log(result.data);
-                t += '<option>Select user</option>';
-
-                $.each(result.data, function(i, j) {
-                    t += '<option value="' + i + '">' + j + '</option>'
-                });
-                t += '<option value="other">Other</option>';
-
-                // console.log(t);
-                $("#ipusers").html(t);
-
-                console.log(result.usersystemips);
-
-                $.each(result.usersystemips, function(k, v) {
-                    ip += '<tr>';
-                    ip += '<td> ' + v.index_txt + ' </td>';
-                    ip += '<td> ' + v.ip + '</td>';
-                    ip += '<td>' + v.user_id ? v.user.name : v.other_user_name + '</td>';
-                    ip += '<td>' + v.notes + '</td>';
-                    ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v.id + '">Delete</button></td>';
-                    ip += '</tr>';
-                });
-
-                $("#userAllIps").html(ip);
-
-            },
-            error: function() {
-                // alert('fail');
-            }
-        });
-
-    }
+   
 
     $(document).on('change', '.user_feedback_status', function() {
         var status_id = $(this).val();
@@ -1542,7 +1364,7 @@
         let self = textBox;
 
         $.ajax({
-            url: "{{action('WhatsAppController@sendMessage', 'user-feedback')}}",
+            url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'user-feedback')}}",
             type: 'POST',
             data: {
                 "feedback_status_id": feedback_status_id,

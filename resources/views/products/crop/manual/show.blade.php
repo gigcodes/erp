@@ -15,19 +15,19 @@
                         <br>
                         {{ $product->sku }}
                         <br>
-                        <a href="{{ action('ProductController@show', $product->id) }}" target="_new">{{ $product->id }}</a>
+                        <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}" target="_new">{{ $product->id }}</a>
                         <br>
                         {{ $product->product_category->title }}
                         <br>
-                        <a target="_new" class="btn btn-secondary" href="{{ action('ProductController@show', $product->id) }}">Product Details</a>
+                        <a target="_new" class="btn btn-secondary" href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">Product Details</a>
                     </td>
                     <td>
                         <p>Reject Remark : {{ $product->crop_remark ?? 'N/A' }}</p>
                         @if($product->is_image_processed)
-                            <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'cropped']) }}">Download Cropped</a>
+                            <a class="btn btn-secondary btn-sm" href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'downloadImagesForProducts'], [$product->id, 'cropped']) }}">Download Cropped</a>
                         @endif
                         @if($originalMediaCount)
-                            <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'original']) }}">Download Original</a>
+                            <a class="btn btn-secondary btn-sm" href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'downloadImagesForProducts'], [$product->id, 'original']) }}">Download Original</a>
                         @endif
                         <hr>
                         <strong>References:</strong>
@@ -39,7 +39,7 @@
                     <td>
                         <strong>Dimension: {{$product->lmeasurement }} X {{ $product->hmeasurement }} X {{ $product->dmeasurement }}</strong>
                     <td>
-                        <form method="post" enctype="multipart/form-data" action="{{ action('Products\ManualCroppingController@update', $product->id) }}">
+                        <form method="post" enctype="multipart/form-data" action="{{ action([\App\Http\Controllers\Products\ManualCroppingController::class, 'update'], $product->id) }}">
                             @csrf
                             @method('PUT')
                             <div class="form-group">

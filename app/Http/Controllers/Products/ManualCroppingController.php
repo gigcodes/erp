@@ -85,7 +85,7 @@ class ManualCroppingController extends Controller
         $product = Product::find($id);
 
         if (! $product) {
-            return redirect()->action('Products\ManualCroppingController@index')->with('message', 'The product you were trying to open does not exist anymore.');
+            return redirect()->action([\App\Http\Controllers\Products\ManualCroppingController::class, 'index'])->with('message', 'The product you were trying to open does not exist anymore.');
         }
 
         $originalMediaCount = 0;
@@ -163,10 +163,10 @@ class ManualCroppingController extends Controller
             ->first();
 
         if (! $product) {
-            return redirect()->action('Products\ManualCroppingController@index')->with('message', 'There are no assigned products available for cropping anymore.');
+            return redirect()->action([\App\Http\Controllers\Products\ManualCroppingController::class, 'index'])->with('message', 'There are no assigned products available for cropping anymore.');
         }
 
-        return redirect()->action('Products\ManualCroppingController@show', $product->id)->with('message', 'The previous product has been sent for approval!');
+        return redirect()->action([\App\Http\Controllers\Products\ManualCroppingController::class, 'show'], $product->id)->with('message', 'The previous product has been sent for approval!');
     }
 
     private function deleteCroppedImages($product)

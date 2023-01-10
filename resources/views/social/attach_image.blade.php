@@ -11,8 +11,8 @@
         </div>
     @endif
     <div class="mt-5">
-        <h1><u>Add Images</u> (<a href="{{ action('SocialController@showSchedule', $id) }}">Back To Schedule</a>)</h1>
-        <form action="{{ action('SocialController@attachMedia', $id) }}" method="post">
+        <h1><u>Add Images</u> (<a href="{{ action([\App\Http\Controllers\SocialController::class, 'showSchedule'], $id) }}">Back To Schedule</a>)</h1>
+        <form action="{{ action([\App\Http\Controllers\SocialController::class, 'attachMedia'], $id) }}" method="post">
             @csrf
             <div class="row">
                 <h3 class="col-md-12">Previously Selected Images <input class="pull-right btn btn-lg btn-success" type="submit" name="save" value="Add Selected Images For Schedule"></h3>
