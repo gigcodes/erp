@@ -254,7 +254,7 @@
             searchDelay: 500,
             processing: true,
             serverSide: true,
-            sScrollX: true,
+            sScrollX: false,
             searching: false,
             targets: 'no-sort',
             bSort: false,

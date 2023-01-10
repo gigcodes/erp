@@ -6,6 +6,7 @@ use App\CsvTranslator;
 use App\CsvTranslatorHistory;
 use App\Exports\CsvTranslatorExport;
 use App\Imports\CsvTranslatorImport;
+use Illuminate\Http\Request;
 use Redirect;
 
 class CsvTranslatorController extends Controller
