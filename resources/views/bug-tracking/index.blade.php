@@ -206,7 +206,7 @@ table{border-collapse: collapse;}
 				<div class="col col-md-6">
 					<div class="row">					
 						<div class="pull-left" id="change_dropdown_div">
-								<span style="margin-top: 8px;">Change To :&nbsp;&nbsp;</span>
+								
 								<?php
 								$bug_status = request('bugstatus');
 								?>
@@ -218,7 +218,10 @@ table{border-collapse: collapse;}
 									<?php }
 									?>
 								</select>
-								&nbsp;&nbsp;&nbsp;		
+								&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-xs btn-change-status-bug">
+          <span class="glyphicon glyphicon-pencil"></span> Status&nbsp; 
+        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	
 								<?php
 								$assign_to_user = request('assign_to_user');
 								?>
@@ -229,7 +232,11 @@ table{border-collapse: collapse;}
 										<option value="{{$user->id}}">{{$user->name}} </option>
 									@endforeach
 								</select>
-								&nbsp;&nbsp;&nbsp;
+								&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-xs btn-change-assignee-bug">
+          <span class="glyphicon glyphicon-pencil"></span> Assignee&nbsp;
+        </button>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	
 								<?php
 								$bug_severity = request('bug_severity');
 								?>
@@ -241,6 +248,10 @@ table{border-collapse: collapse;}
 									<?php }
 									?>
 								</select>
+								&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-xs btn-change-severity-bug">
+          <span class="glyphicon glyphicon-pencil"></span> Severity&nbsp; 
+        </button> &nbsp;
 							
 						</div>
 					</div>
