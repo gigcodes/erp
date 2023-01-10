@@ -73,7 +73,7 @@
 				      	<th>Id</th>
 				        <th>Category</th>
 				        <?php foreach($storeWebsite as $sw) { ?>
-				        	<th class="Website-task" title="<?php echo $sw->website; ?>"><?php echo $sw->website; ?></th>
+				        	<th class="Website-task" title="<?php echo $sw->title; ?>"><?php echo $sw->title; ?></th>
 				        <?php } ?>	
 				      </tr>
 				    </thead>
@@ -90,13 +90,23 @@
 								$catName = "";
 								$remote_id = "";
 							?>
-							@forelse ($appliedQ as $item)
-								@if($item->category_id == $category->id && $item->store_website_id == $sw->id)
-									@php $checked = "checked"; $catName = $item->category_name; @endphp
-									@php $remote_id = $item->remote_id  @endphp
-								@endif
-							@empty
-							@endforelse
+
+							  @if(isset($resultSw[$sw->id]) && isset($resultSw[$sw->id]['category'][$category->id]))
+								  @if($resultSw[$sw->id]['sw_id'] == $sw->id && $resultSw[$sw->id]['category'][$category->id]['id'] == $category->id)
+									  @php
+										$checked = "checked";
+										$catName = $category->title;
+										$remote_id = $resultSw[$sw->id]['category'][$category->id]['remote_id']
+									  @endphp
+								  @endif
+							  @endif
+{{--							  @forelse ($appliedQ as $item)--}}
+{{--								@if($item->category_id == $category->id && $item->store_website_id == $sw->id)--}}
+{{--									@php $checked = "checked"; $catName = $item->category_name; @endphp--}}
+{{--									@php $remote_id = $item->remote_id  @endphp--}}
+{{--								@endif--}}
+{{--							@empty--}}
+{{--							@endforelse--}}
 							<td>
 								<div class=" d-flex w-100 custom-checkbox">
 									<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" <?php echo $checked; ?> class="push-category " type="checkbox" name="category_website">

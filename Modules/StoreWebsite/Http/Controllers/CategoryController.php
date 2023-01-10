@@ -348,38 +348,45 @@ class CategoryController extends Controller
         if ($request->category_id != null) {
             $categories = $categories->where('id', $request->category_id);
         }
+        $categories = $categories->select('id', 'title')->orderBy('id');
+        $categories = $categories->paginate(25);
 
-        $categories = $categories->paginate(10);
+        $selectedCategories = [];
+
+//        foreach ($categories as $category) {
+//            $selectedCategories[] = $category->id;
+//        }
 
         $storeWebsite = StoreWebsite::query();
         if ($request->website_id != null) {
             $storeWebsite = $storeWebsite->where('id', $request->website_id);
         }
-        $storeWebsite = $storeWebsite->get();
+        $storeWebsite = $storeWebsite->select('id', 'title')->get();
 
         $appliedQ = StoreWebsiteCategory::all();
 
         $result = DB::table('store_websites as SW')
             ->leftJoin('store_website_categories as SWC', 'SW.id', '=', 'SWC.store_website_id')
             ->leftJoin('categories as C', 'C.id', '=', 'SWC.category_id')
-            ->select('SW.id as sw_id', 'SW.title as sw_title', 'C.id', 'C.title', 'SWC.store_website_id', 'SWC.category_id')
+//            ->whereIn('C.id', $selectedCategories)
+            ->select('SW.id as sw_id', 'SW.title as sw_title', 'C.id as c_id', 'C.title as c_title', 'SWC.store_website_id', 'SWC.category_id', 'SWC.remote_id')
             ->orderBy('SW.id', 'asc')
+//            ->limit(1)
             ->get();
 
         $resultSw = [];
         foreach ($result as $row) {
             $data[$row->sw_id]['sw_id'] = $row->sw_id;
             $data[$row->sw_id]['sw_title'] = $row->sw_title;
-            $data[$row->sw_id]['category'][$row->id]['id'] = $row->id;
-            $data[$row->sw_id]['category'][$row->id]['title'] = $row->title;
-            $data[$row->sw_id]['category'][$row->id]['category_id'] = $row->category_id;
+            $data[$row->sw_id]['category'][$row->c_id]['id'] = $row->c_id;
+            $data[$row->sw_id]['category'][$row->c_id]['title'] = $row->c_title;
+            $data[$row->sw_id]['category'][$row->c_id]['category_id'] = $row->category_id;
+            $data[$row->sw_id]['category'][$row->c_id]['remote_id'] = $row->remote_id;
 
             $resultSw = $data;
         }
-
-        dd($resultSw);exit;
-
-        return view('storewebsite::category.index', compact(['title', 'allcategories', 'allstoreWebsite', 'categories', 'storeWebsite', 'appliedQ']));
+//        dd($resultSw);
+        return view('storewebsite::category.index', compact(['title', 'allcategories', 'allstoreWebsite', 'categories', 'storeWebsite', 'appliedQ', 'resultSw']));
     }
 
     public function logadd($log_case_id, $category_id, $store_id, $log_detail, $log_msg)
