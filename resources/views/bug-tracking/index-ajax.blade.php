@@ -6,7 +6,7 @@
 
 	?>
 			      <tr style="background-color:<?php echo  $prop->bug_color;  ?>">
-			      	<td class='break'><?php echo $prop->id; ?></td>
+			      	<td><input type="checkbox" id="chkBugChange<?php echo $prop->id; ?>"  name="chkBugNameChange[]" class="chkBugNameClsChange"  value="<?php echo $prop->id; ?>"> </br> <?php echo $prop->id; ?></td>
 			      	<td><?php echo  $prop->created_at_date;  ?></td>
 			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="<?php echo  $prop->id;  ?>"><span class="show-short-summary-<?php echo $prop->id; ?>" onclick="copySumText()"><?php echo  $prop->summary_short  ?></span>
                         <span class="show-full-summary-<?php echo  $prop->id  ?> hidden" ><?php echo  $prop->summary;  ?></span>

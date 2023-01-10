@@ -25,7 +25,7 @@
 		    	{{props data}}
 				
 			      <tr style="background-color:{{:prop.bug_color}}">
-			      	<td class='break'>{{:prop.id}}</td>
+			      	<td><input type="checkbox" id="chkBugChange{{>prop.id}}" name="chkBugNameChange[]" class="chkBugNameClsChange"  value="{{>prop.id}}"></br> {{:prop.id}}</td>
 			      	<td>{{:prop.created_at_date}}</td>
 			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="{{:prop.id}}" data-toggle="tooltip"><span class="show-short-summary-{{:prop.id}}" onclick="copySumText()">{{:prop.summary_short}}</span>
                         <span class="show-full-summary-{{:prop.id}} hidden" >{{:prop.summary}}</span>
