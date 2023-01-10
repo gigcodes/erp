@@ -31,14 +31,14 @@
 					  		<div class="col">
 					  			<div class="form-group">
 								   <select name="category_id" class="form-control" placholder="Categories:" style="width:238px!important">
-								   	@foreach($allcategories as $value)
+								   	@foreach($allCategories as $value)
 								   	<option value="{{ $value->id }}" <?php echo (isset($_GET['category_id'])&&($_GET['category_id']==$value->id)) ?'selected' : ""; ?>  >{{ $value->title }}</option>
 								   	@endforeach
 								   </select> 	
 							  	</div>
 							  	<div class="form-group">
 								   <select name="website_id" class="form-control" placholder="Websites:">
-								   	@foreach($allstoreWebsite as $value)
+								   	@foreach($allStoreWebsite as $value)
 								   	<option value="{{ $value->id }}"  <?php echo (isset($_GET['website_id'])&&($_GET['website_id']==$value->id)) ?'selected' : ""; ?>>{{ $value->website }}</option>
 								   	@endforeach
 								   </select> 

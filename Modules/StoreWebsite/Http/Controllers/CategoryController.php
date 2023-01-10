@@ -337,8 +337,8 @@ class CategoryController extends Controller
         ini_set('max_execution_time', 1500);
         $title = 'Store Category';
 
-        $allcategories = Category::query()->get();
-        $allstoreWebsite = StoreWebsite::query()->get();
+        $allCategories = Category::query()->get();
+        $allStoreWebsite = StoreWebsite::query()->get();
 
         $categories = Category::query();
 
@@ -353,9 +353,9 @@ class CategoryController extends Controller
 
         $selectedCategories = [];
 
-//        foreach ($categories as $category) {
-//            $selectedCategories[] = $category->id;
-//        }
+        foreach ($categories as $category) {
+            $selectedCategories[] = $category->id;
+        }
 
         $storeWebsite = StoreWebsite::query();
         if ($request->website_id != null) {
@@ -363,15 +363,12 @@ class CategoryController extends Controller
         }
         $storeWebsite = $storeWebsite->select('id', 'title')->get();
 
-        $appliedQ = StoreWebsiteCategory::all();
-
         $result = DB::table('store_websites as SW')
             ->leftJoin('store_website_categories as SWC', 'SW.id', '=', 'SWC.store_website_id')
             ->leftJoin('categories as C', 'C.id', '=', 'SWC.category_id')
-//            ->whereIn('C.id', $selectedCategories)
+            ->whereIn('C.id', $selectedCategories)
             ->select('SW.id as sw_id', 'SW.title as sw_title', 'C.id as c_id', 'C.title as c_title', 'SWC.store_website_id', 'SWC.category_id', 'SWC.remote_id')
             ->orderBy('SW.id', 'asc')
-//            ->limit(1)
             ->get();
 
         $resultSw = [];
@@ -385,8 +382,8 @@ class CategoryController extends Controller
 
             $resultSw = $data;
         }
-//        dd($resultSw);
-        return view('storewebsite::category.index', compact(['title', 'allcategories', 'allstoreWebsite', 'categories', 'storeWebsite', 'appliedQ', 'resultSw']));
+
+        return view('storewebsite::category.index', compact(['title', 'allCategories', 'allStoreWebsite', 'categories', 'storeWebsite', 'resultSw']));
     }
 
     public function logadd($log_case_id, $category_id, $store_id, $log_detail, $log_msg)
