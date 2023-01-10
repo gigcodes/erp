@@ -2283,15 +2283,20 @@ table {
 }
 
 #quick-sidebars .fa-2x {
-  font-size: 1.2em;
+  font-size: 14px;
   background: #dddddd9c;
   padding: 5px;
   border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#quick-sidebars .fa-stack {
-  height: 1.7em;
-}
+/*#quick-sidebars .fa-stack {*/
+/*  height: 1.7em;*/
+/*}*/
 
 
 
@@ -2485,12 +2490,49 @@ table {
   color: #ffffff !important;
 }
 
-.quick-description {
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  width: 100%;
-  max-width: 140px;
-  height: 1.2em;
-  white-space: nowrap;
+.zabbix .modal-body{
+  max-height: 500px;
+  overflow-y: scroll;
+}
+#zabbix-table{
+  width: 100% !important;
+}
+.singleline-flex{
+  display: flex;
+  justify-content: space-between;
+  column-gap: 5px;
+  align-items: flex-start;
+}
+.zabbix  .modal-body{
+  padding: 0;
+}
+.zabbix  .modal-table{
+  position: sticky;
+  top:0;
+  background: rgb(191 184 184);
+}
+#zabbix-table_wrapper{
+  overflow: auto;
+}
+#problem-table{
+  width: 100% !important;
+}
+.btnsearchSubmit{
+  display: inline-block;
+  width: 10%
+}
+
+.select-multiple-checkbox label.checkbox {
+  display: flex;
+  justify-content: start;
+}
+
+.select-multiple-checkbox label.checkbox input {
+  margin-right: 10px !important;
+  box-shadow: none !important;
+}
+
+.attrbtnPage{
+	display: inline-block;
+  width: 10%
 }

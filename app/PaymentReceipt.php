@@ -7,11 +7,14 @@ namespace App;
  */
 use App\Events\PaymentReceiptCreated;
 use App\Events\PaymentReceiptUpdated;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
 
 class PaymentReceipt extends Model
 {
+    use HasFactory;
+
     /**
      * @var string
      *

@@ -23,7 +23,7 @@
         			    <input type="hidden" name="id" value="{{$allresources['id']}}">
         			    <button type="submit" name="button_type" value="delete" class="pull-right btn btn-image"><img src="/images/delete.png" /></button>
         			    @if($allresources['is_pending'] == 0)
-        			    	 <a href="{{ action('ResourceImgController@index')}}" class="pull-right btn btn-image"><i class="fa fa-reply"></i>
+        			    	 <a href="{{ action([\App\Http\Controllers\ResourceImgController::class, 'index'])}}" class="pull-right btn btn-image"><i class="fa fa-reply"></i>
         			    @else
         			     	<a href="{{ url('resourceimg/pending/1')}}" class="pull-right btn btn-image"><i class="fa fa-reply"></i>
         			    @endif

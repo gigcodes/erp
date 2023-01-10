@@ -25,8 +25,8 @@
                       <div class="form-group username mb-0">
                           <input type="text" name="username" placeholder="Search User Name" class="form-control" value="{{ request('username') }}" list="username-lists">
                         <datalist id="username-lists">
-                          @foreach($emailAddress as $emailAdd)
-                            <option value="{{$emailAdd->username}}">
+                          @foreach($userEmails as $emailAdd)
+                            <option value="{{$emailAdd['username']}}">
                           @endforeach
                         </datalist>
                       </div>
@@ -56,6 +56,7 @@
                             <button type="submit" class="btn btn-xs mt-1 ml-3">
                               <i class="fa fa-filter"></i>
                             </button>
+                          <a href="/email-addresses" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                             <button class="btn btn-xs btn-secondary error-email-history ml-3">View Errors</button>
                             <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#emailAddressModal">
                               <i class="fa fa-plus"></i>

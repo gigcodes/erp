@@ -17,10 +17,8 @@ class ScheduleGroup extends Model
      * @SWG\Property(property="timestamps",type="datetime")
      */
     protected $casts = [
-        'images' => 'array',
-    ];
-
-    protected $dates = ['scheduled_for'];
+        'scheduled_for' => 'datetime',
+        'images' => 'array',    ];
 
     public $timestamps = false;
 

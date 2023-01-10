@@ -47,10 +47,6 @@
             width: 110px !important;
         }
 
-        #csvData-table {
-            width: 100% !important;
-        }
-
         @media (max-width: 1280px) {
             table.table {
                 width: 0px;
@@ -184,7 +180,7 @@
                 <form action="#"  class="dropzone" id="my-dropzone">
                     @csrf
                 </form>
-                <div class="alert alert-success d-none successalert">
+                <div class="alert alert-success d-none success-alert">
                 </div>
             </div>
             <div class="modal-footer">
@@ -234,9 +230,9 @@
             url: "{{ route('csvTranslator.uploadFile') }}"
         });
         myDropzone.on('complete', function() {
-            $(".successalert").removeClass('d-none');
-            $(".successalert").addClass('mt-2');
-            $(".successalert").text('Successfully Imported');
+            $(".success-alert").removeClass('d-none');
+            $(".success-alert").addClass('mt-2');
+            $(".success-alert").text('Successfully Imported');
             setTimeout(function() {
                 $("#csv_import_model").modal('hide');
                 window.location.reload();
