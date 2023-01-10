@@ -72,7 +72,6 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\CroppedImageReferenceController;
-use App\Http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\CustomerCategoryController;
 use App\Http\Controllers\CustomerCharityController;
 use App\Http\Controllers\CustomerController;
