@@ -43,7 +43,7 @@
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </button>
                     <button type="button" onclick="horizonRun('horizon:clear')" class="btn btn-secondary" title="Horizon clear">
-                        <i class="fa fa-times" aria-hidden="true"></i>
+                        <i class="fa fa-eraser" aria-hidden="true"></i>
                     </button>
                 </div>
                 <div class="col-md-2 ml-auto text-right">
