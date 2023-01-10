@@ -72,6 +72,7 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\CroppedImageReferenceController;
+use App\Http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\CustomerCategoryController;
 use App\Http\Controllers\CustomerCharityController;
 use App\Http\Controllers\CustomerController;
@@ -440,6 +441,13 @@ Route::middleware('auth')->group(function () {
     Route::post('redis-jobs-clearQue/{id?}', [RedisjobController::class, 'clearQue'])->name('redis.clear_que');
     Route::post('redis-jobs-restart_management/{id?}', [RedisjobController::class, 'restartManagement'])->name('redis.restart_management');
 });
+
+/** CSV Translator */
+Route::middleware('auth')->group(function () {
+    Route::get('/csv-translator', [CsvTranslatorController::class, 'index'])->name('csvTranslator.list');
+    Route::post('/csv-translator/upload', [CsvTranslatorController::class, 'upload'])->name('csvTranslator.uploadFile');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', [MagentoSettingsController::class, 'namehistrory']);
