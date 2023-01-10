@@ -2,16 +2,16 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
 use App\CsvTranslator;
+use Maatwebsite\Excel\Concerns\FromCollection;
 
 class CsvTranslatorExport implements FromCollection
 {
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
-      return CsvTranslator::select('*')->get();
+        return CsvTranslator::select('*')->get();
     }
 }
