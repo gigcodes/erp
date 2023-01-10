@@ -71,8 +71,8 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CourierController;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\CronController;
-use App\Http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\CroppedImageReferenceController;
+use App\Http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\CustomerCategoryController;
 use App\Http\Controllers\CustomerCharityController;
 use App\Http\Controllers\CustomerController;
@@ -444,10 +444,10 @@ Route::middleware('auth')->group(function () {
 
 /** CSV Translator */
 Route::middleware('auth')->group(function () {
-    Route::get('/csv-translator', [CsvTranslatorController::class,'index'])->name('csvTranslator.list');
-    Route::post('/csv-translator/upload', [CsvTranslatorController::class,'upload'])->name('csvTranslator.uploadFile');
-    Route::get('/csv-translator/export', [CsvTranslatorController::class,'export'])->name('csvTranslator.export');
-    Route::post('/csv-translator/update', [CsvTranslatorController::class,'update'])->name('csvTranslator.update');
+    Route::get('/csv-translator', [CsvTranslatorController::class, 'index'])->name('csvTranslator.list');
+    Route::post('/csv-translator/upload', [CsvTranslatorController::class, 'upload'])->name('csvTranslator.uploadFile');
+    Route::get('/csv-translator/export', [CsvTranslatorController::class, 'export'])->name('csvTranslator.export');
+    Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
 });
 
 /** Magento Settings */
