@@ -75,6 +75,7 @@ use App\Http\Controllers\CroppedImageReferenceController;
 use App\Http\Controllers\CustomerCategoryController;
 use App\Http\Controllers\CustomerCharityController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\DailyActivityController;
 use App\Http\Controllers\DailyCashFlowController;
 use App\Http\Controllers\DailyPlannerController;
