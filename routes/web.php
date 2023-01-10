@@ -2047,6 +2047,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/sendWhatsApp', [PasswordController::class, 'sendWhatsApp'])->name('password.sendwhatsapp');
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
+    Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
