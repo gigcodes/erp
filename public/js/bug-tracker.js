@@ -63,6 +63,10 @@ var page = {
             page.sendMessage(id,message);
             }
         });
+        page.config.bodyView.on("change", ".bug_type_in_row", function (e) {
+            e.preventDefault();
+           page.sendBugType($(this));
+        });
         page.config.bodyView.on("change", ".assign_to", function (e) {
             e.preventDefault();
            page.sendAssign($(this));
@@ -379,6 +383,21 @@ var page = {
         }
         this.sendAjax(_z, "saveMessage");
     },
+    sendBugType: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/change_bug_type",
+            method: "POST",
+            data: {
+                id: ele.data("id"),
+                bug_type: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveBugType");
+    },
     sendAssign: function (ele) {
         var _z = {
             url: this.config.baseUrl + "/assign_user",
@@ -560,6 +579,19 @@ var page = {
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
+        }
+    },
+    saveBugType: function (response) {
+        if (response.code == 200) {
+            $("#loading-image").hide();
+            // location.reload()
+            // page.loadFirst();
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+
+        } else {
+            // $("#loading-image").hide();
+            toastr["error"](response.error, "");
         }
     },
     saveAssign: function (response) {

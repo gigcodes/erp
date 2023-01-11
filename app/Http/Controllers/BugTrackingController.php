@@ -841,6 +841,27 @@ class BugTrackingController extends Controller
         );
     }
 
+    public function changeBugType(Request $request)
+    {
+        $bugTracker = BugTracker::where('id', $request->id)->first();       
+        $bugTracker->bug_type_id = $request->bug_type;
+        $bugTracker->save();
+
+        $data = [
+            'bug_type_id' => $bugTracker->bug_type_id,
+            'bug_id' => $bugTracker->id,
+            'updated_by' => \Auth::user()->id,
+        ];
+        BugTrackerHistory::create($data);       
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => $data,
+            ]
+        );
+    }
+
     public function assignUser(Request $request)
     {
         $bugTracker = BugTracker::where('id', $request->id)->first();
