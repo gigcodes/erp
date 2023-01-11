@@ -8,6 +8,9 @@
 	.preview-category input.form-control {
 	  width: auto;
 	}
+	.dropdown.bootstrap-select.show-tick.form-control {
+		min-width: 200px;
+	}
 </style>
 
 <div class="row" id="common-page-layout">
@@ -30,16 +33,16 @@
 		    			<form class="form-inline message-search-handler" method="get">
 					  		<div class="col">
 					  			<div class="form-group">
-								   <select name="category_id" class="form-control" placholder="Categories:" style="width:238px!important">
-								   	@foreach($allCategories as $value)
-								   	<option value="{{ $value->id }}" <?php echo (isset($_GET['category_id'])&&($_GET['category_id']==$value->id)) ?'selected' : ""; ?>  >{{ $value->title }}</option>
+								   <select name="category_id[]" class="form-control selectpicker" placholder="Categories:" multiple data-live-search="true">
+								   	@foreach($allCategories as $key => $value)
+								   	<option value="{{ $value->id }}" <?php echo (isset($_GET['category_id'])&& in_array($value->id,$_GET['category_id'])) ?'selected' : ""; ?>  >{{ $value->title }}</option>
 								   	@endforeach
 								   </select> 	
 							  	</div>
 							  	<div class="form-group">
-								   <select name="website_id" class="form-control" placholder="Websites:">
-								   	@foreach($allStoreWebsite as $value)
-								   	<option value="{{ $value->id }}"  <?php echo (isset($_GET['website_id'])&&($_GET['website_id']==$value->id)) ?'selected' : ""; ?>>{{ $value->website }}</option>
+								   <select name="website_id[]" class="form-control selectpicker" placholder="Websites:" multiple data-live-search="true">
+								   	@foreach($allStoreWebsite as $k => $value)
+								   	<option value="{{ $value->id }}"  <?php echo (isset($_GET['website_id'])&& in_array($value->id,$_GET['website_id'])) ?'selected' : ""; ?>>{{ $value->website }}</option>
 								   	@endforeach
 								   </select> 
 							  	</div>
@@ -49,7 +52,7 @@
 							  	<div class="form-group">
 							  		<label for="button">&nbsp;</label>
 							  		<button type="submit" style="display: inline-block;width: 10%; margin-top: -23px;" class="btn btn-sm btn-image btn-search-action">
-							  			<img src="/images/search.png" style="cursor: default;">
+							  			<img src="{{asset('/images/search.png')}}" style="cursor: default;">
 							  		</button>
 							  	</div>		
 					  		</div>
@@ -121,7 +124,7 @@
 					    <?php } ?>
 				    </tbody>
 				</table>
-				{!! $categories->links() !!}
+				<?php echo $categories->appends(request()->except('page'))->links(); ?>
 			</div>
 		</div>
 	</div>
@@ -168,6 +171,8 @@
 <script src="/js/jquery-ui.js"></script>
 
 <script>
+	$('.selectpicker').selectpicker();
+
 $(document).on('change', '.push-category', function() {
 	var catId = $(this).attr('data-category');
 	var swId = $(this).attr('data-sw');
