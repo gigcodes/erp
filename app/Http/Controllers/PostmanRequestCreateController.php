@@ -221,6 +221,7 @@ class PostmanRequestCreateController extends Controller
             $postman->controller_name = $request->controller_name;
             $postman->method_name = $request->method_name;
             $postman->remark = $request->remark;
+            $postman->end_point = $request->end_point;
             $postman->save();
 
             //History store
@@ -243,6 +244,7 @@ class PostmanRequestCreateController extends Controller
             $postmanH->tests = $request->tests;
             $postmanH->user_permission = ! empty($request->user_permission) ? implode(',', $request->user_permission).$created_user_permission : $created_user_permission;
             $postmanH->remark = $request->remark;
+            $postmanH->end_point = $request->end_point;
             $postmanH->save();
 
             if (is_array($request->request_url)) {

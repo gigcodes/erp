@@ -2827,6 +2827,9 @@ if (!empty($notifications)) {
                             </ul>
                             </li>
                             @endif
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                             </li>
@@ -2948,7 +2951,7 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource
                                             Center</a>
                                     </li>
-                                    @endif
+                                    @endif 
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>Product<span
@@ -2957,6 +2960,7 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                             </li>
+                                           
                                             <li class="nav-item dropdown">
 
                                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
@@ -3276,24 +3280,37 @@ if (!empty($notifications)) {
                             <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
                             @endif
                         </div>
+                        @php
+                        $todoCategories = \App\TodoCategory::get();
+                        @endphp
+                         <div class="form-group">
+                             <strong>Category:</strong>
+                             {{-- <input type="text" name="" class="form-control" value="{{ old('') }}" required> --}}
+                             <select name="todo_category_id" class="form-control">
+                             <option value="">Select Category</option>
+                                @foreach($todoCategories as $todoCategory)
+                                    <option value="{{$todoCategory->id}}" @if($todoCategory->id == old('todo_category_id')) selected @endif>{{$todoCategory->name}}</option>
+                                @endforeach
+                             </select>
+                             @if ($errors->has('status'))
+                                 <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                             @endif
+                         </div>
+                        @php
+                        $statuses = \App\TodoStatus::all()->toArray();
+                        @endphp
                         <div class="form-group">
                             <strong>Status:</strong>
-                            @php
-                            $statuses = App\TodoStatus::all()->toArray();
-                            @endphp
-                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}"
-                            required> --}}
-                            <select name="status" class="form-control" required="">
+                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
+                            <select name="status" class="form-control">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['id']}}" @if (old('status')==$status['id']) selected @endif>
-                                    {{$status['name']}}</option>
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             @if ($errors->has('status'))
-                            <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                                <div class="alert alert-danger">{{ $errors->first('status') }}</div>
                             @endif
                         </div>
-
                         <div class="form-group">
                             <strong>Date:</strong>
 

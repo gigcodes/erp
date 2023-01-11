@@ -76,7 +76,7 @@ var page = {
             page.sendStatus($(this));
         });
 
-        page.config.bodyView.on("change", "#change_assign_to_top", function (e) {
+        page.config.bodyView.on("click", ".btn-change-assignee-bug", function (e) {
             e.preventDefault();
             var values = new Array();			
 			$.each($("input[name='chkBugNameChange[]']:checked"), function() {
@@ -86,9 +86,13 @@ var page = {
                 toastr["error"]("Please select atleast 1 bug ");
                 return;
             }
-           page.sendAssignBulk($(this),values);
+            if($('#change_assign_to_top').val() ==''){
+                toastr["error"]("Please select assign to");
+                return;
+            }
+           page.sendAssignBulk($('#change_assign_to_top'),values);
         });
-        page.config.bodyView.on("change", "#change_bug_severity_top", function (e) {
+        page.config.bodyView.on("click", ".btn-change-severity-bug", function (e) {
             e.preventDefault();           
             var values = new Array();			
 			$.each($("input[name='chkBugNameChange[]']:checked"), function() {
@@ -98,9 +102,13 @@ var page = {
                 toastr["error"]("Please select atleast 1 bug ");
                 return;
             }
-            page.sendSeverityBulk($(this),values);
+            if($('#change_bug_severity_top').val() ==''){
+                toastr["error"]("Please select bug severity");
+                return;
+            }
+            page.sendSeverityBulk($('#change_bug_severity_top'),values);
         });
-        page.config.bodyView.on("change", "#change_bug_status_top", function (e) {
+        page.config.bodyView.on("click", ".btn-change-status-bug", function (e) {
             e.preventDefault();
             var values = new Array();			
 			$.each($("input[name='chkBugNameChange[]']:checked"), function() {
@@ -110,7 +118,11 @@ var page = {
                 toastr["error"]("Please select atleast 1 bug ");
                 return;
             }
-            page.sendStatusBulk($(this),values);
+            if($('#change_bug_status_top').val() ==''){
+                toastr["error"]("Please select bug status");
+                return;
+            }
+            page.sendStatusBulk($('#change_bug_status_top'),values);
         });
 
         // delete product templates

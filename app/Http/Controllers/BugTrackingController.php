@@ -1250,7 +1250,7 @@ class BugTrackingController extends Controller
     {
         $title = 'Bug Tracking Summary';
 
-        $bug_tracker = DB::select(DB::raw("SELECT bug_trackers.website as website_id, store_websites.website as website, store_websites.title as title, count(bug_trackers.id) as bug_count, GROUP_CONCAT(concat(bug_trackers.id,'-',bug_trackers.bug_severity_id)) as bug_ids  FROM bug_trackers left join store_websites on bug_trackers.website = store_websites.id where bug_trackers.website>0 AND bug_trackers.bug_status_id !=3 group by bug_trackers.website"));
+        $bug_tracker = DB::select(DB::raw("SELECT bug_trackers.website as website_id, store_websites.website as website, store_websites.title as title, count(bug_trackers.id) as bug_count, GROUP_CONCAT(concat(bug_trackers.id,'-',bug_trackers.bug_severity_id)) as bug_ids, GROUP_CONCAT(concat(bug_trackers.id,'-',bug_trackers.bug_status_id)) as bug_status_ids  FROM bug_trackers left join store_websites on bug_trackers.website = store_websites.id where bug_trackers.website>0  group by bug_trackers.website"));
 
         $arr = json_decode(json_encode($bug_tracker), true);
 
@@ -1258,6 +1258,9 @@ class BugTrackingController extends Controller
             for ($i = 0; $i < count($arr); $i++) {
                 $bug_ids = $arr[$i]['bug_ids'];
                 $bug_ids_arrays = explode(',', $bug_ids);
+
+                $bug_check_status_ids = $arr[$i]['bug_status_ids'];
+                $bug_check_status_arrays = explode(',', $bug_check_status_ids);
 
                 $critical_array = [];
                 $high_array = [];
@@ -1268,7 +1271,9 @@ class BugTrackingController extends Controller
                     for ($j = 0; $j < count($bug_ids_arrays); $j++) {
                         $single_bug_array = explode('-', $bug_ids_arrays[$j]);
 
-                        if (count($single_bug_array) == 2) {
+                        $single_bug_status_array = explode('-', $bug_check_status_arrays[$j]);
+
+                        if (count($single_bug_array) == 2 && $single_bug_status_array[1] != '3') {
                             if ($single_bug_array[1] == '1') {
                                 $critical_array[] = $single_bug_array[0];
                             } elseif ($single_bug_array[1] == '2') {
@@ -1286,6 +1291,71 @@ class BugTrackingController extends Controller
                 $arr[$i]['high'] = count($high_array);
                 $arr[$i]['medium'] = count($medium_array);
                 $arr[$i]['low'] = count($low_array);
+
+                // Status of bug ids starts
+
+                $bug_status_ids = $arr[$i]['bug_status_ids'];
+                $bug_status_ids_arrays = explode(',', $bug_status_ids);
+
+                $new_status_array = [];
+                $open_status_array = [];
+                $close_status_array = [];
+                $intest_status_array = [];
+                $bug_status_array = [];
+                $inprogress_status_array = [];
+                $completed_status_array = [];
+                $discussing_status_array = [];
+                $deployed_status_array = [];
+                $discusswithlead_status_array = [];
+                $unresolved_status_array = [];
+
+                $arr[$i]['bug_ids'];
+
+                if (count($bug_status_ids_arrays) > 0) {
+                    for ($j = 0; $j < count($bug_status_ids_arrays); $j++) {
+                        $single_bug_array = explode('-', $bug_status_ids_arrays[$j]);
+
+                        if (count($single_bug_array) == 2) {
+                            if ($single_bug_array[1] == '1') {
+                                $new_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '2') {
+                                $open_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '3') {
+                                $close_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '4') {
+                                $intest_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '5') {
+                                $bug_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '6' || $single_bug_array[1] == '11') {
+                                $inprogress_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '7') {
+                                $completed_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '8') {
+                                $discussing_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '9') {
+                                $deployed_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '10') {
+                                $discusswithlead_status_array[] = $single_bug_array[0];
+                            } elseif ($single_bug_array[1] == '12') {
+                                $unresolved_status_array[] = $single_bug_array[0];
+                            }
+                        }
+                    }
+                }
+
+                $arr_status[$i]['new'] = count($new_status_array);
+                $arr_status[$i]['open'] = count($open_status_array);
+                $arr_status[$i]['close'] = count($close_status_array);
+                $arr_status[$i]['intest'] = count($intest_status_array);
+                $arr_status[$i]['bug'] = count($bug_status_array);
+                $arr_status[$i]['inprogress'] = count($inprogress_status_array);
+                $arr_status[$i]['completed'] = count($completed_status_array);
+                $arr_status[$i]['discussing'] = count($discussing_status_array);
+                $arr_status[$i]['deployed'] = count($deployed_status_array);
+                $arr_status[$i]['discusswithlead'] = count($discusswithlead_status_array);
+                $arr_status[$i]['unresolved'] = count($unresolved_status_array);
+
+                // Status of bug ids ends
             }
         }
 
@@ -1293,6 +1363,7 @@ class BugTrackingController extends Controller
             'bug-tracking.website', [
                 'title' => $title,
                 'bug_tracker' => $arr,
+                'bug_status_tracker' => $arr_status,
 
             ]
         );
@@ -1302,13 +1373,27 @@ class BugTrackingController extends Controller
     {
         $serverity_id = 0;
         $bug_id = 0;
+        $statusid = 0;
         if ($request->servid) {
             $serverity_id = $request->servid;
+        }
+        if ($request->statusid) {
+            $statusid = $request->statusid;
+        }
+        if ($request->type == 'severity') {
+            $type = 'severity';
+        } else {
+            $type = 'status';
         }
         if ($request->id) {
             $bug_id = $request->id;
         }
-        $bugTracker = BugTracker::where('website', $bug_id)->where('bug_severity_id', $serverity_id)->where('bug_status_id', '!=', 3)->orderBy('id', 'desc')->get();
+
+        if ($type == 'severity') {
+            $bugTracker = BugTracker::where('website', $bug_id)->where('bug_severity_id', $serverity_id)->where('bug_status_id', '!=', 3)->orderBy('id', 'desc')->get();
+        } else {
+            $bugTracker = BugTracker::where('website', $bug_id)->where('bug_status_id', $statusid)->orderBy('id', 'desc')->get();
+        }
 
         $bugTracker = $bugTracker->map(
             function ($bug) {
@@ -1317,6 +1402,7 @@ class BugTrackingController extends Controller
                 $bug->summary_short = Str::limit($bug->summary, 40, '..');
                 $bug->bug_status_id = BugStatus::where('id', $bug->bug_status_id)->value('name');
                 $bug->assign_to = User::where('id', $bug->assign_to)->value('name');
+                $bug->bug_severity_id = BugSeverity::where('id', $bug->bug_severity_id)->value('name');
 
                 return $bug;
             }

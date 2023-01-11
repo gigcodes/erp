@@ -75,6 +75,7 @@ use App\Http\Controllers\CroppedImageReferenceController;
 use App\Http\Controllers\CustomerCategoryController;
 use App\Http\Controllers\CustomerCharityController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\DailyActivityController;
 use App\Http\Controllers\DailyCashFlowController;
 use App\Http\Controllers\DailyPlannerController;
@@ -347,7 +348,6 @@ Route::get('/zabbix', [ZabbixController::class, 'index']);
 Route::get('/zabbix/problems', [ZabbixController::class, 'problems'])->name('zabbix.problem');
 Route::get('/zabbix/history', [ZabbixController::class, 'history'])->name('zabbix.show');
 
-
 Route::get('/test/testPrice', [TmpTaskController::class, 'testEmail']);
 Route::get('/memory', [MemoryUsesController::class, 'index'])->name('memory.index');
 Route::post('/memory/thresold-update', [MemoryUsesController::class, 'updateThresoldLimit'])->name('update.thresold-limit');
@@ -442,6 +442,15 @@ Route::middleware('auth')->group(function () {
     Route::post('redis-jobs-clearQue/{id?}', [RedisjobController::class, 'clearQue'])->name('redis.clear_que');
     Route::post('redis-jobs-restart_management/{id?}', [RedisjobController::class, 'restartManagement'])->name('redis.restart_management');
 });
+
+/** CSV Translator */
+Route::middleware('auth')->group(function () {
+    Route::get('/csv-translator', [CsvTranslatorController::class, 'index'])->name('csvTranslator.list');
+    Route::post('/csv-translator/upload', [CsvTranslatorController::class, 'upload'])->name('csvTranslator.uploadFile');
+    Route::get('/csv-translator/export', [CsvTranslatorController::class, 'export'])->name('csvTranslator.export');
+    Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', [MagentoSettingsController::class, 'namehistrory']);
@@ -1314,6 +1323,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 
     Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder']);
+    Route::post('task/statuscolor', [TaskModuleController::class, 'statuscolor'])->name('task.statuscolor');
 
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');
     Route::get('task/categories', [TaskModuleController::class, 'getTaskCategories'])->name('task.categories');
@@ -2053,6 +2063,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/sendWhatsApp', [PasswordController::class, 'sendWhatsApp'])->name('password.sendwhatsapp');
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
+    Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
@@ -4457,6 +4468,8 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/remark/history', [TodoListController::class, 'getRemarkHistory'])->name('todolist.remark.history');
     Route::post('/status/store', [TodoListController::class, 'storeStatus'])->name('todolist.status.store');
     Route::post('/status/update', [TodoListController::class, 'statusUpdate'])->name('todolist.status.update');
+    Route::post('/category/store', [TodoListController::class, 'storeTodoCategory'])->name('todolist.category.store');
+    Route::post('/category/update', [TodoListController::class, 'todoCategoryUpdate'])->name('todolist.category.update');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
