@@ -89,7 +89,7 @@
     <a class="btn btn-info btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
 </div>
 <div class="table-responsive mt-3" style="margin-top:20px;">
-    <table class="table table-bordered text-wrap" style="border: 1px solid #ddd;" id="csvData-table">
+    <table class="table table-bordered text-wrap csvData-table" style="border: 1px solid #ddd;" id="csvData-table">
         <thead>
             <tr>
                 <th>Id</th>

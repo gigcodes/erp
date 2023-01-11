@@ -2537,6 +2537,6 @@ table {
   width: 10%
 }
 
-#csvData-table{
+.csvData-table{
   width:100% !important;
 } 
