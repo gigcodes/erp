@@ -14,7 +14,14 @@
              <td>{{ $todolist->title ?? '' }}</td>
              <td>{{ $todolist->subject ?? '' }}</td>
               {{-- <td>{{ $todolist->username->name ?? '' }}</td> --}}
-
+             <td>
+                <select name="status" id="status" class="form-control" onchange="todoCategoryChange({{$todolist->id}}, this.value)" data-id="{{$todolist->id}}">
+                    <option>--Select--</option>
+                    @foreach ($todoCategories as $todoCategory )
+                       <option value="{{$todoCategory->id}}" @if ($todolist->todo_category_id == $todoCategory->id) selected @endif>{{$todoCategory->name}}</option>
+                    @endforeach
+                </select>
+              </td>
               <td>
                 <select name="status" id="status" class="form-control" onchange="statusChange({{$todolist->id}}, this.value)" data-id="{{$todolist->id}}">
                   <option>--Select--</option>  

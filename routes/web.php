@@ -4467,6 +4467,8 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/remark/history', [TodoListController::class, 'getRemarkHistory'])->name('todolist.remark.history');
     Route::post('/status/store', [TodoListController::class, 'storeStatus'])->name('todolist.status.store');
     Route::post('/status/update', [TodoListController::class, 'statusUpdate'])->name('todolist.status.update');
+    Route::post('/category/store', [TodoListController::class, 'storeTodoCategory'])->name('todolist.category.store');
+    Route::post('/category/update', [TodoListController::class, 'todoCategoryUpdate'])->name('todolist.category.update');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
