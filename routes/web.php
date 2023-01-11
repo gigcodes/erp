@@ -75,6 +75,7 @@ use App\Http\Controllers\CroppedImageReferenceController;
 use App\Http\Controllers\CustomerCategoryController;
 use App\Http\Controllers\CustomerCharityController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\DailyActivityController;
 use App\Http\Controllers\DailyCashFlowController;
 use App\Http\Controllers\DailyPlannerController;
@@ -440,6 +441,15 @@ Route::middleware('auth')->group(function () {
     Route::post('redis-jobs-clearQue/{id?}', [RedisjobController::class, 'clearQue'])->name('redis.clear_que');
     Route::post('redis-jobs-restart_management/{id?}', [RedisjobController::class, 'restartManagement'])->name('redis.restart_management');
 });
+
+/** CSV Translator */
+Route::middleware('auth')->group(function () {
+    Route::get('/csv-translator', [CsvTranslatorController::class, 'index'])->name('csvTranslator.list');
+    Route::post('/csv-translator/upload', [CsvTranslatorController::class, 'upload'])->name('csvTranslator.uploadFile');
+    Route::get('/csv-translator/export', [CsvTranslatorController::class, 'export'])->name('csvTranslator.export');
+    Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', [MagentoSettingsController::class, 'namehistrory']);
@@ -683,6 +693,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('products/listing', [ProductController::class, 'listing'])->name('products.listing');
     Route::get('products/listing/final', [ProductController::class, 'approvedListing'])->name('products.listing.approved');
     Route::get('products/listing/conditions-check', [ProductController::class, 'magentoConditionsCheck'])->name('products.magentoConditionsCheck');
+    Route::post('products/listing/autocompleteForFilter', [ProductController::class, 'autocompleteForFilter'])->name('products.autocompleteForFilter');
+
     Route::get('products/listing/conditions-check-logs/{llm_id}', [ProductController::class, 'magentoConditionsCheckLogs'])->name('products.magentoConditionsCheckLogs');
     Route::get('products/push/magento/conditions', [ProductController::class, 'pushToMagentoConditions'])->name('products.push.conditions');
     Route::get('products/conditions/status/update', [ProductController::class, 'updateConditionStatus'])->name('products.push.condition.update');
@@ -1040,6 +1052,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/status/fetch', [OrderController::class, 'viewFetchStatus']);
         Route::post('/status/fetch', [OrderController::class, 'fetchStatus'])->name('store-website.fetch.status');
         Route::get('/status/fetchMasterStatus/{id}', [OrderController::class, 'fetchMasterStatus']);
+        Route::get('/status/history', [OrderController::class, 'statusHistory']);
     });
 
     //plesk
@@ -1309,6 +1322,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 
     Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder']);
+    Route::post('task/statuscolor', [TaskModuleController::class, 'statuscolor'])->name('task.statuscolor');
 
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');
     Route::get('task/categories', [TaskModuleController::class, 'getTaskCategories'])->name('task.categories');
@@ -1881,6 +1895,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('development/change-user', [DevelopmentController::class, 'changeUserStore'])->name('development.changeuser.store');
 
     Route::get('development/summarylist', [DevelopmentController::class, 'summaryList'])->name('development.summarylist');
+    Route::post('development/statuscolor', [DevelopmentController::class, 'statuscolor'])->name('development.statuscolor');
     Route::get('development/flagtask', [DevelopmentController::class, 'flagtask'])->name('development.flagtask');
     Route::post('development/gettasktimemessage', [DevelopmentController::class, 'gettasktimemessage'])->name('development.gettasktimemessage');
     Route::post('development/getlogtasktimemessage', [DevelopmentController::class, 'getlogtasktimemessage'])->name('development.getlogtasktimemessage');
@@ -2047,6 +2062,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/sendWhatsApp', [PasswordController::class, 'sendWhatsApp'])->name('password.sendwhatsapp');
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
+    Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
@@ -2558,6 +2574,7 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+Route::post('livechat/statuscolor', [LiveChatController::class, 'statuscolor'])->name('livechat.statuscolor');
 Route::post('tickets/email-send', [LiveChatController::class, 'sendEmail'])->name('tickets.email.send');
 Route::post('tickets/assign-ticket', [LiveChatController::class, 'AssignTicket'])->name('tickets.assign');
 Route::post('tickets/add-ticket-status', [LiveChatController::class, 'TicketStatus'])->name('tickets.add.status');
@@ -2672,17 +2689,25 @@ Route::middleware('auth')->group(function () {
     Route::post('bug-tracking/status_user', [BugTrackingController::class, 'statusUser'])->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', [BugTrackingController::class, 'sendMessage'])->name('bug-tracking.sendmessage');
     Route::get('bug-tracking/record-tracking-ajax', [BugTrackingController::class, 'recordTrackingAjax'])->name('bug-tracking.index_ajax');
+    Route::post('bug-tracking/assign_user_bulk', [BugTrackingController::class, 'assignUserBulk'])->name('bug-tracking.assign_user_bulk');
+    Route::post('bug-tracking/severity_user_bulk', [BugTrackingController::class, 'severityUserBulk'])->name('bug-tracking.severity_user_bulk');
+    Route::post('bug-tracking/status_user_bulk', [BugTrackingController::class, 'statusUserBulk'])->name('bug-tracking.status_user_bulk');
 
     Route::post('bug-tracking/status', [BugTrackingController::class, 'status'])->name('bug-tracking.status');
+    Route::post('bug-tracking/statuscolor', [BugTrackingController::class, 'statuscolor'])->name('bug-tracking.statuscolor');
     Route::post('bug-tracking/environment', [BugTrackingController::class, 'environment'])->name('bug-tracking.environment');
     Route::post('bug-tracking/type', [BugTrackingController::class, 'type'])->name('bug-tracking.type');
     Route::post('bug-tracking/severity', [BugTrackingController::class, 'severity'])->name('bug-tracking.severity');
     Route::get('bug-tracking/bug-history/{id}', [BugTrackingController::class, 'bugHistory'])->name('bug-tracking.bug-history');
     Route::get('bug-tracking/user-history/{id}', [BugTrackingController::class, 'userHistory'])->name('bug-tracking.user-history');
+    Route::get('bug-tracking/severity-history/{id}', [BugTrackingController::class, 'severityHistory'])->name('bug-tracking.severity-history');
+    Route::get('bug-tracking/website-history', [BugTrackingController::class, 'websiteHistory'])->name('bug-tracking.website-history');
     Route::get('bug-tracking/status-history/{id}', [BugTrackingController::class, 'statusHistory'])->name('bug-tracking.status-history');
     Route::get('bug-tracking/communicationData/{id}', [BugTrackingController::class, 'communicationData'])->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', [BugTrackingController::class, 'destroy']);
     Route::post('bug-tracking/websitelist', [BugTrackingController::class, 'getWebsiteList'])->name('bug-tracking.websitelist');
+    Route::get('bug-tracking/website', [BugTrackingController::class, 'website'])->name('bug-tracking.website');
+    Route::post('bug-tracking/checkbug', [BugTrackingController::class, 'checkbug'])->name('bug-tracking.checkbug');
     Route::get('bug-tracking/countdevtask/{id}', [BugTrackingController::class, 'taskCount']);
     Route::get('bug-trackinghistory', [BugTrackingController::class, 'getTrackedHistory'])->name('bug-tracking.history');
     Route::post('bug-tracking/hubstaff_task', [BugTrackingController::class, 'createHubstaffManualTask'])->name('bug-tracking.hubstaff_task');
@@ -4423,7 +4448,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/store', [VoucherCouponController::class, 'store'])->name('voucher.store');
     Route::post('/edit', [VoucherCouponController::class, 'edit'])->name('voucher.edit');
     Route::post('/update', [VoucherCouponController::class, 'update'])->name('voucher.update');
-    Route::post('/voucher/remark/{id}', [VoucherCouponController::class, 'update'])->name('voucher.store.remark');
+    Route::post('/voucher/remark/{id}', [VoucherCouponController::class, 'storeRemark'])->name('voucher.store.remark');
     Route::post('/voucher/delete', [VoucherCouponController::class, 'delete'])->name('voucher.coupon.delete');
     Route::post('/coupon/code/create', [VoucherCouponController::class, 'couponCodeCreate'])->name('voucher.code.create');
     Route::post('/coupon/code/list', [VoucherCouponController::class, 'couponCodeList'])->name('voucher.code.list');

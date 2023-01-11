@@ -1444,15 +1444,23 @@ class LiveChatController extends Controller
         $query = $query->select($selectArray);
 
         if ($request->ticket_id) {
-            $query = $query->where('ticket_id', $request->ticket_id);
+            $query = $query->whereIn('ticket_id', $request->ticket_id);
         }
 
         if ($request->users_id != '') {
-            $query = $query->where('assigned_to', $request->users_id);
+            $query = $query->whereIn('assigned_to', $request->users_id);
         }
 
         if ($request->term != '') {
-            $query = $query->where('tickets.name', 'LIKE', '%'.$request->term.'%')->orWhere('tickets.email', 'LIKE', '%'.$request->term.'%');
+            $query = $query->whereIn('tickets.name', $request->term);
+        }
+
+        if ($request->user_email != '') {
+            $query = $query->whereIn('tickets.email', $request->user_email);
+        }
+
+        if ($request->user_message != '') {
+            $query = $query->where('tickets.message', 'LIKE', '%'.$request->user_message.'%');
         }
 
         if ($request->search_country != '') {
@@ -1482,7 +1490,7 @@ class LiveChatController extends Controller
         }
 
         if ($request->status_id != '') {
-            $query = $query->where('status_id', $request->status_id);
+            $query = $query->whereIn('status_id', $request->status_id);
         }
 
         if ($request->date != '') {
@@ -1503,8 +1511,22 @@ class LiveChatController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
+        $taskstatus = TicketStatuses::get();
 
-        return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+        return view('livechat.tickets', compact('data', 'taskstatus'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = TicketStatuses::find($key);
+            $bugstatus->ticket_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function createTickets(Request $request)
