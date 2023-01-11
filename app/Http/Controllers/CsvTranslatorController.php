@@ -64,4 +64,9 @@ class CsvTranslatorController extends Controller
 
         return Redirect::back()->with(['success' => 'Successfully Updated']);
     }
+
+    public function history(Request $request){
+        $history = CsvTranslatorHistory::where('csv_translator_id',$request->id)->get();
+        return response()->json(['status'=>200,'data'=>$history]);
+    }
 }
