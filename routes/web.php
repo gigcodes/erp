@@ -1322,6 +1322,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 
     Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder']);
+    Route::post('task/statuscolor', [TaskModuleController::class, 'statuscolor'])->name('task.statuscolor');
 
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');
     Route::get('task/categories', [TaskModuleController::class, 'getTaskCategories'])->name('task.categories');
@@ -2061,6 +2062,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/sendWhatsApp', [PasswordController::class, 'sendWhatsApp'])->name('password.sendwhatsapp');
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
+    Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
@@ -4465,6 +4467,8 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/remark/history', [TodoListController::class, 'getRemarkHistory'])->name('todolist.remark.history');
     Route::post('/status/store', [TodoListController::class, 'storeStatus'])->name('todolist.status.store');
     Route::post('/status/update', [TodoListController::class, 'statusUpdate'])->name('todolist.status.update');
+    Route::post('/category/store', [TodoListController::class, 'storeTodoCategory'])->name('todolist.category.store');
+    Route::post('/category/update', [TodoListController::class, 'todoCategoryUpdate'])->name('todolist.category.update');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
