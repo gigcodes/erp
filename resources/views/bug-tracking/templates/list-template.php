@@ -30,7 +30,21 @@
 			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="{{:prop.id}}" data-toggle="tooltip"><span class="show-short-summary-{{:prop.id}}" onclick="copySumText()">{{:prop.summary_short}}</span>
                         <span class="show-full-summary-{{:prop.id}} hidden" >{{:prop.summary}}</span>
                     </td>
-			        <td class='break'  data-bug_type="{{:prop.bug_type_id_val}}">{{:prop.bug_type_id}}</td>
+			        <td class='break'  data-bug_type="{{:prop.bug_type_id_val}}">					
+					<?php if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
+						<select class='form-control bug_type_in_row'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
+							<option value="">Select BugType</option>											
+							<?php
+								foreach ($bugTypes as $bugtype) {
+									echo "<option {{if prop.bug_type_id_val == '".$bugtype->id."'}} selected {{/if}} value='".$bugtype->id."'>".$bugtype->name.'</option>';
+								}
+						?>
+						</select>
+					<?php } else { ?>
+					{{:prop.bug_type_id}}
+					<?php } ?>	
+					
+					</td>
 			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="{{:prop.id}}"  data-toggle="tooltip"><span class="show-short-Steps to reproduce-{{:prop.id}}">{{:prop.step_to_reproduce_short}}</span>
                         <span class="show-full-step_to_reproduce-{{:prop.id}} hidden" >{{:prop.step_to_reproduce}}</span>
                     </td>
@@ -86,7 +100,25 @@
 						</div>
 
 			        </td>
-			        <td class='break'>{{:prop.module_id}}</td>
+			        <td class='break'>	
+					<?php if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
+						<select class='form-control bug_module_in_row'  data-id="{{>prop.id}}" data-module="{{>prop.module_id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
+							<option value="">Select Module</option>											
+							<?php
+								foreach($filterCategories as  $filterCategory) {
+									?>
+
+									<?php
+									echo "<option data-val='".str_replace("'","",$filterCategory)."'  {{if prop.module_id == '".str_replace("'","",$filterCategory)."'}} selected {{/if}} value='".htmlentities($filterCategory)."'>".$filterCategory.'</option>';
+								}
+						?>
+						</select>
+					<?php } else { ?>
+					{{:prop.module_id}}
+					<?php } ?>	
+					
+									
+					</td>
 			        <td class='break'>
 			         <div style="margin-bottom:10px;width: 100%;">
                     <div class="d-flex">
