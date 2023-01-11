@@ -26,7 +26,6 @@ class CreateChangeCsvTranslatorColumnTable extends Migration
     public function down()
     {
         Schema::table('csv_translators', function (Blueprint $table) {
-
         });
     }
 }
