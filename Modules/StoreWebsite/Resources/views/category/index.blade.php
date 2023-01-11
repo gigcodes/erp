@@ -33,14 +33,14 @@
 		    			<form class="form-inline message-search-handler" method="get">
 					  		<div class="col">
 					  			<div class="form-group">
-								   <select name="category_id[]" class="form-control selectpicker" placholder="Categories:" multiple data-live-search="true">
+								   <select name="category_id[]" class="form-control selectpicker" placholder="Categories:" multiple data-live-search="true" data-none-selected-text>
 								   	@foreach($allCategories as $key => $value)
 								   	<option value="{{ $value->id }}" <?php echo (isset($_GET['category_id'])&& in_array($value->id,$_GET['category_id'])) ?'selected' : ""; ?>  >{{ $value->title }}</option>
 								   	@endforeach
 								   </select> 	
 							  	</div>
 							  	<div class="form-group">
-								   <select name="website_id[]" class="form-control selectpicker" placholder="Websites:" multiple data-live-search="true">
+								   <select name="website_id[]" class="form-control selectpicker2" placholder="Websites:" multiple data-live-search="true" data-none-selected-text>
 								   	@foreach($allStoreWebsite as $k => $value)
 								   	<option value="{{ $value->id }}"  <?php echo (isset($_GET['website_id'])&& in_array($value->id,$_GET['website_id'])) ?'selected' : ""; ?>>{{ $value->website }}</option>
 								   	@endforeach
@@ -53,6 +53,9 @@
 							  		<label for="button">&nbsp;</label>
 							  		<button type="submit" style="display: inline-block;width: 10%; margin-top: -23px;" class="btn btn-sm btn-image btn-search-action">
 							  			<img src="{{asset('/images/search.png')}}" style="cursor: default;">
+							  		</button>
+									<button type="button" style="display: inline-block; margin-top: -23px; margin-left: 15px;" id="btnReset" class="btn btn-secondary">
+										Clear
 							  		</button>
 							  	</div>		
 					  		</div>
@@ -171,7 +174,13 @@
 <script src="/js/jquery-ui.js"></script>
 
 <script>
-	$('.selectpicker').selectpicker();
+	$('.selectpicker').selectpicker({noneSelectedText : 'Choose a category'});
+	$('.selectpicker2').selectpicker({noneSelectedText : 'Choose a website'});
+
+	$("#btnReset").bind("click", function () {
+		$(".selectpicker").val('default').selectpicker("refresh");
+		$(".selectpicker2").val('default').selectpicker("refresh");
+	});
 
 $(document).on('change', '.push-category', function() {
 	var catId = $(this).attr('data-category');
