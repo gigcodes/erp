@@ -26,6 +26,7 @@ class AlterHostNameToProblems extends Migration
     public function down()
     {
         Schema::table('problems', function (Blueprint $table) {
+            $table->dropColumn('hostname');
         });
     }
 }
