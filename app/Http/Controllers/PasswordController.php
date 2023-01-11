@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ChatMessage;
 use App\Password;
 use App\PasswordHistory;
+use App\PasswordRemark;
 use App\Setting;
 use App\User;
 use Crypt;
@@ -60,19 +61,19 @@ class PasswordController extends Controller
         } else {
             $passwords = Password::latest()->paginate(Setting::get('pagination'));
         }
-
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('passwords.data', compact('passwords'))->render(),
                 'links' => (string) $passwords->render(),
             ], 200);
         }
-
         $users = User::orderBy('name', 'asc')->get();
+        $password_remark = PasswordRemark::get();
 
         return view('passwords.index', [
             'passwords' => $passwords,
             'users' => $users,
+            'password_remark' => $password_remark,
         ]);
     }
 
@@ -309,5 +310,46 @@ class PasswordController extends Controller
         }
 
         return $value;
+    }
+
+    public function passwordCreateGetRemark(Request $request)
+    {
+        try {
+            $msg = '';
+            if ($request->remark != '') {
+                PasswordRemark::create(
+                    [
+                        'password_id' => $request->password_id,
+                        'password_type' => $request->type,
+                        'updated_by' => \Auth::id(),
+                        'remark' => $request->remark,
+                    ]
+                );
+                $msg = ' Created and ';
+            }
+
+            $taskRemarkData = PasswordRemark::where([['password_id', '=', $request->password_id], ['password_type', '=', $request->type]])->get();
+
+            $html = '';
+            foreach ($taskRemarkData as $taskRemark) {
+                $html .= '<tr>';
+                $html .= '<td>'.$taskRemark->id.'</td>';
+                $html .= '<td>'.$taskRemark->users->name.'</td>';
+                $html .= '<td>'.$taskRemark->remark.'</td>';
+                $html .= '<td>'.$taskRemark->created_at.'</td>';
+                $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='".$taskRemark->remark."'></i></td>";
+            }
+
+            $input_html = '';
+            $i = 1;
+            foreach ($taskRemarkData as $taskRemark) {
+                $input_html .= '<span class="td-password-remark" style="margin:0px;"> '. $i.'.'.$taskRemark->remark.'</span>';
+                $i++;
+            }
+
+            return response()->json(['code' => 200, 'data' => $html,'remark_data'=>$input_html ,'message' => 'Remark '.$msg.' listed Successfully']);
+        } catch (Exception $e) {
+            return response()->json(['code' => 500, 'data' => '','remark_data'=>'', 'message' => $e->getMessage()]);
+        }
     }
 }
