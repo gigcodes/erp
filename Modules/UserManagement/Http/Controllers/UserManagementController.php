@@ -38,6 +38,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
+use function GuzzleHttp\json_encode;
 
 class UserManagementController extends Controller
 {
@@ -103,6 +104,7 @@ class UserManagementController extends Controller
         $servers = AssetsManager::whereHas('category', function ($q) {
             $q->where('cat_name', '=', 'Servers');
         })->get();
+
         $userLists = User::orderBy('name')->where('is_active', 1)->pluck('name', 'id');
 
         return view('usermanagement::index', compact('title', 'permissionRequest', 'statusList', 'usersystemips', 'userlist', 'whatsapp', 'servers', 'userLists'));
