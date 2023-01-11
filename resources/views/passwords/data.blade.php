@@ -29,16 +29,16 @@
               </td>
               <td>{{ $password->registered_with }}</td>
               <td>
-                  <div style="margin-bottom:10px;width: 100%;">
+                  <div style="width: 100%;">
                   <div class="d-flex">
-                    <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="width: 200px;">
+                    <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="margin-bottom:5px;width:100%;display:inline;">
                     <button class="btn btn-sm btn-image send-message sub_remark pointer" title="Send message" data-password_id="{{$password->id}}">
                         <img src="{{asset('images/filled-sent.png')}}">
                     </button>
                   <button data-password_id="{{ $password->id }}" data-password_type="Quick-dev-task" class="btn btn-xs btn-image set-remark" title="Remark"><img src="{{asset('images/chat.png')}}" alt=""></button>
                   </div>
                   @if (isset($password_remark))
-                      <div style="margin-bottom:10px;width: 100%;">
+                      <div style="width: 100%;">
                           <div class="expand-row-msg" data-id="{{$password->id}}">
                               <div class="d-flex justify-content-between expand-row-msg" data-id="{{$password->id}}">
                                     <span class="td-password-remark" style="margin:0px;">
@@ -55,10 +55,13 @@
                   </div>
 {{--                 <button type="button" class="btn btn-default sub_remark" >Save</button>--}}
               </td>
-                <td><button onclick="changePassword({{ $password->id }})" class="btn btn-secondary btn-sm" title="Change"><i class="fa fa-pencil"></i></button>
-                <button onclick="getData({{ $password->id }})" class="btn btn-secondary btn-sm" title="History"><i class="fa fa-info-circle"></i></button>
-                <button onclick="sendtoWhatsapp({{ $password->id }})" class="btn btn-secondary btn-sm" title="Send to Whatsapp"><i class="fa fa-whatsapp"></i></button>
-{{--                onclick="sendtoWhatsapp({{ $password->id }})"--}}
+                <td>
+                    <div class="row">
+                        <button onclick="changePassword({{ $password->id }})" class="btn btn-image" title="Change"><i class="fa fa-pencil"></i></button>
+                        <button onclick="getData({{ $password->id }})" class="btn btn-image" title="History"><i class="fa fa-info-circle"></i></button>
+                        <button onclick="sendtoWhatsapp({{ $password->id }})" class="btn btn-image" title="Send to Whatsapp"><i class="fa fa-whatsapp"></i></button>
+                    </div>
+                </td>
             </tr>
 
 
