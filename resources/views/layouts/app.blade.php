@@ -49,14 +49,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-    <style type="text/css">
-    .select2-container--open {
-        z-index: 9999999
-    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+   <style type="text/css">
+        .select2-container--open{
+            z-index:9999999
+        }
+        #message-chat-data-box .p1[data-count]:after{
+          position:absolute;
+          right:10%;
+          top:8%;
+          content: attr(data-count);
+          font-size:90%;
+          padding:.1em;
+          border-radius:50%;
+          line-height:1em;
+          color: white;
+          background:rgba(255,0,0,.85);
+          text-align:center;
+          min-width: 1em;
+          //font-weight:bold;
+        }
+        #quick-sidebar {
+            padding-top: 35px;
+        }
+        #notification_unread{
+            color:#fff;
+        }
 
     #message-chat-data-box .p1[data-count]:after {
         position: absolute;
@@ -2328,10 +2348,22 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast
                                                 messages</a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{route('bug-tracking.index')}}">Bug
-                                                Track</a>
-                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="bugDropdown" href="#" class="nav-link dropdown-toggle"
+                                                data-toggle="dropdown" role="button" aria-haspopup="true"
+                                                aria-expanded="false">Bug Track<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="bugDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('bug-tracking.index')}}">Bug Track</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('bug-tracking.website') }}">Bug Tracking Summary</a>
+                                                </li>
+                                            </ul>
+                                        </li>                                       
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
                                         </li>
@@ -2791,6 +2823,9 @@ if (!empty($notifications)) {
                             </ul>
                             </li>
                             @endif
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                             </li>
@@ -2912,7 +2947,7 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource
                                             Center</a>
                                     </li>
-                                    @endif
+                                    @endif 
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>Product<span
@@ -2921,6 +2956,7 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                             </li>
+                                           
                                             <li class="nav-item dropdown">
 
                                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
@@ -3865,7 +3901,9 @@ if (!empty($notifications)) {
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
     <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
+    
     <script>
     // $('#chat-list-history').on('hidden.bs.modal', function (e) {
     //     document.body.addClass('sasadasd')

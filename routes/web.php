@@ -75,6 +75,7 @@ use App\Http\Controllers\CroppedImageReferenceController;
 use App\Http\Controllers\CustomerCategoryController;
 use App\Http\Controllers\CustomerCharityController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\DailyActivityController;
 use App\Http\Controllers\DailyCashFlowController;
 use App\Http\Controllers\DailyPlannerController;
@@ -440,6 +441,15 @@ Route::middleware('auth')->group(function () {
     Route::post('redis-jobs-clearQue/{id?}', [RedisjobController::class, 'clearQue'])->name('redis.clear_que');
     Route::post('redis-jobs-restart_management/{id?}', [RedisjobController::class, 'restartManagement'])->name('redis.restart_management');
 });
+
+/** CSV Translator */
+Route::middleware('auth')->group(function () {
+    Route::get('/csv-translator', [CsvTranslatorController::class, 'index'])->name('csvTranslator.list');
+    Route::post('/csv-translator/upload', [CsvTranslatorController::class, 'upload'])->name('csvTranslator.uploadFile');
+    Route::get('/csv-translator/export', [CsvTranslatorController::class, 'export'])->name('csvTranslator.export');
+    Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings/namehistrory/{id}', [MagentoSettingsController::class, 'namehistrory']);
@@ -683,6 +693,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('products/listing', [ProductController::class, 'listing'])->name('products.listing');
     Route::get('products/listing/final', [ProductController::class, 'approvedListing'])->name('products.listing.approved');
     Route::get('products/listing/conditions-check', [ProductController::class, 'magentoConditionsCheck'])->name('products.magentoConditionsCheck');
+    Route::post('products/listing/autocompleteForFilter', [ProductController::class, 'autocompleteForFilter'])->name('products.autocompleteForFilter');
+
     Route::get('products/listing/conditions-check-logs/{llm_id}', [ProductController::class, 'magentoConditionsCheckLogs'])->name('products.magentoConditionsCheckLogs');
     Route::get('products/push/magento/conditions', [ProductController::class, 'pushToMagentoConditions'])->name('products.push.conditions');
     Route::get('products/conditions/status/update', [ProductController::class, 'updateConditionStatus'])->name('products.push.condition.update');
@@ -2050,6 +2062,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/sendWhatsApp', [PasswordController::class, 'sendWhatsApp'])->name('password.sendwhatsapp');
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
+    Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
@@ -4435,7 +4448,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/store', [VoucherCouponController::class, 'store'])->name('voucher.store');
     Route::post('/edit', [VoucherCouponController::class, 'edit'])->name('voucher.edit');
     Route::post('/update', [VoucherCouponController::class, 'update'])->name('voucher.update');
-    Route::post('/voucher/remark/{id}', [VoucherCouponController::class, 'update'])->name('voucher.store.remark');
+    Route::post('/voucher/remark/{id}', [VoucherCouponController::class, 'storeRemark'])->name('voucher.store.remark');
     Route::post('/voucher/delete', [VoucherCouponController::class, 'delete'])->name('voucher.coupon.delete');
     Route::post('/coupon/code/create', [VoucherCouponController::class, 'couponCodeCreate'])->name('voucher.code.create');
     Route::post('/coupon/code/list', [VoucherCouponController::class, 'couponCodeList'])->name('voucher.code.list');

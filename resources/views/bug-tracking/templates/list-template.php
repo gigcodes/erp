@@ -3,7 +3,7 @@
 		<table class="table table-bordered" id="bug_tracking_maintable">
 		    <thead>
 		      <tr>
-		      	<th width="4%">ID</th>
+		      	<th width="4%"><input type="checkbox" id="chkBugChangeCommon" name="chkBugChangeCommon" class="chkBugChangeCommon"> ID</th>
                 <th width="6%">Date</th>
                 <th width="3%">Summary</th>
                 <th width="5%">Type</th>
