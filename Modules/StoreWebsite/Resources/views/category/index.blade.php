@@ -35,14 +35,14 @@
 					  			<div class="form-group">
 								   <select name="category_id[]" class="form-control selectpicker" placholder="Categories:" multiple data-live-search="true" data-none-selected-text>
 								   	@foreach($allCategories as $key => $value)
-								   	<option value="{{ $value->id }}" <?php echo (isset($_GET['category_id'])&& in_array($value->id,$_GET['category_id'])) ?'selected' : ""; ?>  >{{ $value->title }}</option>
+								   		<option value="{{ $value->id }}" <?php echo (isset($_GET['category_id'])&& in_array($value->id,$_GET['category_id'])) ?'selected' : ""; ?>  >{{ $value->title }}</option>
 								   	@endforeach
 								   </select> 	
 							  	</div>
 							  	<div class="form-group">
 								   <select name="website_id[]" class="form-control selectpicker2" placholder="Websites:" multiple data-live-search="true" data-none-selected-text>
 								   	@foreach($allStoreWebsite as $k => $value)
-								   	<option value="{{ $value->id }}"  <?php echo (isset($_GET['website_id'])&& in_array($value->id,$_GET['website_id'])) ?'selected' : ""; ?>>{{ $value->website }}</option>
+								   		<option value="{{ $value->id }}"  <?php echo (isset($_GET['website_id'])&& in_array($value->id,$_GET['website_id'])) ?'selected' : ""; ?>>{{ $value->website }}</option>
 								   	@endforeach
 								   </select> 
 							  	</div>
@@ -51,10 +51,10 @@
 							  	</div>
 							  	<div class="form-group">
 							  		<label for="button">&nbsp;</label>
-							  		<button type="submit" style="display: inline-block;width: 10%; margin-top: -23px;" class="btn btn-sm btn-image btn-search-action">
+							  		<button type="submit" style="margin-top: -23px;" class="btn btn-sm btn-image btn-search-action">
 							  			<img src="{{asset('/images/search.png')}}" style="cursor: default;">
 							  		</button>
-									<button type="button" style="display: inline-block; margin-top: -23px; margin-left: 15px;" id="btnReset" class="btn btn-secondary">
+									<button type="button" style="margin-top: -23px;" id="btnReset" class="btn btn-secondary ml-3">
 										Clear
 							  		</button>
 							  	</div>		
@@ -106,13 +106,6 @@
 									  @endphp
 								  @endif
 							  @endif
-{{--							  @forelse ($appliedQ as $item)--}}
-{{--								@if($item->category_id == $category->id && $item->store_website_id == $sw->id)--}}
-{{--									@php $checked = "checked"; $catName = $item->category_name; @endphp--}}
-{{--									@php $remote_id = $item->remote_id  @endphp--}}
-{{--								@endif--}}
-{{--							@empty--}}
-{{--							@endforelse--}}
 							<td>
 								<div class=" d-flex w-100 custom-checkbox">
 									<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" <?php echo $checked; ?> class="push-category " type="checkbox" name="category_website">
