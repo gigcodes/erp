@@ -13,7 +13,7 @@ class CreateCsvTranslatorHistoryColumnTable extends Migration
      */
     public function up()
     {
-        Schema::create('csv_translator_history', function (Blueprint $table) {
+        Schema::table('csv_translator_history', function (Blueprint $table) {
             $table->string('status')->change();
         });
     }
@@ -25,6 +25,7 @@ class CreateCsvTranslatorHistoryColumnTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('csv_translator_history');
+        Schema::table('csv_translator_history', function (Blueprint $table) {
+        });
     }
 }
