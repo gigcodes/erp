@@ -343,13 +343,13 @@ class PasswordController extends Controller
             $input_html = '';
             $i = 1;
             foreach ($taskRemarkData as $taskRemark) {
-                $input_html .= '<span class="td-password-remark" style="margin:0px;"> '. $i.'.'.$taskRemark->remark.'</span>';
+                $input_html .= '<span class="td-password-remark" style="margin:0px;"> '.$i.'.'.$taskRemark->remark.'</span>';
                 $i++;
             }
 
-            return response()->json(['code' => 200, 'data' => $html,'remark_data'=>$input_html ,'message' => 'Remark '.$msg.' listed Successfully']);
+            return response()->json(['code' => 200, 'data' => $html, 'remark_data' => $input_html, 'message' => 'Remark '.$msg.' listed Successfully']);
         } catch (Exception $e) {
-            return response()->json(['code' => 500, 'data' => '','remark_data'=>'', 'message' => $e->getMessage()]);
+            return response()->json(['code' => 500, 'data' => '', 'remark_data' => '', 'message' => $e->getMessage()]);
         }
     }
 }
