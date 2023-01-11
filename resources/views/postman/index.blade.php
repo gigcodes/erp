@@ -661,6 +661,10 @@
                   <label for="tests">Tests</label>
                   <input type="text" name="tests" value="" class="form-control" id="tests" placeholder="Enter tests">
                 </div>
+                <div class="form-group col-md-12">
+                  <label for="end_point">End Point</label>
+                  <input type="text" name="end_point" value="" class="form-control" id="end_point" placeholder="Enter end point">
+                </div>
               </div>
             </form>
           </div>
