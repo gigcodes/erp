@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\CsvTranslator;
+use App\CsvTranslatorHistory;
+use App\Exports\CsvTranslatorExport;
 use App\Imports\CsvTranslatorImport;
 use Illuminate\Http\Request;
+use Redirect;
 
 class CsvTranslatorController extends Controller
 {
@@ -25,5 +28,40 @@ class CsvTranslatorController extends Controller
     {
         \Excel::import(new CsvTranslatorImport(), $request->file);
         \Session::flash('message', 'Successfully imported');
+    }
+
+     public function exportData(Request $request)
+     {
+         \Excel::import(new CsvTranslatorImport(), $request->file);
+         \Session::flash('message', 'Successfully imported');
+     }
+
+    public function export()
+    {
+        return \Excel::download(new CsvTranslatorExport, 'csv-translator.xlsx');
+    }
+
+    public function update(Request $request)
+    {
+        $record = CsvTranslator::find($request->record_id);
+        $oldRecord = $record->{$request->lang_id};
+        $oldStatus = $record->status;
+        $key = $record->key;
+        $record->updated_by_user_id = $request->update_by_user_id;
+        $record->approved_by_user_id = $request->update_by_user_id;
+        $record->{$request->lang_id} = $request->update_record;
+        $record->status = 'checked';
+        $record->update();
+
+        $historyData = [];
+        $historyData['csv_translator_id'] = $record->id;
+        $historyData['updated_by_user_id'] = $request->update_by_user_id;
+        $historyData['approved_by_user_id'] = $request->update_by_user_id;
+        $historyData['key'] = $key;
+        $historyData['status'] = $oldStatus;
+        $historyData[$request->lang_id] = $oldRecord;
+        CsvTranslatorHistory::insert($historyData);
+
+        return Redirect::back()->with(['success' => 'Successfully Updated']);
     }
 }

@@ -13,7 +13,7 @@ class CsvTranslatorHistory extends Migration
      */
     public function up()
     {
-        Schema::create('csv_translator_histiory', function (Blueprint $table) {
+        Schema::create('csv_translator_history', function (Blueprint $table) {
             $table->id();
             $table->integer('csv_translator_id');
             $table->string('key');
@@ -29,7 +29,7 @@ class CsvTranslatorHistory extends Migration
             $table->text('zh');
             $table->text('ar');
             $table->text('ur');
-            $table->tinyInteger('status')->default(2)->comment('1.checked,2.unchecked');
+            $table->string('status')->default('unchecked')->comment('1.checked,2.unchecked');
             $table->integer('updated_by_user_id')->nullable();
             $table->integer('approved_by_user_id')->nullable();
             $table->timestamps();
@@ -43,6 +43,6 @@ class CsvTranslatorHistory extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('csv_translator_histiory');
+        Schema::dropIfExists('csv_translator_history');
     }
 }
