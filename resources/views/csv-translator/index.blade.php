@@ -189,7 +189,7 @@
 </div>
 
 <div class="modal fade" id="edit_model" role="dialog">
-    <div class="modal-dialog modal-sm">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
         <form method="post" class="form-update" action="{{route('csvTranslator.update')}}">
             <div class="modal-header">
@@ -319,7 +319,7 @@
                         return data + ' <a href="#" class="history_model btn btn-primary float-right text-wrap" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.en + ' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                                JSON.stringify(row.en) + ' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                     }
                 },
                 {
@@ -329,7 +329,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.en +
+                                JSON.stringify(row.en) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -344,7 +344,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.es +
+                                JSON.stringify(row.es) +
                                 '  data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -358,7 +358,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.eu +
+                                JSON.stringify(row.ru) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -372,7 +372,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.ko +
+                                JSON.stringify(row.ko) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -386,7 +386,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.ja +
+                                JSON.stringify(row.ja) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -400,7 +400,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.it +
+                                JSON.stringify(row.it) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -414,7 +414,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.de +
+                                JSON.stringify(row.de) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -428,7 +428,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.fr +
+                                JSON.stringify(row.fr) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -442,7 +442,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.nl +
+                                JSON.stringify(row.nl) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -456,7 +456,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.zh +
+                                JSON.stringify(row.zh) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -470,7 +470,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.ar +
+                                JSON.stringify(row.ar) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -484,7 +484,7 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.ur +
+                                JSON.stringify(row.ur) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
                             return data;
@@ -544,7 +544,7 @@
                         <td>${value.ko}</td>
                         <td>${value.ja}</td>
                         <td>${value.it}</td>
-                        <td>${value.de}</td>
+                        <td>${value.de}</td>    
                         <td>${value.fr}</td>
                         <td>${value.nl}</td>
                         <td>${value.zh}</td>
