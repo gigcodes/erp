@@ -346,7 +346,7 @@ class CategoryController extends Controller
             $categories = $categories->where('title', 'like', '%'.$request->keyword.'%');
         }
         if ($request->category_id != null) {
-            $categories = $categories->where('id', $request->category_id);
+            $categories = $categories->whereIn('id', $request->category_id);
         }
         $categories = $categories->select('id', 'title')->orderBy('id');
         $categories = $categories->paginate(25);
@@ -359,9 +359,11 @@ class CategoryController extends Controller
 
         $storeWebsite = StoreWebsite::query();
         if ($request->website_id != null) {
-            $storeWebsite = $storeWebsite->where('id', $request->website_id);
+            $storeWebsite = $storeWebsite->whereIn('id', $request->website_id)->orWhere('parent_id',$request->website_id)->get();
+        }else{
+            $allStoreWebsite_data = StoreWebsite::query()->first();
+            $storeWebsite = $storeWebsite->select('id', 'title')->where('id', $allStoreWebsite_data->id)->orWhere('parent_id',$allStoreWebsite_data->id)->get();
         }
-        $storeWebsite = $storeWebsite->select('id', 'title')->get();
 
         $result = DB::table('store_websites as SW')
             ->leftJoin('store_website_categories as SWC', 'SW.id', '=', 'SWC.store_website_id')
