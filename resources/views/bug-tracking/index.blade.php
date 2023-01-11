@@ -30,7 +30,11 @@ table{border-collapse: collapse;}
 	margin-top:0px !important;
 }
 #change_dropdown_div .bootstrap-select{
-	width:170px;
+	width:160px;
+}
+.btn-change-status-bug, .btn-change-assignee-bug, .btn-change-severity-bug {
+	height:30px;
+	margin-top:2px;
 }
 </style>
 	<div class="row" id="common-page-layout">
@@ -177,10 +181,10 @@ table{border-collapse: collapse;}
 						</div>
 					</div>
 				</div>
-				<div class="col col-md-6">
+				<div class="col col-md-4">
 					<div class="row">
 
-						<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action"
+						<button style="display: inline-block;width: 10%;margin-left:10px;" class="btn btn-sm btn-image btn-add-action"
 								data-toggle="modal" data-target="#bugtrackingCreateModal">
 							<img src="/images/add.png" style="cursor: default;">
 						</button>
@@ -225,8 +229,8 @@ table{border-collapse: collapse;}
 								<?php
 								$assign_to_user = request('assign_to_user');
 								?>
-								<select class="form-control selectpicker change_assign_to_top" name="change_assign_to_user[]"  id="change_assign_to_top" title="Select Assign To">
-									
+								<select class="form-control selectpicker change_assign_to_top select2" name="change_assign_to_user[]"  id="change_assign_to_top" title="Select Assign To">
+								
 									@foreach($users as  $user)
 
 										<option value="{{$user->id}}">{{$user->name}} </option>
@@ -601,6 +605,7 @@ table{border-collapse: collapse;}
 	
 
 	<script type="text/javascript">
+		
 		page.init({
 			bodyView: $("#common-page-layout"),
 			baseUrl: "<?php echo url("/"); ?>"
@@ -626,6 +631,24 @@ table{border-collapse: collapse;}
       })
 	</script>
 	<script type="text/javascript">
+
+		$('.change_assign_to_top').select2({
+				width: "150px",
+				placeholder: 'Select Assign To'
+		});
+		/*
+		$('#assign_to_user').select2({
+				width: "150px",
+				height: 30px,
+				placeholder: 'Select Assign To'
+		});
+
+		$('#created_by').select2({
+				width: "150px",
+				height: "30px",
+				placeholder: 'Select Created By'
+		});
+		*/
 		
 		$(document).on('click', '.expand-row-msg-chat', function() {
 			var id = $(this).data('id');
@@ -726,6 +749,18 @@ table{border-collapse: collapse;}
 		}
 		
 		// Bug tracking ajax ends
+
+		
+
+		$(document).on('click', '.chkBugChangeCommon', function() {
+
+			if ($(this).is(':checked')) {
+				$("input[name='chkBugNameChange[]']").attr('checked', true);
+			} else {
+				$("input[name='chkBugNameChange[]']").attr('checked', false);
+			}
+
+		});
 	
 	
 		$(document).on('click', '.expand-row-msg', function() {
