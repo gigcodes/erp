@@ -24,7 +24,7 @@ class ZabbixController extends Controller
     public function problems(Request $request)
     {
         if ($request->ajax()) {
-            $query = Problem::select('id','eventid', 'objectid', 'name', 'hostname');
+            $query = Problem::select('id', 'eventid', 'objectid', 'name', 'hostname');
 
             return datatables()->eloquent($query)->toJson();
         }
