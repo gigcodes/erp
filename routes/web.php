@@ -346,6 +346,7 @@ Route::get('/test/translation', [GoogleTranslateController::class, 'testTranslat
 
 Route::get('/zabbix', [ZabbixController::class, 'index']);
 Route::get('/zabbix/problems', [ZabbixController::class, 'problems'])->name('zabbix.problem');
+Route::get('/zabbix/history', [ZabbixController::class, 'history'])->name('zabbix.history');
 
 Route::get('/test/testPrice', [TmpTaskController::class, 'testEmail']);
 Route::get('/memory', [MemoryUsesController::class, 'index'])->name('memory.index');
@@ -2686,6 +2687,8 @@ Route::middleware('auth')->group(function () {
     Route::get('bug-tracking/edit/{id}', [BugTrackingController::class, 'edit'])->name('bug-tracking.edit');
     Route::post('bug-tracking/update', [BugTrackingController::class, 'update'])->name('bug-tracking.update');
     Route::post('bug-tracking/assign_user', [BugTrackingController::class, 'assignUser'])->name('bug-tracking.assign_user');
+    Route::post('bug-tracking/change_bug_type', [BugTrackingController::class, 'changeBugType'])->name('bug-tracking.change_bug_type');
+    Route::post('bug-tracking/change_module_type', [BugTrackingController::class, 'changeModuleType'])->name('bug-tracking.change_module_type');
     Route::post('bug-tracking/severity_user', [BugTrackingController::class, 'severityUser'])->name('bug-tracking.severity_user');
     Route::post('bug-tracking/status_user', [BugTrackingController::class, 'statusUser'])->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', [BugTrackingController::class, 'sendMessage'])->name('bug-tracking.sendmessage');
@@ -4411,7 +4414,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('taskcategories', TaskCategoriesController::class);
     Route::delete('tasklist/{id}', [TaskCategoriesController::class, 'delete']);
     Route::delete('tasksubject/{id}', [TaskCategoriesController::class, 'destroy']);
-    Route::resource('zabbix', ZabbixController::class);
+    Route::resource('zabbix', ZabbixController::class)->except(['show']);
     Route::resource('checklist', CheckListController::class);
     Route::get('checklist/view/{id}', [CheckListController::class, 'view'])->name('checklist.view');
     Route::post('checklist/subjects', [CheckListController::class, 'subjects'])->name('checklist.subjects');

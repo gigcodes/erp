@@ -2517,6 +2517,38 @@ table {
 #problem-table{
   width: 100% !important;
 }
+.quick-description {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+  max-width: 140px;
+  height: 1.2em;
+  white-space: nowrap;
+}
+#zabbix-table{
+  width: 100% !important;
+}
+.singleline-flex{
+  display: flex;
+  justify-content: space-between;
+  column-gap: 5px;
+  align-items: flex-start;
+}
+.zabbix  .modal-body{
+  padding: 0;
+}
+.zabbix  .modal-table{
+  position: sticky;
+  top:0;
+  background: rgb(191 184 184);
+}
+#zabbix-table_wrapper{
+  overflow: auto;
+}
+#problem-table{
+  width: 100% !important;
+}
 .btnsearchSubmit{
   display: inline-block;
   width: 10%

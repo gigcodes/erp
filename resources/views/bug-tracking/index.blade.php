@@ -631,6 +631,15 @@ table{border-collapse: collapse;}
       })
 	</script>
 	<script type="text/javascript">
+	
+		
+		
+$.views.helpers({
+    getrep: function( val ) {      
+        return val.toUpperCase();       
+    },
+
+});
 
 		$('.change_assign_to_top').select2({
 				width: "150px",
