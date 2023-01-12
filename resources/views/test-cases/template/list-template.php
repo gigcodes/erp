@@ -30,12 +30,12 @@
 			        <td class='break'>{{:prop.module_id}}</td>
 			        <td class='break'>{{:prop.precondition}}</td>
 			        <td class='break'>
-			            <select class='form-control assign_to'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token();?> >
+			            <select class='form-control assign_to'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?> >
 			                <?php
                                 foreach ($users as $user) {
                                     echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
                                 }
-                            ?>
+			            ?>
 			            </select>
 			          <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-test-history" title="Show History" data-id="{{:prop.id}}"><i class="fa fa-info-circle"></i></button>
 			        </td>
@@ -44,12 +44,12 @@
                     </td>
 			        <td class='break'>{{:prop.expected_result}}</td>
 			        <td class='break'>
-			            <select class='form-control test_case_status_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token();?>>
+			            <select class='form-control test_case_status_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?>>
 			                <?php
-                                foreach ($testCaseStatuses as $testCaseStatus) {
-                                    echo "<option {{if prop.test_status_id == '".$testCaseStatus->id."'}} selected {{/if}} value='".$testCaseStatus->id."'>".$testCaseStatus->name.'</option>';
-                                }
-                            ?>
+			                foreach ($testCaseStatuses as $testCaseStatus) {
+			                    echo "<option {{if prop.test_status_id == '".$testCaseStatus->id."'}} selected {{/if}} value='".$testCaseStatus->id."'>".$testCaseStatus->name.'</option>';
+			                }
+			            ?>
 			            </select>
 			          <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-teststatus-history" title="Show History" data-id="{{:prop.id}}"><i class="fa fa-info-circle"></i></button>
 			        </td>

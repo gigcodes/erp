@@ -12,9 +12,9 @@ use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
 use App\TestCase;
 use App\TestCaseHistory;
-use App\TestCaseStatusHistory;
-use App\TestCaseUserHistory;							
 use App\TestCaseStatus;
+use App\TestCaseStatusHistory;
+use App\TestCaseUserHistory;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -79,8 +79,7 @@ class TestCaseController extends Controller
             'website' => 'required|string',
 
         ]);
-		
-											   
+
         if ($validator->fails()) {
             $outputString = '';
             $messages = $validator->errors()->getMessages();
@@ -113,14 +112,14 @@ class TestCaseController extends Controller
             'message' => $request->name,
         ]);
         $testCaseHistory = TestCaseHistory::create($test);
-		
+
         $usertestHistory = [
-            'test_case_id' =>$records->id,
+            'test_case_id' => $records->id,
             'new_user' => $request->assign_to,
             'updated_by' => \Auth::user()->id,
         ];
         $userteststatusHistory = [
-            'test_case_id' =>$records->id,
+            'test_case_id' => $records->id,
             'new_status' => $request->test_status_id,
             'updated_by' => \Auth::user()->id,
         ];
@@ -129,35 +128,40 @@ class TestCaseController extends Controller
 
         return redirect()->route('test-cases.index');
     }
+
     public function usertestHistory($id)
     {
-        $testcaseusers = TestCaseUserHistory::where('test_case_id',$id)->get();
+        $testcaseusers = TestCaseUserHistory::where('test_case_id', $id)->get();
         $testcaseusers = $testcaseusers->map(function ($testcaseuser) {
             $testcaseuser->new_user = User::where('id', $testcaseuser->new_user)->value('name');
             $testcaseuser->old_user = User::where('id', $testcaseuser->old_user)->value('name');
             $testcaseuser->updated_by = User::where('id', $testcaseuser->updated_by)->value('name');
             $testcaseuser->created_at_date = $testcaseuser->created_at;
+
             return $testcaseuser;
         });
+
         return response()->json(['code' => 200, 'data' => $testcaseusers]);
     }
 
     public function userteststatusHistory($id)
     {
-        $testcasestatus = TestCaseStatusHistory::where('test_case_id',$id)->get();
+        $testcasestatus = TestCaseStatusHistory::where('test_case_id', $id)->get();
         $testcasestatus = $testcasestatus->map(function ($testcaseuserstatus) {
             $testcaseuserstatus->new_status = TestCaseStatus::where('id', $testcaseuserstatus->new_status)->value('name');
             $testcaseuserstatus->old_status = TestCaseStatus::where('id', $testcaseuserstatus->old_status)->value('name');
             $testcaseuserstatus->updated_by = User::where('id', $testcaseuserstatus->updated_by)->value('name');
             $testcaseuserstatus->created_at_date = $testcaseuserstatus->created_at;
+
             return $testcaseuserstatus;
         });
+
         return response()->json(['code' => 200, 'data' => $testcasestatus]);
     }
 
     public function records(Request $request)
     {
-		if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
+        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
             $records = TestCase::orderBy('id', 'desc');
         } else {
             $records = TestCase::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
@@ -199,10 +203,9 @@ class TestCaseController extends Controller
                 $q->where('website', 'LIKE', "%$keyword%");
             });
         }
-		 if ($keyword = request('assign_to_user')) {
+        if ($keyword = request('assign_to_user')) {
 //            dd($keyword);
             $records = $records->whereIn('assign_to', $keyword);
-
         }
         if ($keyword = request('test_status')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -287,7 +290,7 @@ class TestCaseController extends Controller
 
     public function testCaseHistory($id)
     {
-         $testCaseHistory = TestCaseHistory::where('test_case_id', $id)->orderBy('id','desc')->get();
+        $testCaseHistory = TestCaseHistory::where('test_case_id', $id)->orderBy('id', 'desc')->get();
         $testCaseHistory = $testCaseHistory->map(function ($testCase) {
             $testCase->assign_to = User::where('id', $testCase->assign_to)->value('name');
             $testCase->updated_by = User::where('id', $testCase->updated_by)->value('name');
@@ -352,7 +355,7 @@ class TestCaseController extends Controller
     public function assignUser(Request $request)
     {
         $testCase = TestCase::where('id', $request->id)->first();
-		$record = [
+        $record = [
             'old_user' => $testCase->assign_to,
             'new_user' => $request->user_id,
             'test_case_id' => $testCase->id,
@@ -374,14 +377,15 @@ class TestCaseController extends Controller
             'updated_by' => \Auth::user()->id,
         ];
         TestCaseHistory::create($data);
-		TestCaseUserHistory::create($record);
+        TestCaseUserHistory::create($record);
+
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
     public function statusUser(Request $request)
     {
         $testCase = TestCase::where('id', $request->id)->first();
-		 $record = [
+        $record = [
             'old_status' => $testCase->test_status_id,
             'new_status' => $request->status_id,
             'test_case_id' => $testCase->id,
@@ -404,7 +408,8 @@ class TestCaseController extends Controller
             'updated_by' => \Auth::user()->id,
         ];
         TestCaseHistory::create($data);
-		TestCaseStatusHistory::create($record);
+        TestCaseStatusHistory::create($record);
+
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
