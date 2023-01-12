@@ -8,7 +8,7 @@ class TodoList extends Model
 {
     protected $table = 'todo_lists';
 
-    protected $fillable = ['id', 'user_id', 'title', 'status', 'todo_date', 'remark', 'created_at', 'updated_at','todo_category_id'];
+    protected $fillable = ['id', 'user_id', 'title', 'status', 'todo_date', 'remark', 'created_at', 'updated_at', 'todo_category_id'];
 
     public function username()
     {
