@@ -1,10 +1,11 @@
 @php
-    $currentRoutes = \Route::current();
-    //$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
-    $metaData = '';
+$currentRoutes = \Route::current();
+//$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
+$metaData = '';
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
 
     <meta charset="utf-8">
@@ -13,16 +14,16 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php
-        if (isset($metaData->page_title) && $metaData->page_title != '') {
-            $title = $metaData->page_title;
-        } else {
-            $title = trim($__env->yieldContent('title'));
-        }
-    ?>
+if (isset($metaData->page_title) && $metaData->page_title != '') {
+    $title = $metaData->page_title;
+} else {
+    $title = trim($__env->yieldContent('title'));
+}
+?>
     @if (trim($__env->yieldContent('favicon')))
-        <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
     @elseif (!\Auth::guest())
-        <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
+    <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
     <title>{!! $title !!}</title>
     <!-- CSRF Token -->
@@ -49,14 +50,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-    <style type="text/css">
-    .select2-container--open {
-        z-index: 9999999
-    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+   <style type="text/css">
+        .select2-container--open{
+            z-index:9999999
+        }
+        #message-chat-data-box .p1[data-count]:after{
+          position:absolute;
+          right:10%;
+          top:8%;
+          content: attr(data-count);
+          font-size:90%;
+          padding:.1em;
+          border-radius:50%;
+          line-height:1em;
+          color: white;
+          background:rgba(255,0,0,.85);
+          text-align:center;
+          min-width: 1em;
+          //font-weight:bold;
+        }
+        #quick-sidebar {
+            padding-top: 35px;
+        }
+        #notification_unread{
+            color:#fff;
+        }
 
     #message-chat-data-box .p1[data-count]:after {
         position: absolute;
@@ -102,9 +123,9 @@
     @stack('link-css')
     @yield('link-css')
     <script>
-        let Laravel = {};
-        Laravel.csrfToken = "{{csrf_token()}}";
-        window.Laravel = Laravel;
+    let Laravel = {};
+    Laravel.csrfToken = "{{csrf_token()}}";
+    window.Laravel = Laravel;
     </script>
     {{--I/m geting error in console thats why commented--}}
 
@@ -157,15 +178,18 @@
     </script>
 
     @if(Auth::user())
-        {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
-        <script>
-            window.userid = "{{Auth::user()->id}}";
-            window.username = "{{Auth::user()->name}}";
-            loggedinuser = "{{Auth::user()->id}}";
-        </script>
+    {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
+    <script>
+    window.userid = "{{Auth::user()->id}}";
+
+    window.username = "{{Auth::user()->name}}";
+
+    loggedinuser = "{{Auth::user()->id}}";
+    </script>
     @endif
     <script type="text/javascript">
-        var BASE_URL = '{{ config('app.url ') }}';
+    var BASE_URL = '{{ config('
+    app.url ') }}';
     </script>
 
 
@@ -200,12 +224,12 @@
     @yield("styles")
 
     <script>
-        window.Laravel = '{{!!json_encode(['
-        csrfToken '=>csrf_token(),'
-        user '=>['
-        authenticated '=>auth()->check(),'
-        id '=>auth()->check() ? auth()->user()->id : null,'
-        name '=>auth()->check() ? auth()->user()-> name : null,]])!!}';
+    window.Laravel = '{{!!json_encode(['
+    csrfToken '=>csrf_token(),'
+    user '=>['
+    authenticated '=>auth()->check(),'
+    id '=>auth()->check() ? auth()->user()->id : null,'
+    name '=>auth()->check() ? auth()->user()-> name : null,]])!!}';
     </script>
 
 
@@ -222,7 +246,7 @@
     </script> --}}
 
     <script>
-        initializeTwilio();
+    initializeTwilio();
     </script>
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
@@ -234,68 +258,68 @@
     <script src="{{ asset('js/chat.js') }}"></script> --}}
 
     <style type="text/css">
-        .back-to-top {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            display: none;
+    .back-to-top {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        display: none;
 
-        }
+    }
 
-        .dropdown.dots>a:after {
-            display: none;
-        }
+    .dropdown.dots>a:after {
+        display: none;
+    }
 
-        .dropdown.dots>a {
-            line-height: 30px;
-        }
+    .dropdown.dots>a {
+        line-height: 30px;
+    }
 
-        #navbarSupportedContent {
-            display: flex !important;
-        }
+    #navbarSupportedContent {
+        display: flex !important;
+    }
 
-        .nav-item.dropdown.dots {
-            min-width: 35px;
-            padding-right: 15px;
-        }
+    .nav-item.dropdown.dots {
+        min-width: 35px;
+        padding-right: 15px;
+    }
 
-        @media(max-width:1350px) {
+    @media(max-width:1350px) {
 
-
-            .navbar-nav>li {
-                min-width: 94px;
-                padding-right: 15px;
-            }
-        }
-
-        .navbar {
-            padding: 0.1rem 0.8rem;
-            border-bottom: 1px solid #ddd;
-            /*margin-bottom: 8px !important;*/
-            border-radius: 0px;
-        }
-
-        .navbar-brand {
-            padding: 15px 4px;
-            font-size: 20px;
-            font-weight: 700;
-            margin-right: 0;
-        }
-
-        @media(min-width:1700px) {
-            #navs {
-                padding-left: 40px;
-            }
-        }
 
         .navbar-nav>li {
-            min-width: 40px;
-            /*padding-right: 30px;*/
+            min-width: 94px;
+            padding-right: 15px;
         }
+    }
 
-        /*.navbar-brand{*/
-        /*    margin-right: 20px;*/
-        /*}*/
+    .navbar {
+        padding: 0.1rem 0.8rem;
+        border-bottom: 1px solid #ddd;
+        /*margin-bottom: 8px !important;*/
+        border-radius: 0px;
+    }
+
+    .navbar-brand {
+        padding: 15px 4px;
+        font-size: 20px;
+        font-weight: 700;
+        margin-right: 0;
+    }
+
+    @media(min-width:1700px) {
+        #navs {
+            padding-left: 40px;
+        }
+    }
+
+    .navbar-nav>li {
+        min-width: 40px;
+        /*padding-right: 30px;*/
+    }
+
+    /*.navbar-brand{*/
+    /*    margin-right: 20px;*/
+    /*}*/
     </style>
     @stack("styles")
 </head>
@@ -2328,10 +2352,22 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast
                                                 messages</a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{route('bug-tracking.index')}}">Bug
-                                                Track</a>
-                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="bugDropdown" href="#" class="nav-link dropdown-toggle"
+                                                data-toggle="dropdown" role="button" aria-haspopup="true"
+                                                aria-expanded="false">Bug Track<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="bugDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('bug-tracking.index')}}">Bug Track</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('bug-tracking.website') }}">Bug Tracking Summary</a>
+                                                </li>
+                                            </ul>
+                                        </li>                                       
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
                                         </li>
@@ -2791,6 +2827,9 @@ if (!empty($notifications)) {
                             </ul>
                             </li>
                             @endif
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                             </li>
@@ -2912,7 +2951,7 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource
                                             Center</a>
                                     </li>
-                                    @endif
+                                    @endif 
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>Product<span
@@ -2921,6 +2960,7 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                             </li>
+                                           
                                             <li class="nav-item dropdown">
 
                                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
@@ -3244,24 +3284,37 @@ if (!empty($notifications)) {
                             <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
                             @endif
                         </div>
+                        @php
+                        $todoCategories = \App\TodoCategory::get();
+                        @endphp
+                         <div class="form-group">
+                             <strong>Category:</strong>
+                             {{-- <input type="text" name="" class="form-control" value="{{ old('') }}" required> --}}
+                             <select name="todo_category_id" class="form-control">
+                             <option value="">Select Category</option>
+                                @foreach($todoCategories as $todoCategory)
+                                    <option value="{{$todoCategory->id}}" @if($todoCategory->id == old('todo_category_id')) selected @endif>{{$todoCategory->name}}</option>
+                                @endforeach
+                             </select>
+                             @if ($errors->has('status'))
+                                 <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                             @endif
+                         </div>
+                        @php
+                        $statuses = \App\TodoStatus::all()->toArray();
+                        @endphp
                         <div class="form-group">
                             <strong>Status:</strong>
-                            @php
-                            $statuses = App\TodoStatus::all()->toArray();
-                            @endphp
-                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}"
-                            required> --}}
-                            <select name="status" class="form-control" required="">
+                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
+                            <select name="status" class="form-control">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['id']}}" @if (old('status')==$status['id']) selected @endif>
-                                    {{$status['name']}}</option>
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             @if ($errors->has('status'))
-                            <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                                <div class="alert alert-danger">{{ $errors->first('status') }}</div>
                             @endif
                         </div>
-
                         <div class="form-group">
                             <strong>Date:</strong>
 
@@ -3913,13 +3966,13 @@ if (!empty($notifications)) {
     </div>
     @php
 
-        $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
-        $url = str_replace('/','',$url);
-        $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
-        $account_id = "";
-        if(!empty($site_account_id)){
-            $account_id = $site_account_id->account_id;
-        }
+    $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
+    $url = str_replace('/','',$url);
+    $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
+    $account_id = "";
+    if(!empty($site_account_id)){
+    $account_id = $site_account_id->account_id;
+    }
     @endphp
 
 
@@ -3962,7 +4015,9 @@ if (!empty($notifications)) {
     <script type="text/javascript" src="{{asset('js/custom_global_script.js')}}"></script>
     <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
+    
     <script>
     // $('#chat-list-history').on('hidden.bs.modal', function (e) {
     //     document.body.addClass('sasadasd')
@@ -4652,43 +4707,43 @@ if (!empty($notifications)) {
 
     @if(session()->has('encrpyt'))
 
-        var inactivityTime = function() {
-            var time;
-            window.onload = resetTimer;
-            // DOM Events
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
+    var inactivityTime = function() {
+        var time;
+        window.onload = resetTimer;
+        // DOM Events
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
 
-            function remove_key() {
-                $.ajax({
-                        url: "{{ route('encryption.forget.key') }}",
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            private: '1',
-                            "_token": "{{ csrf_token() }}",
-                        },
-                    })
-                    .done(function() {
-                        alert('Please Insert Private Key');
-                        location.reload();
-                        console.log("success");
-                    })
-                    .fail(function() {
-                        console.log("error");
-                    })
-            }
-
-            function resetTimer() {
-                clearTimeout(time);
-                time = setTimeout(remove_key, 1200000);
-                // 1000 milliseconds = 1 second
-            }
-        };
-
-        window.onload = function() {
-            inactivityTime();
+        function remove_key() {
+            $.ajax({
+                    url: "{{ route('encryption.forget.key') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        private: '1',
+                        "_token": "{{ csrf_token() }}",
+                    },
+                })
+                .done(function() {
+                    alert('Please Insert Private Key');
+                    location.reload();
+                    console.log("success");
+                })
+                .fail(function() {
+                    console.log("error");
+                })
         }
+
+        function resetTimer() {
+            clearTimeout(time);
+            time = setTimeout(remove_key, 1200000);
+            // 1000 milliseconds = 1 second
+        }
+    };
+
+    window.onload = function() {
+        inactivityTime();
+    }
 
     @endif
 
@@ -4743,39 +4798,39 @@ if (!empty($notifications)) {
     //     }
     // });
     @if(Auth::check())
-        $(document).ready(function() {
-            var url = window.location.href;
-            var user_id = "{{ Auth::id() }}";
-            user_name = "{{ Auth::user()->name }}";
-            $.ajax({
-                type: "POST",
-                url: "/api/userLogs",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "url": url,
-                    "user_id": user_id,
-                    "user_name": user_name
-                },
-                dataType: "json",
-                success: function(message) {}
-            });
+    $(document).ready(function() {
+        var url = window.location.href;
+        var user_id = "{{ Auth::id() }}";
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "url": url,
+                "user_id": user_id,
+                "user_name": user_name
+            },
+            dataType: "json",
+            success: function(message) {}
         });
+    });
     @endif
     </script>
     @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" &&
     !stristr($_SERVER['HTTP_HOST'], '.mac') )
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
-        <script>
-        window.dataLayer = window.dataLayer || [];
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
+    function gtag() {
+        dataLayer.push(arguments);
+    }
 
-        gtag('js', new Date());
-        //gtag('config', 'UA-171553493-1');
-        </script>
+    gtag('js', new Date());
+    //gtag('config', 'UA-171553493-1');
+    </script>
     @endif
     <script>
     <?php
@@ -5274,14 +5329,14 @@ if (!\Auth::guest()) {
     });
     </script>
     @if ($message = Session::get('actSuccess'))
-        <script>
-        toastr['success']('<?php echo $message; ?>', 'success');
-        </script>
+    <script>
+    toastr['success']('<?php echo $message; ?>', 'success');
+    </script>
     @endif
     @if ($message = Session::get('actError'))
-        <script>
-        toastr['error']('<?php echo $message; ?>', 'error');
-        </script>
+    <script>
+    toastr['error']('<?php echo $message; ?>', 'error');
+    </script>
     @endif
 
 </body>

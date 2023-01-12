@@ -63,6 +63,14 @@ var page = {
             page.sendMessage(id,message);
             }
         });
+        page.config.bodyView.on("change", ".bug_module_in_row", function (e) {
+            e.preventDefault();
+           page.sendModuleType($(this));
+        });
+        page.config.bodyView.on("change", ".bug_type_in_row", function (e) {
+            e.preventDefault();
+           page.sendBugType($(this));
+        });
         page.config.bodyView.on("change", ".assign_to", function (e) {
             e.preventDefault();
            page.sendAssign($(this));
@@ -74,6 +82,55 @@ var page = {
         page.config.bodyView.on("change", ".bug_status_id", function (e) {
             e.preventDefault();
             page.sendStatus($(this));
+        });
+
+        page.config.bodyView.on("click", ".btn-change-assignee-bug", function (e) {
+            e.preventDefault();
+            var values = new Array();			
+			$.each($("input[name='chkBugNameChange[]']:checked"), function() {
+			  values.push($(this).val());			  
+			})
+            if(values.length == 0) {
+                toastr["error"]("Please select atleast 1 bug ");
+                return;
+            }
+            if($('#change_assign_to_top').val() ==''){
+                toastr["error"]("Please select assign to");
+                return;
+            }
+           page.sendAssignBulk($('#change_assign_to_top'),values);
+        });
+        page.config.bodyView.on("click", ".btn-change-severity-bug", function (e) {
+            e.preventDefault();           
+            var values = new Array();			
+			$.each($("input[name='chkBugNameChange[]']:checked"), function() {
+			  values.push($(this).val());			  
+			})
+            if(values.length == 0) {
+                toastr["error"]("Please select atleast 1 bug ");
+                return;
+            }
+            if($('#change_bug_severity_top').val() ==''){
+                toastr["error"]("Please select bug severity");
+                return;
+            }
+            page.sendSeverityBulk($('#change_bug_severity_top'),values);
+        });
+        page.config.bodyView.on("click", ".btn-change-status-bug", function (e) {
+            e.preventDefault();
+            var values = new Array();			
+			$.each($("input[name='chkBugNameChange[]']:checked"), function() {
+			  values.push($(this).val());			  
+			})
+            if(values.length == 0) {
+                toastr["error"]("Please select atleast 1 bug ");
+                return;
+            }
+            if($('#change_bug_status_top').val() ==''){
+                toastr["error"]("Please select bug status");
+                return;
+            }
+            page.sendStatusBulk($('#change_bug_status_top'),values);
         });
 
         // delete product templates
@@ -330,6 +387,36 @@ var page = {
         }
         this.sendAjax(_z, "saveMessage");
     },
+    sendModuleType: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/change_module_type",
+            method: "POST",
+            data: {
+                id: ele.data("id"),
+                module_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveModuleType");
+    },
+    sendBugType: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/change_bug_type",
+            method: "POST",
+            data: {
+                id: ele.data("id"),
+                bug_type: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveBugType");
+    },
     sendAssign: function (ele) {
         var _z = {
             url: this.config.baseUrl + "/assign_user",
@@ -366,6 +453,52 @@ var page = {
             method: "POST",
             data: {
                 id: ele.data("id"),
+                status_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveStatus");
+    },
+
+    sendAssignBulk: function (ele,checkedids) {
+        var _z = {
+            url: this.config.baseUrl + "/assign_user_bulk",
+            method: "POST",
+            data: {
+                id: checkedids,
+                user_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveAssign");
+    },
+    sendSeverityBulk: function (ele,checkedids) {
+        var _z = {
+            url: this.config.baseUrl + "/severity_user_bulk",
+            method: "POST",
+            data: {
+                id: checkedids,
+                severity_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSeverity");
+    },
+    sendStatusBulk: function (ele,checkedids) {
+        var _z = {
+            url: this.config.baseUrl + "/status_user_bulk",
+            method: "POST",
+            data: {
+                id: checkedids,
                 status_id: ele.val(),
                 _token: ele.data("token")
             },
@@ -465,6 +598,32 @@ var page = {
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
+        }
+    },
+    saveModuleType: function (response) {
+        if (response.code == 200) {
+            $("#loading-image").hide();
+            // location.reload()
+            // page.loadFirst();
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+
+        } else {
+            // $("#loading-image").hide();
+            toastr["error"](response.error, "");
+        }
+    },
+    saveBugType: function (response) {
+        if (response.code == 200) {
+            $("#loading-image").hide();
+            // location.reload()
+            // page.loadFirst();
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+
+        } else {
+            // $("#loading-image").hide();
+            toastr["error"](response.error, "");
         }
     },
     saveAssign: function (response) {
