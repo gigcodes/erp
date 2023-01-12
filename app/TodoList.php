@@ -14,4 +14,10 @@ class TodoList extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    public function category()
+    {
+        return $this->hasOne(TodoCategory::class, 'id', 'todo_category_id');
+    }
+
 }
