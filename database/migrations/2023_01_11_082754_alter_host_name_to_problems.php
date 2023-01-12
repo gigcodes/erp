@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class AlterHostNameToProblems extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('todo_categories', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->boolean('status')->default(0);
-            $table->softDeletes();
-            $table->timestamps();
+        Schema::table('problems', function (Blueprint $table) {
+            $table->string('hostname')->after('eventid')->nullable();
         });
     }
 
@@ -29,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('todo_categories');
+        Schema::table('problems', function (Blueprint $table) {
+            $table->dropColumn('hostname');
+        });
     }
-};
+}

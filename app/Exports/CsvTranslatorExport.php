@@ -2,14 +2,9 @@
 
 namespace App\Exports;
 
-<<<<<<< HEAD
-use App\CsvTranslator;
-use Maatwebsite\Excel\Concerns\FromCollection;
-=======
 use DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
->>>>>>> 696ae3461612802eb523995042eb47121639480e
 
 class CsvTranslatorExport implements FromCollection, WithHeadings
 {
@@ -18,9 +13,6 @@ class CsvTranslatorExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-<<<<<<< HEAD
-        return CsvTranslator::select('*')->get();
-=======
         return  DB::table('csv_translators')->select('csv_translators.id as id', 'csv_translators.key as key', 'csv_translators.en as en', 'csv_translators.es as es',
             'csv_translators.ru as ru', 'csv_translators.ko as ko', 'csv_translators.ja  as ja', 'csv_translators.it as it',
             'csv_translators.de as de', 'csv_translators.fr as fr', 'csv_translators.nl as nl', 'csv_translators.zh as zh',
@@ -31,6 +23,5 @@ class CsvTranslatorExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return ['Id', 'Key', 'En', 'Es', 'Ru', 'Ko', 'Ja', 'It', 'De', 'Fr', 'Nl', 'Zh', 'Ar', 'Ur', 'Updated By', 'Approved By', 'Status', 'Updated At'];
->>>>>>> 696ae3461612802eb523995042eb47121639480e
     }
 }

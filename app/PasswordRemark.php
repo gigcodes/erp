@@ -10,6 +10,7 @@ class PasswordRemark extends Model
     use HasFactory;
 
     protected $fillable = ['password_id', 'password_type', 'updated_by', 'remark', 'create_at', 'updated_at'];
+
     protected $table = 'password_remark';
 
     public function users()

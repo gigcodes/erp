@@ -94,7 +94,25 @@
 						</div>
 
 			        </td>
-			        <td class='break'><?php echo  $prop->module_id  ?></td>
+			        <td class='break'>
+					<?php if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
+						<select class='form-control bug_module_in_row'  data-id="<?php echo  $prop->id;  ?>" data-module="<?php echo $prop->module_id; ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
+							<option value="">Select Module</option>											
+							<?php
+								foreach($filterCategories as  $filterCategory) {
+									?>
+								<option data-val="<?php echo str_replace("'","",$filterCategory); ?>"  <?php if($prop->module_id ==  str_replace("'","",$filterCategory)){ echo " Selected"; }  ?> value="<?php echo htmlentities($filterCategory); ?>"><?php echo $filterCategory; ?></option>
+									<?php
+									
+								}
+						?>
+						</select>
+					<?php } else { ?>
+					<?php echo  $prop->module_id;  ?>
+					<?php } ?>	
+					
+					
+					</td>
 			        <td class='break'>
 			          <div style="margin-bottom:10px;width: 100%;">
                     <div class="d-flex">
