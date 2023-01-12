@@ -40,7 +40,6 @@ class BugTrackingController extends Controller
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
         $filterWebsites = StoreWebsite::orderBy('website')->get();
 
-       
         return view(
             'bug-tracking.index', [
                 'title' => $title,
@@ -48,7 +47,7 @@ class BugTrackingController extends Controller
                 'bugEnvironments' => $bugEnvironments,
                 'bugSeveritys' => $bugSeveritys,
                 'bugStatuses' => $bugStatuses,
-                'filterCategories' =>$filterCategories,
+                'filterCategories' => $filterCategories,
                 'users' => $users,
                 'allUsers' => $users,
                 'filterWebsites' => $filterWebsites,
@@ -167,9 +166,8 @@ class BugTrackingController extends Controller
                 }
                 $bug->last_chat_message_short = substr($last_chat_message, 0, 28);
                 $bug->last_chat_message_long = $last_chat_message;
-                $bug->module_id = str_replace("'","",$bug->module_id);
-                $bug->module_id = str_replace("&nbsp;"," ",$bug->module_id);
-
+                $bug->module_id = str_replace("'", '', $bug->module_id);
+                $bug->module_id = str_replace('&nbsp;', ' ', $bug->module_id);
 
                 return $bug;
             }
@@ -305,9 +303,8 @@ class BugTrackingController extends Controller
                 }
                 $bug->last_chat_message_short = substr($last_chat_message, 0, 28);
                 $bug->last_chat_message_long = $last_chat_message;
-                $bug->module_id = str_replace("'","",$bug->module_id);
-                $bug->module_id = str_replace("&nbsp;"," ",$bug->module_id);
-
+                $bug->module_id = str_replace("'", '', $bug->module_id);
+                $bug->module_id = str_replace('&nbsp;', ' ', $bug->module_id);
 
                 return $bug;
             }
@@ -850,8 +847,7 @@ class BugTrackingController extends Controller
 
     public function changeBugType(Request $request)
     {
-
-        $bugTracker = BugTracker::where('id', $request->id)->first();       
+        $bugTracker = BugTracker::where('id', $request->id)->first();
 
         $bugTracker->bug_type_id = $request->bug_type;
         $bugTracker->save();
@@ -862,8 +858,7 @@ class BugTrackingController extends Controller
             'updated_by' => \Auth::user()->id,
         ];
 
-        BugTrackerHistory::create($data);      
-
+        BugTrackerHistory::create($data);
 
         return response()->json(
             [
@@ -1215,17 +1210,17 @@ class BugTrackingController extends Controller
                 '7',
                 '8',
                 '9',
-                '10'
+                '10',
             ]
-        )->groupBy('assign_to')->orderBy('id','desc')->limit(3)->get();          
-       
-        $users_worked_array = array();
-        if(count($bug_tracker_users)>0) {
-            for($k=0;$k<count($bug_tracker_users);$k++) {
+        )->groupBy('assign_to')->orderBy('id', 'desc')->limit(3)->get();
+
+        $users_worked_array = [];
+        if (count($bug_tracker_users) > 0) {
+            for ($k = 0; $k < count($bug_tracker_users); $k++) {
                 $users_worked_array[] = $bug_tracker_users[$k]->userassign->name;
             }
         }
-       
+
         $bug_ids = [];
         $website_ids = [];
         $bugs_html = '<table cellpadding="2" cellspacing="2" border="1" style="width:100%"><tr><td style="text-align:center"><b>Action</b></td><td  style="text-align:center"><b>Bug Id</b></td  style="text-align:center"><td  style="text-align:center;"><b>Summary</b></td><td  style="text-align:center;"><b>Assign To</b></td></tr>';
@@ -1260,8 +1255,8 @@ class BugTrackingController extends Controller
         $data['bug_html'] = $bugs_html;
 
         $bugs_users_last = '-';
-        if(count($users_worked_array)>0){
-            $bugs_users_last = implode(', ',$users_worked_array);
+        if (count($users_worked_array) > 0) {
+            $bugs_users_last = implode(', ', $users_worked_array);
         }
         $data['bug_users_worked'] = $bugs_users_last;
 
@@ -1473,11 +1468,9 @@ class BugTrackingController extends Controller
         );
     }
 
-
-
     public function changeModuleType(Request $request)
     {
-        $bugTracker = BugTracker::where('id', $request->id)->first();       
+        $bugTracker = BugTracker::where('id', $request->id)->first();
 
         $bugTracker->module_id = $request->module_id;
         $bugTracker->save();
@@ -1488,8 +1481,7 @@ class BugTrackingController extends Controller
             'updated_by' => \Auth::user()->id,
         ];
 
-        BugTrackerHistory::create($data);       
-
+        BugTrackerHistory::create($data);
 
         return response()->json(
             [
