@@ -359,10 +359,10 @@ class CategoryController extends Controller
 
         $storeWebsite = StoreWebsite::query();
         if ($request->website_id != null) {
-            $storeWebsite = $storeWebsite->whereIn('id', $request->website_id)->orWhere('parent_id',$request->website_id)->get();
-        }else{
+            $storeWebsite = $storeWebsite->whereIn('id', $request->website_id)->orWhere('parent_id', $request->website_id)->get();
+        } else {
             $allStoreWebsite_data = StoreWebsite::query()->first();
-            $storeWebsite = $storeWebsite->select('id', 'title')->where('id', $allStoreWebsite_data->id)->orWhere('parent_id',$allStoreWebsite_data->id)->get();
+            $storeWebsite = $storeWebsite->select('id', 'title')->where('id', $allStoreWebsite_data->id)->orWhere('parent_id', $allStoreWebsite_data->id)->get();
         }
 
         $result = DB::table('store_websites as SW')
@@ -497,10 +497,10 @@ class CategoryController extends Controller
             } elseif ($category->parent->parent_id == 0) {
                 $case = 'second';
                 $this->logadd('#3', $catId, $storeId, $case, "From Category ID found parent's parent_id 0 So case created second.");
-            } elseif($category->parent->parentC->parent_id == 0) {
+            } elseif ($category->parent->parentC->parent_id == 0) {
                 $case = 'third';
                 $this->logadd('#4', $catId, $storeId, $case, 'From Category ID not found parent_id  So case created third.');
-            } elseif($category->parent->parentC->parentM->parent_id == 0) {
+            } elseif ($category->parent->parentC->parentM->parent_id == 0) {
                 $case = 'fourth ';
                 $this->logadd('#4', $catId, $storeId, $case, 'From Category ID not found parent_id  So case created third.');
             }
