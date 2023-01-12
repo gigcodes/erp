@@ -1202,6 +1202,25 @@ class BugTrackingController extends Controller
             ]
         )->get();
         $bug_list = $bug_tracker->toArray();
+        $bug_tracker_users = BugTracker::select('assign_to')->where('bug_type_id', $bug_type_id)->where('module_id', $module_id)->where('website', $website_id)->whereIn(
+            'bug_status_id', [
+                '3',
+                '4',
+                '5',
+                '7',
+                '8',
+                '9',
+                '10',
+            ]
+        )->groupBy('assign_to')->orderBy('id', 'desc')->limit(3)->get();
+
+        $users_worked_array = [];
+        if (count($bug_tracker_users) > 0) {
+            for ($k = 0; $k < count($bug_tracker_users); $k++) {
+                $users_worked_array[] = $bug_tracker_users[$k]->userassign->name;
+            }
+        }
+
         $bug_ids = [];
         $website_ids = [];
         $bugs_html = '<table cellpadding="2" cellspacing="2" border="1" style="width:100%"><tr><td style="text-align:center"><b>Action</b></td><td  style="text-align:center"><b>Bug Id</b></td  style="text-align:center"><td  style="text-align:center;"><b>Summary</b></td><td  style="text-align:center;"><b>Assign To</b></td></tr>';
@@ -1234,6 +1253,12 @@ class BugTrackingController extends Controller
         $data['websiteCheckbox'] = $websiteCheckbox;
         $data['bug_ids'] = implode(',', $bug_ids);
         $data['bug_html'] = $bugs_html;
+
+        $bugs_users_last = '-';
+        if (count($users_worked_array) > 0) {
+            $bugs_users_last = implode(', ', $users_worked_array);
+        }
+        $data['bug_users_worked'] = $bugs_users_last;
 
         return response()->json(
             [
@@ -1446,6 +1471,7 @@ class BugTrackingController extends Controller
     public function changeModuleType(Request $request)
     {
         $bugTracker = BugTracker::where('id', $request->id)->first();
+
         $bugTracker->module_id = $request->module_id;
         $bugTracker->save();
 
@@ -1454,6 +1480,7 @@ class BugTrackingController extends Controller
             'bug_id' => $bugTracker->id,
             'updated_by' => \Auth::user()->id,
         ];
+
         BugTrackerHistory::create($data);
 
         return response()->json(

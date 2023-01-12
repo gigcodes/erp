@@ -124,7 +124,9 @@
                     if ($feedback_status) {
                         $status_id = $feedback_status->user_feedback_status_id;
                     }
-                    $latest_comment = App\UserFeedbackCategorySopHistoryComment::select('comment', 'id')->where('sop_history_id', $cat->sop_id)->orderBy('id','DESC')->first();
+                    $latest_comment = App\UserFeedbackCategorySopHistoryComment::select('comment', 'id')
+                                ->where('sop_history_id', $cat->sop_id)->whereNotNull('sop_history_id')
+                                ->orderBy('id','DESC')->first();
                     $comment = '';
                     if(isset($latest_comment->comment))
                         $comment = $latest_comment->comment.'...';
@@ -159,23 +161,24 @@
                                 </div>
                             </div>
                         @else
-                            <div id="comment_div_{{$cat->id}}">
-                                <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_reject_{{$cat->id}}" value="Yes" style="width: 12px !important;height: 12px !important;"> Yes &nbsp;
-                                <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_rejectN_{{$cat->id}}" value="No" style="width: 12px !important;height: 12px !important;"> No
-                                <input type="text" class="form-control " data-id="{{$cat->id}}" id="comment_{{$cat->id}}" name="comment_{{$cat->id}}" placeholder="Enter comment ...."  style="margin-bottom:5px;width:77%;display:inline;"/>
-                                <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-comment-save" data-sop_id="{{$cat->sop_id}}" data-id="{{$cat->id}}" data-comment="comment_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}"  type="submit" id="submit_message" ><img src="/images/filled-sent.png"/></button>
-                                <div class="sop-comment-text-{{$cat->id}}">
-                                    <div style='width:50%;'>{{$comment}}</div> <img class='sop-comment-history' src='/images/chat.png' data-id="{{$cat->id}}" data-sop_history_id="{{$cat->sop_id}}" data-sop_comment_id="{{$commentId}}" alt='history' style='width:17px;cursor: nwse-resize;'>
-                                </div>
-                            </div>
+{{--                            <div id="comment_div_{{$cat->id}}">--}}
+{{--                                <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_reject_{{$cat->id}}" value="Yes" style="width: 12px !important;height: 12px !important;"> Yes &nbsp;--}}
+{{--                                <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_rejectN_{{$cat->id}}" value="No" style="width: 12px !important;height: 12px !important;"> No--}}
+{{--                                <input type="text" class="form-control " data-id="{{$cat->id}}" id="comment_{{$cat->id}}" name="comment_{{$cat->id}}" placeholder="Enter comment ...."  style="margin-bottom:5px;width:77%;display:inline;"/>--}}
+{{--                                <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-comment-save" data-sop_id="{{$cat->sop_id}}" data-id="{{$cat->id}}" data-comment="comment_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}"  type="submit" id="submit_message" ><img src="/images/filled-sent.png"/></button>--}}
+{{--                                <div class="sop-comment-text-{{$cat->id}}">--}}
+{{--                                    <div style='width:50%;'>{{$comment}}</div> <img class='sop-comment-history' src='/images/chat.png' data-id="{{$cat->id}}" data-sop_history_id="{{$cat->sop_id}}" data-sop_comment_id="{{$commentId}}" alt='history' style='width:17px;cursor: nwse-resize;'>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+                            {{$cat->sop}}
                         @endif                        
                         
                     </td>
                     <td class="communication-td">
-                        {{-- <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif/> --}}
-                        <select class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif>
-                            <?php echo $sopOps; ?></?php>
-                        </select>
+                         <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
+{{--                        <select class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif>--}}
+{{--                            <?php echo $sopOps; ?></?php>--}}
+{{--                        </select>--}}
                         <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button>
                         @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)
                             <span class="latest_message">@if ($latest_messages->send_by) {{ $latest_msg }} @endif</span>
@@ -184,13 +187,27 @@
                         @endif
                     </td>
                     <td class="communication-td">
-                        <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
-                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button></button>
-                        @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)
-                            <span class="latest_message">@if (!$latest_messages->send_by) {{ $latest_msg }} @endif</span>
-                        @else
-                            <span class="latest_message"></span>
-                        @endif
+{{--                        <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (Auth::user()->isAdmin()) {{ "readonly" }} @endif/>--}}
+{{--                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button></button>--}}
+{{--                        @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)--}}
+{{--                            <span class="latest_message">@if (!$latest_messages->send_by) {{ $latest_msg }} @endif</span>--}}
+{{--                        @else--}}
+{{--                            <span class="latest_message"></span>--}}
+{{--                        @endif--}}
+                        <div id="comment_div_{{$cat->id}}">
+                            {{-- <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_reject_{{$cat->id}}" value="Yes" style="width: 12px !important;height: 12px !important;"> Yes &nbsp;
+                            <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_rejectN_{{$cat->id}}" value="No" style="width: 12px !important;height: 12px !important;"> No --}}
+                            <input type="text" class="form-control " data-id="{{$cat->id}}" id="comment_{{$cat->id}}" name="comment_{{$cat->id}}" placeholder="Enter comment ...."  style="margin-bottom:5px;width:77%;display:inline;"  @if (Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
+                            @if (Auth::user()->isAdmin())
+
+                            @else
+                                <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-comment-save" data-sop_id="{{$cat->sop_id}}" data-id="{{$cat->id}}" data-comment="comment_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}"  type="submit" id="submit_message" ><img src="/images/filled-sent.png"/></button>
+                            @endif
+
+                            <div class="sop-comment-text-{{$cat->id}}">
+                                <div style='width:50%;'>{{$comment}}</div> <img class='sop-comment-history' src='/images/chat.png' data-id="{{$cat->id}}" data-sop_history_id="{{$cat->sop_id}}" data-sop_comment_id="{{$commentId}}" alt='history' style='width:17px;cursor: nwse-resize;'>
+                            </div>
+                        </div>
                     </td>
                     <td>
                         <select class="form-control user_feedback_status">
@@ -204,7 +221,9 @@
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-feedback_cat_id="{{$cat->id}}" data-object='user-feedback' data-id="{{$cat->user_id}}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
                         <button type="button" class="btn btn-secondary1 mr-2 hrTicket" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
                         <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks"  title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
-                        <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline delete-category"  title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
+                        @if (auth()->user()->isAdmin())
+                            <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline delete-category"  title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
+                        @endif
                     </td>
                 </tr>
             @endforeach
@@ -435,6 +454,7 @@ aria-hidden="true">
                                 <tr>
                                     <th>ID</th>
                                     <th>Comment</th>
+                                    <th>User Name</th>
                                     <th>Created</th>
                                 </tr>
                             </thead>
@@ -545,7 +565,6 @@ aria-hidden="true">
     });
 
     $(".hrTicket").bind("click", function() { 
-        debugger;
         var feedback_cat_id = $(this).data("feedback_cat_id");
         var cat_name = $(this).data("cat_name");
         $("#user_feedback_cat_id").val(feedback_cat_id);
@@ -801,6 +820,7 @@ aria-hidden="true">
                         $.each(response.data, function(k, v) {
                             t += `<tr><td>` + v.id + `</td>`;
                             t += `<td>` + v.comment + `</td>`;
+                            t += `<td>` + v.username + `</td>`;
                             t += `<td>` + v.created_at + `</td></tr>`;
                         });
                         if (t == '') {
