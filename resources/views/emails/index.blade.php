@@ -30,32 +30,9 @@
 		border: none;
 		background: none
 	}
-  .table-responsive select.select {
-    width: 110px !important;
-  }
-
-
-  @media (max-width: 1280px) {
-    table.table {
-        width: 0px;
-        margin:0 auto;
+    .table-responsive select.select {
+        width: 110px !important;
     }
-
-    /** only for the head of the table. */
-    table.table thead th {
-        padding:10px;
-    }
-
-    /** only for the body of the table. */
-    table.table tbody td {
-        padding:10 px;
-    }
-
-    .text-nowrap{
-      white-space: normal !important;
-    }
-  }
-
 </style>
 @endsection
 <div id="myDiv">
@@ -219,7 +196,7 @@
             <th width="5%">Receiver</th>
             <th width="4%">Mail <br> Type</th>
             <th width="6%">Subject</th>
-            <th width="5%">Body</th>
+            <th width="10%">Body</th>
             <th width="10%">Status</th>
             <th width="2%">Draft</th>
             <th width="8%">Error <br> Message</th>

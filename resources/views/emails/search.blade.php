@@ -25,7 +25,7 @@
                     {{ strlen($email->message) > 15 ? substr($email->message, 0, 15).'...': $email->message }}
                 </span>
                 <span class="td-full-container hidden">
-                    {{ $email->message }}
+                    {!! $email->message !!}
                 </span>
             </td>
             
