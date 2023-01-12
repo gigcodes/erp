@@ -114,30 +114,35 @@ class EmailController extends Controller
 
         if (! $term) {
             if ($sender) {
+                $sender = explode(',',$request->sender);
                 $query = $query->where(function ($query) use ($sender) {
-                    $query->orWhere('from', 'like', '%'.$sender.'%');
+                    $query->whereIn('from',$sender);
                 });
             }
             if ($receiver) {
+                $receiver = explode(',',$request->receiver);
                 $query = $query->where(function ($query) use ($receiver) {
-                    $query->orWhere('to', 'like', '%'.$receiver.'%');
+                    $query->whereIn('to',$receiver);
                 });
             }
             if ($status) {
+                $status = explode(',',$request->status);
                 $query = $query->where(function ($query) use ($status) {
-                    $query->orWhere('status', $status);
+                    $query->whereIn('status', $status);
                 });
             }
             if ($category) {
+                $category = explode(',',$request->category);
                 $query = $query->where(function ($query) use ($category) {
-                    $query->orWhere('email_category_id', $category);
+                    $query->whereIn('email_category_id', $category);
                 });
             }
         }
 
         if (! empty($mailbox)) {
+            $mailbox = explode(',',$request->mail_box);
             $query = $query->where(function ($query) use ($mailbox) {
-                $query->orWhere('to', 'like', '%'.$mailbox.'%');
+                $query->orWhere('to', $mailbox);
             });
         }
 
