@@ -13,7 +13,7 @@ class CreateCsvTranslatorHistoryTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('csv_translator_history')) {
+        if (! Schema::hasTable('csv_translator_history')) {
             Schema::create('csv_translator_history', function (Blueprint $table) {
                 $table->id();
                 $table->integer('csv_translator_id');
@@ -36,7 +36,6 @@ class CreateCsvTranslatorHistoryTable extends Migration
                 $table->timestamps();
             });
         }
-        
     }
 
     /**
@@ -47,7 +46,6 @@ class CreateCsvTranslatorHistoryTable extends Migration
     public function down()
     {
         Schema::table('csv_translator_history', function (Blueprint $table) {
-           
         });
     }
 }

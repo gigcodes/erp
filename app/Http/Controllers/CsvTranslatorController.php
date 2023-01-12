@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\CsvTranslator;
 use App\CsvTranslatorHistory;
 use App\Exports\CsvTranslatorExport;
 use App\Imports\CsvTranslatorImport;
+use Illuminate\Http\Request;
 
 class CsvTranslatorController extends Controller
 {
