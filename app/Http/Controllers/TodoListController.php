@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Setting;
+use App\TodoCategory;
 use App\TodoList;
 use App\ToDoListRemarkHistoryLog;
 use App\TodoStatus;
 use Auth;
 use Illuminate\Http\Request;
-use App\TodoCategory;
 
 class TodoListController extends Controller
 {
@@ -38,9 +38,9 @@ class TodoListController extends Controller
                 $todolists->where('todo_date', $s);
             }
 
-	    if ($s = $search_todo_category_id) {
-		    $todolists->where('todo_category_id', $s);
-	    }
+            if ($s = $search_todo_category_id) {
+                $todolists->where('todo_category_id', $s);
+            }
 
             //$todolists = $todolists->orderBy("todo_lists.todo_date", "desc")->paginate(Setting::get('pagination'));
             $todolists = $todolists->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->paginate(Setting::get('pagination'));
@@ -50,12 +50,12 @@ class TodoListController extends Controller
             //dd($statuses);
             if ($request->ajax()) {
                 return response()->json([
-                    'tbody' => view('todolist.data', compact('todolists', 'search_title', 'statuses','search_todo_category_id','todoCategories'))->render(),
+                    'tbody' => view('todolist.data', compact('todolists', 'search_title', 'statuses', 'search_todo_category_id', 'todoCategories'))->render(),
                     'links' => (string) $todolists->render(),
                 ], 200);
             }
 
-            return view('todolist.index', compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses','search_todo_category_id', 'todoCategories'));
+            return view('todolist.index', compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses', 'search_todo_category_id', 'todoCategories'));
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
@@ -220,29 +220,27 @@ class TodoListController extends Controller
 
     public function todoCategoryUpdate(Request $request)
     {
-	    try {
-		    $todolists = TodoList::findorfail($request->id);
-		    $todolists->todo_category_id = $request->todo_category_id;
-		    $todolists->save();
-		    return response()->json(['code' => 200, 'data' => $todolists, 'message' => 'Your Todo Category has been Updated!']);
-	    } catch (\Exception $e) {
-		    return redirect()->back()->withErrors($e->getMessage());
-	    }
+        try {
+            $todolists = TodoList::findorfail($request->id);
+            $todolists->todo_category_id = $request->todo_category_id;
+            $todolists->save();
 
+            return response()->json(['code' => 200, 'data' => $todolists, 'message' => 'Your Todo Category has been Updated!']);
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
     }
 
     public function storeTodoCategory(Request $request)
     {
-	    try {
-		    $todoStatus = new TodoCategory();
-		    $todoStatus->name = $request->todo_category_name;
-		    $todoStatus->save();
+        try {
+            $todoStatus = new TodoCategory();
+            $todoStatus->name = $request->todo_category_name;
+            $todoStatus->save();
 
-		    return redirect()->back()->with('success', 'Your Todo status has been Added!');
-	    } catch (\Exception $e) {
-		    return redirect()->back()->withErrors($e->getMessage());
-	    }
+            return redirect()->back()->with('success', 'Your Todo status has been Added!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
     }
-
-
 }

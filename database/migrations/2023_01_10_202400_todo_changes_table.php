@@ -6,28 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-		Schema::table('todo_lists', function (Blueprint $table) {
-			$table->unsignedBigInteger('todo_category_id');
-		});
-	}
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('todo_lists', function (Blueprint $table) {
+            $table->unsignedBigInteger('todo_category_id');
+        });
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
-		Schema::table('todo_lists', function (Blueprint $table) {
-			$table->dropColumn('todo_category_id');
-		});
-	}
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('todo_lists', function (Blueprint $table) {
+            $table->dropColumn('todo_category_id');
+        });
+    }
 };
-

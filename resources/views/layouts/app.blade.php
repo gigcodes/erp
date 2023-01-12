@@ -1,10 +1,11 @@
 @php
-    $currentRoutes = \Route::current();
-    //$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
-    $metaData = '';
+$currentRoutes = \Route::current();
+//$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
+$metaData = '';
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
 
     <meta charset="utf-8">
@@ -13,16 +14,16 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php
-        if (isset($metaData->page_title) && $metaData->page_title != '') {
-            $title = $metaData->page_title;
-        } else {
-            $title = trim($__env->yieldContent('title'));
-        }
-    ?>
+if (isset($metaData->page_title) && $metaData->page_title != '') {
+    $title = $metaData->page_title;
+} else {
+    $title = trim($__env->yieldContent('title'));
+}
+?>
     @if (trim($__env->yieldContent('favicon')))
-        <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
     @elseif (!\Auth::guest())
-        <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
+    <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
     <title>{!! $title !!}</title>
     <!-- CSRF Token -->
@@ -122,9 +123,9 @@
     @stack('link-css')
     @yield('link-css')
     <script>
-        let Laravel = {};
-        Laravel.csrfToken = "{{csrf_token()}}";
-        window.Laravel = Laravel;
+    let Laravel = {};
+    Laravel.csrfToken = "{{csrf_token()}}";
+    window.Laravel = Laravel;
     </script>
     {{--I/m geting error in console thats why commented--}}
 
@@ -177,15 +178,18 @@
     </script>
 
     @if(Auth::user())
-        {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
-        <script>
-            window.userid = "{{Auth::user()->id}}";
-            window.username = "{{Auth::user()->name}}";
-            loggedinuser = "{{Auth::user()->id}}";
-        </script>
+    {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
+    <script>
+    window.userid = "{{Auth::user()->id}}";
+
+    window.username = "{{Auth::user()->name}}";
+
+    loggedinuser = "{{Auth::user()->id}}";
+    </script>
     @endif
     <script type="text/javascript">
-        var BASE_URL = '{{ config('app.url ') }}';
+    var BASE_URL = '{{ config('
+    app.url ') }}';
     </script>
 
 
@@ -220,12 +224,12 @@
     @yield("styles")
 
     <script>
-        window.Laravel = '{{!!json_encode(['
-        csrfToken '=>csrf_token(),'
-        user '=>['
-        authenticated '=>auth()->check(),'
-        id '=>auth()->check() ? auth()->user()->id : null,'
-        name '=>auth()->check() ? auth()->user()-> name : null,]])!!}';
+    window.Laravel = '{{!!json_encode(['
+    csrfToken '=>csrf_token(),'
+    user '=>['
+    authenticated '=>auth()->check(),'
+    id '=>auth()->check() ? auth()->user()->id : null,'
+    name '=>auth()->check() ? auth()->user()-> name : null,]])!!}';
     </script>
 
 
@@ -242,7 +246,7 @@
     </script> --}}
 
     <script>
-        initializeTwilio();
+    initializeTwilio();
     </script>
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
@@ -254,68 +258,68 @@
     <script src="{{ asset('js/chat.js') }}"></script> --}}
 
     <style type="text/css">
-        .back-to-top {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            display: none;
+    .back-to-top {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        display: none;
 
-        }
+    }
 
-        .dropdown.dots>a:after {
-            display: none;
-        }
+    .dropdown.dots>a:after {
+        display: none;
+    }
 
-        .dropdown.dots>a {
-            line-height: 30px;
-        }
+    .dropdown.dots>a {
+        line-height: 30px;
+    }
 
-        #navbarSupportedContent {
-            display: flex !important;
-        }
+    #navbarSupportedContent {
+        display: flex !important;
+    }
 
-        .nav-item.dropdown.dots {
-            min-width: 35px;
-            padding-right: 15px;
-        }
+    .nav-item.dropdown.dots {
+        min-width: 35px;
+        padding-right: 15px;
+    }
 
-        @media(max-width:1350px) {
+    @media(max-width:1350px) {
 
-
-            .navbar-nav>li {
-                min-width: 94px;
-                padding-right: 15px;
-            }
-        }
-
-        .navbar {
-            padding: 0.1rem 0.8rem;
-            border-bottom: 1px solid #ddd;
-            /*margin-bottom: 8px !important;*/
-            border-radius: 0px;
-        }
-
-        .navbar-brand {
-            padding: 15px 4px;
-            font-size: 20px;
-            font-weight: 700;
-            margin-right: 0;
-        }
-
-        @media(min-width:1700px) {
-            #navs {
-                padding-left: 40px;
-            }
-        }
 
         .navbar-nav>li {
-            min-width: 40px;
-            /*padding-right: 30px;*/
+            min-width: 94px;
+            padding-right: 15px;
         }
+    }
 
-        /*.navbar-brand{*/
-        /*    margin-right: 20px;*/
-        /*}*/
+    .navbar {
+        padding: 0.1rem 0.8rem;
+        border-bottom: 1px solid #ddd;
+        /*margin-bottom: 8px !important;*/
+        border-radius: 0px;
+    }
+
+    .navbar-brand {
+        padding: 15px 4px;
+        font-size: 20px;
+        font-weight: 700;
+        margin-right: 0;
+    }
+
+    @media(min-width:1700px) {
+        #navs {
+            padding-left: 40px;
+        }
+    }
+
+    .navbar-nav>li {
+        min-width: 40px;
+        /*padding-right: 30px;*/
+    }
+
+    /*.navbar-brand{*/
+    /*    margin-right: 20px;*/
+    /*}*/
     </style>
     @stack("styles")
 </head>
@@ -3146,9 +3150,13 @@ if (!empty($notifications)) {
                                     style="width:25px; height:25px;background: #dddddd9c;padding: 0px;"
                                     data-target="#system-request" title="System Request" />
                             </li>
-                            <li>
+			    <li>
                                 <a class="quick-icon todolist-request" href="#"><span><i
                                             class="fa fa-plus fa-2x"></i></span></a>
+                            </li>
+                            <li>
+                                <a class="quick-icon todolist-get" href="#"><span><i
+                                            class="fa fa-list fa-2x"></i></span></a>
                             </li>
                             <li>
                                 <a class="quick-icon permission-request" href="#"><span><i
@@ -3248,6 +3256,43 @@ if (!empty($notifications)) {
             </div>
 
         </nav>
+
+	<div id="todolist-get-model" class="modal fade" role="dialog">
+             <div class="modal-content modal-dialog modal-md">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Todo List</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+			@php
+				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
+			@endphp
+			<div class="modal-body show-list-records" id="todolist-request">
+				@if($todoLists->count())
+				<table class="table table-bordered">
+					 <tbody>
+					  <tr>
+						<th>Title</th>
+						<th>Subject</th>
+						<th>Category</th>
+						<th>Date</th>
+					  </tr>
+					@foreach($todoLists as $todoList)
+					  <tr>
+						<td>{{ $todoList->title }}</td>
+						<td>{{ $todoList->subject }}</td>
+						<td>{{ isset($todoList->category->name) ? $todoList->category->name : ''; }}</td>
+						<td>{{ $todoList->todo_date}}</td>
+					  </tr>
+					@endforeach
+					</tbody>
+				</table>
+				@else
+					<h4 class="modal-title">No Records</h4>
+				@endif
+			</div>
+             </div>
+        </div>
+
         <div id="todolist-request-model" class="modal fade" role="dialog">
             <div class="modal-content modal-dialog modal-md">
                 <form action="{{ route('todolist.store') }}" method="POST">
@@ -3865,13 +3910,13 @@ if (!empty($notifications)) {
     </div>
     @php
 
-        $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
-        $url = str_replace('/','',$url);
-        $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
-        $account_id = "";
-        if(!empty($site_account_id)){
-            $account_id = $site_account_id->account_id;
-        }
+    $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
+    $url = str_replace('/','',$url);
+    $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
+    $account_id = "";
+    if(!empty($site_account_id)){
+    $account_id = $site_account_id->account_id;
+    }
     @endphp
 
 
@@ -4404,43 +4449,43 @@ if (!empty($notifications)) {
 
     @if(session()->has('encrpyt'))
 
-        var inactivityTime = function() {
-            var time;
-            window.onload = resetTimer;
-            // DOM Events
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
+    var inactivityTime = function() {
+        var time;
+        window.onload = resetTimer;
+        // DOM Events
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
 
-            function remove_key() {
-                $.ajax({
-                        url: "{{ route('encryption.forget.key') }}",
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            private: '1',
-                            "_token": "{{ csrf_token() }}",
-                        },
-                    })
-                    .done(function() {
-                        alert('Please Insert Private Key');
-                        location.reload();
-                        console.log("success");
-                    })
-                    .fail(function() {
-                        console.log("error");
-                    })
-            }
-
-            function resetTimer() {
-                clearTimeout(time);
-                time = setTimeout(remove_key, 1200000);
-                // 1000 milliseconds = 1 second
-            }
-        };
-
-        window.onload = function() {
-            inactivityTime();
+        function remove_key() {
+            $.ajax({
+                    url: "{{ route('encryption.forget.key') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        private: '1',
+                        "_token": "{{ csrf_token() }}",
+                    },
+                })
+                .done(function() {
+                    alert('Please Insert Private Key');
+                    location.reload();
+                    console.log("success");
+                })
+                .fail(function() {
+                    console.log("error");
+                })
         }
+
+        function resetTimer() {
+            clearTimeout(time);
+            time = setTimeout(remove_key, 1200000);
+            // 1000 milliseconds = 1 second
+        }
+    };
+
+    window.onload = function() {
+        inactivityTime();
+    }
 
     @endif
 
@@ -4495,39 +4540,39 @@ if (!empty($notifications)) {
     //     }
     // });
     @if(Auth::check())
-        $(document).ready(function() {
-            var url = window.location.href;
-            var user_id = "{{ Auth::id() }}";
-            user_name = "{{ Auth::user()->name }}";
-            $.ajax({
-                type: "POST",
-                url: "/api/userLogs",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "url": url,
-                    "user_id": user_id,
-                    "user_name": user_name
-                },
-                dataType: "json",
-                success: function(message) {}
-            });
+    $(document).ready(function() {
+        var url = window.location.href;
+        var user_id = "{{ Auth::id() }}";
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "url": url,
+                "user_id": user_id,
+                "user_name": user_name
+            },
+            dataType: "json",
+            success: function(message) {}
         });
+    });
     @endif
     </script>
     @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" &&
     !stristr($_SERVER['HTTP_HOST'], '.mac') )
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
-        <script>
-        window.dataLayer = window.dataLayer || [];
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
+    function gtag() {
+        dataLayer.push(arguments);
+    }
 
-        gtag('js', new Date());
-        //gtag('config', 'UA-171553493-1');
-        </script>
+    gtag('js', new Date());
+    //gtag('config', 'UA-171553493-1');
+    </script>
     @endif
     <script>
     <?php
@@ -4960,6 +5005,12 @@ if (!\Auth::guest()) {
         $("#todolist-request-model").modal("show");
     });
 
+    $(document).on("click", ".todolist-get", function(e) {
+        e.preventDefault();
+        $("#todolist-get-model").modal("show");
+    });
+
+
     $(document).on("click", ".permission-grant", function(e) {
         e.preventDefault();
         var permission = $(this).data('id');
@@ -5021,14 +5072,14 @@ if (!\Auth::guest()) {
     });
     </script>
     @if ($message = Session::get('actSuccess'))
-        <script>
-        toastr['success']('<?php echo $message; ?>', 'success');
-        </script>
+    <script>
+    toastr['success']('<?php echo $message; ?>', 'success');
+    </script>
     @endif
     @if ($message = Session::get('actError'))
-        <script>
-        toastr['error']('<?php echo $message; ?>', 'error');
-        </script>
+    <script>
+    toastr['error']('<?php echo $message; ?>', 'error');
+    </script>
     @endif
 
 </body>
