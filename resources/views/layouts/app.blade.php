@@ -220,7 +220,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/global_custom.css') }}">
     @yield("styles")
 
     <script>
@@ -3145,8 +3145,12 @@ if (!empty($notifications)) {
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
                             <li>
+                                <a title="Create database" type="button" class="quick-icon menu-create-database" data-id="10410" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-database fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
-                                    class="mt-2 ml-4 system-request" data-toggle="modal"
+                                    class="system-request" data-toggle="modal"
                                     style="width:25px; height:25px;background: #dddddd9c;padding: 0px;"
                                     data-target="#system-request" title="System Request" />
                             </li>
@@ -3346,6 +3350,99 @@ if (!empty($notifications)) {
                         <button type="submit" class="btn btn-secondary">Store</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div id="menu-create-database-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document" style="width:500px !important">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create Database</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <form id="database-form">
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" name="database_user_id" class="app-database-user-id" id="database-user-id" value="">
+                                        <div class="row">
+                                            <div class="col">
+                                                <select class="form-control choose-db" name="connection">
+                                                    <?php foreach (\App\StoreWebsite::DB_CONNECTION as $k => $connection) {?>
+                                                    <option {{($connection == $k)?"selected='selected'":''}} value="<?php echo $k; ?>"><?php echo $connection; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <select class="form-control choose-username" name="username">
+                                                    <option value="">Select User</option>
+                                                    <?php
+                                                    $users = \App\User::select('id', 'name', 'email')->get();
+                                                    foreach ($users as $k => $connection) {?>
+                                                    <option value="<?php echo $connection->id; ?>" data-name="{{$connection->name}}"><?php echo $connection->name; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" name="password" class="database_password" class="form-control" placeholder="Enter password">
+                                            </div>
+                                            <div class="col">
+                                                <button type="button" class="btn btn-secondary btn-database-add" data-id="">ADD</button>
+
+                                                <button type="button" class="btn btn-secondary btn-delete-database-access d-none" data-connection="" data-id="">DELETE ACCESS</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row mt-5">
+                                <form>
+                                    <?php echo csrf_field(); ?>
+                                    <div class="col-lg-12">
+                                        <div class="row">
+                                            <div class="col">
+                                                <input type="hidden" name="connection"  value="">
+                                                <input type="text" name="search" class="form-control search-table" placeholder="Search Table name">
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group col-md-5">
+                                                    <select class="form-control assign-permission-type" name="assign_permission">
+                                                        <option value="read">Read</option>
+                                                        <option value="write">Write</option>
+                                                    </select>
+                                                </div>
+                                                <button type="button" class="btn btn-secondary btn-assign-permission assign-permission" data-id="">Assign Permission</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 mt-2">
+                                        <table class="table table-bordered" id="database-table-list">
+                                            <thead>
+                                            <tr>
+                                                <th width="5%"></th>
+                                                <th width="95%">Table name</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="menu_tbody">
+                                                @php
+                                                  $database_table_name = \DB::table('information_schema.TABLES')->where('table_schema', env('DB_DATABASE'))->get();
+                                                @endphp
+                                                @foreach(json_decode($database_table_name) as $name)
+                                                <tr>
+                                                    <td><input type="checkbox" name="tables[]" value="{{$name->TABLE_NAME}}"></td>
+                                                    <td>{{$name->TABLE_NAME}}</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                </div>
             </div>
         </div>
 
@@ -3967,8 +4064,8 @@ if (!empty($notifications)) {
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
     </script>
 
-    <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
-    <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/jquery-ui.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/custom_global_script.js')}}"></script>
     <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -3993,6 +4090,63 @@ if (!empty($notifications)) {
             $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden', true).val('');
             $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
         }
+    })
+
+    $(document).on('change', '.choose-username', function() {
+        var val = $(this).val();
+        var db =$('.choose-db').val();
+        $('.app-database-user-id').val(val);
+        $('.btn-database-add').attr('data-id',val);
+        $('.btn-delete-database-access').attr('data-id',val);
+        $('.btn-delete-database-access').attr('data-connection',db);
+        $('.btn-assign-permission').attr('data-id',val);
+        var database_user_id = val;
+        var url = '{{ route("user-management.get-database", ":id") }}';
+        url = url.replace(':id', database_user_id);
+
+        $.ajax({
+            url: url ,
+            type: 'GET',
+            data: {
+                id: database_user_id,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    $('.database_password').val(response.data.password);
+                    if(response.data.password)
+                    {
+                        $('.btn-delete-database-access').removeClass('d-none');
+                    }
+                    var aa = '';
+                    $('.menu_tbody').html('');
+                    $.each(response.data.tables, function(i, record) {
+                        var checkvalue = '';
+                        if(record.checked)
+                        {
+                            checkvalue = 'checked';
+                        }
+
+                        aa += '<tr role="row"><td><input type="checkbox" name="tables[]" value='+record.table+' '+checkvalue+'></td><td>'+record.table+'</td></tr>';
+                    });
+                    $('.menu_tbody').html(aa);
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+
     })
 
     $(document).on('change', '.knowledge_base', function() {
@@ -4124,6 +4278,151 @@ if (!empty($notifications)) {
             alert('please enter IP');
         }
     });
+
+    $(document).on("click", ".btn-database-add", function(e) {
+        e.preventDefault();
+        // var ele = this;
+        var connection = $('.choose-db').val();
+        var username = $('.choose-username').find(':selected').attr('data-name');
+         username = username.replace(/ /g,"_").toLowerCase();
+        var password = $('.database_password').val();
+        var database_user_id = $(this).data("id");
+        var url = '{{ route("user-management.create-database", ":id") }}';
+        url = url.replace(':id', database_user_id);
+
+        $.ajax({
+                url: url ,
+                type: 'POST',
+                data: {
+                    database_user_id: database_user_id,
+                    connection: connection,
+                    username: username,
+                    password: password,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        toastr['success'](response.message, 'success');
+                    } else {
+                        toastr['error'](response.message, 'error');
+                    }
+                },
+                error: function() {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+    });
+
+    $(document).on("click", ".btn-assign-permission", function(e) {
+        e.preventDefault();
+        // var ele = this;
+        var connection = $('.choose-db').val();
+
+        var assign_permission = $('.assign-permission-type').find(':selected').val();
+        var search = $('.search-table').val();
+        var tables = $('.database_password').val();
+        var checked = []
+        $("input[name='tables[]']:checked").each(function ()
+        {
+            checked.push($(this).val());
+        });
+
+        var database_user_id = $('#database-user-id').val();
+        if(database_user_id == '')
+        {
+            toastr['error']('Please select the user first', 'error');
+            return false
+        }
+        var url = '{{ route("user-management.assign-database-table", ":id") }}';
+        url = url.replace(':id', database_user_id);
+
+        $.ajax({
+            url: url ,
+            type: 'POST',
+            data: {
+                database_user_id: database_user_id,
+                connection: connection,
+                search: search,
+                assign_permission: assign_permission,
+                tables: checked,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                    $("#menu-create-database-model").modal("hide");
+                } else {
+                    toastr['error'](response.message, 'error');
+                    $("#menu-create-database-model").modal("hide");
+                }
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on("click", ".btn-delete-database-access", function(e) {
+        e.preventDefault();
+        if (!confirm("Are you sure you want to remove access for this user?")) {
+            return false;
+        } else {
+            var connection = $('.choose-db').val();
+            var database_user_id = $('#database-user-id').val();
+            if (database_user_id == '') {
+                toastr['error']('Please select the user first', 'error');
+                return false
+            }
+            var url = '{{ route("user-management.delete-database-access", ":id") }}';
+            url = url.replace(':id', database_user_id);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    connection: connection,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        toastr['success'](response.message, 'success');
+                        $("#menu-create-database-model").modal("hide");
+                    } else {
+                        toastr['error'](response.message, 'error');
+                        $("#menu-create-database-model").modal("hide");
+                    }
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        }
+    });
+
     $(document).ready(function() {
         $('#ipusers').change(function() {
             var selected = $(this).val();
@@ -5020,6 +5319,11 @@ if (!\Auth::guest()) {
 			e.preventDefault();
 			$("#todolist-get-model").modal("show");
 	});
+
+    $(document).on("click", ".menu-create-database", function(e) {
+        e.preventDefault();
+        $("#menu-create-database-model").modal("show");
+    });
     $(document).on("click", ".permission-grant", function(e) {
         e.preventDefault();
         var permission = $(this).data('id');
