@@ -11,7 +11,25 @@
 			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="<?php echo  $prop->id;  ?>"><span class="show-short-summary-<?php echo $prop->id; ?>" onclick="copySumText()"><?php echo  $prop->summary_short  ?></span>
                         <span class="show-full-summary-<?php echo  $prop->id  ?> hidden" ><?php echo  $prop->summary;  ?></span>
                     </td>
-			        <td class='break'  data-bug_type="<?php echo  $prop->bug_type_id_val  ?>"><?php echo  $prop->bug_type_id;  ?></td>
+			        <td class='break'  data-bug_type="<?php echo  $prop->bug_type_id_val;  ?>">
+					<?php if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
+					<select class='form-control bug_type_in_row'  data-id="<?php echo $prop->id; ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
+					<?php
+									foreach ($bugTypes as $bugtype) { ?>
+									 <option <?php if ($prop->bug_type_id_val == $bugtype->id) { echo " selected"; }  ?>   value="<?php echo $bugtype->id; ?>"><?php echo $bugtype->name; ?></option>
+									
+									<?php
+									}
+							?>
+					</select>			
+					<?php } else { ?>
+					
+					<?php echo $prop->bug_type_id; ?>
+					<?php } ?>
+						
+					</td>
+					
+					
 			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="<?php echo  $prop->id;  ?>" data-toggle="tooltip"> <span class="show-short-Steps to reproduce-<?php echo  $prop->id;  ?>"><?php echo  $prop->step_to_reproduce_short  ?></span>
                         <span class="show-full-step_to_reproduce-<?php echo  $prop->id;  ?> hidden" ><?php echo  $prop->step_to_reproduce;  ?></span>
                     </td>
@@ -76,7 +94,25 @@
 						</div>
 
 			        </td>
-			        <td class='break'><?php echo  $prop->module_id  ?></td>
+			        <td class='break'>
+					<?php if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
+						<select class='form-control bug_module_in_row'  data-id="<?php echo  $prop->id;  ?>" data-module="<?php echo $prop->module_id; ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
+							<option value="">Select Module</option>											
+							<?php
+								foreach($filterCategories as  $filterCategory) {
+									?>
+								<option data-val="<?php echo str_replace("'","",$filterCategory); ?>"  <?php if($prop->module_id ==  str_replace("'","",$filterCategory)){ echo " Selected"; }  ?> value="<?php echo htmlentities($filterCategory); ?>"><?php echo $filterCategory; ?></option>
+									<?php
+									
+								}
+						?>
+						</select>
+					<?php } else { ?>
+					<?php echo  $prop->module_id;  ?>
+					<?php } ?>	
+					
+					
+					</td>
 			        <td class='break'>
 			          <div style="margin-bottom:10px;width: 100%;">
                     <div class="d-flex">
