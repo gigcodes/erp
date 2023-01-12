@@ -17,6 +17,6 @@ class TodoList extends Model
 
     public function category()
     {
-	return $this->hasOne(TodoCategory::class, 'id', 'todo_category_id');
+        return $this->hasOne(TodoCategory::class, 'id', 'todo_category_id');
     }
 }
