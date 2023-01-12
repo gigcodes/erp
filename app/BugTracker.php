@@ -28,6 +28,11 @@ class BugTracker extends Model
         $this->belongsTo(SiteDevelopmentCategory::class, 'module_id', 'id');
     }
 
+    public function userassign()
+    {
+        return $this->belongsTo(User::class, 'assign_to', 'id');
+    }
+
     public function whatsappAll($needBroadcast = false)
     {
         if ($needBroadcast) {
