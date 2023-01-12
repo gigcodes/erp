@@ -449,7 +449,8 @@ var page = {
     },
     saveSite: function (response) {
         if (response.code == 200) {
-            page.loadFirst();
+            // page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         } else {
             $("#loading-image").hide();
@@ -540,7 +541,8 @@ var page = {
                     toastr['error'](val['msg'], 'error');
                 }
             });
-            page.loadFirst();
+            // page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         } else {
             $("#loading-image").hide();
@@ -586,7 +588,8 @@ var page = {
                     toastr['error'](val['msg'], 'error');
                 }
             });
-            page.loadFirst();
+            // page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         } else {
             $("#loading-image").hide();
@@ -607,7 +610,8 @@ var page = {
     saveDeleteTeam: function (response) {
         if (response.code == 200) {
             toastr['success']('Team delete successfully', 'success');
-            page.loadFirst();
+            // page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         } else {
             $("#loading-image").hide();
@@ -643,7 +647,8 @@ var page = {
     savePermission: function (response) {
         if (response.code == 200) {
             toastr['success']('Permission updated successfully', 'success');
-            page.loadFirst();
+            // page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         } else {
             $("#loading-image").hide();
@@ -679,7 +684,8 @@ var page = {
     saveRole: function (response) {
         if (response.code == 200) {
             toastr['success']('Role updated successfully', 'success');
-            page.loadFirst();
+            // page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         } else {
             $("#loading-image").hide();
@@ -880,7 +886,8 @@ var page = {
     saveTimeResult: function (response) {
         if (response.code == 200) {
             toastr['success']('Avaibility saved successfully', 'success');
-            page.loadFirst();
+            // page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         } else {
             $("#loading-image").hide();
@@ -927,7 +934,8 @@ var page = {
     updateAvailabilityResult: function (response) {
         if (response.code == 200) {
             toastr['success']('Avaibility updated successfully', 'success');
-            page.loadFirst();
+            // page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         } else {
             $("#loading-image").hide();
@@ -948,7 +956,8 @@ var page = {
         console.log(response);
         if (response.code == 200) {
             toastr['success'](response.message);
-            page.loadFirst();
+            // page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         } else {
             $("#loading-image").hide();

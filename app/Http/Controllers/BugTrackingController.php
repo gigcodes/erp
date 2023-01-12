@@ -170,6 +170,7 @@ class BugTrackingController extends Controller
                 $bug->module_id = str_replace("'","",$bug->module_id);
                 $bug->module_id = str_replace("&nbsp;"," ",$bug->module_id);
 
+
                 return $bug;
             }
         );
@@ -306,6 +307,7 @@ class BugTrackingController extends Controller
                 $bug->last_chat_message_long = $last_chat_message;
                 $bug->module_id = str_replace("'","",$bug->module_id);
                 $bug->module_id = str_replace("&nbsp;"," ",$bug->module_id);
+
 
                 return $bug;
             }
@@ -848,7 +850,9 @@ class BugTrackingController extends Controller
 
     public function changeBugType(Request $request)
     {
+
         $bugTracker = BugTracker::where('id', $request->id)->first();       
+
         $bugTracker->bug_type_id = $request->bug_type;
         $bugTracker->save();
 
@@ -857,7 +861,9 @@ class BugTrackingController extends Controller
             'bug_id' => $bugTracker->id,
             'updated_by' => \Auth::user()->id,
         ];
-        BugTrackerHistory::create($data);       
+
+        BugTrackerHistory::create($data);      
+
 
         return response()->json(
             [
@@ -1468,9 +1474,11 @@ class BugTrackingController extends Controller
     }
 
 
+
     public function changeModuleType(Request $request)
     {
         $bugTracker = BugTracker::where('id', $request->id)->first();       
+
         $bugTracker->module_id = $request->module_id;
         $bugTracker->save();
 
@@ -1479,7 +1487,9 @@ class BugTrackingController extends Controller
             'bug_id' => $bugTracker->id,
             'updated_by' => \Auth::user()->id,
         ];
+
         BugTrackerHistory::create($data);       
+
 
         return response()->json(
             [
