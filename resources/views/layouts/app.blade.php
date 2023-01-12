@@ -3150,13 +3150,9 @@ if (!empty($notifications)) {
                                     style="width:25px; height:25px;background: #dddddd9c;padding: 0px;"
                                     data-target="#system-request" title="System Request" />
                             </li>
-			    <li>
+                            <li>
                                 <a class="quick-icon todolist-request" href="#"><span><i
                                             class="fa fa-plus fa-2x"></i></span></a>
-                            </li>
-                            <li>
-                                <a class="quick-icon todolist-get" href="#"><span><i
-                                            class="fa fa-list fa-2x"></i></span></a>
                             </li>
                             <li>
                                 <a class="quick-icon permission-request" href="#"><span><i
@@ -3256,43 +3252,6 @@ if (!empty($notifications)) {
             </div>
 
         </nav>
-
-	<div id="todolist-get-model" class="modal fade" role="dialog">
-             <div class="modal-content modal-dialog modal-md">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Todo List</h4>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-			@php
-				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
-			@endphp
-			<div class="modal-body show-list-records" id="todolist-request">
-				@if($todoLists->count())
-				<table class="table table-bordered">
-					 <tbody>
-					  <tr>
-						<th>Title</th>
-						<th>Subject</th>
-						<th>Category</th>
-						<th>Date</th>
-					  </tr>
-					@foreach($todoLists as $todoList)
-					  <tr>
-						<td>{{ $todoList->title }}</td>
-						<td>{{ $todoList->subject }}</td>
-						<td>{{ isset($todoList->category->name) ? $todoList->category->name : ''; }}</td>
-						<td>{{ $todoList->todo_date}}</td>
-					  </tr>
-					@endforeach
-					</tbody>
-				</table>
-				@else
-					<h4 class="modal-title">No Records</h4>
-				@endif
-			</div>
-             </div>
-        </div>
-
         <div id="todolist-request-model" class="modal fade" role="dialog">
             <div class="modal-content modal-dialog modal-md">
                 <form action="{{ route('todolist.store') }}" method="POST">
@@ -5004,12 +4963,6 @@ if (!\Auth::guest()) {
         e.preventDefault();
         $("#todolist-request-model").modal("show");
     });
-
-    $(document).on("click", ".todolist-get", function(e) {
-        e.preventDefault();
-        $("#todolist-get-model").modal("show");
-    });
-
 
     $(document).on("click", ".permission-grant", function(e) {
         e.preventDefault();
