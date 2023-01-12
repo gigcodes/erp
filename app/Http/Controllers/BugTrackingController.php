@@ -166,6 +166,8 @@ class BugTrackingController extends Controller
                 }
                 $bug->last_chat_message_short = substr($last_chat_message, 0, 28);
                 $bug->last_chat_message_long = $last_chat_message;
+                $bug->module_id = str_replace("'", '', $bug->module_id);
+                $bug->module_id = str_replace('&nbsp;', ' ', $bug->module_id);
 
                 return $bug;
             }
@@ -301,6 +303,8 @@ class BugTrackingController extends Controller
                 }
                 $bug->last_chat_message_short = substr($last_chat_message, 0, 28);
                 $bug->last_chat_message_long = $last_chat_message;
+                $bug->module_id = str_replace("'", '', $bug->module_id);
+                $bug->module_id = str_replace('&nbsp;', ' ', $bug->module_id);
 
                 return $bug;
             }
@@ -837,6 +841,29 @@ class BugTrackingController extends Controller
             [
                 'code' => 200,
                 'data' => $bugStatuses,
+            ]
+        );
+    }
+
+    public function changeBugType(Request $request)
+    {
+        $bugTracker = BugTracker::where('id', $request->id)->first();
+
+        $bugTracker->bug_type_id = $request->bug_type;
+        $bugTracker->save();
+
+        $data = [
+            'bug_type_id' => $bugTracker->bug_type_id,
+            'bug_id' => $bugTracker->id,
+            'updated_by' => \Auth::user()->id,
+        ];
+
+        BugTrackerHistory::create($data);
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => $data,
             ]
         );
     }
@@ -1412,6 +1439,27 @@ class BugTrackingController extends Controller
             [
                 'code' => 200,
                 'data' => $bugTracker,
+            ]
+        );
+    }
+
+    public function changeModuleType(Request $request)
+    {
+        $bugTracker = BugTracker::where('id', $request->id)->first();
+        $bugTracker->module_id = $request->module_id;
+        $bugTracker->save();
+
+        $data = [
+            'module_id' => $bugTracker->module_id,
+            'bug_id' => $bugTracker->id,
+            'updated_by' => \Auth::user()->id,
+        ];
+        BugTrackerHistory::create($data);
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => $data,
             ]
         );
     }
