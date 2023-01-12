@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateChangeCsvTranslatorColumnTable extends Migration
+class UpdateStatusColumnCsvTranslator extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateChangeCsvTranslatorColumnTable extends Migration
     public function up()
     {
         Schema::table('csv_translators', function (Blueprint $table) {
-            $table->string('status')->change();
+            $table->string('status')->change()->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class CreateChangeCsvTranslatorColumnTable extends Migration
     public function down()
     {
         Schema::table('csv_translators', function (Blueprint $table) {
-
+            
         });
     }
 }
