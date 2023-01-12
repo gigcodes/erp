@@ -36,7 +36,6 @@
     width: 110px !important;
   }
 
-
   @media (max-width: 1280px) {
     table.table {
         width: 0px;
@@ -69,10 +68,8 @@
 	</div>
 </div>
 
-
-
 <div class="table-responsive mt-3" style="margin-top:20px;">
-      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="zabbix-table">
         <thead>       
             <tr>
                 <th>Host</th>
@@ -96,25 +93,62 @@
       </div> 
 </div>
 
-
-
-
+<div class="modal fade zabbix" id="task-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title float-left position-absolute">Detail History</h4>
+          </div>
+          <div id="task-table-body" class="modal-body">
+              <div class="panel">
+                  <table class="table">
+                      <thead class="modal-table">
+                            <tr>
+                              <th>Host</th>
+                              <th>Free inodes in %</th>
+                              <th>Space utilization</th>
+                              <th>Total Space</th>
+                              <th>Used Space</th>
+                              <th>Available memory</th>
+                              <th>Available memory in %</th>
+                              <th>CPU Idle time</th>
+                              <th>CPU utlization</th>
+                              <th>Interrupts per second</th>
+                              <th>Created At</th>
+                              <th>Updated At</th>
+                            </tr>   
+                      </thead>
+                      <tbody id="renderData">
+                     
+                          
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="modal-footer clearfix">
+          </div>
+      </div>
+  </div>
+</div>
 @endsection
+
 @section('scripts')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
-   var oTable;
+
+      var oTable;
         $(document).ready(function() {
-            oTable = $('#email-table').DataTable({
+            oTable = $('#zabbix-table').DataTable({
                 lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 responsive: true,
                 searchDelay: 500,
                 processing: true,
                 serverSide: true,
                 sScrollX:false,
-                searching: false,
+                searching: true,
                
                 targets: 'no-sort',
                 bSort: false,
@@ -126,14 +160,14 @@
                 },
                 columnDefs: [{
                     targets: [],
-                    orderable: false,
-                    searchable: false
+                    orderable: true,
+                    searchable: true
                 }],
                 columns: [
                     {
                       data: 'name',                                             
                       render: function(data, type, row, meta) {
-                        return data;
+                        return '<div class="singleline-flex">'+data+'<a href="#" data-id="'+row.hostid+'" class="btn btn-primary infobtn float-right"> <i class="fa fa-info"></i></a></div>';
                       }
                     },
                     {
@@ -196,7 +230,41 @@
                 ],
             });
         });
+
+        
+        $(document).on('click','.infobtn',function(){
+          var hostId = $(this).data('id');
+          $.ajax({
+            url:'/zabbix/history',
+            method:'GET',
+            data:{hostid:hostId},
+            success:function(response){
+              var html;
+              $("#renderData").html('');
+              $.each(response.data,function(key,value){
+                  html += `<tr>
+                    <td>${value.hostname}</td>
+                    <td>${value.free_inode_in}</td>
+                    <td>${value.space_utilization}</td>
+                    <td>${value.total_space}</td>
+                    <td>${value.used_space}</td>
+                    <td>${value.available_memory}</td>
+                    <td>${value.available_memory_in}</td>
+                    <td>${value.cpu_idle_time}</td>
+                    <td>${value.cpu_utilization}</td>
+                    <td>${value.interrupts_per_second}</td>
+                    <td>${value.created_at}</td>
+                    <td>${value.updated_at}</td>
+                    </tr>`;
+                })
+              $("#renderData").append(html);
+                $('#task-modal').modal('show');
+            }
+          })
+        })
     </script>
+
+
 
 
 @endsection
