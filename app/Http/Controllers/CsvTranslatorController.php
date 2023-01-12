@@ -60,6 +60,7 @@ class CsvTranslatorController extends Controller
         $historyData['status'] = $oldStatus;
         $historyData[$request->lang_id] = $oldRecord;
         CsvTranslatorHistory::insert($historyData);
+
         return redirect()->route('csvTranslator.list')->with(['success' => 'Successfully Updated']);
     }
 

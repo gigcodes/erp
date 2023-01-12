@@ -114,9 +114,11 @@ class UserManagementController extends Controller
     {
         try {
             if ($request->sop_history_id == '') {
-                return response()->json(['code' => '500',  'message' => 'History not found']);
+                return response()->json(['code' => '200', 'data' => [], 'message' => 'Data listed successfully']);
             }
-            $sopComment = UserFeedbackCategorySopHistoryComment::where('sop_history_id', $request->sop_history_id)->get();
+            $sopComment = UserFeedbackCategorySopHistoryComment::leftJoin('users', 'users.id', 'user_feedback_category_sop_history_comments.user_id')
+                ->select('user_feedback_category_sop_history_comments.*', 'users.name As username')
+                ->where('sop_history_id', $request->sop_history_id)->get();
 
             return response()->json(['code' => '200', 'data' => $sopComment, 'message' => 'Data listed successfully']);
         } catch (\Exception $e) {
