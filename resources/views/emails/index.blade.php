@@ -40,7 +40,7 @@
     </div>
 <div class="row">
 	<div class="col-md-12 p-0">
-		<h2 class="page-heading">Emails List</h2>
+		<h2 class="page-heading">Emails List ({{$totalEmail}})</h2>
 	</div>
 </div>
 @if ($message = Session::get('success'))

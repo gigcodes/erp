@@ -271,8 +271,9 @@ class EmailController extends Controller
         }*/
 
         $mailboxdropdown = $mailboxdropdown->toArray();
+        $totalEmail = count(Email::all());
 
-        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown, 'totalEmail' => $totalEmail])->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function platformUpdate(Request $request)
