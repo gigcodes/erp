@@ -3319,7 +3319,7 @@ if (!empty($notifications)) {
                                                 </select>
                                             </div>
                                             <div class="col">
-                                                <select class="form-control choose-db choose-username" name="username">
+                                                <select class="form-control choose-username" name="username">
                                                     <option value="">Select User</option>
                                                     <?php
                                                     $users = \App\User::select('id', 'name', 'email')->get();
@@ -3333,9 +3333,8 @@ if (!empty($notifications)) {
                                             </div>
                                             <div class="col">
                                                 <button type="button" class="btn btn-secondary btn-database-add" data-id="">ADD</button>
-    {{--                                            {{if data.password}}--}}
-{{--                                                <button type="button" class="btn btn-secondary delete-database-access" data-connection="" data-id="">DELETE ACCESS</button>--}}
-    {{--                                            {{/if}}--}}
+
+                                                <button type="button" class="btn btn-secondary btn-delete-database-access d-none" data-connection="" data-id="">DELETE ACCESS</button>
                                             </div>
                                         </div>
                                     </form>
@@ -3369,7 +3368,7 @@ if (!empty($notifications)) {
                                                 <th width="95%">Table name</th>
                                             </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody class="menu_tbody">
                                                 @php
                                                   $database_table_name = \DB::table('information_schema.TABLES')->where('table_schema', env('DB_DATABASE'))->get();
                                                 @endphp
@@ -3987,9 +3986,59 @@ if (!empty($notifications)) {
 
     $(document).on('change', '.choose-username', function() {
         var val = $(this).val();
+        var db =$('.choose-db').val();
         $('.app-database-user-id').val(val);
         $('.btn-database-add').attr('data-id',val);
+        $('.btn-delete-database-access').attr('data-id',val);
+        $('.btn-delete-database-access').attr('data-connection',db);
         $('.btn-assign-permission').attr('data-id',val);
+        var database_user_id = val;
+        var url = '{{ route("user-management.get-database", ":id") }}';
+        url = url.replace(':id', database_user_id);
+
+        $.ajax({
+            url: url ,
+            type: 'GET',
+            data: {
+                id: database_user_id,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    $('.database_password').val(response.data.password);
+                    if(response.data.password)
+                    {
+                        $('.btn-delete-database-access').removeClass('d-none');
+                    }
+                    var aa = '';
+                    $('.menu_tbody').html('');
+                    $.each(response.data.tables, function(i, record) {
+                        var checkvalue = '';
+                        if(record.checked)
+                        {
+                            checkvalue = 'checked';
+                        }
+
+                        aa += '<tr role="row"><td><input type="checkbox" name="tables[]" value='+record.table+' '+checkvalue+'></td><td>'+record.table+'</td></tr>';
+                    });
+                    $('.menu_tbody').html(aa);
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+
     })
 
     $(document).on('change', '.knowledge_base', function() {
@@ -4162,6 +4211,108 @@ if (!empty($notifications)) {
                     toastr["Error"]("An error occured!");
                 }
             });
+    });
+
+    $(document).on("click", ".btn-assign-permission", function(e) {
+        e.preventDefault();
+        // var ele = this;
+        var connection = $('.choose-db').val();
+
+        var assign_permission = $('.assign-permission-type').find(':selected').val();
+        var search = $('.search-table').val();
+        var tables = $('.database_password').val();
+        var checked = []
+        $("input[name='tables[]']:checked").each(function ()
+        {
+            checked.push($(this).val());
+        });
+
+        var database_user_id = $('#database-user-id').val();
+        if(database_user_id == '')
+        {
+            toastr['error']('Please select the user first', 'error');
+            return false
+        }
+        var url = '{{ route("user-management.assign-database-table", ":id") }}';
+        url = url.replace(':id', database_user_id);
+
+        $.ajax({
+            url: url ,
+            type: 'POST',
+            data: {
+                database_user_id: database_user_id,
+                connection: connection,
+                search: search,
+                assign_permission: assign_permission,
+                tables: checked,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                    $("#menu-create-database-model").modal("hide");
+                } else {
+                    toastr['error'](response.message, 'error');
+                    $("#menu-create-database-model").modal("hide");
+                }
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on("click", ".btn-delete-database-access", function(e) {
+        e.preventDefault();
+        if (!confirm("Are you sure you want to remove access for this user?")) {
+            return false;
+        } else {
+            var connection = $('.choose-db').val();
+            var database_user_id = $('#database-user-id').val();
+            if (database_user_id == '') {
+                toastr['error']('Please select the user first', 'error');
+                return false
+            }
+            var url = '{{ route("user-management.delete-database-access", ":id") }}';
+            url = url.replace(':id', database_user_id);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    connection: connection,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        toastr['success'](response.message, 'success');
+                        $("#menu-create-database-model").modal("hide");
+                    } else {
+                        toastr['error'](response.message, 'error');
+                        $("#menu-create-database-model").modal("hide");
+                    }
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        }
     });
 
     $(document).ready(function() {
