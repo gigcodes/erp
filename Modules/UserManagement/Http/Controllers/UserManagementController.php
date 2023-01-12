@@ -33,12 +33,12 @@ use Auth;
 use Carbon\Carbon;
 use DateTime;
 use DB;
+use function GuzzleHttp\json_encode;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
-use function GuzzleHttp\json_encode;
 
 class UserManagementController extends Controller
 {
