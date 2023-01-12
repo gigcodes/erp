@@ -14,7 +14,7 @@ class UpdateStatusColumnCsvTranslatorHistory extends Migration
     public function up()
     {
         Schema::table('csv_translator_history', function (Blueprint $table) {
-            $table->string('status')->change()->nullable();
+            $table->string('status')->change();
         });
     }
 
