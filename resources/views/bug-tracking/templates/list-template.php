@@ -35,10 +35,10 @@
 						<select class='form-control bug_type_in_row'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
 							<option value="">Select BugType</option>											
 							<?php
-								foreach ($bugTypes as $bugtype) {
-									echo "<option {{if prop.bug_type_id_val == '".$bugtype->id."'}} selected {{/if}} value='".$bugtype->id."'>".$bugtype->name.'</option>';
-								}
-						?>
+                                foreach ($bugTypes as $bugtype) {
+                                    echo "<option {{if prop.bug_type_id_val == '".$bugtype->id."'}} selected {{/if}} value='".$bugtype->id."'>".$bugtype->name.'</option>';
+                                }
+					    ?>
 
 						</select>
 					<?php } else { ?>
