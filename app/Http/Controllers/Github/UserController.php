@@ -10,7 +10,7 @@ use App\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Route;
 use Route;
 
 class UserController extends Controller
@@ -172,11 +172,11 @@ class UserController extends Controller
         return view('github.add_user_to_repo', ['users' => $users]);
     }
 
-    public function addUserToRepository()
+    public function addUserToRepository(Request $request)
     {
-        $repositoryName = Input::get('repo_name');
-        $username = Input::get('username');
-        $permission = Input::get('permission');
+        $repositoryName = $request->repo_name;
+        $username = $request->username;
+        $permission = $request->permission;
 
         //https://api.github.com/repos/:owner/:repo/collaborators/:username
         // $url = 'https://api.github.com/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators/' . $username;

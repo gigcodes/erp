@@ -11,6 +11,7 @@ class PageInstruction extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="page",type="strng")
      * @SWG\Property(property="instruction",type="string")
      * @SWG\Property(property="created_at",type="datetime")

@@ -13,10 +13,10 @@
                         <div class="col-md-12">
                             <div class="text-center mt-5 mb-5">
                                 @if(isset($paging['previous']))
-                                    <a class="btn btn-info" href="{!! action('InstagramController@showPosts').'?previous='.$paging['previous'] !!}">Previous</a>
+                                    <a class="btn btn-info" href="{!! action([\App\Http\Controllers\InstagramController::class, 'showPosts']).'?previous='.$paging['previous'] !!}">Previous</a>
                                 @endif
                                 @if(isset($paging['next']))
-                                    <a class="btn btn-info" href="{!! action('InstagramController@showPosts').'?next='.$paging['next'] !!}">Next</a>
+                                    <a class="btn btn-info" href="{!! action([\App\Http\Controllers\InstagramController::class, 'showPosts']).'?next='.$paging['next'] !!}">Next</a>
                                 @endif
                             </div>
                         </div>
@@ -67,10 +67,10 @@
                         <div class="col-md-12">
                             <div class="text-center mt-5 mb-5">
                                 @if(isset($paging['previous']))
-                                    <a class="btn btn-info" href="{!! action('InstagramController@showPosts').'?previous='.$paging['previous'] !!}">Previous</a>
+                                    <a class="btn btn-info" href="{!! action([\App\Http\Controllers\InstagramController::class, 'showPosts']).'?previous='.$paging['previous'] !!}">Previous</a>
                                 @endif
                                 @if(isset($paging['next']))
-                                     <a class="btn btn-info" href="{!! action('InstagramController@showPosts').'?next='.$paging['next'] !!}">Next</a>
+                                     <a class="btn btn-info" href="{!! action([\App\Http\Controllers\InstagramController::class, 'showPosts']).'?next='.$paging['next'] !!}">Next</a>
                                 @endif
                             </div>
                         </div>
@@ -95,7 +95,7 @@
                 let post_id = $(this).attr('data-media-id');
 
                 $.ajax({
-                    url: "{{ action('InstagramController@getComments') }}",
+                    url: "{{ action([\App\Http\Controllers\InstagramController::class, 'getComments']) }}",
                     data: {
                         post_id: post_id
                     },
@@ -152,7 +152,7 @@
                     let self = this;
                     let postId = $(this).attr('data-post-id');
                     $.ajax({
-                        url: "{{ action('InstagramController@postComment') }}",
+                        url: "{{ action([\App\Http\Controllers\InstagramController::class, 'postComment']) }}",
                         type: 'post',
                         dataType: 'json',
                         data: {

@@ -12,6 +12,7 @@ class ScrapInfluencer extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="post_id",type="integer")
      * @SWG\Property(property="post_caption",type="string")
      * @SWG\Property(property="instagram_user_id",type="integer")

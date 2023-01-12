@@ -12,6 +12,7 @@ class Template extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
 
      * @SWG\Property(property="no_of_images",type="string")

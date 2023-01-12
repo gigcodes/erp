@@ -11,6 +11,7 @@ class PushNotification extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="message",type="string")
      * @SWG\Property(property="role",type="string")

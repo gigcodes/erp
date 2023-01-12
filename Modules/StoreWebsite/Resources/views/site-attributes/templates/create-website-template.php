@@ -24,7 +24,7 @@
 		      </div>
 		      <div class="form-group">
 		         <label for="store_website_id">Store Website ID</label>
-		         <select name="store_website_id" id="store_website_id">
+		         <select name="store_website_id" id="store_website_id" class="form-control">
 		         	<option value=''> Select Website </option>
 		         	{{props websitelist}}
 		         		{{if data}}

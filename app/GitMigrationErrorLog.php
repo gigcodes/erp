@@ -8,6 +8,7 @@ class GitMigrationErrorLog extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="repository_id",type="string")
      * @SWG\Property(property="branch_name",type="string")
      * @SWG\Property(property="ahead_by",type="string")

@@ -11,6 +11,7 @@ class StoreSocialAccount extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="platform",type="string")
      * @SWG\Property(property="url",type="string")

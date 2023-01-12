@@ -11,6 +11,7 @@ class TwilioCurrentCall extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="agent_id",type="integer")
      * @SWG\Property(property="number",type="string")
      * @SWG\Property(property="status",type="integer")

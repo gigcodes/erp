@@ -1775,7 +1775,7 @@
 		var id = $(this).data("id");
 		$.ajax({
 			method: "GET",
-			url: "{{ action('UicheckController@getDocument') }}",
+			url: "{{ action([\App\Http\Controllers\UicheckController::class, 'getDocument']) }}",
 			data: {
 				id: id
 			},

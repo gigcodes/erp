@@ -11,6 +11,7 @@ class ColorNamesReference extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="color_code",type="string")
      * @SWG\Property(property="color_name",type="string")
      */

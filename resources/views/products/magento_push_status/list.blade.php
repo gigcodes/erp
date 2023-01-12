@@ -3,19 +3,16 @@
     <tr>
         <th style="width:2%"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
         <th style="width:8%">Product ID</th>
+        <th style="width:4%">Store Website</th>
         <th style="width:4%">Image</th>
         <th style="width:7%">Brand</th>
         <th style="width:15%">Category</th>
         <th style="width:8%">Title</th>
         <th style="width:8%">Composition</th>
         <th style="width:8%">Color</th>
-        <th style="width:8%">Dimension</th>
-{{--        <th style="width:7%">Sizes</th>--}}
         <th style="width:5%">Price</th>
-{{--        <th style="width:8%">Action</th>--}}
         <th style="width:5%">Status</th>
-        <th style="width:5%">Log message</th>
-        <th style="width:5%">User</th>
+        <th style="width:5%">Log</th>
     </tr>
     </thead>
     <tbody>
@@ -174,6 +171,7 @@
                     @endif
                 </div>
             </td>
+            <td>{{ $product->sw_title . ' - '. $product->sw_id  }}</td>
             <td style="word-break: break-all; word-wrap: break-word">
                 <button type="button" class="btn-link quick-view_image__"
                         data-id="{{ $product->id }}" data-target="#product_image_{{ $product->id }}"
@@ -239,22 +237,9 @@
             </td>
             <td class="table-hover-cell">
 
-                    {{ $product->color }}
+                {{ $product->color }}
             </td>
 
-
-            <td class="table-hover-cell">
-                @if (!$imageCropperRole)
-                    {{ !empty($product->lmeasurement) ? $product->lmeasurement : '' }}x{{ !empty($product->hmeasurement) ? $product->hmeasurement : ' ' }}x{{ !empty($product->dmeasurement) ? $product->dmeasurement : '' }}
-                @endif
-            </td>
-{{--            <td>--}}
-{{--                @php--}}
-{{--                    $size_array = explode(',', $product->size_eu);--}}
-{{--                @endphp--}}
-
-{{--                {{ isset($size_array[0]) ? $size_array[0] : '' }} {{ isset($size_array[1]) ? ', '.$size_array[1] :  '' }}--}}
-{{--            </td>--}}
             <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
                 @if (!$imageCropperRole)
                     <span class="quick-price">{{ $product->price }}</span>
@@ -263,52 +248,26 @@
                     <span>EUR {{ $product->price }}</span>
                 @endif
             </td>
-{{--            <td class="action">--}}
-{{--                @if(auth()->user()->isReviwerLikeAdmin('final_listing'))--}}
-{{--                    @if ($product->is_approved == 0)--}}
-{{--                        <i style="cursor: pointer;" class="fa fa-check upload-magento" title="Approve" data-id="{{ $product->id }}" data-type="approve" aria-hidden="true"></i>--}}
-{{--                    @elseif ($product->is_approved == 1 && $product->isUploaded == 0)--}}
-{{--                        <i style="cursor: pointer;" class="fa fa-list upload-magento" title="List" data-id="{{ $product->id }}" data-type="list" aria-hidden="true"></i>--}}
-{{--                    @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)--}}
-{{--                        <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="enable" aria-hidden="true"></i>--}}
-{{--                    @else--}}
-{{--                        <i style="cursor: pointer;" class="fa fa-pencil upload-magento" title="Update" data-id="{{ $product->id }}" data-type="update" aria-hidden="true"></i>--}}
-{{--                    @endif--}}
-{{--                    @if ($product->product_user_id != null)--}}
-{{--                        {{ \App\User::find($product->product_user_id)->name }}--}}
-{{--                    @endif--}}
-{{--                    <i style="cursor: pointer;" class="fa fa-upload upload-single" data-id="{{ $product->id }}" title="push to magento" aria-hidden="true"></i>--}}
-{{--                @else--}}
-{{--                    <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="submit_for_approval" aria-hidden="true"></i>--}}
-{{--                @endif--}}
-{{--                <i style="cursor: pointer;" class="fa fa-tasks" data-toggle="modal" title="Activity"--}}
-{{--                   data-target="#product_activity_{{ $product->id }}" aria-hidden="true"></i>--}}
-{{--                <a href="javascript:;" data-product-id="{{$product->id}}" class="check-website-should-pushed">--}}
-{{--                    <i style="cursor: pointer;" class="fa fa-globe" data-toggle="modal" title="Website" data-target="#product-website-{{ $product->id }}" aria-hidden="true"></i>--}}
-{{--                </a>--}}
-{{--                <i style="cursor: pointer;" class="fa fa-trash" data-toggle="modal" title="Scrape"--}}
-{{--                   data-target="#product_scrape_{{ $product->id }}" aria-hidden="true"></i>--}}
-{{--            </td>--}}
             <td>
-                {{ $product->product_status }}
+                @php
+                    $logList = \App\Loggers\LogListMagento::select('message')
+                          ->where('product_id', $product->id)->where('store_website_id', $product->sw_id)->orderBy('id', 'desc')->first();
+                      echo $logList->message;
+                @endphp
             </td>
             <td>
-                @if($product->magentoLog)
-                    {{ $product->magentoLog->message }}
-                @else
-                    Product not entered to the queue for conditions check
-                @endif
-            </td>
-            <td>
-                <select class="form-control select-multiple approved_by" name="approved_by"
-                        id="approved_by" data-id="{{ $product->id }}" data-placeholder="Select user">
-                    <option></option>
-                    @foreach($users as $user)
-                        <option value="{{$user->id}}" {{ $product->approved_by == $user->id ? 'selected' : '' }} >{{ $user->name }}</option>
-                    @endforeach
-                </select>
+                {{--                @if($product->magentoLog)--}}
+                {{--                    {{ $product->magentoLog->message.'-'.$product->magentoLog->id }}--}}
+                {{--                @else--}}
+                {{--                    Product not entered to the queue for conditions check--}}
+                {{--                @endif--}}
+                <a onclick="getConditionCheckLog({{ $product->id }}, {{ $product->sw_id }})" class="btn" title="View log">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                </a>
             </td>
         </tr>
     @endforeach
     </tbody>
 </table>
+
+{{ $products->links() }}

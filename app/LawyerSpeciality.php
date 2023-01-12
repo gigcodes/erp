@@ -11,6 +11,7 @@ class LawyerSpeciality extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="lawyer_specialities",type="string")
      * @SWG\Property(property="title",type="string")
      */

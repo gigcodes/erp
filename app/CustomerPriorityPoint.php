@@ -12,6 +12,7 @@ class CustomerPriorityPoint extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integet")
      * @SWG\Property(property="lead_points",type="integet")
      * @SWG\Property(property="order_points",type="integet")

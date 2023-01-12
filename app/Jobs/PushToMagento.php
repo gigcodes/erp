@@ -21,8 +21,11 @@ class PushToMagento implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_product;
+
     protected $_website;
+
     protected $log;
+
     protected $mode;
 
     /**
@@ -33,7 +36,7 @@ class PushToMagento implements ShouldQueue
      * @param  null  $log
      * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode=null)
+    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null)
     {
         // Set product and website
         $this->_product = $product;
@@ -54,6 +57,12 @@ class PushToMagento implements ShouldQueue
 
         $date_time = date('Y-m-d H:i:s');
         // Load product and website
+        if ($this->log) {
+            $this->log->sync_status = 'first_job_started';
+            $this->log->message = 'First job started';
+            $this->log->job_start_time = $date_time;
+            $this->log->save();
+        }
         $product = $this->_product;
         $website = $this->_website;
         $conditionsWithIds = PushToMagentoCondition::where('status', 1)->pluck('id', 'condition')->toArray();
@@ -73,14 +82,12 @@ class PushToMagento implements ShouldQueue
                 $charity = 1;
             }
         }
-
         try {
-            //$jobId = app(JobRepository::class)->id;
             if ((in_array('status_condition', $conditions) && $topParent == 'NEW') || ($topParent == 'PREOWNED' && in_array('status_condition', $upteamconditions))) {
                 if ($product->status_id == StatusHelper::$finalApproval) {
                     if ($this->log) {
-                        $this->log->sync_status = 'started_push';
-                        $this->log->message = 'Product has been started to push';
+                        $this->log->sync_status = 'condition_checking';
+                        $this->log->message = 'Product has been started to check conditions.';
                         $this->log->queue_id = $this->job->getJobId();
                         $this->log->job_start_time = $date_time;
                         $this->log->save();
@@ -172,7 +179,15 @@ class PushToMagento implements ShouldQueue
                         ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
                     }
 
-                    MagentoServiceJob::dispatch($product, $website, $this->log, $this->mode)->onQueue($this->log->queue);
+                    try {
+                        MagentoServiceJob::dispatch($product, $website, $this->log)->onQueue($this->log->queue);
+                    } catch (\Exception $e) {
+                        $error_msg = 'Second Job failed: '.$e->getMessage();
+                        $this->log->sync_status = 'error';
+                        $this->log->message = $error_msg;
+                        $this->log->save();
+                        ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $this->log->id, null);
+                    }
 
                     if ($this->log) {
                         $this->log->job_end_time = date('Y-m-d H:i:s');
@@ -191,6 +206,9 @@ class PushToMagento implements ShouldQueue
                         \Log::error($errorMessage);
                     }
                 }
+            } else {
+                $errorMessage = 'Either one of the following condition failed: Top parent is NEW and status_condition exists in '.json_encode($conditions).' || Top parent is PREOWNED and status_condition exists in upteamconditions';
+                ProductPushErrorLog::log('', $product->id, $errorMessage, 'error', $website->id, null, null, $this->log->id, null);
             }
         } catch (\Exception $e) {
             if ($this->log) {
@@ -261,6 +279,20 @@ class PushToMagento implements ShouldQueue
         //     // Log info
         //     Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
         // }
+    }
+
+    public function failed(\Throwable $exception = null)
+    {
+        $product = $this->_product;
+        $website = $this->_website;
+
+        $error_msg = 'First Job failed for '.$product->name;
+        if ($this->log) {
+            $this->log->sync_status = 'error';
+            $this->log->message = $error_msg;
+            $this->log->save();
+        }
+        ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $this->log->id);
     }
 
     public function tags()

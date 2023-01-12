@@ -11,6 +11,7 @@ class TasksHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="tasks_history",type="string")
      * @SWG\Property(property="name",type="string")
      */

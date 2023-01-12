@@ -355,7 +355,7 @@ class TestCaseController extends Controller
                     $bugTracking->test_case_id = $testCase->id;
                     $bugTracking->website = $request->bug_website;
                     $bugTracking->created_by = Auth::user()->id;
-                    $bugTracking->assign_to =  $request->assign_to_test_case;
+                    $bugTracking->assign_to = $request->assign_to_test_case;
                     $bugTracking->bug_status_id = $bugStatus->id;
                     $bugTracking->save();
                     $params = ChatMessage::create([
@@ -373,7 +373,7 @@ class TestCaseController extends Controller
                     $bugTrackingHistory->test_case_id = $testCase->id;
                     $bugTrackingHistory->step_to_reproduce = $testCase->step_to_reproduce;
                     $bugTrackingHistory->website = $request->bug_website;
-                    $bugTrackingHistory->assign_to =  $request->assign_to_test_case;
+                    $bugTrackingHistory->assign_to = $request->assign_to_test_case;
                     $bugTrackingHistory->created_by = Auth::user()->id;
                     $bugTrackingHistory->bug_status_id = $bugStatus->id;
                     $bugTrackingHistory->save();
@@ -384,22 +384,19 @@ class TestCaseController extends Controller
                     ];
                     BugStatusHistory::create($statusHistory);
                     $record = [
-                        'new_user' =>  $request->assign_to_test_case,
+                        'new_user' => $request->assign_to_test_case,
                         'bug_id' => $bugTracking->id,
                         'updated_by' => \Auth::user()->id,
                     ];
                     BugUserHistory::create($record);
-
-
                 }
-                return response()->json(['code' => 200,'message'=>'Test Cases Added Successfully']);
+
+                return response()->json(['code' => 200, 'message' => 'Test Cases Added Successfully']);
             } else {
                 return response()->json(['code' => 500, 'error' => 'No Record Found']);
             }
-
         } else {
             return response()->json(['code' => 500, 'error' => 'website is required']);
-
         }
     }
 }

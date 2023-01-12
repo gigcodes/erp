@@ -11,6 +11,7 @@ class Wetransfer extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="url",type="string")
      * @SWG\Property(property="supplier",type="string")

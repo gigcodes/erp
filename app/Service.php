@@ -11,6 +11,7 @@ class Service extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="description",type="string")
      * @SWG\Property(property="name",type="string")
      */

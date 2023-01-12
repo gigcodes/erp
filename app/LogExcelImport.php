@@ -13,6 +13,7 @@ class LogExcelImport extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="filename",type="string")
      * @SWG\Property(property="supplier",type="string")
      * @SWG\Property(property="number_of_products",type="string")

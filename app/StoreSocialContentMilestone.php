@@ -11,6 +11,7 @@ class StoreSocialContentMilestone extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="store_social_content_id",type="integer")
      * @SWG\Property(property="task_id",type="integer")
      * @SWG\Property(property="ono_of_content",type="string")

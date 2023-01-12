@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BugTracker;
 use App\ChatMessage;
 use App\ChatMessagesQuickData;
 use App\Contact;
@@ -19,9 +20,12 @@ use App\NotificationQueue;
 use App\PaymentReceipt;
 use App\PushNotification;
 use App\Remark;
+use App\RoleUser;
 use App\SatutoryTask;
 use App\ScheduledMessage;
 use App\Setting;
+use App\SiteDevelopment;
+use App\SiteDevelopmentCategory;
 use App\Sop;
 use App\StoreWebsite;
 use App\Task;
@@ -42,7 +46,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
 
 class TaskModuleController extends Controller
@@ -53,11 +57,14 @@ class TaskModuleController extends Controller
 
     public function __construct()
     {
-        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
-        $this->githubClient = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
-            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
-        ]);
+        $this->githubClient = new Client(
+            [
+                'auth' => [
+                    config('env.GITHUB_USERNAME'),
+                    config('env.GITHUB_TOKEN'),
+                ],
+            ]
+        );
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
@@ -182,7 +189,8 @@ class TaskModuleController extends Controller
                 $isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
             }
 
-            $data['task']['pending'] = DB::select('
+            $data['task']['pending'] = DB::select(
+                '
 			SELECT tasks.*
 
 			FROM (
@@ -202,15 +210,8 @@ class TaskModuleController extends Controller
 			) AS tasks
 			WHERE (deleted_at IS NULL) 
             AND (id IS NOT NULL) 
-            AND is_statutory != 1 '
-                .$isCompleteWhereClose
-                .$userquery
-                .$status_filter
-                .$flag_filter
-                .$categoryWhereClause
-                .$searchWhereClause
-                .$orderByClause
-                .' limit '.$paginate.' offset '.$offSet.'; ');
+            AND is_statutory != 1 '.$isCompleteWhereClose.$userquery.$status_filter.$flag_filter.$categoryWhereClause.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.'; '
+            );
 
             foreach ($data['task']['pending'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
@@ -248,7 +249,8 @@ class TaskModuleController extends Controller
             $offSet = ($page * $paginate) - $paginate;
             $orderByClause .= ' last_communicated_at DESC';
 
-            $data['task']['completed'] = DB::select('
+            $data['task']['completed'] = DB::select(
+                '
                 SELECT *,
  				message_id,
                 message,
@@ -270,7 +272,8 @@ class TaskModuleController extends Controller
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL '.$userquery.$categoryWhereClause.$status_filter.$flag_filter.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL '.$userquery.$categoryWhereClause.$status_filter.$flag_filter.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.';'
+            );
 
             foreach ($data['task']['completed'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
@@ -308,7 +311,8 @@ class TaskModuleController extends Controller
             $offSet = ($page * $paginate) - $paginate;
             $orderByClause .= ' last_communicated_at DESC';
 
-            $data['task']['statutory_not_completed'] = DB::select('
+            $data['task']['statutory_not_completed'] = DB::select(
+                '
 	               SELECT *,
 				   message_id,
 	               message,
@@ -332,7 +336,8 @@ class TaskModuleController extends Controller
 	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL '.$userquery.$categoryWhereClause.$status_filter.$flag_filter.$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL '.$userquery.$categoryWhereClause.$status_filter.$flag_filter.$orderByClause.' limit '.$paginate.' offset '.$offSet.';'
+            );
 
             foreach ($data['task']['statutory_not_completed'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
@@ -627,9 +632,12 @@ class TaskModuleController extends Controller
         $usrlst = User::orderby('name')->where('is_active', 1)->get();
         $users = Helpers::getUserArray($usrlst);
         $task_categories = TaskCategory::where('parent_id', 0)->get();
-        $task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(['name' => 'category', 'class' => 'form-control input-sm'])
-            ->selected($request->category)
-            ->renderAsDropdown();
+        $task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(
+            [
+                'name' => 'category',
+                'class' => 'form-control input-sm',
+            ]
+        )->selected($request->category)->renderAsDropdown();
 
         $categories = [];
         foreach (TaskCategory::all() as $category) {
@@ -643,11 +651,7 @@ class TaskModuleController extends Controller
         $tasks_view = [];
         $priority = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
 
-        $openTask = \App\Task::join('users as u', 'u.id', 'tasks.assign_to')
-            ->whereNull('tasks.is_completed')
-            ->groupBy('tasks.assign_to')
-            ->select(\DB::raw('count(u.id) as total'), 'u.name as person')
-            ->pluck('total', 'person');
+        $openTask = \App\Task::join('users as u', 'u.id', 'tasks.assign_to')->whereNull('tasks.is_completed')->groupBy('tasks.assign_to')->select(\DB::raw('count(u.id) as total'), 'u.name as person')->pluck('total', 'person');
 
         if ($request->is_statutory_query == 3) {
             $title = 'Discussion tasks';
@@ -674,9 +678,23 @@ class TaskModuleController extends Controller
         } else {
             $statuseslist = TaskStatus::pluck('name', 'id')->toArray();
             $selectStatusList = TaskStatus::pluck('id')->toArray();
+            $taskstatus = TaskStatus::get();
 
-            return view('task-module.show', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList'));
+            return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList'));
         }
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = TaskStatus::find($key);
+            $bugstatus->task_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     // public function createTask() {
@@ -702,21 +720,27 @@ class TaskModuleController extends Controller
         $total = $request->total;
         if ($task->milestone_completed) {
             if ($total <= $task->milestone_completed) {
-                return response()->json([
-                    'message' => 'Milestone no can\'t be reduced',
-                ], 500);
+                return response()->json(
+                    [
+                        'message' => 'Milestone no can\'t be reduced',
+                    ], 500
+                );
             }
         }
 
         if ($total > $task->no_of_milestone) {
-            return response()->json([
-                'message' => 'Estimated milestone exceeded',
-            ], 500);
+            return response()->json(
+                [
+                    'message' => 'Estimated milestone exceeded',
+                ], 500
+            );
         }
         if (! $task->cost || $task->cost == '') {
-            return response()->json([
-                'message' => 'Please provide cost first',
-            ], 500);
+            return response()->json(
+                [
+                    'message' => 'Please provide cost first',
+                ], 500
+            );
         }
 
         $newCompleted = $total - $task->milestone_completed;
@@ -734,9 +758,11 @@ class TaskModuleController extends Controller
         $payment_receipt->user_id = $task->assign_to;
         $payment_receipt->save();
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+        return response()->json(
+            [
+                'status' => 'success',
+            ]
+        );
     }
 
     public function updatePriorityNo(Request $request)
@@ -757,24 +783,27 @@ class TaskModuleController extends Controller
     {
         $user_id = $request->get('user_id', 0);
         $selected_issue = $request->get('selected_issue', []);
-        $issues = Task::select('tasks.*')
-            ->leftJoin('erp_priorities', function ($query) {
+        $issues = Task::select('tasks.*')->leftJoin(
+            'erp_priorities', function ($query) {
                 $query->on('erp_priorities.model_id', '=', 'tasks.id');
                 $query->where('erp_priorities.model_type', '=', Task::class);
-            })->whereNull('is_verified');
+            }
+        )->whereNull('is_verified');
 
         if (auth()->user()->isAdmin()) {
-            $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
-                if ((count($selected_issue) != 0 && count($selected_issue) != 1)) {
-                    $q->whereIn('tasks.id', $selected_issue);
-                }
+            $issues = $issues->where(
+                function ($q) use ($selected_issue, $user_id) {
+                    if ((count($selected_issue) != 0 && count($selected_issue) != 1)) {
+                        $q->whereIn('tasks.id', $selected_issue);
+                    }
 
-                $user_id = is_null($user_id) ? 0 : $user_id;
+                    $user_id = is_null($user_id) ? 0 : $user_id;
 
-                if ($user_id != 0) {
-                    $q->where('tasks.assign_to', $user_id)->orWhere('tasks.master_user_id', $user_id);
+                    if ($user_id != 0) {
+                        $q->where('tasks.assign_to', $user_id)->orWhere('tasks.master_user_id', $user_id);
+                    }
                 }
-            });
+            );
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
         }
@@ -788,10 +817,12 @@ class TaskModuleController extends Controller
         unset($value);
         $viewData = view('task-module.taskpriority', compact('issues'))->render();
 
-        return response()->json([
-            'html' => $viewData,
+        return response()->json(
+            [
+                'html' => $viewData,
 
-        ], 200);
+            ], 200
+        );
 
         //  return response()->json($issues);
     }
@@ -811,23 +842,23 @@ class TaskModuleController extends Controller
 
         if (! empty($priority)) {
             foreach ((array) $priority as $model_id) {
-                \App\ErpPriority::create([
-                    'model_id' => $model_id,
-                    'model_type' => Task::class,
-                    'user_id' => $user_id,
-                ]);
+                \App\ErpPriority::create(
+                    [
+                        'model_id' => $model_id,
+                        'model_type' => Task::class,
+                        'user_id' => $user_id,
+                    ]
+                );
             }
 
-            $developerTask = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')
-                ->join('erp_priorities', function ($query) use ($user_id) {
+            $developerTask = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')->join(
+                'erp_priorities', function ($query) use ($user_id) {
                     $user_id = is_null($user_id) ? 0 : $user_id;
                     $query->on('erp_priorities.model_id', '=', 'tasks.id');
                     $query->where('erp_priorities.model_type', '=', Task::class);
                     $query->where('user_id', $user_id);
-                })
-                ->whereNull('is_verified')
-                ->orderBy('erp_priorities.id')
-                ->get();
+                }
+            )->whereNull('is_verified')->orderBy('erp_priorities.id')->get();
 
             $message = '';
             $i = 1;
@@ -858,19 +889,23 @@ class TaskModuleController extends Controller
             }
         }
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+        return response()->json(
+            [
+                'status' => 'success',
+            ]
+        );
     }
 
     public function store(Request $request)
     {
         dd('We are not using this function anymore, If you reach here, that means that we have to change this.');
-        $this->validate($request, [
-            'task_subject' => 'required',
-            'task_details' => 'required',
-            'assign_to' => 'required_without:assign_to_contacts',
-        ]);
+        $this->validate(
+            $request, [
+                'task_subject' => 'required',
+                'task_details' => 'required',
+                'assign_to' => 'required_without:assign_to_contacts',
+            ]
+        );
         $data = $request->except('_token');
         $data['assign_from'] = Auth::id();
 
@@ -901,11 +936,13 @@ class TaskModuleController extends Controller
         if ($request->is_statutory == 3) {
             foreach ($request->note as $note) {
                 if ($note != null) {
-                    Remark::create([
-                        'taskid' => $task->id,
-                        'remark' => $note,
-                        'module_type' => 'task-note',
-                    ]);
+                    Remark::create(
+                        [
+                            'taskid' => $task->id,
+                            'remark' => $note,
+                            'module_type' => 'task-note',
+                        ]
+                    );
                 }
             }
         }
@@ -971,14 +1008,16 @@ class TaskModuleController extends Controller
         }
 
         $chat_message = ChatMessage::create($params);
-        ChatMessagesQuickData::updateOrCreate([
-            'model' => \App\Task::class,
-            'model_id' => $params['task_id'],
-        ], [
-            'last_communicated_message' => @$params['message'],
-            'last_communicated_message_at' => $chat_message->created_at,
-            'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
-        ]);
+        ChatMessagesQuickData::updateOrCreate(
+            [
+                'model' => \App\Task::class,
+                'model_id' => $params['task_id'],
+            ], [
+                'last_communicated_message' => @$params['message'],
+                'last_communicated_message_at' => $chat_message->created_at,
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]
+        );
 
         $myRequest = new Request();
         $myRequest->setMethod('POST');
@@ -999,9 +1038,7 @@ class TaskModuleController extends Controller
         $taskSummery = substr($message, 0, 200);
 
         $hubstaffTaskId = $this->createHubstaffTask(
-            $taskSummery,
-            $hubstaffUserId,
-            $hubstaff_project_id
+            $taskSummery, $hubstaffUserId, $hubstaff_project_id
         );
 
         if ($hubstaffTaskId) {
@@ -1036,7 +1073,13 @@ class TaskModuleController extends Controller
 
                 $view = (string) view($mode, compact('task', 'priority', 'users', 'task_statuses'));
 
-                return response()->json(['code' => 200, 'statutory' => $task->is_statutory, 'raw' => $view]);
+                return response()->json(
+                    [
+                        'code' => 200,
+                        'statutory' => $task->is_statutory,
+                        'raw' => $view,
+                    ]
+                );
             }
 
             return response('success');
@@ -1066,8 +1109,7 @@ class TaskModuleController extends Controller
             }
 
             $response = $httpClient->post(
-                $url,
-                [
+                $url, [
                     RequestOptions::HEADERS => [
                         'Authorization' => 'Bearer '.$tokens->access_token,
                         'Content-Type' => 'application/json',
@@ -1079,15 +1121,12 @@ class TaskModuleController extends Controller
             $parsedResponse = json_decode($response->getBody()->getContents());
 
             return $parsedResponse->task->id;
-        } catch (ClientException $e) {
+        } catch(ClientException $e) {
             if ($e->getCode() == 401) {
                 $this->refreshTokens();
                 if ($shouldRetry) {
                     return $this->createHubstaffTask(
-                        $taskSummary,
-                        $hubstaffUserId,
-                        $projectId,
-                        false
+                        $taskSummary, $hubstaffUserId, $projectId, false
                     );
                 } else {
                 }
@@ -1139,23 +1178,29 @@ class TaskModuleController extends Controller
         $task->general_category_id = $request->get('general_category_id', null);
         $task->save();
 
-        return response()->json([
-            'task' => $task,
-        ]);
+        return response()->json(
+            [
+                'task' => $task,
+            ]
+        );
     }
 
     public function loadView(Request $request)
     {
         $tasks = Task::whereIn('id', $request->selected_tasks)->get();
         $users = Helpers::getUserArray(User::all());
-        $view = view('task-module.partials.task-view', [
-            'tasks_view' => $tasks,
-            'users' => $users,
-        ])->render();
+        $view = view(
+            'task-module.partials.task-view', [
+                'tasks_view' => $tasks,
+                'users' => $users,
+            ]
+        )->render();
 
-        return response()->json([
-            'view' => $view,
-        ]);
+        return response()->json(
+            [
+                'view' => $view,
+            ]
+        );
     }
 
     public function assignMessages(Request $request)
@@ -1173,10 +1218,12 @@ class TaskModuleController extends Controller
 
     public function messageReminder(Request $request)
     {
-        $this->validate($request, [
-            'message_id' => 'required|numeric',
-            'reminder_date' => 'required',
-        ]);
+        $this->validate(
+            $request, [
+                'message_id' => 'required|numeric',
+                'reminder_date' => 'required',
+            ]
+        );
 
         $message = ChatMessage::find($request->message_id);
 
@@ -1221,22 +1268,26 @@ class TaskModuleController extends Controller
 
     public function addNote(Request $request, $id)
     {
-        Remark::create([
-            'taskid' => $id,
-            'remark' => $request->note,
-            'module_type' => 'task-note',
-        ]);
+        Remark::create(
+            [
+                'taskid' => $id,
+                'remark' => $request->note,
+                'module_type' => 'task-note',
+            ]
+        );
 
         return response('success', 200);
     }
 
     public function addSubnote(Request $request, $id)
     {
-        $remark = Remark::create([
-            'taskid' => $id,
-            'remark' => $request->note,
-            'module_type' => 'task-note-subnote',
-        ]);
+        $remark = Remark::create(
+            [
+                'taskid' => $id,
+                'remark' => $request->note,
+                'module_type' => 'task-note-subnote',
+            ]
+        );
 
         $id = $remark->id;
 
@@ -1267,9 +1318,14 @@ class TaskModuleController extends Controller
 
         $users = User::all();
         $users_array = Helpers::getUserArray(User::all());
-        $categories = TaskCategory::attr(['title' => 'category', 'class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
-            ->selected($task->category)
-            ->renderAsDropdown();
+        $categories = TaskCategory::attr(
+            [
+                'title' => 'category',
+                'class' => 'form-control input-sm',
+                'placeholder' => 'Select a Category',
+                'id' => 'task_category',
+            ]
+        )->selected($task->category)->renderAsDropdown();
 
         if (request()->has('keyword')) {
             $taskNotes = $task->notes()->orderBy('is_flagged')->where('is_hide', 0)->where('remark', 'like', '%'.request()->keyword.'%')->paginate(20);
@@ -1279,23 +1335,27 @@ class TaskModuleController extends Controller
 
         $hiddenRemarks = $task->notes()->where('is_hide', 1)->get();
 
-        return view('task-module.task-show', [
-            'task' => $task,
-            'users' => $users,
-            'users_array' => $users_array,
-            'categories' => $categories,
-            'taskNotes' => $taskNotes,
-            'hiddenRemarks' => $hiddenRemarks,
-            'chatMessages' => $chatMessages,
-        ]);
+        return view(
+            'task-module.task-show', [
+                'task' => $task,
+                'users' => $users,
+                'users_array' => $users_array,
+                'categories' => $categories,
+                'taskNotes' => $taskNotes,
+                'hiddenRemarks' => $hiddenRemarks,
+                'chatMessages' => $chatMessages,
+            ]
+        );
     }
 
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'assign_to.*' => 'required_without:assign_to_contacts',
-            'sending_time' => 'sometimes|nullable|date',
-        ]);
+        $this->validate(
+            $request, [
+                'assign_to.*' => 'required_without:assign_to_contacts',
+                'sending_time' => 'sometimes|nullable|date',
+            ]
+        );
 
         $task = Task::find($id);
         $task->users()->detach();
@@ -1338,9 +1398,11 @@ class TaskModuleController extends Controller
 
         $task->save();
 
-        return response()->json([
-            'task' => $task,
-        ]);
+        return response()->json(
+            [
+                'task' => $task,
+            ]
+        );
     }
 
     public function isWatched(Request $request, $id)
@@ -1355,9 +1417,11 @@ class TaskModuleController extends Controller
 
         $task->save();
 
-        return response()->json([
-            'task' => $task,
-        ]);
+        return response()->json(
+            [
+                'task' => $task,
+            ]
+        );
     }
 
     public function complete(Request $request, $taskid)
@@ -1395,13 +1459,14 @@ class TaskModuleController extends Controller
                         // Fixed price task.
                         if ($task->cost == null) {
                             if ($request->ajax()) {
-                                return response()->json([
-                                    'message' => 'Please provide cost for fixed price task.',
-                                ], 500);
+                                return response()->json(
+                                    [
+                                        'message' => 'Please provide cost for fixed price task.',
+                                    ], 500
+                                );
                             }
 
-                            return redirect()->back()
-                                ->with('error', 'Please provide cost for fixed price task.');
+                            return redirect()->back()->with('error', 'Please provide cost for fixed price task.');
                         }
                         if (! $task->is_milestone) {
                             $payment_receipt = new PaymentReceipt;
@@ -1449,13 +1514,14 @@ class TaskModuleController extends Controller
         // $notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\Task')->delete();
 
         if ($request->ajax()) {
-            return response()->json([
-                'task' => $task,
-            ]);
+            return response()->json(
+                [
+                    'task' => $task,
+                ]
+            );
         }
 
-        return redirect()->back()
-            ->with('success', 'Task marked as completed.');
+        return redirect()->back()->with('success', 'Task marked as completed.');
     }
 
     public function start(Request $request, $taskid)
@@ -1466,9 +1532,11 @@ class TaskModuleController extends Controller
         $task->save();
 
         if ($request->ajax()) {
-            return response()->json([
-                'task' => $task,
-            ]);
+            return response()->json(
+                [
+                    'task' => $task,
+                ]
+            );
         }
 
         return redirect()->back()->with('success', 'Task started.');
@@ -1497,8 +1565,7 @@ class TaskModuleController extends Controller
         // 	'role'       => '',
         // ] );
 
-        return redirect()->back()
-            ->with('success', 'Statutory Task marked as completed.');
+        return redirect()->back()->with('success', 'Statutory Task marked as completed.');
     }
 
     public function addRemark(Request $request)
@@ -1508,19 +1575,23 @@ class TaskModuleController extends Controller
         $created_at = date('Y-m-d H:i:s');
         $update_at = date('Y-m-d H:i:s');
         if ($request->module_type == 'document') {
-            $remark_entry = DocumentRemark::create([
-                'document_id' => $id,
-                'remark' => $remark,
-                'module_type' => $request->module_type,
-                'user_name' => $request->user_name ? $request->user_name : Auth::user()->name,
-            ]);
+            $remark_entry = DocumentRemark::create(
+                [
+                    'document_id' => $id,
+                    'remark' => $remark,
+                    'module_type' => $request->module_type,
+                    'user_name' => $request->user_name ? $request->user_name : Auth::user()->name,
+                ]
+            );
         } else {
-            $remark_entry = Remark::create([
-                'taskid' => $id,
-                'remark' => $remark,
-                'module_type' => $request->module_type,
-                'user_name' => $request->user_name ? $request->user_name : Auth::user()->name,
-            ]);
+            $remark_entry = Remark::create(
+                [
+                    'taskid' => $id,
+                    'remark' => $remark,
+                    'module_type' => $request->module_type,
+                    'user_name' => $request->user_name ? $request->user_name : Auth::user()->name,
+                ]
+            );
         }
 
         if ($request->module_type == 'task-discussion') {
@@ -1629,13 +1700,15 @@ class TaskModuleController extends Controller
         $user = $request->user ?? [];
         $date = $request->date ?? '';
 
-        return view('task-module.list', [
-            'pending_tasks' => $pending_tasks,
-            'completed_tasks' => $completed_tasks,
-            'users' => $users,
-            'user' => $user,
-            'date' => $date,
-        ]);
+        return view(
+            'task-module.list', [
+                'pending_tasks' => $pending_tasks,
+                'completed_tasks' => $completed_tasks,
+                'users' => $users,
+                'user' => $user,
+                'date' => $date,
+            ]
+        );
     }
 
     public function getremark(Request $request)
@@ -1702,7 +1775,12 @@ class TaskModuleController extends Controller
         $from = $request->input('range_start').' 00:00:00.000000';
         $to = $request->input('range_end').' 23:59:59.000000';
 
-        $tasks = (new Task())->newQuery()->withTrashed()->whereBetween('created_at', [$from, $to])->where('assign_from', '!=', 0)->where('assign_to', '!=', 0);
+        $tasks = (new Task())->newQuery()->withTrashed()->whereBetween(
+            'created_at', [
+                $from,
+                $to,
+            ]
+        )->where('assign_from', '!=', 0)->where('assign_to', '!=', 0);
 
         if (! empty($users)) {
             $tasks = $tasks->whereIn('assign_to', $users);
@@ -1770,7 +1848,7 @@ class TaskModuleController extends Controller
         $statutory_tasks = SatutoryTask::all()->toArray();
 
         foreach ($statutory_tasks as $statutory_task) {
-            switch ($statutory_task['recurring_type']) {
+            switch($statutory_task['recurring_type']) {
                 case 'EveryDay':
                     self::createTasksFromSatutary($statutory_task);
                     break;
@@ -1881,14 +1959,28 @@ class TaskModuleController extends Controller
 
         //iF assigned from is different from Yogesh Sir
         if ($admin_number->id != array_keys($assigned_from)[0]) {
-            $request->request->add(['group_id' => $group->id, 'user_id' => array_keys($assigned_from), 'task_id' => $task->id, 'whatsapp_number' => $whatsapp_number]);
+            $request->request->add(
+                [
+                    'group_id' => $group->id,
+                    'user_id' => array_keys($assigned_from),
+                    'task_id' => $task->id,
+                    'whatsapp_number' => $whatsapp_number,
+                ]
+            );
 
             $this->addGroupParticipant(request());
         }
 
         //Add Assigned To Into Whats App Group
         if (array_keys($assigned_to)[0] != null) {
-            $request->request->add(['group_id' => $group->id, 'user_id' => array_keys($assigned_to), 'task_id' => $task->id, 'whatsapp_number' => $whatsapp_number]);
+            $request->request->add(
+                [
+                    'group_id' => $group->id,
+                    'user_id' => array_keys($assigned_to),
+                    'task_id' => $task->id,
+                    'whatsapp_number' => $whatsapp_number,
+                ]
+            );
 
             $this->addGroupParticipant(request());
         }
@@ -1943,10 +2035,20 @@ class TaskModuleController extends Controller
         $task = \App\Task::where('id', $request->get('task_id', 0))->first();
 
         if ($task) {
-            return response()->json(['code' => 200, 'data' => $task]);
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => $task,
+                ]
+            );
         }
 
-        return response()->json(['code' => 500, 'message' => 'Sorry, no task found']);
+        return response()->json(
+            [
+                'code' => 500,
+                'message' => 'Sorry, no task found',
+            ]
+        );
     }
 
     public function saveNotes(Request $request)
@@ -1957,19 +2059,32 @@ class TaskModuleController extends Controller
             if ($task->is_statutory == 3) {
                 foreach ($request->note as $note) {
                     if ($note != null) {
-                        Remark::create([
-                            'taskid' => $task->id,
-                            'remark' => $note,
-                            'module_type' => 'task-note',
-                        ]);
+                        Remark::create(
+                            [
+                                'taskid' => $task->id,
+                                'remark' => $note,
+                                'module_type' => 'task-note',
+                            ]
+                        );
                     }
                 }
             }
 
-            return response()->json(['code' => 200, 'data' => $task, 'message' => 'Note added!']);
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => $task,
+                    'message' => 'Note added!',
+                ]
+            );
         }
 
-        return response()->json(['code' => 500, 'message' => 'Sorry, no task found']);
+        return response()->json(
+            [
+                'code' => 500,
+                'message' => 'Sorry, no task found',
+            ]
+        );
     }
 
     public function getWebsiteList(Request $request)
@@ -1984,25 +2099,220 @@ class TaskModuleController extends Controller
             $websiteCheckbox .= '<div class="col-4 py-1"><div style="float: left;height: auto;margin-right: 6px;"><input style="height:13px;" type="checkbox" name="website_name['.$website->id.']" value="'.$website->title.' - '.$request->cat_title.'"/></div> <div class=""  style="float: left;height: auto;margin-right: 6px;overflow-wrap: anywhere;width: 80%;">'.$website->website.'</div></div>';
         }
 
-        return response()->json(['code' => 200, 'data' => $websiteCheckbox, 'message' => 'List of website!']);
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => $websiteCheckbox,
+                'message' => 'List of website!',
+            ]
+        );
+    }
+
+    public function createMultipleTaskFromSortcutBugtrack(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $bug_list_ids = explode(',', $request->task_bug_ids);
+            $model_bug_tracker = BugTracker::whereIn('id', $bug_list_ids)->get()->toArray();
+            $bug_tracker_array = [];
+            $model_name = 0;
+            for ($p = 0; $p < count($model_bug_tracker); $p++) {
+                $bug_primary_id = $model_bug_tracker[$p]['id'];
+                $bug_tracker_array[$bug_primary_id] = $model_bug_tracker[$p];
+                $model_name = $model_bug_tracker[0]['module_id'];
+            }
+
+            $model_site_dev_category = SiteDevelopmentCategory::where('title', $model_name)->get()->toArray();
+            $site_development_module_id = 0;
+            if (count($model_site_dev_category) > 0 && $model_site_dev_category[0]['id'] > 0) {
+                $site_development_module_id = $model_site_dev_category[0]['id'];
+            }
+
+            $data_site['site_development_category_id'] = $site_development_module_id;
+            $data_site['bug_id'] = $request->site_id;
+            $data_site['website_id'] = $request->website_id;
+            $data_site['created_at'] = date('Y-m-d H:i:s');
+            $data_site['site_development_master_category_id'] = 4;
+
+            $site_devlopment_exist = SiteDevelopment::where('bug_id', $request->site_id)->get()->toArray();
+            $site_developement_primary_id = 0;
+            if (count($site_devlopment_exist) == 0) {
+                $res_site_dev = SiteDevelopment::create($data_site);
+                $site_developement_primary_id = $res_site_dev->id;
+            } else {
+                if (isset($site_devlopment_exist[0]['id']) && $site_devlopment_exist[0]['id'] > 0) {
+                    $site_developement_primary_id = $site_devlopment_exist[0]['id'];
+                }
+            }
+
+            $site_dev_category_id = \App\SiteDevelopment::where('id', $site_developement_primary_id)->select('site_development_category_id')->first();
+            $cat_id = $site_dev_category_id->id;
+            if (is_array($request->website_name)) {
+                foreach ($request->website_name as $key => $website) {
+                    $site_developement_id = \App\SiteDevelopment::select('id')->where(
+                        [
+                            'site_development_category_id' => $site_dev_category_id->site_development_category_id,
+                            'website_id' => $key,
+                        ]
+                    )->first();
+                    if (isset($site_developement_id->id)) {
+                        $request->task_subject = $website;
+                        $message = '';
+                        $assignedUserId = 0;
+                        $taskType = $request->task_type;
+                        $data = $request->except('_token');
+                        // $data['site_id'] = $request->site_id;
+                        $data['site_id'] = $site_developement_primary_id;
+                        $data['bug_id'] = $request->site_id;
+                        $data['task_subject'] = $website;
+                        $data['task_bug_ids'] = $request->task_bug_ids;
+                        if ($taskType == '4' || $taskType == '5' || $taskType == '6') {
+                            $data = [];
+                            if (is_array($request->task_asssigned_to)) {
+                                $data['assigned_to'] = $request->task_asssigned_to[0];
+                            } else {
+                                $data['assigned_to'] = $request->task_asssigned_to;
+                            }
+                            $data['user_id'] = loginId();
+                            $data['subject'] = $website;
+                            $data['task'] = $request->get('task_detail');
+                            $data['task_type_id'] = 1;
+                            $data['cost'] = $request->get('cost', 0);
+                            $data['status'] = DeveloperTask::DEV_TASK_STATUS_PLANNED;
+                            $data['created_by'] = loginId();
+                            if ($taskType == 5 || $taskType == 6) {
+                                $data['task_type_id'] = 3;
+                            }
+
+                            $data['subject'] = $website;
+                            $data['task_type'] = $taskType;
+                            $data['task'] = $request->get('task_detail');
+                            $data['task_type_id'] = 1;
+                            $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id');
+                            $data['site_developement_id'] = $site_developement_primary_id;
+                            $data['cost'] = $request->get('cost', 0);
+                            $data['status'] = 'In Progress';
+                            $data['created_by'] = Auth::id();
+
+                            $task = $this->taskCreateMaster($data);
+
+                            if ($task) {
+                                if (count($bug_list_ids) > 0) {
+                                    $task_asssigned_user_to = $data['assigned_to'];
+                                    for ($k = 0; $k < count($bug_list_ids); $k++) {
+                                        $bug_tacker_id = $bug_list_ids[$k];
+                                        $bug_tracking = BugTracker::find($bug_tacker_id);
+                                        $bug_tracking->bug_status_id = 6;
+                                        $bug_tracking->assign_to = $task_asssigned_user_to;
+                                        $bug_tracking->updated_at = date('Y-m-d H:i:s');
+                                        $bug_tracking->updated_by = Auth::user()->name;
+                                        $bug_tracking->save();
+                                    }
+                                }
+                            }
+
+                            if (request('need_review_task')) {
+                                $data['parent_review_task_id'] = $task->id;
+                                $reviewTask = $cntrl->developerTaskCreate($data);
+                            }
+                        } else {
+                            $data['site_developement_id'] = $site_developement_primary_id;
+                            $data['task_subject'] = $website;
+                            $data['task_type'] = $taskType;
+                            $data['assign_from'] = loginId();
+                            $data['status'] = 5;
+                            $data['customer_id'] = $data['customer_id'] ?? null;
+                            $data['cost'] = $data['cost'] ?? null;
+
+                            $task = $this->taskCreateMaster($data);
+
+                            if ($task) {
+                                if (count($bug_list_ids) > 0) {
+                                    if (is_array($request->task_asssigned_to)) {
+                                        $data['assigned_to'] = $request->task_asssigned_to[0];
+                                    } else {
+                                        $data['assigned_to'] = $request->task_asssigned_to;
+                                    }
+                                    $task_asssigned_user_to = $data['assigned_to'];
+                                    for ($k = 0; $k < count($bug_list_ids); $k++) {
+                                        $bug_tacker_id = $bug_list_ids[$k];
+                                        $bug_tracking = BugTracker::find($bug_tacker_id);
+                                        $bug_tracking->bug_status_id = 6;
+                                        $bug_tracking->assign_to = $task_asssigned_user_to;
+                                        $bug_tracking->updated_at = date('Y-m-d H:i:s');
+                                        $bug_tracking->updated_by = Auth::user()->name;
+                                        $bug_tracking->save();
+                                    }
+                                }
+                            }
+
+                            if (request('need_review_task')) {
+                                $data['parent_review_task_id'] = $task->id;
+                                $reviewTask = $this->taskCreateMaster($data);
+                            }
+                        }
+                    }
+                }
+            } else {
+                $this->createTaskFromSortcut($request);
+
+                if (count($bug_list_ids) > 0) {
+                    if (is_array($request->task_asssigned_to)) {
+                        $task_asssigned_user_to = $request->task_asssigned_to[0];
+                    } else {
+                        $task_asssigned_user_to = $request->task_asssigned_to;
+                    }
+                    for ($k = 0; $k < count($bug_list_ids); $k++) {
+                        $bug_tacker_id = $bug_list_ids[$k];
+                        $bug_tracking = BugTracker::find($bug_tacker_id);
+                        $bug_tracking->bug_status_id = 6;
+                        if ($task_asssigned_user_to > 0) {
+                            $bug_tracking->assign_to = $task_asssigned_user_to;
+                        }
+                        $bug_tracking->updated_at = date('Y-m-d H:i:s');
+                        $bug_tracking->updated_by = Auth::user()->name;
+                        $bug_tracking->save();
+                    }
+                }
+            }
+
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Your quick task has been created!']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
     }
 
     public function createMultipleTaskFromSortcut(Request $request)
     {
         try {
-            $this->validate($request, [
-                'task_subject' => 'required',
-                'task_detail' => 'required',
-                'task_asssigned_to' => 'required_without:assign_to_contacts',
-                //'cost'=>'sometimes|integer'
-            ]);
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
             $site_dev_category_id = \App\SiteDevelopment::where('id', $request->site_id)->select('site_development_category_id')->first();
             $cat_id = $site_dev_category_id->id;
             if (is_array($request->website_name)) {
                 //dd($request->website_name);
                 //echo ($request->website_name);
                 foreach ($request->website_name as $key => $website) {
-                    $site_developement_id = \App\SiteDevelopment::select('id')->where(['site_development_category_id' => $site_dev_category_id->site_development_category_id, 'website_id' => $key])->first();
+                    $site_developement_id = \App\SiteDevelopment::select('id')->where(
+                        [
+                            'site_development_category_id' => $site_dev_category_id->site_development_category_id,
+                            'website_id' => $key,
+                        ]
+                    )->first();
                     if (isset($site_developement_id->id)) {
                         //echo ($site_developement_id->id);
 
@@ -2070,21 +2380,34 @@ class TaskModuleController extends Controller
                 $this->createTaskFromSortcut($request);
             }
 
-            return response()->json(['code' => 200, 'data' => [], 'message' => 'Your quick task has been created!']);
-        } catch (\Exception $e) {
-            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
         }
     }
 
     public function createTaskFromSortcut(Request $request)
     {
         // _p(request()->all(), 1);
-        $this->validate($request, [
-            'task_subject' => 'required',
-            'task_detail' => 'required',
-            'task_asssigned_to' => 'required_without:assign_to_contacts',
-            //'cost'=>'sometimes|integer'
-        ]);
+        $this->validate(
+            $request, [
+                'task_subject' => 'required',
+                'task_detail' => 'required',
+                'task_asssigned_to' => 'required_without:assign_to_contacts',
+                //'cost'=>'sometimes|integer'
+            ]
+        );
 
         $message = '';
         $assignedUserId = 0;
@@ -2175,7 +2498,13 @@ class TaskModuleController extends Controller
         //     return response('success');
         // }
 
-        return response()->json(['code' => 200, 'data' => [], 'message' => 'Your quick task has been created!']);
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Your quick task has been created!',
+            ]
+        );
     }
 
     public function taskCreateMaster($data)
@@ -2228,21 +2557,25 @@ class TaskModuleController extends Controller
             $remarks = $task->task_subject;
             $exist = Remark::where('taskid', $task->id)->where('remark', $remarks)->where('module_type', 'task-note')->first();
             if (! $exist) {
-                Remark::create([
-                    'taskid' => $task->id,
-                    'remark' => $remarks,
-                    'module_type' => 'task-note',
-                ]);
+                Remark::create(
+                    [
+                        'taskid' => $task->id,
+                        'remark' => $remarks,
+                        'module_type' => 'task-note',
+                    ]
+                );
             }
             if ($data['note'] ?? []) {
                 $data['note'] = is_array($data['note']) ? $data['note'] : [$data['note']];
                 foreach ($data['note'] as $note) {
                     if (trim($note)) {
-                        Remark::create([
-                            'taskid' => $task->id,
-                            'remark' => $note,
-                            'module_type' => 'task-note',
-                        ]);
+                        Remark::create(
+                            [
+                                'taskid' => $task->id,
+                                'remark' => $note,
+                                'module_type' => 'task-note',
+                            ]
+                        );
                     }
                 }
             }
@@ -2325,14 +2658,16 @@ class TaskModuleController extends Controller
         }
 
         $chat_message = ChatMessage::create($params);
-        ChatMessagesQuickData::updateOrCreate([
-            'model' => \App\Task::class,
-            'model_id' => $params['task_id'],
-        ], [
-            'last_communicated_message' => @$params['message'],
-            'last_communicated_message_at' => $chat_message->created_at,
-            'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
-        ]);
+        ChatMessagesQuickData::updateOrCreate(
+            [
+                'model' => \App\Task::class,
+                'model_id' => $params['task_id'],
+            ], [
+                'last_communicated_message' => @$params['message'],
+                'last_communicated_message_at' => $chat_message->created_at,
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]
+        );
 
         $myRequest = new Request();
         $myRequest->setMethod('POST');
@@ -2360,9 +2695,7 @@ class TaskModuleController extends Controller
         if ($assignedUser = HubstaffMember::where('user_id', $assignedToId)->first()) {
             $taskSummary = substr($message, 0, 200);
             $hubstaffTaskId = $this->createHubstaffTask(
-                $taskSummary,
-                $assignedUser->hubstaff_user_id,
-                $hubstaff_project_id
+                $taskSummary, $assignedUser->hubstaff_user_id, $hubstaff_project_id
             );
 
             if ($hubstaffTaskId) {
@@ -2392,14 +2725,16 @@ class TaskModuleController extends Controller
             if ($receiver_user_phone) {
                 $task = Task::find($request->id);
                 $msg = 'PLS ADD ESTIMATED TIME FOR TASK  '.'#TASK-'.$task->id.'-'.$task->subject;
-                $chat = ChatMessage::create([
-                    'number' => $receiver_user_phone,
-                    'user_id' => $user->id,
-                    'customer_id' => $user->id,
-                    'message' => $msg,
-                    'status' => 0,
-                    'developer_task_id' => $request->id,
-                ]);
+                $chat = ChatMessage::create(
+                    [
+                        'number' => $receiver_user_phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0,
+                        'developer_task_id' => $request->id,
+                    ]
+                );
 
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
@@ -2407,9 +2742,11 @@ class TaskModuleController extends Controller
             }
         }
 
-        return response()->json([
-            'message' => 'Remind message sent successfully',
-        ]);
+        return response()->json(
+            [
+                'message' => 'Remind message sent successfully',
+            ]
+        );
     }
 
     public function sendReviseMessage(Request $request)
@@ -2420,31 +2757,41 @@ class TaskModuleController extends Controller
             if ($receiver_user_phone) {
                 $task = Task::find($request->id);
                 $msg = 'TIME NOT APPROVED REVISE THE ESTIMATED TIME FOR TASK '.'#TASK-'.$task->id.'-'.$task->subject;
-                $chat = ChatMessage::create([
-                    'number' => $receiver_user_phone,
-                    'user_id' => $user->id,
-                    'customer_id' => $user->id,
-                    'message' => $msg,
-                    'status' => 0,
-                    'developer_task_id' => $request->id,
-                ]);
+                $chat = ChatMessage::create(
+                    [
+                        'number' => $receiver_user_phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0,
+                        'developer_task_id' => $request->id,
+                    ]
+                );
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
                 MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to], $msg);
             }
         }
 
-        return response()->json([
-            'message' => 'Revise message sent successfully',
-        ]);
+        return response()->json(
+            [
+                'message' => 'Revise message sent successfully',
+            ]
+        );
     }
+
     //END - DEVTASK-4354
 
     public function getDiscussionSubjects()
     {
         $discussion_subjects = Task::where('is_statutory', 3)->where('is_verified', null)->pluck('task_subject', 'id')->toArray();
 
-        return response()->json(['code' => 200, 'discussion_subjects' => $discussion_subjects]);
+        return response()->json(
+            [
+                'code' => 200,
+                'discussion_subjects' => $discussion_subjects,
+            ]
+        );
     }
 
     /***
@@ -2477,9 +2824,12 @@ class TaskModuleController extends Controller
         $user = User::find($masterUserId);
 
         if (! $user) {
-            return response()->json([
-                'status' => 'success', 'message' => 'user not found',
-            ], 500);
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'user not found',
+                ], 500
+            );
         }
 
         if ($request->get('lead') == '1') {
@@ -2512,9 +2862,7 @@ class TaskModuleController extends Controller
         $message = '#'.$issue->id.'. '.$issue->task_subject.'. '.$issue->task_details;
         $summary = substr($message, 0, 200);
         $hubstaffTaskId = $this->createHubstaffTask(
-            $summary,
-            $hubstaffUserId,
-            $hubstaff_project_id
+            $summary, $hubstaffUserId, $hubstaff_project_id
         );
         if ($hubstaffTaskId) {
             $issue->lead_hubstaff_task_id = $hubstaffTaskId;
@@ -2537,9 +2885,11 @@ class TaskModuleController extends Controller
         $taskUser->updated_by = Auth::user()->name;
         $taskUser->save();
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+        return response()->json(
+            [
+                'status' => 'success',
+            ]
+        );
     }
 
     public function uploadDocuments(Request $request)
@@ -2556,10 +2906,12 @@ class TaskModuleController extends Controller
 
         $file->move($path, $name);
 
-        return response()->json([
-            'name' => $name,
-            'original_name' => $file->getClientOriginalName(),
-        ]);
+        return response()->json(
+            [
+                'name' => $name,
+                'original_name' => $file->getClientOriginalName(),
+            ]
+        );
     }
 
     public function saveDocuments(Request $request)
@@ -2567,7 +2919,13 @@ class TaskModuleController extends Controller
         $loggedUser = $request->user();
 
         if (! $request->task_id || $request->task_id == '') {
-            return response()->json(['code' => 500, 'data' => [], 'message' => 'Select one task']);
+            return response()->json(
+                [
+                    'code' => 500,
+                    'data' => [],
+                    'message' => 'Select one task',
+                ]
+            );
         }
         $documents = $request->input('document', []);
         $task = Task::find($request->task_id);
@@ -2579,9 +2937,7 @@ class TaskModuleController extends Controller
 
             foreach ($documents as $file) {
                 $path = storage_path('tmp/uploads/'.$file);
-                $media = MediaUploader::fromSource($path)
-                    ->toDirectory('task-files/'.floor($task->id / config('constants.image_per_folder')))
-                    ->upload();
+                $media = MediaUploader::fromSource($path)->toDirectory('task-files/'.floor($task->id / config('constants.image_per_folder')))->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
 
                 if (! empty($media->filename)) {
@@ -2595,9 +2951,21 @@ class TaskModuleController extends Controller
 
             MessageHelper::sendEmailOrWebhookNotification($task->users->pluck('id')->toArray(), $message);
 
-            return response()->json(['code' => 200, 'data' => [], 'message' => 'Done!']);
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Done!',
+                ]
+            );
         } else {
-            return response()->json(['code' => 500, 'data' => [], 'message' => 'No documents for upload']);
+            return response()->json(
+                [
+                    'code' => 500,
+                    'data' => [],
+                    'message' => 'No documents for upload',
+                ]
+            );
         }
     }
 
@@ -2617,7 +2985,33 @@ class TaskModuleController extends Controller
             // }
             if ($task->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
-                    $imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief', 'jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
+                    $imageExtensions = [
+                        'jpg',
+                        'jpeg',
+                        'gif',
+                        'png',
+                        'bmp',
+                        'svg',
+                        'svgz',
+                        'cgm',
+                        'djv',
+                        'djvu',
+                        'ico',
+                        'ief',
+                        'jpe',
+                        'pbm',
+                        'pgm',
+                        'pnm',
+                        'ppm',
+                        'ras',
+                        'rgb',
+                        'tif',
+                        'tiff',
+                        'wbmp',
+                        'xbm',
+                        'xpm',
+                        'xwd',
+                    ];
                     $explodeImage = explode('.', $media->getUrl());
                     $extension = end($explodeImage);
 
@@ -2676,58 +3070,68 @@ class TaskModuleController extends Controller
         $msg = $media->getUrl();
         if ($user && $user->phone) {
             if ($request->type == 'TASK') {
-                $params = ChatMessage::create([
-                    'id' => $id,
-                    'user_id' => $userid,
-                    'task_id' => $request->task_id,
+                $params = ChatMessage::create(
+                    [
+                        'id' => $id,
+                        'user_id' => $userid,
+                        'task_id' => $request->task_id,
 
-                    'sent_to_user_id' => $user->id,
+                        'sent_to_user_id' => $user->id,
 
-                    'erp_user' => $task->assign_to,
-                    'contact_id' => $task->assign_to,
-                    'message' => $media->getUrl(),
+                        'erp_user' => $task->assign_to,
+                        'contact_id' => $task->assign_to,
+                        'message' => $media->getUrl(),
 
-                ]);
-                $params = ChatMessage::create([
-                    'id' => $id,
-                    'user_id' => $user->id,
-                    'task_id' => $taskdata,
+                    ]
+                );
+                $params = ChatMessage::create(
+                    [
+                        'id' => $id,
+                        'user_id' => $user->id,
+                        'task_id' => $taskdata,
 
-                    'sent_to_user_id' => $userid,
+                        'sent_to_user_id' => $userid,
 
-                    'erp_user' => $task->assign_to,
-                    'contact_id' => $task->assign_to,
-                    'message' => $media->getUrl(),
+                        'erp_user' => $task->assign_to,
+                        'contact_id' => $task->assign_to,
+                        'message' => $media->getUrl(),
 
-                ]);
+                    ]
+                );
             } else {
-                $params = ChatMessage::create([
-                    'id' => $id,
-                    'user_id' => $userid,
-                    'task_id' => $request->task_id,
-                    'developer_task_id' => $task->id,
-                    'sent_to_user_id' => $user->id,
-                    'issue_id' => $task->id,
-                    'erp_user' => $task->assign_to,
-                    'contact_id' => $task->assign_to,
-                    // 'approved' => '1',
-                    // 'status' => '2',
-                    'message' => $media->getUrl(),
+                $params = ChatMessage::create(
+                    [
+                        'id' => $id,
+                        'user_id' => $userid,
+                        'task_id' => $request->task_id,
+                        'developer_task_id' => $task->id,
+                        'sent_to_user_id' => $user->id,
+                        'issue_id' => $task->id,
+                        'erp_user' => $task->assign_to,
+                        'contact_id' => $task->assign_to,
+                        // 'approved' => '1',
+                        // 'status' => '2',
+                        'message' => $media->getUrl(),
 
-                ]);
+                    ]
+                );
             }
 
             if ($params) {
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
 
-                return response()->json([
-                    'message' => 'Successfully Send File',
-                ], 200);
+                return response()->json(
+                    [
+                        'message' => 'Successfully Send File',
+                    ], 200
+                );
             }
 
-            return response()->json([
-                'message' => 'Something Was Wrong',
-            ], 500);
+            return response()->json(
+                [
+                    'message' => 'Something Was Wrong',
+                ], 500
+            );
 
             return response()->json(['message' => 'Sorry required fields is missing like id , userid'], 500);
         }
@@ -2744,28 +3148,34 @@ class TaskModuleController extends Controller
             $userid = Auth::id();
             $msg = $media->getUrl();
             if ($user && $user->phone) {
-                $params = ChatMessage::create([
-                    'id' => $id,
-                    // 'user_id' => $user->id,
-                    'user_id' => $userid,
-                    'task_id' => $task_id,
-                    'erp_user' => $user->id,
-                    'sent_to_user_id' => $userid,
-                    'message' => $media->getUrl(),
+                $params = ChatMessage::create(
+                    [
+                        'id' => $id,
+                        // 'user_id' => $user->id,
+                        'user_id' => $userid,
+                        'task_id' => $task_id,
+                        'erp_user' => $user->id,
+                        'sent_to_user_id' => $userid,
+                        'message' => $media->getUrl(),
 
-                ]);
+                    ]
+                );
 
                 if ($params) {
                     app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
 
-                    return response()->json([
-                        'message' => 'Successfully Send Document',
-                    ], 200);
+                    return response()->json(
+                        [
+                            'message' => 'Successfully Send Document',
+                        ], 200
+                    );
                 }
 
-                return response()->json([
-                    'message' => 'Something Was Wrong',
-                ], 500);
+                return response()->json(
+                    [
+                        'message' => 'Something Was Wrong',
+                    ], 500
+                );
             }
         }
 
@@ -2783,11 +3193,13 @@ class TaskModuleController extends Controller
         // dd($username->name);
         $userid = Auth::id();
 
-        $params = Sop::create([
-            'name' => $username->name,
-            'content' => $media->getUrl(),
+        $params = Sop::create(
+            [
+                'name' => $username->name,
+                'content' => $media->getUrl(),
 
-        ]);
+            ]
+        );
 
         return response()->json(['message' => 'Data Added Successfully']);
     }
@@ -2796,9 +3208,11 @@ class TaskModuleController extends Controller
     {
         if (Auth::user()->isAdmin) {
             if (! $request->approve_time || $request->approve_time == '' || ! $request->developer_task_id || $request->developer_task_id == '') {
-                return response()->json([
-                    'message' => 'Select one time first',
-                ], 500);
+                return response()->json(
+                    [
+                        'message' => 'Select one time first',
+                    ], 500
+                );
             }
             DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', \App\Task::class)->update(['is_approved' => 0]);
             $history = DeveloperTaskHistory::find($request->approve_time);
@@ -2818,32 +3232,38 @@ class TaskModuleController extends Controller
 
             if ($user) {
                 if ($admin->phone) {
-                    $chat = ChatMessage::create([
-                        'number' => $admin->phone,
-                        'user_id' => $user->id,
-                        'customer_id' => $user->id,
-                        'message' => $msg,
-                        'status' => 0,
-                        'developer_task_id' => $request->developer_task_id,
-                    ]);
+                    $chat = ChatMessage::create(
+                        [
+                            'number' => $admin->phone,
+                            'user_id' => $user->id,
+                            'customer_id' => $user->id,
+                            'message' => $msg,
+                            'status' => 0,
+                            'developer_task_id' => $request->developer_task_id,
+                        ]
+                    );
                 } elseif ($user->phone) {
-                    $chat = ChatMessage::create([
-                        'number' => $user->phone,
-                        'user_id' => $user->id,
-                        'customer_id' => $user->id,
-                        'message' => $msg,
-                        'status' => 0,
-                        'developer_task_id' => $request->developer_task_id,
-                    ]);
+                    $chat = ChatMessage::create(
+                        [
+                            'number' => $user->phone,
+                            'user_id' => $user->id,
+                            'customer_id' => $user->id,
+                            'message' => $msg,
+                            'status' => 0,
+                            'developer_task_id' => $request->developer_task_id,
+                        ]
+                    );
                 } elseif ($master_user && $master_user->phone) {
-                    $chat = ChatMessage::create([
-                        'number' => $master_user->phone,
-                        'user_id' => $user->id,
-                        'customer_id' => $user->id,
-                        'message' => $msg,
-                        'status' => 0,
-                        'developer_task_id' => $request->developer_task_id,
-                    ]);
+                    $chat = ChatMessage::create(
+                        [
+                            'number' => $master_user->phone,
+                            'user_id' => $user->id,
+                            'customer_id' => $user->id,
+                            'message' => $msg,
+                            'status' => 0,
+                            'developer_task_id' => $request->developer_task_id,
+                        ]
+                    );
                 }
                 if (isset($chat)) {
                     if ($admin->phone) {
@@ -2858,14 +3278,18 @@ class TaskModuleController extends Controller
                 }
             }
 
-            return response()->json([
-                'message' => 'Success',
-            ], 200);
+            return response()->json(
+                [
+                    'message' => 'Success',
+                ], 200
+            );
         }
 
-        return response()->json([
-            'message' => 'Only admin can approve',
-        ], 500);
+        return response()->json(
+            [
+                'message' => 'Only admin can approve',
+            ], 500
+        );
     }
 
     public function getTrackedHistory(Request $request)
@@ -2896,7 +3320,20 @@ class TaskModuleController extends Controller
                 );
                 $msg = ' Created and ';
             }
-            $taskRemarkData = TaskRemark::where([['task_id', '=', $request->task_id], ['task_type', '=', $request->type]])->get();
+            $taskRemarkData = TaskRemark::where(
+                [
+                    [
+                        'task_id',
+                        '=',
+                        $request->task_id,
+                    ],
+                    [
+                        'task_type',
+                        '=',
+                        $request->type,
+                    ],
+                ]
+            )->get();
             $html = '';
             foreach ($taskRemarkData as $taskRemark) {
                 $html .= '<tr>';
@@ -2907,9 +3344,21 @@ class TaskModuleController extends Controller
                 $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='".$taskRemark->remark."'></i></td>";
             }
 
-            return response()->json(['code' => 200, 'data' => $html, 'message' => 'Remark '.$msg.' listed Successfully']);
-        } catch (Exception $e) {
-            return response()->json(['code' => 500, 'data' => '', 'message' => $e->getMessage()]);
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => $html,
+                    'message' => 'Remark '.$msg.' listed Successfully',
+                ]
+            );
+        } catch(Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'data' => '',
+                    'message' => $e->getMessage(),
+                ]
+            );
         }
     }
 
@@ -2935,14 +3384,14 @@ class TaskModuleController extends Controller
             // $hubstaffUserId = 901839;
             if ($hubstaffUserId) {
                 $hubstaffTaskId = $this->createHubstaffTask(
-                    $taskSummery,
-                    $hubstaffUserId,
-                    $hubstaff_project_id
+                    $taskSummery, $hubstaffUserId, $hubstaff_project_id
                 );
             } else {
-                return response()->json([
-                    'message' => 'Hubstaff member not found',
-                ], 500);
+                return response()->json(
+                    [
+                        'message' => 'Hubstaff member not found',
+                    ], 500
+                );
             }
             if ($hubstaffTaskId) {
                 if ($request->type == 'developer') {
@@ -2952,9 +3401,11 @@ class TaskModuleController extends Controller
                 }
                 $task->save();
             } else {
-                return response()->json([
-                    'message' => 'Hubstaff task not created',
-                ], 500);
+                return response()->json(
+                    [
+                        'message' => 'Hubstaff task not created',
+                    ], 500
+                );
             }
             if ($hubstaffTaskId) {
                 $task = new HubstaffTask();
@@ -2965,13 +3416,17 @@ class TaskModuleController extends Controller
                 $task->save();
             }
 
-            return response()->json([
-                'message' => 'Successful',
-            ], 200);
+            return response()->json(
+                [
+                    'message' => 'Successful',
+                ], 200
+            );
         } else {
-            return response()->json([
-                'message' => 'Task not found',
-            ], 500);
+            return response()->json(
+                [
+                    'message' => 'Task not found',
+                ], 500
+            );
         }
     }
 
@@ -3016,13 +3471,7 @@ class TaskModuleController extends Controller
     public function getTimeHistory(Request $request)
     {
         $id = $request->id;
-        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')
-            ->where('developer_task_id', $id)
-            ->where('model', \App\Task::class)
-            ->where('attribute', 'estimation_minute')
-            ->select('developer_tasks_history.*', 'users.name')
-            ->orderBy('developer_tasks_history.id', 'DESC')
-            ->get();
+        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', \App\Task::class)->where('attribute', 'estimation_minute')->select('developer_tasks_history.*', 'users.name')->orderBy('developer_tasks_history.id', 'DESC')->get();
         if ($task_module) {
             return $task_module;
         }
@@ -3051,21 +3500,25 @@ class TaskModuleController extends Controller
             }
 
             $task->save();
-            DeveloperTaskHistory::create([
-                'developer_task_id' => $request->task_id,
-                'model' => \App\Task::class,
-                'attribute' => 'task_status',
-                'old_value' => $old_status,
-                'new_value' => $task->status,
-                'user_id' => Auth::id(),
-            ]);
+            DeveloperTaskHistory::create(
+                [
+                    'developer_task_id' => $request->task_id,
+                    'model' => \App\Task::class,
+                    'attribute' => 'task_status',
+                    'old_value' => $old_status,
+                    'new_value' => $task->status,
+                    'user_id' => Auth::id(),
+                ]
+            );
 
             if ($task->status == 1) {
                 $task_user = User::find($task->assign_to);
                 if (! $task_user) {
-                    return response()->json([
-                        'message' => 'Please assign the task.',
-                    ], 500);
+                    return response()->json(
+                        [
+                            'message' => 'Please assign the task.',
+                        ], 500
+                    );
                 }
                 $team_user = \DB::table('team_user')->where('user_id', $task->assign_to)->first();
                 if ($team_user) {
@@ -3079,16 +3532,20 @@ class TaskModuleController extends Controller
                 }
                 // dd($task_user_for_payment);
                 if ($task_user_for_payment->fixed_price_user_or_job == 0) {
-                    return response()->json([
-                        'message' => 'Please provide salary payment method for user.',
-                    ], 500);
+                    return response()->json(
+                        [
+                            'message' => 'Please provide salary payment method for user.',
+                        ], 500
+                    );
                 }
                 if (! empty($task_user_for_payment)) {
                     if ($task_user_for_payment->fixed_price_user_or_job == 1) {
                         if ($task->cost == null) {
-                            return response()->json([
-                                'message' => 'Please provide cost for fixed price task.',
-                            ], 500);
+                            return response()->json(
+                                [
+                                    'message' => 'Please provide cost for fixed price task.',
+                                ], 500
+                            );
                         }
                         $rate_estimated = $task->cost ?? 0;
                     } elseif ($task_user_for_payment->fixed_price_user_or_job == 2) {
@@ -3096,30 +3553,123 @@ class TaskModuleController extends Controller
                         if ($userRate && $userRate->hourly_rate !== null) {
                             $rate_estimated = $task->approximate * ($userRate->hourly_rate ?? 0) / 60;
                         } else {
-                            return response()->json([
-                                'message' => 'Please provide hourly rate of user.',
-                            ], 500);
+                            return response()->json(
+                                [
+                                    'message' => 'Please provide hourly rate of user.',
+                                ], 500
+                            );
                         }
                     }
-                    $receipt_id = PaymentReceipt::create([
-                        'status' => 'Pending',
-                        'rate_estimated' => $rate_estimated,
-                        'date' => date('Y-m-d'),
-                        'currency' => '',
-                        'user_id' => $task_user_for_payment->id,
-                        'by_command' => 4,
-                        'task_id' => $task->id,
-                    ]);
+                    $receipt_id = PaymentReceipt::create(
+                        [
+                            'status' => 'Pending',
+                            'rate_estimated' => $rate_estimated,
+                            'date' => date('Y-m-d'),
+                            'currency' => '',
+                            'user_id' => $task_user_for_payment->id,
+                            'by_command' => 4,
+                            'task_id' => $task->id,
+                        ]
+                    );
+
+                    if ($task->status == 1) {
+                        if ($task->task_bug_ids != '') {
+                            $task_details_info = explode(',', $task->task_bug_ids);
+                            if (count($task_details_info) > 0) {
+                                $admin_user_id = 0;
+                                $customer_role_users = RoleUser::where(['role_id' => 1])->with('user')->get()->toArray();
+                                if (count($customer_role_users) > 0) {
+                                    for ($m = 0; $m < count($customer_role_users); $m++) {
+                                        if (isset($customer_role_users[$m]['user']['id']) && $customer_role_users[$m]['user']['id'] > 0) {
+                                            $admin_user_id = $customer_role_users[$m]['user']['id'];
+                                            $m = count($customer_role_users);
+                                        }
+                                    }
+                                }
+
+                                for ($k = 0; $k < count($task_details_info); $k++) {
+                                    $bug_tacker_id = $task_details_info[$k];
+                                    $bug_tracking = BugTracker::find($bug_tacker_id);
+                                    if ($task->status == 3) { // In progress
+                                        $bug_tracking->bug_status_id = 5;
+                                    } elseif ($task->status == 1) { // complete
+                                        $bug_tracking->bug_status_id = 6;
+                                        if ($admin_user_id > 0) {
+                                            $bug_tracking->assign_to = $admin_user_id;
+                                        }
+                                    } elseif ($task->status == 2) { // Discussing
+                                        $bug_tracking->bug_status_id = 7;
+                                        if ($admin_user_id > 0) {
+                                            $bug_tracking->assign_to = $admin_user_id;
+                                        }
+                                    }
+
+                                    $bug_tracking->updated_at = date('Y-m-d H:i:s');
+                                    $bug_tracking->updated_by = Auth::user()->name;
+                                    $bug_tracking->save();
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
-            return response()->json([
-                'status' => 'success', 'message' => 'The task status updated.',
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error', 'message' => 'The task status not updated.',
-            ], 500);
+            if ($task->status == 3 || $task->status == 2 || $task->status == 6 || $task->status == 15 || $task->status == 16) {
+                if ($task->task_bug_ids != '') {
+                    $task_details_info = explode(',', $task->task_bug_ids);
+                    if (count($task_details_info) > 0) {
+                        $admin_user_id = 0;
+                        $customer_role_users = RoleUser::where(['role_id' => 1])->with('user')->get()->toArray();
+                        if (count($customer_role_users) > 0) {
+                            for ($m = 0; $m < count($customer_role_users); $m++) {
+                                if (isset($customer_role_users[$m]['user']['id']) && $customer_role_users[$m]['user']['id'] > 0) {
+                                    $admin_user_id = $customer_role_users[$m]['user']['id'];
+                                    $m = count($customer_role_users);
+                                }
+                            }
+                        }
+
+                        for ($k = 0; $k < count($task_details_info); $k++) {
+                            $bug_tacker_id = $task_details_info[$k];
+                            $bug_tracking = BugTracker::find($bug_tacker_id);
+                            if ($task->status == 3) { // In progress
+                                $bug_tracking->bug_status_id = 6;
+                            } elseif ($task->status == 15 || $task->status == 16) { // complete
+                                $bug_tracking->bug_status_id = 7;
+                                $bug_tracking->assign_to = $bug_tracking->created_by;
+                            } elseif ($task->status == 2) { // Discussing
+                                $bug_tracking->bug_status_id = 8;
+                                if ($admin_user_id > 0) {
+                                    $bug_tracking->assign_to = $admin_user_id;
+                                }
+                            } elseif ($task->status == 6) { // Discuss with Lead
+                                $bug_tracking->bug_status_id = 10;
+                                if ($admin_user_id > 0) {
+                                    $bug_tracking->assign_to = $admin_user_id;
+                                }
+                            }
+
+                            $bug_tracking->updated_at = date('Y-m-d H:i:s');
+                            $bug_tracking->updated_by = Auth::user()->name;
+                            $bug_tracking->save();
+                        }
+                    }
+                }
+            }
+
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'The task status updated.',
+                ], 200
+            );
+        } catch(Exception $e) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'The task status not updated.',
+                ], 500
+            );
         }
     }
 
@@ -3133,7 +3683,7 @@ class TaskModuleController extends Controller
             TaskStatus::create(['name' => $request->task_status]);
 
             return redirect()->back()->with('success', 'The task status created successfully.');
-        } catch (Exception $e) {
+        } catch(Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -3152,14 +3702,22 @@ class TaskModuleController extends Controller
         if (optional($task->assignedTo)->phone) {
             $requestData = new Request();
             $requestData->setMethod('POST');
-            $requestData->request->add(['task_id' => $task->id, 'message' => $message, 'status' => 1]);
+            $requestData->request->add(
+                [
+                    'task_id' => $task->id,
+                    'message' => $message,
+                    'status' => 1,
+                ]
+            );
             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'task');
             //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedTo->phone, '', $message);
         }
 
-        return response()->json([
-            'success',
-        ]);
+        return response()->json(
+            [
+                'success',
+            ]
+        );
     }
 
     public function sendBrodCast(Request $request)
@@ -3171,14 +3729,30 @@ class TaskModuleController extends Controller
                 // started to send message
                 $requestData = new Request();
                 $requestData->setMethod('POST');
-                $requestData->request->add(['task_id' => $tid, 'message' => $request->message, 'status' => 1]);
+                $requestData->request->add(
+                    [
+                        'task_id' => $tid,
+                        'message' => $request->message,
+                        'status' => 1,
+                    ]
+                );
                 app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'task');
             }
 
-            return response()->json(['code' => 200, 'message' => 'Message has been sent to all selected task']);
+            return response()->json(
+                [
+                    'code' => 200,
+                    'message' => 'Message has been sent to all selected task',
+                ]
+            );
         }
 
-        return response()->json(['code' => 500, 'message' => 'Please select atleast one task']);
+        return response()->json(
+            [
+                'code' => 500,
+                'message' => 'Please select atleast one task',
+            ]
+        );
     }
 
     public function CommunicationTaskStatus(Request $request)
@@ -3196,16 +3770,19 @@ class TaskModuleController extends Controller
         $updatetask->communication_status = $status;
         $updatetask->update();
 
-        return response()->json(['status' => 'success', 'communication_status' => $status]);
+        return response()->json(
+            [
+                'status' => 'success',
+                'communication_status' => $status,
+            ]
+        );
     }
 
     public function recurringHistory(request $request)
     {
         $task_id = $request->input('task_id');
         $html = '';
-        $chatData = LogChatMessage::where('task_id', $task_id)->where('task_time_reminder', 0)
-            ->orderBy('id', 'DESC')
-            ->get();
+        $chatData = LogChatMessage::where('task_id', $task_id)->where('task_time_reminder', 0)->orderBy('id', 'DESC')->get();
         $i = 1;
         if (count($chatData) > 0) {
             foreach ($chatData as $history) {
@@ -3220,7 +3797,12 @@ class TaskModuleController extends Controller
                 $i++;
             }
 
-            return response()->json(['html' => $html, 'success' => true], 200);
+            return response()->json(
+                [
+                    'html' => $html,
+                    'success' => true,
+                ], 200
+            );
         } else {
             $html .= '<tr>';
             $html .= '<td></td>';
@@ -3231,7 +3813,12 @@ class TaskModuleController extends Controller
             $html .= '</tr>';
         }
 
-        return response()->json(['html' => $html, 'success' => true], 200);
+        return response()->json(
+            [
+                'html' => $html,
+                'success' => true,
+            ], 200
+        );
     }
 
     public function AssignTaskToUser(Request $request)
@@ -3241,7 +3828,13 @@ class TaskModuleController extends Controller
         if (! $old_id) {
             $old_id = 0;
         } else {
-            DB::delete('delete from task_users where task_id = ? AND user_id = ? AND type = ?', [$task->id, $old_id, User::class]);
+            DB::delete(
+                'delete from task_users where task_id = ? AND user_id = ? AND type = ?', [
+                    $task->id,
+                    $old_id,
+                    User::class,
+                ]
+            );
         }
         $task->assign_to = $request->get('user_id');
         $task->save();
@@ -3266,9 +3859,7 @@ class TaskModuleController extends Controller
         $taskSummery = substr($message, 0, 200);
 
         $hubstaffTaskId = $this->createHubstaffTask(
-            $taskSummery,
-            $hubstaffUserId,
-            $hubstaff_project_id
+            $taskSummery, $hubstaffUserId, $hubstaff_project_id
         );
 
         if ($hubstaffTaskId) {
@@ -3293,7 +3884,11 @@ class TaskModuleController extends Controller
         $taskUser->updated_by = Auth::user()->name;
         $taskUser->save();
 
-        $values = ['task_id' => $request->get('issue_id'), 'user_id' => $request->get('user_id'), 'type' => \App\User::class];
+        $values = [
+            'task_id' => $request->get('issue_id'),
+            'user_id' => $request->get('user_id'),
+            'type' => \App\User::class,
+        ];
         DB::table('task_users')->insert($values);
 
         return response()->json(['status' => 'success']);
@@ -3312,7 +3907,7 @@ class TaskModuleController extends Controller
         try {
             $response = $this->githubClient->get($url);
             $masterSha = json_decode($response->getBody()->getContents())->commit->sha;
-        } catch (Exception $e) {
+        } catch(Exception $e) {
             return false;
         }
 
@@ -3321,17 +3916,18 @@ class TaskModuleController extends Controller
         $url = 'https://api.github.com/repositories/'.$repositoryId.'/git/refs';
         try {
             $this->githubClient->post(
-                $url,
-                [
-                    RequestOptions::BODY => json_encode([
-                        'ref' => 'refs/heads/'.$newBranchName,
-                        'sha' => $masterSha,
-                    ]),
+                $url, [
+                    RequestOptions::BODY => json_encode(
+                        [
+                            'ref' => 'refs/heads/'.$newBranchName,
+                            'sha' => $masterSha,
+                        ]
+                    ),
                 ]
             );
 
             return $newBranchName;
-        } catch (Exception $e) {
+        } catch(Exception $e) {
             if ($e instanceof ClientException && $e->getResponse()->getStatusCode() == 422) {
                 // branch already exists
                 return $newBranchName;
@@ -3366,9 +3962,11 @@ class TaskModuleController extends Controller
             $u->old_name = $old_name;
         }
 
-        return response()->json([
-            'users' => $users,
-        ], 200);
+        return response()->json(
+            [
+                'users' => $users,
+            ], 200
+        );
     }
 
     public function getSiteDevelopmentTask(Request $request)
@@ -3389,9 +3987,15 @@ class TaskModuleController extends Controller
             $othertaskStatistics = $query1->get();
             $merged = $othertaskStatistics->merge($taskStatistics);
         }
+
         //   return view('task-module.partials.site-development-task', compact('merged'));
 
-        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
+        return response()->json(
+            [
+                'code' => 200,
+                'taskStatistics' => $merged,
+            ]
+        );
     }
 
     /*
@@ -3408,7 +4012,13 @@ class TaskModuleController extends Controller
                 if (! $old_id) {
                     $old_id = 0;
                 } else {
-                    DB::delete('delete from task_users where task_id = ? AND user_id = ? AND type = ?', [$task->id, $old_id, User::class]);
+                    DB::delete(
+                        'delete from task_users where task_id = ? AND user_id = ? AND type = ?', [
+                            $task->id,
+                            $old_id,
+                            User::class,
+                        ]
+                    );
                 }
                 $task->assign_to = $request->get('user_assigned_to');
                 $task->save();
@@ -3433,9 +4043,7 @@ class TaskModuleController extends Controller
                 $taskSummery = substr($message, 0, 200);
 
                 $hubstaffTaskId = $this->createHubstaffTask(
-                    $taskSummery,
-                    $hubstaffUserId,
-                    $hubstaff_project_id
+                    $taskSummery, $hubstaffUserId, $hubstaff_project_id
                 );
 
                 if ($hubstaffTaskId) {
@@ -3460,7 +4068,11 @@ class TaskModuleController extends Controller
                 $taskUser->updated_by = Auth::user()->name;
                 $taskUser->save();
 
-                $values = ['task_id' => $task->id, 'user_id' => $request->get('user_assigned_to'), 'type' => \App\User::class];
+                $values = [
+                    'task_id' => $task->id,
+                    'user_id' => $request->get('user_assigned_to'),
+                    'type' => \App\User::class,
+                ];
                 DB::table('task_users')->insert($values);
             }
         }
@@ -3473,34 +4085,37 @@ class TaskModuleController extends Controller
         try {
             $dataArr = [];
             if ($userId = request('userId')) {
-                $dTasks = DeveloperTask::where('assigned_to', $userId)
-                    ->whereNotIn('status', [
+                $dTasks = DeveloperTask::where('assigned_to', $userId)->whereNotIn(
+                    'status', [
                         DeveloperTask::DEV_TASK_STATUS_APPROVED,
                         DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS,
                         DeveloperTask::DEV_TASK_STATUS_REOPEN,
                         DeveloperTask::DEV_TASK_STATUS_PLANNED,
-                    ])
-                    ->orderBy('id', 'DESC')->get();
+                    ]
+                )->orderBy('id', 'DESC')->get();
                 foreach ($dTasks as $key => $dTask) {
                     $dataArr['Developer Tasks']['DT-'.$dTask->id] = '(DT-'.$dTask->id.') - '.$dTask->subject;
                 }
 
-                $tasks = Task::where('assign_to', $userId)
-                    ->whereNotIn('status', [
+                $tasks = Task::where('assign_to', $userId)->whereNotIn(
+                    'status', [
                         Task::TASK_STATUS_APPROVED,
                         Task::TASK_STATUS_IN_PROGRESS,
                         Task::TASK_STATUS_REOPEN,
                         Task::TASK_STATUS_PLANNED,
-                    ])->orderBy('id', 'DESC')->get();
+                    ]
+                )->orderBy('id', 'DESC')->get();
                 foreach ($tasks as $key => $task) {
                     $dataArr['Tasks']['T-'.$task->id] = '(T-'.$task->id.') - '.$task->task_subject;
                 }
             }
 
-            return response()->json([
-                'list' => $dataArr ? makeDropdown($dataArr) : null,
-            ]);
-        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'list' => $dataArr ? makeDropdown($dataArr) : null,
+                ]
+            );
+        } catch(\Throwable $th) {
             return respException($th);
         }
     }
@@ -3530,7 +4145,7 @@ class TaskModuleController extends Controller
             }
 
             return respJson(404, 'No task found.');
-        } catch (\Throwable $th) {
+        } catch(\Throwable $th) {
             return respException($th);
         }
     }
@@ -3538,27 +4153,29 @@ class TaskModuleController extends Controller
     public function taskGet()
     {
         try {
-            $errors = reqValidate(request()->all(), [
-                'id' => 'required',
-            ], []);
+            $errors = reqValidate(
+                request()->all(), [
+                    'id' => 'required',
+                ], []
+            );
             if ($errors) {
                 return respJson(400, $errors[0]);
             }
             $subquery = DB::raw('SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC');
-            $single = Task::where('tasks.id', request('id'))
-                    ->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'),
-                        DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'),
-                        DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))
-                    ->first();
+            $single = Task::where('tasks.id', request('id'))->select(
+                'tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date")
+            )->first();
             //dd($single);
             if (! $single) {
                 return respJson(404, 'No task found.');
             }
 
-            return respJson(200, '', [
-                'data' => $single,
-            ]);
-        } catch (\Throwable $th) {
+            return respJson(
+                200, '', [
+                    'data' => $single,
+                ]
+            );
+        } catch(\Throwable $th) {
             return respException($th);
         }
     }
@@ -3627,12 +4244,14 @@ class TaskModuleController extends Controller
                     ChatMessage::create($params);
                 }
                 $task->update(['cost' => $new]);
-                TaskHistoryForCost::create([
-                    'task_id' => $task->id,
-                    'old_value' => $oldValue,
-                    'new_value' => $new,
-                    'updated_by' => Auth::id(),
-                ]);
+                TaskHistoryForCost::create(
+                    [
+                        'task_id' => $task->id,
+                        'old_value' => $oldValue,
+                        'new_value' => $new,
+                        'updated_by' => Auth::id(),
+                    ]
+                );
 
                 return respJson(200, 'Successfully updated.');
             }
@@ -3665,15 +4284,17 @@ class TaskModuleController extends Controller
                 ChatMessage::create($params);
             }
 
-            DeveloperTaskHistory::create([
-                'developer_task_id' => $task->id,
-                'model' => \App\Task::class,
-                'attribute' => 'estimation_minute',
-                'old_value' => $task->approximate,
-                'remark' => $remark ?: null,
-                'new_value' => $approximate,
-                'user_id' => auth()->id(),
-            ]);
+            DeveloperTaskHistory::create(
+                [
+                    'developer_task_id' => $task->id,
+                    'model' => \App\Task::class,
+                    'attribute' => 'estimation_minute',
+                    'old_value' => $task->approximate,
+                    'remark' => $remark ?: null,
+                    'new_value' => $approximate,
+                    'user_id' => auth()->id(),
+                ]
+            );
 
             if (! isAdmin()) {
                 $task->status = Task::TASK_STATUS_USER_ESTIMATED;
@@ -3690,14 +4311,16 @@ class TaskModuleController extends Controller
             }
             if ($user) {
                 if ($receiver_user_phone = $user->phone) {
-                    $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
-                        'user_id' => $user->id,
-                        'customer_id' => $user->id,
-                        'message' => $msg,
-                        'status' => 0,
-                        'developer_task_id' => $task_id,
-                    ]);
+                    $chat = ChatMessage::create(
+                        [
+                            'number' => $receiver_user_phone,
+                            'user_id' => $user->id,
+                            'customer_id' => $user->id,
+                            'message' => $msg,
+                            'status' => 0,
+                            'developer_task_id' => $task_id,
+                        ]
+                    );
                     app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
                 }
             }

@@ -32,8 +32,8 @@ use Google\Cloud\Translate\TranslateClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Mail;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class LiveChatController extends Controller
 {
@@ -1009,7 +1009,7 @@ class LiveChatController extends Controller
                         } else {
                             $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>';
                         }
-                        //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                    //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     } else {
                         $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     }
@@ -1444,15 +1444,23 @@ class LiveChatController extends Controller
         $query = $query->select($selectArray);
 
         if ($request->ticket_id) {
-            $query = $query->where('ticket_id', $request->ticket_id);
+            $query = $query->whereIn('ticket_id', $request->ticket_id);
         }
 
         if ($request->users_id != '') {
-            $query = $query->where('assigned_to', $request->users_id);
+            $query = $query->whereIn('assigned_to', $request->users_id);
         }
 
         if ($request->term != '') {
-            $query = $query->where('tickets.name', 'LIKE', '%'.$request->term.'%')->orWhere('tickets.email', 'LIKE', '%'.$request->term.'%');
+            $query = $query->whereIn('tickets.name', $request->term);
+        }
+
+        if ($request->user_email != '') {
+            $query = $query->whereIn('tickets.email', $request->user_email);
+        }
+
+        if ($request->user_message != '') {
+            $query = $query->where('tickets.message', 'LIKE', '%'.$request->user_message.'%');
         }
 
         if ($request->search_country != '') {
@@ -1482,7 +1490,7 @@ class LiveChatController extends Controller
         }
 
         if ($request->status_id != '') {
-            $query = $query->where('status_id', $request->status_id);
+            $query = $query->whereIn('status_id', $request->status_id);
         }
 
         if ($request->date != '') {
@@ -1503,8 +1511,22 @@ class LiveChatController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
+        $taskstatus = TicketStatuses::get();
 
-        return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+        return view('livechat.tickets', compact('data', 'taskstatus'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = TicketStatuses::find($key);
+            $bugstatus->ticket_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function createTickets(Request $request)

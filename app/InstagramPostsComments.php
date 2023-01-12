@@ -11,6 +11,7 @@ class InstagramPostsComments extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="comment_id",type="integer")
      */
     protected $fillable = ['comment_id'];

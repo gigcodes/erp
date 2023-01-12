@@ -13,7 +13,7 @@ use App\Setting;
 use App\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
 
 class QuickSellController extends Controller

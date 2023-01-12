@@ -17,7 +17,7 @@
                 <strong>Location</strong>
             </div>
             <div class="panel-body">
-                <form action="{{ action('ProductLocationController@store') }}" method="post">
+                <form action="{{ action([\App\Http\Controllers\ProductLocationController::class, 'store']) }}" method="post">
                     @csrf
                     <div class="row">
                         <div class="col-md-6">
@@ -49,7 +49,7 @@
                         <td>{{ $key+1 }}</td>
                         <td>{{ $productLocationRaw->name }}</td>
                         <td>
-                            <form method="post" action="{{ action('ProductLocationController@destroy', $productLocationRaw->id) }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\ProductLocationController::class, 'destroy'], $productLocationRaw->id) }}">
                                 <button class="btn btn-image btn-xs">
                                     @csrf
                                     @method('DELETE')

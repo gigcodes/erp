@@ -12,6 +12,7 @@ class CallRecording extends Model
     //
     /**
      * @var string
+     *
      * @SWG\Property(property="lead_id",type="integer")
      * @SWG\Property(property="order_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")
@@ -28,13 +29,14 @@ class CallRecording extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(enum={"model_id", "model_type", "name", "phone", "whatsapp_number", "address", "email"})
      */
     protected $table = 'call_recordings';
 
     /**
      * @var string
+     *
      * @SWG\Property(enum={"model_id", "model_type", "name", "phone", "whatsapp_number", "address", "email"})
      */
-    protected $dates = ['created_at', 'updated_at'];
 }

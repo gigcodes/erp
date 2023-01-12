@@ -13,6 +13,7 @@ class TaskCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="parent_id",type="integer")
      * @SWG\Property(property="is_approved",type="boolean")

@@ -17,6 +17,7 @@ class BackLinking extends Model
      */
     /**
      * @var string
+     *
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="description",type="text")
      * @SWG\Property(property="url",type="string")
@@ -33,8 +34,4 @@ class BackLinking extends Model
      *
      * @var    array
      */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
 }

@@ -53,6 +53,7 @@ use App\Setting;
 use App\StatusChange;
 use App\Store_order_status;
 use App\StoreMasterStatus;
+use App\StoreOrderStatusesHistory;
 use App\StoreWebsite;
 use App\StoreWebsiteOrder;
 use App\StoreWebsiteTwilioNumber;
@@ -73,7 +74,8 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Mail;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Support\Str;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Session;
 use SoapClient;
@@ -242,8 +244,6 @@ class OrderController extends Controller
             $orderby = 'ASC';
         }
 
-        // dd($orderby);
-
         switch ($request->input('sortby')) {
             case 'type':
                 $sortby = 'order_type';
@@ -286,7 +286,7 @@ class OrderController extends Controller
         // $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
         //\DB::enableQueryLog();
         $orders = (new Order())->newQuery()->with('customer')->leftJoin('store_website_orders as swo', 'swo.order_id', 'orders.id');
-        //dd(\DB::getQueryLog());
+
         if (empty($term)) {
             $orders = $orders;
         } else {
@@ -299,10 +299,11 @@ class OrderController extends Controller
                 ->orWhere('order_type', $term)
                 ->orWhere('sales_person', Helpers::getUserIdByName($term))
                 ->orWhere('received_by', Helpers::getUserIdByName($term))
-                ->orWhere('client_name', 'like', '%'.$term.'%')
                 ->orWhere('orders.city', 'like', '%'.$term.'%')
-                ->orWhere('order_status_id', (new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
+                ->orWhere('order_status_id', (new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term))
+                ->Where('client_name', 'like', $term);
         }
+
         if ($order_status[0] != '') {
             $orders = $orders->whereIn('order_status_id', $order_status);
         }
@@ -312,7 +313,7 @@ class OrderController extends Controller
         }
 
         if ($store_site = $request->store_website_id) {
-            $orders = $orders->where('swo.website_id', $store_site);
+            $orders = $orders->whereIn('swo.website_id', $store_site);
         }
 
         $statusFilterList = clone $orders;
@@ -370,6 +371,8 @@ class OrderController extends Controller
             }
         }
         $orderStatusList = OrderStatus::all();
+
+        $store_site = $request->store_website_id;
 
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList'));
@@ -3547,7 +3550,7 @@ class OrderController extends Controller
             }
         }
 
-        return redirect()->action('OrderController@viewAllInvoices');
+        return redirect()->action([\App\Http\Controllers\OrderController::class, 'viewAllInvoices']);
     }
 
     //TODO::Update Invoice Address
@@ -3598,8 +3601,7 @@ class OrderController extends Controller
             }
         }
 
-        return redirect()->action(
-            'OrderController@viewAllInvoices');
+        return redirect()->action([\App\Http\Controllers\OrderController::class, 'viewAllInvoices']);
     }
 
     /**
@@ -3750,6 +3752,7 @@ class OrderController extends Controller
                         'label' => $status->label,
                     ]);
                 }
+                $this->store_order_status_history_create($request, $result, $request->store_website_id);
             } else {
                 return redirect()->back()->with('error', $result->getContent());
             }
@@ -3781,6 +3784,8 @@ class OrderController extends Controller
         if (! $isExist) {
             Store_order_status::create($input);
 
+            store_order_status_history_create($request, '', '');
+
             return redirect()->back();
         } else {
             return redirect()->back()->with('warning', 'Already exists');
@@ -3808,6 +3813,7 @@ class OrderController extends Controller
         $isExist = Store_order_status::where('order_status_id', $request->order_status_id)->where('store_website_id', $request->store_website_id)->where('store_master_status_id', $request->store_master_status_id)->first();
 
         if (! $isExist) {
+            $this->store_order_status_history_update($request, '', $id);
             $store_order_status = Store_order_status::find($id);
             $store_order_status->update($input);
 
@@ -4825,7 +4831,7 @@ class OrderController extends Controller
 
                 return response()->json(['message' => $result, 'success' => true], 200);
             }
-            //$storeWebsiteOrder->update(['order_id', $status]);
+        //$storeWebsiteOrder->update(['order_id', $status]);
         } else {
             $this->createOrderLog($request, 'Cancel Transaction', 'Store Website Orders not found');
 
@@ -4898,5 +4904,79 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
+    }
+
+    public function store_order_status_history_create($request, $response, $store_website_id)
+    {
+        if (isset($response) && $response != '') {
+            $response = json_encode($response);
+        }
+        $storeHistory = [
+            'request' => json_encode($request->all()),
+            'response' => $response,
+            'store_website_id' => $store_website_id,
+            'updated_by' => \Auth::user()->id,
+            'action_type' => 'Fetch Store Status',
+        ];
+        StoreOrderStatusesHistory::create($storeHistory);
+    }
+
+    public function store_order_status_history_update($request, $response, $id)
+    {
+        $store_order_status = Store_order_status::find($id);
+        if (isset($response) && $response != '') {
+            $response = json_encode($response);
+        }
+        $storeHistory = [
+            'request' => json_encode($request->all()),
+            'response' => $response,
+            'store_order_statuses_id' => $id,
+            'old_order_status_id' => $store_order_status->order_status_id,
+            'old_store_website_id' => $store_order_status->store_website_id,
+            'old_status' => $store_order_status->status,
+            'old_store_master_status_id' => $store_order_status->store_master_status_id,
+
+            'new_order_status_id' => $request->order_status_id,
+            'new_store_website_id' => $request->store_website_id,
+            'new_status' => $request->status,
+            'new_store_master_status_id' => $request->store_master_status_id,
+
+            'updated_by' => \Auth::user()->id,
+            'action_type' => 'Edit',
+        ];
+
+        StoreOrderStatusesHistory::create($storeHistory);
+    }
+
+    public function statusHistory()
+    {
+        $id = $_REQUEST['id'];
+
+        $statusHistorySite = StoreOrderStatusesHistory::where('store_order_statuses_id', $id)->get();
+
+        $store_website_id = 0;
+        if (isset($statusHistorySite[0]->new_store_website_id) && $statusHistorySite[0]->new_store_website_id > 0) {
+            $store_website_id = $statusHistorySite[0]->new_store_website_id;
+        }
+
+        $statusHistory = StoreOrderStatusesHistory::where('store_order_statuses_id', $id)->orWhere('store_website_id', $store_website_id)->get();
+
+        $statusHistory = $statusHistory->map(function ($status) {
+            $status->request = $status->request;
+            $status->response = $status->response;
+            $status->request_detail = $status->request;
+            $status->response_detail = $status->response;
+            $status->old_order_status_id = OrderStatus::where('id', $status->old_order_status_id)->value('status');
+            $status->old_store_website_id = StoreWebsite::where('id', $status->old_store_website_id)->value('website');
+            $status->old_store_master_status_id = StoreMasterStatus::where('id', $status->old_store_master_status_id)->value('label');
+
+            $status->new_order_status_id = OrderStatus::where('id', $status->new_order_status_id)->value('status');
+            $status->new_store_website_id = StoreWebsite::where('id', $status->new_store_website_id)->value('website');
+            $status->new_store_master_status_id = StoreMasterStatus::where('id', $status->new_store_master_status_id)->value('label');
+
+            return $status;
+        });
+
+        return response()->json(['code' => 200, 'data' => $statusHistory]);
     }
 }

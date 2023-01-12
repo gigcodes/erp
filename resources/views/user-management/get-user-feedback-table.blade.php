@@ -892,7 +892,7 @@ aria-hidden="true">
             let self = textBox;
 
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'user-feedback')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'user-feedback')}}",
                 type: 'POST',
                 data: {
                     "feedback_status_id": feedback_status_id,
@@ -940,7 +940,7 @@ aria-hidden="true">
             let self = textBox;
 
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'user-feedback-hrTicket')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'user-feedback-hrTicket')}}",
                 type: 'POST',
                 data: {
                     "feedback_status_id": feedback_status_id,

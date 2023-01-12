@@ -13,6 +13,7 @@ class ProductSuggestedLog extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="parent_id",type="integer")
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="log",type="string")

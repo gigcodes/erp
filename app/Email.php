@@ -12,6 +12,7 @@ class Email extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="model_id",type="integer")
      * @SWG\Property(property="model_type",type="string")
      * @SWG\Property(property="seen",type="string")

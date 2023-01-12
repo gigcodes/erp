@@ -10,8 +10,8 @@ use App\Helpers\StatusHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Mediable;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Validator;
 
 class Product extends Model
@@ -33,6 +33,7 @@ class Product extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="brand",type="string")
      * @SWG\Property(property="category",type="string")
@@ -644,7 +645,7 @@ class Product extends Model
 
     public function magentoLog()
     {
-        return $this->hasOne(\App\Loggers\LogListMagento::class)->latest();;
+        return $this->hasOne(\App\Loggers\LogListMagento::class)->latest();
     }
 
     public function references()
@@ -1183,7 +1184,7 @@ class Product extends Model
                         'country_code' => $country,
                     ]);
                     $catDis = isset($catdiscount) ? $catdiscount->amount : 0;
-                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand,Category,Country, checked_add_profit is Not empty', $updated_add_profit, $productPrice, $newPriceRecords->value, 'promotion_per : '.$newPriceRecords->value.' <br/> total = '.$productPrice - $newPriceRecords->value.'<br/> Category Discount'.$catDis, $default_price, $website->id, $customer_id);
+                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand,Category,Country, checked_add_profit is Not empty', $updated_add_profit, $productPrice, $newPriceRecords->value, 'promotion_per : '.$newPriceRecords->value.(' <br/> total = '.($productPrice - $newPriceRecords->value)).'<br/> Category Discount'.$catDis, $default_price, $website->id, $customer_id);
 
                     return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $newPriceRecords->value, 'promotion' => $newPriceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $newPriceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                 }

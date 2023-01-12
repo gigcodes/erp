@@ -11,6 +11,7 @@ class Remark extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="taskid",type="integer")
      * @SWG\Property(property="remark",type="string")
      * @SWG\Property(property="module_type",type="string")

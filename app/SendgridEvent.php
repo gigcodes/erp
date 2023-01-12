@@ -22,13 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class SendgridEvent extends Model
 {
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['timestamp'];
-
     protected $fillable = ['timestamp', 'email', 'event', 'sg_event_id', 'sg_message_id', 'categories', 'payload', 'email_id'];
 
     /**
@@ -37,9 +30,9 @@ class SendgridEvent extends Model
      * @var array
      */
     protected $casts = [
+        'timestamp' => 'datetime',
         'payload' => 'array',
-        'categories' => 'array',
-    ];
+        'categories' => 'array',    ];
 
     /**
      * Get the current connection name for the model.

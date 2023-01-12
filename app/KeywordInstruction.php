@@ -11,6 +11,7 @@ class KeywordInstruction extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="keywords",type="string")
      */
     protected $casts = [

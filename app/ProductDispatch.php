@@ -12,6 +12,7 @@ class ProductDispatch extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="modeof_shipment",type="string")
      * @SWG\Property(property="awb",type="string")
      * @SWG\Property(property="eta",type="string")

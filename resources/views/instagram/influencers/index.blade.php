@@ -11,7 +11,7 @@
                     alert("{{Session::get('message')}}")
                 </script>
             @endif
-            <form method="post" action="{{ action('InfluencersController@store') }}">
+            <form method="post" action="{{ action([\App\Http\Controllers\InfluencersController::class, 'store']) }}">
                 @csrf
                 <div class="row">
                     <div class="col-md-3">
@@ -82,11 +82,11 @@
                             <td>{{ $hashtag->list_second_post }}</td>
                             {{--                        <td>{{ $hashtag->rating }}</td>--}}
                             <td>
-                                <form method="post" action="{{ action('InfluencersController@destroy', $hashtag->id) }}">
-                                    {{--                                <a class="btn btn-info" href="{{ action('HashtagController@showGrid', $hashtag->id) }}">--}}
+                                <form method="post" action="{{ action([\App\Http\Controllers\InfluencersController::class, 'destroy'], $hashtag->id) }}">
+                                    {{--                                <a class="btn btn-info" href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGrid'], $hashtag->id) }}">--}}
                                     {{--                                    <i class="fa fa-eye"></i>--}}
                                     {{--                                </a>--}}
-                                    {{--                                <a class="btn btn-info" href="{{ action('HashtagController@edit', $hashtag->hashtag) }}">--}}
+                                    {{--                                <a class="btn btn-info" href="{{ action([\App\Http\Controllers\HashtagController::class, 'edit'], $hashtag->hashtag) }}">--}}
                                     {{--                                    <i class="fa fa-info"></i>--}}
                                     {{--                                </a>--}}
                                     @csrf

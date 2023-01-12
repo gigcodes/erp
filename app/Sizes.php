@@ -9,6 +9,7 @@ class Sizes extends ReadOnlyBase
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="32",type="string")
      * @SWG\Property(property="34",type="string")
      * @SWG\Property(property="36",type="string")
