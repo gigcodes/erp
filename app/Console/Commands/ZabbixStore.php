@@ -85,6 +85,7 @@ class ZabbixStore extends Command
             ],
             'id' => 1,
         ];
+
         $datas = json_encode([$data]);
 
         curl_setopt($curl, CURLOPT_POSTFIELDS, $datas);
