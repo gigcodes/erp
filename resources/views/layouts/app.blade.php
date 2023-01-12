@@ -3358,7 +3358,7 @@ if (!empty($notifications)) {
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
 			@php
-				$todoLists = \App\TodoList::/*where('user_id',\Auth()->user()->id)->*/where('status',1)->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
+				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
             $statuses = \App\TodoStatus::get();
 			@endphp
 			<div class="modal-body show-list-records" id="todolist-request">
