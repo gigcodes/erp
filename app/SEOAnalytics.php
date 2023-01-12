@@ -11,6 +11,7 @@ class SEOAnalytics extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="seo_analytics",type="string")
      */
     protected $table = 'seo_analytics';

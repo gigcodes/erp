@@ -22,7 +22,7 @@ use Crypt;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ContentManagementController extends Controller
 {

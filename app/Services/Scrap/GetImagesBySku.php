@@ -4,7 +4,7 @@ namespace App\Services\Scrap;
 
 use App\Product;
 use App\ScrapEntries;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 

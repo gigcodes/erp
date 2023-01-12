@@ -112,7 +112,7 @@
         $(document).on('click', '.hide-media', function() {
             let mid = $(this).attr('data-id');
             $.ajax({
-                url: '{{ action('HashtagController@flagMedia', '') }}'+'/'+mid,
+                url: '{{ action([\App\Http\Controllers\HashtagController::class, 'flagMedia'], '') }}'+'/'+mid,
                 success: function() {
                     $("#media_"+mid).hide();
                 }
@@ -123,7 +123,7 @@
             let mediaId = $(this).attr('data-media-id');
             let postCode = $(this).attr('data-post-code');
             $.ajax({
-                url: '{{ action('HashtagController@loadComments', '') }}'+'/'+mediaId,
+                url: '{{ action([\App\Http\Controllers\HashtagController::class, 'loadComments'], '') }}'+'/'+mediaId,
                 success: function(response) {
                     let comments = response.comments;
                     if (response.has_more_comments==false) {
@@ -131,7 +131,7 @@
                     }
                     $('#comments-'+mediaId).html('');
                     comments.forEach(function(comment) {
-                        let form = '<form action="{{ action('ReviewController@createFromInstagramHashtag') }}" method="post">@csrf<input type="hidden" name="date" value="'+comment.created_at_time+'"><input type="hidden" name="code" value="'+postCode+'"><input type="hidden" name="post" value="'+response.caption.text+'"><input type="hidden" name="comment" value="'+comment.text+'"><input type="hidden" name="poster" value="'+response.caption.user.username+'"><input type="hidden" name="commenter" value="'+comment.user.username+'"><input type="hidden" name="media_id" value="'+mediaId+'"><button class="btn btn-sm btn-success"><i class="fa fa-check"></i></button></form>';
+                        let form = '<form action="{{ action([\App\Http\Controllers\ReviewController::class, 'createFromInstagramHashtag']) }}" method="post">@csrf<input type="hidden" name="date" value="'+comment.created_at_time+'"><input type="hidden" name="code" value="'+postCode+'"><input type="hidden" name="post" value="'+response.caption.text+'"><input type="hidden" name="comment" value="'+comment.text+'"><input type="hidden" name="poster" value="'+response.caption.user.username+'"><input type="hidden" name="commenter" value="'+comment.user.username+'"><input type="hidden" name="media_id" value="'+mediaId+'"><button class="btn btn-sm btn-success"><i class="fa fa-check"></i></button></form>';
                         let data = '<tr><td>'+comment.user.username+'</td><td>'+comment.text+'</td><td>'+comment.created_at+'</td><td>'+form+'</td></tr>';
                         $('#comments-'+mediaId).append(data);
                     });
@@ -182,7 +182,7 @@
                     $(self).attr('disabled', true);
                     
                     $.ajax({
-                        url: '{{action('HashtagController@commentOnHashtag')}}',
+                        url: '{{action([\App\Http\Controllers\HashtagController::class, 'commentOnHashtag'])}}',
                         type: 'POST',
                         data: {
                             message: message,

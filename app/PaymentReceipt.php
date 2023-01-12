@@ -7,13 +7,17 @@ namespace App;
  */
 use App\Events\PaymentReceiptCreated;
 use App\Events\PaymentReceiptUpdated;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
 
 class PaymentReceipt extends Model
 {
+    use HasFactory;
+
     /**
      * @var string
+     *
      * @SWG\Property(property="date",type="datetime")
      * @SWG\Property(property="payment_method_id",type="integer")
      * @SWG\Property(property="worked_minutes",type="integer")

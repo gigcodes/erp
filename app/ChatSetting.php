@@ -11,6 +11,7 @@ class ChatSetting extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="chat_name",type="string")
      * @SWG\Property(property="vendor",type="string")
      * @SWG\Property(property="instance_id",type="integer")

@@ -11,6 +11,7 @@ class Translations extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="text",type="string")
      * @SWG\Property(property="text_original",type="string")
      * @SWG\Property(property="from",type="string")
@@ -36,11 +37,6 @@ class Translations extends Model
      *
      * @var    array
      */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
-
     /**
      * This static method will create new translation
      *

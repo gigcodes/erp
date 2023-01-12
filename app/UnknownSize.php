@@ -11,6 +11,7 @@ class UnknownSize extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="size",type="string")
      */
     /**

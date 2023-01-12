@@ -9,7 +9,7 @@ use App\ScrapInfluencer;
 use App\ScrappedFacebookUser;
 use App\Services\Facebook\Facebook;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class FacebookController extends Controller
 {

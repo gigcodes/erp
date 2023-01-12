@@ -11,6 +11,7 @@ class PageNotesCategories extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="strng")
      * @SWG\Property(property="timestamps",type="false")
      */

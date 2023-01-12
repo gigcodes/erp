@@ -11,6 +11,7 @@ class OldIncoming extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="serial_no",type="integer")
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="description",type="string")
@@ -39,11 +40,6 @@ class OldIncoming extends Model
      *
      * @var    array
      */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
-
     /**
      * Saving categories
      *

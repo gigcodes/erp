@@ -95,7 +95,7 @@ class SocialController extends Controller
         $ad->scheduled_for = $request->get('date');
         $ad->save();
 
-        return redirect()->action('SocialController@showSchedule', $ad->id)->with('message', 'The ad has been scheduled successfully!');
+        return redirect()->action([\App\Http\Controllers\SocialController::class, 'showSchedule'], $ad->id)->with('message', 'The ad has been scheduled successfully!');
     }
 
     public function showSchedule($id, Request $request)
@@ -166,7 +166,7 @@ class SocialController extends Controller
                 ]);
             }
 
-            return redirect()->action('SocialController@showSchedule', $scheduleId);
+            return redirect()->action([\App\Http\Controllers\SocialController::class, 'showSchedule'], $scheduleId);
         }
 
         $selectedImages = $request->get('images') ?? [];

@@ -5,7 +5,7 @@ function Create {
 	if [ -z "$check_user" ]
 	then
 		mysql -h $host -u $user -p"$password" <<QUERY
-		CREATE USER '$mysql_user'@'$remotehost' IDENTIFIED BY '$mysql_pass';
+		CREATE USER '$mysql_user'@'%' IDENTIFIED BY '$mysql_pass';
 		FLUSH PRIVILEGES;
 QUERY
 	else
@@ -20,7 +20,7 @@ function Delete {
 		echo " User Does not exist"
 	else
 		mysql -h $host -u $user -p"$password" <<QUERY
-		drop user '$mysql_user'@'$remotehost';
+		drop user '$mysql_user'@'%';
 		FLUSH PRIVILEGES;
 QUERY
 	fi
@@ -46,7 +46,7 @@ function Update {
 			for table_name in $(echo $mysql_table | sed "s/,/ /g")
 			do
 				mysql -h $host -u $user -p"$password" <<QUERY
-				GRANT $type ON $database.$table_name TO '$mysql_user'@'$remotehost';
+				GRANT $type ON $database.$table_name TO '$mysql_user'@'%';
 				FLUSH PRIVILEGES;
 QUERY
 			done
@@ -67,7 +67,7 @@ function Revoke {
 			for table_name in $(echo $mysql_table | sed "s/,/ /g")
 			do
 				mysql -h $host -u $user -p"$password" <<QUERY
-				REVOKE select,insert,update ON $database.$table_name from '$mysql_user'@'$remotehost';
+				REVOKE select,insert,update ON $database.$table_name from '$mysql_user'@'%';
 				FLUSH PRIVILEGES;
 QUERY
 			done
@@ -145,7 +145,7 @@ if [ "$host" = "localhost" ] || [ "$host" = "0.0.0.0" ]
 then
 	remotehost=localhost
 else
-	remotehost=65.21.186.44
+	remotehost=81.0.247.216
 fi
 
 if [ "$function" = "create" ]

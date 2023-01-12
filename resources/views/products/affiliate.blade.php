@@ -68,7 +68,7 @@
       </h1>
     </div>
     <div>
-      <form action="{{ action('ProductController@affiliateProducts') }}">
+      <form action="{{ action([\App\Http\Controllers\ProductController::class, 'affiliateProducts']) }}">
         <div class="row">
           <div class="col-md-2">
             <input placeholder="sku, name.." type="text" name="sku" id="sku" class="form-control form-control-sm" value="{{Request::get('sku')}}">

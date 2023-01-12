@@ -11,6 +11,7 @@ class VendorStatus extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      */
     protected $table = 'vendor_status';

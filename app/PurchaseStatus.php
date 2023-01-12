@@ -11,6 +11,7 @@ class PurchaseStatus extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="purchase_status",type="string")
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="timestamps",type="boolean")

@@ -11,6 +11,7 @@ class Job extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="jobs",type="string")
      * @SWG\Property(property="queue",type="string")
      * @SWG\Property(property="payload",type="string")

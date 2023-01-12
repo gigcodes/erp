@@ -15,6 +15,7 @@ class Tickets extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="tickets",type="string")
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="ticket_id",type="integer")

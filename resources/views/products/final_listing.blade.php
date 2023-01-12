@@ -184,7 +184,7 @@
             <h2 class="page-heading">Approved Product Listing ({{ $products_count }}) 
                 <a href="{{ route('sop.index') }}?type=ListingApproved" class="pull-right">SOP</a>
             </h2>
-            <form class="product_filter" action="{{ action('ProductController@approvedListing') }}/{{ $pageType }}" method="GET">
+            <form class="product_filter" action="{{ action([\App\Http\Controllers\ProductController::class, 'approvedListing']) }}/{{ $pageType }}" method="GET">
                 <div class="row">
                     <div class="col-md-12" style="display:flex;justify-content: space-between;">
                         <div class="col-sm-1 p-0">
@@ -400,6 +400,7 @@
             </form>
             <input type="button" value="Auto push product - {{$auto_push_product == 0 ? 'Not Active' : 'Active'}}" class=" btn-{{$auto_push_product == 0 ? 'secondary' : 'primary'}} active autopushproduct"style="height:34px; border:1px
             solid transparent;border-radius: 4px;margin-left:16px;background-color: #6c757d;" auto_push_value="{{$auto_push_product}}">
+            <input type="button" onclick="conditionsCheck()" class="btn btn-secondary" value="Proceed to conditions check"/>
 
         </div>
     </div>
@@ -464,6 +465,7 @@
                                 <div class="col-md-6">
                                     <span for="no-of-products">No. of proudct</span>
                                     <input type="text" name="no_of_product" class="form-control push-to-no-of-product" placeholder="Enter no of product" required="">
+                                    <input type="hidden" name="mode" value="product-push">
                                 </div>
                          </div>  
                     </div>
@@ -475,6 +477,32 @@
             </div>
         </div>  
     </div>
+
+<div class="conditions-check-number modal " role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header">
+                    <h5 class="modal-title">How many products you want to check conditions ?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body edited-field-value">
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <span for="no-of-products">No. of proudct</span>
+                            <input type="text" name="no_of_product" class="form-control conditions-check-no-of-product" placeholder="Enter no of product" required="">
+                            <input type="hidden" name="mode" value="conditions-check">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="submit-conditions-check-btn" class="btn btn-secondary">Push</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
     <div class="common-modal-website-list modal " role="dialog">
         <div class="modal-dialog modal-lg" role="document">
@@ -538,6 +566,39 @@
             });
         });
     </script>
+
+    <script>
+        function conditionsCheck() {
+            $(".conditions-check-number").modal("show");
+        }
+
+        $(document).on("click","#submit-conditions-check-btn",function(e) {
+            e.preventDefault();
+            let noofProduct = $(".conditions-check-no-of-product").val();
+            if(isNaN(parseInt(noofProduct))) {
+                alert("Please select no of product for conditions check");
+                return false;
+            }
+            var form = $(this).closest("form");
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{csrf_token()}}"
+                },
+                beforeSend : function() {
+                    $("#loading-image-preview").show();
+                },
+                url: "{{ route('products.processProductsConditionsCheck') }}",
+                data : form.serialize(),
+                success: function (html) {
+                    $("#loading-image-preview").hide();
+                    $(".product-push-number").modal("hide");
+                    swal(html.message);
+                }
+            });
+        });
+    </script>
+
     <style>
         .same-color {
             color: #898989;
@@ -612,7 +673,7 @@
                 return;
             }
             $.ajax({
-                url: '{{ action('WhatsAppController@sendMessage', 'vendor') }}',
+                url: '{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'vendor') }}',
                 type: 'POST',
                 data: {
                     vendor_id: userId,
@@ -728,7 +789,7 @@
         {{--    }--}}
         {{--    let self = this;--}}
         {{--    $.ajax({--}}
-        {{--        url: '{{action('ProductController@addListingRemarkToProduct')}}',--}}
+        {{--        url: '{{action([\App\Http\Controllers\ProductController::class, 'addListingRemarkToProduct'])}}',--}}
         {{--        data: {--}}
         {{--            product_id: pid,--}}
         {{--            remark: remark,--}}

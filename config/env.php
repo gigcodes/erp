@@ -15,7 +15,7 @@ return [
     // 'REDIS_HOST' => env('REDIS_HOST'),
     // 'REDIS_PASSWORD' => env('REDIS_PASSWORD'),
     // 'REDIS_PORT' => env('REDIS_PORT'),
-    // 'MAIL_DRIVER' => env('MAIL_DRIVER'),
+    // 'MAIL_MAILER' => env('MAIL_MAILER'),
     'MAIL_HOST' => env('MAIL_HOST'),
     'MAIL_PORT' => env('MAIL_PORT'),
     'MAIL_USERNAME' => env('MAIL_USERNAME'),

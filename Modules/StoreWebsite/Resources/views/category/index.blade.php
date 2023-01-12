@@ -8,6 +8,9 @@
 	.preview-category input.form-control {
 	  width: auto;
 	}
+	.dropdown.bootstrap-select.show-tick.form-control {
+		min-width: 200px;
+	}
 </style>
 
 <div class="row" id="common-page-layout">
@@ -30,16 +33,16 @@
 		    			<form class="form-inline message-search-handler" method="get">
 					  		<div class="col">
 					  			<div class="form-group">
-								   <select name="category_id" class="form-control" placholder="Categories:" style="width:238px!important">
-								   	@foreach($allcategories as $value)
-								   	<option value="{{ $value->id }}" <?php echo (isset($_GET['category_id'])&&($_GET['category_id']==$value->id)) ?'selected' : ""; ?>  >{{ $value->title }}</option>
+								   <select name="category_id[]" class="form-control selectpicker" placholder="Categories:" multiple data-live-search="true" data-none-selected-text>
+								   	@foreach($allCategories as $key => $value)
+								   		<option value="{{ $value->id }}" <?php echo (isset($_GET['category_id'])&& in_array($value->id,$_GET['category_id'])) ?'selected' : ""; ?>  >{{ $value->title }}</option>
 								   	@endforeach
 								   </select> 	
 							  	</div>
 							  	<div class="form-group">
-								   <select name="website_id" class="form-control" placholder="Websites:">
-								   	@foreach($allstoreWebsite as $value)
-								   	<option value="{{ $value->id }}"  <?php echo (isset($_GET['website_id'])&&($_GET['website_id']==$value->id)) ?'selected' : ""; ?>>{{ $value->website }}</option>
+								   <select name="website_id[]" class="form-control selectpicker2" placholder="Websites:" multiple data-live-search="true" data-none-selected-text>
+								   	@foreach($allStoreWebsite as $k => $value)
+								   		<option value="{{ $value->id }}"  <?php echo (isset($_GET['website_id'])&& in_array($value->id,$_GET['website_id'])) ?'selected' : ""; ?>>{{ $value->website }}</option>
 								   	@endforeach
 								   </select> 
 							  	</div>
@@ -48,8 +51,11 @@
 							  	</div>
 							  	<div class="form-group">
 							  		<label for="button">&nbsp;</label>
-							  		<button type="submit" style="display: inline-block;width: 10%; margin-top: -23px;" class="btn btn-sm btn-image btn-search-action">
-							  			<img src="/images/search.png" style="cursor: default;">
+							  		<button type="submit" style="margin-top: -23px;" class="btn btn-sm btn-image btn-search-action">
+							  			<img src="{{asset('/images/search.png')}}" style="cursor: default;">
+							  		</button>
+									<button type="button" style="margin-top: -23px;" id="btnReset" class="btn btn-secondary ml-3">
+										Clear
 							  		</button>
 							  	</div>		
 					  		</div>
@@ -73,7 +79,7 @@
 				      	<th>Id</th>
 				        <th>Category</th>
 				        <?php foreach($storeWebsite as $sw) { ?>
-				        	<th class="Website-task" title="<?php echo $sw->website; ?>"><?php echo $sw->website; ?></th>
+				        	<th class="Website-task" title="<?php echo $sw->title; ?>"><?php echo $sw->title; ?></th>
 				        <?php } ?>	
 				      </tr>
 				    </thead>
@@ -81,34 +87,40 @@
 				    	<?php foreach($categories as $category) { ?>
  					      <tr>
 					      	<td><?php echo $category->id; ?></td>
-					      	<td class="Website-task"><?php echo $category->title; ?> <span href="javascript:void(0);" class="checkinglog" data-id="{{ $category->id }}" ><i class="fa fa-history"></i></span> </td>
+					      	<td class="Website-task"><?php echo $category->title; ?>
+								<span href="javascript:void(0);" class="checkinglog" data-id="{{ $category->id }}" >
+									<i class="fa fa-history"></i></span>
+							</td>
 					      	<?php foreach($storeWebsite as $sw) { 
-					      			$checked = ""; 
-					      			$catName = ""; 
-					      			$remote_id = ""; 
-								  ?>
-								  @forelse ($appliedQ as $item)
-									  	@if($item->category_id == $category->id && $item->store_website_id == $sw->id)
-										  	@php $checked = "checked"; $catName = $item->category_name; @endphp
-									  		@php $remote_id = $item->remote_id  @endphp
-									  	@endif
-								  @empty
-								  @endforelse
-					        	<td>
-						        		<div class=" d-flex w-100 custom-checkbox">
-						        			<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" <?php echo $checked; ?> class="push-category " type="checkbox" name="category_website">
-						        			<label class="d-flex">
-														  {{ $remote_id }}
-														<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" class="rename-category ml-1" type="text" name="category_name" value="{{ $catName }}" style="width:172px !important;">
-													</label>
-												</div>
-								</td>
+								$checked = "";
+								$catName = "";
+								$remote_id = "";
+							?>
+
+							  @if(isset($resultSw[$sw->id]) && isset($resultSw[$sw->id]['category'][$category->id]))
+								  @if($resultSw[$sw->id]['sw_id'] == $sw->id && $resultSw[$sw->id]['category'][$category->id]['id'] == $category->id)
+									  @php
+										$checked = "checked";
+										$catName = $category->title;
+										$remote_id = $resultSw[$sw->id]['category'][$category->id]['remote_id']
+									  @endphp
+								  @endif
+							  @endif
+							<td>
+								<div class=" d-flex w-100 custom-checkbox">
+									<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" <?php echo $checked; ?> class="push-category " type="checkbox" name="category_website">
+									<label class="d-flex">
+										  {{ $remote_id }}
+										<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" class="rename-category ml-1" type="text" name="category_name" value="{{ $catName }}" style="width:172px !important;">
+									</label>
+								</div>
+							</td>
 					        <?php } ?>
 					      </tr>
 					    <?php } ?>
 				    </tbody>
 				</table>
-				{!! $categories->links() !!}
+				<?php echo $categories->appends(request()->except('page'))->links(); ?>
 			</div>
 		</div>
 	</div>
@@ -155,6 +167,14 @@
 <script src="/js/jquery-ui.js"></script>
 
 <script>
+	$('.selectpicker').selectpicker({noneSelectedText : 'Choose a category'});
+	$('.selectpicker2').selectpicker({noneSelectedText : 'Choose a website'});
+
+	$("#btnReset").bind("click", function () {
+		$(".selectpicker").val('default').selectpicker("refresh");
+		$(".selectpicker2").val('default').selectpicker("refresh");
+	});
+
 $(document).on('change', '.push-category', function() {
 	var catId = $(this).attr('data-category');
 	var swId = $(this).attr('data-sw');
@@ -188,6 +208,14 @@ function ajaxCall(catId, swId, check, catName) {
 			$("#loading-image").show();
 		},
 		success: function(data) {
+			$.each(data.storeWebsites, function (index, item) {
+				let ele = $('.push-category[data-category="' + catId + '"][data-sw="'+item+'"]');
+				if(check && swId !== item) {
+					ele.prop('checked', true);
+				} else if(!check && swId !== item) {
+					ele.prop('checked', false);
+				}
+			});
 			$("#loading-image").hide();
 			if(data.message) {
 				$('#alert-msg p').text(data.message);

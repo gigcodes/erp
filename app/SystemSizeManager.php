@@ -11,6 +11,7 @@ class SystemSizeManager extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="erp_size",type="string")
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="status",type="string")

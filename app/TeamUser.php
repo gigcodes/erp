@@ -13,6 +13,7 @@ class TeamUser extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="team_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      */

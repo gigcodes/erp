@@ -12,6 +12,7 @@ class SERanking extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="group_id",type="integer")

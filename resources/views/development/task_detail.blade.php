@@ -292,7 +292,7 @@
             var taskId      = $("#task_id").val();
             if(task_detail != '') {
                 $.ajax({
-                    url: "{{ action('DevelopmentController@store') }}",
+                    url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'store']) }}",
                     type: 'POST',
                     data: {
                         parent_id: taskId,
@@ -320,7 +320,7 @@
             var taskId      = $("#task_id").val();
             if(comment != '') {
                 $.ajax({
-                    url: "{{ action('DevelopmentController@taskComment') }}",
+                    url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'taskComment']) }}",
                     type: 'POST',
                     data: {
                         task_id: taskId,
@@ -359,7 +359,7 @@
             var user_id = $(this).val();
 
             $.ajax({
-                url: "{{ action('DevelopmentController@updateAssignee') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'updateAssignee']) }}",
                 type: 'POST',
                 data: {
                     task_id: taskId,
@@ -376,7 +376,7 @@
            var taskId       = $("#task_id").val();
            var status      = $(this).val();
             $.ajax({
-                url: "{{ action('DevelopmentController@changeTaskStatus') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'changeTaskStatus']) }}",
                 type: 'POST',
                 data: {
                     task_id: taskId,
@@ -428,7 +428,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'openNewTaskPopup']) }}",
                 type: 'GET',
                 dataType: "JSON",
                 success: function (resp) {

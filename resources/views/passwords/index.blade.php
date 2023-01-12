@@ -21,6 +21,9 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+         /*.table-responsive {*/
+         /*     overflow-x: auto !important;*/
+         /*}*/
     </style>
 @endsection
 
@@ -29,10 +32,11 @@
     <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
+    <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Passwords Manager</h2>
-            <div class="pull-left">
+        <h2 class="page-heading">Passwords Manager</h2>
+            <div class="pull-left p-0">
                 <form action="{{ route('password.index') }}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control global" id="term"
@@ -54,7 +58,13 @@
                 </form>
             </div>
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</a>
+                <div class="pull-left mr-3">
+                    {{ Form::open(array('url' => route('passwords.change'), 'method' => 'post')) }}
+                    <input type="hidden" name="users" id="userIds">
+                    <button type="submit" class="btn btn-secondary"> Generate password </button>
+                    {{ Form::close() }}
+                </div>
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</button>
             </div>
         </div>
     </div>
@@ -76,38 +86,24 @@
         </div>
     @endif
 
-	<div class="row">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Passwords Manager</h2>
-            <div class="pull-left">
 
-            </div>
-            <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</button>
-            </div>
-            <div>
-                {{ Form::open(array('url' => route('passwords.change'), 'method' => 'post')) }}
-                    <input type="hidden" name="users" id="userIds">
-                    <button type="submit" class="btn btn-secondary"> Generate password </button>
-                {{ Form::close() }}
-            </div>
-        </div>
     </div>
-
-    <div class="table-responsive mt-3">
+    <div class="col-md-12">
+        <div class="table-responsive mt-3">
       <table class="table table-bordered" id="passwords-table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Website</th>
-            <th>Username</th>
-            <th>Password</th>
-            <th>Registered With</th>
-            <th>Actions</th>
+            <th width="3%" class="text-center">#</th>
+            <th width="8%">Website</th>
+            <th width="10%">Username</th>
+            <th width="10%">Password</th>
+            <th width="10%">Registered With</th>
+            <th width="15%">Remark</th>
+            <th width="8%">Actions</th>
           </tr>
 
           <tr>
-		  
+
             <th></th>
             <th><input type="text" id="website" class="search form-control"></th>
             <th><input type="text" id="username" class="search form-control"></th>
@@ -119,14 +115,14 @@
 
         <tbody>
 
-       @include('passwords.data') 
+       @include('passwords.data')
 
           {!! $passwords->render() !!}
-          
+
         </tbody>
       </table>
     </div>
-
+    </div>
 
 
     <div id="passwordCreateModal" class="modal fade" role="dialog">
@@ -275,7 +271,7 @@
 
         </div>
     </div>
-	
+
 	<div id="sendToWhatsapp{{$password->id}}" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -308,7 +304,7 @@
         </div>
     </div>
 
-	
+
     @endforeach
     @endif
     <div id="getHistory" class="modal fade" role="dialog">
@@ -348,8 +344,38 @@
 
         </div>
     </div>
-	
-	
+
+    <div id="preview-task-create-get-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Task Remark</h4>
+{{--                    <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="width: 200px;">--}}
+{{--                    <button type="button" class="btn btn-default sub_remark" data-password_id="">Save</button>--}}
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th style="width:1%;">ID</th>
+                                <th style=" width: 12%">Update By</th>
+                                <th style="word-break: break-all; width:12%">Remark</th>
+                                <th style="width: 11%">Created at</th>
+                                <th style="width: 11%">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody class="task-create-get-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 	@endsection
 
 
@@ -420,7 +446,7 @@
             username = $('#username').val();
             password = $('#password').val();
             registered_with = $('#registered_with').val();
-          
+
 
             $.ajax({
                 url: src,
@@ -430,12 +456,12 @@
                     username : username,
                     password : password,
                     registered_with : registered_with,
-                
+
                 },
                 beforeSend: function() {
                        $("#loading-image").show();
                 },
-            
+
             }).done(function (data) {
                  $("#loading-image").hide();
                 console.log(data);
@@ -445,13 +471,13 @@
                 } else {
                     $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                 }
-                
+
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
         },
         minLength: 1,
-       
+
         });
     });
 
@@ -462,8 +488,8 @@
         source: function(request, response) {
             term = $('#term').val();
             date = $('#date').val();
-            
-          
+
+
 
             $.ajax({
                 url: src,
@@ -471,12 +497,12 @@
                 data: {
                     term : term,
                     date : date,
-                
+
                 },
                 beforeSend: function() {
                        $("#loading-image").show();
                 },
-            
+
             }).done(function (data) {
                  $("#loading-image").hide();
                 console.log(data);
@@ -486,28 +512,28 @@
                 } else {
                     $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                 }
-                
+
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
         },
         minLength: 1,
-       
+
         });
     });
   $('.checkbox_ch').change(function(){
              var values = $('input[name="userIds[]"]:checked').map(function(){return $(this).val();}).get();
              $('#userIds').val(values);
          });
-		 
+
 	function sendtoWhatsapp(password_id) {
 		$("#sendToWhatsapp"+ password_id +"" ).modal('show');
 	}
-   
+
     $(document).on("click",".btn-copy-password",function() {
-             
+
              var password = $(this).data('value');
-             
+
               var $temp = $("<input>");
               $("body").append($temp);
               $temp.val(password).select();
@@ -528,5 +554,75 @@
 
               alert("Copied!");
         });
+
+    $(document).on("click",".set-remark",function(e) {
+        $('.remark_pop').val("");
+        var password_id = $(this).data('password_id');
+        $('.sub_remark').attr( "data-password_id", password_id );
+    });
+
+    $(document).on("click",".set-remark, .sub_remark",function(e) {
+        var thiss = $(this);
+        var password_id = $(this).data('password_id');
+        var remark = $('.remark_pop').val();
+
+        $.ajax({
+            type: "POST",
+            url: "{{route('password.create.get.remark')}}",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                password_id : password_id,
+                remark : remark,
+                type : "Quick-dev-task",
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
+            if(response.code == 200) {
+                $("#loading-image").hide();
+                if (remark == ''){
+                    $("#preview-task-create-get-modal").modal("show");
+                }
+                $(".task-create-get-list-view").html(response.data);
+                $(".td-password-remark").html(response.remark_data);
+                $('.remark_pop').val("");
+                toastr['success'](response.message);
+            }else{
+                $("#loading-image").hide();
+                if (remark == '') {
+                    $("#preview-task-create-get-modal").modal("show");
+                }
+                $(".task-create-get-list-view").html("");
+                toastr['error'](response.message);
+            }
+
+        }).fail(function (response) {
+            $("#loading-image").hide();
+            $("#preview-task-create-get-modal").modal("show");
+            $(".task-create-get-list-view").html("");
+            toastr['error'](response.message);
+        });
+    });
+
+    $(document).on("click",".copy_remark",function(e) {
+        var thiss = $(this);
+        var remark_text = thiss.data('remark_text');
+        copyToClipboard(remark_text);
+        /* Alert the copied text */
+        toastr['success']("Copied the text: " + remark_text);
+        //alert("Copied the text: " + remark_text);
+    });
+
+    function copyToClipboard(text) {
+        var sampleTextarea = document.createElement("textarea");
+        document.body.appendChild(sampleTextarea);
+        sampleTextarea.value = text; //save main text in it
+        sampleTextarea.select(); //select textarea contenrs
+        document.execCommand("copy");
+        document.body.removeChild(sampleTextarea);
+    }
 </script>
 @endsection

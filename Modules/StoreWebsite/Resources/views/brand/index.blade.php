@@ -112,8 +112,6 @@
 							<label for="no_brand">no Available brand</label>
 							<input type="checkbox" name="no_brand" value="1" {{ request()->has('no_brand') ? 'checked' : '' }} />
 						</div>
-
-
 						<div class="form-group">
 							<label for="button">&nbsp;</label>
 							<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
@@ -133,7 +131,7 @@
 			</div>
 		</div>
 		<div class="col-md-12 margin-tb" id="page-view-result">
-
+			<div class="row table-horizontal-scroll">
 				<table class="table table-bordered">
 				<thead>
 				      <tr>
@@ -332,7 +330,14 @@
             	$("#loading-image").show();
             },
             success: function(response) {
-				console.log(ele.attr('id'));
+				$.each(response.storeWebsites, function (index, item) {
+					let element = $('.push-brand[data-brand="' + brand + '"][data-sw="'+item+'"]');
+					if(ele.is(":checked") && store !== item) {
+						element.prop('checked', true);
+					} else if(!ele.is(":checked") && store !== item) {
+						element.prop('checked', false);
+					}
+				});
             	$("#loading-image").hide();
 				if($('#'+ele.attr('id')).prop("checked") == true){
 					$('#'+ele.attr('id')).prop('checked', false);

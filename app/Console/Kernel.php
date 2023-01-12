@@ -155,7 +155,8 @@ use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
-use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
+
+//use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 
 class Kernel extends ConsoleKernel
 {
@@ -274,7 +275,7 @@ class Kernel extends ConsoleKernel
         getLiveChatIncTickets::class,
         RoutesSync::class,
         DeleteChatMessages::class,
-        PriceComparisonScraperCommand::class,
+        //PriceComparisonScraperCommand::class,
         WayBillTrackHistories::class,
         CustomerListToEmailLead::class,
         WayBillTrackHistories::class,
@@ -697,7 +698,6 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         $this->load(__DIR__.'/Commands');
-
         require base_path('routes/console.php');
     }
 }

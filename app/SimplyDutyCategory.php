@@ -11,6 +11,7 @@ class SimplyDutyCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="description",type="string")
      * @SWG\Property(property="code",type="string")
      */

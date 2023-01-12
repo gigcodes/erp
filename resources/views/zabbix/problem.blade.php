@@ -36,7 +36,6 @@
     width: 110px !important;
   }
 
-
   @media (max-width: 1280px) {
     table.table {
         width: 0px;
@@ -75,6 +74,7 @@
       <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="problem-table">
         <thead>       
             <tr>
+                <th>Hostname</th>
                 <th>Event Id</th>
                 <th>Object ID</th>
                 <th>Problem</th>                
@@ -107,7 +107,7 @@
                 processing: true,
                 serverSide: true,
                 sScrollX:false,
-                searching: false,
+                searching: true,
                
                 targets: 'no-sort',
                 bSort: false,
@@ -123,7 +123,13 @@
                     searchable: false
                 }],
                 columns: [
-                    {
+                  {
+                      data: 'hostname',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },    
+                {
                       data: 'eventid',                                             
                       render: function(data, type, row, meta) {
                         return data;
@@ -141,6 +147,7 @@
                         return data;
                       }
                     }
+                    
                 ],
             });
         });

@@ -12,7 +12,7 @@
         </div>
 
         <div class="col-md-12">
-            <form action="{{ action('InstagramAutoCommentsController@update', $comment->id) }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\InstagramAutoCommentsController::class, 'update'], $comment->id) }}" method="post">
                 @csrf
                 @method('PUT')
                 <divr class="row">

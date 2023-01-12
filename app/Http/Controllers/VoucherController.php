@@ -16,7 +16,7 @@ use App\Voucher;
 use App\VoucherCategory;
 use Auth;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class VoucherController extends Controller
 {

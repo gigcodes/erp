@@ -11,6 +11,7 @@ class CallBusyMessage extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="lead_id",type="integer")
      * @SWG\Property(property="twilio_call_sid",type="string")
      * @SWG\Property(property="caller_sid",type="string")
@@ -25,7 +26,9 @@ class CallBusyMessage extends Model
 
     protected $table = 'call_busy_messages';
 
-    protected $dates = ['created_atcreated_at', 'updated_at'];
+    protected $casts = [
+        'created_atcreated_at' => 'datetime',
+    ];
 
     /**
      * Function to insert large amount of data
