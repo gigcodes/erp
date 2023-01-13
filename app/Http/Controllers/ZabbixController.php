@@ -14,7 +14,6 @@ class ZabbixController extends Controller
     {
         if ($request->ajax()) {
             $query = Host::with('items');
-
             return datatables()->eloquent($query)->toJson();
         }
 
@@ -25,7 +24,6 @@ class ZabbixController extends Controller
     {
         if ($request->ajax()) {
             $query = Problem::select('id', 'eventid', 'objectid', 'name', 'hostname');
-
             return datatables()->eloquent($query)->toJson();
         }
 
@@ -36,10 +34,9 @@ class ZabbixController extends Controller
     {
         if ($request->ajax()) {
             $dueDate = Carbon::now()->subDays(2);
-            $query = ZabbixHistory::whereDate('created_at', '>', $dueDate)->where('hostid', $request->hostid)->orderBy('created_at', 'desc')->get();
-
+            $query = ZabbixHistory::whereDate('created_at', '>', $dueDate)->where('host_id', $request->hostid)->orderBy('created_at', 'desc')->get();
             foreach ($query as $val) {
-                $host = Host::where('hostid', $val->hostid)->first();
+                $host = Host::where('hostid', $val->host_id)->first();
                 $val['hostname'] = $host->name;
             }
 
