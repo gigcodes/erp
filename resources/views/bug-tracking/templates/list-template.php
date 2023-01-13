@@ -35,10 +35,11 @@
 						<select class='form-control bug_type_in_row'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
 							<option value="">Select BugType</option>											
 							<?php
-								foreach ($bugTypes as $bugtype) {
-									echo "<option {{if prop.bug_type_id_val == '".$bugtype->id."'}} selected {{/if}} value='".$bugtype->id."'>".$bugtype->name.'</option>';
-								}
-						?>
+                                foreach ($bugTypes as $bugtype) {
+                                    echo "<option {{if prop.bug_type_id_val == '".$bugtype->id."'}} selected {{/if}} value='".$bugtype->id."'>".$bugtype->name.'</option>';
+                                }
+					    ?>
+
 						</select>
 					<?php } else { ?>
 					{{:prop.bug_type_id}}
@@ -66,10 +67,10 @@
 						<div class="d-flex">
 							<select class='form-control assign_to'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
 								<?php
-                                    foreach ($users as $user) {
-                                        echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
-                                    }
-							?>
+					                foreach ($users as $user) {
+					                    echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
+					                }
+					?>
 							</select>
 							<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
 						</div>
@@ -79,10 +80,10 @@
 						   <select class='form-control bug_severity_id' id="bug_severity_id_{{>prop.id}}"   data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 						   <option value="">-Select-</option>
 							<?php
-							foreach ($bugSeveritys as $bugSeverity) {
-							    echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
-							}
-							?>
+					foreach ($bugSeveritys as $bugSeverity) {
+					    echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
+					}
+					?>
 							</select>
 							<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-severity-history" title="Show Severity History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
 						</div>
@@ -91,32 +92,31 @@
 						<div class="d-flex">
 							<select class='form-control bug_status_id'  data-id="{{>prop.id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 								<?php
-							    foreach ($bugStatuses as $bugStatus) {
-							        echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
-							    }
-							?>
+					    foreach ($bugStatuses as $bugStatus) {
+					        echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
+					    }
+					?>
 							</select>
 							<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
 						</div>
 
 			        </td>
-			        <td class='break'>	
+         <td class='break'>	
 					<?php if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
 						<select class='form-control bug_module_in_row'  data-id="{{>prop.id}}" data-module="{{>prop.module_id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
 							<option value="">Select Module</option>											
 							<?php
-								foreach($filterCategories as  $filterCategory) {
-									?>
+					    foreach ($filterCategories as  $filterCategory) {
+					        ?>
 
 									<?php
-									echo "<option data-val='".str_replace("'","",$filterCategory)."'  {{if prop.module_id == '".str_replace("'","",$filterCategory)."'}} selected {{/if}} value='".htmlentities($filterCategory)."'>".$filterCategory.'</option>';
-								}
-						?>
+					        echo "<option data-val='".str_replace("'", '', $filterCategory)."'  {{if prop.module_id == '".str_replace("'", '', $filterCategory)."'}} selected {{/if}} value='".htmlentities($filterCategory)."'>".$filterCategory.'</option>';
+					    }
+					    ?>
 						</select>
 					<?php } else { ?>
 					{{:prop.module_id}}
 					<?php } ?>	
-					
 									
 					</td>
 			        <td class='break'>

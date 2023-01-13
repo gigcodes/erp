@@ -9,22 +9,29 @@
             <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y H:i:s') }}</td>
             
             <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')"> 
-            {{ substr($email->from, 0,  10) }} {{strlen($email->from) > 10 ? '...' : '' }}
+            {{ substr($email->from, 0,  20) }} {{strlen($email->from) > 20 ? '...' : '' }}
             </td>
             
             <td  data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->to}}')">
-                {{ substr($email->to, 0,  10) }} {{strlen($email->to) > 10 ? '...' : '' }}
+                {{ substr($email->to, 0,  15) }} {{strlen($email->to) > 10 ? '...' : '' }}
             </td>
             
             <td>{{ $email->type }}</td>
 			
-            <td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  10) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
+            <td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
 			
-            <td>{{ substr($email->message, 0,  10) }} {{strlen($email->message) > 10 ? '...' : '' }}</td>
+            <td class="expand-row table-hover-cell p-2">
+                <span class="td-mini-container">
+                    {{ strlen($email->message) > 15 ? substr($email->message, 0, 15).'...': $email->message }}
+                </span>
+                <span class="td-full-container hidden">
+                    {{ $email->message }}
+                </span>
+            </td>
             
             <td width="1%">
             @if($email->status != 'bin')
-                <select class="select selecte2 status">
+                <select class="form-control selecte2 status">
                     <option  value="" >Please select</option> 
                     @foreach($email_status as $status)
                             @if($status->id == (int)$email->status)
@@ -38,9 +45,17 @@
                 Deleted
             @endif
 			</td>
-            <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
-            <td>{!! wordwrap($email->error_message,15,"<br>\n") !!}</td>
-			<td><select class="select selecte2 email-category">
+            <td class="chat-msg">{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
+            <td class="expand-row table-hover-cell p-2">
+                <span class="td-mini-container">
+                    {{ strlen($email->error_message) > 20 ? substr($email->error_message, 0, 20).'...' : $email->error_message }}
+                </span>
+                        <span class="td-full-container hidden">
+                    {{ $email->error_message }}
+                </span>
+            </td>
+			<td>
+                <select class="form-control selecte2 email-category">
                     <option  value="" >Please select</option> 
                     @foreach($email_categories as $email_category)
                             @if($email_category->id == (int)$email->email_category_id)
@@ -51,13 +66,16 @@
                     @endforeach
                 </select>
             </td>
-			<td>
+        </tr>
+        <tr>
+            <th>Action</th>
+            <td colspan="11">
                 @if($email->type != "incoming")
-                <a title="Resend"  class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
-                    <i class="fa fa-repeat"></i>
-                </a>
+                    <a title="Resend"  class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
+                        <i class="fa fa-repeat"></i>
+                    </a>
                 @endif
-                
+
 
                 <a title="Reply" class="btn-image reply-email-btn" data-toggle="modal" data-target="#replyMail" data-id="{{ $email->id }}" >
                     <i class="fa fa-reply"></i>
@@ -69,30 +87,30 @@
                     <i class="fa fa-trash"></i>
                 </a>
                 <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $email->id }}"><img width="2px;" src="/images/remark.png"/></button>
-                <button style="padding:3px;" type="button" class="btn-image make-remark d-inline mailupdate" data-toggle="modal" data-status="{{ $email->status }}" data-category="{{ $email->email_category_id}}" data-target="#UpdateMail" data-id="{{ $email->id }}"><img width="2px;" src="images/edit.png"/></button>   
+                <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline mailupdate border-0" data-toggle="modal" data-status="{{ $email->status }}" data-category="{{ $email->email_category_id}}" data-target="#UpdateMail" data-id="{{ $email->id }}"><img width="2px;" src="images/edit.png"/></button>
 
-                 <a title="Import Excel Imported" href="javascript:void(0);">  <i class="fa fa-cloud-download" aria-hidden="true" onclick="excelImporter({{ $email->id }})"></i></a>
-                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="showFilesStatus({{ $email->id }})">  <i class="fa fa-history" aria-hidden="true" ></i></button>
+                <a title="Import Excel Imported" href="javascript:void(0);">  <i class="fa fa-cloud-download" aria-hidden="true" onclick="excelImporter({{ $email->id }})"></i></a>
+                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="showFilesStatus({{ $email->id }})">  <i class="fa fa-history" aria-hidden="true" ></i></button>
 
                 @if($email->email_excel_importer == 1)
-                  <a href="javascript:void(0);">  <i class="fa fa-check"></i></a>
+                    <a href="javascript:void(0);">  <i class="fa fa-check"></i></a>
                 @endif
 
                 @if($email->approve_mail == 1)
-                  <a title="Approve and send watson reply" class="btn-image resend-email-btn" data-id="{{ $email->id }}" data-type="approve" href="javascript:void(0);">  <i class="fa fa-check-circle"></i></a>
+                    <a title="Approve and send watson reply" class="btn-image resend-email-btn" data-id="{{ $email->id }}" data-type="approve" href="javascript:void(0);">  <i class="fa fa-check-circle"></i></a>
                 @endif
                 <a class="btn btn-image btn-ht" href="{{route('order.generate.order-mail.pdf', ['order_id' => 'empty', 'email_id' => $email->id])}}">
-                  <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
+                    <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
                 </a>
                 <button style="padding:3px;" type="button" class="btn btn-image make-label d-inline" data-toggle="modal" data-target="#labelingModal" data-id="{{ $email->id }}"><i class="fa fa-tags" aria-hidden="true"></i></button>
-            
-				<a class="btn btn-image btn-ht" onclick="fetchEvents('{{$email['id']}}')">
-                  <i class="fa fa-eye" aria-hidden="true"></i>      
+
+                <a class="btn btn-image btn-ht" onclick="fetchEvents('{{$email['id']}}')">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
                 </a>
                 <a class="btn btn-image btn-ht" title="View Email Log" onclick="fetchEmailLog('{{$email['id']}}')">
-                  <i class="fa fa-history" aria-hidden="true"></i>      
+                    <i class="fa fa-history" aria-hidden="true"></i>
                 </a>
-			</td>  
-
+            </td>
         </tr>
+
     @endforeach

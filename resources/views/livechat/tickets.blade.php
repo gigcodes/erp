@@ -234,23 +234,22 @@
             <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
                 <thead>
                 <tr>
-                    <th style="width: 2%;"></th>
+                    <th style="width: 4%;"></th>
                     <th style="width: 4%;">Id</th>
-                    <th style="width: 5%;">Source</th>
-                    <th style="width: 5%;">Name</th>
-                    <th style="width: 5%;">Email</th>
+                    <th style="width: 8%;">Source</th>
+                    <th style="width: 8%;">Name</th>
+                    <th style="width: 8%;">Email</th>
                     <th style="width: 5%;">Subject</th>
                     <th style="width: 6%;">Message</th>
                     <th style="width: 6%;">Asg name</th>
                     <th style="width: 5%;">Brand</th>
                     <th style="width: 5%;">Country</th>
                     <th style="width: 5%;">Ord no</th>
-                    <th style="width: 6%;">Ph no</th>
+                    <th style="width: 8%;">Ph no</th>
                     <th style="width: 13%;">Msg Box</th>
                     <th style="width: 13%;">Resolution Date</th>
                     <th style="width: 6%;">Status</th>
                     <th style="width: 5%;">Created</th>
-                    <th style="width: 12%;">Action</th>
                 </tr>
                 </thead>
                 <tbody id="content_data" class="infinite-scroll-pending-inner">
