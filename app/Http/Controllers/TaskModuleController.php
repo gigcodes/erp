@@ -2135,11 +2135,10 @@ class TaskModuleController extends Controller
             if (count($model_site_dev_category) > 0 && $model_site_dev_category[0]['id'] > 0) {
                 $site_development_module_id = $model_site_dev_category[0]['id'];
             }
-            
+
             $website_multiple_arrays = array_keys($request->website_name);
 
-            for($m=0;$m<count($website_multiple_arrays);$m++) {
-
+            for ($m = 0; $m < count($website_multiple_arrays); $m++) {
                 $data_site['site_development_category_id'] = $site_development_module_id;
                 $data_site['bug_id'] = $request->site_id;
                 $data_site['website_id'] = $website_multiple_arrays[$m];
@@ -2156,13 +2155,12 @@ class TaskModuleController extends Controller
                         $site_developement_primary_id = $site_devlopment_exist[0]['id'];
                     }
                 }
-
-            }            
+            }
 
             $site_dev_category_id = \App\SiteDevelopment::where('id', $site_developement_primary_id)->select('site_development_category_id')->first();
             $cat_id = $site_dev_category_id->id;
             if (is_array($request->website_name)) {
-                $sub_array = array();
+                $sub_array = [];
                 foreach ($request->website_name as $key => $website) {
                     $sub_array[] = $website;
                 }
@@ -2173,7 +2171,7 @@ class TaskModuleController extends Controller
                     ]
                 )->first();
                 if (isset($site_developement_id->id)) {
-                    $website = join(',',$sub_array);
+                    $website = implode(',', $sub_array);
                     $request->task_subject = $website;
                     $message = '';
                     $assignedUserId = 0;
