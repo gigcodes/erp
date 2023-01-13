@@ -78,9 +78,10 @@ class DatabaseController extends Controller
         chmod($dumpName, 0755);
 
         header('Content-Type: application/octet-stream');
-        header("Content-Transfer-Encoding: Binary");
-        header("Content-disposition: attachment; filename=erp_live_schema.sql");
-        $dumpUrl = env('APP_URL') . '/' . $dumpName;
+        header('Content-Transfer-Encoding: Binary');
+        header('Content-disposition: attachment; filename=erp_live_schema.sql');
+        $dumpUrl = env('APP_URL').'/'.$dumpName;
+
         return response()->json(['code' => 200, 'data' => $dumpUrl, 'message' => 'Database exported successfully']);
     }
 }
