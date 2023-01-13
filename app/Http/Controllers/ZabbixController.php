@@ -14,6 +14,7 @@ class ZabbixController extends Controller
     {
         if ($request->ajax()) {
             $query = Host::with('items');
+
             return datatables()->eloquent($query)->toJson();
         }
 
@@ -24,6 +25,7 @@ class ZabbixController extends Controller
     {
         if ($request->ajax()) {
             $query = Problem::select('id', 'eventid', 'objectid', 'name', 'hostname');
+
             return datatables()->eloquent($query)->toJson();
         }
 
