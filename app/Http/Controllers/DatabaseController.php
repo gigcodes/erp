@@ -73,7 +73,7 @@ class DatabaseController extends Controller
         $dumpName = str_replace(' ', '_', $dbName).'_schema.sql';
         \Log::info('Dump name:' . $dumpName);
         $cmd = 'mysqldump -h erpdb -u erplive -p  --no-data '.$dbName.' > '.$dumpName;
-        \Log::info('Executing:' . $cmd);
+        \Log::info('Executing:'.$cmd);
         $allOutput = [];
         $allOutput[] = $cmd;
         $result = exec($cmd, $allOutput);
