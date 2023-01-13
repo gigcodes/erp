@@ -37,6 +37,7 @@
                                 }
 			            ?>
 			            </select>
+			          <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-test-history" title="Show History" data-id="{{:prop.id}}"><i class="fa fa-info-circle"></i></button>
 			        </td>
 			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="{{:prop.id}}"><span class="show-short-Steps to reproduce-{{:prop.id}}">{{:prop.step_to_reproduce_short}}</span>
                         <span class="show-full-step_to_reproduce-{{:prop.id}} hidden" >{{:prop.step_to_reproduce}}</span>
@@ -50,6 +51,7 @@
 			                }
 			            ?>
 			            </select>
+			          <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-teststatus-history" title="Show History" data-id="{{:prop.id}}"><i class="fa fa-info-circle"></i></button>
 			        </td>
 
 			        <td class='break'>
