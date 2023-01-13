@@ -74,7 +74,7 @@ class DatabaseController extends Controller
         $allOutput = [];
         $allOutput[] = $cmd;
         $result = exec($cmd, $allOutput);
-        chmod("erp_live_schema.sql", 0755);
+        chmod($dumpName, 0755);
 
         header('Content-Type: application/octet-stream');
         header("Content-Transfer-Encoding: Binary");
