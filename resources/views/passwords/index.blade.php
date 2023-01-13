@@ -21,9 +21,9 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
-         .table-responsive {
-              overflow-x: auto !important;
-         }
+         /*.table-responsive {*/
+         /*     overflow-x: auto !important;*/
+         /*}*/
     </style>
 @endsection
 
@@ -94,12 +94,12 @@
         <thead>
           <tr>
             <th width="3%" class="text-center">#</th>
-            <th width="10%">Website</th>
+            <th width="8%">Website</th>
             <th width="10%">Username</th>
             <th width="10%">Password</th>
             <th width="10%">Registered With</th>
-            <th width="5%">Remark</th>
-            <th width="10%">Actions</th>
+            <th width="15%">Remark</th>
+            <th width="8%">Actions</th>
           </tr>
 
           <tr>

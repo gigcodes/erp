@@ -33,6 +33,7 @@ use Auth;
 use Carbon\Carbon;
 use DateTime;
 use DB;
+use function GuzzleHttp\json_encode;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -103,6 +104,7 @@ class UserManagementController extends Controller
         $servers = AssetsManager::whereHas('category', function ($q) {
             $q->where('cat_name', '=', 'Servers');
         })->get();
+
         $userLists = User::orderBy('name')->where('is_active', 1)->pluck('name', 'id');
 
         return view('usermanagement::index', compact('title', 'permissionRequest', 'statusList', 'usersystemips', 'userlist', 'whatsapp', 'servers', 'userLists'));

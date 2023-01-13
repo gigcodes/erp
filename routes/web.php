@@ -449,6 +449,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/csv-translator/upload', [CsvTranslatorController::class, 'upload'])->name('csvTranslator.uploadFile');
     Route::get('/csv-translator/export', [CsvTranslatorController::class, 'export'])->name('csvTranslator.export');
     Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
+    Route::post('/csv-translator/history', [CsvTranslatorController::class, 'history'])->name('csvTranslator.history');
 });
 
 /** Magento Settings */
@@ -2686,6 +2687,8 @@ Route::middleware('auth')->group(function () {
     Route::get('bug-tracking/edit/{id}', [BugTrackingController::class, 'edit'])->name('bug-tracking.edit');
     Route::post('bug-tracking/update', [BugTrackingController::class, 'update'])->name('bug-tracking.update');
     Route::post('bug-tracking/assign_user', [BugTrackingController::class, 'assignUser'])->name('bug-tracking.assign_user');
+    Route::post('bug-tracking/change_bug_type', [BugTrackingController::class, 'changeBugType'])->name('bug-tracking.change_bug_type');
+    Route::post('bug-tracking/change_module_type', [BugTrackingController::class, 'changeModuleType'])->name('bug-tracking.change_module_type');
     Route::post('bug-tracking/severity_user', [BugTrackingController::class, 'severityUser'])->name('bug-tracking.severity_user');
     Route::post('bug-tracking/status_user', [BugTrackingController::class, 'statusUser'])->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', [BugTrackingController::class, 'sendMessage'])->name('bug-tracking.sendmessage');
@@ -2726,6 +2729,8 @@ Route::middleware('auth')->group(function () {
     Route::post('test-cases/status_user', [TestCaseController::class, 'statusUser'])->name('test-cases.status_user');
     Route::post('test-cases/sendmessage', [TestCaseController::class, 'sendMessage'])->name('test-cases.sendmessage');
     Route::post('test-cases/add-test-cases', [TestCaseController::class, 'sendTestCases'])->name('test-cases.sendtestcases');
+    Route::get('test-cases/usertest-history/{id}', [TestCaseController::class, 'usertestHistory'])->name('test-cases.usertest-history');
+    Route::get('test-cases/user-teststatus-history/{id}', [TestCaseController::class, 'userteststatusHistory'])->name('test-cases.usertest-history');
 
     Route::get('test-suites', [TestSuitesController::class, 'index'])->name('test-suites.index');
     Route::get('test-suites/records', [TestSuitesController::class, 'records'])->name('test-suites.records');

@@ -161,7 +161,7 @@
             </select>
         </div>
 		<div class="form-group px-2">
-            <select class="form-control" name="receiver" id="receiver">
+            <select class="form-control" name="receiver" id="receiver" style="width: 208px !important;">
                 <option value="">Select Receiver</option>
                 @foreach($receiver_drpdwn as $sender)
                     <!-- Purpose : Add If condition -  DEVTASK-18283 -->
@@ -174,7 +174,7 @@
             </select>
         </div>
     <div class="form-group px-2">
-        <select class="form-control" name="mail_box" id="mail_box">
+        <select class="form-control" name="mail_box" id="mail_box" style="width: 208px !important;">
             <option value="">Select Mailbox</option>
             @foreach($mailboxdropdown as $sender)
                 <option value="{{ $sender }}" {{ (Request::get('mail_box') == $sender) ? "selected" : ""}}>{{ $sender }}</option>
@@ -182,7 +182,7 @@
         </select>
     </div>    
 		<div class="form-group px-2">
-          <select class="form-control" name="status" id="email_status">
+          <select class="form-control" name="status" id="email_status" style="width: 208px !important;">
 				<option value="">Select Status</option>
 				<?php
 				foreach ($email_status as $status) { ?>
@@ -210,21 +210,20 @@
 </div>
 </div>
 <div class="table-responsive mt-3" style="margin-top:20px;">
-      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+      <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
         <thead>
           <tr>
-            <th>Bulk <br> Action</th>
-            <th>Date</th>
-            <th>Sender</th>
-            <th>Receiver</th>
-            <th>Mail <br> Type</th>
-            <th>Subject</th>
-            <th>Body</th>
-            <th>Status</th>
-            <th>Draft</th>
-            <th>Error <br> Message</th>
-            <th>Category</th>
-            <th>Action</th>
+            <th width="2%">Bulk <br> Action</th>
+            <th width="6%">Date</th>
+            <th width="8%">Sender</th>
+            <th width="5%">Receiver</th>
+            <th width="4%">Mail <br> Type</th>
+            <th width="6%">Subject</th>
+            <th width="5%">Body</th>
+            <th width="10%">Status</th>
+            <th width="2%">Draft</th>
+            <th width="8%">Error <br> Message</th>
+            <th width="10%">Category</th>
           </tr>
         </thead>
         <tbody>
@@ -635,6 +634,13 @@
         if($(window).scrollTop() == $(document).height() - $(window).height()) {
           console.log('ajax call or some other logic to show data here');
           $(".pagination-custom").find(".pagination").find(".active").next().find("a").click();
+        }
+    });
+    $(document).on('click', '.expand-row', function() {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
         }
     });
 
@@ -1215,6 +1221,7 @@
     }
     
     function opnModal(message){
+        console.log(message);
       $(document).find('#more-content').html(message);
     }
     $(document).on('click','.make-label',function(event){

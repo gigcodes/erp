@@ -547,6 +547,12 @@ table{border-collapse: collapse;}
 							</div>
 						</div>
 						<div class="form-group">
+							<label for="">Last Users</label>
+							<div class="form-group task-users-list row" style="margin-left: 0px;">
+							   
+							</div>
+						</div>
+						<div class="form-group">
 							<label for="">Bug Ids</label>
 							<input class="form-control text-task-bugids" type="text" name="task_bug_ids" readonly="true" />
 						</div>
@@ -630,7 +636,7 @@ table{border-collapse: collapse;}
             {{--});--}}
       })
 	</script>
-	<script type="text/javascript">
+	<script type="text/javascript">	
 
 		$('.change_assign_to_top').select2({
 				width: "150px",
@@ -861,6 +867,7 @@ table{border-collapse: collapse;}
 						//$('.text-task-development').val(response.data.bug_ids);		
 						$('#bugs_list_html').html(response.data.bug_html);					
 						//toastr["success"]("Remarks fetched successfully");
+						$('.task-users-list').html(response.data.bug_users_worked);
 					}).fail(function(jqXHR, ajaxOptions, thrownError) {
 						toastr["error"]("Oops,something went wrong");
 						$("#loading-image").hide();
