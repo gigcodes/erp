@@ -64,7 +64,7 @@ class StoreWebsiteController extends Controller
         $title = 'List | Store Website';
         $services = Service::get();
         $assetManager = AssetsManager::whereNotNull('ip');
-        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('title')->get();
 
         return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites'));
     }
@@ -92,7 +92,7 @@ class StoreWebsiteController extends Controller
      */
     public function records(Request $request)
     {
-        $records = StoreWebsite::whereNull('deleted_at');
+        $records = StoreWebsite::whereNull('deleted_at')->orderBy('title');
 
         $keyword = request('keyword');
         if (! empty($keyword)) {
