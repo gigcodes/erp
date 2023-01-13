@@ -637,6 +637,9 @@ table{border-collapse: collapse;}
       })
 	</script>
 	<script type="text/javascript">	
+		$(document).ready(function() {
+			$("body").tooltip({ selector: '[data-toggle=tooltip]' });
+		});
 
 		$('.change_assign_to_top').select2({
 				width: "150px",
@@ -1220,5 +1223,8 @@ table{border-collapse: collapse;}
 			$('#bug-id-search').val("");
 			window.history.replaceState({}, document.title, clean_uri);
 		}
+
+		
+
 	</script>
 @endsection
