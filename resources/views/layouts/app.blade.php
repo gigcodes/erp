@@ -3159,6 +3159,10 @@ if (!empty($notifications)) {
                                             class="fa fa-plus fa-2x"></i></span></a>
                             </li>
                             <li>
+                                <a class="quick-icon todolist-get" href="#"><span><i
+                                            class="fa fa-list fa-2x"></i></span></a>
+                            </li>
+                            <li>
                                 <a class="quick-icon permission-request" href="#"><span><i
                                             class="fa fa-reply fa-2x"></i>{{-- $permissionRequest --}}</span></a>
                             </li>
@@ -3256,6 +3260,7 @@ if (!empty($notifications)) {
             </div>
 
         </nav>
+
         <div id="todolist-request-model" class="modal fade" role="dialog">
             <div class="modal-content modal-dialog modal-md">
                 <form action="{{ route('todolist.store') }}" method="POST">
@@ -3442,6 +3447,54 @@ if (!empty($notifications)) {
         </div>
 
         @if (Auth::check())
+
+		<div id="todolist-get-model" class="modal fade" role="dialog">
+             <div class="modal-content modal-dialog modal-lg">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Todo List</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+			@php
+				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
+            $statuses = \App\TodoStatus::get();
+			@endphp
+			<div class="modal-body show-list-records" id="todolist-request">
+				@if($todoLists->count())
+				<table class="table table-bordered">
+					 <tbody>
+					  <tr>
+						<th>Title</th>
+						<th>Subject</th>
+						<th>Category</th>
+						<th>Status</th>
+						<th>Date</th>
+					  </tr>
+					@foreach($todoLists as $todoList)
+					  <tr>
+						<td>{{ $todoList->title }}</td>
+						<td>{{ $todoList->subject }}</td>
+						<td>{{ isset($todoList->category->name) ? $todoList->category->name : ''; }}</td>
+						<td>
+                            <select name="status" class="form-control" onchange="todoHomeStatusChange({{$todoList->id}}, this.value)" >
+                                @foreach ($statuses as $status )
+                                <option value="{{$status->id}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
+                                @endforeach
+                            </select>
+						</td>
+                        </div>
+
+						<td>{{ $todoList->todo_date}}</td>
+					  </tr>
+					@endforeach
+					</tbody>
+				</table>
+				@else
+					<h4 class="modal-title">No Records</h4>
+				@endif
+			</div>
+             </div>
+        </div>
+
 
         @if(1 == 2 && auth()->user()->isAdmin())
         <div class="float-container developer-float hidden-xs hidden-sm">
@@ -5262,12 +5315,15 @@ if (!\Auth::guest()) {
         e.preventDefault();
         $("#todolist-request-model").modal("show");
     });
+	$(document).on("click", ".todolist-get", function(e) {
+			e.preventDefault();
+			$("#todolist-get-model").modal("show");
+	});
 
     $(document).on("click", ".menu-create-database", function(e) {
         e.preventDefault();
         $("#menu-create-database-model").modal("show");
     });
-
     $(document).on("click", ".permission-grant", function(e) {
         e.preventDefault();
         var permission = $(this).data('id');
@@ -5327,6 +5383,32 @@ if (!\Auth::guest()) {
             }
         });
     });
+
+	function todoHomeStatusChange(id, xvla) {
+			$.ajax({
+			type: "POST",
+					url: "{{ route('todolist.status.update') }}",
+					data: {
+					"_token": "{{ csrf_token() }}",
+					"id": id,
+					"status":xvla
+				},
+			dataType: "json",
+			success: function(message) {
+					$c = message.length;
+					if ($c == 0) {
+							alert('No History Exist');
+					} else {
+							toastr['success'](message.message, 'success');
+					}
+			},
+			error: function(error) {
+					toastr['error'](error, 'error');
+			}
+		});
+	}
+
+
     </script>
     @if ($message = Session::get('actSuccess'))
     <script>
