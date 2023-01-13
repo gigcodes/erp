@@ -2071,6 +2071,11 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
+                                                href="{{ route('magento-cron-data') }}">Magento Cron
+                                                Data</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
                                                 href="{{ route('magento-productt-errors.index') }}">Magento product push
                                                 errors</a>
                                         </li>
