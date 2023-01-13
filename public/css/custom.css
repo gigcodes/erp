@@ -2568,3 +2568,7 @@ table {
 	display: inline-block;
   width: 10%
 }
+
+.csvData-table{
+  width:100% !important;
+} 

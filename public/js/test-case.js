@@ -34,12 +34,11 @@ var page = {
             page.createStatus();
         });
 
-        page.config.bodyView.on("click",".btn-add-test-case-modal",function(e) {
+		 page.config.bodyView.on("click",".btn-add-test-case-modal",function(e) {
             e.preventDefault();
             console.log('click on button')
             page.createTestCase();
         });
-
 
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
@@ -65,7 +64,7 @@ var page = {
         $(".common-modal").on("click",".submit-status",function() {
             page.submitStatus($(this));
         });
-        $(".common-modal").on("click",".submit-test-cases",function() {
+		$(".common-modal").on("click",".submit-test-cases",function() {
             page.submitTestCases($(this));
         });
 
@@ -89,6 +88,14 @@ var page = {
         page.config.bodyView.on("change", ".test_case_status_id", function (e) {
             e.preventDefault();
             page.sendStatus($(this));
+        });
+        page.config.bodyView.on("click",".show-user-test-history",function(e) {
+            e.preventDefault();
+            page.usertestHistory($(this));
+        });
+        page.config.bodyView.on("click",".show-user-teststatus-history",function(e) {
+            // alert('vv');
+            page.userteststatusHistory($(this));
         });
 
     },
@@ -192,7 +199,7 @@ var page = {
         var common =  $(".common-modal");
         common.find(".modal-dialog").html(tplHtml);
         common.modal("show");
-    },
+	},
     createTestCase : function(response) {
         console.log('after click on button')
 
@@ -221,7 +228,7 @@ var page = {
         $('.step_to_reproduce').val('')
         $('.suite').val('')
         $('.module_id').val('')
-        $('.assign_to').val('')
+        $('.assign_to_edit').val('')
         $('.precondition').val('')
         $('.expected_result').val('')
         $('.test_status_id').val('')
@@ -232,7 +239,7 @@ var page = {
         $('.step_to_reproduce').val(response.data.step_to_reproduce)
         $('.suite').val(response.data.suite)
         $('.module_id').val(response.data.module_id)
-        $('.assign_to').val(response.data.assign_to)
+        $('.assign_to_edit').val(response.data.assign_to)
         $('.precondition').val(response.data.precondition)
         $('.expected_result').val(response.data.expected_result)
         $('.test_status_id').val(response.data.test_status_id)
@@ -250,6 +257,24 @@ var page = {
         }
         this.sendAjax(_z, "saveSite");
     },
+    usertestHistory : function(ele) {
+        // alert('v');
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/usertest-history/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'aftertestUser');
+    },
+
+    userteststatusHistory : function(ele) {
+        // alert('v');
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-teststatus-history/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterteststatusUser');
+    },
+
 
     updateData: function (ele) {
         var _z = {
@@ -363,7 +388,7 @@ var page = {
         }
         this.sendAjax(_z, "saveStatus");
     },
-    submitTestCases : function(ele) {
+	submitTestCases : function(ele) {
         var _z = {
             url:  this.config.baseUrl + "/add-test-cases",
             method: "post",
@@ -412,11 +437,11 @@ var page = {
     },
     saveAssign: function (response) {
         if (response.code == 200) {
-            // $("#loading-image").hide();
-            location.reload()
+            $("#loading-image").hide();
+            // location.reload()
             // page.loadFirst();
             // $(".common-modal").modal("hide");
-            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+            toastr["success"](response.message, "Test case User Changed Successfully");
 
         } else {
             // $("#loading-image").hide();
@@ -425,9 +450,9 @@ var page = {
     },
     saveSeverity: function (response) {
         if (response.code == 200) {
-            // $("#loading-image").hide();
-            location.reload()
-            // page.loadFirst();
+            $("#loading-image").hide();
+            // location.reload()
+            // page.loadFirst();1
             // $(".common-modal").modal("hide");
             toastr["success"](response.message, "Bug Tracking Changed Successfully");
 
@@ -449,7 +474,7 @@ var page = {
             toastr["error"](response.error, "");
         }
     },
-    saveBugTestCases: function (response) {
+	saveBugTestCases: function (response) {
         if (response.code == 200) {
             $("#loading-image").hide();
 
@@ -461,7 +486,7 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error, "");
         }
-    },
+    }, 
     saveEnvironment: function (response) {
         if (response.code == 200) {
             page.loadFirst();
@@ -520,6 +545,65 @@ var page = {
         }
         this.sendAjax(_z, 'afterCommunication');
     },
+    aftertestUser : function(response) {
+        if(response.code  == 200) {
+            console.log(response)
+            $('#newtestHistoryModal').modal('show');
+
+            $('.tbhusertest').html("")
+            if(response.data.length >0){
+
+                var html ="";
+
+                $.each(response.data, function (i,item){
+                    console.log(item)
+                    html+="<tr>"
+                    html+=" <th>"+ item.created_at +"</th>"
+                    html+=" <th>"+ item.new_user +"</th>"
+                    html+=" <th>"+ item.old_user +"</th>"
+                    html+=" <th>"+ item.updated_by +"</th>"
+
+                    html+="</tr>"
+                })
+
+                $('.tbhusertest').html(html)
+            }
+            toastr["success"](response.message,"Test Cases Listed Successfully");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"Something went wrong");
+        }
+    },
+
+    afterteststatusUser : function(response) {
+        if(response.code  == 200) {
+            console.log(response)
+            $('.newstatusHistory').modal('show');
+
+            $('.tbhuserteststatus').html("")
+            if(response.data.length >0){
+
+                var html ="";
+
+                $.each(response.data, function (i,item){
+                    console.log(item)
+                    html+="<tr>"
+                    html+=" <th>"+ item.created_at +"</th>"
+                    html+=" <th>"+ item.new_status +"</th>"
+                    html+=" <th>"+ item.old_status +"</th>"
+                    html+=" <th>"+ item.updated_by +"</th>"
+
+                    html+="</tr>"
+                })
+
+                $('.tbhuserteststatus').html(html)
+            }
+            toastr["success"](response.message,"Test Cases Listed Successfully");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"Something went wrong");
+        }
+    },
     afterPush : function(response) {
         if(response.code  == 200) {
             console.log(response)
@@ -533,10 +617,11 @@ var page = {
                 $.each(response.data, function (i,item){
                     console.log(item)
                     html+="<tr>"
+                    html+=" <th>"+ item.created_at +"</th>"
                     html+=" <th>"+ item.name +"</th>"
                     html+=" <th>"+ item.test_status_id +"</th>"
                     html+=" <th>"+ item.suite +"</th>"
-                    html+=" <th>"+ item.expected_result +"</th>"
+					html+=" <th>"+ item.expected_result +"</th>"											
                     html+=" <th>"+ item.assign_to +"</th>"
                     html+=" <th>"+ item.module_id +"</th>"
                     html+=" <th>"+ item.updated_by +"</th>"
@@ -545,7 +630,7 @@ var page = {
 
                 $('.tbh').html(html)
             }
-            toastr["success"](response.message,"Bug Tracking History Listed Successfully");
+            toastr["success"](response.message,"Test Cases History Listed Successfully");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"Something went wrong");
