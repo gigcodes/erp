@@ -2135,129 +2135,138 @@ class TaskModuleController extends Controller
             if (count($model_site_dev_category) > 0 && $model_site_dev_category[0]['id'] > 0) {
                 $site_development_module_id = $model_site_dev_category[0]['id'];
             }
+            
+            $website_multiple_arrays = array_keys($request->website_name);
 
-            $data_site['site_development_category_id'] = $site_development_module_id;
-            $data_site['bug_id'] = $request->site_id;
-            $data_site['website_id'] = $request->website_id;
-            $data_site['created_at'] = date('Y-m-d H:i:s');
-            $data_site['site_development_master_category_id'] = 4;
+            for($m=0;$m<count($website_multiple_arrays);$m++) {
 
-            $site_devlopment_exist = SiteDevelopment::where('bug_id', $request->site_id)->get()->toArray();
-            $site_developement_primary_id = 0;
-            if (count($site_devlopment_exist) == 0) {
-                $res_site_dev = SiteDevelopment::create($data_site);
-                $site_developement_primary_id = $res_site_dev->id;
-            } else {
-                if (isset($site_devlopment_exist[0]['id']) && $site_devlopment_exist[0]['id'] > 0) {
-                    $site_developement_primary_id = $site_devlopment_exist[0]['id'];
+                $data_site['site_development_category_id'] = $site_development_module_id;
+                $data_site['bug_id'] = $request->site_id;
+                $data_site['website_id'] = $website_multiple_arrays[$m];
+                $data_site['created_at'] = date('Y-m-d H:i:s');
+                $data_site['site_development_master_category_id'] = 4;
+
+                $site_devlopment_exist = SiteDevelopment::where('bug_id', $request->site_id)->where('website_id', $website_multiple_arrays[$m])->get()->toArray();
+                $site_developement_primary_id = 0;
+                if (count($site_devlopment_exist) == 0) {
+                    $res_site_dev = SiteDevelopment::create($data_site);
+                    $site_developement_primary_id = $res_site_dev->id;
+                } else {
+                    if (isset($site_devlopment_exist[0]['id']) && $site_devlopment_exist[0]['id'] > 0) {
+                        $site_developement_primary_id = $site_devlopment_exist[0]['id'];
+                    }
                 }
-            }
+
+            }            
 
             $site_dev_category_id = \App\SiteDevelopment::where('id', $site_developement_primary_id)->select('site_development_category_id')->first();
             $cat_id = $site_dev_category_id->id;
             if (is_array($request->website_name)) {
+                $sub_array = array();
                 foreach ($request->website_name as $key => $website) {
-                    $site_developement_id = \App\SiteDevelopment::select('id')->where(
-                        [
-                            'site_development_category_id' => $site_dev_category_id->site_development_category_id,
-                            'website_id' => $key,
-                        ]
-                    )->first();
-                    if (isset($site_developement_id->id)) {
-                        $request->task_subject = $website;
-                        $message = '';
-                        $assignedUserId = 0;
-                        $taskType = $request->task_type;
-                        $data = $request->except('_token');
-                        // $data['site_id'] = $request->site_id;
-                        $data['site_id'] = $site_developement_primary_id;
-                        $data['bug_id'] = $request->site_id;
-                        $data['task_subject'] = $website;
-                        $data['task_bug_ids'] = $request->task_bug_ids;
-                        if ($taskType == '4' || $taskType == '5' || $taskType == '6') {
-                            $data = [];
-                            if (is_array($request->task_asssigned_to)) {
-                                $data['assigned_to'] = $request->task_asssigned_to[0];
-                            } else {
-                                $data['assigned_to'] = $request->task_asssigned_to;
-                            }
-                            $data['user_id'] = loginId();
-                            $data['subject'] = $website;
-                            $data['task'] = $request->get('task_detail');
-                            $data['task_type_id'] = 1;
-                            $data['cost'] = $request->get('cost', 0);
-                            $data['status'] = DeveloperTask::DEV_TASK_STATUS_PLANNED;
-                            $data['created_by'] = loginId();
-                            if ($taskType == 5 || $taskType == 6) {
-                                $data['task_type_id'] = 3;
-                            }
-
-                            $data['subject'] = $website;
-                            $data['task_type'] = $taskType;
-                            $data['task'] = $request->get('task_detail');
-                            $data['task_type_id'] = 1;
-                            $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id');
-                            $data['site_developement_id'] = $site_developement_primary_id;
-                            $data['cost'] = $request->get('cost', 0);
-                            $data['status'] = 'In Progress';
-                            $data['created_by'] = Auth::id();
-
-                            $task = $this->taskCreateMaster($data);
-
-                            if ($task) {
-                                if (count($bug_list_ids) > 0) {
-                                    $task_asssigned_user_to = $data['assigned_to'];
-                                    for ($k = 0; $k < count($bug_list_ids); $k++) {
-                                        $bug_tacker_id = $bug_list_ids[$k];
-                                        $bug_tracking = BugTracker::find($bug_tacker_id);
-                                        $bug_tracking->bug_status_id = 6;
-                                        $bug_tracking->assign_to = $task_asssigned_user_to;
-                                        $bug_tracking->updated_at = date('Y-m-d H:i:s');
-                                        $bug_tracking->updated_by = Auth::user()->name;
-                                        $bug_tracking->save();
-                                    }
-                                }
-                            }
-
-                            if (request('need_review_task')) {
-                                $data['parent_review_task_id'] = $task->id;
-                                $reviewTask = $cntrl->developerTaskCreate($data);
-                            }
+                    $sub_array[] = $website;
+                }
+                $site_developement_id = \App\SiteDevelopment::select('id')->where(
+                    [
+                        'site_development_category_id' => $site_dev_category_id->site_development_category_id,
+                        'website_id' => $website_multiple_arrays[0], //$key
+                    ]
+                )->first();
+                if (isset($site_developement_id->id)) {
+                    $website = join(',',$sub_array);
+                    $request->task_subject = $website;
+                    $message = '';
+                    $assignedUserId = 0;
+                    $taskType = $request->task_type;
+                    $data = $request->except('_token');
+                    // $data['site_id'] = $request->site_id;
+                    $data['site_id'] = 0;
+                    $data['bug_id'] = $request->site_id;
+                    $data['task_subject'] = $website;
+                    $data['task_bug_ids'] = $request->task_bug_ids;
+                    if ($taskType == '4' || $taskType == '5' || $taskType == '6') {
+                        $data = [];
+                        if (is_array($request->task_asssigned_to)) {
+                            $data['assigned_to'] = $request->task_asssigned_to[0];
                         } else {
-                            $data['site_developement_id'] = $site_developement_primary_id;
-                            $data['task_subject'] = $website;
-                            $data['task_type'] = $taskType;
-                            $data['assign_from'] = loginId();
-                            $data['status'] = 5;
-                            $data['customer_id'] = $data['customer_id'] ?? null;
-                            $data['cost'] = $data['cost'] ?? null;
+                            $data['assigned_to'] = $request->task_asssigned_to;
+                        }
+                        $data['user_id'] = loginId();
+                        $data['subject'] = $website;
+                        $data['task'] = $request->get('task_detail');
+                        $data['task_type_id'] = 1;
+                        $data['cost'] = $request->get('cost', 0);
+                        $data['status'] = DeveloperTask::DEV_TASK_STATUS_PLANNED;
+                        $data['created_by'] = loginId();
+                        if ($taskType == 5 || $taskType == 6) {
+                            $data['task_type_id'] = 3;
+                        }
 
-                            $task = $this->taskCreateMaster($data);
+                        $data['subject'] = $website;
+                        $data['task_type'] = $taskType;
+                        $data['task'] = $request->get('task_detail');
+                        $data['task_type_id'] = 1;
+                        $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id');
+                        $data['site_developement_id'] = 0;
+                        $data['cost'] = $request->get('cost', 0);
+                        $data['status'] = 'In Progress';
+                        $data['created_by'] = Auth::id();
 
-                            if ($task) {
-                                if (count($bug_list_ids) > 0) {
-                                    if (is_array($request->task_asssigned_to)) {
-                                        $data['assigned_to'] = $request->task_asssigned_to[0];
-                                    } else {
-                                        $data['assigned_to'] = $request->task_asssigned_to;
-                                    }
-                                    $task_asssigned_user_to = $data['assigned_to'];
-                                    for ($k = 0; $k < count($bug_list_ids); $k++) {
-                                        $bug_tacker_id = $bug_list_ids[$k];
-                                        $bug_tracking = BugTracker::find($bug_tacker_id);
-                                        $bug_tracking->bug_status_id = 6;
-                                        $bug_tracking->assign_to = $task_asssigned_user_to;
-                                        $bug_tracking->updated_at = date('Y-m-d H:i:s');
-                                        $bug_tracking->updated_by = Auth::user()->name;
-                                        $bug_tracking->save();
-                                    }
+                        $task = $this->taskCreateMaster($data);
+
+                        if ($task) {
+                            if (count($bug_list_ids) > 0) {
+                                $task_asssigned_user_to = $data['assigned_to'];
+                                for ($k = 0; $k < count($bug_list_ids); $k++) {
+                                    $bug_tacker_id = $bug_list_ids[$k];
+                                    $bug_tracking = BugTracker::find($bug_tacker_id);
+                                    $bug_tracking->bug_status_id = 6;
+                                    $bug_tracking->assign_to = $task_asssigned_user_to;
+                                    $bug_tracking->updated_at = date('Y-m-d H:i:s');
+                                    $bug_tracking->updated_by = Auth::user()->name;
+                                    $bug_tracking->save();
                                 }
                             }
+                        }
 
-                            if (request('need_review_task')) {
-                                $data['parent_review_task_id'] = $task->id;
-                                $reviewTask = $this->taskCreateMaster($data);
+                        if (request('need_review_task')) {
+                            $data['parent_review_task_id'] = $task->id;
+                            $reviewTask = $cntrl->developerTaskCreate($data);
+                        }
+                    } else {
+                        $data['site_developement_id'] = 0;
+                        $data['task_subject'] = $website;
+                        $data['task_type'] = $taskType;
+                        $data['assign_from'] = loginId();
+                        $data['status'] = 5;
+                        $data['customer_id'] = $data['customer_id'] ?? null;
+                        $data['cost'] = $data['cost'] ?? null;
+
+                        $task = $this->taskCreateMaster($data);
+
+                        if ($task) {
+                            if (count($bug_list_ids) > 0) {
+                                if (is_array($request->task_asssigned_to)) {
+                                    $data['assigned_to'] = $request->task_asssigned_to[0];
+                                } else {
+                                    $data['assigned_to'] = $request->task_asssigned_to;
+                                }
+                                $task_asssigned_user_to = $data['assigned_to'];
+                                for ($k = 0; $k < count($bug_list_ids); $k++) {
+                                    $bug_tacker_id = $bug_list_ids[$k];
+                                    $bug_tracking = BugTracker::find($bug_tacker_id);
+                                    $bug_tracking->bug_status_id = 6;
+                                    $bug_tracking->assign_to = $task_asssigned_user_to;
+                                    $bug_tracking->updated_at = date('Y-m-d H:i:s');
+                                    $bug_tracking->updated_by = Auth::user()->name;
+                                    $bug_tracking->save();
+                                }
                             }
+                        }
+
+                        if (request('need_review_task')) {
+                            $data['parent_review_task_id'] = $task->id;
+                            $reviewTask = $this->taskCreateMaster($data);
                         }
                     }
                 }

@@ -1189,7 +1189,7 @@ class BugTrackingController extends Controller
         $bug_type_id = $request->bug_type_id;
         $module_id = $request->module_id;
         $website_id = $request->website_id;
-        $bug_tracker = BugTracker::where('bug_type_id', $bug_type_id)->where('module_id', $module_id)->where('website', $website_id)->whereIn(
+        $bug_tracker = BugTracker::where('bug_type_id', $bug_type_id)->where('module_id', $module_id)->whereIn(
             'bug_status_id', [
                 '1',
                 '2',
@@ -1221,21 +1221,34 @@ class BugTrackingController extends Controller
             }
         }
 
+      
         $bug_ids = [];
         $website_ids = [];
-        $bugs_html = '<table cellpadding="2" cellspacing="2" border="1" style="width:100%"><tr><td style="text-align:center"><b>Action</b></td><td  style="text-align:center"><b>Bug Id</b></td  style="text-align:center"><td  style="text-align:center;"><b>Summary</b></td><td  style="text-align:center;"><b>Assign To</b></td></tr>';
+        $bugs_html = '<table cellpadding="2" cellspacing="2" border="1" style="width:100%;font-size: 12px;"><tr><td style="text-align:center"><b>Action</b></td><td  style="text-align:center"><b>Bug Id</b></td  style="text-align:center"><td  style="text-align:center;"><b>Summary</b></td><td  style="text-align:center;"><b>Steps to Rep.</b></td><td  style="text-align:center;"><b>Screen / Video</b></td><td  style="text-align:center;"><b>Assign To</b></td><td  style="text-align:center;"><b>Module</b></td><td  style="text-align:center;"><b>Website</b></td></tr>';
         if (count($bug_list) > 0) {
             for ($i = 0; $i < count($bug_list); $i++) {
                 $bug_ids[] = $bug_list[$i]['id'];
                 $website_ids[] = $bug_list[$i]['website'];
                 $bug_id = $bug_list[$i]['id'];
                 $assign_to = $bug_list[$i]['assign_to'];
+                $summary = Str::limit($bug_list[$i]['summary'], 20, '..');
+                $summary_txt =  str_replace("'","",$bug_list[$i]['summary']);
+
+                $module_id = Str::limit($bug_list[$i]['module_id'], 20, '..');
+                $module_id_txt =  str_replace("'","",$bug_list[$i]['module_id']);
+                $module_id_txt =  htmlentities($module_id_txt);
+                $step_to_reproduce = Str::limit($bug_list[$i]['step_to_reproduce'], 20, '..');
+                $step_to_reproduce_txt = htmlentities($bug_list[$i]['step_to_reproduce']);
+                $url = Str::limit($bug_list[$i]['url'], 15, '..');
                 $userData = User::where('id', $assign_to)->get()->toArray();
+                $website = StoreWebsite::where('id', $bug_list[$i]['website'])->value('title');
+                
                 $name = '-';
                 if (count($userData) > 0 && isset($userData[0]['name'])) {
                     $name = $userData[0]['name'];
                 }
-                $bugs_html .= '<tr><td  style="text-align:center"><input style="height:13px;" type="checkbox" class="cls-checkbox-bugsids" name="chkBugId[]" value="'.$bug_id.'" id="name="chkBugId'.$bug_id.'"  /></td><td  style="text-align:center">'.$bug_id.'</td><td>&nbsp;&nbsp;&nbsp;'.$bug_list[$i]['summary'].'</td><td>&nbsp;&nbsp;&nbsp;'.$name.'</td></tr>';
+                $bugs_html .= '<tr><td  style="text-align:center"><input style="height:13px;" type="checkbox" class="cls-checkbox-bugsids" name="chkBugId[]" value="'.$bug_id.'" id="name="chkBugId'.$bug_id.'"  /></td><td  style="text-align:center">'.$bug_id.'</td><td title="'.$summary_txt.'" data-toggle="tooltip">&nbsp;'.$summary.'</td><td title="'.$step_to_reproduce_txt.'" data-toggle="tooltip">&nbsp;'.$step_to_reproduce .'</td><td>&nbsp;'.$url.' <button type="button" class="btn btn-copy-url btn-sm" data-id="'.$bug_list[$i]['url'].'">
+                <i class="fa fa-clone" aria-hidden="true"></i></button></td><td>&nbsp;'.$name.'</td><td  title="'.$module_id_txt.'" data-toggle="tooltip">&nbsp;'.$module_id.'</td><td  title="'.$website.'" data-toggle="tooltip">&nbsp;'.$website.'</td></tr>';
             }
         }
 
