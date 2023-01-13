@@ -7,7 +7,6 @@ use App\CsvTranslatorHistory;
 use App\Exports\CsvTranslatorExport;
 use App\Imports\CsvTranslatorImport;
 use Illuminate\Http\Request;
-use Redirect;
 
 class CsvTranslatorController extends Controller
 {
@@ -62,6 +61,13 @@ class CsvTranslatorController extends Controller
         $historyData[$request->lang_id] = $oldRecord;
         CsvTranslatorHistory::insert($historyData);
 
-        return Redirect::back()->with(['success' => 'Successfully Updated']);
+        return redirect()->route('csvTranslator.list')->with(['success' => 'Successfully Updated']);
+    }
+
+    public function history(Request $request)
+    {
+        $history = CsvTranslatorHistory::where('csv_translator_id', $request->id)->get();
+
+        return response()->json(['status' => 200, 'data' => $history]);
     }
 }
