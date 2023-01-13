@@ -450,6 +450,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/csv-translator/export', [CsvTranslatorController::class, 'export'])->name('csvTranslator.export');
     Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
     Route::post('/csv-translator/history', [CsvTranslatorController::class, 'history'])->name('csvTranslator.history');
+    Route::get('/csv-filter', [CsvTranslatorController::class, 'filterCsvTranslator'])->name('csvTranslator.filter');
+    
 });
 
 /** Magento Settings */
