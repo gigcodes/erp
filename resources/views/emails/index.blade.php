@@ -190,17 +190,17 @@
       <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
         <thead>
           <tr>
-            <th width="2%">Bulk <br> Action</th>
-            <th width="6%">Date</th>
-            <th width="8%">Sender</th>
+            <th width="1%">Bulk <br> Action</th>
+            <th width="5%">Date</th>
+            <th width="5%">Sender</th>
             <th width="5%">Receiver</th>
             <th width="4%">Mail <br> Type</th>
-            <th width="6%">Subject</th>
-            <th width="10%">Body</th>
-            <th width="10%">Status</th>
-            <th width="2%">Draft</th>
-            <th width="8%">Error <br> Message</th>
-            <th width="10%">Category</th>
+            <th width="5%">Subject</th>
+            <th width="14%">Body</th>
+            <th width="8%">Status</th>
+            <th width="1%">Draft</th>
+            <th width="6%">Error <br> Message</th>
+            <th width="8%">Category</th>
           </tr>
         </thead>
         <tbody>

@@ -22,7 +22,7 @@
 			
             <td class="expand-row table-hover-cell p-2">
                 <span class="td-mini-container">
-                    {{ strlen($email->message) > 15 ? substr($email->message, 0, 15).'...': $email->message }}
+                    {{ substr($email->message, 0,  25) }} {{strlen($email->message) > 20 ? '...' : '' }}
                 </span>
                 <span class="td-full-container hidden">
                     {!! $email->message !!}
