@@ -212,15 +212,15 @@ class RedisQueueController extends Controller
         }
         $queueString = rtrim($queueString, ',');
         $response = Storage::disk('public_disk')->put('queues.txt', $queueString);
-        if($response)
+        if ($response) {
             return response()->json(['code' => 200, 'message' => 'Queue synced with queue file successfully!']);
-        else
+        } else {
             return response()->json(['code' => 500, 'message' => 'Something went wrong!']);
+        }
     }
 
     public function getAllQueues()
     {
-
         $queues = RedisQueue::all();
         $queue1 = [];
         foreach ($queues as $queue) {
