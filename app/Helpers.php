@@ -382,10 +382,11 @@ class Helpers
     public static function getQueueName($flip = false)
     {
         $content = file_get_contents(public_path('queues.txt'));
-        if($content)
+        if ($content) {
             $queue = explode(',', $content);
-        else
+        } else {
             $queue = [];
+        }
 
         if ($flip) {
             $l = [];
