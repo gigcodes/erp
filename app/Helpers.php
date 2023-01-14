@@ -381,6 +381,10 @@ class Helpers
 
     public static function getQueueName($flip = false)
     {
+        $content = file_get_contents(public_path('queues.txt'));
+        if($content)
+            $queue = explode(',', $content);
+
         $webpushQueue = [
             'sololuxury',
             'lussolicious',

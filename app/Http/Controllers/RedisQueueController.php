@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers;
 use App\RedisQueue;
 use App\RedisQueueCommandExecutionLog;
 use App\Setting;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 
 class RedisQueueController extends Controller
 {
@@ -39,7 +41,7 @@ class RedisQueueController extends Controller
     {
         $queue = new RedisQueue();
         $queue->user_id = Auth::user()->id ?? '';
-        $queue->name = $request->name;
+        $queue->name = Helpers::createQueueName($request->name);
         $queue->type = $request->type;
         $response = $queue->save();
         if ($response) {
@@ -82,7 +84,7 @@ class RedisQueueController extends Controller
         try {
             $queue = RedisQueue::findorfail($request->id);
             $queue->user_id = Auth::user()->id ?? '';
-            $queue->name = $request->name;
+            $queue->name = Helpers::createQueueName($request->name);
             $queue->type = $request->type;
             $queue->save();
 
@@ -201,8 +203,24 @@ class RedisQueueController extends Controller
         return response()->json(['code' => 200, 'data' => $logs]);
     }
 
+    public function syncQueues()
+    {
+        $queues = RedisQueue::all();
+        $queueString = '';
+        foreach ($queues as $queue) {
+            $queueString .= $queue->name.',';
+        }
+        $queueString = rtrim($queueString, ',');
+        $response = Storage::disk('public_disk')->put('queues.txt', $queueString);
+        if($response)
+            return response()->json(['code' => 200, 'message' => 'Queue synced with queue file successfully!']);
+        else
+            return response()->json(['code' => 500, 'message' => 'Something went wrong!']);
+    }
+
     public function getAllQueues()
     {
+
         $queues = RedisQueue::all();
         $queue1 = [];
         foreach ($queues as $queue) {

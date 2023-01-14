@@ -50,6 +50,9 @@
                     <button type="button" class="btn btn-secondary" data-toggle="modal"
                             data-target="#queueCreateModal">+
                     </button>
+                    <button type="button" class="btn btn-secondary" onclick="syncQueues()" title="Sync queue with queue file">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                    </button>
                     &nbsp
                 </div>
             </div>
@@ -367,7 +370,7 @@
 
         function queueCommandLogs(id) {
             $.ajax({
-                url: "{{ url('queue/command-logs') }}" + "/" + id,
+                url: "{{ url('system-queue/command-logs') }}" + "/" + id,
                 type: "get",
             }).done(function (response) {
                 if (response.code == '200') {
@@ -386,6 +389,21 @@
                     console.log(html);
                     $('#logData').html(html);
                     $('#commandLogsModal').modal('show');
+                } else {
+                    toastr['error']('Something went wrong!', 'error');
+                }
+            }).fail(function (errObj) {
+                toastr['error'](errObj.message, 'error');
+            });
+        }
+
+        function syncQueues() {
+            $.ajax({
+                url: "{{ route('redisQueue.sync') }}",
+                type: "get",
+            }).done(function (response) {
+                if (response.code == '200') {
+                    toastr['success'](response.message, 'Success');
                 } else {
                     toastr['error']('Something went wrong!', 'error');
                 }
