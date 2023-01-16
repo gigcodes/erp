@@ -1192,7 +1192,7 @@ class BugTrackingController extends Controller
         $bug_tracker = BugTracker::where('bug_type_id', $bug_type_id)->where('module_id', $module_id)->whereIn(
             'bug_status_id', [
                 '1',
-                '2'
+                '2',
             ]
         )->get();
         $bug_list = $bug_tracker->toArray();
