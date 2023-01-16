@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\PurchaseProductOrderLog;
 use App\Sop;
 use App\SopPermission;
+use App\SopCategory;// sop category model
 use App\User;
 // use App\Mail\downloadData;
 use Dompdf\Dompdf;
@@ -26,8 +27,8 @@ class SopController extends Controller
         $usersop = $usersop->limit(10)->paginate(10);
 
         $total_record = $usersop->total();
-
-        return view('products.sop', compact('usersop', 'total_record', 'users'));
+        $category_result = SopCategory::all();
+        return view('products.sop', compact('usersop', 'total_record', 'users','category_result'));
     }
 
     public function sopnamedata_logs(Request $request)
@@ -50,25 +51,49 @@ class SopController extends Controller
         ]);
     }
 
+    /**
+     * Sop category add in table
+     *
+     * @param Request $request
+     * @return void
+     */
+    function categoryStore(Request $request){
+        $category = SopCategory::where('category_name', $request->category_name)->first();
+        if ($category) {
+            return response()->json(['success' => false, 'message' => 'Category already existed']);
+        }
+        try {
+            $resp = SopCategory::create(['category_name'=>$request->category_name]);
+            return response()->json(['success' => true, 'message' => 'Category added successfully','data'=>$resp]);
+        } catch (\exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    function categorylist(){
+        $category_result = SopCategory::all();
+        return response()->json(['success' => true,'data'=>$category_result, 'message' =>'Record found']);
+    }
+
     public function store(Request $request)
     {
         $sopType = $request->get('type');
         $sop = Sop::where('name', $sopType)->first();
-        $cat = Sop::where('category', $request->get('category'))->first();
+        // $cat = Sop::where('category', $request->get('category'))->first();
         $name = Sop::where('name', $request->get('name'))->first();
 
         if ($name) {
             return response()->json(['success' => false, 'message' => 'Name already existed']);
         }
-
-        if ($cat) {
-            return response()->json(['success' => false, 'message' => 'Category already existed']);
-        }
+        // print_r($request->all()); exit();
+        // if ($cat) {
+        //     return response()->json(['success' => false, 'message' => 'Category already existed']);
+        // }
 
         if (! $sop) {
             $sop = new Sop();
             $sop->name = $request->get('name');
-            $sop->category = $request->get('category');
+            $sop->category = implode(',',$request->get('category'));
             $sop->content = $request->get('content');
             $sop->user_id = \Auth::id();
             $sop->save();

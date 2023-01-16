@@ -856,6 +856,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('sop', [SopController::class, 'store'])->name('sop.store');
     Route::get('sop', [SopController::class, 'index'])->name('sop.index');
+    Route::post('sop/category', 'SopController@categoryStore')->name('sop.category');// sop category store route
+    Route::get('sop/category-list', 'SopController@categorylist')->name('sop.categorylist');// sop category store route
+    
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');

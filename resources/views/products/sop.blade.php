@@ -63,10 +63,10 @@ float: left;
 .select_table .w-25.pull-left.pull_button {
     width: 20% !important;
     float: left;
-	text-align:center;
+    text-align:center;
 }
 .select_table .select2-selection__rendered{
-	width:auto !important;
+    width:auto !important;
 }
 .pull-left.pull_button_inner {
     width: auto;
@@ -76,8 +76,8 @@ float: left;
 }
 .select_table .w-50.pull-left .form-control {
     height: 32px;
-	resize:none;
-	overflow: hidden;
+    resize:none;
+    overflow: hidden;
 }
 
 
@@ -96,9 +96,11 @@ float: left;
                     <button class="btn btn-Secondary1" data-toggle="modal" data-target="#Sop-Permission-Modal">Sop Permissions</button>
                 </div>
                 <div class="pull-right">
-                    <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" data-target="#exampleModal">Add Notes</button>
+                    <button type="button" class="btn btn-secondary1 mr-2 addnotesop" data-toggle="modal" data-target="#exampleModal">Add Notes</button>
                 </div>
-
+                <div class="pull-right">
+                    <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" data-target="#categoryModal">Add Category</button>
+                </div>
             </h2>
         </div>
 
@@ -230,8 +232,16 @@ float: left;
                         </div>
 
                         <div class="form-group">
-                            <label for="name">Category</label>
-                            <input type="text" class="form-control" id="category" name="category" required />
+                            <label for="category">Category</label>
+                            
+                            <select class="form-control" id="categorySelect" name="category[]" multiple>
+                                @if(isset($category_result) && $category_result!='')
+                                @foreach($category_result as $category_value)
+                                <option value="{{$category_value->category_name}}">{{$category_value->category_name}}</option>
+                                @endforeach
+                                @endif
+                            </select>
+                            {{-- <input type="text" class="form-control" id="category" name="category" required /> --}}
                         </div>
 
                         <div class="form-group">
@@ -250,6 +260,35 @@ float: left;
             </div>
         </div>
     </div>
+    <!-- category add modal -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="FormCategoryModal">
+                        @csrf
+                        <div class="form-group">
+                            <label for="name">Category Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary btnsave" id="btnsave">Submit</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- categoy add modal end -->
     <!--------------------------------------------------- end Add Data Modal ------------------------------------------------------->
 
         <div class="col-md-12">
@@ -287,34 +326,34 @@ float: left;
 
                                 <td class="table-hover-cell p-1">
                                     <div class="select_table">
-										<div class="w-50-25-main">
-											<div class="w-100">
-												<select name="sop_user_id" class="form-control select2-for-user" id="user_{{$value->id}}">
-													<option value="">Select User</option>
-													@foreach ($users as $user)
-														@if (!$user->isAdmin())
-															<option value="{{ $user->id }}">{{ $user->name }}</option>
-														@endif
-													@endforeach
-												</select>
-											</div>
-											<div class="w-50 pull-left" style="display:none;">
-												<textarea rows="1" class="form-control" id="messageid_{{ $value->id }}" name="message" placeholder="Message">{!! strip_tags($value->content) !!}</textarea>
-											</div>
-											<div class="w-25 pull-left pull_button">
-												<div class=" pull_button_inner d-flex">
-													<button class="btn btn-xs send-message-open pull-left" data-user_id="{{ $value->user_id }}" data-id="{{ $value->id }}">
-														<i class="fa fa-paper-plane"></i>
-													</button>
-													 <button type="button"
-															class="btn btn-xs load-communication-modal pull-left"
-															data-id="{{$value->user_id}}" title="Load messages"
-															data-object="SOP">
-															<i class="fa fa-comments"></i>
-													</button>
-												</div>
-											</div>
-										</div>
+                                        <div class="w-50-25-main">
+                                            <div class="w-100">
+                                                <select name="sop_user_id" class="form-control select2-for-user" id="user_{{$value->id}}">
+                                                    <option value="">Select User</option>
+                                                    @foreach ($users as $user)
+                                                        @if (!$user->isAdmin())
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endif
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="w-50 pull-left" style="display:none;">
+                                                <textarea rows="1" class="form-control" id="messageid_{{ $value->id }}" name="message" placeholder="Message">{!! strip_tags($value->content) !!}</textarea>
+                                            </div>
+                                            <div class="w-25 pull-left pull_button">
+                                                <div class=" pull_button_inner d-flex">
+                                                    <button class="btn btn-xs send-message-open pull-left" data-user_id="{{ $value->user_id }}" data-id="{{ $value->id }}">
+                                                        <i class="fa fa-paper-plane"></i>
+                                                    </button>
+                                                     <button type="button"
+                                                            class="btn btn-xs load-communication-modal pull-left"
+                                                            data-id="{{$value->user_id}}" title="Load messages"
+                                                            data-object="SOP">
+                                                            <i class="fa fa-comments"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                    </div>
                                 </td>
 
@@ -560,13 +599,77 @@ float: left;
  <!-- End Send Email Modal-->
 
 @endsection
+<style>
+.ms-options-wrap button{
+    width: 100%;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.ms-options {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.ms-search {
+    margin: 0 0 15px;
+}
+
+.ms-search input {
+    width: 100%;
+}
+
+.ms-options ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.ms-options ul li label {
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: normal;
+    margin: 0 0 10px;
+    width: fit-content;
+}
+
+.ms-options ul li label input {
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+    height: auto;
+}
+
+</style>
 {{-- @include('common.commonEmailModal') --}}
 @section('scripts')
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://phpcoder.tech/multiselect/js/jquery.multiselect.js"></script>
+
+
 {{-- <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script>  --}}
     <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
+    </script>
+    <script>
+        // $('.addnotesop').on('click',function(){
+        //     alert('sss');
+        //     $('#categorySelect').multiselect('refresh');
+        // })
+        jQuery('#categorySelect').multiselect({
+            columns: 1,
+            placeholder: 'Select Category',
+            search: true,
+            refresh: true
+        });
     </script>
     <script>
     
@@ -663,7 +766,7 @@ $(document).on('click', '.send-message-open', function (event) {
             var data = new FormData();
             var sop_user_id = $(this).data('user_id');
             var id = $(this).data('id');
-			var sop_user_id = $('#user_'+id).val();
+            var sop_user_id = $('#user_'+id).val();
             var message = $(this).parents('td').find("#messageid_"+id).val();
 
             if (message.length > 0) {
@@ -671,7 +774,7 @@ $(document).on('click', '.send-message-open', function (event) {
             //  let self = textBox;
 
             $.ajax({
-                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'SOP-Data')}}",
+                url: "{{action('WhatsAppController@sendMessage', 'SOP-Data')}}",
                 type: 'POST',
                 data: {
                     "sop_user_id": sop_user_id,
@@ -685,8 +788,6 @@ $(document).on('click', '.send-message-open', function (event) {
                     $this.parents('td').find("#messageid_"+sop_user_id).val('');
                    toastr["success"]("Message sent successfully!", "Message");
                     $('#message_list_' + sop_user_id).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
-
-
                 },
 
                 error: function (response) {
@@ -753,14 +854,61 @@ $(document).on('click', '.send-message-open', function (event) {
     </script>
 
     <script>
+        
+
+        // category submit form start
+        $('#FormCategoryModal').submit(function(e) {
+            e.preventDefault();
+            
+            let category_input = $(this).find("input[name=name]");
+            category_name = category_input.val();
+            let _token = $(this).find("input[name=_token]").val();
+            console.log('category',name);
+            $.ajax({
+                url: "{{ route('sop.category') }}",
+                type: "POST",
+                data: {
+                    category_name: category_name,
+                    _token: _token
+                },
+                success: function(response) {
+                    console.log(response);
+                    if(response.success==false){
+                        toastr["error"](response.message, "Message");
+                        return false;
+                    }
+                    $("#categoryModal").modal('hide');
+                    category_input.val('');
+                    var lilength = $('.ms-options ul').find('li').length;
+                    $('.ms-options ul').append('<li class=""><label for="ms-opt-1" style="padding-left: 15px;"><input type="checkbox" value="'+response.data.category_name+'" title="testing category" id="ms-opt-'+lilength+'">'+response.data.category_name+'</label></li>');
+                    $('#categorySelect').append('<option value="'+response.data.category_name+'">'+response.data.category_name+'</option>');
+                    
+                    $('#categorySelect').multiselect('rebuild');
+                    $('#categorySelect').multiselect('refresh');
+                    toastr["success"]("Category Inserted Successfully!", "Message");
+                }
+            })
+        })
+
+        
+        // category submit form end
+
         $('#FormModal').submit(function(e) {
             e.preventDefault();
             let name = $("#name").val();
-            let category = $("#category").val();
+            let category = $("#categorySelect").val();
+            if(category.length==0){
+                toastr["error"]('Select Category', "Message");
+                return false;
+            }
             let content = CKEDITOR.instances['content'].getData(); //$('#cke_content').html();//$("#content").val();
-
+            if(content==''){
+                toastr["error"]('Content not', "Message");
+                return false;
+            }
+            
             let _token = $("input[name=_token]").val();
-
+            console.log(name,category,content);
             $.ajax({
                 url: "{{ route('sop.store') }}",
                 type: "POST",
@@ -779,6 +927,8 @@ $(document).on('click', '.send-message-open', function (event) {
                             toastr["error"](response.message, "Message");
                             return false;
                         }
+                        $("#categorySelect").val('');
+                        $('.ms-options-wrap button').text('Select Category');
                         var content_class = response.sop.content.length < 270 ? '' : 'expand-row';
                         var content = response.sop.content.length < 270 ? response.sop.content : response.sop.content.substr(0, 270) + '.....';
 
