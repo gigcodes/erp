@@ -512,11 +512,11 @@
 <script>
     var urlUserManagementUpdateFlagForTaskPlan = "{!! route('user-management.update.flag-for-task-plan') !!}";
 </script>
-<script type="text/javascript" src="{{env('APP_URL')}}/js/jsrender.min.js"></script>
-<script type="text/javascript" src="{{env('APP_URL')}}/js/jquery.validate.min.js"></script>
-<script src="{{env('APP_URL')}}/js/jquery-ui.js"></script>
-<script type="text/javascript" src="{{env('APP_URL')}}/js/common-helper.js"></script>
-<script type="text/javascript" src="{{env('APP_URL')}}/js/user-management-list.js?v=1"></script>
+<script type="text/javascript" src="{{asset('js/jsrender.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('js/jquery.validate.min.js')}}"></script>
+<script src="{{asset('/js/jquery-ui.js')}}"></script>
+<script type="text/javascript" src="{{asset('js/common-helper.js')}}"></script>
+<script type="text/javascript" src="{{asset('js/user-management-list.js')}}?v=1"></script>
 
 
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>

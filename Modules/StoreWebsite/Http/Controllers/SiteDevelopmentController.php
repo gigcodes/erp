@@ -48,7 +48,7 @@ class SiteDevelopmentController extends Controller
                 $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
                 $categories = SiteDevelopmentCategory::select(
                     'site_development_categories.*',
-                    'site_developments.site_development_master_category_id',
+                    'site_developments.site_development_master_category_id', 'site_developments.bug_id',
                     'site_dev.website_id',
                     'site_dev.site_development_id',
                     'store_websites.website'
@@ -60,7 +60,7 @@ class SiteDevelopmentController extends Controller
                 $categories = SiteDevelopmentCategory::select(
                     'site_development_categories.*',
                     'site_developments.site_development_master_category_id',
-                    'site_developments.website_id',
+                    'site_developments.website_id', 'site_developments.bug_id',
                     DB::raw(
                         '(SELECT 
                             id 
@@ -79,7 +79,7 @@ class SiteDevelopmentController extends Controller
             $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
             //->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
 
-            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website')
+            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website', 'site_developments.bug_id')
                 ->joinSub($site_dev, 'site_dev', function ($join) {
                     $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
                 });
@@ -202,11 +202,26 @@ class SiteDevelopmentController extends Controller
             $taskStatistics = $query->orderBy('developer_tasks.id', 'DESC')->get();
             //print_r($taskStatistics);
             $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
-            $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+
+            $bug_id = $category->bug_id;
+
+            $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where(function ($qry) use ($site_developement_id, $bug_id) {
+                if ($site_developement_id != null && $site_developement_id != '' && $site_developement_id != 0) {
+                    if ($bug_id != null && $bug_id != '') {
+                        $qry->whereRaw('FIND_IN_SET(?,task_bug_ids)', $bug_id)->orwhere('site_developement_id', $site_developement_id);
+                    } else {
+                        $qry->where('site_developement_id', $site_developement_id);
+                    }
+                } elseif ($bug_id != null && $bug_id != '') {
+                    $qry->whereRaw('FIND_IN_SET(?,task_bug_ids)', $bug_id);
+                } else {
+                    $qry->where('site_developement_id', $site_developement_id);
+                }
+            })->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
             $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
             $othertaskStatistics = $query1->orderBy('tasks.id', 'DESC')->get();
             $merged = $othertaskStatistics->merge($taskStatistics);
-
+            // echo '<pre>';print_r($othertaskStatistics);exit;
             foreach ($merged as $m) {
                 /*if($m['task_type'] == 'task' ) {
                 $object = Task::find($m['id']);

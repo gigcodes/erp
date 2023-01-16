@@ -1,4 +1,4 @@
-email_whitelisted=`mysql erp_live -e "select email from users where is_whitelisted='1'"`
+email_whitelisted=`mysql -u erplive -h erpdb -pC*jlP2E0nbj6 erp_live -e "select email from users where is_whitelisted='1'"`
 
 echo p | mail > /tmp/mail
 ip=`grep 'Subject: ' /tmp/mail|cut -d' ' -f2|cut -d'-' -f2`
@@ -14,6 +14,6 @@ then
 	if [ $? -eq 0 ]
 	then
 		bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/webaccess-firewall.sh -f add -i $ip -c "$fromaddress-$comment"
-		echo "Your Ip has been whitelisted for erp access" |mail -s "Ip Whitelisted" $email
+		echo "Your Ip $ip has been whitelisted for erp access" 
 	fi
 fi
