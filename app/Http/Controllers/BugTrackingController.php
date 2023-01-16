@@ -1251,7 +1251,7 @@ class BugTrackingController extends Controller
                     $name = $userData[0]['name'];
                 }
 
-                $bugs_html .= '<tr><td  style="text-align:center"><input style="height:13px;" type="checkbox" class="cls-checkbox-bugsids" name="chkBugId[]" value="'.$bug_id.'" id="name="chkBugId'.$bug_id.'"  /></td><td  style="text-align:center">'.$bug_id.'</td><td title="'.$summary_txt.'" data-toggle="tooltip">&nbsp;'.$summary.'</td><td title="'.$step_to_reproduce_txt.'" data-toggle="tooltip">&nbsp;'.$step_to_reproduce.'</td><td>&nbsp;'.$url.' <button type="button" class="btn btn-copy-url btn-sm" data-id="'.$bug_list[$i]['url'].'">
+                $bugs_html .= '<tr><td  style="text-align:center"><input style="height:13px;" type="checkbox" class="cls-checkbox-bugsids" name="chkBugId[]" value="'.$bug_id.'" id="name="chkBugId'.$bug_id.'" data-summary="'.htmlentities($summary_txt).'"  /></td><td  style="text-align:center">'.$bug_id.'</td><td title="'.$summary_txt.'" data-toggle="tooltip">&nbsp;'.$summary.'</td><td title="'.$step_to_reproduce_txt.'" data-toggle="tooltip">&nbsp;'.$step_to_reproduce.'</td><td>&nbsp;'.$url.' <button type="button" class="btn btn-copy-url btn-sm" data-id="'.$bug_list[$i]['url'].'">
                 <i class="fa fa-clone" aria-hidden="true"></i></button></td><td>&nbsp;'.$name.'</td><td  title="'.$module_id_txt.'" data-toggle="tooltip">&nbsp;'.$module_id.'</td><td  title="'.$website.'" data-toggle="tooltip">&nbsp;'.$website.'</td></tr>';
             }
         }

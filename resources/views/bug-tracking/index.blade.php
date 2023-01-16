@@ -980,8 +980,11 @@ table{border-collapse: collapse;}
 		$(document).on("click", ".cls-checkbox-bugsids", function(e) {
 			
 			var values = new Array();
+			var bugvalues  = new Array();
 			$.each($("input[name='chkBugId[]']:checked"), function() {
 			  values.push($(this).val());
+			  var det = $(this).val()+" - "+ $(this).attr("data-summary");
+			  bugvalues.push(det);
 			  // or you can do something to the actual checked checkboxes by working directly with  'this'
 			  // something like $(this).hide() (only something useful, probably) :P
 			})			
@@ -989,7 +992,7 @@ table{border-collapse: collapse;}
 			var prevlist = $('.text-task-development').val();
 			
 			
-			$('.text-task-development').val(values);
+			$('.text-task-development').val(bugvalues);
 			$('.text-task-bugids').val(values);
 			
 		});
