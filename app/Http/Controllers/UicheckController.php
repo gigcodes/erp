@@ -876,7 +876,7 @@ class UicheckController extends Controller
                 $uiLan['status'] = $request->uilanstatus;
             }
             if ($request->estimated_time) {
-                $uiLan['estimated_time'] = date('H:i:s',strtotime($request->estimated_time));;
+                $uiLan['estimated_time'] = date('H:i:s', strtotime($request->estimated_time));
             }
 
             if (count($uiLanData) == 0) {
@@ -1037,7 +1037,7 @@ class UicheckController extends Controller
                 $uiDev['status'] = $request->uidevstatus;
             }
             if ($request->uidevdatetime) {
-                $uiDev['estimated_time'] = date('H:i:s',strtotime($request->uidevdatetime));
+                $uiDev['estimated_time'] = date('H:i:s', strtotime($request->uidevdatetime));
             }
             $uiDevid = $uiDevData->id ?? '';
             if ($uiDevid == '') {
