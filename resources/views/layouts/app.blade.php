@@ -1,10 +1,11 @@
 @php
-    $currentRoutes = \Route::current();
-    //$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
-    $metaData = '';
+$currentRoutes = \Route::current();
+//$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
+$metaData = '';
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
 
     <meta charset="utf-8">
@@ -13,16 +14,16 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php
-        if (isset($metaData->page_title) && $metaData->page_title != '') {
-            $title = $metaData->page_title;
-        } else {
-            $title = trim($__env->yieldContent('title'));
-        }
-    ?>
+if (isset($metaData->page_title) && $metaData->page_title != '') {
+    $title = $metaData->page_title;
+} else {
+    $title = trim($__env->yieldContent('title'));
+}
+?>
     @if (trim($__env->yieldContent('favicon')))
-        <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
     @elseif (!\Auth::guest())
-        <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
+    <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
     <title>{!! $title !!}</title>
     <!-- CSRF Token -->
@@ -49,14 +50,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-    <style type="text/css">
-    .select2-container--open {
-        z-index: 9999999
-    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+   <style type="text/css">
+        .select2-container--open{
+            z-index:9999999
+        }
+        #message-chat-data-box .p1[data-count]:after{
+          position:absolute;
+          right:10%;
+          top:8%;
+          content: attr(data-count);
+          font-size:90%;
+          padding:.1em;
+          border-radius:50%;
+          line-height:1em;
+          color: white;
+          background:rgba(255,0,0,.85);
+          text-align:center;
+          min-width: 1em;
+          //font-weight:bold;
+        }
+        #quick-sidebar {
+            padding-top: 35px;
+        }
+        #notification_unread{
+            color:#fff;
+        }
 
     #message-chat-data-box .p1[data-count]:after {
         position: absolute;
@@ -102,9 +123,9 @@
     @stack('link-css')
     @yield('link-css')
     <script>
-        let Laravel = {};
-        Laravel.csrfToken = "{{csrf_token()}}";
-        window.Laravel = Laravel;
+    let Laravel = {};
+    Laravel.csrfToken = "{{csrf_token()}}";
+    window.Laravel = Laravel;
     </script>
     {{--I/m geting error in console thats why commented--}}
 
@@ -157,15 +178,18 @@
     </script>
 
     @if(Auth::user())
-        {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
-        <script>
-            window.userid = "{{Auth::user()->id}}";
-            window.username = "{{Auth::user()->name}}";
-            loggedinuser = "{{Auth::user()->id}}";
-        </script>
+    {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
+    <script>
+    window.userid = "{{Auth::user()->id}}";
+
+    window.username = "{{Auth::user()->name}}";
+
+    loggedinuser = "{{Auth::user()->id}}";
+    </script>
     @endif
     <script type="text/javascript">
-        var BASE_URL = '{{ config('app.url ') }}';
+    var BASE_URL = '{{ config('
+    app.url ') }}';
     </script>
 
 
@@ -196,16 +220,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/global_custom.css') }}">
     @yield("styles")
 
     <script>
-        window.Laravel = '{{!!json_encode(['
-        csrfToken '=>csrf_token(),'
-        user '=>['
-        authenticated '=>auth()->check(),'
-        id '=>auth()->check() ? auth()->user()->id : null,'
-        name '=>auth()->check() ? auth()->user()-> name : null,]])!!}';
+    window.Laravel = '{{!!json_encode(['
+    csrfToken '=>csrf_token(),'
+    user '=>['
+    authenticated '=>auth()->check(),'
+    id '=>auth()->check() ? auth()->user()->id : null,'
+    name '=>auth()->check() ? auth()->user()-> name : null,]])!!}';
     </script>
 
 
@@ -222,7 +246,7 @@
     </script> --}}
 
     <script>
-        initializeTwilio();
+    initializeTwilio();
     </script>
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
@@ -234,68 +258,68 @@
     <script src="{{ asset('js/chat.js') }}"></script> --}}
 
     <style type="text/css">
-        .back-to-top {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            display: none;
+    .back-to-top {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        display: none;
 
-        }
+    }
 
-        .dropdown.dots>a:after {
-            display: none;
-        }
+    .dropdown.dots>a:after {
+        display: none;
+    }
 
-        .dropdown.dots>a {
-            line-height: 30px;
-        }
+    .dropdown.dots>a {
+        line-height: 30px;
+    }
 
-        #navbarSupportedContent {
-            display: flex !important;
-        }
+    #navbarSupportedContent {
+        display: flex !important;
+    }
 
-        .nav-item.dropdown.dots {
-            min-width: 35px;
-            padding-right: 15px;
-        }
+    .nav-item.dropdown.dots {
+        min-width: 35px;
+        padding-right: 15px;
+    }
 
-        @media(max-width:1350px) {
+    @media(max-width:1350px) {
 
-
-            .navbar-nav>li {
-                min-width: 94px;
-                padding-right: 15px;
-            }
-        }
-
-        .navbar {
-            padding: 0.1rem 0.8rem;
-            border-bottom: 1px solid #ddd;
-            /*margin-bottom: 8px !important;*/
-            border-radius: 0px;
-        }
-
-        .navbar-brand {
-            padding: 15px 4px;
-            font-size: 20px;
-            font-weight: 700;
-            margin-right: 0;
-        }
-
-        @media(min-width:1700px) {
-            #navs {
-                padding-left: 40px;
-            }
-        }
 
         .navbar-nav>li {
-            min-width: 40px;
-            /*padding-right: 30px;*/
+            min-width: 94px;
+            padding-right: 15px;
         }
+    }
 
-        /*.navbar-brand{*/
-        /*    margin-right: 20px;*/
-        /*}*/
+    .navbar {
+        padding: 0.1rem 0.8rem;
+        border-bottom: 1px solid #ddd;
+        /*margin-bottom: 8px !important;*/
+        border-radius: 0px;
+    }
+
+    .navbar-brand {
+        padding: 15px 4px;
+        font-size: 20px;
+        font-weight: 700;
+        margin-right: 0;
+    }
+
+    @media(min-width:1700px) {
+        #navs {
+            padding-left: 40px;
+        }
+    }
+
+    .navbar-nav>li {
+        min-width: 40px;
+        /*padding-right: 30px;*/
+    }
+
+    /*.navbar-brand{*/
+    /*    margin-right: 20px;*/
+    /*}*/
     </style>
     @stack("styles")
 </head>
@@ -2047,6 +2071,11 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
+                                                href="{{ route('magento-cron-data') }}">Magento Cron
+                                                Data</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
                                                 href="{{ route('magento-productt-errors.index') }}">Magento product push
                                                 errors</a>
                                         </li>
@@ -2324,14 +2353,30 @@ if (!empty($notifications)) {
                                             <a id="queueDropdown" href="{{ url('todolist') }}" class="nav-link "
                                                 role="button" aria-haspopup="true" aria-expanded="false">TodoList</a>
                                         </li>
+                                        <li class="nav-item dropdown ">
+                                            <a id="queueDropdown" href="{{ url('test-cases') }}" class="nav-link "
+                                                role="button" aria-haspopup="true" aria-expanded="false">Test Cases</a>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast
                                                 messages</a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{route('bug-tracking.index')}}">Bug
-                                                Track</a>
-                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="bugDropdown" href="#" class="nav-link dropdown-toggle"
+                                                data-toggle="dropdown" role="button" aria-haspopup="true"
+                                                aria-expanded="false">Bug Track<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="bugDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('bug-tracking.index')}}">Bug Track</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('bug-tracking.website') }}">Bug Tracking Summary</a>
+                                                </li>
+                                            </ul>
+                                        </li>                                       
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
                                         </li>
@@ -2791,6 +2836,9 @@ if (!empty($notifications)) {
                             </ul>
                             </li>
                             @endif
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                             </li>
@@ -2912,7 +2960,7 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource
                                             Center</a>
                                     </li>
-                                    @endif
+                                    @endif 
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>Product<span
@@ -2921,6 +2969,7 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                             </li>
+                                           
                                             <li class="nav-item dropdown">
 
                                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
@@ -3105,14 +3154,22 @@ if (!empty($notifications)) {
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
                             <li>
+                                <a title="Create database" type="button" class="quick-icon menu-create-database" data-id="10410" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-database fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
-                                    class="mt-2 ml-4 system-request" data-toggle="modal"
+                                    class="system-request" data-toggle="modal"
                                     style="width:25px; height:25px;background: #dddddd9c;padding: 0px;"
                                     data-target="#system-request" title="System Request" />
                             </li>
                             <li>
                                 <a class="quick-icon todolist-request" href="#"><span><i
                                             class="fa fa-plus fa-2x"></i></span></a>
+                            </li>
+                            <li>
+                                <a class="quick-icon todolist-get" href="#"><span><i
+                                            class="fa fa-list fa-2x"></i></span></a>
                             </li>
                             <li>
                                 <a class="quick-icon permission-request" href="#"><span><i
@@ -3212,6 +3269,7 @@ if (!empty($notifications)) {
             </div>
 
         </nav>
+
         <div id="todolist-request-model" class="modal fade" role="dialog">
             <div class="modal-content modal-dialog modal-md">
                 <form action="{{ route('todolist.store') }}" method="POST">
@@ -3240,24 +3298,37 @@ if (!empty($notifications)) {
                             <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
                             @endif
                         </div>
+                        @php
+                        $todoCategories = \App\TodoCategory::get();
+                        @endphp
+                         <div class="form-group">
+                             <strong>Category:</strong>
+                             {{-- <input type="text" name="" class="form-control" value="{{ old('') }}" required> --}}
+                             <select name="todo_category_id" class="form-control">
+                             <option value="">Select Category</option>
+                                @foreach($todoCategories as $todoCategory)
+                                    <option value="{{$todoCategory->id}}" @if($todoCategory->id == old('todo_category_id')) selected @endif>{{$todoCategory->name}}</option>
+                                @endforeach
+                             </select>
+                             @if ($errors->has('status'))
+                                 <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                             @endif
+                         </div>
+                        @php
+                        $statuses = \App\TodoStatus::all()->toArray();
+                        @endphp
                         <div class="form-group">
                             <strong>Status:</strong>
-                            @php
-                            $statuses = App\TodoStatus::all()->toArray();
-                            @endphp
-                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}"
-                            required> --}}
-                            <select name="status" class="form-control" required="">
+                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
+                            <select name="status" class="form-control">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['id']}}" @if (old('status')==$status['id']) selected @endif>
-                                    {{$status['name']}}</option>
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             @if ($errors->has('status'))
-                            <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                                <div class="alert alert-danger">{{ $errors->first('status') }}</div>
                             @endif
                         </div>
-
                         <div class="form-group">
                             <strong>Date:</strong>
 
@@ -3291,7 +3362,148 @@ if (!empty($notifications)) {
             </div>
         </div>
 
+        <div id="menu-create-database-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document" style="width:500px !important">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create Database</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <form id="database-form">
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" name="database_user_id" class="app-database-user-id" id="database-user-id" value="">
+                                        <div class="row">
+                                            <div class="col">
+                                                <select class="form-control choose-db" name="connection">
+                                                    <?php foreach (\App\StoreWebsite::DB_CONNECTION as $k => $connection) {?>
+                                                    <option {{($connection == $k)?"selected='selected'":''}} value="<?php echo $k; ?>"><?php echo $connection; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <select class="form-control choose-username" name="username">
+                                                    <option value="">Select User</option>
+                                                    <?php
+                                                    $users = \App\User::select('id', 'name', 'email')->get();
+                                                    foreach ($users as $k => $connection) {?>
+                                                    <option value="<?php echo $connection->id; ?>" data-name="{{$connection->name}}"><?php echo $connection->name; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" name="password" class="database_password" class="form-control" placeholder="Enter password">
+                                            </div>
+                                            <div class="col">
+                                                <button type="button" class="btn btn-secondary btn-database-add" data-id="">ADD</button>
+
+                                                <button type="button" class="btn btn-secondary btn-delete-database-access d-none" data-connection="" data-id="">DELETE ACCESS</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row mt-5">
+                                <form>
+                                    <?php echo csrf_field(); ?>
+                                    <div class="col-lg-12">
+                                        <div class="row">
+                                            <div class="col">
+                                                <input type="hidden" name="connection"  value="">
+                                                <input type="text" name="search" class="form-control search-table" placeholder="Search Table name">
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group col-md-5">
+                                                    <select class="form-control assign-permission-type" name="assign_permission">
+                                                        <option value="read">Read</option>
+                                                        <option value="write">Write</option>
+                                                    </select>
+                                                </div>
+                                                <button type="button" class="btn btn-secondary btn-assign-permission assign-permission" data-id="">Assign Permission</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 mt-2">
+                                        <table class="table table-bordered" id="database-table-list">
+                                            <thead>
+                                            <tr>
+                                                <th width="5%"></th>
+                                                <th width="95%">Table name</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="menu_tbody">
+                                                @php
+                                                  $database_table_name = \DB::table('information_schema.TABLES')->where('table_schema', env('DB_DATABASE'))->get();
+                                                @endphp
+                                                @foreach(json_decode($database_table_name) as $name)
+                                                <tr>
+                                                    <td><input type="checkbox" name="tables[]" value="{{$name->TABLE_NAME}}"></td>
+                                                    <td>{{$name->TABLE_NAME}}</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+
         @if (Auth::check())
+
+		<div id="todolist-get-model" class="modal fade" role="dialog">
+             <div class="modal-content modal-dialog modal-lg">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Todo List</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+			@php
+				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
+            $statuses = \App\TodoStatus::get();
+			@endphp
+			<div class="modal-body show-list-records" id="todolist-request">
+				@if($todoLists->count())
+				<table class="table table-bordered">
+					 <tbody>
+					  <tr>
+						<th>Title</th>
+						<th>Subject</th>
+						<th>Category</th>
+						<th>Status</th>
+						<th>Date</th>
+					  </tr>
+					@foreach($todoLists as $todoList)
+					  <tr>
+						<td>{{ $todoList->title }}</td>
+						<td>{{ $todoList->subject }}</td>
+						<td>{{ isset($todoList->category->name) ? $todoList->category->name : ''; }}</td>
+						<td>
+                            <select name="status" class="form-control" onchange="todoHomeStatusChange({{$todoList->id}}, this.value)" >
+                                @foreach ($statuses as $status )
+                                <option value="{{$status->id}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
+                                @endforeach
+                            </select>
+						</td>
+                        </div>
+
+						<td>{{ $todoList->todo_date}}</td>
+					  </tr>
+					@endforeach
+					</tbody>
+				</table>
+				@else
+					<h4 class="modal-title">No Records</h4>
+				@endif
+			</div>
+             </div>
+        </div>
+
 
         @if(1 == 2 && auth()->user()->isAdmin())
         <div class="float-container developer-float hidden-xs hidden-sm">
@@ -3816,13 +4028,13 @@ if (!empty($notifications)) {
     </div>
     @php
 
-        $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
-        $url = str_replace('/','',$url);
-        $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
-        $account_id = "";
-        if(!empty($site_account_id)){
-            $account_id = $site_account_id->account_id;
-        }
+    $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
+    $url = str_replace('/','',$url);
+    $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
+    $account_id = "";
+    if(!empty($site_account_id)){
+    $account_id = $site_account_id->account_id;
+    }
     @endphp
 
 
@@ -3861,11 +4073,13 @@ if (!empty($notifications)) {
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
     </script>
 
-    <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
-    <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/jquery-ui.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/custom_global_script.js')}}"></script>
     <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
+    
     <script>
     // $('#chat-list-history').on('hidden.bs.modal', function (e) {
     //     document.body.addClass('sasadasd')
@@ -3885,6 +4099,63 @@ if (!empty($notifications)) {
             $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden', true).val('');
             $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
         }
+    })
+
+    $(document).on('change', '.choose-username', function() {
+        var val = $(this).val();
+        var db =$('.choose-db').val();
+        $('.app-database-user-id').val(val);
+        $('.btn-database-add').attr('data-id',val);
+        $('.btn-delete-database-access').attr('data-id',val);
+        $('.btn-delete-database-access').attr('data-connection',db);
+        $('.btn-assign-permission').attr('data-id',val);
+        var database_user_id = val;
+        var url = '{{ route("user-management.get-database", ":id") }}';
+        url = url.replace(':id', database_user_id);
+
+        $.ajax({
+            url: url ,
+            type: 'GET',
+            data: {
+                id: database_user_id,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    $('.database_password').val(response.data.password);
+                    if(response.data.password)
+                    {
+                        $('.btn-delete-database-access').removeClass('d-none');
+                    }
+                    var aa = '';
+                    $('.menu_tbody').html('');
+                    $.each(response.data.tables, function(i, record) {
+                        var checkvalue = '';
+                        if(record.checked)
+                        {
+                            checkvalue = 'checked';
+                        }
+
+                        aa += '<tr role="row"><td><input type="checkbox" name="tables[]" value='+record.table+' '+checkvalue+'></td><td>'+record.table+'</td></tr>';
+                    });
+                    $('.menu_tbody').html(aa);
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+
     })
 
     $(document).on('change', '.knowledge_base', function() {
@@ -4016,6 +4287,151 @@ if (!empty($notifications)) {
             alert('please enter IP');
         }
     });
+
+    $(document).on("click", ".btn-database-add", function(e) {
+        e.preventDefault();
+        // var ele = this;
+        var connection = $('.choose-db').val();
+        var username = $('.choose-username').find(':selected').attr('data-name');
+         username = username.replace(/ /g,"_").toLowerCase();
+        var password = $('.database_password').val();
+        var database_user_id = $(this).data("id");
+        var url = '{{ route("user-management.create-database", ":id") }}';
+        url = url.replace(':id', database_user_id);
+
+        $.ajax({
+                url: url ,
+                type: 'POST',
+                data: {
+                    database_user_id: database_user_id,
+                    connection: connection,
+                    username: username,
+                    password: password,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        toastr['success'](response.message, 'success');
+                    } else {
+                        toastr['error'](response.message, 'error');
+                    }
+                },
+                error: function() {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+    });
+
+    $(document).on("click", ".btn-assign-permission", function(e) {
+        e.preventDefault();
+        // var ele = this;
+        var connection = $('.choose-db').val();
+
+        var assign_permission = $('.assign-permission-type').find(':selected').val();
+        var search = $('.search-table').val();
+        var tables = $('.database_password').val();
+        var checked = []
+        $("input[name='tables[]']:checked").each(function ()
+        {
+            checked.push($(this).val());
+        });
+
+        var database_user_id = $('#database-user-id').val();
+        if(database_user_id == '')
+        {
+            toastr['error']('Please select the user first', 'error');
+            return false
+        }
+        var url = '{{ route("user-management.assign-database-table", ":id") }}';
+        url = url.replace(':id', database_user_id);
+
+        $.ajax({
+            url: url ,
+            type: 'POST',
+            data: {
+                database_user_id: database_user_id,
+                connection: connection,
+                search: search,
+                assign_permission: assign_permission,
+                tables: checked,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                    $("#menu-create-database-model").modal("hide");
+                } else {
+                    toastr['error'](response.message, 'error');
+                    $("#menu-create-database-model").modal("hide");
+                }
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on("click", ".btn-delete-database-access", function(e) {
+        e.preventDefault();
+        if (!confirm("Are you sure you want to remove access for this user?")) {
+            return false;
+        } else {
+            var connection = $('.choose-db').val();
+            var database_user_id = $('#database-user-id').val();
+            if (database_user_id == '') {
+                toastr['error']('Please select the user first', 'error');
+                return false
+            }
+            var url = '{{ route("user-management.delete-database-access", ":id") }}';
+            url = url.replace(':id', database_user_id);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    connection: connection,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        toastr['success'](response.message, 'success');
+                        $("#menu-create-database-model").modal("hide");
+                    } else {
+                        toastr['error'](response.message, 'error');
+                        $("#menu-create-database-model").modal("hide");
+                    }
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        }
+    });
+
     $(document).ready(function() {
         $('#ipusers').change(function() {
             var selected = $(this).val();
@@ -4353,43 +4769,43 @@ if (!empty($notifications)) {
 
     @if(session()->has('encrpyt'))
 
-        var inactivityTime = function() {
-            var time;
-            window.onload = resetTimer;
-            // DOM Events
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
+    var inactivityTime = function() {
+        var time;
+        window.onload = resetTimer;
+        // DOM Events
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
 
-            function remove_key() {
-                $.ajax({
-                        url: "{{ route('encryption.forget.key') }}",
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            private: '1',
-                            "_token": "{{ csrf_token() }}",
-                        },
-                    })
-                    .done(function() {
-                        alert('Please Insert Private Key');
-                        location.reload();
-                        console.log("success");
-                    })
-                    .fail(function() {
-                        console.log("error");
-                    })
-            }
-
-            function resetTimer() {
-                clearTimeout(time);
-                time = setTimeout(remove_key, 1200000);
-                // 1000 milliseconds = 1 second
-            }
-        };
-
-        window.onload = function() {
-            inactivityTime();
+        function remove_key() {
+            $.ajax({
+                    url: "{{ route('encryption.forget.key') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        private: '1',
+                        "_token": "{{ csrf_token() }}",
+                    },
+                })
+                .done(function() {
+                    alert('Please Insert Private Key');
+                    location.reload();
+                    console.log("success");
+                })
+                .fail(function() {
+                    console.log("error");
+                })
         }
+
+        function resetTimer() {
+            clearTimeout(time);
+            time = setTimeout(remove_key, 1200000);
+            // 1000 milliseconds = 1 second
+        }
+    };
+
+    window.onload = function() {
+        inactivityTime();
+    }
 
     @endif
 
@@ -4444,39 +4860,39 @@ if (!empty($notifications)) {
     //     }
     // });
     @if(Auth::check())
-        $(document).ready(function() {
-            var url = window.location.href;
-            var user_id = "{{ Auth::id() }}";
-            user_name = "{{ Auth::user()->name }}";
-            $.ajax({
-                type: "POST",
-                url: "/api/userLogs",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "url": url,
-                    "user_id": user_id,
-                    "user_name": user_name
-                },
-                dataType: "json",
-                success: function(message) {}
-            });
+    $(document).ready(function() {
+        var url = window.location.href;
+        var user_id = "{{ Auth::id() }}";
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "url": url,
+                "user_id": user_id,
+                "user_name": user_name
+            },
+            dataType: "json",
+            success: function(message) {}
         });
+    });
     @endif
     </script>
     @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" &&
     !stristr($_SERVER['HTTP_HOST'], '.mac') )
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
-        <script>
-        window.dataLayer = window.dataLayer || [];
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
+    function gtag() {
+        dataLayer.push(arguments);
+    }
 
-        gtag('js', new Date());
-        //gtag('config', 'UA-171553493-1');
-        </script>
+    gtag('js', new Date());
+    //gtag('config', 'UA-171553493-1');
+    </script>
     @endif
     <script>
     <?php
@@ -4908,7 +5324,15 @@ if (!\Auth::guest()) {
         e.preventDefault();
         $("#todolist-request-model").modal("show");
     });
+	$(document).on("click", ".todolist-get", function(e) {
+			e.preventDefault();
+			$("#todolist-get-model").modal("show");
+	});
 
+    $(document).on("click", ".menu-create-database", function(e) {
+        e.preventDefault();
+        $("#menu-create-database-model").modal("show");
+    });
     $(document).on("click", ".permission-grant", function(e) {
         e.preventDefault();
         var permission = $(this).data('id');
@@ -4968,16 +5392,42 @@ if (!\Auth::guest()) {
             }
         });
     });
+
+	function todoHomeStatusChange(id, xvla) {
+			$.ajax({
+			type: "POST",
+					url: "{{ route('todolist.status.update') }}",
+					data: {
+					"_token": "{{ csrf_token() }}",
+					"id": id,
+					"status":xvla
+				},
+			dataType: "json",
+			success: function(message) {
+					$c = message.length;
+					if ($c == 0) {
+							alert('No History Exist');
+					} else {
+							toastr['success'](message.message, 'success');
+					}
+			},
+			error: function(error) {
+					toastr['error'](error, 'error');
+			}
+		});
+	}
+
+
     </script>
     @if ($message = Session::get('actSuccess'))
-        <script>
-        toastr['success']('<?php echo $message; ?>', 'success');
-        </script>
+    <script>
+    toastr['success']('<?php echo $message; ?>', 'success');
+    </script>
     @endif
     @if ($message = Session::get('actError'))
-        <script>
-        toastr['error']('<?php echo $message; ?>', 'error');
-        </script>
+    <script>
+    toastr['error']('<?php echo $message; ?>', 'error');
+    </script>
     @endif
 
 </body>

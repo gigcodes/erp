@@ -57,7 +57,14 @@
                             </span>
                         </div>
                     </div>
-
+                    <div class="form-group ml-3">
+                        <select class="form-control global" id="search_todo_category_id" name="search_todo_category_id">
+                            <option value="">Select Category</option>
+                            @foreach($todoCategories as $todoCategory)
+                                <option value="{{$todoCategory->id}}" @if($todoCategory->id == $search_todo_category_id) selected @endif>{{$todoCategory->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
@@ -68,7 +75,9 @@
                 </button>
                 &nbsp;
                 <button type="button" class="btn btn-primary" data-toggle="modal"
-                    data-target="#todolistStatusCreateModal">Add Status</a> </button> &nbsp; &nbsp;
+                    data-target="#todolistStatusCreateModal">Add Status</a> </button>
+                <button type="button" class="btn btn-primary" data-toggle="modal"
+                    data-target="#todolistCategoryCreateModal">Add Category</a> </button> &nbsp; &nbsp;
             </div>
         </div>
     </div>
@@ -103,7 +112,8 @@
                     <th>#</th>
                     <th>Title</th>
                     <th>Subject</th>
-                    <th>status</th>
+                    <th>Category</th>
+                    <th>Status</th>
                     <th>Date</th>
                     <th>Remark</th>
                     <th>Actions</th>
@@ -162,6 +172,20 @@
                             @endif
                         </div>
                         <div class="form-group">
+                            <strong>Category:</strong>
+                            {{-- <input type="text" name="" class="form-control" value="{{ old('') }}" required> --}}
+                            <select name="todo_category_id" class="form-control">
+                            <option value="">Select Category</option>
+                               @foreach($todoCategories as $todoCategory)
+                                   <option value="{{$todoCategory->id}}" @if($todoCategory->id == old('todo_category_id')) selected @endif>{{$todoCategory->name}}</option>
+                               @endforeach
+                            </select>
+                            @if ($errors->has('status'))
+                                <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
                             <strong>Status:</strong>
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
                             <select name="status" class="form-control">
@@ -177,7 +201,7 @@
                         <div class="form-group">
                             <strong>Date:</strong>
 
-                            <div class='input-group date' id='todo-date'>
+                            <div class='input-group date' id='todo-date-1'>
                                 <input type="text" class="form-control global" name="todo_date" placeholder="Date"
                                     value="{{ old('todo_date') }}">
                                 <span class="input-group-addon">
@@ -238,6 +262,20 @@
                                 <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
                             @endif
                         </div>
+                      <div class="form-group">
+                            <strong>Category:</strong>
+                            {{-- <input type="text" name="" class="form-control" value="{{ old('') }}" required> --}}
+                            <select name="todo_category_id" class="form-control">
+                            <option value="">Select Category</option>
+                               @foreach($todoCategories as $todoCategory)
+                                   <option value="{{$todoCategory->id}}" @if($todoCategory->id == old('todo_category_id')) selected @endif>{{$todoCategory->name}}</option>
+                               @endforeach
+                            </select>
+                            @if ($errors->has('status'))
+                                <div class="alert alert-danger">{{ $errors->first('status') }}</div>
+                            @endif
+                        </div>
+
                         <div class="form-group">
                             <strong>Status:</strong>
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
@@ -354,7 +392,40 @@
 
         </div>
     </div>
+  </div>
 
+    <div id="todolistCategoryCreateModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ route('todolist.category.store') }}" method="POST">
+                    @csrf
+
+                    <div class="modal-header">
+                        <h4 class="modal-title">Create Todo List Category</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <strong>Name:</strong>
+                            <input type="text" name="todo_category_name" class="form-control" value="{{ old('todo_category_name') }}">
+
+                            @if ($errors->has('todo_category_name'))
+                                <div class="alert alert-danger">{{ $errors->first('todo_category_name') }}</div>
+                            @endif
+                        </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Store</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+  </div>
 @endsection
 
 
@@ -375,7 +446,7 @@
             format: 'YYYY-MM-DD',
         });
 
-        $('#todo-date').datetimepicker({
+        $('#todo-date-1').datetimepicker({
             format: 'YYYY-MM-DD',
         });
 
@@ -601,5 +672,32 @@
                 }
             })
         })
+
+        function todoCategoryChange(id, todo_category_id) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('todolist.category.update') }}",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "id": id,
+                    "todo_category_id":todo_category_id
+                },
+                dataType: "json",
+                success: function(message) {
+                    $c = message.length;
+                    if ($c == 0) {
+                        alert('No History Exist');
+                    } else {
+                        toastr['success'](message.message, 'success');
+                    }
+                },
+                error: function(error) {
+                    toastr['error'](error, 'error');
+                }
+
+            });
+        }
+
+
     </script>
 @endsection

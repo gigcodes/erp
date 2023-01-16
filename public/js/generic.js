@@ -414,9 +414,9 @@ $(document).on('click', '.load-communication-modal', function () {
             feedback_category_id: feedback_category_id,
         },
         beforeSend: function () {
-            //$(thiss).text('Loading...');
-            // $(thiss).html("");
-            // $(thiss).html('<img src="/images/chat.png" alt="" style="cursor: nwse-resize;"><div class="spinner-border" role="status"><span class="">Loading...</span></div>');
+            $(thiss).text('Loading...');
+            $(thiss).html("");
+            $(thiss).html('<img src="/images/chat.png" alt="" style="cursor: nwse-resize;"><div class="spinner-border" role="status"><span class="">Loading...</span></div>');
         }
     }).done(function (response) {
         $(".spinner-border").css("display", "none");

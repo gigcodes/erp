@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class MagentoCronData extends Model
 {
+    protected $table = 'magento_cron_datas';
+
     protected $fillable = [
         'store_website_id',
         'cron_id',

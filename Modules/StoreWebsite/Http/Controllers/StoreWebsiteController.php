@@ -96,7 +96,6 @@ class StoreWebsiteController extends Controller
         $records = StoreWebsite::whereNull('deleted_at')
         ->leftJoin('store_view_code_server_map as svcsm', 'svcsm.id', 'store_websites.store_code_id')
         ->select(['store_websites.*', 'svcsm.code as store_code_name', 'svcsm.id as store_code_id']);
-
         $keyword = request('keyword');
         if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
