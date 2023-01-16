@@ -4483,12 +4483,14 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
 });
 
 //Queue Management::
-Route::prefix('queue')->middleware('auth')->group(function () {
+Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::get('/', [RedisQueueController::class, 'index'])->name('redisQueue.list');
     Route::post('/store', [RedisQueueController::class, 'store'])->name('redisQueue.store');
     Route::post('/edit', [RedisQueueController::class, 'edit'])->name('redisQueue.edit');
     Route::post('/update', [RedisQueueController::class, 'update'])->name('redisQueue.update');
     Route::post('/delete', [RedisQueueController::class, 'delete'])->name('redisQueue.delete');
     Route::post('/execute', [RedisQueueController::class, 'execute'])->name('redisQueue.execute');
+    Route::post('/execute-horizon', [RedisQueueController::class, 'executeHorizon'])->name('redisQueue.executeHorizon');
     Route::get('/command-logs/{id}', [RedisQueueController::class, 'commandLogs'])->name('redisQueue.commandLogs');
+    Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
 });

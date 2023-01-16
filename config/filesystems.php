@@ -59,6 +59,12 @@ return [
             'visibility' => 'public',
         ],
 
+        'public_disk' => [
+            'driver' => 'local',
+            'root' => public_path(),
+            'visibility' => 'public',
+        ],
+
         'files' => [
             'driver' => 'local',
             'root' => storage_path('app/files'),
