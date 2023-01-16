@@ -20,7 +20,7 @@ class GoogleBigQueryDataController extends Controller
         $platforms = GoogleBigQueryData::select('platform')->distinct('platform')->get();
         $event_ids = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
 
-        return view('google.big_data.index', compact('bigData','google_project_ids','platforms','event_ids'));
+        return view('google.big_data.index', compact('bigData', 'google_project_ids', 'platforms', 'event_ids'));
     }
 
     public function search(Request $request)
@@ -33,14 +33,14 @@ class GoogleBigQueryDataController extends Controller
             $bigData = $bigData->whereIn('platform', $request->platform);
         }
         if (! empty($request->event_id)) {
-            $bigData = $bigData->whereIn('event_id',  $request->event_id);
+            $bigData = $bigData->whereIn('event_id', $request->event_id);
         }
         $bigData = $bigData->paginate(Setting::get('pagination'));
         $google_project_ids = GoogleBigQueryData::select('google_project_id')->distinct('google_project_id')->get();
         $platforms = GoogleBigQueryData::select('platform')->distinct('platform')->get();
         $event_ids = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
 
-        return view('google.big_data.index', compact('bigData','google_project_ids','platforms','event_ids'));
+        return view('google.big_data.index', compact('bigData', 'google_project_ids', 'platforms', 'event_ids'));
     }
 
     /**
