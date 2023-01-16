@@ -111,6 +111,7 @@
 
 
                 <?php
+
                 if (count($category->assignedTo) > 0)
                     echo '<a href="javascript::void();" data-id="' . $pagrank . '" class="show_moreCls" style="float: left;height: 16px;width: 100%;"><i class="fa fa-info-circle"></i></a>';
                 $tableTrCounter = 0; ?>
