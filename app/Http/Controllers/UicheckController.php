@@ -191,7 +191,8 @@ class UicheckController extends Controller
             } else {
                 $q->orderBy('uichecks.updated_at', 'desc');
             }
-
+//            $counter = $q->toSql();
+//            dd($counter);
             $counter = $q->get();
             //dd(count($q->get()));
             //dd($q->toSql());
@@ -874,6 +875,9 @@ class UicheckController extends Controller
             if ($request->uilanstatus) {
                 $uiLan['status'] = $request->uilanstatus;
             }
+            if ($request->estimated_time) {
+                $uiLan['estimated_time'] = date('H:i:s',strtotime($request->estimated_time));;
+            }
 
             if (count($uiLanData) == 0) {
                 $uiLans = UiLanguage::create($uiLan);
@@ -1031,6 +1035,9 @@ class UicheckController extends Controller
             }
             if ($request->uidevstatus) {
                 $uiDev['status'] = $request->uidevstatus;
+            }
+            if ($request->uidevdatetime) {
+                $uiDev['estimated_time'] = date('H:i:s',strtotime($request->uidevdatetime));
             }
             $uiDevid = $uiDevData->id ?? '';
             if ($uiDevid == '') {
@@ -1396,6 +1403,7 @@ class UicheckController extends Controller
                             </div>
                             <i class="fa fa-copy" data-text="'.$value->message.'"></i>
                         </td>',
+                        '<td>'.($value->estimated_time ?: '-').'</td>',
                         '<td>'.($value->status_name ?: '-').'</td>',
                         '<td class="cls-created-date">'.($value->created_at ?: '').'</td>',
                         '</tr>',

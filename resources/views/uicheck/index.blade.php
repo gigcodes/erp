@@ -425,7 +425,7 @@
 				<h2>All History</h2>
 				<button type="button" class="close" data-dismiss="modal">×</button>
 			</div>
-			<div class="modal-body" style="overflow-y: scroll;height: 650px;">
+			<div class="modal-body" style="overflow-y: scroll; height: 650px;">
 				<select class="searAllhistory select2" onchange="loadAllHistory(1)" style="width: 150px;">
 					<option value="">- Select -</option>
 					<?php foreach ($users as $user) {
@@ -527,6 +527,7 @@
 								<th width="5%">ID</th>
 								<th width="15%" style="word-break: break-all;">Language</th>
 								<th width="22%" style="word-break: break-all;">Message</th>
+								<th width="22%" style="word-break: break-all;">Estimated Time</th>
 								<th width="22%" style="word-break: break-all;">Attachment</th>
 								<th width="21%">Status</th>
 								
@@ -537,7 +538,13 @@
 								<tr>
 									<td>{{$language->id}}</td>
 									<td>{{$language->name}}</td>
-									<td><input type="text" name="uilanmessage{{$language->id}}" class="uilanmessage{{$language->id}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image message-language" onclick="funLanUpdate('{{$language->id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle languageHistorty" onclick="funGetLanHistory('{{$language->id}}');"></i></td>
+									<td><input type="text" name="uilanmessage{{$language->id}}" class="uilanmessage{{$language->id}}" style="margin-top: 0px;width:80% !important;"/>
+										<button class="btn pr-0 btn-xs btn-image message-language" onclick="funLanUpdate('{{$language->id}}');"><img src="{{asset('/images/filled-sent.png')}}" style="cursor: nwse-resize; width: 0px;"></button>
+										<i class="fa fa-info-circle languageHistorty" onclick="funGetLanHistory('{{$language->id}}');"></i>
+									</td>
+									<td>
+										<input type="time" name="uilanestimated_time{{$language->id}}" class="uilanestimated_time{{$language->id}}" style="margin-top: 0px;width:80% !important;"/>
+									</td>
 									<td><input type="hidden" class="uicheckId" value=""/>
 										<button type="button" data-toggle="tooltip" title="Upload File" data-id="{{$language->id}}" class="btn btn-file-upload pd-5">
 											<i class="fa fa-upload" aria-hidden="true"></i>
@@ -703,6 +710,7 @@
 								<th width="5%">ID</th>
 								<th width="15%" style="word-break: break-all;">Language</th>
 								<th width="22%" style="word-break: break-all;">Message</th>
+								<th width="22%" style="word-break: break-all;">Estimated Time</th>
 								<th width="22%" style="word-break: break-all;">Attachment</th>
 								<th width="21%">Status</th>
 								
@@ -713,7 +721,15 @@
 								<tr>
 									<td>{{$i}}</td>
 									<td>Device {{$i}}</td>
-									<td><input type="text" name="uidevmessage{{$i}}" class="uidevmessage{{$i}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('{{$i}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('{{$i}}');"></i></td>
+									<td><input type="text" name="uidevmessage{{$i}}" class="uidevmessage{{$i}}" style="margin-top: 0px;width:80% !important;"/>
+										<button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('{{$i}}');">
+										<img src="{{asset('/images/filled-sent.png')}}" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('{{$i}}');"></i>
+									</td>
+									<td>
+										<input type="time" name="uidevestimated_time{{$i}}" class="uidevestimated_time{{$i}}" style="margin-top: 0px;width:80% !important;"/>
+										<button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('{{$i}}');">
+										<img src="{{asset('/images/filled-sent.png')}}" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('{{$i}}');"></i>
+									</td>
 									<td><input type="hidden" class="uicheckId" value=""/>
 										<input type="hidden" class="ui_check_id" value=""/>
 										<button type="button" data-toggle="tooltip" title="Upload File" data-device_no="{{$i}}" class="btn btn-dev-file-upload pd-5">
@@ -732,7 +748,7 @@
 											@empty
 											@endforelse
 										</select>
-										<button class="btn pr-0 btn-xs btn-image dev-uicheck-status" onclick="funDevUpdate('{{$i}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button></td>
+										<button class="btn pr-0 btn-xs btn-image dev-uicheck-status" onclick="funDevUpdate('{{$i}}');"><img src="{{asset('/images/filled-sent.png')}}" style="cursor: nwse-resize; width: 0px;"></button></td>
 								</tr>
 							@endfor
 						</tbody>
@@ -761,6 +777,7 @@
 								<th width="5%">ID</th>
 								<th width="8%">Update By</th>
 								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="25%" style="word-break: break-all;">Estimated Time</th>
 								<th width="15%" style="word-break: break-all;">Status</th>
 								<th width="15%">Created at</th>
 							</tr>
@@ -1090,21 +1107,22 @@
 	}
 
 	function funLanUpdate(id) {
-		siteLoader(true);
 		let mdl = jQuery('#modalCreateLanguage');
 		let uicheckId = jQuery('.uicheckId').val();
 		let uilanmessage = jQuery('.uilanmessage'+id).val();
+		let uilanestimated_time = jQuery('.uilanestimated_time'+id).val();
 		let uilanstatus = jQuery('.uilanstatus'+id).val();
 		jQuery.ajax({
 			headers: {
 				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
 			},
-			url: "/uicheck/set/language",
+			url: "{{route('uicheck.set.language')}}",
 			type: 'POST',
 			data: {
 				id: id,
 				uicheck_id : uicheckId,
 				message : uilanmessage,
+				estimated_time : uilanestimated_time,
 				uilanstatus : uilanstatus
 			},
 			beforeSend: function() {
@@ -1286,6 +1304,7 @@
 		let mdl = jQuery('#modalCreateDevice');
 		let uicheckId = jQuery('.uicheckId').val();
 		let uidevmessage = jQuery('.uidevmessage'+id).val();
+		let uidevdatetime = jQuery('.uidevestimated_time'+id).val();
 		let uidevstatus = jQuery('.uidevstatus'+id).val();
 		let device_no = jQuery('.device_no'+id).val();
 		jQuery.ajax({
@@ -1293,12 +1312,13 @@
 			headers: {
 				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
 			},
-			url: "/uicheck/set/device",
+			url: "{{route('uicheck.set.device')}}",
 			type: 'POST',
 			data: {
 				device_no : id,
 				uicheck_id : uicheckId,
 				message : uidevmessage,
+				uidevdatetime : uidevdatetime,
 				uidevstatus : uidevstatus
 			},
 			beforeSend: function() {
@@ -1323,7 +1343,7 @@
 			headers: {
 				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
 			},
-			url: "/uicheck/get/message/history/dev",
+			url: "{{route('uicheck.get.message.dev')}}",
 			type: 'POST',
 			data: {
 				device_no: id,
@@ -1689,7 +1709,7 @@
 			processing: true,
 			serverSide: true,
 			autoWidth: true,
-			scrollX: 'true',
+			scrollX: false,
 			// sScrollX:true,
 			searching: false,
 			order: [
