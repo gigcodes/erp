@@ -753,7 +753,7 @@
                                                 {{ strlen($users_list) > 15 ? substr($users_list, 0, 15) : $users_list }}
                                                 </span>-->
 
-                                            @if(auth()->user()->isAdmin())
+                                            @if(auth()->user()->isAdmin() || $isTeamLeader)
                                                 <select id="assign_to" class="form-control assign-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
                                                     <option value="">Select...</option>
                                                     <?php $masterUser = isset($task->assign_to) ? $task->assign_to : 0; ?>
@@ -781,7 +781,7 @@
                                             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
                                             <div class="col-md-12 expand-col dis-none" style="padding:0px;">
                                                 <br>
-                                                @if(auth()->user()->isAdmin())
+                                                @if(auth()->user()->isAdmin()  || $isTeamLeader)
                                                     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
                                                     <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
                                                         <option value="">Select...</option>
@@ -806,7 +806,7 @@
 
                                                 <br>
 
-                                                @if(auth()->user()->isAdmin())
+                                                @if(auth()->user()->isAdmin()  || $isTeamLeader)
                                                     <label for="" style="font-size: 12px;margin-top:10px;">Lead 2 :</label>
                                                     <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="2" name="master_user_id" id="user_{{$task->id}}">
                                                         <option value="">Select...</option>
