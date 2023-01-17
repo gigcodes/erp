@@ -8,6 +8,11 @@
 	.preview-category input.form-control {
 		width: auto;
 	}
+	tbody tr .Website-task-warp{
+		overflow: hidden !important;
+		white-space: normal !important;
+		word-break: break-all;
+	}
 </style>
 
 <div class="row" id="common-page-layout">

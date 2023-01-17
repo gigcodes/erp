@@ -506,7 +506,7 @@ class CategoryController extends Controller
             }
 
             if (count($websites) > 0 && $category) {
-                //copied code
+                //coppied code
                 foreach ($websites as $website) {
                     //Check if category
                     if ($case == 'single') {
