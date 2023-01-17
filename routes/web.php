@@ -451,7 +451,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
     Route::post('/csv-translator/history', [CsvTranslatorController::class, 'history'])->name('csvTranslator.history');
     Route::get('/csv-filter', [CsvTranslatorController::class, 'filterCsvTranslator'])->name('csvTranslator.filter');
-    
 });
 
 /** Magento Settings */
@@ -859,9 +858,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('sop', [SopController::class, 'store'])->name('sop.store');
     Route::get('sop', [SopController::class, 'index'])->name('sop.index');
 
-    Route::post('sop/category', 'SopController@categoryStore')->name('sop.category');// sop category store route
-    Route::get('sop/category-list', 'SopController@categorylist')->name('sop.categorylist');// sop category store route
-    
+    Route::post('sop/category', 'SopController@categoryStore')->name('sop.category'); // sop category store route
+    Route::get('sop/category-list', 'SopController@categorylist')->name('sop.categorylist'); // sop category store route
+
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
