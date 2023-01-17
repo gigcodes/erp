@@ -649,8 +649,6 @@ float: left;
 </style>
 {{-- @include('common.commonEmailModal') --}}
 @section('scripts')
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://phpcoder.tech/multiselect/js/jquery.multiselect.js"></script>
 
 
 {{-- <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script>  --}}
@@ -660,10 +658,7 @@ float: left;
         CKEDITOR.replace('sop_edit_content');
     </script>
     <script>
-        // $('.addnotesop').on('click',function(){
-        //     alert('sss');
-        //     $('#categorySelect').multiselect('refresh');
-        // })
+        
         jQuery('#categorySelect').multiselect({
             columns: 1,
             placeholder: 'Select Category',
@@ -906,9 +901,7 @@ $(document).on('click', '.send-message-open', function (event) {
                 toastr["error"]('Content not', "Message");
                 return false;
             }
-            
             let _token = $("input[name=_token]").val();
-            console.log(name,category,content);
             $.ajax({
                 url: "{{ route('sop.store') }}",
                 type: "POST",
