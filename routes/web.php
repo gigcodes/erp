@@ -1991,6 +1991,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::prefix('update')->group(function () {
             Route::post('start-date', [DevelopmentController::class, 'actionStartDateUpdate'])->name('development.update.start-date');
             Route::post('estimate-date', [DevelopmentController::class, 'saveEstimateDate'])->name('development.update.estimate-date');
+            Route::post('estimate-due-date', [DevelopmentController::class, 'saveEstimateDueDate'])->name('development.update.estimate-due-date');
             Route::post('cost', [DevelopmentController::class, 'saveAmount'])->name('development.update.cost');
             Route::post('estimate-minutes', [DevelopmentController::class, 'saveEstimateMinutes'])->name('development.update.estimate-minutes');
             Route::post('lead-estimate-minutes', [DevelopmentController::class, 'saveLeadEstimateTime'])->name('development.update.lead-estimate-minutes');
@@ -4483,12 +4484,14 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
 });
 
 //Queue Management::
-Route::prefix('queue')->middleware('auth')->group(function () {
+Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::get('/', [RedisQueueController::class, 'index'])->name('redisQueue.list');
     Route::post('/store', [RedisQueueController::class, 'store'])->name('redisQueue.store');
     Route::post('/edit', [RedisQueueController::class, 'edit'])->name('redisQueue.edit');
     Route::post('/update', [RedisQueueController::class, 'update'])->name('redisQueue.update');
     Route::post('/delete', [RedisQueueController::class, 'delete'])->name('redisQueue.delete');
     Route::post('/execute', [RedisQueueController::class, 'execute'])->name('redisQueue.execute');
+    Route::post('/execute-horizon', [RedisQueueController::class, 'executeHorizon'])->name('redisQueue.executeHorizon');
     Route::get('/command-logs/{id}', [RedisQueueController::class, 'commandLogs'])->name('redisQueue.commandLogs');
+    Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
 });

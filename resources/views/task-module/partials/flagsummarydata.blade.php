@@ -34,13 +34,25 @@ $special_task = $task;
 
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history_task" title="Show tracked time History" data-id="{{ $task->id }}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
+            <button style="float:right;padding-right:0px;" onclick="funTaskInformationModal(this, '{{$task->id}}')" type="button" class="btn btn-xs" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-refresh"></i></button>
     </td>
     <td style="vertical-align: baseline;">
         @php
-        if($task->approximate != '0') { echo date('H:i:s', strtotime($task->approximate)); }
+        if($task->approximate != '0') { echo $task->approximate; }
 
         @endphp
         <button type="button" style="float:right;" class="btn btn-xs show-time-history-task" title="Show History" data-id="{{ $task->id }}" data-user_id="{{ $task->assign_to }}" style="background: none;"><i class="fa fa-info-circle"></i></button>
+    </td>
+    <td style="vertical-align: baseline;">
+        @php
+        if($task->start_date != '0') { echo $task->start_date; }
+
+        @endphp
+    </td>
+    <td style="vertical-align: baseline;">
+        @php
+        if($task->due_date != '0') { echo $task->due_date; }
+        @endphp
     </td>
     <td style="vertical-align: baseline;">
         <div class="d-flex">

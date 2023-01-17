@@ -56,13 +56,17 @@
 
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-info-circle"></i></button>
         @endif
-
-
-
+        <button style="float:right;padding-right:0px;" onclick="funDevInformationModal(this, '{{$issue->id}}')" data-userId="{{$issue->user_id}}" type="button" class="btn btn-xs" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-refresh"></i></button>
     </td>
     <td>
         {{ $issue->estimate_minutes }}
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}" data-userId="{{$issue->user_id}}"><i class="fa fa-info-circle"></i></button>
+    </td>
+    <td>
+        {{ $issue->estimate_date }}
+    </td>
+    <td>
+        {{ $issue->due_date }}
     </td>
     <td style="vertical-align: baseline;">
         <div class="d-flex">
