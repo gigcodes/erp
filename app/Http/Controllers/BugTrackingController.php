@@ -1193,12 +1193,6 @@ class BugTrackingController extends Controller
             'bug_status_id', [
                 '1',
                 '2',
-                '4',
-                '5',
-                '6',
-                '8',
-                '9',
-                '10',
             ]
         )->get();
         $bug_list = $bug_tracker->toArray();
@@ -1302,7 +1296,19 @@ class BugTrackingController extends Controller
         $taskStatistics = $query->get();
         //print_r($taskStatistics);
         $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
-        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where(function ($qry) use ($site_developement_id, $bug_id) {
+            if ($site_developement_id != null && $site_developement_id != '' && $site_developement_id != 0) {
+                if ($bug_id != null && $bug_id != '') {
+                    $qry->whereRaw('FIND_IN_SET(?,task_bug_ids)', $bug_id)->orwhere('site_developement_id', $site_developement_id);
+                } else {
+                    $qry->where('site_developement_id', $site_developement_id);
+                }
+            } elseif ($bug_id != null && $bug_id != '') {
+                $qry->whereRaw('FIND_IN_SET(?,task_bug_ids)', $bug_id);
+            } else {
+                $qry->where('site_developement_id', $site_developement_id);
+            }
+        })->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
         $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
         $merged = $othertaskStatistics->merge($taskStatistics);
