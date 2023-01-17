@@ -12,6 +12,4 @@ class SopCategory extends Model
     protected $table = 'sops_category';
 
     protected $fillable = ['category_name'];
-
-    
 }
