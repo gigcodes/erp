@@ -431,4 +431,35 @@ class EmailAddressesController extends Controller
 
         return redirect()->back();
     }
+
+    public function searchEmailAddress(Request $request)
+    {
+        $search = $request->search;
+
+        if ($search != null) {
+            $emailAddress = EmailAddress::where('username', 'Like', '%'.$search.'%')->orWhere('password', 'Like', '%'.$search.'%')->get();
+        }else{
+            $emailAddress = EmailAddress::get();
+        }
+
+        return response()->json(['tbody' => view('email-addresses.partials.email-address', compact('emailAddress'))->render(),], 200);
+    }
+
+    public function updateEmailAddress(Request $request)
+    {
+        $usernames = $request->username;
+
+        if ($request->username && $request->password) {
+            foreach ($usernames as $key => $username) {
+                EmailAddress::where('id', $key)->update(['username' => $username, 'password' => $request->password[$key]]);
+            }
+            session()->flash('msg', 'Email And Password Updated Successfully.');
+
+            return redirect()->back();
+        } else {
+            session()->flash('msg', 'Please Try Again.');
+
+            return redirect()->back();
+        }
+    }
 }
