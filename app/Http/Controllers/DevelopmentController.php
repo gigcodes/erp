@@ -14,7 +14,6 @@ use App\Github\GithubRepository;
 use App\Helpers;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
-use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffProject;
 use App\Hubstaff\HubstaffTask;
@@ -51,7 +50,6 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
 use Response;
 use Storage;
-use function PHPUnit\Framework\directoryExists;
 
 class DevelopmentController extends Controller
 {
@@ -1161,7 +1159,7 @@ class DevelopmentController extends Controller
         $title = 'Flag Task List';
 
         $issues = DeveloperTask::with(['timeSpent', 'leadtimeSpent', 'testertimeSpent', 'assignedUser']); // ->where('is_flagged', '1')
-        $issues->whereNotIn('developer_tasks.status', [DeveloperTask::DEV_TASK_STATUS_DONE,DeveloperTask::DEV_TASK_STATUS_IN_REVIEW,]);
+        $issues->whereNotIn('developer_tasks.status', [DeveloperTask::DEV_TASK_STATUS_DONE, DeveloperTask::DEV_TASK_STATUS_IN_REVIEW]);
         $issues->whereRaw('developer_tasks.assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
 
         $task = Task::with(['timeSpent']); // ->where('is_flagged', '1')
@@ -3990,15 +3988,14 @@ class DevelopmentController extends Controller
     {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
-
-                    $params['message'] = 'Estimated End Datetime: '.$new;
-                    $params['user_id'] = Auth::user()->id;
-                    $params['developer_task_id'] = $single->id;
-                    $params['approved'] = 1;
-                    $params['status'] = 2;
-                    $params['sent_to_user_id'] = $single->user_id;
-                    ChatMessage::create($params);
-                    $single->updateEstimateDueDate($new);
+                $params['message'] = 'Estimated End Datetime: '.$new;
+                $params['user_id'] = Auth::user()->id;
+                $params['developer_task_id'] = $single->id;
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                $params['sent_to_user_id'] = $single->user_id;
+                ChatMessage::create($params);
+                $single->updateEstimateDueDate($new);
 
                 return respJson(200, 'Successfully updated.');
             }
