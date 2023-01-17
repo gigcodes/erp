@@ -381,46 +381,12 @@ class Helpers
 
     public static function getQueueName($flip = false)
     {
-        $webpushQueue = [
-            'sololuxury',
-            'lussolicious',
-            'suvnat',
-            'veralusso',
-            'avoirchic',
-            'farfetch',
-            'o_labels',
-            'brandslabels',
-            'luxuryspace',
-            'shadesshop',
-            'upeau',
-            'thefitedit',
-            'perfumeedit',
-            'luxuryunlimited',
-            'italybrandoutlets',
-            'demostore',
-            'magentoconditionscheckqueue',
-        ];
-
-        $mainQueue = [
-            'fetch_email',
-            'product',
-            'magento',
-            'mageone',
-            'magetwo',
-            'magethree',
-            'supplier_products',
-            'customer_message',
-            'watson_push',
-            'email',
-            'high',
-            'image_search',
-            'command_execution',
-            'failed_magento_job',
-            'send_email',
-            'magentoconditionscheckqueue',
-        ];
-
-        $queue = array_merge($webpushQueue, $mainQueue);
+        $content = file_get_contents(public_path('queues.txt'));
+        if ($content) {
+            $queue = explode(',', $content);
+        } else {
+            $queue = [];
+        }
 
         if ($flip) {
             $l = [];
