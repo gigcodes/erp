@@ -447,11 +447,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/csv-translator', [CsvTranslatorController::class, 'index'])->name('csvTranslator.list');
     Route::post('/csv-translator/upload', [CsvTranslatorController::class, 'upload'])->name('csvTranslator.uploadFile');
-    Route::get('/csv-translator/export', [CsvTranslatorController::class, 'export'])->name('csvTranslator.export');
     Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
     Route::post('/csv-translator/history', [CsvTranslatorController::class, 'history'])->name('csvTranslator.history');
     Route::get('/csv-filter', [CsvTranslatorController::class, 'filterCsvTranslator'])->name('csvTranslator.filter');
-    Route::post('//csv-translator/permissions', [CsvTranslatorController::class, 'userPermissions'])->name('csvTranslator.permission');
+    Route::post('/csv-translator/approvedByAdmin', [CsvTranslatorController::class, 'approvedByAdmin'])->name('csvTranslator.filter');
+    Route::post('/csv-translator/permissions', [CsvTranslatorController::class, 'userPermissions'])->name('csvTranslator.permission');
     
     
 });

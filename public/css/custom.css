@@ -2577,15 +2577,19 @@ table {
 }
 
 .history_model{
-  padding-bottom: 40px;
-  padding-right: 40px;
-  position: relative;   
-}
-
-.csvData-table tbody.odd , .csvData-table tbody.even{
-  position: absolute;
-  right: 5px;
   bottom: 5px;
-
+  right: 5px;
 }
 
+.csvData-table tbody td{
+  position: relative;
+  padding-right: 40px !important;
+  padding-bottom: 40px !important;
+}
+
+.editbtn_model{
+  position: absolute;
+  top:5px;
+  right:8px;
+  font-size: 15px;
+}
