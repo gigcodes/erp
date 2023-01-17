@@ -1193,12 +1193,6 @@ class BugTrackingController extends Controller
             'bug_status_id', [
                 '1',
                 '2',
-                '4',
-                '5',
-                '6',
-                '8',
-                '9',
-                '10',
             ]
         )->get();
         $bug_list = $bug_tracker->toArray();
