@@ -36,6 +36,15 @@ table{border-collapse: collapse;}
 	height:30px;
 	margin-top:2px;
 }
+.bug-task-note {
+	height: 30px;
+    width: 100%;
+    text-align: center;
+    margin-top: 0px;
+    background: #ebe7e2;
+    font-weight: bold;
+    padding-top: 5px;
+}
 </style>
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
@@ -488,6 +497,7 @@ table{border-collapse: collapse;}
 					<div class="modal-header">
 						<h4 class="modal-title">Create Task</h4>
 					</div>
+					<div class="bug-task-note"> Note: Task already created for this Bug ID</div>
 					<div class="modal-body">
 						<input class="form-control" value="52" type="hidden" name="category_id" />
 						<input class="form-control" value="" type="hidden" name="category_title" id="category_title" />
@@ -637,6 +647,9 @@ table{border-collapse: collapse;}
       })
 	</script>
 	<script type="text/javascript">	
+		$(document).ready(function() {
+			$("body").tooltip({ selector: '[data-toggle=tooltip]' });
+		});
 
 		$('.change_assign_to_top').select2({
 				width: "150px",
@@ -810,7 +823,7 @@ table{border-collapse: collapse;}
 			$('.text-task-development').val('');
 			bug_id_val = $(this).data("id");
 			
-			
+			$('.bug-task-note').hide();
 			$.ajax({
 				url: '/bug-tracking/checkbug',
 				type: 'POST',
@@ -829,6 +842,7 @@ table{border-collapse: collapse;}
 				// inner Ajax starts
 				
 				if(response.data >0 ) {
+					$('.bug-task-note').show();
 					if (!confirm('Task already created for this bug id, Would you like to create again')) {				  
 					  
 					  return false;
@@ -977,8 +991,11 @@ table{border-collapse: collapse;}
 		$(document).on("click", ".cls-checkbox-bugsids", function(e) {
 			
 			var values = new Array();
+			var bugvalues  = new Array();
 			$.each($("input[name='chkBugId[]']:checked"), function() {
 			  values.push($(this).val());
+			  var det = $(this).val()+" - "+ $(this).attr("data-summary");
+			  bugvalues.push(det);
 			  // or you can do something to the actual checked checkboxes by working directly with  'this'
 			  // something like $(this).hide() (only something useful, probably) :P
 			})			
@@ -986,7 +1003,7 @@ table{border-collapse: collapse;}
 			var prevlist = $('.text-task-development').val();
 			
 			
-			$('.text-task-development').val(values);
+			$('.text-task-development').val(bugvalues);
 			$('.text-task-bugids').val(values);
 			
 		});
@@ -1220,5 +1237,8 @@ table{border-collapse: collapse;}
 			$('#bug-id-search').val("");
 			window.history.replaceState({}, document.title, clean_uri);
 		}
+
+		
+
 	</script>
 @endsection

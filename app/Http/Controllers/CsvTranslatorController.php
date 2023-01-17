@@ -9,6 +9,7 @@ use App\Imports\CsvTranslatorImport;
 use App\Models\CsvPermissions;
 use Illuminate\Http\Request;
 use App\User;
+use Illuminate\Http\Request;
 
 class CsvTranslatorController extends Controller
 {
@@ -249,47 +250,47 @@ class CsvTranslatorController extends Controller
             $record->en = $request->update_record;
             $record->status_en = "new";
         }
-        if($request->lang_id == 'es'){
+        if ($request->lang_id == 'es') {
             $record->es = $request->update_record;
             $record->status_es = "new";
         }
-        if($request->lang_id == 'ru'){
+        if ($request->lang_id == 'ru') {
             $record->ru = $request->update_record;
             $record->status_ru = "new";
         }
-        if($request->lang_id == 'ko'){
+        if ($request->lang_id == 'ko') {
             $record->ko = $request->update_record;
             $record->status_ko = "new";
         }
-        if($request->lang_ja == 'ja'){
+        if ($request->lang_ja == 'ja') {
             $record->en = $request->update_record;
             $record->status_ja = "new";
         }
-        if($request->lang_id == 'it'){
+        if ($request->lang_id == 'it') {
             $record->it = $request->update_record;
             $record->status_it = "new";
         }
-        if($request->lang_id == 'de'){
+        if ($request->lang_id == 'de') {
             $record->de = $request->update_record;
             $record->status_de = "new";
         }
-        if($request->lang_id == 'fr'){
+        if ($request->lang_id == 'fr') {
             $record->fr = $request->update_record;
             $record->status_fr = "new";
         }
-        if($request->lang_id == 'nl'){
+        if ($request->lang_id == 'nl') {
             $record->nl = $request->update_record;
             $record->status_nl = "new";
         }
-        if($request->lang_id == 'zh'){
+        if ($request->lang_id == 'zh') {
             $record->zh = $request->update_record;
             $record->status_zh = "new";
         }
-        if($request->lang_id == 'ar'){
+        if ($request->lang_id == 'ar') {
             $record->ar = $request->update_record;
             $record->status_ar = "new";
         }
-        if($request->lang_id == 'ur'){
+        if ($request->lang_id == 'ur') {
             $record->ur = $request->update_record;
             $record->status_ur = "new";
         }
@@ -324,9 +325,9 @@ class CsvTranslatorController extends Controller
     {
         $key = $request->key;
         $language = $request->language;
-        $history =  CsvTranslatorHistory::where([
+        $history = CsvTranslatorHistory::where([
             'csv_translator_id' => $request->id,
-            'key'=>$request->key,
+            'key' => $request->key,
         ])->whereRaw('status_'.$request->language.' is not null')->get();
         if(count($history) > 0){
             foreach($history as $key=> $historyData){
@@ -334,12 +335,12 @@ class CsvTranslatorController extends Controller
                 $history[$key]['approver'] = User::where('id',$historyData['approved_by_user_id'])->pluck('name')->first();
             }
         }
+
         return response()->json(['status' => 200, 'data' => $history]);
     }
 
     public function filterCsvTranslator(Request $request)
     {
-        
         if ($request->ajax()) {
             $userId = $request->user;
             $language = $request->lang;

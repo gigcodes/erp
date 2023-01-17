@@ -2071,6 +2071,11 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
+                                                href="{{ route('magento-cron-data') }}">Magento Cron
+                                                Data</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item"
                                                 href="{{ route('magento-productt-errors.index') }}">Magento product push
                                                 errors</a>
                                         </li>
@@ -2347,6 +2352,10 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown ">
                                             <a id="queueDropdown" href="{{ url('todolist') }}" class="nav-link "
                                                 role="button" aria-haspopup="true" aria-expanded="false">TodoList</a>
+                                        </li>
+                                        <li class="nav-item dropdown ">
+                                            <a id="queueDropdown" href="{{ url('test-cases') }}" class="nav-link "
+                                                role="button" aria-haspopup="true" aria-expanded="false">Test Cases</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast
