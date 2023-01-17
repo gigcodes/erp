@@ -53,19 +53,8 @@ $special_task = $task;
         @php
         if($task->due_date != '0') { echo $task->due_date; }
         @endphp
-    </td>
-    <td style="vertical-align: baseline;">
-        <div class="d-flex">
-
-            @php
-            if($task->due_date != '') { echo date('d-m-y H:i:s', strtotime($task->due_date)); }
-
-            @endphp
-            {{-- <span> 2021-12-07 00:00:00</span> --}}
             <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{ $task->id }}" data-type="task" style="float:right;margin-left: auto;"><i class="fa fa-info-circle"></i></button>
-        </div>
     </td>
-
     <td style="vertical-align: baseline;">
         <div class="d-flex">
             <input type="text" class="form-control send-message-textbox" data-id="{{ $task->id }}" id="send_message_{{ $task->id }}" name="send_message_{{ $task->id }}" style="margin-bottom:5px;width:calc(100% - 24px);display:inline;" />

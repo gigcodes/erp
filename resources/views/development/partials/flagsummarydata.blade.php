@@ -62,17 +62,12 @@
         {{ $issue->estimate_minutes }}
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}" data-userId="{{$issue->user_id}}"><i class="fa fa-info-circle"></i></button>
     </td>
-    <td>
+    <td style="vertical-align: baseline;">
         {{ $issue->estimate_date }}
+        <button style="float:right;padding-right:0px;margin-left: auto;" type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
     </td>
     <td>
         {{ $issue->due_date }}
-    </td>
-    <td style="vertical-align: baseline;">
-        <div class="d-flex">
-            {{ $issue->estimate_date }}
-            <button style="float:right;padding-right:0px;margin-left: auto;" type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
-        </div>
     </td>
     <td class="communication-td devtask-com" style="display: block;">
         <!-- class="expand-row" -->
@@ -132,5 +127,4 @@
             <i class="fa fa-history"></i>
         </button>
     </td>
-
 </tr>
