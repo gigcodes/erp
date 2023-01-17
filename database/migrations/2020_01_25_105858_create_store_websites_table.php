@@ -18,7 +18,6 @@ class CreateStoreWebsitesTable extends Migration
             $table->string('title')->nullable()->index('title');
             $table->text('description', 65535)->nullable();
             $table->integer('is_published')->default(0)->index('is_published');
-            $table->integer('store_code_id')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
