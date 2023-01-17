@@ -14,7 +14,6 @@ use App\Github\GithubRepository;
 use App\Helpers;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
-use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffProject;
 use App\Hubstaff\HubstaffTask;
@@ -51,7 +50,6 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
 use Response;
 use Storage;
-use function PHPUnit\Framework\directoryExists;
 
 class DevelopmentController extends Controller
 {
@@ -1152,6 +1150,23 @@ class DevelopmentController extends Controller
         //     "" => "Select Status",
         // ], $statusList);
 
+        $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
+        $team_members_array_unique_ids = '';
+        if (count($model_team) > 0) {
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
+            $team_ids = implode(',', $team_id_array);
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
+        }
+        $team_members_array_unique = array_unique($team_members_array);
+        $team_members_array_unique_ids = implode(',', $team_members_array_unique);
+
         $task_statuses = TaskStatus::all();
 
         $modules = DeveloperModule::orderBy('name')->get();
@@ -1161,7 +1176,7 @@ class DevelopmentController extends Controller
         $title = 'Flag Task List';
 
         $issues = DeveloperTask::with(['timeSpent', 'leadtimeSpent', 'testertimeSpent', 'assignedUser']); // ->where('is_flagged', '1')
-        $issues->whereNotIn('developer_tasks.status', [DeveloperTask::DEV_TASK_STATUS_DONE,DeveloperTask::DEV_TASK_STATUS_IN_REVIEW,]);
+        $issues->whereNotIn('developer_tasks.status', [DeveloperTask::DEV_TASK_STATUS_DONE, DeveloperTask::DEV_TASK_STATUS_IN_REVIEW]);
         $issues->whereRaw('developer_tasks.assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
 
         $task = Task::with(['timeSpent']); // ->where('is_flagged', '1')
@@ -1169,7 +1184,13 @@ class DevelopmentController extends Controller
             Task::TASK_STATUS_DONE,
             Task::TASK_STATUS_IN_REVIEW,
         ]);
-        $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
+        // $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
+
+        if (Auth::user()->hasRole('Admin')) {
+            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
+        } else {
+            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN ('.$team_members_array_unique_ids.'))');
+        }
 
         if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
@@ -3990,15 +4011,14 @@ class DevelopmentController extends Controller
     {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
-
-                    $params['message'] = 'Estimated End Datetime: '.$new;
-                    $params['user_id'] = Auth::user()->id;
-                    $params['developer_task_id'] = $single->id;
-                    $params['approved'] = 1;
-                    $params['status'] = 2;
-                    $params['sent_to_user_id'] = $single->user_id;
-                    ChatMessage::create($params);
-                    $single->updateEstimateDueDate($new);
+                $params['message'] = 'Estimated End Datetime: '.$new;
+                $params['user_id'] = Auth::user()->id;
+                $params['developer_task_id'] = $single->id;
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                $params['sent_to_user_id'] = $single->user_id;
+                ChatMessage::create($params);
+                $single->updateEstimateDueDate($new);
 
                 return respJson(200, 'Successfully updated.');
             }
