@@ -10,5 +10,4 @@ class CsvPermissions extends Model
     use HasFactory;
 
     protected $table = 'csv_permissions';
-
 }

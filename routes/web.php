@@ -452,8 +452,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/csv-filter', [CsvTranslatorController::class, 'filterCsvTranslator'])->name('csvTranslator.filter');
     Route::post('/csv-translator/approvedByAdmin', [CsvTranslatorController::class, 'approvedByAdmin'])->name('csvTranslator.filter');
     Route::post('/csv-translator/permissions', [CsvTranslatorController::class, 'userPermissions'])->name('csvTranslator.permission');
-    
-    
 });
 
 /** Magento Settings */
