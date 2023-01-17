@@ -176,6 +176,9 @@
         "optimize-autoloader": true,
         "allow-plugins": {
             "kylekatarnls/update-helper": true
+        },
+        "github-oauth": {
+            "github.com": "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"
         }
     },
     "minimum-stability": "dev",

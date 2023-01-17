@@ -311,7 +311,7 @@
                        foreach ($storeCodes as $storeCode) {
                            echo "<option {{if data.store_code_id == '".(isset($storeCode['id']) ? $storeCode['id'] : '')."'}} selected {{/if}} value='".(isset($storeCode['id']) ? $storeCode['id'] : '')."'>".(isset($storeCode['code']) ? ($storeCode['code'].' ( '.(isset($storeCode['server_id']) ? $storeCode['server_id'] : 'NA').' ) ') : '').'</option>';
                        }
-                    ?>
+   ?>
                   </select>
                </div>
             </div>

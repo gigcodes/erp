@@ -30,32 +30,9 @@
 		border: none;
 		background: none
 	}
-  .table-responsive select.select {
-    width: 110px !important;
-  }
-
-
-  @media (max-width: 1280px) {
-    table.table {
-        width: 0px;
-        margin:0 auto;
+    .table-responsive select.select {
+        width: 110px !important;
     }
-
-    /** only for the head of the table. */
-    table.table thead th {
-        padding:10px;
-    }
-
-    /** only for the body of the table. */
-    table.table tbody td {
-        padding:10 px;
-    }
-
-    .text-nowrap{
-      white-space: normal !important;
-    }
-  }
-
 </style>
 @endsection
 <div id="myDiv">
@@ -63,7 +40,7 @@
     </div>
 <div class="row">
 	<div class="col-md-12 p-0">
-		<h2 class="page-heading">Emails List</h2>
+		<h2 class="page-heading">Emails List ({{$totalEmail}})</h2>
 	</div>
 </div>
 @if ($message = Session::get('success'))
@@ -153,7 +130,7 @@
         </div-->
 		
 		<div class="form-group px-2">
-            <select class="form-control" name="sender" id="sender" style="width: 208px !important;">
+            <select class="form-control sender_select" name="sender" id="sender" style="width: 208px !important;" multiple>
                 <option value="">Select Sender</option>
                 @foreach($sender_drpdwn as $sender)
                     <option value="{{ $sender['from'] }}" {{ (Request::get('sender') && strcmp(Request::get('sender'),$sender['from']) == 0) ? "selected" : ""}}>{{ $sender['from'] }}</option>
@@ -161,7 +138,7 @@
             </select>
         </div>
 		<div class="form-group px-2">
-            <select class="form-control" name="receiver" id="receiver">
+            <select class="form-control receiver_select" name="receiver" id="receiver" style="width: 208px !important;" multiple>
                 <option value="">Select Receiver</option>
                 @foreach($receiver_drpdwn as $sender)
                     <!-- Purpose : Add If condition -  DEVTASK-18283 -->
@@ -174,7 +151,7 @@
             </select>
         </div>
     <div class="form-group px-2">
-        <select class="form-control" name="mail_box" id="mail_box">
+        <select class="form-control mail_box_select" name="mail_box" id="mail_box" style="width: 208px !important;" multiple>
             <option value="">Select Mailbox</option>
             @foreach($mailboxdropdown as $sender)
                 <option value="{{ $sender }}" {{ (Request::get('mail_box') == $sender) ? "selected" : ""}}>{{ $sender }}</option>
@@ -182,7 +159,7 @@
         </select>
     </div>    
 		<div class="form-group px-2">
-          <select class="form-control" name="status" id="email_status">
+          <select class="form-control email_status_select" name="status" id="email_status" style="width: 208px !important;" multiple>
 				<option value="">Select Status</option>
 				<?php
 				foreach ($email_status as $status) { ?>
@@ -192,7 +169,7 @@
 			</select>
         </div>
 		<div class="form-group px-2">
-			<select class="form-control" name="category" id="category">
+			<select class="form-control select_category" name="category" id="category" style="width: 208px !important;" multiple>
 				<option value="">Select Category</option>
 				<?php
 				foreach ($email_categories as $category) { ?>
@@ -210,21 +187,20 @@
 </div>
 </div>
 <div class="table-responsive mt-3" style="margin-top:20px;">
-      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+      <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
         <thead>
           <tr>
-            <th>Bulk <br> Action</th>
-            <th>Date</th>
-            <th>Sender</th>
-            <th>Receiver</th>
-            <th>Mail <br> Type</th>
-            <th>Subject</th>
-            <th>Body</th>
-            <th>Status</th>
-            <th>Draft</th>
-            <th>Error <br> Message</th>
-            <th>Category</th>
-            <th>Action</th>
+            <th width="1%">Bulk <br> Action</th>
+            <th width="5%">Date</th>
+            <th width="5%">Sender</th>
+            <th width="5%">Receiver</th>
+            <th width="4%">Mail <br> Type</th>
+            <th width="5%">Subject</th>
+            <th width="14%">Body</th>
+            <th width="8%">Status</th>
+            <th width="1%">Draft</th>
+            <th width="6%">Error <br> Message</th>
+            <th width="8%">Category</th>
           </tr>
         </thead>
         <tbody>
@@ -637,6 +613,28 @@
           $(".pagination-custom").find(".pagination").find(".active").next().find("a").click();
         }
     });
+    $('.sender_select').select2({
+        placeholder:"Select sender",
+    });
+    $('.receiver_select').select2({
+        placeholder:"Select Receiver",
+    });
+    $('.mail_box_select').select2({
+        placeholder:"Select Mailbox",
+    });
+    $('.email_status_select').select2({
+        placeholder:"Select Status",
+    });
+    $('.select_category').select2({
+        placeholder:"Select Category",
+    });
+    $(document).on('click', '.expand-row', function() {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
 
     $(".pagination-custom").on("click", ".page-link", function (e) {
             e.preventDefault();
@@ -653,7 +651,7 @@
 
         });
 
-      function get_data_pagination(url){
+    function get_data_pagination(url){
      console.log(window.url);
         $.ajax({
           url: url,
@@ -671,7 +669,7 @@
         });
     }
 	
-		function fetchEvents(originId) {
+    function fetchEvents(originId) {
 			if(originId == ''){
 				$('#emailEventData').html('<tr><td>No Data Found.</td></tr>');
 				$('#emailEvents').modal('show');
@@ -735,11 +733,17 @@
       var date = $("#date").val();
       var type = $("#type").val();
       var seen = $("#seen").val();
-      var sender = $("#sender").val();
-      var receiver = $("#receiver").val();
-      var status = $("#email_status").val();
-      var category = $("#category").val();
-      var mail_box = $("#mail_box").val();
+      var sender_name = $("#sender").val();
+      var sender = sender_name.toString();
+      var receiver_name = $("#receiver").val();
+      var receiver = receiver_name.toString();
+      var status_name = $("#email_status").val();
+      var status = status_name.toString();
+      var category_name = $("#category").val();
+      var category = category_name.toString();
+      var mail_box_name = $("#mail_box").val();
+      var mail_box = mail_box_name.toString();
+
      console.log(window.url);
         $.ajax({
           url: 'email',
@@ -753,7 +757,7 @@
 				receiver:receiver,
 				status:status,
 				category:category,
-        mail_box : mail_box
+                mail_box : mail_box
             },
             beforeSend: function () {
                 $("#loading-image").show();
@@ -1215,6 +1219,7 @@
     }
     
     function opnModal(message){
+        console.log(message);
       $(document).find('#more-content').html(message);
     }
     $(document).on('click','.make-label',function(event){

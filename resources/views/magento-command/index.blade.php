@@ -16,7 +16,7 @@
           line-height: 3;
         }
     </style>
-   
+
 @endsection
 
 @section('content')
@@ -89,10 +89,10 @@
         </div>
       </form>
       <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Command</button>
-     
+
     </div>
-    
-	</br> 
+
+	</br>
   <div class="row m-0" >
     <div class="col-12" style="border: 1px solid;border-color: #dddddd;">
 	<div class="table-responsive mt-2" style="overflow-x: auto !important;">
@@ -111,8 +111,12 @@
               <tr>
                 <td>{{$magentoCom->id}}</td>
                 <td class="expand-row-msg" data-name="userName" data-id="{{$magentoCom->id}}">
-                  <span class="show-short-userName-{{$magentoCom->id}}">{{ str_limit($magentoCom->user->name, 5, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-userName-{{$magentoCom->id}} hidden">{{$magentoCom->user->name}}</span>
+                    @if($magentoCom->user)
+                      <span class="show-short-userName-{{$magentoCom->id}}">{{ str_limit($magentoCom->user->name, 5, '..')}}</span>
+                      <span style="word-break:break-all;" class="show-full-userName-{{$magentoCom->id}} hidden">{{$magentoCom->user->name}}</span>
+                    @else
+                        <span class="show-short-userName-{{$magentoCom->id}}">-NA-</span>
+                    @endif
                 </td>
                 <td class="expand-row-msg" data-name="websites" data-id="{{$magentoCom->id}}">
                     @if($magentoCom->website_ids == 'ERP')
@@ -134,7 +138,7 @@
                   <a class="btn btn-image edit-magentoCom-btn" data-id="{{ $magentoCom->id }}"><img data-id="{{ $magentoCom->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
                   <a class="btn delete-magentoCom-btn"  data-id="{{ $magentoCom->id }}" href="#"><img  data-id="{{ $magentoCom->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
                   <a title="Preview Response" data-id="{{ $magentoCom->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
-                  
+
                 </td>
               </tr>
             @endforeach
@@ -177,7 +181,7 @@
                 </thead>
                 <tbody class="tbodaycommandHistory">
                 </tbody>
-              </table>  
+              </table>
             </div>
           </div>
       </div>
@@ -211,7 +215,7 @@
                 </thead>
                 <tbody class="tbodayCommandResponseHistory">
                 </tbody>
-              </table>  
+              </table>
             </div>
           </div>
       </div>
@@ -224,7 +228,7 @@
       <!-- Modal content-->
       <div class="modal-content ">
         <div id="add-mail-content">
-          
+
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title"><span id="titleUpdate">Add</span> Command</h5>
@@ -237,7 +241,7 @@
                   @csrf
                   <div class="form-row">
                     <input type="hidden" id="command_id" name="id" value=""/>
-                    
+
                     <div class="form-group col-md-12">
                       <label for="title">Website</label>
                       <div class="dropdown-sin-1">
@@ -245,7 +249,7 @@
                         <select name="websites_ids[]" class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required>
                           <option>--Website--</option>
                             <option value="ERP">ERP</option>
-                          <?php 
+                          <?php
                             foreach($websites as $website){
                                 echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
                             }
@@ -253,7 +257,7 @@
                         </select>
                       </div>
                     </div>
-                    
+
                     <div class="form-group col-md-12">
                       <label for="command_name">Command Name</label>
                       {{-- <input type="text" name="command_name" value="" class="form-control" id="command_name_search" placeholder="Enter Command name"> --}}
@@ -285,14 +289,14 @@
                         </select>
                     </div>
                   </div>
-                </form> 
+                </form>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-secondary submit-form">Save</button>
               </div>
             </div>
-           
+
         </div>
       </div>
     </div>
@@ -308,7 +312,7 @@
     <script src="{{asset('js/mock.js')}}"></script>
     <script src="{{asset('js/jquery.dropdown.min.js')}}"></script>
     <script src="{{asset('js/jquery.dropdown.js')}}"></script>
-    
+
 
     <script>
       var Random = Mock.Random;
@@ -340,7 +344,7 @@
 
     </script>
   </div>
- 
+
   <script type="text/javascript">
 
     // $('ul.pagination').hide();
@@ -356,7 +360,7 @@
     //       $('ul.pagination').hide();
     //     }
 		// });
-    
+
     $('.multiselect').multiselect({
         enableClickableOptGroups: true
     });
@@ -396,10 +400,10 @@
             }
           }).done(function(response) {
             if(response.code = '200') {
-              toastr['success']('Command deleted successfully!!!', 'success'); 
+              toastr['success']('Command deleted successfully!!!', 'success');
               location.reload();
             } else {
-              toastr['error'](response.message, 'error'); 
+              toastr['error'](response.message, 'error');
             }
           }).fail(function(errObj) {
             $('#loading-image').hide();
@@ -421,10 +425,10 @@
           if(response.code = '200') {
             $('#loading-image').hide();
             $('#addCommand').modal('hide');
-            toastr['success']('Command added successfully!!!', 'success'); 
+            toastr['success']('Command added successfully!!!', 'success');
             location.reload();
           } else {
-            toastr['error'](response.message, 'error'); 
+            toastr['error'](response.message, 'error');
           }
         }).fail(function(errObj) {
           $('#loading-image').hide();
@@ -432,7 +436,7 @@
            toastr['error'](errObj.message, 'error');
         });
     });
-    
+
     $(document).on("click",".edit-magentoCom-btn",function(e){
         e.preventDefault();
         $('#titleUpdate').html("Update");
@@ -469,23 +473,23 @@
                   if(key == 'command_type'){
                     $('#command_type').val(v).trigger('change');
                   }
-                  
+
               }else if(form.find('[name="'+key+'[]"]').length){
                   //form.find('[name="'+key+'[]"]').val(response.ops);
                   //debugger;
-                  
-                    
+
+
                   $.each(v.split(","), function(i,e){
                     console.log(e);
                      // $("#websites_ids option[value='" + e + "']").prop("selected", true);
                   });
-              }      
+              }
             });
             $('#addPostman').modal('show');
-            toastr['success']('Command Listed successfully!!!', 'success'); 
-            
+            toastr['success']('Command Listed successfully!!!', 'success');
+
           } else {
-            toastr['error'](response.message, 'error'); 
+            toastr['error'](response.message, 'error');
           }
         }).fail(function(errObj) {
           $('#loading-image').hide();
@@ -517,10 +521,10 @@
             });
             $(".tbodayPostmanHistory").html(t);
             $('#postmanHistory').modal('show');
-            toastr['success']('Command added successfully!!!', 'success'); 
-            
+            toastr['success']('Command added successfully!!!', 'success');
+
           } else {
-            toastr['error'](response.message, 'error'); 
+            toastr['error'](response.message, 'error');
           }
         }).fail(function(errObj) {
           $('#loading-image').hide();
@@ -583,7 +587,7 @@
               var commandString  = '';
               if(v.command_name)
                 commandString = v.command_name.substring(0,10);
-              
+
 
               t += '<tr><td>'+v.id+'</td>';
               t += '<td>'+v.userName+'</td>';
@@ -596,10 +600,10 @@
             });
             $(".tbodayCommandResponseHistory").html(t);
             $('#commandResponseHistoryModel').modal('show');
-            toastr['success']('Command response listed successfully!!!', 'success'); 
-            
+            toastr['success']('Command response listed successfully!!!', 'success');
+
           } else {
-            toastr['error'](response.message, 'error'); 
+            toastr['error'](response.message, 'error');
           }
         }).fail(function(errObj) {
           $('#loading-image').hide();
@@ -623,7 +627,7 @@
       $("#command_type").select2({tags: true});
       $(".dropdown-mul-1").select2({});
     });
-	
-    
+
+
   </script>
 @endsection
