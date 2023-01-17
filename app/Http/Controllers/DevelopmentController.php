@@ -1151,22 +1151,21 @@ class DevelopmentController extends Controller
         // ], $statusList);
 
         $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
-        $team_members_array[] = auth()->user()->id; 
-        $team_id_array = array();   
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
         $team_members_array_unique_ids = '';
-        if(count($model_team)>0) {
-            for($k=0;$k<count($model_team);$k++) {               
+        if (count($model_team) > 0) {
+            for ($k = 0; $k < count($model_team); $k++) {
                 $team_id_array[] = $model_team[$k]->id;
             }
-            $team_ids = join(',',$team_id_array);
-            $model_user_model = \DB::table('team_user')->whereIn('team_id',$team_id_array)->get()->toArray();
-            for($m=0;$m<count($model_user_model);$m++) {               
+            $team_ids = implode(',', $team_id_array);
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
                 $team_members_array[] = $model_user_model[$m]->user_id;
-            }           
+            }
         }
         $team_members_array_unique = array_unique($team_members_array);
-        $team_members_array_unique_ids = join(',',$team_members_array_unique);
-
+        $team_members_array_unique_ids = implode(',', $team_members_array_unique);
 
         $task_statuses = TaskStatus::all();
 
@@ -1188,10 +1187,10 @@ class DevelopmentController extends Controller
             Task::TASK_STATUS_DONE,
             Task::TASK_STATUS_IN_REVIEW,
         ]);
-       // $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
+        // $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
 
-        if(Auth::user()->hasRole('Admin')) {           
-           $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');          
+        if (Auth::user()->hasRole('Admin')) {
+            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
         } else {
             $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN ('.$team_members_array_unique_ids.'))');
         }
