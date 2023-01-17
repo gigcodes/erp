@@ -2148,7 +2148,6 @@ class TaskModuleController extends Controller
                     //'cost'=>'sometimes|integer'
                 ]
             );
-
             $bug_list_ids = explode(',', $request->task_bug_ids);
             $model_bug_tracker = BugTracker::whereIn('id', $bug_list_ids)->get()->toArray();
             $bug_tracker_array = [];
