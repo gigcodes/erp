@@ -1159,10 +1159,7 @@ class DevelopmentController extends Controller
         $title = 'Flag Task List';
 
         $issues = DeveloperTask::with(['timeSpent', 'leadtimeSpent', 'testertimeSpent', 'assignedUser']); // ->where('is_flagged', '1')
-        $issues->whereNotIn('developer_tasks.status', [
-            DeveloperTask::DEV_TASK_STATUS_DONE,
-            DeveloperTask::DEV_TASK_STATUS_IN_REVIEW,
-        ]);
+        $issues->whereNotIn('developer_tasks.status', [DeveloperTask::DEV_TASK_STATUS_DONE, DeveloperTask::DEV_TASK_STATUS_IN_REVIEW]);
         $issues->whereRaw('developer_tasks.assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
 
         $task = Task::with(['timeSpent']); // ->where('is_flagged', '1')
@@ -1233,6 +1230,7 @@ class DevelopmentController extends Controller
                     ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
             });
         }
+
         $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 '.$whereCondition.' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
@@ -1273,6 +1271,7 @@ class DevelopmentController extends Controller
         $paginateLimit = Setting::get('pagination') ?: 15;
 
         $issues = $issues->paginate($paginateLimit);
+
         $tasks = $task->paginate($paginateLimit);
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
@@ -3967,7 +3966,7 @@ class DevelopmentController extends Controller
     {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
-                $params['message'] = 'Estimated End Datetime: '.$new;
+                $params['message'] = 'Estimated Start Datetime: '.$new;
                 $params['user_id'] = Auth::user()->id;
                 $params['developer_task_id'] = $single->id;
                 $params['approved'] = 1;
@@ -3983,6 +3982,28 @@ class DevelopmentController extends Controller
         }
 
         return respJson(400, 'Estimate date is required.');
+    }
+
+    public function saveEstimateDueDate(Request $request)
+    {
+        if ($new = request('value')) {
+            if ($single = DeveloperTask::find(request('id'))) {
+                $params['message'] = 'Estimated End Datetime: '.$new;
+                $params['user_id'] = Auth::user()->id;
+                $params['developer_task_id'] = $single->id;
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                $params['sent_to_user_id'] = $single->user_id;
+                ChatMessage::create($params);
+                $single->updateEstimateDueDate($new);
+
+                return respJson(200, 'Successfully updated.');
+            }
+
+            return respJson(404, 'No task found.');
+        }
+
+        return respJson(400, 'Due date is required.');
     }
 
     public function saveAmount(Request $request)
