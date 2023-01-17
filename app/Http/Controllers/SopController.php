@@ -79,17 +79,13 @@ class SopController extends Controller
     {
         $sopType = $request->get('type');
         $sop = Sop::where('name', $sopType)->first();
-        // $cat = Sop::where('category', $request->get('category'))->first();
+        
         $name = Sop::where('name', $request->get('name'))->first();
 
         if ($name) {
             return response()->json(['success' => false, 'message' => 'Name already existed']);
         }
-        // print_r($request->all()); exit();
-        // if ($cat) {
-        //     return response()->json(['success' => false, 'message' => 'Category already existed']);
-        // }
-
+        
         if (! $sop) {
             $sop = new Sop();
             $sop->name = $request->get('name');
@@ -108,7 +104,7 @@ class SopController extends Controller
         }
 
         $user_email = User::select('email')->where('id', $sop->user_id)->get();
-        // $user_email = User::select('email')->where('id', $sop->user_id)->get();
+        
         $only_date = $sop->created_at->todatestring();
 
         return response()->json(['only_date' => $only_date, 'sop' => $sop, 'user_email' => $user_email, 'params' => $params]);

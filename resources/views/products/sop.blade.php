@@ -599,57 +599,10 @@ float: left;
  <!-- End Send Email Modal-->
 
 @endsection
-<style>
-.ms-options-wrap button{
-    width: 100%;
-    text-align: left;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 5px;
-    border-radius: 5px;
-}
 
-.ms-options {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-}
-
-.ms-search {
-    margin: 0 0 15px;
-}
-
-.ms-search input {
-    width: 100%;
-}
-
-.ms-options ul {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-}
-
-.ms-options ul li label {
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    line-height: normal;
-    margin: 0 0 10px;
-    width: fit-content;
-}
-
-.ms-options ul li label input {
-    margin: 0;
-    border: 0;
-    box-shadow: none;
-    height: auto;
-}
-
-</style>
 {{-- @include('common.commonEmailModal') --}}
 @section('scripts')
-
+<script src="https://phpcoder.tech/multiselect/js/jquery.multiselect.js"></script>
 
 {{-- <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script>  --}}
     <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
