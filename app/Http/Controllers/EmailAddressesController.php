@@ -438,11 +438,11 @@ class EmailAddressesController extends Controller
 
         if ($search != null) {
             $emailAddress = EmailAddress::where('username', 'Like', '%'.$search.'%')->orWhere('password', 'Like', '%'.$search.'%')->get();
-        }else{
+        } else {
             $emailAddress = EmailAddress::get();
         }
 
-        return response()->json(['tbody' => view('email-addresses.partials.email-address', compact('emailAddress'))->render(),], 200);
+        return response()->json(['tbody' => view('email-addresses.partials.email-address', compact('emailAddress'))->render()], 200);
     }
 
     public function updateEmailAddress(Request $request)
