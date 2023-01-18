@@ -6,10 +6,9 @@ use App\CsvTranslator;
 use App\CsvTranslatorHistory;
 use App\Imports\CsvTranslatorImport;
 use App\Models\CsvPermissions;
+use App\Role;
 use App\User;
 use Illuminate\Http\Request;
-use App\Role;
-
 
 class CsvTranslatorController extends Controller
 {
