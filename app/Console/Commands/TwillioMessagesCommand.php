@@ -74,10 +74,19 @@ class TwillioMessagesCommand extends Command
                         ->where('marketing_message_id', $message->id)->select('marketing_message_customers.*', 'customers.phone')->get();
                         foreach ($marketingMessageCustomers as $marketingMessageCustomer) {
                             try {
+                                // Get APP_URL from env because in console Request is not available
+                                $appUrl = config('env.CALL_BACK_URL');
+                                $lastchar = $appUrl[-1];
+
+                                if (strcmp($lastchar, "/") !== 0) {
+                                    $appUrl = $appUrl . '/';
+                                }
+
                                 $client = new Client($account_sid, $auth_token);
                                 $client->messages->create('+'.$marketingMessageCustomer['phone'], [
                                     'from' => $twilio_number,
                                     'body' => $message['title'],
+                                    'statusCallback' => $appUrl.'twilio/handleMessageDeliveryStatus/'.$marketingMessageCustomer['customer_id'].'/'.$marketingMessageCustomer['id'],
                                 ]);
                                 MarketingMessageCustomer::where(['customer_id' => $marketingMessageCustomer['customer_id'], 'marketing_message_id' => $message->id])->update(['is_sent' => 1]);
                             } catch (Exception $e) {
