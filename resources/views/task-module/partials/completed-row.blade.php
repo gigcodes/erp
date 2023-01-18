@@ -1,4 +1,7 @@
-<tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} completed" id="task_{{ $task->id }}">
+@php
+    $status_color = \App\TaskStatus::where('id',$task->status)->first();
+@endphp
+<tr style="background-color: {{$status_color->task_color}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} completed" id="task_{{ $task->id }}">
     <td class="p-2">{{ $task->id }}</td>
     <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
     <br>
