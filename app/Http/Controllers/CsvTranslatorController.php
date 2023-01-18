@@ -7,7 +7,6 @@ use App\CsvTranslatorHistory;
 use App\Exports\CsvTranslatorExport;
 use App\Imports\CsvTranslatorImport;
 use App\Models\CsvPermissions;
-use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -36,7 +35,7 @@ class CsvTranslatorController extends Controller
         $res = explode(",",$colums);
         if ($request->ajax()) {
             $data = Csvtranslator::all();
-            if(auth()->user()->isAdmin()){
+            if(\Auth::user()->hasRole('Lead Translator')){
                 $res = datatables()->of($data)->addIndexColumn();
                     $res->editColumn('en', function ($data) {
                         return $this->commanRadioLoad("en",$data->id,$data->toArray());
