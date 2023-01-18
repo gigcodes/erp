@@ -75,7 +75,7 @@ class TwillioMessagesCommand extends Command
                         foreach ($marketingMessageCustomers as $marketingMessageCustomer) {
                             try {
                                 // Get APP_URL from env because in console Request is not available
-                                $appUrl = config('env.APP_URL');
+                                $appUrl = config('env.CALL_BACK_URL');
                                 $lastchar = $appUrl[-1];
 
                                 if (strcmp($lastchar, "/") !== 0) {
