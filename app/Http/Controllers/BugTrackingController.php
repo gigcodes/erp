@@ -1193,12 +1193,6 @@ class BugTrackingController extends Controller
             'bug_status_id', [
                 '1',
                 '2',
-                '4',
-                '5',
-                '6',
-                '8',
-                '9',
-                '10',
             ]
         )->get();
         $bug_list = $bug_tracker->toArray();
@@ -1251,7 +1245,7 @@ class BugTrackingController extends Controller
                     $name = $userData[0]['name'];
                 }
 
-                $bugs_html .= '<tr><td  style="text-align:center"><input style="height:13px;" type="checkbox" class="cls-checkbox-bugsids" name="chkBugId[]" value="'.$bug_id.'" id="name="chkBugId'.$bug_id.'"  /></td><td  style="text-align:center">'.$bug_id.'</td><td title="'.$summary_txt.'" data-toggle="tooltip">&nbsp;'.$summary.'</td><td title="'.$step_to_reproduce_txt.'" data-toggle="tooltip">&nbsp;'.$step_to_reproduce.'</td><td>&nbsp;'.$url.' <button type="button" class="btn btn-copy-url btn-sm" data-id="'.$bug_list[$i]['url'].'">
+                $bugs_html .= '<tr><td  style="text-align:center"><input style="height:13px;" type="checkbox" class="cls-checkbox-bugsids" name="chkBugId[]" value="'.$bug_id.'" id="name="chkBugId'.$bug_id.'" data-summary="'.htmlentities($summary_txt).'"  /></td><td  style="text-align:center">'.$bug_id.'</td><td title="'.$summary_txt.'" data-toggle="tooltip">&nbsp;'.$summary.'</td><td title="'.$step_to_reproduce_txt.'" data-toggle="tooltip">&nbsp;'.$step_to_reproduce.'</td><td>&nbsp;'.$url.' <button type="button" class="btn btn-copy-url btn-sm" data-id="'.$bug_list[$i]['url'].'">
                 <i class="fa fa-clone" aria-hidden="true"></i></button></td><td>&nbsp;'.$name.'</td><td  title="'.$module_id_txt.'" data-toggle="tooltip">&nbsp;'.$module_id.'</td><td  title="'.$website.'" data-toggle="tooltip">&nbsp;'.$website.'</td></tr>';
             }
         }
@@ -1302,7 +1296,19 @@ class BugTrackingController extends Controller
         $taskStatistics = $query->get();
         //print_r($taskStatistics);
         $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
-        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where(function ($qry) use ($site_developement_id, $bug_id) {
+            if ($site_developement_id != null && $site_developement_id != '' && $site_developement_id != 0) {
+                if ($bug_id != null && $bug_id != '') {
+                    $qry->whereRaw('FIND_IN_SET(?,task_bug_ids)', $bug_id)->orwhere('site_developement_id', $site_developement_id);
+                } else {
+                    $qry->where('site_developement_id', $site_developement_id);
+                }
+            } elseif ($bug_id != null && $bug_id != '') {
+                $qry->whereRaw('FIND_IN_SET(?,task_bug_ids)', $bug_id);
+            } else {
+                $qry->where('site_developement_id', $site_developement_id);
+            }
+        })->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
         $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
         $merged = $othertaskStatistics->merge($taskStatistics);
