@@ -70,64 +70,52 @@ class TaskModuleController extends Controller
 
     public function index(Request $request)
     {
-        if($request->input('selected_user') == '')
-        {
+        if ($request->input('selected_user') == '') {
             $userid = Auth::id();
 
             $searchMasterUserId = $userid;
-            if($request->search_master_user_id != '')
-            {
+            if ($request->search_master_user_id != '') {
                 $searchMasterUserId = $request->search_master_user_id;
             }
 
             $searchSecondMasterUserId = $userid;
-            if($request->search_second_master_user_id != '')
-            {
+            if ($request->search_second_master_user_id != '') {
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
             }
 
-            $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  master_user_id = ' . $searchMasterUserId . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
-        }
-        else
-        {
+            $userquery = ' AND (assign_from = '.$userid.' OR  second_master_user_id = '.$searchSecondMasterUserId.' OR  master_user_id = '.$searchMasterUserId.' OR  id IN (SELECT task_id FROM task_users WHERE user_id = '.$userid.' AND type LIKE "%User%")) ';
+        } else {
             $userid = $request->input('selected_user');
 
             $searchMasterUserId = $userid;
-            if($request->search_master_user_id != '')
-            {
+            if ($request->search_master_user_id != '') {
                 $searchMasterUserId = $request->search_master_user_id;
             }
 
             $searchSecondMasterUserId = $userid;
-            if($request->search_second_master_user_id != '')
-            {
+            if ($request->search_second_master_user_id != '') {
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
             }
 
-            $userquery = ' AND (master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            $userquery = ' AND (master_user_id = '.$searchMasterUserId.' OR  second_master_user_id = '.$searchSecondMasterUserId.' OR  id IN (SELECT task_id FROM task_users WHERE user_id = '.$userid.' AND type LIKE "%User%")) ';
         }
 
-        if(!$request->input('type') || $request->input('type') == '')
-        {
+        if (! $request->input('type') || $request->input('type') == '') {
             $type = 'pending';
-        }
-        else
-        {
+        } else {
             $type = $request->input('type');
         }
         $activeCategories = TaskCategory::where('is_active', 1)->pluck('id')->all();
 
         $categoryWhereClause = '';
-        $category            = '';
+        $category = '';
         // $request->category = $request->category ? $request->category : 1;
-        if($request->category != '')
-        {
+        if ($request->category != '') {
             $categoryWhereClause = "AND category = $request->category";
-            $category            = $request->category;
-            if($request->category == 1)
-            {
-                $categoryWhereClause = "";
-                $category            = '';
+            $category = $request->category;
+            if ($request->category == 1) {
+                $categoryWhereClause = '';
+                $category = '';
             }
             /*if ($request->category != 1) {
                $categoryWhereClause = "AND category = $request->category";
@@ -143,81 +131,65 @@ class TaskModuleController extends Controller
             }*/
         }
 
-        $term              = $request->term ?? '';
+        $term = $request->term ?? '';
         $searchWhereClause = '';
 
-        if($request->term != '')
-        {
-            $searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")))';
+        if ($request->term != '') {
+            $searchWhereClause = ' AND (id LIKE "%'.$term.'%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%'.$term.'%") OR task_subject LIKE "%'.$term.'%" OR task_details LIKE "%'.$term.'%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%")))';
         }
-        if($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null)
-        {
-            $searchWhereClause .= ' AND is_statutory = ' . $request->get('is_statutory_query');
-        }
-        else
-        {
+        if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
+            $searchWhereClause .= ' AND is_statutory = '.$request->get('is_statutory_query');
+        } else {
             $searchWhereClause .= ' AND is_statutory != 3';
         }
         $orderByClause = ' ORDER BY';
-        if($request->sort_by == 1)
-        {
+        if ($request->sort_by == 1) {
             $orderByClause .= ' tasks.created_at desc,';
-        }
-        elseif($request->sort_by == 2)
-        {
+        } elseif ($request->sort_by == 2) {
             $orderByClause .= ' tasks.created_at asc,';
         }
         $data['task'] = [];
 
-        $search_term_suggestions                 = [];
-        $search_suggestions                      = [];
-        $assign_from_arr                         = [0];
-        $special_task_arr                        = [0];
-        $assign_to_arr                           = [0];
-        $data['task']['pending']                 = [];
+        $search_term_suggestions = [];
+        $search_suggestions = [];
+        $assign_from_arr = [0];
+        $special_task_arr = [0];
+        $assign_to_arr = [0];
+        $data['task']['pending'] = [];
         $data['task']['statutory_not_completed'] = [];
-        $data['task']['completed']               = [];
-        $status_filter                           = '';
-        if($request->filter_status)
-        {
-            $status_filter = " AND status IN ('" . implode("','", $request->filter_status) . "')";
-        }
-        else
-        {
+        $data['task']['completed'] = [];
+        $status_filter = '';
+        if ($request->filter_status) {
+            $status_filter = " AND status IN ('".implode("','", $request->filter_status)."')";
+        } else {
             //1 => for "done" lable status
             $status_filter = " AND status NOT IN ('1')";
         }
 
         $flag_filter = ' ';
 
-        if($request->ajax())
-        {
+        if ($request->ajax()) {
             $flag_filter = ' AND is_flagged = 0 ';
-            if($request->flag_filter)
-            {
+            if ($request->flag_filter) {
                 $flag_filter = ' ';
             }
         }
 
-        if($type == 'pending')
-        {
+        if ($type == 'pending') {
             $paginate = 50;
-            $page     = $request->get('page', 1);
-            $offSet   = ($page * $paginate) - $paginate;
+            $page = $request->get('page', 1);
+            $offSet = ($page * $paginate) - $paginate;
 
-            $orderByClause        .= ' is_flagged DESC, message_created_at DESC';
+            $orderByClause .= ' is_flagged DESC, message_created_at DESC';
             $isCompleteWhereClose = ' AND is_verified IS NULL ';
 
-            if(!Auth::user()->isAdmin())
-            {
+            if (! Auth::user()->isAdmin()) {
                 $isCompleteWhereClose = ' AND is_verified IS NULL ';
             }
-            if($request->filter_by == 1)
-            {
+            if ($request->filter_by == 1) {
                 $isCompleteWhereClose = ' AND is_completed IS NULL ';
             }
-            if($request->filter_by == 2)
-            {
+            if ($request->filter_by == 2) {
                 $isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
             }
 
@@ -242,38 +214,32 @@ class TaskModuleController extends Controller
 			) AS tasks
 			WHERE (deleted_at IS NULL) 
             AND (id IS NOT NULL) 
-            AND is_statutory != 1 ' . $isCompleteWhereClose . $userquery . $status_filter . $flag_filter . $categoryWhereClause . $searchWhereClause . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . '; '
+            AND is_statutory != 1 '.$isCompleteWhereClose.$userquery.$status_filter.$flag_filter.$categoryWhereClause.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.'; '
             );
 
-            foreach($data['task']['pending'] as $task)
-            {
+            foreach ($data['task']['pending'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
                 array_push($assign_from_arr, $task->assign_from);
                 array_push($special_task_arr, $task->id);
             }
 
             $user_ids_from = array_unique($assign_from_arr);
-            $user_ids_to   = array_unique($assign_to_arr);
+            $user_ids_to = array_unique($assign_to_arr);
 
-            foreach($data['task']['pending'] as $task)
-            {
-                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
-                $from_exist           = in_array($task->assign_from, $user_ids_from);
-                if($from_exist)
-                {
+            foreach ($data['task']['pending'] as $task) {
+                $search_suggestions[] = '#'.$task->id.' '.$task->task_subject.' '.$task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
                     $from_user = User::find($task->assign_from);
-                    if($from_user)
-                    {
+                    if ($from_user) {
                         $search_term_suggestions[] = $from_user->name;
                     }
                 }
 
                 $to_exist = in_array($task->assign_to, $user_ids_to);
-                if($to_exist)
-                {
+                if ($to_exist) {
                     $to_user = User::find($task->assign_to);
-                    if($to_user)
-                    {
+                    if ($to_user) {
                         $search_term_suggestions[] = $to_user->name;
                     }
                 }
@@ -281,12 +247,10 @@ class TaskModuleController extends Controller
                 $search_term_suggestions[] = $task->task_subject;
                 $search_term_suggestions[] = $task->task_details;
             }
-        }
-        elseif($type == 'completed')
-        {
-            $paginate      = 50;
-            $page          = $request->get('page', 1);
-            $offSet        = ($page * $paginate) - $paginate;
+        } elseif ($type == 'completed') {
+            $paginate = 50;
+            $page = $request->get('page', 1);
+            $offSet = ($page * $paginate) - $paginate;
             $orderByClause .= ' last_communicated_at DESC';
 
             $data['task']['completed'] = DB::select(
@@ -312,38 +276,32 @@ class TaskModuleController extends Controller
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL ' . $userquery . $categoryWhereClause . $status_filter . $flag_filter . $searchWhereClause . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . ';'
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL '.$userquery.$categoryWhereClause.$status_filter.$flag_filter.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.';'
             );
 
-            foreach($data['task']['completed'] as $task)
-            {
+            foreach ($data['task']['completed'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
                 array_push($assign_from_arr, $task->assign_from);
                 array_push($special_task_arr, $task->id);
             }
 
             $user_ids_from = array_unique($assign_from_arr);
-            $user_ids_to   = array_unique($assign_to_arr);
+            $user_ids_to = array_unique($assign_to_arr);
 
-            foreach($data['task']['completed'] as $task)
-            {
-                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
-                $from_exist           = in_array($task->assign_from, $user_ids_from);
-                if($from_exist)
-                {
+            foreach ($data['task']['completed'] as $task) {
+                $search_suggestions[] = '#'.$task->id.' '.$task->task_subject.' '.$task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
                     $from_user = User::find($task->assign_from);
-                    if($from_user)
-                    {
+                    if ($from_user) {
                         $search_term_suggestions[] = $from_user->name;
                     }
                 }
 
                 $to_exist = in_array($task->assign_to, $user_ids_to);
-                if($to_exist)
-                {
+                if ($to_exist) {
                     $to_user = User::find($task->assign_to);
-                    if($to_user)
-                    {
+                    if ($to_user) {
                         $search_term_suggestions[] = $to_user->name;
                     }
                 }
@@ -351,12 +309,10 @@ class TaskModuleController extends Controller
                 $search_term_suggestions[] = $task->task_subject;
                 $search_term_suggestions[] = $task->task_details;
             }
-        }
-        elseif($type == 'statutory_not_completed')
-        {
-            $paginate      = 50;
-            $page          = $request->get('page', 1);
-            $offSet        = ($page * $paginate) - $paginate;
+        } elseif ($type == 'statutory_not_completed') {
+            $paginate = 50;
+            $page = $request->get('page', 1);
+            $offSet = ($page * $paginate) - $paginate;
             $orderByClause .= ' last_communicated_at DESC';
 
             $data['task']['statutory_not_completed'] = DB::select(
@@ -384,38 +340,32 @@ class TaskModuleController extends Controller
 	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL ' . $userquery . $categoryWhereClause . $status_filter . $flag_filter . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . ';'
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL '.$userquery.$categoryWhereClause.$status_filter.$flag_filter.$orderByClause.' limit '.$paginate.' offset '.$offSet.';'
             );
 
-            foreach($data['task']['statutory_not_completed'] as $task)
-            {
+            foreach ($data['task']['statutory_not_completed'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
                 array_push($assign_from_arr, $task->assign_from);
                 array_push($special_task_arr, $task->id);
             }
 
             $user_ids_from = array_unique($assign_from_arr);
-            $user_ids_to   = array_unique($assign_to_arr);
+            $user_ids_to = array_unique($assign_to_arr);
 
-            foreach($data['task']['statutory_not_completed'] as $task)
-            {
-                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
-                $from_exist           = in_array($task->assign_from, $user_ids_from);
-                if($from_exist)
-                {
+            foreach ($data['task']['statutory_not_completed'] as $task) {
+                $search_suggestions[] = '#'.$task->id.' '.$task->task_subject.' '.$task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
                     $from_user = User::find($task->assign_from);
-                    if($from_user)
-                    {
+                    if ($from_user) {
                         $search_term_suggestions[] = $from_user->name;
                     }
                 }
 
                 $to_exist = in_array($task->assign_to, $user_ids_to);
-                if($to_exist)
-                {
+                if ($to_exist) {
                     $to_user = User::find($task->assign_to);
-                    if($to_user)
-                    {
+                    if ($to_user) {
                         $search_term_suggestions[] = $to_user->name;
                     }
                 }
@@ -423,9 +373,7 @@ class TaskModuleController extends Controller
                 $search_term_suggestions[] = $task->task_subject;
                 $search_term_suggestions[] = $task->task_details;
             }
-        }
-        else
-        {
+        } else {
             return;
         }
 
@@ -676,7 +624,7 @@ class TaskModuleController extends Controller
         // dd($tasks_query);
         // $users = Helpers::getUserArray(User::all());
 
-        $data['users']               = User::orderBy('name')->where('is_active', 1)->get()->toArray();
+        $data['users'] = User::orderBy('name')->where('is_active', 1)->get()->toArray();
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
         // foreach ($data['task']['pending'] as $task) {
@@ -685,51 +633,41 @@ class TaskModuleController extends Controller
         // $category = '';
 
         // Lead user process starts
-        $isTeamLeader                  = \App\Team::where('user_id', auth()->user()->id)->first();
-        $model_team                    = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
-        $team_members_array[]          = auth()->user()->id;
-        $team_id_array                 = [];
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
+        $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
         $team_members_array_unique_ids = '';
-        if(count($model_team) > 0)
-        {
-            for($k = 0; $k < count($model_team); $k++)
-            {
+        if (count($model_team) > 0) {
+            for ($k = 0; $k < count($model_team); $k++) {
                 $team_id_array[] = $model_team[$k]->id;
             }
-            $team_ids         = implode(',', $team_id_array);
+            $team_ids = implode(',', $team_id_array);
             $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
-            for($m = 0; $m < count($model_user_model); $m++)
-            {
+            for ($m = 0; $m < count($model_user_model); $m++) {
                 $team_members_array[] = $model_user_model[$m]->user_id;
             }
         }
-        $team_members_array_unique     = array_unique($team_members_array);
+        $team_members_array_unique = array_unique($team_members_array);
         $team_members_array_unique_ids = implode(',', $team_members_array_unique);
         // Lead user process ends
 
         //My code start
         $selected_user = $request->input('selected_user');
 
-        if(Auth::user()->hasRole('Admin'))
-        {
+        if (Auth::user()->hasRole('Admin')) {
             $usrlst = User::orderby('name')->where('is_active', 1)->get();
-        }
-        elseif($isTeamLeader)
-        {
+        } elseif ($isTeamLeader) {
             $usrlst = User::orderby('name')->where('is_active', 1)->whereIn('id', $team_members_array_unique)->get();
-        }
-        else
-        {
+        } else {
             $usrlst = User::orderby('name')->where('is_active', 1)->get();
         }
 
-        $users           = Helpers::getUserArray($usrlst);
+        $users = Helpers::getUserArray($usrlst);
         $task_categories = TaskCategory::where('parent_id', 0)->get();
         $selected_category = $request->category;
-        if(Auth::user()->hasRole('Admin'))
-        {
-            if(empty($request->category))
-            {
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
                 $selected_category = 1;
             }
         }
