@@ -8,7 +8,6 @@ use App\Imports\CsvTranslatorImport;
 use App\Models\CsvPermissions;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Request;
 
 class CsvTranslatorController extends Controller
 {
@@ -35,11 +34,7 @@ class CsvTranslatorController extends Controller
         $res = explode(',', $colums);
         if ($request->ajax()) {
             $data = Csvtranslator::all();
-<<<<<<< HEAD
             if(\Auth::user()->hasRole('Lead Translator')){
-=======
-            if (auth()->user()->isAdmin()) {
->>>>>>> 2620b5c898c5a31c710802d36ec4f6c263815bae
                 $res = datatables()->of($data)->addIndexColumn();
                 $res->editColumn('en', function ($data) {
                     return $this->commanRadioLoad('en', $data->id, $data->toArray());
@@ -357,7 +352,6 @@ class CsvTranslatorController extends Controller
 
             if (isset($userId)) {
                 $query->where('updated_by_user_id', $userId);
-                // $query->orwhere('approved_by_user_id',$userId);
             }
             if (isset($language)) {
                 $query->whereNotNull($language);
@@ -389,7 +383,6 @@ class CsvTranslatorController extends Controller
                     });
                 }
             }
-
             return $dataTable->escapeColumns([])->make(true);
         }
     }
@@ -406,7 +399,6 @@ class CsvTranslatorController extends Controller
 
             CsvPermissions::insert($data);
             $data = CsvPermissions::where('user_id', \Auth::user()->id)->get();
-
             return response()->json(['status' => 200]);
         }
     }
