@@ -8,13 +8,13 @@ use App\Observers\CallBusyMessageObserver;
 use App\ScrapedProducts;
 use Blade;
 use Facebook\Facebook;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Studio\Totem\Totem;
-use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
