@@ -97,19 +97,23 @@ $special_task = $task;
                 @endforeach
                 @endif
             </select>
-            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history p-" title="Show Status History" data-id="{{ $task->id }}" data-type="task">
-                <i class="fa fa-info-circle"></i>
-            </button>
-            @if ($task->is_flagged == 1)
-            <button type="button" class="btn pr-0 btn-image flag-task pd-5" data-type="task" data-id="{{ $task->id }}"><img src="{{ asset('images/flagged.png') }}" / style="filter: grayscale(1);"></button>
-            @else
-            <button type="button" class="btn btn-image flag-task pd-5" data-type="task" data-id="{{ $task->id }}"><img src="{{ asset('images/unflagged.png') }}" /></button>
-            @endif
         </div>
     </td>
     <td style="vertical-align: initial;">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <i class="fa fa-history" aria-hidden="true"></i>
+        <button type="button" title="history" class="btn btn-xs pull-left" data-id="{{$task->id}}">
+                <i class="fa fa-comments-o" aria-hidden="true"></i>
+        </button>
+        <button type="button" title="LogTasktime history" class="btn btn-xs pull-left" data-id="{{$task->id}}">
+            <i class="fa fa-history" aria-hidden="true"></i>
+        </button>
+        @if ($task->is_flagged == 1)
+        <button type="button" class="btn btn-xs pull-left btn-image flag-task mt-0" data-type="task" data-id="{{ $task->id }}"><img src="{{ asset('images/flagged.png') }}" style="filter: grayscale(1);" /></button>
+        @else
+        <button type="button" class="btn btn-xs pull-left btn-image flag-task mt-0" data-type="task" data-id="{{ $task->id }}"><img src="{{ asset('images/unflagged.png') }}"/></button>
+        @endif
+        <button type="button" class="btn btn-xs pull-left show-status-history mt-0" title="Show Status History" data-id="{{ $task->id }}" data-type="task">
+            <i class="fa fa-info-circle"></i>
+        </button>
     </td>
 
     {{-- <td style="vertical-align: baseline;"> {{ $task->created_at->format('d-m-y') }} </td>

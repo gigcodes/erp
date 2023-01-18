@@ -272,8 +272,8 @@
                     <th width="10%">Estimated Start Time</th>
                     <th width="10%">Estimated End Time</th>
                     <th width="18%">Communication</th>
-                    <th width="12%">Status</th>
-                    <th width="5%">Action</th>
+                    <th width="10%">Status</th>
+                    <th width="8%">Action</th>
                 </tr>
             </thead>
 
@@ -286,17 +286,25 @@
                 ?>
                 @foreach ($issues as $key => $issue)
                 @if($isReviwerLikeAdmin)
-                @include("development.partials.flagsummarydata")
+
+                    @include("development.partials.flagsummarydata")
+
                 @elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID)
-                @include("development.partials.flagdeveloper-row-view")
+
+                    @include("development.partials.flagdeveloper-row-view")
+
                 @endif
                 @endforeach
                 @foreach ($tasks as $key => $issue)
                 @if ($isReviwerLikeAdmin)
-                @include("task-module.partials.flagsummarydata")
+
+                    @include("task-module.partials.flagsummarydata")
+
                 @elseif($issue->created_by == $userID || $issue->master_user_id == $userID ||
                 $issue->assigned_to == $userID)
-                @include("task-module.partials.flagdeveloper-row-view")
+
+                    @include("task-module.partials.flagdeveloper-row-view")
+
                 @endif
                 @endforeach
 
