@@ -1,4 +1,7 @@
-<tr id="task_{{ $task->id }}">
+@php
+    $status_color = \App\TaskStatus::where('id',$task->status)->first();
+@endphp
+<tr style="background-color: {{$status_color->task_color}}!important;" id="task_{{ $task->id }}">
     <td class="p-2">
         @if(auth()->user()->isAdmin())
         <input type="checkbox" name="selected_issue[]" title="Task is in priority" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>

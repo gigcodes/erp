@@ -296,7 +296,7 @@
                 @endif
                 @endforeach
                 @foreach ($tasks as $key => $issue)
-                @if ($isReviwerLikeAdmin)
+                @if ($isReviwerLikeAdmin || $isTeamLeader)
 
                     @include("task-module.partials.flagsummarydata")
 
