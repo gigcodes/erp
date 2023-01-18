@@ -2296,6 +2296,11 @@ if (!empty($notifications)) {
                                                         href="{{ route('twilio.get_website_wise_key_data_options') }}">Twilio
                                                         Key Options</a>
                                                 </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('twilio.twilio_delivery_logs') }}">Twilio
+                                                        Delivery Logs</a>
+                                                </li>
                                             </ul>
                                         </li>
                                     </ul>

@@ -151,6 +151,7 @@ use App\Console\Commands\ZabbixProblemImport;
 use App\Console\Commands\ZabbixStore;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\ZoomMeetingRecordings;
+use App\Console\Commands\TwillioMessagesCommand;
 use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -319,6 +320,7 @@ class Kernel extends ConsoleKernel
         ZabbixProblemImport::class,
         SendQueuedMessages::class,
         DatabaseLogCron::class,
+        TwillioMessagesCommand::class,
     ];
 
     /**
@@ -337,6 +339,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('project:filemanagementdate')->daily();
 
         $schedule->command('twilio:errors')->dailyAt('01:00');
+
+        $schedule->command('command:twillio_messages')->everyMinute(); // Send twlio message to store website customers
 
         $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');
 
