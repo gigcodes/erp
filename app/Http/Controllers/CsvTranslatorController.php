@@ -22,14 +22,7 @@ class CsvTranslatorController extends Controller
         array_push($lang, ['data' => 'id']);
         array_push($lang, ['data' => 'key']);
         $permissions = [];
-        $role =  Role::where('name','Lead Translator')->get()->toArray();
-        if(empty($role)){
-            $role =  new Role();
-            $role->name = 'Lead Translator';
-            $role->guard_name = 'web';
-            $role->save();
-        }
-
+        
         foreach ($allCsvPermission as $permission) {
             $cols[] = $permission['lang_id'];
             $lang[] = ['data' => $permission['lang_id']];
