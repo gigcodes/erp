@@ -34,7 +34,7 @@ class CsvTranslatorController extends Controller
         $res = explode(',', $colums);
         if ($request->ajax()) {
             $data = Csvtranslator::all();
-            if(\Auth::user()->hasRole('Lead Translator')){
+            if (\Auth::user()->hasRole('Lead Translator')) {
                 $res = datatables()->of($data)->addIndexColumn();
                 $res->editColumn('en', function ($data) {
                     return $this->commanRadioLoad('en', $data->id, $data->toArray());
@@ -383,6 +383,7 @@ class CsvTranslatorController extends Controller
                     });
                 }
             }
+
             return $dataTable->escapeColumns([])->make(true);
         }
     }
@@ -399,6 +400,7 @@ class CsvTranslatorController extends Controller
 
             CsvPermissions::insert($data);
             $data = CsvPermissions::where('user_id', \Auth::user()->id)->get();
+
             return response()->json(['status' => 200]);
         }
     }
