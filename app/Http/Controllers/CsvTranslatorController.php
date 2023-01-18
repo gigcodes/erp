@@ -6,10 +6,9 @@ use App\CsvTranslator;
 use App\CsvTranslatorHistory;
 use App\Imports\CsvTranslatorImport;
 use App\Models\CsvPermissions;
+use App\Role;
 use App\User;
 use Illuminate\Http\Request;
-use App\Role;
-
 
 class CsvTranslatorController extends Controller
 {
@@ -22,9 +21,9 @@ class CsvTranslatorController extends Controller
         array_push($lang, ['data' => 'id']);
         array_push($lang, ['data' => 'key']);
         $permissions = [];
-        $role =  Role::where('name','Lead Translator')->get()->toArray();
-        if(empty($role)){
-            $role =  new Role();
+        $role = Role::where('name', 'Lead Translator')->get()->toArray();
+        if (empty($role)) {
+            $role = new Role();
             $role->name = 'Lead Translator';
             $role->guard_name = 'web';
             $role->save();
