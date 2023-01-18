@@ -62,17 +62,12 @@
         {{ $issue->estimate_minutes }}
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}" data-userId="{{$issue->user_id}}"><i class="fa fa-info-circle"></i></button>
     </td>
-    <td>
+    <td style="vertical-align: baseline;">
         {{ $issue->estimate_date }}
+        <button style="float:right;padding-right:0px;margin-left: auto;" type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
     </td>
     <td>
         {{ $issue->due_date }}
-    </td>
-    <td style="vertical-align: baseline;">
-        <div class="d-flex">
-            {{ $issue->estimate_date }}
-            <button style="float:right;padding-right:0px;margin-left: auto;" type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
-        </div>
     </td>
     <td class="communication-td devtask-com" style="display: block;">
         <!-- class="expand-row" -->
@@ -114,14 +109,6 @@
             @else
             <?php echo Form::select("task_status", $statusList, $issue->status, ["class" => "form-control resolve-issue", "onchange" => "resolveIssue(this," . $issue->id . ")"]); ?>
             @endif
-            @if ($issue->is_flagged == 1)
-            <button type="button" class="btn btn-image flag-task pd-5" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}" /></button>
-            @else
-            <button type="button" class="btn btn-image flag-task pd-5" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
-            @endif
-            <button style="float:right;padding-right:0px;" type="button" data-type="develop" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
-                <i class="fa fa-info-circle"></i>
-            </button>
         </div>
     </td>
     <td>
@@ -131,6 +118,13 @@
         <button type="button" title="LogTasktime history" class="btn logtasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
             <i class="fa fa-history"></i>
         </button>
+        @if ($issue->is_flagged == 1)
+        <button type="button" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}" /></button>
+        @else
+        <button type="button" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
+        @endif
+        <button type="button" data-type="develop" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
+            <i class="fa fa-info-circle"></i>
+        </button>
     </td>
-
 </tr>

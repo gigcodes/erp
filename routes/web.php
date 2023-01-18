@@ -2340,6 +2340,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/failed/download/history', [EmailAddressesController::class, 'downloadFailedHistory'])->name('email.failed.download');
 
     Route::post('email/getemailhistory/{id}', [EmailAddressesController::class, 'getEmailAddressHistory']);
+    Route::get('email/Emailaddress/search', [EmailAddressesController::class, 'searchEmailAddress'])->name('email.address.search');
+    Route::post('email/Emailaddress/update', [EmailAddressesController::class, 'updateEmailAddress'])->name('email.address.update');
 
     Route::get('email/get-related-account/{id}', [EmailAddressesController::class, 'getRelatedAccount']);
 
