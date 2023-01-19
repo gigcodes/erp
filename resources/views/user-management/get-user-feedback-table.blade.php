@@ -31,56 +31,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
-    <div class="row" id="common-page-layout">
-        <input type="hidden" name="page_no" class="page_no" />
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Users Feedback</h2>
-            <div class="row">
-                <div class="col">
-                    <div class="" style="margin-bottom:10px;">
-                        <div class="row">
-                            <form class="form-inline message-search-handler" method="get">
-                                <div class="col">
-                                    <div class="form-group">
-                                        <select name="user_id" class="form-control  select-multiple">
-                                            <option>-select-</option>
-                                            <?php foreach ($users as $key => $user) {
-                                                    $selectedUser = '';
-                                                    if($user->id == $request->user_id)
-                                                        $selectedUser = 'selected="selected"';
-                                                    echo '<option value="'.$user->id.'" '.$selectedUser.'>'.$user->name.'</option>';
-                                            }?>
-                                        </select>
+    <div class="col-md-12">
+        <div class="row" id="common-page-layout">
+            <input type="hidden" name="page_no" class="page_no" />
+            <div class="col-lg-12 margin-tb">
+                <h2 class="page-heading">Users Feedback</h2>
+                <div class="row">
+                    <div class="col">
+                        <div class="" style="margin-bottom:10px;">
+                            <div class="row">
+                                <form class="form-inline message-search-handler" method="get">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <select name="user_id" class="form-control  select-multiple">
+                                                <option>-select-</option>
+                                                <?php foreach ($users as $key => $user) {
+                                                        $selectedUser = '';
+                                                        if($user->id == $request->user_id)
+                                                            $selectedUser = 'selected="selected"';
+                                                        echo '<option value="'.$user->id.'" '.$selectedUser.'>'.$user->name.'</option>';
+                                                }?>
+                                            </select>
+                                        </div>
+                                        {{-- <div class="form-group">
+                                            <select name="is_active" class="form-control" placholder="Active:">
+                                                <option value="0" {{ request('is_active') == 0 ? 'selected' : '' }}>All</option>
+                                                <option value="1" {{ request('is_active') == 1 ? 'selected' : '' }}>Active
+                                                </option>
+                                                <option value="2" {{ request('is_active') == 2 ? 'selected' : '' }}>In active
+                                                </option>
+                                            </select>
+                                        </div> --}}
+                                        <div class="form-group pl-3">
+                                            <label for="button">&nbsp;</label>
+                                            <button style="display: inline-block;width: 10%;margin-top: -26px; padding-left: 0px"
+                                                class="btn btn-sm btn-image btn-search-action">
+                                                <img src="{{asset('/images/search.png')}}" style="cursor: default;">
+                                            </button>
+                                        </div>
                                     </div>
-                                    {{-- <div class="form-group">
-                                        <select name="is_active" class="form-control" placholder="Active:">
-                                            <option value="0" {{ request('is_active') == 0 ? 'selected' : '' }}>All</option>
-                                            <option value="1" {{ request('is_active') == 1 ? 'selected' : '' }}>Active
-                                            </option>
-                                            <option value="2" {{ request('is_active') == 2 ? 'selected' : '' }}>In active
-                                            </option>
-                                        </select>
-                                    </div> --}}
-                                    <div class="form-group pl-3">
-                                        <label for="button">&nbsp;</label>
-                                        <button style="display: inline-block;width: 10%;margin-top: -16px;"
-                                            class="btn btn-sm btn-image btn-search-action">
-                                            <img src="/images/search.png" style="cursor: default;">
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        
-                    </div>
+                                </form>
+
+                        </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-12 margin-tb" id="page-view-result">
+                <div class="col-md-12 margin-tb" id="page-view-result">
 
+                </div>
             </div>
         </div>
-    </div>
-    <div class="table-responsive">
+        <div class="table-responsive">
         <table class="table table-bordered" style="margin-top: 25px">
             <tr>
                 <th width="17%">Category</th>
@@ -94,12 +95,12 @@
             <tr>
                 <td>
                     <input type="text" style="width:calc(100% - 41px)" class="quick_feedback" id="addcategory" name="category">
-                    <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button>
+                    <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button>
                 </td>
                 <td></td>
                 <td></td>
                 <td><input type="textbox" style="width:calc(100% - 41px)" id="feedback-status">
-                    <button style="width: 20px" type="button" class="btn btn-image user-feedback-status"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button></td>
+                    <button style="width: 20px" type="button" class="btn btn-image user-feedback-status"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button></td>
                 <td></td>
             </tr>
             @endif
@@ -146,17 +147,17 @@
                                 @endforeach
                             </select>
                             <div class="row">
-                                <div class="col-4">
-                                    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="/images/filled-sent.png"/></button>
+                                <div class="col-4 pr-0">
+                                    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
                                     <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" title="Add Sop Name and category" data-target="#exampleModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                 </div>
                                 <div class="sop-text-{{$cat->id}}" style="float: left;">
                                     <div class="expand-row-msg" data-name="name" data-id="{{$cat->id}}"  style="float: left;">
-                                        <span class="show-short-name-{{$cat->id}}">{{ Str::limit($cat->sop, 5, '..')}}</span>
+                                        <span class="show-short-name-{{$cat->id}}">{{ Str::limit($cat->sop, 18, '..')}}</span>
                                         <span style="word-break:break-all;" class="show-full-name-{{$cat->id}} hidden">{{$cat->sop}}</span>
                                     </div> 
                                     <div  style="float: left;">&nbsp;
-                                        <img class='sop-history' src='/images/chat.png' data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" alt='history' style='width:17px;cursor: nwse-resize;'>
+                                        <img class='sop-history' src='{{asset('/images/chat.png')}}' data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" alt='history' style='width:17px;cursor: nwse-resize;'>
                                     </div>
                                 </div>
                             </div>
@@ -179,7 +180,7 @@
 {{--                        <select class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif>--}}
 {{--                            <?php echo $sopOps; ?></?php>--}}
 {{--                        </select>--}}
-                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button>
+                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
                         @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)
                             <span class="latest_message">@if ($latest_messages->send_by) {{ $latest_msg }} @endif</span>
                         @else
@@ -205,7 +206,7 @@
                             @endif
 
                             <div class="sop-comment-text-{{$cat->id}}">
-                                <div style='width:50%;'>{{$comment}}</div> <img class='sop-comment-history' src='/images/chat.png' data-id="{{$cat->id}}" data-sop_history_id="{{$cat->sop_id}}" data-sop_comment_id="{{$commentId}}" alt='history' style='width:17px;cursor: nwse-resize;'>
+                                <div style='width:50%;'>{{$comment}}</div> <img class='sop-comment-history' src='{{asset('/images/chat.png')}}' data-id="{{$cat->id}}" data-sop_history_id="{{$cat->sop_id}}" data-sop_comment_id="{{$commentId}}" alt='history' style='width:17px;cursor: nwse-resize;'>
                             </div>
                         </div>
                     </td>
@@ -218,11 +219,11 @@
                         </select>
                     </td>
                     <td>
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-feedback_cat_id="{{$cat->id}}" data-object='user-feedback' data-id="{{$cat->user_id}}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                        <button type="button" class="btn btn-secondary1 mr-2 hrTicket" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
-                        <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks"  title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-feedback_cat_id="{{$cat->id}}" data-object='user-feedback' data-id="{{$cat->user_id}}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></button>
+                        <button type="button" class="btn btn-secondary1 hrTicket" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                        <button style="padding-left: 0px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks"  title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
                         @if (auth()->user()->isAdmin())
-                            <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline delete-category"  title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
+                            <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category"  title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
                         @endif
                     </td>
                 </tr>
@@ -230,7 +231,7 @@
     </table>
     {{ $category->links() }}
 </div>
-
+    </div>
 <!--------------------------------------------------- Add Data Modal ------------------------------------------------------->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
 aria-hidden="true">
@@ -330,7 +331,7 @@ aria-hidden="true">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-default create-task">Submit</button>
+                    <button type="button" class="btn btn-default create-task">Submit</button>
                 </div>
             </form>
         </div>
@@ -553,8 +554,7 @@ aria-hidden="true">
                 if (response.code == 200) {
                     form[0].reset();
                     toastr['success'](response.message);
-                    $("#exampleModal").modal('hide');
-                    location.reload();
+                    $("#hrTicketModal").modal('hide');
                 } else {
                     toastr['error'](response.message);
                 }
@@ -677,9 +677,13 @@ aria-hidden="true">
     else
         is_set = "";
     var user_id = $(this).data("user_id");
+    var url = "{{route('hr-ticket.countdevtask',[':user_feedback',':user_id'])}}";
+    var url1 = url.replace(':user_feedback',user_feedback);
+    var url2 = url1.replace(':user_id',user_id);
+
 	$.ajax({
 		type: 'get',
-		url: '/hr-ticket/countdevtask/' + user_feedback+ "/"+user_id,
+		url: url2,
 		dataType: "json",
 		beforeSend: function() {
 			$("#loading-image").show();
@@ -726,7 +730,6 @@ aria-hidden="true">
              var category = $('#addcategory').val();
              var user_id = $(this).data('user_id');
             if(category!=""){
-                console.log(category);
                  $.ajax({
                     url:"{{ route('user.feedback-category') }}",
                     type:"get",
@@ -843,6 +846,10 @@ aria-hidden="true">
             var sop = $("#"+sop_id+ " option:selected").text();
             //debugger;
             var sops_id = $("#"+sop_id).val();
+            if(sops_id == ''){
+                toastr["error"]('Please Select Sop');
+                return false
+            }
             var cat = $(this).data("feedback_cat_id");
             
             $("#send_message_"+$(this).data('id')).val('');
@@ -862,7 +869,7 @@ aria-hidden="true">
                         var resSopshort = '<span style="float:left;width: 41px;overflow: hidden;height: 23px;">'+response.data.sop+'</span>';
                         var resSopId = response.data.id;
                         toastr["success"](response.message);
-                        $(".sop-text-"+id).html("<div class='expand-row-msg' data-name='name' data-id='"+id+"' style='float: left;'><span class='show-short-name-"+id+"'>"+resSopshort+"</span><span style='word-break:break-all;' class='show-full-name-"+id+" hidden'>"+resSop+"</span>...</div><div  style='float: left;'>&nbsp; <img class='sop-history' data-cat_id='"+id+"' data-sop_id='"+resSopId+"' src='/images/chat.png' alt='history' style='width:17px;cursor: nwse-resize;'></div>");
+                        $(".sop-text-"+id).html("<div class='expand-row-msg' data-name='name' data-id='"+id+"' style='float: left;'><span class='show-short-name-"+id+"'>"+resSopshort+"</span><span style='word-break:break-all;' class='show-full-name-"+id+" hidden'>"+resSop+"</span>...</div><div  style='float: left;'>&nbsp; <img class='sop-history' data-cat_id='"+id+"' data-sop_id='"+resSopId+"' src='{{asset('/images/chat.png')}}' alt='history' style='width:17px;cursor: nwse-resize;'></div>");
                     } else {
                         toastr["error"](response.message);
                     }
@@ -891,7 +898,7 @@ aria-hidden="true">
                         var resSopCommId = response.data.id;
                         var resSopId = response.data.sop_history_id;
                         toastr["success"](response.message);
-                        $(".sop-comment-text-"+id).html("<div style='width:50%;'>"+resSopComm+"...</div> <img class='sop-comment-history' data-id='"+id+"' data-sop_history_id='"+resSopId+"' data-sop_comment_id='"+resSopCommId+"' src='/images/chat.png' alt='history' style='width:17px;cursor: nwse-resize;'>");
+                        $(".sop-comment-text-"+id).html("<div style='width:50%;'>"+resSopComm+"...</div> <img class='sop-comment-history' data-id='"+id+"' data-sop_history_id='"+resSopId+"' data-sop_comment_id='"+resSopCommasset()+Id+"' src='{{asset('/images/chat.png')}}' alt='history' style='width:17px;cursor: nwse-resize;'>");
                     } else {
                         toastr["error"](response.message);
                     }
