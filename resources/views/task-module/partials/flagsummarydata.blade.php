@@ -34,26 +34,27 @@ $special_task = $task;
 
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history_task" title="Show tracked time History" data-id="{{ $task->id }}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
+            <button style="float:right;padding-right:0px;" onclick="funTaskInformationModal(this, '{{$task->id}}')" type="button" class="btn btn-xs" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-refresh"></i></button>
     </td>
     <td style="vertical-align: baseline;">
         @php
-        if($task->approximate != '0') { echo date('H:i:s', strtotime($task->approximate)); }
+        if($task->approximate != '0') { echo $task->approximate; }
 
         @endphp
         <button type="button" style="float:right;" class="btn btn-xs show-time-history-task" title="Show History" data-id="{{ $task->id }}" data-user_id="{{ $task->assign_to }}" style="background: none;"><i class="fa fa-info-circle"></i></button>
     </td>
     <td style="vertical-align: baseline;">
-        <div class="d-flex">
+        @php
+        if($task->start_date != '0') { echo $task->start_date; }
 
-            @php
-            if($task->due_date != '') { echo date('d-m-y H:i:s', strtotime($task->due_date)); }
-
-            @endphp
-            {{-- <span> 2021-12-07 00:00:00</span> --}}
-            <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{ $task->id }}" data-type="task" style="float:right;margin-left: auto;"><i class="fa fa-info-circle"></i></button>
-        </div>
+        @endphp
     </td>
-
+    <td style="vertical-align: baseline;">
+        @php
+        if($task->due_date != '0') { echo $task->due_date; }
+        @endphp
+            <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{ $task->id }}" data-type="task" style="float:right;margin-left: auto;"><i class="fa fa-info-circle"></i></button>
+    </td>
     <td style="vertical-align: baseline;">
         <div class="d-flex">
             <input type="text" class="form-control send-message-textbox" data-id="{{ $task->id }}" id="send_message_{{ $task->id }}" name="send_message_{{ $task->id }}" style="margin-bottom:5px;width:calc(100% - 24px);display:inline;" />
@@ -96,19 +97,23 @@ $special_task = $task;
                 @endforeach
                 @endif
             </select>
-            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history p-" title="Show Status History" data-id="{{ $task->id }}" data-type="task">
-                <i class="fa fa-info-circle"></i>
-            </button>
-            @if ($task->is_flagged == 1)
-            <button type="button" class="btn pr-0 btn-image flag-task pd-5" data-type="task" data-id="{{ $task->id }}"><img src="{{ asset('images/flagged.png') }}" / style="filter: grayscale(1);"></button>
-            @else
-            <button type="button" class="btn btn-image flag-task pd-5" data-type="task" data-id="{{ $task->id }}"><img src="{{ asset('images/unflagged.png') }}" /></button>
-            @endif
         </div>
     </td>
     <td style="vertical-align: initial;">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <i class="fa fa-history" aria-hidden="true"></i>
+        <button type="button" title="history" class="btn btn-xs pull-left" data-id="{{$task->id}}">
+                <i class="fa fa-comments-o" aria-hidden="true"></i>
+        </button>
+        <button type="button" title="LogTasktime history" class="btn btn-xs pull-left" data-id="{{$task->id}}">
+            <i class="fa fa-history" aria-hidden="true"></i>
+        </button>
+        @if ($task->is_flagged == 1)
+        <button type="button" class="btn btn-xs pull-left btn-image flag-task mt-0" data-type="task" data-id="{{ $task->id }}"><img src="{{ asset('images/flagged.png') }}" style="filter: grayscale(1);" /></button>
+        @else
+        <button type="button" class="btn btn-xs pull-left btn-image flag-task mt-0" data-type="task" data-id="{{ $task->id }}"><img src="{{ asset('images/unflagged.png') }}"/></button>
+        @endif
+        <button type="button" class="btn btn-xs pull-left show-status-history mt-0" title="Show Status History" data-id="{{ $task->id }}" data-type="task">
+            <i class="fa fa-info-circle"></i>
+        </button>
     </td>
 
     {{-- <td style="vertical-align: baseline;"> {{ $task->created_at->format('d-m-y') }} </td>

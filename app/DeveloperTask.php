@@ -336,6 +336,25 @@ class DeveloperTask extends Model
         }
     }
 
+    public function updateEstimateDueDate($new)
+    {
+        $type = 'due_date';
+        $old = $this->due_date;
+
+        $count = DeveloperTaskHistory::query()
+            ->where('model', \App\DeveloperTask::class)
+            ->where('attribute', $type)
+            ->where('developer_task_id', $this->id)
+            ->count();
+        if ($count) {
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 0);
+        } else {
+            $this->due_date = $new;
+            $this->save();
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
+        }
+    }
+
     public static function getMessagePrefix($obj)
     {
         return '#DEVTASK-'.$obj->id.'-'.$obj->subject.' => ';
