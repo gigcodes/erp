@@ -22,9 +22,15 @@
 
 					<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
 						<img src="/images/add.png" style="cursor: default;">
-					</button>
+					</button>					
 					<button style="display: inline-block;" class="btn btn-secondary btn-add-default-store m-2" data-toggle="modal" data-target="#sync-website">
 						Sync Website
+					</button>
+					<button style="display: inline-block;width: 29%" class="btn btn-secondary m-2" data-toggle="modal" data-target="#copyWebsiteModal">
+						Copy Website Store View
+					</button>
+					<button style="display: inline-block;width: 29%" class="btn btn-secondary m-2" data-toggle="modal" data-target="#deleteWebsiteModal">
+						Delete Website Store View
 					</button>
 				</div>
 			</div>
@@ -115,6 +121,52 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				<button type="button" class="btn btn-secondary move-stores">Move Store</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="copyWebsiteModal" class="modal" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Copy Website Store View</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<select id="selCopyWebsite" name="selCopyWebsite" class="form-control">
+					<option value="">--Select Website--</option>	
+					<?php foreach($storeWebsites as $keyr => $valr) { ?>
+						<option value="<?php echo $keyr; ?>"><?php echo  $valr; ?></option>
+					<?php } ?>
+				</select>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-secondary copy-website-store-view-btn">Copy website store view</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="deleteWebsiteModal" class="modal" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Delete Website Store View</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<select id="selDeleteServer" name="selDeleteServer" class="form-control">
+					<option value="">--Select Server--</option>
+					<?php foreach($store_servers as $keyr => $valr) { ?>
+						<option value="<?php echo $valr; ?>">Server <?php echo  $valr; ?></option>
+					<?php } ?>
+				</select>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-secondary delete-website-store-view-btn">Delete website store view Store</button>
 			</div>
 		</div>
 	</div>
@@ -250,5 +302,48 @@
 			jQuery('#srch_website_store_id').html(response.data);
 		}).fail(function(response) {});
 	}
+
+
+	$(document).on('click', '.copy-website-store-view-btn', function() {
+		var website_id = $('#selCopyWebsite').val();
+		if(website_id == "" || website_id == undefined ) {
+			alert("Please select the website");
+			return false;
+		}
+		$.ajax({
+			type: "GET",
+			url: "/store-website/copy-website-store-views/"+website_id,
+		}).done(function(response) {
+			$('#copyWebsiteModal').modal('hide');
+			alert("Copy process completed successfully");
+		}).fail(function(response) {
+
+		});
+	});
+
+	$(document).on('click', '.delete-website-store-view-btn', function() {
+		var serverid = $('#selDeleteServer').val();
+		if(serverid == "" || serverid == undefined ) {
+			alert("Please select the server");
+			return false;
+		}
+		let text;
+		if (confirm("Are you sure want to delete") == true) {
+			$.ajax({
+				type: "GET",
+				url: "/store-website/delete-store-views/"+serverid,
+			}).done(function(response) {
+				$('#deleteWebsiteModal').modal('hide');
+				alert("Delete process completed successfully");
+			}).fail(function(response) {
+
+			});
+		} else {
+			$('#selDeleteServer').val('');
+			$('#deleteWebsiteModal').modal('hide');
+		}
+		
+	});
+	
 </script>
 @endsection

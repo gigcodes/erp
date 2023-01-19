@@ -10,6 +10,7 @@ use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\StoreViewCodeServerMap;
 
 class WebsiteStoreViewController extends Controller
 {
@@ -22,14 +23,16 @@ class WebsiteStoreViewController extends Controller
     {
         $title = 'Website Store View | Store Website';
         $storeWebsites = StoreWebsite::orderBy('title', 'ASC')->pluck('title', 'id')->toArray();
-        $websiteStores = WebsiteStore::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
+        $websiteStores = WebsiteStore::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();        
         $languages = \App\Language::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
+        $store_servers = StoreViewCodeServerMap::groupBy('server_id')->pluck('server_id')->toArray();
 
         return view('storewebsite::website-store-view.index', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'websiteStores' => $websiteStores,
             'languages' => $languages,
+            'store_servers' => $store_servers,
         ]);
     }
 

@@ -41,6 +41,7 @@ use App\StoreWebsiteUserHistory;
 use App\StoreWebsiteUsers;
 use App\User;
 use App\Website;
+use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Auth;
 use Carbon\Carbon;
@@ -1228,5 +1229,155 @@ class StoreWebsiteController extends Controller
             'tbody' => view('storewebsite::api-token', compact('storeWebsites'))->render(),
 
         ], 200);
+    }
+
+    public function deleteStoreViews($serverId)
+    {
+       
+        /*
+        if ($serverId == 1) {
+            $storeWebsiteIds = ['17','9','5','3','1'];
+        } elseif ($serverId == 2) {
+            $storeWebsiteIds = ['142','135','128','114','107'];
+        } elseif ($serverId == 3) {
+            $storeWebsiteIds = ['143','136','129','115','108'];
+        } elseif ($serverId == 4) {
+            $storeWebsiteIds = ['144','137','130','116','109'];
+        } elseif ($serverId == 5) {
+            $storeWebsiteIds = ['145','138','131','117','110'];
+        } elseif ($serverId == 6) {
+            $storeWebsiteIds = ['146','139','132','118','111'];
+        } elseif ($serverId == 7) {
+            $storeWebsiteIds = ['147','140','133','123','112'];
+        } elseif ($serverId == 8) {
+            $storeWebsiteIds = ['148','141','134','125','113'];
+        } else {
+            $storeWebsiteIds = [];
+        }
+        */
+        $model_store_website = StoreWebsite::Where('store_code_id', '=', $serverId)->get()->toArray();
+        $storeWebsiteIds = array();
+        if(count($model_store_website)>0){
+            for($k=0;$k<count($model_store_website);$k++){
+                $storeWebsiteIds[] = $model_store_website[$k]['id'];
+            }
+        }
+
+       // echo 'Server id: '.$serverId.'<br>';
+        if(count($storeWebsiteIds) == 0) {
+            echo 'Store websites not found. we have empty storeWebsiteIds'.'<br>';
+            return null;
+        }
+
+        $serverCodes = StoreViewCodeServerMap::where('server_id', '=', $serverId)->get();
+        if ($serverCodes->count() == 0) {
+            echo 'Please enter a valid server id<br>';
+            return null;
+        }
+
+        $serverCodesPartials = [];
+        foreach ($serverCodes as $code) {
+            $codeArray = explode('-', $code->code);
+            $serverCodesPartials[] = $codeArray[0];
+        }
+        $serverCodesPartials = array_unique($serverCodesPartials);
+
+        foreach ($storeWebsiteIds as $storeWebsiteId) {
+           // echo 'Processing store website: '. $storeWebsiteId.'<br>';
+
+            $websites = Website::whereIn('code', $serverCodesPartials)->where('store_website_id', '=', $storeWebsiteId)
+                ->groupBy('code')->orderBy('id', 'asc')->pluck('id');
+            if ($websites->count() == 0) {
+                echo 'No website found belongs to the entered server. StoreWebsiteid: '. $storeWebsiteId.'<br>';
+            } else {
+                $websitesToBeRemoved = Website::whereNotIn('id', $websites)->where('store_website_id', '=', $storeWebsiteId)->pluck('id');
+                $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
+                $websiteStoreViewsDeleted = WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
+              //  echo 'websiteStoreViewsDeleted: ' . $websiteStoreViewsDeleted . '<br>';
+                $websiteStoresDeleted = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
+                echo 'websiteStoresDeleted: ' . $websiteStoresDeleted . '<br>';
+                $websitesDeleted = Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
+               // echo 'websitesDeleted: ' . $websitesDeleted . '<br>===================<br>';
+            }
+        }
+    }
+
+    public function copyWebsiteStoreViews($storeWebsiteId)
+    {
+       
+        set_time_limit(0);
+        /*
+        if($storeWebsiteId == 17) {
+            $storeWebsiteIds = ['148','147','146','145','144','143','142'];
+        } elseif ($storeWebsiteId == 114) {
+            $storeWebsiteIds = ['115','116','117','118','123','125','3'];
+        } elseif ($storeWebsiteId == 112) {
+            $storeWebsiteIds = ['107','108','109','110','111','113','1'];
+        }
+        */
+
+        $model_store_website = StoreWebsite::Where('parent_id', '=', $storeWebsiteId)->get()->toArray();
+        $storeWebsiteIds = array();
+        if(count($model_store_website)>0){
+            for($k=0;$k<count($model_store_website);$k++){
+                $storeWebsiteIds[] = $model_store_website[$k]['id'];
+            }
+        }
+
+       // echo 'Source store website id: '. $storeWebsiteId.'<br>';
+        \Log::info('Source store website id: '. $storeWebsiteId);
+
+        $websites = Website::where('store_website_id', '=', $storeWebsiteId)->get();
+
+        foreach ($storeWebsiteIds as $swId) {
+           // echo 'Target store website id: '. $swId.'<br>';
+            \Log::info('Target store website id: '. $swId);
+            $websitesToBeRemoved = Website::where('store_website_id', '=', $swId)->pluck('id');
+            $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
+            $websiteStoreViewsDeleted = WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
+          //  echo 'websiteStoreViewsDeleted: ' . $websiteStoreViewsDeleted . '<br>';
+            $websiteStoresDeleted = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
+          //  echo 'websiteStoresDeleted: ' . $websiteStoresDeleted . '<br>';
+            $websitesDeleted = Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
+           // echo 'websitesDeleted: ' . $websitesDeleted . '<br>===================<br>';
+        }
+
+        foreach ($websites as $website) {
+           // echo 'Copying started from website : '. $website->title.'<br>';
+            \Log::info('Copying started from website : '. $website->title);
+            $websiteStore = WebsiteStore::where('website_id', '=', $website->id)->get();
+            foreach ($storeWebsiteIds as $row) {
+                //echo 'Copying to target store website id : '. $row.'<br>';
+                \Log::info('Copying to target store website id : '. $row);
+                $dataRow['name'] = $website->name;
+                $dataRow['code'] = $website->code;
+                $dataRow['platform_id'] = $website->platform_id;
+                $dataRow['store_website_id'] = $row;
+                $lastRow = Website::create($dataRow);
+
+                foreach ($websiteStore as $wsRow) {
+                  //  echo 'Copying websiteStore : '. $wsRow->id.'<br>';
+                    \Log::info('Copying websiteStore : '. $wsRow->id);
+                    $websiteStoreViews = WebsiteStoreView::where('website_store_id', '=', $wsRow->id)->get();
+                    $wsData['name'] = $wsRow->name;
+                    $wsData['code'] = $wsRow->code;
+                    $wsData['platform_id'] = $wsRow->platform_id;
+                    $wsData['website_id'] = $lastRow->id;
+                    $lastWsRow = WebsiteStore::create($wsData);
+
+                    foreach ($websiteStoreViews as $websiteStoreView) {
+                       // echo 'Copying websiteStoreView : '. $websiteStoreView->id.'<br>';
+                        \Log::info('Copying websiteStoreView : '. $wsRow->id);
+                        $wsvData['name'] = $websiteStoreView->name;
+                        $wsvData['code'] = $websiteStoreView->code;
+                        $wsvData['platform_id'] = $websiteStoreView->platform_id;
+                        $wsvData['website_store_id'] = $lastWsRow->id;
+                        $wsvData['store_group_id'] = $websiteStoreView->store_group_id;
+                        $wsvData['ref_theme_group_id'] = $websiteStoreView->ref_theme_group_id;
+                        WebsiteStoreView::create($wsvData);
+                    }
+                }
+            }
+        }
     }
 }
