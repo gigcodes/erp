@@ -16,7 +16,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   <label for="title">Title</label>
-                  <input type="text" name="title" value="{{if data}}{{:data.title}}{{/if}}" class="form-control mt-0"  placeholder="Enter Title">
+                  <input type="text" id='swTitle' name="title" value="{{if data}}{{:data.title}}{{/if}}" class="form-control mt-0"  placeholder="Enter Title">
                </div>
             </div>
             <div class="col-md-4">
@@ -304,6 +304,19 @@
             </div>
             <div class="col-md-4">
                <div class="form-group">
+                  <label for="store_code_id">Store Code</label>
+                  <select name="store_code_id" class="form-control">
+                     <option value="">Choose store code</option>
+                    <?php
+                       foreach ($storeCodes as $storeCode) {
+                           echo "<option {{if data.store_code_id == '".(isset($storeCode['id']) ? $storeCode['id'] : '')."'}} selected {{/if}} value='".(isset($storeCode['id']) ? $storeCode['id'] : '')."'>".(isset($storeCode['code']) ? ($storeCode['code'].' ( '.(isset($storeCode['server_id']) ? $storeCode['server_id'] : 'NA').' ) ') : '').'</option>';
+                       }
+   ?>
+                  </select>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
                   <label for="site_folder">Site Folder</label>
                   <select name="site_folder" id="site_folder" class="form-control siteFolder">
                      <option>--Select Site Folder--</option>
@@ -325,7 +338,6 @@
                   </select>
                </div>
             </div>
-            
          </div>
          <div class="MainMagentoUser">
             {{if totaluser != 0}}

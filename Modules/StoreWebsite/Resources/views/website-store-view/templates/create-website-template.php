@@ -35,7 +35,7 @@
 		         <select name="status" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-		    $statuses = ['In active', 'Active'];
+		$statuses = ['In active', 'Active'];
 		foreach ($statuses as $k => $l) {
 		    echo "<option {{if data.status == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
 		}
