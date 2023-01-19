@@ -78,8 +78,8 @@ class TwillioMessagesCommand extends Command
                                 $appUrl = config('env.CALL_BACK_URL');
                                 $lastchar = $appUrl[-1];
 
-                                if (strcmp($lastchar, "/") !== 0) {
-                                    $appUrl = $appUrl . '/';
+                                if (strcmp($lastchar, '/') !== 0) {
+                                    $appUrl = $appUrl.'/';
                                 }
 
                                 $client = new Client($account_sid, $auth_token);

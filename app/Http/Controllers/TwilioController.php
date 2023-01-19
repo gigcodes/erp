@@ -29,6 +29,7 @@ use App\Helpers;
 use App\Helpers\TwilioHelper;
 use App\Leads;
 use App\Message;
+use App\Models\Twilio\TwilioMessageDeliveryLogs;
 use App\Order;
 use App\OrderProduct;
 use App\OrderStatus;
@@ -67,7 +68,6 @@ use App\TwilioWorker;
 use App\TwilioWorkflow;
 use App\TwilioWorkspace;
 use App\User;
-use App\Models\Twilio\TwilioMessageDeliveryLogs;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -4788,12 +4788,12 @@ class TwilioController extends FindByNumberController
     {
         try {
             // Check customer Id is present or not
-            if(empty($cid)) {
+            if (empty($cid)) {
                 throw new Exception('Required parameters are missing');
             }
 
             // Check marketing message customer Id is present or not
-            if(empty($marketingMessageCId)) {
+            if (empty($marketingMessageCId)) {
                 throw new Exception('Required parameters are missing');
             }
 
@@ -4808,7 +4808,6 @@ class TwilioController extends FindByNumberController
                 'delivery_status' => $request->input('MessageStatus'),
                 'api_version' => $request->input('ApiVersion'),
             ]);
-
         } catch (\Exception $e) {
             \Log::info('handleMessageDeliveryStatus customer id -> '.$cid);
             \Log::info('handleMessageDeliveryStatus marketing message customer id -> '.$marketingMessageCId);
