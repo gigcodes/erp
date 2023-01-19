@@ -329,6 +329,7 @@ use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TaskController;
 
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
@@ -4494,3 +4495,7 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::get('/command-logs/{id}', [RedisQueueController::class, 'commandLogs'])->name('redisQueue.commandLogs');
     Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
 });
+
+// Task Summary::
+Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('task-summary');
+Route::post('task-list', [TaskController::class, 'taskList'])->name('task-list');

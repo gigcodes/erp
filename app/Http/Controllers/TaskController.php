@@ -7,6 +7,7 @@ use App\Status;
 use App\Task;
 use App\tasktypes;
 use App\User;
+use App\TaskStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -215,11 +216,61 @@ class TaskController extends Controller
         //
     }
 
-    // getting remarks
     public function getremarks($taskid)
+    // getting remarks
     {
         $results = DB::select('select * from reamrks where taskid = :taskid', ['taskid' => $taskid]);
 
         return $results;
+    }
+
+    /**
+     * function to show the user wise task's statuses counts.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function taskSummary()
+    {
+        $users = User::select('tasks.id','users.id as userid','users.name', 'tasks.assign_to', 'tasks.status', 'tasks.created_at', 'users.name', DB::raw('count(tasks.id) statusCnt'))
+            ->join('tasks', 'tasks.assign_to', 'users.id')
+            ->where('users.is_task_planned', 1)
+            ->groupBy('users.id','tasks.assign_to', 'tasks.status')
+            ->orderBy('tasks.id', 'desc')->orderBy('tasks.status', 'asc')
+            ->get();
+        $taskStatus = TaskStatus::get();
+        $taskStatusIds = TaskStatus::select(DB::raw("group_concat(id) as ids"))->first();
+        $arrTaskStatusId = explode(',', $taskStatusIds['ids']);
+
+        $arrStatusCount = [];
+        $arrName = [];
+        foreach ($users as $key => $value) {
+            $status = $value['status'];
+            $arrStatusCount[$value['userid']][$status] = $value['statusCnt'];
+            $arrName[$value['userid']]['name'] = $value['name'];
+            $arrName[$value['userid']]['userid'] = $value['userid'];
+            foreach ($arrTaskStatusId as $key => $arrTaskStatusIdvalue) {
+                if(!array_key_exists($arrTaskStatusIdvalue, $arrStatusCount[$value['userid']]))
+                {
+                    $arrStatusCount[$value['userid']][$arrTaskStatusIdvalue] = 0;
+                }
+            }
+            isset( $arrStatusCount[$value['userid']]) ? ksort($arrStatusCount[$value['userid']]) : '';
+        }
+        return view('task-summary.index', compact('users', 'taskStatus','arrName', 'arrStatusCount'));
+    }
+
+    /**
+     * function to show all the task list based on specific status and user
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $user_id, $status
+     * @return \Illuminate\Http\Response
+     */
+    public function taskList(Request $request)
+    {
+        $taskDetails = Task::where('status', $request->taskStatusId)->where('assign_to', $request->userId)->get();
+        return response()->json(['data' => $taskDetails]);
     }
 }

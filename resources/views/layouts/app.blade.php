@@ -2311,6 +2311,10 @@ if (!empty($notifications)) {
 
                                     <ul class="dropdown-menu multi-level">
 
+                                        <li class="nav-item dropdown ">
+                                            <a id="queueDropdown" href="{{ url('task-summary') }}" class="nav-link "
+                                                role="button" aria-haspopup="true" aria-expanded="false">Task Summary</a>
+                                        </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="queueDropdown" href="#" class="nav-link dropdown-toggle"
                                                 data-toggle="dropdown" role="button" aria-haspopup="true"
