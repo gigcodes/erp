@@ -233,11 +233,11 @@ class TaskController extends Controller
      */
     public function taskSummary()
     {
-        $users = User::select('tasks.id','users.id as userid','users.name', 'tasks.assign_to', 'tasks.status', 'tasks.created_at', 'users.name', DB::raw('count(tasks.id) statusCnt'))
+        $users = User::select('tasks.id','users.id as userid','users.name', 'tasks.assign_to', 'tasks.status', DB::raw('(SELECT tasks.created_at from tasks where tasks.assign_to = users.id order by tasks.created_at DESC limit 1) AS created_date'), 'users.name', DB::raw('count(tasks.id) statusCnt'))
             ->join('tasks', 'tasks.assign_to', 'users.id')
             ->where('users.is_task_planned', 1)
             ->groupBy('users.id','tasks.assign_to', 'tasks.status')
-            ->orderBy('tasks.id', 'desc')->orderBy('tasks.status', 'asc')
+            ->orderBy('created_date', 'desc')->orderBy('tasks.status', 'asc')
             ->get();
         $taskStatus = TaskStatus::get();
         $taskStatusIds = TaskStatus::select(DB::raw("group_concat(id) as ids"))->first();
