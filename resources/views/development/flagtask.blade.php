@@ -266,15 +266,14 @@
                 <tr>
                     <th max-width="4%">ID</th>
                     <th width="10%">Subject</th>
-                    <th width="10%">Assigned To</th>
-                    <th width="10%">Tracked Time</th>
-                    <th width="10%">Estimated Time</th>
-                    <th width="5%">Estimated Start Time</th>
-                    <th width="5%">Estimated End Time</th>
-                    <th width="10%">Delivery Date</th>
-                    <th width="20%">Communication</th>
+                    <th width="12%">Assigned To</th>
+                    <th width="12%">Tracked Time</th>
+                    <th width="6%">Estimated Time</th>
+                    <th width="10%">Estimated Start Time</th>
+                    <th width="10%">Estimated End Time</th>
+                    <th width="18%">Communication</th>
                     <th width="10%">Status</th>
-                    <th width="5%">Action</th>
+                    <th width="8%">Action</th>
                 </tr>
             </thead>
 
@@ -287,17 +286,25 @@
                 ?>
                 @foreach ($issues as $key => $issue)
                 @if($isReviwerLikeAdmin)
-                @include("development.partials.flagsummarydata")
+
+                    @include("development.partials.flagsummarydata")
+
                 @elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID)
-                @include("development.partials.flagdeveloper-row-view")
+
+                    @include("development.partials.flagdeveloper-row-view")
+
                 @endif
                 @endforeach
                 @foreach ($tasks as $key => $issue)
-                @if ($isReviwerLikeAdmin)
-                @include("task-module.partials.flagsummarydata")
+                @if ($isReviwerLikeAdmin || $isTeamLeader)
+
+                    @include("task-module.partials.flagsummarydata")
+
                 @elseif($issue->created_by == $userID || $issue->master_user_id == $userID ||
                 $issue->assigned_to == $userID)
-                @include("task-module.partials.flagdeveloper-row-view")
+
+                    @include("task-module.partials.flagdeveloper-row-view")
+
                 @endif
                 @endforeach
 
@@ -520,7 +527,6 @@
                         <label>Estimated Time: [In Minutes]</label>
                         <div class="form-group">
                             <input type="number" class="form-control" name="dev_approximate" value="" min="1" autocomplete="off" />
-                            <input type="hidden" class="form-control model_issue_id" name="model_issue_id" id="model_issue_id" value=""/>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -633,7 +639,7 @@
                     <div class="col-md-4">
                         <label>Estimated Time: [In Minutes]</label>
                         <div class="form-group">
-                            <input type="number" class="form-control" name="estimate_minutes" value="" min="1" />
+                            <input type="number" class="form-control" name="approximate" value="" min="1" autocomplete="off" />
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -645,7 +651,7 @@
                     <div class="{{$cls_2}}">
                         <label>Actions</label>
                         <div class="form-group">
-                            <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_minutes')">Update</button>
+                            <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('approximate')">Update</button>
                             <button type="button" class="btn btn-default show-time-history">History</button>
                         </div>
                     </div>
@@ -653,38 +659,12 @@
 
                 <hr />
 
-                <?php if (isAdmin()) { ?>
-                <div class="row">
-                    <div class="col-md-4">
-                        <label>Lead Estimated Time: [In Minutes]</label>
-                        <div class="form-group">
-                            <input type="number" class="form-control" name="lead_estimate_time" value="" min="1" />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <label>Remark:</label>
-                        <div class="form-group">
-                            <textarea class="form-control" name="lead_remark" rows="2"></textarea>
-                        </div>
-                    </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('lead_estimate_time')">Update</button>
-                            <button type="button" class="btn btn-default show-lead-time-history">History</button>
-                        </div>
-                    </div>
-                </div>
-
-                <hr />
-                <?php } ?>
-
                 <div class="row">
                     <div class="{{$cls_1}}">
                         <label>Estimated Start Datetime:</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
-                                <input type="text" class="form-control" name="start_date" value="" />
+                                <input type="text" class="form-control" name="start_date" value="" autocomplete="off" />
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                             </div>
                         </div>
@@ -705,7 +685,7 @@
                         <label>Estimated End Datetime: [Due Date]</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
-                                <input type="text" class="form-control" name="estimate_date" value="" />
+                                <input type="text" class="form-control" name="due_date" value="" autocomplete="off" />
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                             </div>
                         </div>
@@ -713,8 +693,8 @@
                     <div class="{{$cls_2}}">
                         <label>Actions</label>
                         <div class="form-group">
-                            <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_date')">Update</button>
-                            <button type="button" class="btn btn-default" onclick="funTaskHistories('estimate_date')">History</button>
+                            <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('due_date')">Update</button>
+                            <button type="button" class="btn btn-default" onclick="funTaskHistories('due_date')">History</button>
                         </div>
                     </div>
                 </div>
@@ -725,7 +705,7 @@
                     <div class="{{$cls_1}}">
                         <label>Cost:</label>
                         <div class="form-group">
-                            <input type="text" class="form-control" name="cost" value="" />
+                            <input type="text" class="form-control" name="cost" value="" autocomplete="off" />
                         </div>
                     </div>
                     <div class="{{$cls_2}}">
@@ -782,10 +762,9 @@
         }
     }
     function funDevInformationUpdates(type) {
-        var issueId = $('.model_issue_id').val();
         if (type == 'start_date') {
             if (confirm('Are you sure, do you want to update?')) {
-                siteLoader(1);
+                // siteLoader(1);
                 let mdl = funGetDevInformationModal();
                 jQuery.ajax({
                     headers: {
@@ -794,20 +773,20 @@
                     url: "{{ route('development.update.estimate-date') }}",
                     type: 'POST',
                     data: {
-                        id: currTaskInformationTaskId,
+                        id: currDevInformationTaskId,
                         value: mdl.find('input[name="dev_start_date"]').val(),
                     }
                 }).done(function(res) {
-                    siteLoader(0);
+                    // siteLoader(0);
                     siteSuccessAlert(res);
                 }).fail(function(err) {
-                    siteLoader(0);
+                    // siteLoader(0);
                     siteErrorAlert(err);
                 });
             }
         } else if (type == 'due_date') {
             if (confirm('Are you sure, do you want to update?')) {
-                // siteLoader(1);
+                // // siteLoader(1);
                 let mdl = funGetDevInformationModal();
                 jQuery.ajax({
                     headers: {
@@ -816,20 +795,20 @@
                     url: "{{ route('development.update.estimate-due-date') }}",
                     type: 'POST',
                     data: {
-                        id: currTaskInformationTaskId,
+                        id: currDevInformationTaskId,
                         value: mdl.find('input[name="dev_due_date"]').val(),
                     }
                 }).done(function(res) {
-                    siteLoader(0);
+                    // siteLoader(0);
                     siteSuccessAlert(res);
                 }).fail(function(err) {
-                    siteLoader(0);
+                    // siteLoader(0);
                     siteErrorAlert(err);
                 });
             }
         } else if (type == 'cost') {
             if (confirm('Are you sure, do you want to update?')) {
-                siteLoader(1);
+                // siteLoader(1);
                 let mdl = funGetDevInformationModal();
                 jQuery.ajax({
                     headers: {
@@ -838,20 +817,20 @@
                     url: "{{ route('development.update.cost') }}",
                     type: 'POST',
                     data: {
-                        id: currTaskInformationTaskId,
+                        id: currDevInformationTaskId,
                         value: mdl.find('input[name="dev_cost"]').val(),
                     }
                 }).done(function(res) {
-                    siteLoader(0);
-                    siteSuccessAlert(res);
+                    // siteLoader(0);
+                    // siteSuccessAlert(res);
                 }).fail(function(err) {
-                    siteLoader(0);
-                    siteErrorAlert(err);
+                    // siteLoader(0);
+                    // siteErrorAlert(err);
                 });
             }
         } else if (type == 'approximate') {
             if (confirm('Are you sure, do you want to update?')) {
-                siteLoader(1);
+                // siteLoader(1);
                 let mdl = funGetDevInformationModal();
                 jQuery.ajax({
                     headers: {
@@ -860,15 +839,15 @@
                     url: "{{ route('development.update.estimate-minutes') }}",
                     type: 'POST',
                     data: {
-                        estimate_minutes: mdl.find('input[name="approximate"]').val(),
+                        estimate_minutes: mdl.find('input[name="dev_approximate"]').val(),
                         remark: mdl.find('textarea[name="dev_remark"]').val(),
-                        issue_id: issueId
+                        issue_id: currDevInformationTaskId
                     }
                 }).done(function(res) {
-                    siteLoader(0);
+                    // siteLoader(0);
                     siteSuccessAlert(res);
                 }).fail(function(err) {
-                    siteLoader(0);
+                    // siteLoader(0);
                     siteErrorAlert(err);
                 });
             }
@@ -2576,16 +2555,14 @@
 
     });
 
-    function funGetDevInformationModal(id) {
-        $('.model_issue_id').val(id);
-
+    function funGetDevInformationModal() {
         return jQuery('#modalDevInformationUpdates');
     }
 
     function funDevInformationModal(ele, taskId) {
         // siteLoader(1);
-        currTaskInformationTaskId = taskId;
-        let mdl = funGetDevInformationModal(taskId);
+        currDevInformationTaskId = taskId;
+        let mdl = funGetDevInformationModal();
         jQuery.ajax({
             headers: {
                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
@@ -2753,6 +2730,36 @@
                     siteErrorAlert(err);
                 });
             }
+        }
+    }
+
+    function siteSuccessAlert(res) {
+        if (res.message != undefined) {
+            siteAlert(1, res.message);
+        }
+        else if (message) {
+            siteAlert(1, message);
+        }
+    }
+    function siteErrorAlert(err) {
+        if (err.responseJSON != undefined) {
+            siteAlert(0, err.responseJSON.message);
+        } else if (err.message != undefined) {
+            siteAlert(0, err.message);
+        } else if (err.msg != undefined) {
+            siteAlert(0, err.msg);
+        } else if (err) {
+            siteAlert(0, err);
+        } else {
+            siteAlert(0, 'Unknown error occured.');
+        }
+    }
+    function siteAlert(status, message) {
+        if (status && message) {
+            toastr['success'](message);
+        }
+        else if (message) {
+            toastr['error'](message);
         }
     }
 </script>
