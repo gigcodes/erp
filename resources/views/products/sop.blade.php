@@ -721,7 +721,9 @@ $(document).on('click', '.send-message-open', function (event) {
 
             //  let self = textBox;
 
+            
             $.ajax({
+
                 url: "{{route('whatsapp.send', 'SOP-Data')}}",
                 type: 'POST',
                 data: {
