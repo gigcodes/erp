@@ -148,4 +148,11 @@ class RoleController extends Controller
     {
         return view('errors.401');
     }
+
+    public function search_role(Request $request)
+    {
+        $permission = Permission::where('name', 'LIKE', '%'.$request->search_role.'%')->get();
+
+        return $permission;
+    }
 }
