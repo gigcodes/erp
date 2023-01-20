@@ -200,24 +200,24 @@ class CustomerController extends Controller
             $finalOrderStats[] = [$order_stat->order_status,
                 $order_stat->total,
                 ($order_stat->total / $totalCount) * 100,
-                    [
-                      '#CCCCCC',
-                      '#95a5a6',
-                      '#b2b2b2',
-                      '#999999',
-                      '#2c3e50',
-                      '#7f7f7f',
-                      '#666666',
-                      '#4c4c4c',
-                      '#323232',
-                      '#191919',
-                      '#000000',
-                      '#414a4c',
-                      '#353839',
-                      '#232b2b',
-                      '#34495e',
-                      '#7f8c8d',
-                    ][$key]
+                [
+                    '#CCCCCC',
+                    '#95a5a6',
+                    '#b2b2b2',
+                    '#999999',
+                    '#2c3e50',
+                    '#7f7f7f',
+                    '#666666',
+                    '#4c4c4c',
+                    '#323232',
+                    '#191919',
+                    '#000000',
+                    '#414a4c',
+                    '#353839',
+                    '#232b2b',
+                    '#34495e',
+                    '#7f8c8d',
+                ][$key],
 
             ];
         }
@@ -294,7 +294,7 @@ class CustomerController extends Controller
             ->pluck('counts', 'clothing_size');
 
         $groups = QuickSellGroup::select('id', 'name', 'group')->orderby('name', 'asc')->get();
-        $storeWebsites = \App\StoreWebsite::all()->pluck("website","id")->toArray();
+        $storeWebsites = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
         $solo_numbers = (new SoloNumbers)->all();
 
         return view('customers.index', [
@@ -1362,7 +1362,7 @@ class CustomerController extends Controller
         ]);
 
         $customer = new Customer;
-        $customer->store_website_id = !empty($request->store_website_id) ? $request->store_website_id : '' ;
+        $customer->store_website_id = ! empty($request->store_website_id) ? $request->store_website_id : '';
         $customer->name = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;

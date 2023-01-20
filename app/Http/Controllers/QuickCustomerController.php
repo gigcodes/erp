@@ -20,11 +20,11 @@ class QuickCustomerController extends Controller
         $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->renderAsDropdown();
         $brands = \App\Brand::all()->toArray();
         $solo_numbers = (new SoloNumbers)->all();
-        $storeWebsites = \App\StoreWebsite::all()->pluck("website","id")->toArray();
+        $storeWebsites = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
 
         $request->merge(['do_not_disturb' => '0']);
 
-        return view('quick-customer.index', compact('storeWebsites','solo_numbers','title', 'category_suggestion', 'brands', 'nextActionArr', 'reply_categories', 'groups', 'nextActionList'));
+        return view('quick-customer.index', compact('storeWebsites', 'solo_numbers', 'title', 'category_suggestion', 'brands', 'nextActionArr', 'reply_categories', 'groups', 'nextActionList'));
     }
 
     public function records(Request $request)
