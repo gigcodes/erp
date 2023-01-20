@@ -110,6 +110,7 @@ class StoreWebsite extends Model
         'project_id',
         'is_dev_website',
         'site_folder',
+        'store_code_id',
     ];
 
     const DB_CONNECTION = [
@@ -150,6 +151,11 @@ class StoreWebsite extends Model
     public function storeWebsiteProductPrice()
     {
         return $this->hasOne(\App\StoreWebsiteProductPrice::class, 'store_website_id', 'id');
+    }
+
+    public function storeCode()
+    {
+        return $this->hasOne(\App\StoreViewCodeServerMap::class, 'store_code_id', 'id');
     }
 
     /**
