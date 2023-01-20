@@ -1264,23 +1264,22 @@ class StoreWebsiteController extends Controller
 
             $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
             WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
-            \Log::info('Store views belongs to  the following ids deleted: ' . json_encode($websiteStoresToBeRemoved));
+            \Log::info('Store views belongs to  the following ids deleted: '.json_encode($websiteStoresToBeRemoved));
             WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
-            \Log::info('Website stores belongs to  the following ids deleted: ' . json_encode($websitesToBeRemoved));
+            \Log::info('Website stores belongs to  the following ids deleted: '.json_encode($websitesToBeRemoved));
             Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
-            \Log::info('Websites belongs to  the following ids deleted: ' . json_encode($websitesToBeRemoved));
-
+            \Log::info('Websites belongs to  the following ids deleted: '.json_encode($websitesToBeRemoved));
         }
 
-        return response()->json(['code' => 200, 'message' => 'Website store views deleted successfully! The following store websites dont have websites: '. json_encode($noWebsiteIds)]);
+        return response()->json(['code' => 200, 'message' => 'Website store views deleted successfully! The following store websites dont have websites: '.json_encode($noWebsiteIds)]);
     }
 
     public function copyWebsiteStoreViews($storeWebsiteId)
     {
         set_time_limit(0);
         $storeWebsiteIds = StoreWebsite::Where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
-        if(count($storeWebsiteIds) == 1 && $storeWebsiteId == $storeWebsiteIds[0]->id) {
-            if($storeWebsiteIds[0]->parent_id) {
+        if (count($storeWebsiteIds) == 1 && $storeWebsiteId == $storeWebsiteIds[0]->id) {
+            if ($storeWebsiteIds[0]->parent_id) {
                 $storeWebsiteIds = StoreWebsite::Where('parent_id', '=', $storeWebsiteIds[0]->parent_id)->orWhere('id', '=', $storeWebsiteIds[0]->parent_id)->get();
             } else {
                 return response()->json(['code' => 500, 'message' => 'No store websites found in the series of selected store website']);
@@ -1288,8 +1287,9 @@ class StoreWebsiteController extends Controller
         }
         $swIds = [];
         foreach ($storeWebsiteIds as $row) {
-            if($row->id != $storeWebsiteId)
+            if ($row->id != $storeWebsiteId) {
                 $swIds[] = $row->id;
+            }
         }
         \Log::info('Source store website id: '.$storeWebsiteId);
 
@@ -1337,6 +1337,7 @@ class StoreWebsiteController extends Controller
                 }
             }
         }
+
         return response()->json(['code' => 200, 'message' => 'Website store views copied successfully']);
     }
 }
