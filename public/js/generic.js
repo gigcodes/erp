@@ -272,6 +272,7 @@ var getHtml = function(response) {
         }
         button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="'+message.sop_category+'" data-name="'+message.sop_name+'" data-message="'+message.sop_content+'" data-id="' + message.id + '" data-msg="'+message.message+'"><i class="fa fa-asterisk" data-message="'+message.message+'" aria-hidden="true"></i></a>';
         button += '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-server" aria-hidden="true"></i></a>';
+        button += '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard(\'main_message\')" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
         // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
 
 
@@ -343,7 +344,7 @@ var getHtml = function(response) {
                 li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ parentMedia + message.parentMessage + '</div>';
             }
 
-            li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message" id="main_message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendTo + ' to ' + message.sendBy + ' on ' + datetime + '</span>';
 
 
@@ -355,7 +356,7 @@ var getHtml = function(response) {
                 li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ parentMedia + message.parentMessage + '</div>';
             }
 
-            li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message" id="main_message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + datetime + '</span>';
         } else {
             li += '<div>' + index + '</div>';
@@ -405,7 +406,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
     $.ajax({
         type: "GET",
-        url: "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages",
+        url: "http://localhost/erp/public/index.php/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages",
         data: {
             limit: limit,
             load_all: load_all,
@@ -1269,6 +1270,20 @@ $(document).on("click",".create-kyc-customer",function(e) {
       });
 });
 
+function CopyToClipboard(containerid) {
+    if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById(containerid));
+        range.select().createTextRange();
+        document.execCommand("copy");
+    } else if (window.getSelection) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById(containerid));
+        window.getSelection().addRange(range);
+        document.execCommand("copy");
+        alert("Text has been copied")
+    }
+}
 
 $(document).on("click",".btn-whitelist-ip",function(e) {
     e.preventDefault();
