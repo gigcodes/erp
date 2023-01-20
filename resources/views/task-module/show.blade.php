@@ -643,9 +643,12 @@
                                 <th width="10%">Assign To</th>
                                 <th width="8%">Status</th>
                                 <th width="7%">Tracked time</th>
-                                <th width="23%">Communication</th>
+                                <th width="20%">Communication</th>
+                                <th width="6%">Estimated Time</th>
+                                <th width="8%">Estimated Start Datetime</th>
+                                <th width="8%">Estimated End Datetime</th>
                                 <th width="19%">
-                                    Action &nbsp;
+                                    ICON &nbsp;
                                     <label><input type="checkbox" class="show-finished-task" name="show_finished" value="on"> Finished</label>
                                 </th>
                             </tr>
@@ -654,7 +657,6 @@
 
                             @if(count($data['task']['pending']) >0)
                                 @foreach($data['task']['pending'] as $task)
-
                                     @php
                                         $taskDueDate = $task->due_date;
                             $task->due_date='';
@@ -932,6 +934,29 @@
                                             @endif
                                         </td>
                                         <td class="p-2">
+                                            {{$task->approximate}}
+                                        </td>
+                                        <td class="p-2">
+                                            {{$task->start_date}}
+                                        </td>
+                                        <td class="p-2">
+                                            {{$taskDueDate}}
+                                        </td>
+                                        <td class="p-2">
+                                            <div class="dropdown dropleft">
+                                                <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Actions
+                                                </a>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
+                                                    <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$task->id}}')"><i class="fa fa-arrow-down"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="action-btn-tr-{{$task->id}} d-none">
+                                        <td class="font-weight-bold">Action</td>
+                                        <td colspan="12">
                                             <div>
                                                 <div class="row cls_action_box" style="margin:0px;">
                                                     @if(auth()->user()->isAdmin())
@@ -977,15 +1002,6 @@
                                                     <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
                                                     <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>
 
-                                                </div>
-                                            </div>
-
-                                            <div class="dropdown dropleft">
-                                                <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    Actions
-                                                </a>
-                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
-                                                    <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -1423,6 +1439,16 @@
 
     <script src="{{asset('js/bootstrap-multiselect.min.js')}}"></script>
     <script>
+        function Showactionbtn(id){
+            $(".action-btn-tr-"+id).toggleClass('d-none')
+        }
+    </script>
+    <script>
+        function Showactionbtn(id){
+            alert(id)
+            $(".action-btn-tr").removeClass('d-none');
+        }
+
         $(document).ready(function() {
             $(".multiselect").multiselect({
                 nonSelectedText: 'Status Filter',
@@ -1488,7 +1514,7 @@
                     var $loader = $('.infinite-scroll-products-loader');
                     page = page + 1;
                     $.ajax({
-                        url: "/task?page=" + page,
+                        url: {{env('APP_URL')}}"/task?page=" + page,
                         type: 'GET',
                         data: $('.form-search-data').serialize(),
                         beforeSend: function() {
@@ -1844,6 +1870,9 @@
             });
             $(".table").tablesorter();
         });
+
+
+
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
             var data = new FormData();
