@@ -722,7 +722,7 @@ $(document).on('click', '.send-message-open', function (event) {
             //  let self = textBox;
 
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'SOP-Data')}}",
+                url: "{{route('whatsapp.send', 'SOP-Data')}}",
                 type: 'POST',
                 data: {
                     "sop_user_id": sop_user_id,
