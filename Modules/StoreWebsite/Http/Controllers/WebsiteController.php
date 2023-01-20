@@ -21,7 +21,7 @@ class WebsiteController extends Controller
     {
         $title = 'Website | Store Website';
 
-        $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
+        $storeWebsites = StoreWebsite::all()->pluck('title', 'id');
         $countries = \App\SimplyDutyCountry::pluck('country_name', 'country_code')->toArray();
 
         return view('storewebsite::website.index', [

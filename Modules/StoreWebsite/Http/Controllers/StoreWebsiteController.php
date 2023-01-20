@@ -1233,47 +1233,17 @@ class StoreWebsiteController extends Controller
 
     public function deleteStoreViews($serverId)
     {
-        /*
-        if ($serverId == 1) {
-            $storeWebsiteIds = ['17','9','5','3','1'];
-        } elseif ($serverId == 2) {
-            $storeWebsiteIds = ['142','135','128','114','107'];
-        } elseif ($serverId == 3) {
-            $storeWebsiteIds = ['143','136','129','115','108'];
-        } elseif ($serverId == 4) {
-            $storeWebsiteIds = ['144','137','130','116','109'];
-        } elseif ($serverId == 5) {
-            $storeWebsiteIds = ['145','138','131','117','110'];
-        } elseif ($serverId == 6) {
-            $storeWebsiteIds = ['146','139','132','118','111'];
-        } elseif ($serverId == 7) {
-            $storeWebsiteIds = ['147','140','133','123','112'];
-        } elseif ($serverId == 8) {
-            $storeWebsiteIds = ['148','141','134','125','113'];
-        } else {
-            $storeWebsiteIds = [];
-        }
-        */
-        $model_store_website = StoreWebsite::Where('store_code_id', '=', $serverId)->get()->toArray();
-        $storeWebsiteIds = [];
-        if (count($model_store_website) > 0) {
-            for ($k = 0; $k < count($model_store_website); $k++) {
-                $storeWebsiteIds[] = $model_store_website[$k]['id'];
-            }
-        }
+        set_time_limit(0);
+        $storeServers = StoreViewCodeServerMap::where('server_id', '=', $serverId)->pluck('id')->toArray();
+        $storeWebsiteIds = StoreWebsite::WhereIn('store_code_id', $storeServers)->pluck('id')->toArray();
 
-        // echo 'Server id: '.$serverId.'<br>';
         if (count($storeWebsiteIds) == 0) {
-            echo 'Store websites not found. we have empty storeWebsiteIds'.'<br>';
-
-            return null;
+            return response()->json(['code' => 500, 'message' => 'Store websites not found for the selected server']);
         }
 
         $serverCodes = StoreViewCodeServerMap::where('server_id', '=', $serverId)->get();
         if ($serverCodes->count() == 0) {
-            echo 'Please enter a valid server id<br>';
-
-            return null;
+            return response()->json(['code' => 500, 'message' => 'No store coded found for the selected website']);
         }
 
         $serverCodesPartials = [];
@@ -1282,73 +1252,65 @@ class StoreWebsiteController extends Controller
             $serverCodesPartials[] = $codeArray[0];
         }
         $serverCodesPartials = array_unique($serverCodesPartials);
-
+        $noWebsiteIds = [];
         foreach ($storeWebsiteIds as $storeWebsiteId) {
-            // echo 'Processing store website: '. $storeWebsiteId.'<br>';
-
             $websites = Website::whereIn('code', $serverCodesPartials)->where('store_website_id', '=', $storeWebsiteId)
                 ->groupBy('code')->orderBy('id', 'asc')->pluck('id');
             if ($websites->count() == 0) {
-                echo 'No website found belongs to the entered server. StoreWebsiteid: '.$storeWebsiteId.'<br>';
-            } else {
-                $websitesToBeRemoved = Website::whereNotIn('id', $websites)->where('store_website_id', '=', $storeWebsiteId)->pluck('id');
-                $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
-                $websiteStoreViewsDeleted = WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
-                //  echo 'websiteStoreViewsDeleted: ' . $websiteStoreViewsDeleted . '<br>';
-                $websiteStoresDeleted = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
-                echo 'websiteStoresDeleted: '.$websiteStoresDeleted.'<br>';
-                $websitesDeleted = Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
-                // echo 'websitesDeleted: ' . $websitesDeleted . '<br>===================<br>';
+                $noWebsiteIds[] = $storeWebsiteId;
+                \Log::info('No websites found belongs to the store website id '.$storeWebsiteId);
             }
+            $websitesToBeRemoved = Website::whereNotIn('id', $websites)->where('store_website_id', '=', $storeWebsiteId)->pluck('id');
+
+            $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
+            WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
+            \Log::info('Store views belongs to  the following ids deleted: ' . json_encode($websiteStoresToBeRemoved));
+            WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
+            \Log::info('Website stores belongs to  the following ids deleted: ' . json_encode($websitesToBeRemoved));
+            Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
+            \Log::info('Websites belongs to  the following ids deleted: ' . json_encode($websitesToBeRemoved));
+
         }
+
+        return response()->json(['code' => 200, 'message' => 'Website store views deleted successfully! The following store websites dont have websites: '. json_encode($noWebsiteIds)]);
     }
 
     public function copyWebsiteStoreViews($storeWebsiteId)
     {
         set_time_limit(0);
-        /*
-        if($storeWebsiteId == 17) {
-            $storeWebsiteIds = ['148','147','146','145','144','143','142'];
-        } elseif ($storeWebsiteId == 114) {
-            $storeWebsiteIds = ['115','116','117','118','123','125','3'];
-        } elseif ($storeWebsiteId == 112) {
-            $storeWebsiteIds = ['107','108','109','110','111','113','1'];
-        }
-        */
-
-        $model_store_website = StoreWebsite::Where('parent_id', '=', $storeWebsiteId)->get()->toArray();
-        $storeWebsiteIds = [];
-        if (count($model_store_website) > 0) {
-            for ($k = 0; $k < count($model_store_website); $k++) {
-                $storeWebsiteIds[] = $model_store_website[$k]['id'];
+        $storeWebsiteIds = StoreWebsite::Where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
+        if(count($storeWebsiteIds) == 1 && $storeWebsiteId == $storeWebsiteIds[0]->id) {
+            if($storeWebsiteIds[0]->parent_id) {
+                $storeWebsiteIds = StoreWebsite::Where('parent_id', '=', $storeWebsiteIds[0]->parent_id)->orWhere('id', '=', $storeWebsiteIds[0]->parent_id)->get();
+            } else {
+                return response()->json(['code' => 500, 'message' => 'No store websites found in the series of selected store website']);
             }
         }
-
-        // echo 'Source store website id: '. $storeWebsiteId.'<br>';
+        $swIds = [];
+        foreach ($storeWebsiteIds as $row) {
+            if($row->id != $storeWebsiteId)
+                $swIds[] = $row->id;
+        }
         \Log::info('Source store website id: '.$storeWebsiteId);
 
-        $websites = Website::where('store_website_id', '=', $storeWebsiteId)->get();
-
-        foreach ($storeWebsiteIds as $swId) {
-            // echo 'Target store website id: '. $swId.'<br>';
+        foreach ($swIds as $swId) {
             \Log::info('Target store website id: '.$swId);
             $websitesToBeRemoved = Website::where('store_website_id', '=', $swId)->pluck('id');
             $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
-            $websiteStoreViewsDeleted = WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
-            //  echo 'websiteStoreViewsDeleted: ' . $websiteStoreViewsDeleted . '<br>';
-            $websiteStoresDeleted = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
-            //  echo 'websiteStoresDeleted: ' . $websiteStoresDeleted . '<br>';
-            $websitesDeleted = Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
-            // echo 'websitesDeleted: ' . $websitesDeleted . '<br>===================<br>';
+            WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
+            \Log::info('Deleted the following store views: '.json_encode($websiteStoresToBeRemoved));
+            WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
+            \Log::info('Deleted the following website store: '.json_encode($websitesToBeRemoved));
+            Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
+            \Log::info('Deleted the following websites: '.json_encode($websitesToBeRemoved));
         }
 
+        $websites = Website::where('store_website_id', '=', $storeWebsiteId)->get();
+
         foreach ($websites as $website) {
-            // echo 'Copying started from website : '. $website->title.'<br>';
             \Log::info('Copying started from website : '.$website->title);
             $websiteStore = WebsiteStore::where('website_id', '=', $website->id)->get();
-            foreach ($storeWebsiteIds as $row) {
-                //echo 'Copying to target store website id : '. $row.'<br>';
-                \Log::info('Copying to target store website id : '.$row);
+            foreach ($swIds as $row) {
                 $dataRow['name'] = $website->name;
                 $dataRow['code'] = $website->code;
                 $dataRow['platform_id'] = $website->platform_id;
@@ -1356,8 +1318,6 @@ class StoreWebsiteController extends Controller
                 $lastRow = Website::create($dataRow);
 
                 foreach ($websiteStore as $wsRow) {
-                    //  echo 'Copying websiteStore : '. $wsRow->id.'<br>';
-                    \Log::info('Copying websiteStore : '.$wsRow->id);
                     $websiteStoreViews = WebsiteStoreView::where('website_store_id', '=', $wsRow->id)->get();
                     $wsData['name'] = $wsRow->name;
                     $wsData['code'] = $wsRow->code;
@@ -1366,8 +1326,6 @@ class StoreWebsiteController extends Controller
                     $lastWsRow = WebsiteStore::create($wsData);
 
                     foreach ($websiteStoreViews as $websiteStoreView) {
-                        // echo 'Copying websiteStoreView : '. $websiteStoreView->id.'<br>';
-                        \Log::info('Copying websiteStoreView : '.$wsRow->id);
                         $wsvData['name'] = $websiteStoreView->name;
                         $wsvData['code'] = $websiteStoreView->code;
                         $wsvData['platform_id'] = $websiteStoreView->platform_id;
@@ -1379,5 +1337,6 @@ class StoreWebsiteController extends Controller
                 }
             }
         }
+        return response()->json(['code' => 200, 'message' => 'Website store views copied successfully']);
     }
 }

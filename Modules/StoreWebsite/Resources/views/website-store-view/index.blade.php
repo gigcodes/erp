@@ -136,9 +136,9 @@
 			<div class="modal-body">
 				<select id="selCopyWebsite" name="selCopyWebsite" class="form-control">
 					<option value="">--Select Website--</option>	
-					<?php foreach($storeWebsites as $keyr => $valr) { ?>
-						<option value="<?php echo $keyr; ?>"><?php echo  $valr; ?></option>
-					<?php } ?>
+					@foreach($storeWebsites as $key => $val)
+						<option value="{{ $key }}">{{ $val }}</option>
+					@endforeach
 				</select>
 			</div>
 			<div class="modal-footer">
@@ -159,9 +159,9 @@
 			<div class="modal-body">
 				<select id="selDeleteServer" name="selDeleteServer" class="form-control">
 					<option value="">--Select Server--</option>
-					<?php foreach($store_servers as $keyr => $valr) { ?>
-						<option value="<?php echo $valr; ?>">Server <?php echo  $valr; ?></option>
-					<?php } ?>
+					@foreach($storeServers as $storeServer)
+						<option value="{{ $storeServer->server_id }}">Server {{ $storeServer->server_id }}</option>
+					@endforeach
 				</select>
 			</div>
 			<div class="modal-footer">
@@ -312,10 +312,18 @@
 		}
 		$.ajax({
 			type: "GET",
-			url: "/store-website/copy-website-store-views/"+website_id,
+			url: "/store-website/copy-website-store-views/"+ website_id,
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
 		}).done(function(response) {
-			$('#copyWebsiteModal').modal('hide');
-			alert("Copy process completed successfully");
+			$("#loading-image").hide();
+			if(response.code == 200) {
+				toastr['success'](response.message, 'Success');
+				$('#copyWebsiteModal').modal('hide');
+			} else {
+				toastr['error'](response.message, 'error');
+			}
 		}).fail(function(response) {
 
 		});
@@ -327,16 +335,24 @@
 			alert("Please select the server");
 			return false;
 		}
-		let text;
+
 		if (confirm("Are you sure want to delete") == true) {
 			$.ajax({
 				type: "GET",
 				url: "/store-website/delete-store-views/"+serverid,
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
 			}).done(function(response) {
-				$('#deleteWebsiteModal').modal('hide');
-				alert("Delete process completed successfully");
+				$("#loading-image").hide();
+				if(response.code == 200) {
+					toastr['success'](response.message, 'Success');
+					$('#deleteWebsiteModal').modal('hide');
+				} else {
+					toastr['error'](response.message, 'error');
+				}
 			}).fail(function(response) {
-
+				toastr['error'](response.message, 'error');
 			});
 		} else {
 			$('#selDeleteServer').val('');

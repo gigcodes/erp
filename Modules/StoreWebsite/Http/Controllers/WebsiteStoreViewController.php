@@ -25,14 +25,14 @@ class WebsiteStoreViewController extends Controller
         $storeWebsites = StoreWebsite::orderBy('title', 'ASC')->pluck('title', 'id')->toArray();
         $websiteStores = WebsiteStore::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $languages = \App\Language::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
-        $store_servers = StoreViewCodeServerMap::groupBy('server_id')->pluck('server_id')->toArray();
+        $storeServers = StoreViewCodeServerMap::groupBy('server_id')->get();
 
         return view('storewebsite::website-store-view.index', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'websiteStores' => $websiteStores,
             'languages' => $languages,
-            'store_servers' => $store_servers,
+            'storeServers' => $storeServers,
         ]);
     }
 
