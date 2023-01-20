@@ -1150,6 +1150,7 @@ class DevelopmentController extends Controller
         //     "" => "Select Status",
         // ], $statusList);
 
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
         $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
         $team_members_array[] = auth()->user()->id;
         $team_id_array = [];
@@ -1164,6 +1165,7 @@ class DevelopmentController extends Controller
                 $team_members_array[] = $model_user_model[$m]->user_id;
             }
         }
+
         $team_members_array_unique = array_unique($team_members_array);
         $team_members_array_unique_ids = implode(',', $team_members_array_unique);
 
@@ -1188,8 +1190,11 @@ class DevelopmentController extends Controller
 
         if (Auth::user()->hasRole('Admin')) {
             $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
-        } else {
+        } elseif ($isTeamLeader) {
             $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN ('.$team_members_array_unique_ids.'))');
+        } else {
+            $login_user_id = auth()->user()->id;
+            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN ('.$login_user_id.'))');
         }
 
         if ($type == 'issue') {
@@ -1267,7 +1272,16 @@ class DevelopmentController extends Controller
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         $task = $task->select('tasks.*', 'chat_messages.message');
 
-        if (! auth()->user()->isReviwerLikeAdmin()) {
+        if ($isTeamLeader && ! Auth::user()->hasRole('Admin')) {
+            $issues = $issues->where(function ($query) {
+                $query->where('developer_tasks.assigned_to', auth()->user()->id)
+                    ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
+            });
+            $task = $task->where(function ($query) use ($team_members_array_unique) {
+                $query->whereIn('tasks.assign_to', $team_members_array_unique)
+                    ->orWhere('tasks.master_user_id', auth()->user()->id);
+            });
+        } elseif (! auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
@@ -1337,6 +1351,7 @@ class DevelopmentController extends Controller
             'statusList' => $statusList,
             // 'languages' => $languages,
             'task_statuses' => $task_statuses,
+            'isTeamLeader' => $isTeamLeader,
         ]);
     }
 
