@@ -42,10 +42,7 @@
             border: none;
             background: none
         }
-
-        .table-responsive select.select {
-            width: 110px !important;
-        }
+     
 
         @media (max-width: 1280px) {
             table.table {
@@ -86,13 +83,63 @@
     @endif
 
 </div>
-<div class="float-right">
-    <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-primary btn_import">Import CSV</button>
-    <a class="btn btn-secondary btn_export" href="{{ route('csvTranslator.export') }}" target="_blank">Export CSV</a>
-    <a class="btn btn-info btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
+<div class="row w-100">
+    <div class="col-md-2">
+       <label>Language</label> 
+       <select class="form-control" name="lang_filter" id="lang_filter">
+            <option value="">Select</option>
+            <option value="en">EN</option>
+            <option value="es">ES</option>
+            <option value="ru">RU</option>
+            <option value="ko">KO</option>
+            <option value="ja">JA</option>
+            <option value="it">IT</option>
+            <option value="de">DE</option>
+            <option value="fr">FR</option>
+            <option value="nl">NL</option>
+            <option value="zh">ZH</option>
+            <option value="ar">AR</option>
+            <option value="ur">UR</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+    <label>Status</label>
+        <select class="form-control" name="status_filter" id="status_filter">
+            <option value="">Status</option>
+            <option value="checked">checked</option>
+            <option value="unchecked">unchecked</option>
+            <option value="">others</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+    <label>Users</label>
+        <select class="form-control" name="users_filter" id="users_filter">
+            <option value="">Select</option>
+            @php
+            use App\User;    
+            @endphp
+            @foreach (User::all() as $users)
+                <option value="{{$users->id}}">{{$users->name}}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-md-1 my-5">
+    <a href="#" class="filterSearch">
+            <i class="fa fa-search"></i>
+        </a>
+    </div>
+
 </div>
+
+<div class="float-right my-3">
+    <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-secondary btn_import">Import CSV</button>
+    <a class="btn btn-secondary btn_export" href="{{ route('csvTranslator.export') }}" target="_blank">Export CSV</a>
+    <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
+</div>
+
+
 <div class="table-responsive mt-3" style="margin-top:20px;">
-    <table class="table table-bordered text-wrap" style="border: 1px solid #ddd;" id="csvData-table">
+    <table class="table table-bordered text-wrap csvData-table" style="border: 1px solid #ddd;" id="csvData-table">
         <thead>
             <tr>
                 <th>Id</th>
@@ -109,7 +156,6 @@
                 <th>ZH</th>
                 <th>AR</th>
                 <th>UR</th>
-                <th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -160,7 +206,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-submit-form" data-dismiss="modal">Add
+                <button type="button" class="btn btn-secondary btn-submit-form" data-dismiss="modal">Add
                     Permission</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
@@ -192,7 +238,7 @@
 </div>
 
 <div class="modal fade" id="edit_model" role="dialog">
-    <div class="modal-dialog modal-sm">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
         <form method="post" class="form-update" action="{{route('csvTranslator.update')}}">
             <div class="modal-header">
@@ -200,7 +246,6 @@
                 <h4 class="modal-title position-absolute">Update Value</h4>
             </div>
             <div class="modal-body edit_model_body">
-              
                     @csrf
                     <input type="text" name="update_record" class="form-control update_record" />
                     <div class="d-none add_hidden_data"></div>
@@ -208,10 +253,53 @@
               
             </div>
             <div class="modal-footer">
-            <input type="submit" value="update" name="update" class="btn btn-primary" />
+            <input type="submit" value="update" name="update" class="btn btn-secondary" />
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
             </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="history" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">History</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered text-wrap w-auto min-w-100">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Keyword</th>
+                            <th>En</th>
+                            <th>ES</th>
+                            <th>RU</th>
+                            <th>KO</th>
+                            <th>JA</th>
+                            <th>IT</th>
+                            <th>DE</th>
+                            <th>FR</th>
+                            <th>NL</th>
+                            <th>ZH</th>
+                            <th>AR</th>
+                            <th>UR</th>
+                            <th>Updator</th>
+                            <th>Approver</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="data_history">
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -254,8 +342,8 @@
             searchDelay: 500,
             processing: true,
             serverSide: true,
-            sScrollX: false,
-            searching: false,
+            sScrollX: true,
+            searching: true,
             targets: 'no-sort',
             bSort: false,
             ajax: {
@@ -288,10 +376,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.en +
+                                JSON.stringify(row.en) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="en" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
 
                     }
@@ -303,10 +391,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.es +
+                                JSON.stringify(row.es) +
                                 '  data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="es" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -317,10 +405,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.eu +
+                                JSON.stringify(row.ru) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ru" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -331,10 +419,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.ko +
+                                JSON.stringify(row.ko) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ko" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -345,10 +433,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.ja +
+                                JSON.stringify(row.ja) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ja" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -359,10 +447,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.it +
+                                JSON.stringify(row.it) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="it" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -373,10 +461,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.de +
+                                JSON.stringify(row.de) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="de" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -387,10 +475,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.fr +
+                                JSON.stringify(row.fr) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="fr" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -401,10 +489,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.nl +
+                                JSON.stringify(row.nl) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="nl" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -415,10 +503,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.zh +
+                                JSON.stringify(row.zh) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="zh" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -429,10 +517,10 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.ar +
+                                JSON.stringify(row.ar) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ar" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
                     }
                 },
@@ -443,17 +531,11 @@
                             return data + ' <a href="#" class="editbtn_model" data-lang=' +
                                 langId + ' data-user=' + userId + ' data-id=' + row.id +
                                 ' data-value=' +
-                                row.ur +
+                                JSON.stringify(row.ur) +
                                 ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
                         } else {
-                            return data;
+                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
                         }
-                    }
-                },
-                {
-                    data: 'status',
-                    render: function(data, type, row, meta) {
-                        return data;
                     }
                 }
 
@@ -479,5 +561,66 @@
         $(".add_hidden_data").html(html);
         
     });
+
+    $(document).on('click','.history_model',function(){
+        var id = $(this).data('id');
+        var key = $(this).data('key');
+        var language = $(this).data('lang');
+
+        $.ajax({
+            url:"{{ route('csvTranslator.history') }}",
+            method:'POST',
+            data:{'id':id,"key":key,"language":language,'_token':"{{csrf_token()}}"},
+            success:function(response){
+                let html;
+                $(".data_history").html('');
+                if(response.data.length == 0){
+                    $(".data_history").html('<tr colspan="12"><td class="text-center">No Data Found</td></tr>');
+                }else{
+                    $.each(response.data,function(key,value){
+                        html += `
+                        <tr>
+                        <td>${value.id}</td>
+                        <td>${value.key}</td>
+                        <td>${value.en}</td>
+                        <td>${value.es}</td>
+                        <td>${value.ru}</td>
+                        <td>${value.ko}</td>
+                        <td>${value.ja}</td>
+                        <td>${value.it}</td>
+                        <td>${value.de}</td>    
+                        <td>${value.fr}</td>
+                        <td>${value.nl}</td>
+                        <td>${value.zh}</td>
+                        <td>${value.ar}</td>
+                        <td>${value.ur}</td>
+                        <td>${value.approver}</td>
+                        <td>${value.updater}</td>
+                        <td>${value.created_at}</td>
+                        </tr>`;
+                   });
+                   $(".data_history").html(html);
+                }  
+            }
+        })
+    });
+
+    $(".filterSearch").on('click',function(){
+        var langFilter = $("#lang_filter").val();
+        var statusFilter =  $("#status_filter").val();
+        var usersFilter = $("#users_filter").val();
+        // oTable.clear().draw();
+        oTable.ajax.url('/csv-filter?user='+usersFilter+'&status='+statusFilter+'&lang='+langFilter).load();
+        
+        // $.ajax({
+        //     url:'/csv-filter',
+        //     method:'GET',
+        //     data:{'lang':langFilter,'status':statusFilter,'user':usersFilter,'_token':"{{csrf_token()}}"},
+        //     success:function(response){
+        //         oTable.clear().draw();
+        //         // oTable.data = respponse;
+        //     }
+        // })
+    })
 </script>
 @endsection

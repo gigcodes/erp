@@ -36,6 +36,15 @@ table{border-collapse: collapse;}
 	height:30px;
 	margin-top:2px;
 }
+.bug-task-note {
+	height: 30px;
+    width: 100%;
+    text-align: center;
+    margin-top: 0px;
+    background: #ebe7e2;
+    font-weight: bold;
+    padding-top: 5px;
+}
 </style>
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
@@ -488,6 +497,7 @@ table{border-collapse: collapse;}
 					<div class="modal-header">
 						<h4 class="modal-title">Create Task</h4>
 					</div>
+					<div class="bug-task-note"> Note: Task already created for this Bug ID</div>
 					<div class="modal-body">
 						<input class="form-control" value="52" type="hidden" name="category_id" />
 						<input class="form-control" value="" type="hidden" name="category_title" id="category_title" />
@@ -543,6 +553,12 @@ table{border-collapse: collapse;}
 						<div class="form-group">
 							<label for="">Websites</label>
 							<div class="form-group website-list row">
+							   
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="">Last Users</label>
+							<div class="form-group task-users-list row" style="margin-left: 0px;">
 							   
 							</div>
 						</div>
@@ -630,16 +646,10 @@ table{border-collapse: collapse;}
             {{--});--}}
       })
 	</script>
-	<script type="text/javascript">
-	
-		
-		
-$.views.helpers({
-    getrep: function( val ) {      
-        return val.toUpperCase();       
-    },
-
-});
+	<script type="text/javascript">	
+		$(document).ready(function() {
+			$("body").tooltip({ selector: '[data-toggle=tooltip]' });
+		});
 
 		$('.change_assign_to_top').select2({
 				width: "150px",
@@ -813,7 +823,7 @@ $.views.helpers({
 			$('.text-task-development').val('');
 			bug_id_val = $(this).data("id");
 			
-			
+			$('.bug-task-note').hide();
 			$.ajax({
 				url: '/bug-tracking/checkbug',
 				type: 'POST',
@@ -832,6 +842,7 @@ $.views.helpers({
 				// inner Ajax starts
 				
 				if(response.data >0 ) {
+					$('.bug-task-note').show();
 					if (!confirm('Task already created for this bug id, Would you like to create again')) {				  
 					  
 					  return false;
@@ -870,6 +881,7 @@ $.views.helpers({
 						//$('.text-task-development').val(response.data.bug_ids);		
 						$('#bugs_list_html').html(response.data.bug_html);					
 						//toastr["success"]("Remarks fetched successfully");
+						$('.task-users-list').html(response.data.bug_users_worked);
 					}).fail(function(jqXHR, ajaxOptions, thrownError) {
 						toastr["error"]("Oops,something went wrong");
 						$("#loading-image").hide();
@@ -979,8 +991,11 @@ $.views.helpers({
 		$(document).on("click", ".cls-checkbox-bugsids", function(e) {
 			
 			var values = new Array();
+			var bugvalues  = new Array();
 			$.each($("input[name='chkBugId[]']:checked"), function() {
 			  values.push($(this).val());
+			  var det = $(this).val()+" - "+ $(this).attr("data-summary");
+			  bugvalues.push(det);
 			  // or you can do something to the actual checked checkboxes by working directly with  'this'
 			  // something like $(this).hide() (only something useful, probably) :P
 			})			
@@ -988,7 +1003,7 @@ $.views.helpers({
 			var prevlist = $('.text-task-development').val();
 			
 			
-			$('.text-task-development').val(values);
+			$('.text-task-development').val(bugvalues);
 			$('.text-task-bugids').val(values);
 			
 		});
@@ -1222,5 +1237,8 @@ $.views.helpers({
 			$('#bug-id-search').val("");
 			window.history.replaceState({}, document.title, clean_uri);
 		}
+
+		
+
 	</script>
 @endsection

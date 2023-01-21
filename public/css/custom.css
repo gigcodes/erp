@@ -2568,3 +2568,24 @@ table {
 	display: inline-block;
   width: 10%
 }
+
+.csvData-table{
+  width:100% !important;
+} 
+.min-w-100{
+  min-width: 100%;
+}
+
+.history_model{
+  padding-bottom: 40px;
+  padding-right: 40px;
+  position: relative;   
+}
+
+.csvData-table tbody.odd , .csvData-table tbody.even{
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+
+}
+

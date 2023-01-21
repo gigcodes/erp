@@ -5,11 +5,12 @@
 		    <thead>
 		      <tr>
 		      	<th width="2%" class="Website-task"title="Id">Id</th>
-		        <th width="3%" class="Website-task"title="Title">Title</th>
-		        <th width="3%"class="Website-task"title="Website">Website</th>
+		        <th width="4%" class="Website-task"title="Title">Title</th>
+		        <th width="5%"class="Website-task"title="Website">Website</th>
 		        <th width="4%" class="Website-task"title="Country Duty">Country Duty</th>
 		        <th width="4%" class="Website-task"title="Description">Description</th>
 		        <th width="4%" class="Website-task"title="Service id">Service id</th>
+		        <th width="4%" class="Website-task"title="Store Code">Store Code</th>
 		        <th width="5%" class="Website-task"title="Remote software">Remote software</th>
 		        <th width="4%" class="Website-task"title="Facebook">Facebook</th>
 		        <th width="4%" class="Website-task"title="Instagram">Instagram</th>
@@ -24,11 +25,12 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			        <td class="Website-task" title="{{:prop.title}}">{{:prop.title}}</td>
-			        <td class="Website-task"><b>Website :</b>{{:prop.website}}</td>
+			        <td class="Website-task-warp" title="{{:prop.title}}">{{:prop.title}}</td>
+			        <td class="Website-task-warp">{{:prop.website}}</td>
 			        <td class="Website-task">{{:prop.country_duty}}</td>
-			        <td class="Website-task">{{:prop.description}}</td>
+			        <td class="Website-task-warp">{{:prop.description}}</td>
 			        <td>{{:prop.mailing_service_id}}</td>
+			        <td>{{:prop.store_code_name}}</td>
 			        <td>{{:prop.remote_software}}</td>
 			        <td>
 			        	{{:prop.facebook}}
@@ -38,8 +40,8 @@
 			        	<i class="fa fa-comment show-instagram-remarks" data-id="{{>prop.id}}" data-value="{{:prop.instagram_remarks}}"></i>
 			        </td>
 					<td>{{if prop.is_published == 1}}Yes{{else}}No{{/if}}</td>
-					<td class="Website-task">{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
-					<td class="Website-task">{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
+					<td class="Website-task-warp">{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
+					<td class="Website-task-warp">{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
 					<td>{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
 			        <td p-0>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template" style="padding:1px 0px;">
