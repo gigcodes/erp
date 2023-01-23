@@ -451,6 +451,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/csv-translator/export', [CsvTranslatorController::class, 'export'])->name('csvTranslator.export');
     Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
     Route::post('/csv-translator/history', [CsvTranslatorController::class, 'history'])->name('csvTranslator.history');
+    Route::get('/csv-filter', [CsvTranslatorController::class, 'filterCsvTranslator'])->name('csvTranslator.filter');
 });
 
 /** Magento Settings */
@@ -1992,6 +1993,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::prefix('update')->group(function () {
             Route::post('start-date', [DevelopmentController::class, 'actionStartDateUpdate'])->name('development.update.start-date');
             Route::post('estimate-date', [DevelopmentController::class, 'saveEstimateDate'])->name('development.update.estimate-date');
+            Route::post('estimate-due-date', [DevelopmentController::class, 'saveEstimateDueDate'])->name('development.update.estimate-due-date');
             Route::post('cost', [DevelopmentController::class, 'saveAmount'])->name('development.update.cost');
             Route::post('estimate-minutes', [DevelopmentController::class, 'saveEstimateMinutes'])->name('development.update.estimate-minutes');
             Route::post('lead-estimate-minutes', [DevelopmentController::class, 'saveLeadEstimateTime'])->name('development.update.lead-estimate-minutes');
@@ -2336,6 +2338,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/failed/download/history', [EmailAddressesController::class, 'downloadFailedHistory'])->name('email.failed.download');
 
     Route::post('email/getemailhistory/{id}', [EmailAddressesController::class, 'getEmailAddressHistory']);
+    Route::get('email/Emailaddress/search', [EmailAddressesController::class, 'searchEmailAddress'])->name('email.address.search');
+    Route::post('email/Emailaddress/update', [EmailAddressesController::class, 'updateEmailAddress'])->name('email.address.update');
 
     Route::get('email/get-related-account/{id}', [EmailAddressesController::class, 'getRelatedAccount']);
 
@@ -2505,6 +2509,7 @@ Route::post('twilio/storerecording', [TwilioController::class, 'storeRecording']
 Route::post('twilio/storetranscript', [TwilioController::class, 'storetranscript']);
 Route::post('twilio/eventsFromFront', [TwilioController::class, 'eventsFromFront']);
 Route::post('twilio/events', [TwilioController::class, 'twilioEvents']);
+Route::post('twilio/handleMessageDeliveryStatus/{cid}/{marketingMessageCId}', [TwilioController::class, 'handleMessageDeliveryStatus']);
 
 Route::any('twilio/twilio_menu_response', [TwilioController::class, 'twilio_menu_response'])->name('twilio_menu_response');
 Route::any('twilio/twilio_call_menu_response', [TwilioController::class, 'twilio_call_menu_response'])->name('twilio_call_menu_response');
@@ -3918,6 +3923,7 @@ Route::middleware('auth')->group(function () {
     Route::get('twilio/message-tones', [TwilioController::class, 'viewMessageTones'])->name('twilio.view_tone');
     Route::get('twilio/reject-incoming-call', [TwilioController::class, 'rejectIncomingCall'])->name('twilio.reject_incoming_call');
     Route::get('twilio/block-incoming-call', [TwilioController::class, 'blockIncomingCall'])->name('twilio.block_incoming_call');
+    Route::get('twilio/delivery-logs', [TwilioController::class, 'twilioDeliveryLogs'])->name('twilio.twilio_delivery_logs');
 
     /**
      * Watson account management

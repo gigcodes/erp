@@ -1150,6 +1150,25 @@ class DevelopmentController extends Controller
         //     "" => "Select Status",
         // ], $statusList);
 
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
+        $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
+        $team_members_array_unique_ids = '';
+        if (count($model_team) > 0) {
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
+            $team_ids = implode(',', $team_id_array);
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
+        }
+
+        $team_members_array_unique = array_unique($team_members_array);
+        $team_members_array_unique_ids = implode(',', $team_members_array_unique);
+
         $task_statuses = TaskStatus::all();
 
         $modules = DeveloperModule::orderBy('name')->get();
@@ -1159,10 +1178,7 @@ class DevelopmentController extends Controller
         $title = 'Flag Task List';
 
         $issues = DeveloperTask::with(['timeSpent', 'leadtimeSpent', 'testertimeSpent', 'assignedUser']); // ->where('is_flagged', '1')
-        $issues->whereNotIn('developer_tasks.status', [
-            DeveloperTask::DEV_TASK_STATUS_DONE,
-            DeveloperTask::DEV_TASK_STATUS_IN_REVIEW,
-        ]);
+        $issues->whereNotIn('developer_tasks.status', [DeveloperTask::DEV_TASK_STATUS_DONE, DeveloperTask::DEV_TASK_STATUS_IN_REVIEW]);
         $issues->whereRaw('developer_tasks.assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
 
         $task = Task::with(['timeSpent']); // ->where('is_flagged', '1')
@@ -1170,7 +1186,16 @@ class DevelopmentController extends Controller
             Task::TASK_STATUS_DONE,
             Task::TASK_STATUS_IN_REVIEW,
         ]);
-        $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
+        // $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
+
+        if (Auth::user()->hasRole('Admin')) {
+            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
+        } elseif ($isTeamLeader) {
+            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN ('.$team_members_array_unique_ids.'))');
+        } else {
+            $login_user_id = auth()->user()->id;
+            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN ('.$login_user_id.'))');
+        }
 
         if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
@@ -1233,6 +1258,7 @@ class DevelopmentController extends Controller
                     ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
             });
         }
+
         $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 '.$whereCondition.' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
@@ -1246,7 +1272,16 @@ class DevelopmentController extends Controller
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         $task = $task->select('tasks.*', 'chat_messages.message');
 
-        if (! auth()->user()->isReviwerLikeAdmin()) {
+        if ($isTeamLeader && ! Auth::user()->hasRole('Admin')) {
+            $issues = $issues->where(function ($query) {
+                $query->where('developer_tasks.assigned_to', auth()->user()->id)
+                    ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
+            });
+            $task = $task->where(function ($query) use ($team_members_array_unique) {
+                $query->whereIn('tasks.assign_to', $team_members_array_unique)
+                    ->orWhere('tasks.master_user_id', auth()->user()->id);
+            });
+        } elseif (! auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
@@ -1273,6 +1308,7 @@ class DevelopmentController extends Controller
         $paginateLimit = Setting::get('pagination') ?: 15;
 
         $issues = $issues->paginate($paginateLimit);
+
         $tasks = $task->paginate($paginateLimit);
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
@@ -1315,6 +1351,7 @@ class DevelopmentController extends Controller
             'statusList' => $statusList,
             // 'languages' => $languages,
             'task_statuses' => $task_statuses,
+            'isTeamLeader' => $isTeamLeader,
         ]);
     }
 
@@ -3967,7 +4004,7 @@ class DevelopmentController extends Controller
     {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
-                $params['message'] = 'Estimated End Datetime: '.$new;
+                $params['message'] = 'Estimated Start Datetime: '.$new;
                 $params['user_id'] = Auth::user()->id;
                 $params['developer_task_id'] = $single->id;
                 $params['approved'] = 1;
@@ -3983,6 +4020,28 @@ class DevelopmentController extends Controller
         }
 
         return respJson(400, 'Estimate date is required.');
+    }
+
+    public function saveEstimateDueDate(Request $request)
+    {
+        if ($new = request('value')) {
+            if ($single = DeveloperTask::find(request('id'))) {
+                $params['message'] = 'Estimated End Datetime: '.$new;
+                $params['user_id'] = Auth::user()->id;
+                $params['developer_task_id'] = $single->id;
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                $params['sent_to_user_id'] = $single->user_id;
+                ChatMessage::create($params);
+                $single->updateEstimateDueDate($new);
+
+                return respJson(200, 'Successfully updated.');
+            }
+
+            return respJson(404, 'No task found.');
+        }
+
+        return respJson(400, 'Due date is required.');
     }
 
     public function saveAmount(Request $request)
