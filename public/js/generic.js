@@ -272,7 +272,7 @@ var getHtml = function(response) {
         }
         button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="'+message.sop_category+'" data-name="'+message.sop_name+'" data-message="'+message.sop_content+'" data-id="' + message.id + '" data-msg="'+message.message+'"><i class="fa fa-asterisk" data-message="'+message.message+'" aria-hidden="true"></i></a>';
         button += '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-server" aria-hidden="true"></i></a>';
-        button += '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard(\'main_message\')" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
+        button += '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard(\'message\')" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
         // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
 
 
@@ -1273,7 +1273,7 @@ $(document).on("click",".create-kyc-customer",function(e) {
 function CopyToClipboard(containerid) {
     if (document.selection) {
         var range = document.body.createTextRange();
-        range.moveToElementText(document.getElementById(containerid));
+        range.moveToElementText(document.getElementsByClassName(containerid));
         range.select().createTextRange();
         document.execCommand("copy");
     } else if (window.getSelection) {
