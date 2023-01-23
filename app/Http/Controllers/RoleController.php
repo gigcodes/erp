@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Permission;
 use App\Role;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use function GuzzleHttp\json_encode;
+use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
@@ -44,7 +43,7 @@ class RoleController extends Controller
 
         $permission = Permission::get();
 
-        return view('roles.index', compact('roles','permission'))
+        return view('roles.index', compact('roles', 'permission'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
@@ -156,17 +155,18 @@ class RoleController extends Controller
     public function search_role(Request $request)
     {
         $permission = Permission::where('name', 'LIKE', '%'.$request->search_role.'%')->get();
-        $permission_array = explode(',',$request->permission);
+        $permission_array = explode(',', $request->permission);
 
         $html = '<strong>Permission:</strong><br/>';
-        foreach($permission as $k => $value) {
-            $checked ='';
-            if(in_array($value['id'], $permission_array)) {
+        foreach ($permission as $k => $value) {
+            $checked = '';
+            if (in_array($value['id'], $permission_array)) {
                 $checked = 'checked';
             }
 
-            $html .='<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'. $value['id'] .'" '.$checked.'><span style="padding-left: 4px;">'. $value->name . '</span></label><br/>';
+            $html .= '<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'.$value['id'].'" '.$checked.'><span style="padding-left: 4px;">'.$value->name.'</span></label><br/>';
         }
+
         return json_encode($html);
     }
 }
