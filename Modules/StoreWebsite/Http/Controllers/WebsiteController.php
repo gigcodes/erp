@@ -21,7 +21,7 @@ class WebsiteController extends Controller
     {
         $title = 'Website | Store Website';
 
-        $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
+        $storeWebsites = StoreWebsite::all()->pluck('title', 'id');
         $countries = \App\SimplyDutyCountry::pluck('country_name', 'country_code')->toArray();
 
         return view('storewebsite::website.index', [
@@ -98,7 +98,7 @@ class WebsiteController extends Controller
         if (! empty($request->countries) && $request->countries != 'null') {
             $records->countries = json_encode($request->countries);
         }
-        $post['code'] = replace_dash($post['code']);
+        $post['code'] = replaceSpaceWithDash($post['code']);
 
         $records->fill($post);
 
@@ -201,19 +201,19 @@ class WebsiteController extends Controller
                     if (! $website) {
                         $website = new Website;
                         $website->name = $c;
-                        $website->code = replace_dash($k);
+                        $website->code = replaceSpaceWithDash($k);
                         $website->countries = json_encode([$k]);
                         $website->store_website_id = $storeWebsiteId;
                         if ($website->save()) {
                             $websiteStore = new WebsiteStore;
                             $websiteStore->name = $c.' Store';
-                            $websiteStore->code = replace_dash($k).'_store';
+                            $websiteStore->code = replaceSpaceWithDash($k).'_store';
                             $websiteStore->website_id = $website->id;
                             $websiteStore->save();
                             if ($websiteStore->save()) {
                                 $websiteStoreView = new WebsiteStoreView;
                                 $websiteStoreView->name = 'English';
-                                $websiteStoreView->code = replace_dash(strtolower($k.'_en'));
+                                $websiteStoreView->code = replaceSpaceWithDash(strtolower($k.'_en'));
                                 $websiteStoreView->website_store_id = $websiteStore->id;
                                 $websiteStoreView->save();
                             }
@@ -267,19 +267,19 @@ class WebsiteController extends Controller
             $slug = preg_replace('/\s+/', '_', strtolower($groupName));
             $website = new Website;
             $website->name = $groupName;
-            $website->code = replace_dash($slug);
+            $website->code = replaceSpaceWithDash($slug);
             $website->countries = json_encode($countries);
             $website->store_website_id = $storeWebsiteId;
             if ($website->save()) {
                 $websiteStore = new WebsiteStore;
                 $websiteStore->name = $groupName;
-                $websiteStore->code = replace_dash($slug).'_store';
+                $websiteStore->code = replaceSpaceWithDash($slug).'_store';
                 $websiteStore->website_id = $website->id;
                 $websiteStore->save();
                 if ($websiteStore->save()) {
                     $websiteStoreView = new WebsiteStoreView;
                     $websiteStoreView->name = 'English';
-                    $websiteStoreView->code = replace_dash(strtolower($slug.'_en'));
+                    $websiteStoreView->code = replaceSpaceWithDash(strtolower($slug.'_en'));
                     $websiteStoreView->website_store_id = $websiteStore->id;
                     $websiteStoreView->save();
                 }
@@ -303,7 +303,7 @@ class WebsiteController extends Controller
                 if ($cWebsite) {
                     $website = new Website;
                     $website->name = $cWebsite->name;
-                    $website->code = replace_dash($cWebsite->code);
+                    $website->code = replaceSpaceWithDash($cWebsite->code);
                     $website->countries = $cWebsite->countries;
                     $website->store_website_id = $storeWebsiteId;
 
@@ -314,7 +314,7 @@ class WebsiteController extends Controller
                             foreach ($cStores as $cStore) {
                                 $store = new WebsiteStore;
                                 $store->name = $cStore->name;
-                                $store->code = replace_dash($cStore->code);
+                                $store->code = replaceSpaceWithDash($cStore->code);
                                 $store->website_id = $website->id;
                                 if ($store->save()) {
                                     $cStoreViews = $cStore->storeView;
@@ -322,7 +322,7 @@ class WebsiteController extends Controller
                                         foreach ($cStoreViews as $cStoreView) {
                                             $storeView = new WebsiteStoreView;
                                             $storeView->name = $cStoreView->name;
-                                            $storeView->code = replace_dash($cStoreView->code);
+                                            $storeView->code = replaceSpaceWithDash($cStoreView->code);
                                             $storeView->website_store_id = $store->id;
                                             $storeView->save();
                                         }
@@ -389,7 +389,7 @@ class WebsiteController extends Controller
                     if ($cWebsite) {
                         $website = new Website;
                         $website->name = $cWebsite->name;
-                        $website->code = replace_dash($cWebsite->code);
+                        $website->code = replaceSpaceWithDash($cWebsite->code);
                         $website->countries = $cWebsite->countries;
                         $website->store_website_id = $storeWebsiteId;
 
@@ -400,7 +400,7 @@ class WebsiteController extends Controller
                                 foreach ($cStores as $cStore) {
                                     $store = new WebsiteStore;
                                     $store->name = $cStore->name;
-                                    $store->code = replace_dash($cStore->code);
+                                    $store->code = replaceSpaceWithDash($cStore->code);
                                     $store->website_id = $website->id;
                                     if ($store->save()) {
                                         $cStoreViews = $cStore->storeView;
@@ -408,7 +408,7 @@ class WebsiteController extends Controller
                                             foreach ($cStoreViews as $cStoreView) {
                                                 $storeView = new WebsiteStoreView;
                                                 $storeView->name = $cStoreView->name;
-                                                $storeView->code = replace_dash($cStoreView->code);
+                                                $storeView->code = replaceSpaceWithDash($cStoreView->code);
                                                 $storeView->website_store_id = $store->id;
                                                 $storeView->save();
                                             }
@@ -449,14 +449,14 @@ class WebsiteController extends Controller
             $allWebsites = Website::where('store_website_id', $storeWebsiteId)->get();
             if (! $allWebsites->isEmpty()) {
                 foreach ($allWebsites as $key => $cWebsite) {
-                    $isExist = Website::where('code', replace_dash($cWebsite->code))->where('store_website_id', $copyStoreWebsiteID)->first();
+                    $isExist = Website::where('code', replaceSpaceWithDash($cWebsite->code))->where('store_website_id', $copyStoreWebsiteID)->first();
                     if ($isExist) {
                         continue;
                     }
 
                     $website = new Website;
                     $website->name = $cWebsite->name;
-                    $website->code = replace_dash($cWebsite->code);
+                    $website->code = replaceSpaceWithDash($cWebsite->code);
                     $website->countries = $cWebsite->countries;
                     $website->store_website_id = $copyStoreWebsiteID;
 
@@ -467,7 +467,7 @@ class WebsiteController extends Controller
                             foreach ($cStores as $cStore) {
                                 $store = new WebsiteStore;
                                 $store->name = $cStore->name;
-                                $store->code = replace_dash($cStore->code);
+                                $store->code = replaceSpaceWithDash($cStore->code);
                                 $store->website_id = $website->id;
                                 if ($store->save()) {
                                     $cStoreViews = $cStore->storeView;
@@ -475,7 +475,7 @@ class WebsiteController extends Controller
                                         foreach ($cStoreViews as $cStoreView) {
                                             $storeView = new WebsiteStoreView;
                                             $storeView->name = $cStoreView->name;
-                                            $storeView->code = replace_dash($cStoreView->code);
+                                            $storeView->code = replaceSpaceWithDash($cStoreView->code);
                                             $storeView->website_store_id = $store->id;
                                             $storeView->save();
                                         }
