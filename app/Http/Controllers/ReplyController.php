@@ -255,8 +255,8 @@ class ReplyController extends Controller
         $replies = $replies->paginate(25);
         foreach ($replies as $key => $value) {
             $subCat = explode('>', $value->parentList());
-            $replies[$key]['parent_first'] = isset($subCat[0])?$subCat[0]:'';
-            $replies[$key]['parent_secound'] = isset($subCat[1])?$subCat[1]:'';
+            $replies[$key]['parent_first'] = isset($subCat[0]) ? $subCat[0] : '';
+            $replies[$key]['parent_secound'] = isset($subCat[1]) ? $subCat[1] : '';
         }
 
         return view('reply.list', compact('replies'));
