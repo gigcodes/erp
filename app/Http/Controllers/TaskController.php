@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Setting;
 use App\Status;
 use App\Task;
+use App\TaskStatus;
 use App\tasktypes;
 use App\User;
-use App\TaskStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -233,14 +233,14 @@ class TaskController extends Controller
      */
     public function taskSummary()
     {
-        $userListWithStatuesCnt = User::select('tasks.id','users.id as userid','users.name', 'tasks.assign_to', 'tasks.status', DB::raw('(SELECT tasks.created_at from tasks where tasks.assign_to = users.id order by tasks.created_at DESC limit 1) AS created_date'), 'users.name', DB::raw('count(tasks.id) statusCnt'))
+        $userListWithStatuesCnt = User::select('tasks.id', 'users.id as userid', 'users.name', 'tasks.assign_to', 'tasks.status', DB::raw('(SELECT tasks.created_at from tasks where tasks.assign_to = users.id order by tasks.created_at DESC limit 1) AS created_date'), 'users.name', DB::raw('count(tasks.id) statusCnt'))
             ->join('tasks', 'tasks.assign_to', 'users.id')
             ->where('users.is_task_planned', 1)
-            ->groupBy('users.id','tasks.assign_to', 'tasks.status')
+            ->groupBy('users.id', 'tasks.assign_to', 'tasks.status')
             ->orderBy('created_date', 'desc')->orderBy('tasks.status', 'asc')
             ->get();
         $getTaskStatus = TaskStatus::get();
-        $getTaskStatusIds = TaskStatus::select(DB::raw("group_concat(id) as ids"))->first();
+        $getTaskStatusIds = TaskStatus::select(DB::raw('group_concat(id) as ids'))->first();
         $arrTaskStatusIds = explode(',', $getTaskStatusIds['ids']);
 
         $arrStatusCount = [];
@@ -251,14 +251,14 @@ class TaskController extends Controller
             $arrUserNameId[$value['userid']]['name'] = $value['name'];
             $arrUserNameId[$value['userid']]['userid'] = $value['userid'];
             foreach ($arrTaskStatusIds as $key => $arrTaskStatusIdvalue) {
-                if(!array_key_exists($arrTaskStatusIdvalue, $arrStatusCount[$value['userid']]))
-                {
+                if (! array_key_exists($arrTaskStatusIdvalue, $arrStatusCount[$value['userid']])) {
                     $arrStatusCount[$value['userid']][$arrTaskStatusIdvalue] = 0;
                 }
             }
-            isset( $arrStatusCount[$value['userid']]) ? ksort($arrStatusCount[$value['userid']]) : '';
+            isset($arrStatusCount[$value['userid']]) ? ksort($arrStatusCount[$value['userid']]) : '';
         }
-        return view('task-summary.index', compact('userListWithStatuesCnt', 'getTaskStatus','arrUserNameId', 'arrStatusCount'));
+
+        return view('task-summary.index', compact('userListWithStatuesCnt', 'getTaskStatus', 'arrUserNameId', 'arrStatusCount'));
     }
 
     /**
@@ -271,6 +271,7 @@ class TaskController extends Controller
     public function taskList(Request $request)
     {
         $taskDetails = Task::where('status', $request->taskStatusId)->where('assign_to', $request->userId)->get();
+
         return response()->json(['data' => $taskDetails]);
     }
 }

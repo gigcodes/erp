@@ -289,6 +289,7 @@ use App\Http\Controllers\SystemSizeController;
 use App\Http\Controllers\TargetLocationController;
 use App\Http\Controllers\TaskCategoriesController;
 use App\Http\Controllers\TaskCategoryController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskHistoryController;
 use App\Http\Controllers\TaskModuleController;
 use App\Http\Controllers\TasksController;
@@ -329,7 +330,6 @@ use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TaskController;
 
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
