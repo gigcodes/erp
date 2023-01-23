@@ -191,25 +191,20 @@
 
         $('.search_role').on('keyup',function(){
             var search_role = $('.search_role').val();
+            var permission = $.map($(':checkbox[name=permission\\[\\]]:checked'), function(n, i){
+                return n.value;
+            }).join(',');
+
             $.ajax({
                 url: "{{route('search_role')}}",
                 dataType: "json",
-                data: {search_role: search_role},
+                data: {search_role: search_role,permission:permission},
                 beforeSend: function () {
                     $("#loading-image").show();
                 },
-
             }).done(function (data) {
                 $("#loading-image").hide();
-                var html = '<strong>Permission:</strong><br/>';
-                $.each(data, function(k, v) {
-                    html +='<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'+ k.id +'"><span style="padding-left: 4px;">'+ v.name+ '</span></label><br/>';
-                });
-                console.log(html);
-                $('.permissions').html(html);
-
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
+                $('.permissions').html(data);
             });
         });
     </script>
