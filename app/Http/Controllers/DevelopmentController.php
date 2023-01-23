@@ -1242,7 +1242,7 @@ class DevelopmentController extends Controller
         if (! empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
-       // $task = $task->where('tasks.status', $inprocessStatusID->id);
+        // $task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition = $whereTaskCondition = '';
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
@@ -1334,7 +1334,7 @@ class DevelopmentController extends Controller
 
             return $data;
         }
-        
+
         $taskMessage = TaskMessage::where('message_type', 'date_time_reminder_message')->first();
 
         return view('development.flagtask', [
