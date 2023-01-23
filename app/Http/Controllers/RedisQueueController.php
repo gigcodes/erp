@@ -131,26 +131,26 @@ class RedisQueueController extends Controller
         $cmd = 'queue:'.$keyword.' redis --queue='.$queue->name;
 
         try {
-            $response = Artisan::call($cmd);
+            $response = [];
+            $response[] = $cmd;
+            $result = exec($cmd, $response);
 
-            $command = new RedisQueueCommandExecutionLog();
-            $command->user_id = \Auth::user()->id;
-            $command->redis_queue_id = $queue->id;
-            $command->command = $cmd;
-            $command->server_ip = env('SERVER_IP');
-            $command->response = $response;
-            $command->save();
+            if ($result == '') {
+                $result = 'Not any response';
+            } elseif ($result == 0) {
+                $result = 'Command run success Response '.$result;
+            } elseif ($result == 1) {
+                $result = 'Command run Fail Response '.$result;
+            } else {
+                $result = is_array($result) ? json_encode($result, true) : $result;
+            }
 
-            return response()->json(['code' => 200, 'message' => 'Queue command executed successfully']);
+            $this->addExecutionLog($cmd, $result, $queue->id);
+            return response()->json(['code' => 200, 'message' => 'Command executed successfully']);
+
         } catch (\Exception $e) {
             $msg = $e->getMessage();
-            $command = new RedisQueueCommandExecutionLog();
-            $command->user_id = \Auth::user()->id;
-            $command->redis_queue_id = $queue->id;
-            $command->command = $cmd;
-            $command->server_ip = env('SERVER_IP');
-            $command->response = $msg;
-            $command->save();
+            $this->addExecutionLog($cmd, $result, $queue->id);
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
@@ -164,29 +164,47 @@ class RedisQueueController extends Controller
      */
     public function executeHorizon(Request $request)
     {
-        $cmd = $request->get('command_tail');
+
         try {
-            $response = Artisan::call($cmd);
+            $cmd = $request->get('command_tail');
+            $cmd = 'php ../artisan '. $cmd;
+            $response = [];
+            $response[] = $cmd;
+            $result = exec($cmd, $response);
 
-            $command = new RedisQueueCommandExecutionLog();
-            $command->user_id = \Auth::user()->id;
-            $command->command = $cmd;
-            $command->server_ip = env('SERVER_IP');
-            $command->response = $response;
-            $command->save();
+            if ($result == '') {
+                $result = 'Not any response';
+            } elseif ($result == 0) {
+                $result = 'Command run success Response '.$result;
+            } elseif ($result == 1) {
+                $result = 'Command run Fail Response '.$result;
+            } else {
+                $result = is_array($result) ? json_encode($result, true) : $result;
+            }
 
-            return response()->json(['code' => 200, 'message' => 'Queue command executed successfully']);
+            $this->addExecutionLog($cmd, $result);
+            if($request->get('command_tail') == 'horizon:status')
+                return response()->json(['code' => 200, 'message' => $result]);
+            else
+                return response()->json(['code' => 200, 'message' => 'Command executed successfully']);
         } catch (\Exception $e) {
-            $msg = $e->getMessage();
-            $command = new RedisQueueCommandExecutionLog();
-            $command->user_id = \Auth::user()->id;
-            $command->command = $cmd;
-            $command->server_ip = env('SERVER_IP');
-            $command->response = $msg;
-            $command->save();
+            $result = $e->getMessage();
+            $this->addExecutionLog($cmd, $result);
 
-            return response()->json(['code' => 500, 'message' => $msg]);
+            return response()->json(['code' => 500, 'message' => $result]);
         }
+    }
+
+    public function addExecutionLog($cmd, $result, $id = null)
+    {
+        $command = new RedisQueueCommandExecutionLog();
+        $command->user_id = \Auth::user()->id;
+        $command->command = $cmd;
+        $command->server_ip = env('SERVER_IP');
+        $command->response = $result;
+        if($id)
+            $command->redis_queue_id = $id;
+        $command->save();
     }
 
     /**
@@ -219,14 +237,4 @@ class RedisQueueController extends Controller
         }
     }
 
-    public function getAllQueues()
-    {
-        $queues = RedisQueue::all();
-        $queue1 = [];
-        foreach ($queues as $queue) {
-            $queue1[] = $queue->name;
-        }
-
-        return $queue1;
-    }
 }

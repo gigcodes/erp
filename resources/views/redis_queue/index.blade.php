@@ -30,9 +30,9 @@
                     <button type="button" onclick="horizonRun('horizon:status')" class="btn btn-secondary" title="Horizon status">
                         <i class="fa fa-line-chart" aria-hidden="true"></i>
                     </button>
-                    <button type="button" onclick="horizonRun('horizon')" class="btn btn-secondary" title="Horizon run">
-                        <i class="fa fa-play" aria-hidden="true"></i>
-                    </button>
+{{--                    <button type="button" onclick="horizonRun('horizon')" class="btn btn-secondary" title="Horizon run">--}}
+{{--                        <i class="fa fa-play" aria-hidden="true"></i>--}}
+{{--                    </button>--}}
                     <button type="button" onclick="horizonRun('horizon:pause')" class="btn btn-secondary" title="Horizon pause">
                         <i class="fa fa-pause" aria-hidden="true"></i>
                     </button>
