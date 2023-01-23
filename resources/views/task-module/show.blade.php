@@ -6,11 +6,11 @@
 
 @section('styles')
 
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+{{--    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />--}}
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="{{asset('css/bootstrap-datetimepicker.min.css')}}">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
 
@@ -211,7 +211,17 @@
         input.cmn-toggle-round:checked+label:after {
             margin-left: 20px;
         }
+        .btn.btn-image {
+             margin-top: 0px !important;
+        }
         /*end toggle button*/
+
+        .tablesorter-header-inner {
+            white-space: nowrap;
+        }
+        .show-finished-task {
+            height: auto;
+        }
     </style>
 @endsection
 
@@ -636,18 +646,18 @@
                         <table class="table table-sm table-bordered">
                             <thead>
                             <tr>
-                                <th width="5%">ID</th>
-                                <th width="8%">Date</th>
-                                <th width="10%" class="category">Category</th>
-                                <th width="10%">Task Subject</th>
+                                <th width="4%">ID</th>
+                                <th width="7%">Date</th>
+                                <th width="4%" class="category">Category</th>
+                                <th width="6%">Task Subject</th>
                                 <th width="10%">Assign To</th>
                                 <th width="8%">Status</th>
                                 <th width="7%">Tracked time</th>
-                                <th width="20%">Communication</th>
-                                <th width="6%">Estimated Time</th>
-                                <th width="8%">Estimated Start Datetime</th>
-                                <th width="8%">Estimated End Datetime</th>
-                                <th width="19%">
+                                <th width="17%">Communication</th>
+                                <th width="10%">Estimated Time</th>
+                                <th width="6%">Estimated Start Datetime</th>
+                                <th width="6%">Estimated End Datetime</th>
+                                <th width="8%">
                                     ICON &nbsp;
                                     <label><input type="checkbox" class="show-finished-task" name="show_finished" value="on"> Finished</label>
                                 </th>
@@ -874,7 +884,6 @@
                                                 @endif
                                             </div>
                                         </td>
-
                                         <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
                                             @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                                 <div style="margin-bottom:10px;width: 100%;">
@@ -934,13 +943,33 @@
                                             @endif
                                         </td>
                                         <td class="p-2">
-                                            {{$task->approximate}}
+                                            <div style="margin-bottom:10px;width: 100%;">
+                                                <div class="d-flex">
+                                                    <input type="number" class="form-control" name="approximates{{$task->id}}" value="{{$task->approximate}}" min="1" autocomplete="off">
+                                                    <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('approximate',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        @php
+                                            $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
+                                        @endphp
+                                        <td class="p-2">
+                                            <div class="form-group d-flex">
+                                                <div class='input-group date cls-start-due-date'>
+                                                    <input type="text" class="form-control" name="start_dates{{$task->id}}" value="{{$single->task_start_date}}" autocomplete="off" />
+                                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                </div>
+                                                    <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                                            </div>
                                         </td>
                                         <td class="p-2">
-                                            {{$task->start_date}}
-                                        </td>
-                                        <td class="p-2">
-                                            {{$taskDueDate}}
+                                            <div class="form-group d-flex">
+                                                <div class='input-group date cls-start-due-date'>
+                                                    <input type="text" class="form-control" name="due_dates{{$task->id}}" value="{{$single->task_new_due_date}}" autocomplete="off" />
+                                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                </div>
+                                                <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                                            </div>
                                         </td>
                                         <td class="p-2">
                                             <div class="dropdown dropleft">
@@ -956,7 +985,7 @@
                                     </tr>
                                     <tr class="action-btn-tr-{{$task->id}} d-none">
                                         <td class="font-weight-bold">Action</td>
-                                        <td colspan="12">
+                                        <td colspan="11">
                                             <div>
                                                 <div class="row cls_action_box" style="margin:0px;">
                                                     @if(auth()->user()->isAdmin())
@@ -1443,10 +1472,103 @@
             $(".action-btn-tr-"+id).toggleClass('d-none')
         }
     </script>
+
     <script>
-        function Showactionbtn(id){
-            alert(id)
-            $(".action-btn-tr").removeClass('d-none');
+        // function Showactionbtn(id){
+        //     $(".action-btn-tr").removeClass('d-none');
+        // }
+
+        function funTaskInformationUpdatesTime(type,id) {
+            if (type == 'start_date') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('task.update.start-date') }}",
+                        type: 'POST',
+                        data: {
+                            task_id: id,
+                            value: $('input[name="start_dates'+id+'"]').val(),
+                        }
+                    }).done(function(res) {
+                        siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'due_date') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('task.update.due-date') }}",
+                        type: 'POST',
+                        data: {
+                            task_id: id,
+                            value: $('input[name="due_dates'+id+'"]').val(),
+                        }
+                    }).done(function(res) {
+                        siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'cost') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('task.update.cost') }}",
+                        type: 'POST',
+                        data: {
+                            task_id: id,
+                            cost: mdl.find('input[name="cost"]').val(),
+                        }
+                    }).done(function(res) {
+                        siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'approximate') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('task.update.approximate') }}",
+                        type: 'POST',
+                        data: {
+                            task_id: id,
+                            approximate: $('input[name="approximates'+id+'"]').val(),
+                            remark: mdl.find('textarea[name="remark"]').val(),
+                        }
+                    }).done(function(res) {
+                        siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            }
         }
 
         $(document).ready(function() {
@@ -1514,7 +1636,7 @@
                     var $loader = $('.infinite-scroll-products-loader');
                     page = page + 1;
                     $.ajax({
-                        url: {{env('APP_URL')}}"/task?page=" + page,
+                        url: "/task?page=" + page,
                         type: 'GET',
                         data: $('.form-search-data').serialize(),
                         beforeSend: function() {
@@ -3351,5 +3473,16 @@
                 alert('Could not fetch payments');
             });
         });
+        jQuery(document).ready(function() {
+            applyDateTimePicker(jQuery('.cls-start-due-date'));
+        });
+        function applyDateTimePicker(eles) {
+            if (eles.length) {
+                eles.datetimepicker({
+                    format: 'YYYY-MM-DD HH:mm:ss',
+                    sideBySide: true,
+                });
+            }
+        }
     </script>
 @endsection
