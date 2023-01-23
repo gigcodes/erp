@@ -2562,8 +2562,7 @@ class OrderController extends Controller
             if (is_numeric($value['twilio_call_sid'])) {
                 // code...
                 $formatted_phone = str_replace('+', '', $value['twilio_call_sid']);
-                if(!empty($storeId->store_website_id))
-                {
+                if (! empty($storeId->store_website_id)) {
                     $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->where('store_website_id', $storeId->store_website_id)->get()->toArray();
                 }
 
