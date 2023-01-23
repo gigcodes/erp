@@ -2572,3 +2572,81 @@ table {
 .csvData-table{
   width:100% !important;
 } 
+
+/**Tasks Summary Start**/
+
+.headingTaskSummary{
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tbl-tasks-summary{
+  margin-left: 5%;
+  margin-top:20px;
+  margin-right: 5%;
+}
+
+.tbl-tasks-summary th {
+  border: 1px solid black;
+  text-align:center;
+}
+
+.tbl-tasks-summary table {
+  border-collapse: collapse;
+}
+
+.tbl-tasks-summary.table>tbody>tr>td, .tbl-tasks-summary.table>tbody>tr>th, .tbl-tasks-summary.table>tfoot>tr>td, .tbl-tasks-summary.table>tfoot>tr>th, .tbl-tasks-summary.table>thead>tr>td, .tbl-tasks-summary.table>thead>tr>th {
+	padding:5px;
+}
+
+#taskHistoryModal .scrollable {
+  max-height:550px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+.taskStatusCnt{
+  text-align:right;
+}
+
+.taskStatusCnt button.btn.btn-xs.show-task-history {
+  margin-left: 5px;
+}
+
+.tbl-tasks-summary .taskStatusName{
+  width: 5%;
+}
+
+#loading-image-task-summary{
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: url('/images/pre-loader.gif') 50% 50% no-repeat;
+  display:none;
+}
+
+#taskHistoryModal .modal-content{
+  width: 850px;
+  padding: 0% 2% 2% 2%;
+}
+
+.tblTaskHistory{
+  font-size: 13px;
+}
+
+.tblTaskHistory>tbody>tr.headTbltasklist>td{
+  text-align: center;
+}
+
+.tblTaskHistory .tbltasklist>tr>td{
+  padding: 1%;
+}
+
+/**Tasks Summary End**/

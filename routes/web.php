@@ -4497,5 +4497,5 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
 });
 
 // Task Summary::
-Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('task-summary');
-Route::post('task-list', [TaskController::class, 'taskList'])->name('task-list');
+Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('tasksSummary');
+Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList');
