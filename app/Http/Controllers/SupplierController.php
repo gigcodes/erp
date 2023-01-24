@@ -65,22 +65,22 @@ class SupplierController extends Controller
         $term = $request->term ?? '';
         $type = $request->type ?? [];
         $supplier_filter = $request->supplier_filter ?? '';
-        $scrappertype = isset($request->scrappertype)?implode(',',$request->scrappertype): '';
+        $scrappertype = isset($request->scrappertype) ? implode(',', $request->scrappertype) : '';
         //$status = $request->status ?? '';
-        $supplier_category_id = isset($request->supplier_category_id)?implode(',',$request->supplier_category_id) : '';
-        $supplier_status_id =  isset($request->supplier_status_id)?implode(',',$request->supplier_status_id): '';
-        $supplier_price_range_id = isset($request->supplier_price_range_id)?implode(',',$request->supplier_price_range_id) : '';
-        $updated_by = isset($request->updated_by)?implode(',',$request->updated_by): '';
+        $supplier_category_id = isset($request->supplier_category_id) ? implode(',', $request->supplier_category_id) : '';
+        $supplier_status_id = isset($request->supplier_status_id) ? implode(',', $request->supplier_status_id) : '';
+        $supplier_price_range_id = isset($request->supplier_price_range_id) ? implode(',', $request->supplier_price_range_id) : '';
+        $updated_by = isset($request->updated_by) ? implode(',', $request->updated_by) : '';
         $source = $request->get('source') ?? '';
         $typeWhereClause = '';
 
-        if (isset($type) && in_array('has_error',$type)) {
+        if (isset($type) && in_array('has_error', $type)) {
             $typeWhereClause = ' AND has_error = 1';
         }
-        if (isset($type) && in_array('not_updated',$type)) {
+        if (isset($type) && in_array('not_updated', $type)) {
             $typeWhereClause = ' AND is_updated = 0';
         }
-        if (isset($type) && in_array('updated',$type)) {
+        if (isset($type) && in_array('updated', $type)) {
             $typeWhereClause = ' AND is_updated = 1';
         }
 
