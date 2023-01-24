@@ -10,6 +10,7 @@ use App\User;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SopController extends Controller
 {
@@ -166,6 +167,80 @@ class SopController extends Controller
         $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->paginate(10);
 
         return view('products.sop', compact('usersop'));
+    }
+
+    public function ajaxsearch(Request $request)
+    {
+        $searchsop = $request->get('search');
+        if(!empty($searchsop))
+        {
+            $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->get();
+        }else{
+            $usersop = Sop::all();
+        }
+        $users = User::all();
+
+        $html = '';
+        foreach ($usersop as $key => $value)
+        {
+            $html .= '<tr id="sid' . $value->id . '" class="parent_tr" data-id="' . $value->id . '">
+                                <td class="sop_table_id">' . $value->id . '</td>
+                                <td class="expand-row-msg" data-name="name" data-id="' . $value->id . '">
+                                    <span class="show-short-name-' . $value->id . '">' . Str::limit($value->name, 17, '..') . '</span>
+                                    <span style="word-break:break-all;" class="show-full-name-' . $value->id . ' hidden">' . $value->name . '</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="category" data-id="' . $value->id . '">
+                                    <span class="show-short-category-' . $value->id . '">' . Str::limit($value->category, 17, '..') . '</span>
+                                    <span style="word-break:break-all;" class="show-full-category-' . $value->id . ' hidden">' . $value->category . '</span>
+                                </td>
+                                <td class="table-hover-cell p-1">
+                                    <div class="select_table">
+										<div class="w-50-25-main d-flex">
+											<div class="w-100">
+												<select name="sop_user_id" class="form-control select2-for-user" id="user_' . $value->id . '">
+													<option value="">Select User</option>';
+                                                    foreach($users as $user)
+                                                    {
+                                                        if(!$user->isAdmin())
+                                                        {
+                                                            $html .= '<option value="' . $user->id . '">' . $user->name . '</option>';
+                                                        }
+                                                    }
+                                                    $purchaseProductOrderLogs = '';
+                                                    $email                    = '';
+                                                    if(isset($value->purchaseProductOrderLogs))
+                                                    {
+                                                        $purchaseProductOrderLogs = $value->purchaseProductOrderLogs->header_name;
+                                                    }
+                                                    if(isset($value->user))
+                                                    {
+                                                        $email = $value->user->email;
+                                                    }
+                                                    $html .= '</select>
+											</div>
+											<div class="w-50 pull-left" style="display:none;">
+												<textarea rows="1" class="form-control" id="messageid_' . $value->id . '" name="message" placeholder="Message">' . strip_tags($value->content) . '</textarea>
+											</div>
+											<div class="w-25 pull-left pull_button">
+												<div class=" pull_button_inner d-flex">
+													<button class="btn btn-xs send-message-open pull-left" data-user_id="' . $value->user_id . '" data-id="' . $value->id . '">
+														<i class="fa fa-paper-plane"></i>
+													</button>
+													 <button type="button"
+															class="btn btn-xs load-communication-modal pull-left"
+															data-id="{{$value->user_id}}" title="Load messages"
+															data-object="SOP">
+															<i class="fa fa-comments"></i>
+													</button>
+												</div>
+											</div>
+										</div>
+                                   </div>
+                                </td>
+                                <td>'.date('yy-m-d', strtotime($value->created_at)) .'</td>';
+        }
+
+        return $html;
     }
 
     public function downloaddata($id)

@@ -326,6 +326,96 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 <body>
     @stack('modals')
+    <!-- sop-search Modal-->
+    <div id="menu-sop-search-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg"  role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Sop Search</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-flex" id="search-bar">
+                                <input type="text" value="" name="search" class="form-control sop_search" placeholder="Search Here.." style="width: 30%;">
+{{--                                <button title="Sop Search" type="button" class="btn btn-xs search-button" style="padding: 0px 1px;"><span><i class="fa fa-search" aria-hidden="true"></i></span></button>--}}
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable">
+                                    <thead>
+                                    <tr>
+                                        <th width="2%">ID</th>
+                                        <th width="10%">Name</th>
+                                        <th width="8%">Category</th>
+                                        <th width="15%">Communication</th>
+                                        <th width="7%">Created at</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="sop_search_result">
+                                    @php
+                                        $usersop = \App\Sop::all();
+                                        $users = \App\User::all();
+                                    @endphp
+                                    @foreach ($usersop as $key => $value)
+                                        <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
+                                            <td class="sop_table_id">{{ $value->id }}</td>
+                                            <td class="expand-row-msg" data-name="name" data-id="{{$value->id}}">
+                                                <span class="show-short-name-{{$value->id}}">{{ Str::limit($value->name, 17, '..')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-name-{{$value->id}} hidden">{{$value->name}}</span>
+                                            </td>
+                                            <td class="expand-row-msg" data-name="category" data-id="{{$value->id}}">
+                                                <span class="show-short-category-{{$value->id}}">{{ Str::limit($value->category, 17, '..')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-category-{{$value->id}} hidden">{{$value->category}}</span>
+                                            </td>
+                                            <td class="table-hover-cell p-1">
+                                                <div class="select_table">
+                                                    <div class="w-50-25-main d-flex">
+                                                        <div class="w-100">
+                                                            <select name="sop_user_id" class="form-control select2-for-user" id="user_{{$value->id}}">
+                                                                <option value="">Select User</option>
+                                                                @foreach ($users as $user)
+                                                                    @if (!$user->isAdmin())
+                                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                                    @endif
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                        <div class="w-50 pull-left" style="display:none;">
+                                                            <textarea rows="1" class="form-control" id="messageid_{{ $value->id }}" name="message" placeholder="Message">{!! strip_tags($value->content) !!}</textarea>
+                                                        </div>
+                                                        <div class="w-25 pull-left pull_button">
+                                                            <div class=" pull_button_inner d-flex">
+                                                                <button class="btn btn-xs send-message-open-menu pull-left" data-user_id="{{ $value->user_id }}" data-id="{{ $value->id }}">
+                                                                    <i class="fa fa-paper-plane"></i>
+                                                                </button>
+                                                                <button type="button"
+                                                                        class="btn btn-xs load-communication-modal pull-left"
+                                                                        data-id="{{$value->user_id}}" title="Load messages"
+                                                                        data-object="SOP">
+                                                                    <i class="fa fa-comments"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ date('yy-m-d', strtotime($value->created_at)) }}</td>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- sop-search Modal-->
 
     <div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -3163,6 +3253,10 @@ if (!empty($notifications)) {
                                             class="fa fa-database fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
+                                <a title="Sop Search" type="button" class="quick-icon menu-sop-search" data-id="10410" style="padding: 0px 1px;"><span><i
+                                                class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
                                     class="system-request" data-toggle="modal"
                                     style="width:25px; height:25px;background: #dddddd9c;padding: 0px;"
@@ -3699,8 +3793,7 @@ if (!empty($notifications)) {
         @endif
 
 
-        <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i
-                class="fa fa-chevron-up"></i></a>
+        <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
 
     @if(Auth::check())
@@ -4089,6 +4182,74 @@ if (!empty($notifications)) {
     // $('#chat-list-history').on('hidden.bs.modal', function (e) {
     //     document.body.addClass('sasadasd')
     // })
+    $(document).on("click", ".menu-sop-search", function(e) {
+        e.preventDefault();
+        $("#menu-sop-search-model").modal("show");
+    });
+
+    $(document).on("keyup", ".sop_search", function(e) {
+        let $this = $(this);
+        var q = $this.val();
+        $.ajax({
+            url: '{{env('app_url')}}sop/search-ajax',
+            type: 'GET',
+            data: {
+                search: q,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                $('.sop_search_result').empty();
+                $('.sop_search_result').append(response);
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on('click', '.send-message-open-menu', function (event) {
+        var thiss = $(this);
+        var $this = $(this);
+        var data = new FormData();
+        var sop_user_id = $(this).data('user_id');
+        var id = $(this).data('id');
+        var sop_user_id = $('#user_'+id).val();
+        var message = $(this).parents('td').find("#messageid_"+id).val();
+
+        if (message.length > 0) {
+            //  let self = textBox;
+            $.ajax({
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'SOP-Data')}}",
+                type: 'POST',
+                data: {
+                    "sop_user_id": sop_user_id,
+                    "message": message,
+                    "_token": "{{csrf_token()}}",
+                    "status": 2,
+                },
+                dataType: "json",
+                success: function (response) {
+                    $this.parents('td').find("#messageid_"+sop_user_id).val('');
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + sop_user_id).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                },
+                error: function (response) {
+                    toastr["error"]("There was an error sending the message...", "Message");
+                }
+            });
+        } else {
+            alert('Please enter a message first');
+        }
+    });
+
     $(document).on('hidden.bs.modal', '#chat-list-history', function() {
         $('body').removeClass('openmodel');
     });
