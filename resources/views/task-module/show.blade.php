@@ -1636,6 +1636,7 @@
                     var $loader = $('.infinite-scroll-products-loader');
                     page = page + 1;
                     $.ajax({
+
                         url: "/task?page=" + page,
                         type: 'GET',
                         data: $('.form-search-data').serialize(),
