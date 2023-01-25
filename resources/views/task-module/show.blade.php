@@ -17,6 +17,10 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 
     <style>
+        .communication_th {
+            width: 10% !important;
+            min-width: 250px !important;
+        }
         #message-wrapper {
             height: 450px;
             overflow-y: scroll;
@@ -649,23 +653,22 @@
                                 <th width="4%">ID</th>
                                 <th width="7%">Date</th>
                                 <th width="4%" class="category">Category</th>
-                                <th width="6%">Task Subject</th>
+                                <th width="4%">Task Subject</th>
                                 <th width="10%">Assign To</th>
                                 <th width="8%">Status</th>
-                                <th width="7%">Tracked time</th>
-                                <th width="17%">Communication</th>
-                                <th width="10%">Estimated Time</th>
+                                <th width="5%">Tracked time</th>
+                                <th class="communication_th">Communication</th>
+                                <th width="6%">Estimated Time</th>
                                 <th width="6%">Estimated Start Datetime</th>
                                 <th width="6%">Estimated End Datetime</th>
-                                <th width="8%">
+                                <th width="6%">
                                     ICON &nbsp;
                                     <label><input type="checkbox" class="show-finished-task" name="show_finished" value="on"> Finished</label>
                                 </th>
                             </tr>
                             </thead>
-                            <tbody class="pending-row-render-view infinite-scroll-pending-inner">
-
-                            @if(count($data['task']['pending']) >0)
+                            <tbody class="pending-row-render-view">
+                                @if(count($data['task']['pending']) >0)
                                 @foreach($data['task']['pending'] as $task)
                                     @php
                                         $taskDueDate = $task->due_date;
@@ -888,8 +891,8 @@
                                             @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                                 <div style="margin-bottom:10px;width: 100%;">
                                                     <?php $text_box = "100"; ?>
-                                                    <div class="d-flex">
                                                         <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
+                                                    <div class="d-flex">
                                                         <div style="max-width: 30px;">
                                                             <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
                                                         </div>
