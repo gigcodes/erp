@@ -54,6 +54,8 @@ Route::group([
     Route::post('/save-user-in-magento', [StoreWebsiteController::class, 'saveUserInMagento'])->name('store-website.save-user-in-magento');
     Route::post('/delete-user-in-magento', [StoreWebsiteController::class, 'deleteUserInMagento'])->name('store-website.delete-user-in-magento');
     Route::post('/update-company-website-address', [StoreWebsiteController::class, 'updateCompanyWebsiteAddress']);
+    Route::get('/copy-website-store-views/{id}', [StoreWebsiteController::class, 'copyWebsiteStoreViews']);
+    Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
     Route::group([
         'prefix' => '{id}',
     ], function () {

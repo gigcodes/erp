@@ -2406,6 +2406,10 @@ if (!empty($notifications)) {
 
                                     <ul class="dropdown-menu multi-level">
 
+                                        <li class="nav-item dropdown ">
+                                            <a id="queueDropdown" href="{{ url('task-summary') }}" class="nav-link "
+                                                role="button" aria-haspopup="true" aria-expanded="false">Task Summary</a>
+                                        </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="queueDropdown" href="#" class="nav-link dropdown-toggle"
                                                 data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -5119,6 +5123,7 @@ if (!\Auth::guest()) {
         input = document.getElementById("search");
         //String to upper for search
         filter = input.value.toUpperCase();
+
         //Getting Values From DOM
         a = document.querySelectorAll("#navbarSupportedContent a");
         //Class to open bar
@@ -5152,11 +5157,17 @@ if (!\Auth::guest()) {
             }
             //Pusing values to DOM Search Input
             if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                $("#search_container").append(
-                    '<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' +
-                    href + '>' + txtValue + '</a></li>');
+                $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
                 count++
-            } else {}
+            } else {
+
+            }
+        }
+
+        if(filter.length == 0)
+        {
+            $("#search_container").empty();
+            $("#search_li").removeClass('open');
         }
     }
 
