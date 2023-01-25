@@ -236,23 +236,21 @@ class TaskController extends Controller
         $userListWithStatuesCnt = User::select('tasks.id', 'users.id as userid', 'users.name', 'tasks.assign_to', 'tasks.status', DB::raw('(SELECT tasks.created_at from tasks where tasks.assign_to = users.id order by tasks.created_at DESC limit 1) AS created_date'), 'users.name', DB::raw('count(tasks.id) statusCnt'));
         $userListWithStatuesCnt = $userListWithStatuesCnt->join('tasks', 'tasks.assign_to', 'users.id')->where('users.is_task_planned', 1);
 
-         // Code for filter
+        // Code for filter
         //Get all searchable user list
-        $userslist= $statuslist = null;
+        $userslist = $statuslist = null;
         $filterUserIds = $request->get('users_filter');
         $filterStatusIds = $request->get('status_filter');
 
         //Get all searchable status list
-        if ( (int) $filterUserIds > 0 && (int) $filterStatusIds > 0) {
+        if ((int) $filterUserIds > 0 && (int) $filterStatusIds > 0) {
             $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('users.id', $filterUserIds)->WhereIn('tasks.status', $filterStatusIds);
             $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
             $userslist = User::whereIn('id', $filterUserIds)->get();
-        }
-        else if ( (int) $filterUserIds > 0) {
+        } elseif ((int) $filterUserIds > 0) {
             $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('users.id', $filterUserIds);
             $userslist = User::whereIn('id', $request->get('users_filter'))->get();
-        }
-        else if ((int) $filterStatusIds > 0) {
+        } elseif ((int) $filterStatusIds > 0) {
             $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('tasks.status', $filterStatusIds);
             $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
         }
@@ -321,6 +319,7 @@ class TaskController extends Controller
                 'text' => $user->name,
             ];
         }
+
         return response()->json($result);
     }
 
@@ -348,6 +347,7 @@ class TaskController extends Controller
                 'text' => $status->name,
             ];
         }
+
         return response()->json($result);
     }
 }
