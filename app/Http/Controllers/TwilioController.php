@@ -1189,7 +1189,7 @@ class TwilioController extends FindByNumberController
                 return $response;
             }
         } else {
-            $recordedText = "";
+            $recordedText = '';
             if (isset($inputs['SpeechResult'])) {
                 $recordedText = $inputs['SpeechResult'];
             } else {
