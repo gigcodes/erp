@@ -862,6 +862,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
     Route::get('sop/search', [SopController::class, 'search']);
+    Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch']);
     Route::get('soplogs', [SopController::class, 'sopnamedata_logs'])->name('sopname.logs');
     Route::get('sop/DownloadData/{id}', [SopController::class, 'downloaddata'])->name('sop.download');
     // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
