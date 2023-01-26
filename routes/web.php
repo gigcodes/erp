@@ -4505,3 +4505,5 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
 // Task Summary::
 Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('tasksSummary');
 Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList');
+Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList');
+Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
