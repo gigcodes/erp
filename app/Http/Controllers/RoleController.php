@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Permission;
 use App\Role;
-use function GuzzleHttp\json_decode;
 use function GuzzleHttp\json_encode;
 use Illuminate\Http\Request;
 
@@ -93,10 +92,11 @@ class RoleController extends Controller
     {
         $role = Role::find($id);
         $rolePermissions = $role->permissions;
-        $data= [
-            'role' =>$role,
-            'rolePermissions' =>$rolePermissions,
+        $data = [
+            'role' => $role,
+            'rolePermissions' => $rolePermissions,
         ];
+
         return $data;
     }
 
@@ -112,14 +112,13 @@ class RoleController extends Controller
         $permission = Permission::get();
         $rolePermissions = $role->permissions;
 
-        $data= [
-            'role' =>$role,
-            'rolePermissions' =>$rolePermissions,
-            'permission' =>$permission,
+        $data = [
+            'role' => $role,
+            'rolePermissions' => $rolePermissions,
+            'permission' => $permission,
         ];
 
         return $data;
-
     }
 
     /**
@@ -141,7 +140,7 @@ class RoleController extends Controller
         $role->save();
 
         $role->permissions()->sync($request->input('permission1'));
-        $data = ['success' => 'Role updated successfully',];
+        $data = ['success' => 'Role updated successfully'];
 
         return $data;
     }
