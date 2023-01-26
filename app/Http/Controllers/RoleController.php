@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Permission;
 use App\Role;
+use function GuzzleHttp\json_decode;
 use function GuzzleHttp\json_encode;
 use Illuminate\Http\Request;
 
@@ -91,8 +92,12 @@ class RoleController extends Controller
     public function show($id)
     {
         $role = Role::find($id);
-
-        return view('roles.show', compact('role'));
+        $rolePermissions = $role->permissions;
+        $data= [
+            'role' =>$role,
+            'rolePermissions' =>$rolePermissions,
+        ];
+        return $data;
     }
 
     /**
@@ -105,8 +110,16 @@ class RoleController extends Controller
     {
         $role = Role::find($id);
         $permission = Permission::get();
+        $rolePermissions = $role->permissions;
 
-        return view('roles.edit', compact('role', 'permission'));
+        $data= [
+            'role' =>$role,
+            'rolePermissions' =>$rolePermissions,
+            'permission' =>$permission,
+        ];
+
+        return $data;
+
     }
 
     /**
@@ -119,18 +132,18 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required',
-            'permission' => 'required',
+            'role_name' => 'required',
+            'permission1' => 'required',
         ]);
 
         $role = Role::find($id);
-        $role->name = $request->input('name');
+        $role->name = $request->input('role_name');
         $role->save();
 
-        $role->permissions()->sync($request->input('permission'));
+        $role->permissions()->sync($request->input('permission1'));
+        $data = ['success' => 'Role updated successfully',];
 
-        return redirect()->route('roles.index')
-                         ->with('success', 'Role updated successfully');
+        return $data;
     }
 
     /**

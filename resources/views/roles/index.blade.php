@@ -17,6 +17,7 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
+    <div class="col-lg-12">
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Role Management (<span id="roles_count">{{ $roles->total() }}</span>)</h2>
@@ -74,7 +75,7 @@
 
 
     {!! $roles->render() !!}
-
+    </div>
     <div id="newCreateRole" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -92,6 +93,9 @@
                             <div class="form-group cls_filter_inputbox" style="width: 200px;">
                                 {!! Form::text('search_role', null, array('placeholder' => 'Search Permission','class' => 'form-control search_role')) !!}
                             </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 text-right">
+                            <button type="submit" class="btn btn-primary form-save-btn">Save changes</button>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group">
@@ -114,9 +118,82 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary form-save-btn">Save changes</button>
+{{--                    <button type="submit" class="btn btn-primary form-save-btn">Save changes</button>--}}
                 </div>
                 {!! Form::close() !!}
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ajaxModelexaedit" tabindex="-1" aria-labelledby="ModalLabel"  aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Edit</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="postForm1" name="postForm1">
+                        <div class="col-xs-12 col-sm-12 col-md-12 text-right">
+                            <button type="button" class="add btn btn-primary" name="Editdata" id="Editdata" value="create">Submit</button>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Name:</strong>
+                                    <input type="hidden" name="product_id" id="product_id">
+                                    <input type="text" name="role_name" class="form-control" id="role_name" placeholder="Enter Name" value="">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Permission:</strong>
+                                    <br/>
+                                    @foreach($permission as $value)
+                                        <label><input class="name mt-3 h-auto" name="permission1[]" type="checkbox" value="{{ $value->id }}" id="check{{ $value->id }}">
+                                            {{ $value->name }}</label>
+                                        <br/>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 text-right">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="ajaxModelexaview" tabindex="-1" aria-labelledby="ModalLabel"  aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Edit</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Name:</strong>
+                                <p class="view_role_name"></p>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Permission:</strong>
+                                <br/>
+                                <div class="view_permission" style="word-break: break-all; font-size: 18px;"></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 text-right">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -189,6 +266,80 @@
             });
         }
 
+        $('body').on('click', '.edit', function () {
+            var id = $(this).val();
+            $('.modal-title').text('Edit');
+            $('#action_button').val('Edit');
+            $('#action').val('Edit');
+            $('#form_result').html('');
+            $('#ajaxModelexaedit').modal('show');
+            $('#product_id').val(id);
+            var url = '{{ route('roles.edit',':id') }}';
+            url = url.replace(':id', id);
+            $.get(url, function (data) {
+                $('#role_name').val(data.role.name);
+                $.each(data.rolePermissions, function (key, val) {
+                    if (val.is_active == 1)
+                    {
+                        $('#check'+val.id).prop('checked', true);
+                    }else{
+                        $('#check'+val.id).prop('checked', false);
+                    }
+                });
+                $('#modelHeading').html("Edit Product");
+                $('#saveBtn').val("edit-user");
+                $('#ajaxModelexaedit').modal('show');
+            })
+        });
+
+        $('body').on('click', '.view', function () {
+            var id = $(this).val();
+            $('.modal-title').text('Edit');
+            $('#action_button').val('Edit');
+            $('#action').val('Edit');
+            $('#form_result').html('');
+            $('#ajaxModelexaview').modal('show');
+            $('#product_id').val(id);
+            var url = '{{ route('roles.show',':id') }}';
+            url = url.replace(':id', id);
+            $.get(url, function (data) {
+                console.log(data.role.name);
+                $('.view_role_name').html(data.role.name);
+                var aa = [];
+                $.each(data.rolePermissions, function (key, val) {
+                    if (val.is_active == 1)
+                    {
+                        aa.push('<label class="label label-success mr-2">'+val.name+'</label>');
+                    }
+                });
+                $('.view_permission').html(aa);
+                $('#modelHeading').html("Edit Product");
+                $('#saveBtn').val("edit-user");
+                $('#ajaxModelexaview').modal('show');
+            })
+        });
+
+        $('#Editdata').click(function (e) {
+            e.preventDefault();
+            $(this).html('Sending..');
+            var id = $("#product_id").val();
+            var url = '{{ route("roles.update", ":id") }}';
+            url = url.replace(':id', id);
+
+            $.ajax({
+                url: url,
+                method:'POST',
+                dataType: 'json',
+                data: $('#postForm1').serialize(),
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (data) {
+                    location.reload();
+                },
+            });
+        });
+
         $('.search_role').on('keyup',function(){
             var search_role = $('.search_role').val();
             var permission = $.map($(':checkbox[name=permission\\[\\]]:checked'), function(n, i){
@@ -199,6 +350,9 @@
                 url: "{{route('search_role')}}",
                 dataType: "json",
                 data: {search_role: search_role,permission:permission},
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 beforeSend: function () {
                     $("#loading-image").show();
                 },
