@@ -289,6 +289,7 @@ use App\Http\Controllers\SystemSizeController;
 use App\Http\Controllers\TargetLocationController;
 use App\Http\Controllers\TaskCategoriesController;
 use App\Http\Controllers\TaskCategoryController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskHistoryController;
 use App\Http\Controllers\TaskModuleController;
 use App\Http\Controllers\TasksController;
@@ -862,6 +863,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
     Route::get('sop/search', [SopController::class, 'search']);
+    Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch']);
     Route::get('soplogs', [SopController::class, 'sopnamedata_logs'])->name('sopname.logs');
     Route::get('sop/DownloadData/{id}', [SopController::class, 'downloaddata'])->name('sop.download');
     // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
@@ -2509,6 +2511,7 @@ Route::post('twilio/storerecording', [TwilioController::class, 'storeRecording']
 Route::post('twilio/storetranscript', [TwilioController::class, 'storetranscript']);
 Route::post('twilio/eventsFromFront', [TwilioController::class, 'eventsFromFront']);
 Route::post('twilio/events', [TwilioController::class, 'twilioEvents']);
+Route::post('twilio/handleMessageDeliveryStatus/{cid}/{marketingMessageCId}', [TwilioController::class, 'handleMessageDeliveryStatus']);
 
 Route::any('twilio/twilio_menu_response', [TwilioController::class, 'twilio_menu_response'])->name('twilio_menu_response');
 Route::any('twilio/twilio_call_menu_response', [TwilioController::class, 'twilio_call_menu_response'])->name('twilio_call_menu_response');
@@ -3922,6 +3925,7 @@ Route::middleware('auth')->group(function () {
     Route::get('twilio/message-tones', [TwilioController::class, 'viewMessageTones'])->name('twilio.view_tone');
     Route::get('twilio/reject-incoming-call', [TwilioController::class, 'rejectIncomingCall'])->name('twilio.reject_incoming_call');
     Route::get('twilio/block-incoming-call', [TwilioController::class, 'blockIncomingCall'])->name('twilio.block_incoming_call');
+    Route::get('twilio/delivery-logs', [TwilioController::class, 'twilioDeliveryLogs'])->name('twilio.twilio_delivery_logs');
 
     /**
      * Watson account management
@@ -4499,3 +4503,9 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::get('/command-logs/{id}', [RedisQueueController::class, 'commandLogs'])->name('redisQueue.commandLogs');
     Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
 });
+
+// Task Summary::
+Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('tasksSummary');
+Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList');
+Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList');
+Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');

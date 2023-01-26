@@ -3,6 +3,7 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\StoreViewCodeServerMap;
 use App\StoreWebsite;
 use App\Website;
 use App\WebsiteStore;
@@ -21,16 +22,17 @@ class WebsiteStoreViewController extends Controller
     public function index(Request $request)
     {
         $title = 'Website Store View | Store Website';
-
         $storeWebsites = StoreWebsite::orderBy('title', 'ASC')->pluck('title', 'id')->toArray();
         $websiteStores = WebsiteStore::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $languages = \App\Language::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
+        $storeServers = StoreViewCodeServerMap::groupBy('server_id')->get();
 
         return view('storewebsite::website-store-view.index', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'websiteStores' => $websiteStores,
             'languages' => $languages,
+            'storeServers' => $storeServers,
         ]);
     }
 
@@ -42,8 +44,7 @@ class WebsiteStoreViewController extends Controller
         // Check for keyword search
         if ($request->keyword != null) {
             $websiteStoreViews = $websiteStoreViews->where(function ($q) use ($request) {
-                $q->where('website_store_views.name', 'like', '%'.$request->keyword.'%')
-                    ->orWhere('website_store_views.code', 'like', '%'.$request->keyword.'%');
+                $q->where('website_store_views.name', 'like', '%'.$request->keyword.'%');
             });
         }
         if ($request->website_store != null) {

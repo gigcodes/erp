@@ -126,6 +126,7 @@ use App\Console\Commands\StoreLiveChats;
 use App\Console\Commands\SyncCustomersFromMagento;
 use App\Console\Commands\TwilioCallLogs;
 use App\Console\Commands\TwilioErrors;
+use App\Console\Commands\TwillioMessagesCommand;
 use App\Console\Commands\UpdateCharities;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
@@ -319,6 +320,7 @@ class Kernel extends ConsoleKernel
         ZabbixProblemImport::class,
         SendQueuedMessages::class,
         DatabaseLogCron::class,
+        TwillioMessagesCommand::class,
     ];
 
     /**
@@ -337,6 +339,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('project:filemanagementdate')->daily();
 
         $schedule->command('twilio:errors')->dailyAt('01:00');
+
+        $schedule->command('command:twillio_messages')->everyMinute(); // Send twlio message to store website customers
 
         $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');
 

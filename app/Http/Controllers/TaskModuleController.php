@@ -113,6 +113,10 @@ class TaskModuleController extends Controller
         if ($request->category != '') {
             $categoryWhereClause = "AND category = $request->category";
             $category = $request->category;
+            if ($request->category == 1) {
+                $categoryWhereClause = '';
+                $category = '';
+            }
             /*if ($request->category != 1) {
                $categoryWhereClause = "AND category = $request->category";
                $category = $request->category;
@@ -661,12 +665,18 @@ class TaskModuleController extends Controller
 
         $users = Helpers::getUserArray($usrlst);
         $task_categories = TaskCategory::where('parent_id', 0)->get();
+        $selected_category = $request->category;
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
         $task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(
             [
                 'name' => 'category',
                 'class' => 'form-control input-sm',
             ]
-        )->selected($request->category)->renderAsDropdown();
+        )->selected($selected_category)->renderAsDropdown();
 
         $categories = [];
         foreach (TaskCategory::all() as $category) {

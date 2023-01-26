@@ -29,6 +29,7 @@ use App\Helpers;
 use App\Helpers\TwilioHelper;
 use App\Leads;
 use App\Message;
+use App\Models\Twilio\TwilioMessageDeliveryLogs;
 use App\Order;
 use App\OrderProduct;
 use App\OrderStatus;
@@ -1188,11 +1189,14 @@ class TwilioController extends FindByNumberController
                 return $response;
             }
         } else {
+            $recordedText = '';
             if (isset($inputs['SpeechResult'])) {
                 $recordedText = $inputs['SpeechResult'];
             } else {
-                $recUrl = $inputs['RecordingUrl'];
-                $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                if (isset($inputs['RecordingUrl'])) {
+                    $recUrl = $inputs['RecordingUrl'];
+                    $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                }
             }
 
             $reply = ChatbotQuestion::where('value', 'like', '%'.$recordedText.'%')->orWhere('value', 'like', '%'.str_replace(' ', '_', $recordedText).'%')->pluck('suggested_reply')->first();
@@ -4761,5 +4765,58 @@ class TwilioController extends FindByNumberController
         }
 
         return view('twilio.call_journey', compact('call_Journeies'));
+    }
+
+    /**
+     * This function is use for list of Twilio SMS delivery logs
+     *
+     * @return view
+     */
+    public function twilioDeliveryLogs()
+    {
+        $twilioDeliveryLogs = TwilioMessageDeliveryLogs::orderBy('created_at', 'desc')->with('customers:id,name,email')->paginate(50);
+
+        return view('twilio.delivery_logs', compact('twilioDeliveryLogs'));
+    }
+
+    /**
+     * This function is use for handling message delivery status. webhook call for twilio send message
+     *
+     * @param  Request  $request
+     * @param  int  $cid
+     * @param  int  $marketingMessageCId
+     * @return JsonResponse
+     */
+    public function handleMessageDeliveryStatus(Request $request, $cid, $marketingMessageCId)
+    {
+        try {
+            // Check customer Id is present or not
+            if (empty($cid)) {
+                throw new Exception('Required parameters are missing');
+            }
+
+            // Check marketing message customer Id is present or not
+            if (empty($marketingMessageCId)) {
+                throw new Exception('Required parameters are missing');
+            }
+
+            // Store webhook response in database
+            TwilioMessageDeliveryLogs::create([
+                'marketing_message_customer_id' => $marketingMessageCId,
+                'customer_id' => $cid,
+                'account_sid' => $request->input('AccountSid'),
+                'message_sid' => $request->input('MessageSid'),
+                'to' => $request->input('To'),
+                'from' => $request->input('From'),
+                'delivery_status' => $request->input('MessageStatus'),
+                'api_version' => $request->input('ApiVersion'),
+            ]);
+        } catch (\Exception $e) {
+            \Log::info('handleMessageDeliveryStatus customer id -> '.$cid);
+            \Log::info('handleMessageDeliveryStatus marketing message customer id -> '.$marketingMessageCId);
+            \Log::info('handleMessageDeliveryStatus AccountSid -> '.$request->input('AccountSid'));
+            \Log::info('handleMessageDeliveryStatus MessageSid -> '.$request->input('MessageSid'));
+            \Log::info('handleMessageDeliveryStatus twilio webhook error -> '.$e->getMessage());
+        }
     }
 }
