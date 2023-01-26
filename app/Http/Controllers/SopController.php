@@ -187,8 +187,8 @@ class SopController extends Controller
                                 <span class="show-short-name-'.$value->id.'">'.Str::limit($value->name, 17, '..').'</span>
                                 <span style="word-break:break-all;" class="show-full-name-'.$value->id.' hidden">'.$value->name.'</span>
                             </td>
-                            <td class="expand-row-msg Website-task " data-name="content" data-id="'. $value->id .'">
-                                <span class="show-short-content-{{$value->id}}">'. Str::limit($value->content, 50, '..').'</span>
+                            <td class="expand-row-msg Website-task " data-name="content" data-id="'.$value->id.'">
+                                <span class="show-short-content-{{$value->id}}">'.Str::limit($value->content, 50, '..').'</span>
                                 <span style="word-break:break-all;" class="show-full-content-'.$value->id.' hidden">'.$value->content.'</span>
                             </td>
                             <td class="p-1">
