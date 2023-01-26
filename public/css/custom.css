@@ -2602,8 +2602,10 @@ table {
 
 .tbl-tasks-summary{
   margin-left: 5%;
-  margin-top:20px;
+  margin-top: 20px;
   margin-right: 5%;
+  display: block;
+  overflow-x: auto;
 }
 
 .tbl-tasks-summary th {
@@ -2615,8 +2617,8 @@ table {
   border-collapse: collapse;
 }
 
-.tbl-tasks-summary.table>tbody>tr>td, .tbl-tasks-summary.table>tbody>tr>th, .tbl-tasks-summary.table>tfoot>tr>td, .tbl-tasks-summary.table>tfoot>tr>th, .tbl-tasks-summary.table>thead>tr>td, .tbl-tasks-summary.table>thead>tr>th {
-	padding:5px;
+.tbl-tasks-summary>thead>tr>th{
+  padding: 10px 12px !important;
 }
 
 #taskHistoryModal .scrollable {
@@ -2626,16 +2628,12 @@ table {
   overflow: auto;
 }
 
-.taskStatusCnt{
+/* .taskStatusCnt{
   text-align:right;
-}
+} */
 
 .taskStatusCnt button.btn.btn-xs.show-task-history {
   margin-left: 5px;
-}
-
-.tbl-tasks-summary .taskStatusName{
-  width: 5%;
 }
 
 #loading-image-task-summary{
@@ -2666,4 +2664,20 @@ table {
   padding: 1%;
 }
 
+.filterTaskSummary .filter_drp .form-group{
+  width:10%;
+  padding-left:15px;
+}
+
+.taskStatusCnt{
+  text-align: center;
+}
+
+.margin-l{
+  margin-left: 4%;
+}
+
+button.show-task-history{
+  float: right;
+}
 /**Tasks Summary End**/

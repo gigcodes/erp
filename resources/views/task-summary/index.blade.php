@@ -7,16 +7,42 @@
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
 		<h2 class="page-heading">Task Summary <span class="count-text"></span></h2>
+		<br>
 	</div>
-	<br>
+
+	<div class="col-lg-12 margin-tb margin-l">
+		<form class="filterTaskSummary" action="{{ route('tasksSummary') }}" method="GET">
+			<div class="row filter_drp">
+				<div class="form-group col-lg-4">
+					<select class="form-control globalSelect2" data-ajax="{{ route('usersList') }}" name="users_filter[]" data-placeholder="Search Users By Name" multiple >
+						@if($userslist)
+							@foreach ($userslist as $id => $user)
+								<option value="{{ $user['id'] }}" selected>{{ $user['name'] }}</option>
+							@endforeach
+						@endif
+                    </select>
+				</div>
+				<div class="form-group col-lg-4">
+					<select class="form-control globalSelect2" data-ajax="{{ route('statusList') }}" name="status_filter[]" data-placeholder="Search Status By Name" multiple >
+						@if($statuslist)
+							@foreach ($statuslist as $id => $status)
+								<option value="{{ $status['id'] }}" selected>{{ $status['name'] }}</option>
+							@endforeach
+						@endif
+                    </select>
+				</div>
+				<div class="form-group col-lg-4">
+					<button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+				</div>
+			</div>
+		</form>
+	</div>
+
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
 			
 			<div class=" col-md-12">						
 				<div class="row">
-					<div class="headingTaskSummary">
-						Task Summary
-					</div>
 					<table class="table table-bordered tbl-tasks-summary">
 						<thead>
 						<tr>
@@ -31,7 +57,7 @@
 						<tr>
 							<td>{{ $user['name']; }} </td>
 							@foreach($arrStatusCount[$user['userid']] as $key => $value)
-								<td class="taskStatusCnt" data-status={{$key}}>{{ $value }}<button type="button" class="btn btn-xs show-task-history" title="Show Task List" data-userid={{$user["userid"]}} data-id={{$key}} data-type="severity" data-sevid="1"><i class="fa fa-info-circle"></i></button> </td>
+								<td class="taskStatusCnt" data-status={{$key}}>{{ $value }}<button type="button" class="btn btn-xs show-task-history" title="Show Task List" data-userid={{$user["userid"]}} data-id={{$key}} data-type="severity" data-sevid="1"><i class="fa fa-info"></i></button> </td>
 							@endforeach
 						</tr>
 						@endforeach

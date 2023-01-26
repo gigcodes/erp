@@ -1937,6 +1937,7 @@ class UserManagementController extends Controller
     public function userSchedulesLoadData()
     {
         try {
+            $usertemp = 0;
             $count = 0;
             $data = [];
 
@@ -2144,21 +2145,59 @@ class UserManagementController extends Controller
                                         $display[] = ' ('.$slot['type'].')';
                                         $display = '<s>'.implode('', $display).'</s>';
                                     }
+
                                     $divSlots[] = '<div class="div-slot '.$class.'" title="'.$title.'" >'.$display.'</div>';
                                 }
-
+                                /*
                                 $data[] = [
                                     'name' => $user['name'],
                                     'date' => $date,
                                     'slots' => implode('', $divSlots),
                                 ];
+                                */
+
+                                $data[$usertemp]['name'] = $user['name'];
+                                $data[$usertemp]['date'] = $date;
+                                for ($p = 0; $p < 13; $p++) {
+                                    $varid = 'slots'.$p;
+                                    if (isset($divSlots[$p])) {
+                                        $str = str_replace('(AVL)', '<br>(AVL)', $divSlots[$p]);
+                                        $str = str_replace('(LUNCH)', '<br>(LUNCH)', $divSlots[$p]);
+                                        $str = str_replace('(PAST)', '<br>(PAST)', $divSlots[$p]);
+                                        $data[$usertemp][$varid] = $str;
+                                    } else {
+                                        $data[$usertemp][$varid] = '';
+                                    }
+                                }
+                                $usertemp = $usertemp + 1;
                             }
                         } else {
-                            $data[] = [
+                            /*
+                             $data[] = [
+                                 'name' => $user['name'],
+                                 'date' => '-',
+                                 'slots' => 'Availability is not set for this user.',
+                             ];
+                             */
+
+                            $data[$usertemp] = [
                                 'name' => $user['name'],
                                 'date' => '-',
-                                'slots' => 'Availability is not set for this user.',
+                                'slots0' => 'Availability is not set for this user.',
+                                'slots1' => '',
+                                'slots2' => '',
+                                'slots3' => '',
+                                'slots4' => '',
+                                'slots5' => '',
+                                'slots6' => '',
+                                'slots7' => '',
+                                'slots8' => '',
+                                'slots9' => '',
+                                'slots10' => '',
+                                'slots11' => '',
+                                'slots12' => '',
                             ];
+                            $usertemp = $usertemp + 1;
                         }
                     }
                 }
