@@ -8,6 +8,7 @@ use App\Observers\CallBusyMessageObserver;
 use App\ScrapedProducts;
 use Blade;
 use Facebook\Facebook;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -58,6 +59,8 @@ class AppServiceProvider extends ServiceProvider
 //         });
 
         CallBusyMessage::observe(CallBusyMessageObserver::class);
+
+        Paginator::useBootstrap();
     }
 
     /**

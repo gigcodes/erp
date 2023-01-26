@@ -22,9 +22,15 @@
 
 					<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
 						<img src="/images/add.png" style="cursor: default;">
-					</button>
+					</button>					
 					<button style="display: inline-block;" class="btn btn-secondary btn-add-default-store m-2" data-toggle="modal" data-target="#sync-website">
 						Sync Website
+					</button>
+					<button style="display: inline-block;width: 29%" class="btn btn-secondary m-2" data-toggle="modal" data-target="#copyWebsiteModal">
+						Copy Website Store View
+					</button>
+					<button style="display: inline-block;width: 29%" class="btn btn-secondary m-2" data-toggle="modal" data-target="#deleteWebsiteModal">
+						Delete Website Store View
 					</button>
 				</div>
 			</div>
@@ -115,6 +121,52 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				<button type="button" class="btn btn-secondary move-stores">Move Store</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="copyWebsiteModal" class="modal" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Copy Website Store View</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<select id="selCopyWebsite" name="selCopyWebsite" class="form-control">
+					<option value="">--Select Website--</option>	
+					@foreach($storeWebsites as $key => $val)
+						<option value="{{ $key }}">{{ $val }}</option>
+					@endforeach
+				</select>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-secondary copy-website-store-view-btn">Copy website store view</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="deleteWebsiteModal" class="modal" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Delete Website Store View</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<select id="selDeleteServer" name="selDeleteServer" class="form-control">
+					<option value="">--Select Server--</option>
+					@foreach($storeServers as $storeServer)
+						<option value="{{ $storeServer->server_id }}">Server {{ $storeServer->server_id }}</option>
+					@endforeach
+				</select>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-secondary delete-website-store-view-btn">Delete website store view Store</button>
 			</div>
 		</div>
 	</div>
@@ -250,5 +302,64 @@
 			jQuery('#srch_website_store_id').html(response.data);
 		}).fail(function(response) {});
 	}
+
+
+	$(document).on('click', '.copy-website-store-view-btn', function() {
+		var website_id = $('#selCopyWebsite').val();
+		if(website_id == "" || website_id == undefined ) {
+			alert("Please select the website");
+			return false;
+		}
+		$.ajax({
+			type: "GET",
+			url: "/store-website/copy-website-store-views/"+ website_id,
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+		}).done(function(response) {
+			$("#loading-image").hide();
+			if(response.code == 200) {
+				toastr['success'](response.message, 'Success');
+				$('#copyWebsiteModal').modal('hide');
+			} else {
+				toastr['error'](response.message, 'error');
+			}
+		}).fail(function(response) {
+
+		});
+	});
+
+	$(document).on('click', '.delete-website-store-view-btn', function() {
+		var serverid = $('#selDeleteServer').val();
+		if(serverid == "" || serverid == undefined ) {
+			alert("Please select the server");
+			return false;
+		}
+
+		if (confirm("Are you sure want to delete") == true) {
+			$.ajax({
+				type: "GET",
+				url: "/store-website/delete-store-views/"+serverid,
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+			}).done(function(response) {
+				$("#loading-image").hide();
+				if(response.code == 200) {
+					toastr['success'](response.message, 'Success');
+					$('#deleteWebsiteModal').modal('hide');
+				} else {
+					toastr['error'](response.message, 'error');
+				}
+			}).fail(function(response) {
+				toastr['error'](response.message, 'error');
+			});
+		} else {
+			$('#selDeleteServer').val('');
+			$('#deleteWebsiteModal').modal('hide');
+		}
+		
+	});
+	
 </script>
 @endsection

@@ -28,6 +28,7 @@
 			        <td class="Website-task">{{:prop.country_duty}}</td>
 			        <td class="Website-task-warp">{{:prop.description}}</td>
 			        <td>{{:prop.mailing_service_id}}</td>
+			        <td>{{:prop.store_code_name}}</td>
 			        <td>{{:prop.remote_software}}</td>
 			        <td>
 			        	{{:prop.facebook}}

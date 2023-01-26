@@ -16,25 +16,31 @@ class GoogleBigQueryDataController extends Controller
     public function index()
     {
         $bigData = GoogleBigQueryData::paginate(Setting::get('pagination'));
+        $google_project_ids = GoogleBigQueryData::select('google_project_id')->distinct('google_project_id')->get();
+        $platforms = GoogleBigQueryData::select('platform')->distinct('platform')->get();
+        $event_ids = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
 
-        return view('google.big_data.index', compact('bigData'));
+        return view('google.big_data.index', compact('bigData', 'google_project_ids', 'platforms', 'event_ids'));
     }
 
     public function search(Request $request)
     {
         $bigData = new GoogleBigQueryData();
         if (! empty($request->project_id)) {
-            $bigData = $bigData->where('google_project_id', 'like', '%'.$request->project_id.'%');
+            $bigData = $bigData->whereIn('google_project_id', $request->project_id);
         }
         if (! empty($request->platform)) {
-            $bigData = $bigData->where('platform', 'like', '%'.$request->platform.'%');
+            $bigData = $bigData->whereIn('platform', $request->platform);
         }
         if (! empty($request->event_id)) {
-            $bigData = $bigData->where('event_id', 'like', '%'.$request->event_id.'%');
+            $bigData = $bigData->whereIn('event_id', $request->event_id);
         }
         $bigData = $bigData->paginate(Setting::get('pagination'));
+        $google_project_ids = GoogleBigQueryData::select('google_project_id')->distinct('google_project_id')->get();
+        $platforms = GoogleBigQueryData::select('platform')->distinct('platform')->get();
+        $event_ids = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
 
-        return view('google.big_data.index', compact('bigData'));
+        return view('google.big_data.index', compact('bigData', 'google_project_ids', 'platforms', 'event_ids'));
     }
 
     /**

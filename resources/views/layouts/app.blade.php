@@ -2305,12 +2305,21 @@ if (!empty($notifications)) {
                                                         href="{{ route('twilio.get_website_wise_key_data_options') }}">Twilio
                                                         Key Options</a>
                                                 </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('twilio.twilio_delivery_logs') }}">Twilio
+                                                        Delivery Logs</a>
+                                                </li>
                                             </ul>
                                         </li>
                                     </ul>
 
                                     <ul class="dropdown-menu multi-level">
 
+                                        <li class="nav-item dropdown ">
+                                            <a id="queueDropdown" href="{{ url('task-summary') }}" class="nav-link "
+                                                role="button" aria-haspopup="true" aria-expanded="false">Task Summary</a>
+                                        </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="queueDropdown" href="#" class="nav-link dropdown-toggle"
                                                 data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -3389,7 +3398,7 @@ if (!empty($notifications)) {
                                                 <select class="form-control choose-username" name="username">
                                                     <option value="">Select User</option>
                                                     <?php
-                                                    $users = \App\User::select('id', 'name', 'email')->get();
+                                                    $users = \App\User::select('id', 'name', 'email')->orderBy('name')->get();
                                                     foreach ($users as $k => $connection) {?>
                                                     <option value="<?php echo $connection->id; ?>" data-name="{{$connection->name}}"><?php echo $connection->name; ?></option>
                                                     <?php } ?>
@@ -3414,7 +3423,7 @@ if (!empty($notifications)) {
                                         <div class="row">
                                             <div class="col">
                                                 <input type="hidden" name="connection"  value="">
-                                                <input type="text" name="search" class="form-control search-table" placeholder="Search Table name">
+                                                <input type="text" name="search" class="form-control app-search-table" placeholder="Search Table name">
                                             </div>
                                             <div class="col">
                                                 <div class="form-group col-md-5">
@@ -3428,7 +3437,7 @@ if (!empty($notifications)) {
                                         </div>
                                     </div>
                                     <div class="col-lg-12 mt-2">
-                                        <table class="table table-bordered" id="database-table-list">
+                                        <table class="table table-bordered" id="database-table-list1">
                                             <thead>
                                             <tr>
                                                 <th width="5%"></th>
@@ -4101,6 +4110,24 @@ if (!empty($notifications)) {
         }
     })
 
+    $(document).on("keyup", ".app-search-table", function (e) {
+        var keyword = $(this).val();
+        table = document.getElementById("database-table-list1");
+        tr = table.getElementsByTagName("tr");
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.indexOf(keyword) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    });
+
     $(document).on('change', '.choose-username', function() {
         var val = $(this).val();
         var db =$('.choose-db').val();
@@ -4130,9 +4157,12 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 if (response.code == 200) {
                     $('.database_password').val(response.data.password);
+                    console.log(response.data.password);
                     if(response.data.password)
                     {
                         $('.btn-delete-database-access').removeClass('d-none');
+                    }else{
+                        $('.btn-delete-database-access').addClass('d-none');
                     }
                     var aa = '';
                     $('.menu_tbody').html('');
@@ -4334,9 +4364,8 @@ if (!empty($notifications)) {
         e.preventDefault();
         // var ele = this;
         var connection = $('.choose-db').val();
-
         var assign_permission = $('.assign-permission-type').find(':selected').val();
-        var search = $('.search-table').val();
+        var search = $('.app-search-table').val();
         var tables = $('.database_password').val();
         var checked = []
         $("input[name='tables[]']:checked").each(function ()
@@ -4374,10 +4403,8 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 if (response.code == 200) {
                     toastr['success'](response.message, 'success');
-                    $("#menu-create-database-model").modal("hide");
                 } else {
                     toastr['error'](response.message, 'error');
-                    $("#menu-create-database-model").modal("hide");
                 }
             },
             error: function() {
@@ -4492,7 +4519,7 @@ if (!empty($notifications)) {
                     ip += '<tr>';
                     ip += '<td> ' + v.index_txt + ' </td>';
                     ip += '<td> ' + v.ip + '</td>';
-                    ip += '<td>' + v.user_id ? v.user.name : v.other_user_name + '</td>';
+                    // ip += '<td>' + v.user.name ? v.user.name : v.other_user_name + '</td>';
                     ip += '<td>' + v.notes + '</td>';
                     ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v
                         .id + '">Delete</button></td>';
@@ -4935,6 +4962,7 @@ if (!\Auth::guest()) {
         input = document.getElementById("search");
         //String to upper for search
         filter = input.value.toUpperCase();
+
         //Getting Values From DOM
         a = document.querySelectorAll("#navbarSupportedContent a");
         //Class to open bar
@@ -4968,11 +4996,17 @@ if (!\Auth::guest()) {
             }
             //Pusing values to DOM Search Input
             if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                $("#search_container").append(
-                    '<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' +
-                    href + '>' + txtValue + '</a></li>');
+                $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
                 count++
-            } else {}
+            } else {
+
+            }
+        }
+
+        if(filter.length == 0)
+        {
+            $("#search_container").empty();
+            $("#search_li").removeClass('open');
         }
     }
 

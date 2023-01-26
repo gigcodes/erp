@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers;
 use App\RedisQueue;
 use App\RedisQueueCommandExecutionLog;
 use App\Setting;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 
 class RedisQueueController extends Controller
 {
@@ -38,7 +41,7 @@ class RedisQueueController extends Controller
     {
         $queue = new RedisQueue();
         $queue->user_id = Auth::user()->id ?? '';
-        $queue->name = $request->name;
+        $queue->name = Helpers::createQueueName($request->name);
         $queue->type = $request->type;
         $response = $queue->save();
         if ($response) {
@@ -78,11 +81,10 @@ class RedisQueueController extends Controller
      */
     public function update(Request $request)
     {
-//        dd($request->all());
         try {
             $queue = RedisQueue::findorfail($request->id);
             $queue->user_id = Auth::user()->id ?? '';
-            $queue->name = $request->name;
+            $queue->name = Helpers::createQueueName($request->name);
             $queue->type = $request->type;
             $queue->save();
 
@@ -117,12 +119,71 @@ class RedisQueueController extends Controller
      */
     public function execute(Request $request)
     {
+        $command = $request->get('command_tail');
+
+        if ($command == 'start') {
+            $keyword = 'work';
+        } elseif ($command == 'restart') {
+            $keyword = 'restart';
+        }
+
+        $queue = RedisQueue::find($request->get('id'));
+        $cmd = 'queue:'.$keyword.' redis --queue='.$queue->name;
+
         try {
-            \Artisan::call('command:QueueExecutionCommand', ['id' => $request->id, 'command_tail' => $request->command]);
+            $response = Artisan::call($cmd);
+
+            $command = new RedisQueueCommandExecutionLog();
+            $command->user_id = \Auth::user()->id;
+            $command->redis_queue_id = $queue->id;
+            $command->command = $cmd;
+            $command->server_ip = env('SERVER_IP');
+            $command->response = $response;
+            $command->save();
 
             return response()->json(['code' => 200, 'message' => 'Queue command executed successfully']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            $command = new RedisQueueCommandExecutionLog();
+            $command->user_id = \Auth::user()->id;
+            $command->redis_queue_id = $queue->id;
+            $command->command = $cmd;
+            $command->server_ip = env('SERVER_IP');
+            $command->response = $msg;
+            $command->save();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    /**
+     * Execute queue.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function executeHorizon(Request $request)
+    {
+        $cmd = $request->get('command_tail');
+        try {
+            $response = Artisan::call($cmd);
+
+            $command = new RedisQueueCommandExecutionLog();
+            $command->user_id = \Auth::user()->id;
+            $command->command = $cmd;
+            $command->server_ip = env('SERVER_IP');
+            $command->response = $response;
+            $command->save();
+
+            return response()->json(['code' => 200, 'message' => 'Queue command executed successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            $command = new RedisQueueCommandExecutionLog();
+            $command->user_id = \Auth::user()->id;
+            $command->command = $cmd;
+            $command->server_ip = env('SERVER_IP');
+            $command->response = $msg;
+            $command->save();
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
@@ -140,5 +201,32 @@ class RedisQueueController extends Controller
             ->orderBy('id', 'desc')->get();
 
         return response()->json(['code' => 200, 'data' => $logs]);
+    }
+
+    public function syncQueues()
+    {
+        $queues = RedisQueue::all();
+        $queueString = '';
+        foreach ($queues as $queue) {
+            $queueString .= $queue->name.',';
+        }
+        $queueString = rtrim($queueString, ',');
+        $response = Storage::disk('public_disk')->put('queues.txt', $queueString);
+        if ($response) {
+            return response()->json(['code' => 200, 'message' => 'Queue synced with queue file successfully!']);
+        } else {
+            return response()->json(['code' => 500, 'message' => 'Something went wrong!']);
+        }
+    }
+
+    public function getAllQueues()
+    {
+        $queues = RedisQueue::all();
+        $queue1 = [];
+        foreach ($queues as $queue) {
+            $queue1[] = $queue->name;
+        }
+
+        return $queue1;
     }
 }
