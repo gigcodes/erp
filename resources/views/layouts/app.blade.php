@@ -4962,6 +4962,7 @@ if (!\Auth::guest()) {
         input = document.getElementById("search");
         //String to upper for search
         filter = input.value.toUpperCase();
+
         //Getting Values From DOM
         a = document.querySelectorAll("#navbarSupportedContent a");
         //Class to open bar
@@ -4995,11 +4996,17 @@ if (!\Auth::guest()) {
             }
             //Pusing values to DOM Search Input
             if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                $("#search_container").append(
-                    '<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' +
-                    href + '>' + txtValue + '</a></li>');
+                $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
                 count++
-            } else {}
+            } else {
+
+            }
+        }
+
+        if(filter.length == 0)
+        {
+            $("#search_container").empty();
+            $("#search_li").removeClass('open');
         }
     }
 
