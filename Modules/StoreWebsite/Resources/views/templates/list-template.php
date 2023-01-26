@@ -17,6 +17,7 @@
 				<th width="8%" class="Website-task"title="FCM Key">FCM Key</th>
 				<th width="8%" class="Website-task"title="FCM Id">FCM Id</th>
 				<th width="6%" class="Website-task"title="Icon">Icon</th>
+				<th width="4%" class="Website-task"title="Action">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -39,9 +40,13 @@
 			        </td>
 					<td>{{if prop.is_published == 1}}Yes{{else}}No{{/if}}</td>
 					<td class="Website-task-warp">{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
-					<td class="Website-task-warp">{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
-					<td>{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
+					<td class="Website-task-warp">{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}}
+					{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
+					<td>
+					    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{>prop.id}}')"><i class="fa fa-arrow-down"></i></button>
+					</td>
 			      </tr>
+			      <tr class="action-btn-tr-{{>prop.id}} d-none">
                   <td class="font-weight-bold text-left" title="Action">Action</td>
 			      <td colspan="12" p-0>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template" style="padding:1px 0px;">
@@ -104,6 +109,7 @@
 
                             {{/if}}
 			        </td>
+			        </tr>
 			    {{/props}}  
 		    </tbody>
 		</table>
