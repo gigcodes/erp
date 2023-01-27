@@ -661,9 +661,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('livechat/save', [LiveChatController::class, 'save'])->name('livechat.save');
     Route::post('livechat/remove', [LiveChatController::class, 'remove'])->name('livechat.remove');
     Route::resource('roles', RoleController::class);
+    Route::post('roles/update/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::resource('permissions', PermissionController::class);
     Route::get('permissions/grandaccess/users', [PermissionController::class, 'users'])->name('permissions.users');
     Route::get('unauthorized', [RoleController::class, 'unAuthorized']);
+    Route::get('search_role', [RoleController::class, 'search_role'])->name('search_role');
     Route::get('users/logins', [UserController::class, 'login'])->name('users.login.index');
     Route::post('users/status-change', [UserController::class, 'statusChange']);
     Route::get('users/loginips', [UserController::class, 'loginIps'])->name('users.login.ips');
