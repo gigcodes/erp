@@ -55,8 +55,8 @@
             @endif
             @if(auth()->user()->isAdmin())
               <p class="card-text">Supplier : {{ $product->supplier }}</p>
-            @endif
               <p class="card-text">Suppliers : {{ $product->supplier_list }}</p>
+            @endif
               <p class="card-text">
                 <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
                 <a href="{{ route('product-inventory.fetch.img.google',['name'=> $product->name, 'id' => $product->id]) }}" class="btn btn-secondary btn-sm"><i class="fa fa-picture-o"></i></a>
