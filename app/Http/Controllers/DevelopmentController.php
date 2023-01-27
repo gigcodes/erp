@@ -4343,7 +4343,7 @@ class DevelopmentController extends Controller
      */
     public function developmentTaskSummary(Request $request)
     {
-        // $userListWithStatuesCnt = $getTaskStatus = $arrUserNameId = $arrStatusCount = 
+        // $userListWithStatuesCnt = $getTaskStatus = $arrUserNameId = $arrStatusCount =
         $userslist = $statuslist = null;
         $getTaskStatus = TaskStatus::orderBy('name', 'asc')->groupBy('name')->get();
         $getTaskStatusIds = TaskStatus::select(DB::raw('group_concat(name) as name'))->first();
@@ -4361,10 +4361,10 @@ class DevelopmentController extends Controller
         //Get all searchable status list
         if ((int) $filterUserIds > 0 && (int) $filterStatusIds > 0) {
             $searchableStatus = TaskStatus::WhereIn('id', $filterStatusIds)->get();
-            $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('developer_tasks.user_id', $filterUserIds)->where(function($query) use($searchableStatus) {
-                foreach($searchableStatus as $searchTerm) {
+            $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('developer_tasks.user_id', $filterUserIds)->where(function ($query) use ($searchableStatus) {
+                foreach ($searchableStatus as $searchTerm) {
                     $query->orWhere('developer_tasks.status', 'like', "%$searchTerm->name%");
-                };
+                }
             });
             $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
             $userslist = User::whereIn('id', $filterUserIds)->get();
@@ -4373,10 +4373,10 @@ class DevelopmentController extends Controller
             $userslist = User::whereIn('id', $request->get('users_filter'))->get();
         } elseif ((int) $filterStatusIds > 0) {
             $searchableStatus = TaskStatus::WhereIn('id', $filterStatusIds)->get();
-            $userListWithStatuesCnt = $userListWithStatuesCnt->where(function($query) use($searchableStatus) {
-                foreach($searchableStatus as $searchTerm) {
+            $userListWithStatuesCnt = $userListWithStatuesCnt->where(function ($query) use ($searchableStatus) {
+                foreach ($searchableStatus as $searchTerm) {
                     $query->orWhere('developer_tasks.status', 'like', "%$searchTerm->name%");
-                };
+                }
             });
             $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
         }
