@@ -53,8 +53,9 @@
             @else 
               <p class="card-text">Color : {{ $product->color }}</p>
             @endif
-            
+            @if(auth()->user()->isAdmin())
               <p class="card-text">Supplier : {{ $product->supplier }}</p>
+            @endif
               <p class="card-text">Suppliers : {{ $product->supplier_list }}</p>
               <p class="card-text">
                 <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
