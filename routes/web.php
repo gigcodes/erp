@@ -1902,6 +1902,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('development/flagtask', [DevelopmentController::class, 'flagtask'])->name('development.flagtask');
     Route::post('development/gettasktimemessage', [DevelopmentController::class, 'gettasktimemessage'])->name('development.gettasktimemessage');
     Route::post('development/getlogtasktimemessage', [DevelopmentController::class, 'getlogtasktimemessage'])->name('development.getlogtasktimemessage');
+    Route::get('development/users', [DevelopmentController::class, 'usersList'])->name('development.userslist');
 
     Route::get('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks');
     Route::post('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks_post');

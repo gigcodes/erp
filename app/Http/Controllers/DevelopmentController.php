@@ -868,7 +868,7 @@ class DevelopmentController extends Controller
         }
 
         if ((int) $request->get('assigned_to') > 0) {
-            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
+            $issues = $issues->whereIn('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
@@ -881,17 +881,17 @@ class DevelopmentController extends Controller
 
         $whereCondition = '';
         if ($request->get('subject') != '') {
-            $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
-            $issues = $issues->where(function ($query) use ($request) {
-                $subject = $request->get('subject');
-                $task_id = explode(',', $subject);
-                if (count($task_id) == 1) {
-                    $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere('task', 'LIKE', "%$subject%")
-                          ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
-                } else {
-                    $query->whereIn('developer_tasks.id', $task_id)->orWhere('subject', 'LIKE', "%$subject%")->orWhere('task', 'LIKE', "%$subject%")
-                        ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
-                }
+            $subject = explode(',', $request->get('subject'));
+            foreach($subject as $termSubject) {
+                $whereCondition .= ' and message like  "%'.$request->get('subject').'%"';
+            }
+            $issues = $issues->where(function ($query) use ($subject) {
+                $query->whereIn('developer_tasks.id', $subject)
+                ->orWhere(function($query) use($subject) {
+                    foreach($subject as $termSubject) {
+                        $query->orWhere('subject', 'like', "%$termSubject%")->orWhere('task', 'like', "%$termSubject%")->orWhere('chat_messages.message', 'LIKE', "%$termSubject%");
+                    }
+                });
             });
         }
         // if ($request->get('language') != '') {
@@ -1013,6 +1013,12 @@ class DevelopmentController extends Controller
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
+        //Get all searchable user list
+        $userslist = null;
+        if ((int) $request->get('assigned_to') > 0) {
+            $userslist = User::whereIn('id', $request->get('assigned_to'))->get();
+        }
+
         if (request()->ajax()) {
             return view('development.partials.summarydatas', [
                 'issues' => $issues,
@@ -1025,6 +1031,7 @@ class DevelopmentController extends Controller
                 'countPlanned' => $countPlanned,
                 'countInProgress' => $countInProgress,
                 'statusList' => $statusList,
+                'userslist' => $userslist,
                 // 'languages' => $languages
             ]);
         }
@@ -1040,6 +1047,7 @@ class DevelopmentController extends Controller
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
             'statusList' => $statusList,
+            'userslist' => $userslist,
             // 'languages' => $languages
         ]);
     }
@@ -4329,5 +4337,32 @@ class DevelopmentController extends Controller
         $html[] = '</table>';
 
         return respJson(200, '', ['data' => implode('', $html)]);
+    }
+
+    /**
+     * Function to get user's name - it's use for lazy loading of users data
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function usersList(Request $request)
+    {
+        $users = User::orderBy('name');
+        if (! empty($request->q)) {
+            $users->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%'.$request->q.'%');
+            });
+        }
+        $users = $users->paginate(30);
+        $result['total_count'] = $users->total();
+        $result['incomplete_results'] = $users->nextPageUrl() !== null;
+
+        foreach ($users as $user) {
+            $result['items'][] = [
+                'id' => $user->id,
+                'text' => $user->name,
+            ];
+        }
+        return response()->json($result);
     }
 }
