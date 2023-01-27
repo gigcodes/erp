@@ -2578,16 +2578,21 @@ table {
 }
 
 .history_model{
-  padding-bottom: 40px;
-  padding-right: 40px;
-  position: relative;   
+  bottom: 5px;
+  right: 5px;
 }
 
-.csvData-table tbody.odd , .csvData-table tbody.even{
-  position: absolute;
-  right: 5px;
-  bottom: 5px;
+.csvData-table tbody td{
+  position: relative;
+  padding-right: 40px !important;
+  padding-bottom: 40px !important;
+}
 
+.editbtn_model{
+  position: absolute;
+  top:5px;
+  right:8px;
+  font-size: 15px;
 }
 
 /**Tasks Summary Start**/
@@ -2602,8 +2607,10 @@ table {
 
 .tbl-tasks-summary{
   margin-left: 5%;
-  margin-top:20px;
+  margin-top: 20px;
   margin-right: 5%;
+  display: block;
+  overflow-x: auto;
 }
 
 .tbl-tasks-summary th {
@@ -2615,8 +2622,8 @@ table {
   border-collapse: collapse;
 }
 
-.tbl-tasks-summary.table>tbody>tr>td, .tbl-tasks-summary.table>tbody>tr>th, .tbl-tasks-summary.table>tfoot>tr>td, .tbl-tasks-summary.table>tfoot>tr>th, .tbl-tasks-summary.table>thead>tr>td, .tbl-tasks-summary.table>thead>tr>th {
-	padding:5px;
+.tbl-tasks-summary>thead>tr>th{
+  padding: 10px 12px !important;
 }
 
 #taskHistoryModal .scrollable {
@@ -2626,16 +2633,12 @@ table {
   overflow: auto;
 }
 
-.taskStatusCnt{
+/* .taskStatusCnt{
   text-align:right;
-}
+} */
 
 .taskStatusCnt button.btn.btn-xs.show-task-history {
   margin-left: 5px;
-}
-
-.tbl-tasks-summary .taskStatusName{
-  width: 5%;
 }
 
 #loading-image-task-summary{
@@ -2666,4 +2669,20 @@ table {
   padding: 1%;
 }
 
+.filterTaskSummary .filter_drp .form-group{
+  width:10%;
+  padding-left:15px;
+}
+
+.taskStatusCnt{
+  text-align: center;
+}
+
+.margin-l{
+  margin-left: 4%;
+}
+
+button.show-task-history{
+  float: right;
+}
 /**Tasks Summary End**/

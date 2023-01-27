@@ -326,6 +326,108 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 <body>
     @stack('modals')
+    <!-- sop-search Modal-->
+    <div id="menu-sop-search-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg"  role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Sop Search</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-flex" id="search-bar">
+                                <input type="text" value="" name="search" class="form-control sop_search" placeholder="Search Here.." style="width: 30%;">
+{{--                                <button title="Sop Search" type="button" class="btn btn-xs search-button" style="padding: 0px 1px;"><span><i class="fa fa-search" aria-hidden="true"></i></span></button>--}}
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable">
+                                    <thead>
+                                    <tr>
+                                        <th width="2%">ID</th>
+                                        <th width="10%">Name</th>
+                                        <th width="14%">Content</th>
+                                        <th width="5%">Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="sop_search_result">
+                                    @php
+                                        $usersop = \App\Sop::all();
+                                        $users = \App\User::all();
+                                    @endphp
+                                    @foreach ($usersop as $key => $value)
+                                        <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
+                                            <td class="sop_table_id">{{ $value->id }}</td>
+                                            <td class="expand-row-msg" data-name="name" data-id="{{$value->id}}">
+                                                <span class="show-short-name-{{$value->id}}">{{ Str::limit($value->name, 17, '..')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-name-{{$value->id}} hidden">{{$value->name}}</span>
+                                            </td>
+                                            <td class="expand-row-msg Website-task " data-name="content" data-id="{{$value->id}}">
+                                                <span class="show-short-content-{{$value->id}}">{{ Str::limit($value->content, 50, '..')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-content-{{$value->id}} hidden">{{$value->content}}</span>
+                                            </td>
+                                            <td class="p-1">
+
+                                                <a href="javascript:;" data-id="{{ $value->id }}" class="menu_editor_edit btn btn-xs p-2" >
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-sopupdate" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update Data</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form action="<?php echo route('updateName'); ?>" id="menu_sop_edit_form">
+                        <input type="text" hidden name="id" id="sop_edit_id">
+                        @csrf
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="hidden" class="form-control sop_old_name" name="sop_old_name" id="sop_old_name"
+                                   value="">
+                            <input type="text" class="form-control sopname" name="name" id="sop_edit_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Category</label>
+                            <input type="hidden" class="form-control sop_old_category" name="sop_old_category" id="sop_old_category"
+                                   value="">
+                            <input type="text" class="form-control sopcategory" name="category" id="sop_edit_category">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="content">Content</label>
+                            <textarea class="form-control sop_edit_class" name="content" id="sop_edit_content"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-secondary ml-3 updatesopnotes">Update</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- sop-search Modal-->
+
+
 
     <div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -3167,6 +3269,10 @@ if (!empty($notifications)) {
                                             class="fa fa-database fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
+                                <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
+                                                class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
                                     class="system-request" data-toggle="modal"
                                     style="width:25px; height:25px;background: #dddddd9c;padding: 0px;"
@@ -3703,8 +3809,7 @@ if (!empty($notifications)) {
         @endif
 
 
-        <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i
-                class="fa fa-chevron-up"></i></a>
+        <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
 
     @if(Auth::check())
@@ -4089,10 +4194,223 @@ if (!empty($notifications)) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
     
+        <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace('content');
+        CKEDITOR.replace('sop_edit_content');
+    </script>
     <script>
     // $('#chat-list-history').on('hidden.bs.modal', function (e) {
     //     document.body.addClass('sasadasd')
     // })
+    $(document).on('click', '.menu_editor_edit', function() {
+
+        var $this = $(this);
+
+        $.ajax({
+            type: "GET",
+            data: {
+                id: $this.data("id")
+
+            },
+            url: "{{ route('editName') }}"
+        }).done(function(data) {
+
+            console.log(data.sopedit);
+
+            $('#sop_edit_id').val(data.sopedit.id)
+            $('#sop_edit_name').val(data.sopedit.name)
+            $('#sop_edit_category').val(data.sopedit.category)
+            $('#sop_old_name').val(data.sopedit.name)
+            $('#sop_old_category').val(data.sopedit.category)
+
+            CKEDITOR.instances['sop_edit_content'].setData(data.sopedit.content)
+
+            $("#menu-sopupdate #menu_sop_edit_form").attr('data-id', $($this).attr('data-id'));
+            $("#menu-sopupdate").modal("show");
+
+        }).fail(function(data) {
+            console.log(data);
+        });
+    });
+
+    $(document).on('submit', '#menu_sop_edit_form', function(e) {
+        e.preventDefault();
+        const $this = $(this)
+        $(this).attr('data-id', );
+
+        $.ajax({
+            type: "POST",
+            data: $(this).serialize(),
+            url: "{{ route('updateName') }}",
+            datatype: "json"
+        }).done(function(data) {
+
+            if(data.success==false){
+                toastr["error"](data.message, "Message");
+                return false;
+            }
+
+            if(data.type=='edit'){
+                var content = data.sopedit.content.replace( /(<([^>]+)>)/ig, '');
+
+                let id = $($this).attr('data-id');
+
+                $('#sid' + id + ' td:nth-child(1)').html(data.sopedit.id);
+                $('#sid' + id + ' td:nth-child(2)').html(`
+                            <span class="show-short-name-`+data.sopedit.id+`">`+data.sopedit.name.replace(/(.{17})..+/, "$1..")+`</span>
+                            <span style="word-break:break-all;" class="show-full-name-`+data.sopedit.id+` hidden">`+data.sopedit.name+`</span>
+                        `);
+                $('#sid' + id + ' td:nth-child(3)').html(`
+                            <span class="show-short-category-`+data.sopedit.id+`">`+data.sopedit.category.replace(/(.{17})..+/, "$1..")+`</span>
+                            <span style="word-break:break-all;" class="show-full-category-`+data.sopedit.id+` hidden">`+data.sopedit.category+`</span>
+                        `);
+                $('#sid' + id + ' td:nth-child(4)').html(`
+                            <span class="show-short-content-`+data.sopedit.id+`">`+content.replace(/(.{50})..+/, "$1..")+`</span>
+                            <span style="word-break:break-all;" class="show-full-content-`+data.sopedit.id+` hidden">`+content+`</span>
+                        `);
+                $("#menu_sopupdate").modal("hide");
+                toastr["success"]("Data Updated Successfully!", "Message")
+            }else{
+                //var content_class = data.sopedit.content.length < 270 ? '' : 'expand-row';
+                //var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
+                $("#NameTable tbody").prepend(`
+                        <tr id="sid`+data.sopedit.id+`" data-id="`+data.sopedit.id+`" class="parent_tr">
+                                <td class="sop_table_id">`+data.sopedit.id+`</td>
+                                <td class="expand-row-msg" data-name="name" data-id="`+data.sopedit.id+`">
+                                    <span class="show-short-name-`+data.sopedit.id+`">`+data.sopedit.name.replace(/(.{17})..+/, "$1..")+`</span>
+                                    <span style="word-break:break-all;" class="show-full-name-`+data.sopedit.id+` hidden">`+data.sopedit.name+`</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="category" data-id="`+data.sopedit.id+`">
+                                    <span class="show-short-category-`+data.sopedit.id+`">`+data.sopedit.category.replace(/(.{17})..+/, "$1..")+`</span>
+                                    <span style="word-break:break-all;" class="show-full-category-`+data.sopedit.id+` hidden">`+data.sopedit.category+`</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="content" data-id="`+data.sopedit.id+`">
+                                    <span class="show-short-content-`+data.sopedit.id+`">`+data.sopedit.content.replace(/(.{50})..+/, "$1..")+`</span>
+                                    <span style="word-break:break-all;" class="show-full-content-`+data.sopedit.id+` hidden">`+data.sopedit.content+`</span>
+                                </td>
+                                <td class="table-hover-cell p-1">
+                                    <div>
+                                        <div class="w-75 pull-left">
+                                            <textarea rows="1" class="form-control" id="messageid_`+data.sopedit.user_id+`" name="message" placeholder="Message"></textarea>
+                                        </div>
+                                        <div class="w-25 pull-left">
+                                            <button class="btn btn-xs send-message-open pull-left" data-user_id="`+data.sopedit.user_id+`">
+                                                <i class="fa fa-paper-plane"></i>
+                                            </button>
+                                             <button type="button"
+                                                    class="btn btn-xs load-communication-modal pull-left"
+                                                    data-id="`+data.sopedit.user_id+`" title="Load messages"
+                                                    data-object="SOP">
+                                                    <i class="fa fa-comments"></i>
+                                            </button>
+                                        </div>
+                                   </div>
+                                </td>
+                                <td>`+data.only_date+`</td>
+                                <td class="p-1">
+                                    <a href="javascript:;" data-id="`+data.sopedit.id+`" class="menu_editor_edit btn btn-xs p-2" >
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a class="btn btn-image deleteRecord p-2 text-secondary" data-id="`+data.sopedit.id+`">
+                                        <i class="fa fa-trash" ></i>
+                                    </a>
+                                    <a class="btn btn-xs view_log p-2 text-secondary" title="status-log"
+                                        data-name="`+data.params.header_name+`"
+                                        data-id="`+data.sopedit.id+`" data-toggle="modal" data-target="#ViewlogModal">
+                                        <i class="fa fa-info-circle"></i>
+                                    </a>
+                                    <a title="Download Invoice" class="btn btn-xs p-2" href="sop/DownloadData/`+data.sopedit.id+`">
+                                            <i class="fa fa-download downloadpdf"></i>
+                                    </a>
+                                    <button type="button" class="btn send-email-common-btn p-2" data-toemail="`+data.user_email[0].email+`" data-object="Sop" data-id="`+data.sopedit.user_id+`">
+                                        <i class="fa fa-envelope-square"></i>
+                                    </button>
+                                    <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list  p-2" title="Sop User" data-sop_id="`+data.sopedit.user_id+`">
+                                        <i class="fa fa-user-o"></i>
+                                    </button>
+                                </td>
+                        </tr>
+                        `);
+
+                $("#menu_sopupdate").modal("hide");
+                toastr["success"]("Data Updated Successfully!", "Message")
+            }
+
+
+        }).fail(function(data) {
+            console.log(data);
+        });
+    });
+
+    $(document).on("click", ".menu-sop-search", function(e) {
+        e.preventDefault();
+        $("#menu-sop-search-model").modal("show");
+    });
+
+    $(document).on("keyup", ".sop_search", function(e) {
+        let $this = $(this);
+        var q = $this.val();
+        $.ajax({
+            url: '{{env('app_url')}}sop/search-ajax',
+            type: 'GET',
+            data: {
+                search: q,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                $('.sop_search_result').empty();
+                $('.sop_search_result').append(response);
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on('click', '.send-message-open-menu', function (event) {
+        var thiss = $(this);
+        var $this = $(this);
+        var data = new FormData();
+        var sop_user_id = $(this).data('user_id');
+        var id = $(this).data('id');
+        var sop_user_id = $('#user_'+id).val();
+        var message = $(this).parents('td').find("#messageid_"+id).val();
+
+        if (message.length > 0) {
+            //  let self = textBox;
+            $.ajax({
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'SOP-Data')}}",
+                type: 'POST',
+                data: {
+                    "sop_user_id": sop_user_id,
+                    "message": message,
+                    "_token": "{{csrf_token()}}",
+                    "status": 2,
+                },
+                dataType: "json",
+                success: function (response) {
+                    $this.parents('td').find("#messageid_"+sop_user_id).val('');
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + sop_user_id).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                },
+                error: function (response) {
+                    toastr["error"]("There was an error sending the message...", "Message");
+                }
+            });
+        } else {
+            alert('Please enter a message first');
+        }
+    });
+
     $(document).on('hidden.bs.modal', '#chat-list-history', function() {
         $('body').removeClass('openmodel');
     });
