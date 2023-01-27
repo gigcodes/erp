@@ -20,7 +20,7 @@ class CreateTranslateRepliesTable extends Migration
 			$table->string('translate_to');
 			$table->text('translate_text');
             $table->integer('created_by');
-            $table->integer('updated_by');
+            $table->integer('updated_by')->nullable();
             $table->timestamps();
         });
     }
