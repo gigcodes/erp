@@ -11,6 +11,11 @@ use App\ReplyUpdateHistory;
 use App\Setting;
 use App\StoreWebsitePage;
 use App\WatsonAccount;
+use App\GoogleFiletranslatorFile;
+use App\GoogleTranslate;
+use App\Language;
+use App\Translations;
+use App\TranslateReplies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +29,7 @@ class ReplyController extends Controller
 
     public function index(Request $request)
     {
+
         $reply_categories = ReplyCategory::all();
 
         $replies = Reply::oldest();
@@ -320,4 +326,112 @@ class ReplyController extends Controller
 
         return response()->json(['histories' => $reply_histories]);
     }
+
+    public function replyTranslate(Request $request)
+    {
+
+        $id = $request->reply_id;
+        $is_flagged_request = $request->is_flagged;
+
+        if($is_flagged_request == '1'){
+            $is_flagged = 0;
+        } else {
+            $is_flagged = 1;
+        }
+       
+        if($is_flagged == '1') {  
+            $record = \App\Reply::find($id);           
+            if ($record) {  
+                $replies = $record->reply;
+                if ($replies!='') {
+                    $LanguageModel = Language::all();
+                    for($i=0;$i<count($LanguageModel);$i++) {
+                        $language = $LanguageModel[$i]->locale;
+                         // Check translation SEPARATE LINE exists or not
+                        $checkTranslationTable = Translations::select('text')->where('from', 'en')->where('to', $language)->where('text_original', $replies)->first();
+                        if ($checkTranslationTable) {
+                            $data = htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
+                        } else {   
+                            $data = '';      
+                            $googleTranslate = new GoogleTranslate();
+                            $translationString = $googleTranslate->translate($language, $replies);                           
+                            if($translationString!='') {
+                                Translations::addTranslation($replies, $translationString, 'en', $language);
+                                $data = htmlspecialchars_decode($translationString, ENT_QUOTES);
+                            }    
+                           
+                        }
+
+                        if($data!='') {
+
+                            $translateReplies = TranslateReplies::where('translate_from', 'en')->where('translate_to', $language)->where('replies_id', $id)->first();
+
+                            if(count((array)$translateReplies)==0) {
+                                $translateReplies = new TranslateReplies();
+                                $translateReplies->created_by  =  Auth::id();
+                                $translateReplies->created_at  = date('Y-m-d H:i:s');
+                            } else {
+                                $translateReplies->updated_by  =  Auth::id();
+                                $translateReplies->updated_at  = date('Y-m-d H:i:s');
+                            }
+                        
+                            $translateReplies->replies_id  = $id;
+                            $translateReplies->translate_from  ='en';
+                            $translateReplies->translate_to  = $language;
+                            $translateReplies->translate_text  = $data;                        
+                            $translateReplies->save();
+
+                            $res_rec = \App\Reply::find($id);  
+                            $res_rec->is_flagged = 1;
+                            $res_rec->save();
+
+                        }
+
+                    }                   
+                }                
+            }    
+            if($data!='') {
+                return response()->json(['code' => 200, 'data' => [], 'message' => 'Replies Translated successfully']);
+            } else {
+                return response()->json(['code' => 200, 'data' => [], 'message' => 'There is a problem while translating']);
+            }
+           
+        } else {
+            $res_rec = \App\Reply::find($id);  
+            $res_rec->is_flagged = 0;
+            $res_rec->save();
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Translation off successfully']);
+
+        }
+
+    }
+
+
+    public function replyTranslateList(Request $request)
+    {
+        $storeWebsite = $request->get('store_website_id');
+        $keyword = $request->get('keyword');
+
+        $replies = \App\TranslateReplies::join('replies', 'translate_replies.replies_id', 'replies.id')
+        ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
+        ->leftJoin('reply_categories', 'reply_categories.id', 'replies.category_id')
+        ->where('model', 'Store Website')->where('replies.is_flagged', '1')
+        ->select(['replies.*','replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id','translate_replies.id as id','translate_replies.translate_from','translate_replies.translate_to','translate_replies.translate_text','translate_replies.created_at','translate_replies.updated_at']);
+
+        if ($storeWebsite > 0) {
+            $replies = $replies->where('replies.store_website_id', $storeWebsite);
+        }
+
+        if (! empty($keyword)) {
+            $replies = $replies->where(function ($q) use ($keyword) {
+                $q->orWhere('reply_categories.name', 'LIKE', '%'.$keyword.'%')->orWhere('replies.reply', 'LIKE', '%'.$keyword.'%');
+            });
+        }
+
+        $replies = $replies->paginate(25);
+
+        return view('reply.translate-list', compact('replies'));
+    }
+
+
 }

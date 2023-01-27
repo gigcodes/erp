@@ -918,6 +918,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('reply-list/update', [ReplyController::class, 'replyUpdate'])->name('reply.replyUpdate');
     Route::get('reply-history', [ReplyController::class, 'getReplyedHistory'])->name('reply.replyhistory');
     Route::get('reply-logs', [ChatbotMessageLogsController::class, 'replyLogs'])->name('reply.replylogs');
+    Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
+    Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', [AutoReplyController::class, 'updateReply']);
