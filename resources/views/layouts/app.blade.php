@@ -372,9 +372,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <span style="word-break:break-all;" class="show-full-content-{{$value->id}} hidden">{{$value->content}}</span>
                                             </td>
                                             <td class="p-1">
-
                                                 <a href="javascript:;" data-id="{{ $value->id }}" class="menu_editor_edit btn btn-xs p-2" >
                                                     <i class="fa fa-edit"></i>
+                                                </a>
+                                                <a href="javascript:;" data-id="{{ $value->id }}" data-content="{{$value->content}}" class="menu_editor_copy btn btn-xs p-2" >
+                                                    <i class="fa fa-copy"></i>
                                                 </a>
                                             </td>
                                         </tr>
@@ -4203,6 +4205,26 @@ if (!empty($notifications)) {
     // $('#chat-list-history').on('hidden.bs.modal', function (e) {
     //     document.body.addClass('sasadasd')
     // })
+
+    $(document).on('click', '.menu_editor_copy', function() {
+        var content = $(this).data('content');
+
+        menucopyToClipboard(content);
+        /* Alert the copied text */
+        toastr['success']("Copied the text: " + content);
+        //alert("Copied the text: " + remark_text);
+    });
+
+    function menucopyToClipboard(text) {
+        var sampleTextarea = document.createElement("textarea");
+        document.body.appendChild(sampleTextarea);
+        sampleTextarea.value = text; //save main text in it
+        sampleTextarea.select(); //select textarea contenrs
+        document.execCommand("copy");
+        document.body.removeChild(sampleTextarea);
+    }
+
+
     $(document).on('click', '.menu_editor_edit', function() {
 
         var $this = $(this);
