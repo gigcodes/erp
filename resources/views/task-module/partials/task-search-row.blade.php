@@ -1,13 +1,14 @@
+
 @php
     $status_color = \App\TaskStatus::where('id',$task->status)->first();
 @endphp
 <tr style="background-color: {{$status_color->task_color}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
     <td>
-{{--        @if(auth()->user()->isAdmin())--}}
-{{--        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" title="Task is in priority" {{in_array($task->id, $priority) ? 'checked' : ''}}>--}}
-{{--        @endif--}}
-{{--        <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $task->id }}" value="">--}}
         {{ $task->id }}
+        <div>
+            <button type="button" data-id="{{ $task->id }}" class="btn btn-sm btn-file-upload-menu pd-5"><i class="fa fa-upload" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-sm menu-preview-img-btn pd-5" data-id="{{ $task->id }}"><i class="fa fa-list" aria-hidden="true"></i></button>
+        </div>
     </td>
     <td class="table-hover-cell p-2">
         @php
@@ -181,3 +182,4 @@
         @endif
     </td>
 </tr>
+

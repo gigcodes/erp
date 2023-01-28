@@ -53,6 +53,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+
    <style type="text/css">
         .select2-container--open{
             z-index:9999999
@@ -122,6 +123,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
     @yield('link-css')
+{{--    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />--}}
     <script>
     let Laravel = {};
     Laravel.csrfToken = "{{csrf_token()}}";
@@ -378,11 +380,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
 
-
-
-    {{-- <div id="fb-root"></div> --}}
-
-
     <div class="notifications-container">
 
         <div class="stack-container stacked" id="leads-notification"></div>
@@ -394,7 +391,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         <div class="stack-container stacked" id="tasks-notification"></div>
 
     </div>
-
 
     <div id="app">
 
@@ -3677,7 +3673,6 @@ if (!empty($notifications)) {
             </div>
         </div>
 
-
         <!-- Modal -->
         <div id="menu-blank-modal" class="modal fade" role="dialog">
             <div class="modal-dialog modal-lg">
@@ -3689,6 +3684,65 @@ if (!empty($notifications)) {
                     </div>
                     <div class="modal-body">
 
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ route('task.save-documents') }}" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="task_id" id="hidden-task-id" value="">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Upload File(s)</h4>
+                        </div>
+                        <div class="modal-body" style="background-color: #999999;">
+                            @csrf
+                            <div class="form-group">
+                                <label for="document">Documents</label>
+                                <input type="file" name="document" class="needsclick" id="document-dropzone" multiple>
+{{--                                <div class="needsclick dropzone" id="document-dropzone">--}}
+
+{{--                                </div>--}}
+                            </div>
+                            <div class="form-group add-task-list">
+
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default menu-btn-save-documents">Save</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-preview-task-image" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="col-md-12">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th style="width:1%;">No</th>
+                                    <th style=" width: 30%">Files</th>
+                                    <th style="word-break: break-all; width:12%">Send to</th>
+                                    <th style="width: 1%;">User</th>
+                                    <th style="width: 11%">Created at</th>
+                                    <th style="width: 6%">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody class="menu-task-image-list-view">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -4306,7 +4360,7 @@ if (!empty($notifications)) {
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
     @yield('scripts')
-
+{{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>--}}
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
@@ -4320,6 +4374,7 @@ if (!empty($notifications)) {
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
+
     
     <script>
     // $('#chat-list-history').on('hidden.bs.modal', function (e) {
@@ -4486,6 +4541,14 @@ if (!empty($notifications)) {
                 $(self).removeAttr('disabled', true);
             }
         });
+    });
+
+    $(document).on("click", ".btn-file-upload-menu", function() {
+        var $this = $(this);
+        var task_id = $this.data("id");
+        $("#menu-file-upload-area-section").modal("show");
+        $("#hidden-task-id").val(task_id);
+        $("#loading-image").hide();
     });
 
     $(document).on('change', '.menu-task-assign-user', function() {
@@ -4663,6 +4726,40 @@ if (!empty($notifications)) {
                     toastr["error"](response.error, "Message");
                 }
             }
+        });
+    });
+
+    $(document).on("click", ".menu-btn-save-documents", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var formData = new FormData($this.closest("form")[0]);
+        $.ajax({
+            url: '/task/save-documents',
+            type: 'POST',
+            enctype: 'multipart/form-data',
+            // contentType: 'multipart/form-data',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: formData,
+            dataType: "json",
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        }).done(function(data) {
+            $("#loading-image").hide();
+            if (data.code == 500) {
+                toastr["error"](data.message);
+            } else {
+                toastr["success"]("Document uploaded successfully");
+                //location.reload();
+            }
+        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+            toastr["error"](jqXHR.responseJSON.message);
+            $("#loading-image").hide();
         });
     });
 
@@ -5653,9 +5750,11 @@ if (!\Auth::guest()) {
             toastr['error'](response.responseJSON.message);
         });
     });
+
     $('select.select2-discussion').select2({
         tags: true
     });
+
     $(document).on("change", ".type-on-change", function(e) {
         e.preventDefault();
         var task_type = $(this).val();
@@ -5755,7 +5854,6 @@ if (!\Auth::guest()) {
         $('.type_msg').text($(this).val());
     });
 
-
     $(document).on('click', '.show_sku_long', function() {
         $(this).hide();
         var id = $(this).attr('data-id');
@@ -5764,6 +5862,7 @@ if (!\Auth::guest()) {
             'display': 'block'
         });
     });
+
     $(document).on('click', '.show_prod_long', function() {
         $(this).hide();
         var id = $(this).attr('data-id');
@@ -5876,19 +5975,23 @@ if (!\Auth::guest()) {
             }
         });
     });
+
     $('.add_todo_title').change(function() {
         if ($('.add_todo_subject').val() == "") {
             $('.add_todo_subject').val("");
             $('.add_todo_subject').val($('.add_todo_title').val());
         }
     })
+
     $('#todo-date').datetimepicker({
         format: 'YYYY-MM-DD',
     });
+
     $(document).on("click", ".todolist-request", function(e) {
         e.preventDefault();
         $("#todolist-request-model").modal("show");
     });
+
 	$(document).on("click", ".todolist-get", function(e) {
 			e.preventDefault();
 			$("#todolist-get-model").modal("show");
@@ -5907,6 +6010,25 @@ if (!\Auth::guest()) {
     $(document).on("click", ".menu-show-dev-task", function(e) {
         e.preventDefault();
         $("#menu-show-dev-task-model").modal("show");
+    });
+
+    $(document).on('click', '.menu-preview-img-btn', function(e) {
+        e.preventDefault();
+        id = $(this).data('id');
+        if (!id) {
+            alert("No data found");
+            return;
+        }
+        $.ajax({
+            url: "/task/preview-img/" + id,
+            type: 'GET',
+            success: function(response) {
+                $("#menu-preview-task-image").modal("show");
+                $(".menu-task-image-list-view").html(response);
+                initialize_select2()
+            },
+            error: function() {}
+        });
     });
 
     $(document).on("click", ".permission-grant", function(e) {

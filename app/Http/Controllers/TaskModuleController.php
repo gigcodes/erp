@@ -3222,11 +3222,12 @@ class TaskModuleController extends Controller
                 ]
             );
         }
-        $documents = $request->input('document', []);
-        $task = Task::find($request->task_id);
 
+        $documents = $request->input('document', []) ? $request->input('document', []) : $request->document ;
+
+        $task = Task::find($request->task_id);
         if (! empty($documents)) {
-            $count = count($documents);
+            $count = count(array($documents));
 
             $message = '['.$loggedUser->name.'] - #ISSUE-'.$task->id.' - '.$task->task_subject."\n\n ".$count.' new attchment'.($count > 1 ? 's' : '');
 
