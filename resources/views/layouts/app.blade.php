@@ -378,6 +378,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
 
+
+
     {{-- <div id="fb-root"></div> --}}
 
 
@@ -3159,7 +3161,15 @@ if (!empty($notifications)) {
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
                             <li>
-                                <a title="Create database" type="button" class="quick-icon menu-create-database" data-id="10410" style="padding: 0px 1px;"><span><i
+                                <a title="Quick Dev Task" type="button" class="quick-icon menu-show-dev-task" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Task & Activity" type="button" class="quick-icon menu-show-task" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Create database" type="button" class="quick-icon menu-create-database" style="padding: 0px 1px;"><span><i
                                             class="fa fa-database fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
@@ -3460,7 +3470,234 @@ if (!empty($notifications)) {
             </div>
         </div>
 
-        @if (Auth::check())
+        <div id="menu-show-task-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Task & Activity</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form id="database-form">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="row">
+                                        <div class="col-12 pb-3">
+                                            <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            <button type="button" class="btn btn-secondary btn-task-search-menu" ><i class="fa fa-search"></i></button>
+                                        </div>
+                                        <div class="col-12">
+                                            <table class="table table-sm table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th width="5%">ID</th>
+                                                    <th width="10%">Assign To</th>
+                                                    <th width="10%">Communication</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="show-search-task-list">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-show-dev-task-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Quick Dev Task</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form id="database-form">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="row">
+                                        <div class="col-12 pb-3">
+                                            <input type="text" name="task_search" class="dev-task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            <button type="button" class="btn btn-secondary btn-dev-task-search-menu" ><i class="fa fa-search"></i></button>
+                                        </div>
+                                        <div class="col-12">
+                                            <table class="table table-sm table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th width="5%">ID</th>
+                                                    <th width="10%">Assign To</th>
+                                                    <th width="10%">Communication</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="show-search-dev-task-list">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu_user_history_modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">User history</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+
+                            <div class="col-md-12" id="user_history_div">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>User type</th>
+                                        <th>Previous user</th>
+                                        <th>New User</th>
+                                        <th>Updated by</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu_confirmMessageModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Confirm Message</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <form action="{{ route('task_category.store') }}" method="POST" onsubmit="return false;">
+                        @csrf
+
+                        <div class="modal-body">
+
+
+                            <div class="form-group">
+                                <div id="message_confirm_text"></div>
+                                <input name="task_id" id="confirm_task_id" type="hidden" />
+                                <input name="message" id="confirm_message" type="hidden" />
+                                <input name="status" id="confirm_status" type="hidden" />
+                            </div>
+                            <div class="form-group">
+                                <p>Send to Following</p>
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="assign_by">Assign By
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="assigned_to">Assign To
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="master_user_id">Lead 1
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="second_master_user_id">Lead 2
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="contacts">Contacts
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-secondary menu-confirm-messge-button">Send</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="menu-upload-document-modal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Upload Document</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <form id="menu-upload-task-documents">
+                        <div class="modal-body">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" id="hidden-identifier" name="developer_task_id" value="">
+                            <div class="row">
+                                <div class="col-md-10 col-md-offset-1">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Subject</label>
+                                                <?php echo Form::text("subject",null, ["class" => "form-control", "placeholder" => "Enter subject"]); ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Description</label>
+                                                <?php echo Form::textarea("description",null, ["class" => "form-control", "placeholder" => "Enter Description"]); ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Documents</label>
+                                                <input type="file" name="files[]" id="filecount" multiple="multiple">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-default">Save</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Modal -->
+        <div id="menu-blank-modal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    @if (Auth::check())
 
 		<div id="todolist-get-model" class="modal fade" role="dialog">
              <div class="modal-content modal-dialog modal-lg">
@@ -4052,7 +4289,6 @@ if (!empty($notifications)) {
 
 
     <!-- Like page plugin script  -->
-
     @yield('models')
 
     {{-- <script>(function(d, s, id) {
@@ -4122,6 +4358,312 @@ if (!empty($notifications)) {
                 }
             }
         }
+    });
+
+    $(document).on("click", ".btn-task-search-menu", function (e) {
+        var keyword = $('.task-search-table').val();
+        var selectedValues = [];
+
+        $.ajax({
+            url: '{{route('task.module.search')}}',
+            type: 'GET',
+            data: {
+                term: keyword,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                $('.show-search-task-list').html(response);
+            },
+            error: function () {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on("click", ".btn-dev-task-search-menu", function (e) {
+        var keyword = $('.dev-task-search-table').val();
+        var selectedValues = [];
+
+        $.ajax({
+            url: '{{route('devtask.module.search')}}',
+            type: 'GET',
+            data: {
+                subject: keyword,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                $('.show-search-dev-task-list').html(response);
+            },
+            error: function () {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on('change', '.assign-user-menu', function () {
+        let id = $(this).attr('data-id');
+        let userId = $(this).val();
+
+        if (userId == '') {
+            return;
+        }
+
+        $.ajax({
+            url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'assignUser']) }}",
+            data: {
+                assigned_to: userId,
+                issue_id: id
+            },
+            success: function () {
+                toastr["success"]("User assigned successfully!", "Message")
+            },
+            error: function (error) {
+                toastr["error"](error.responseJSON.message, "Message")
+
+            }
+        });
+
+    });
+
+    $(document).on('click', '.expand-row-msg-menu', function () {
+        var id = $(this).data('id');
+        var full = '.expand-row-msg-menu .td-full-container-' + id;
+        var mini = '.expand-row-msg-menu .td-mini-container-' + id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
+
+    $(document).on('click', '.send-message-open-menu', function (event) {
+        var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
+        var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
+        let issueId = textBox.attr('data-id');
+        let message = textBox.val();
+        if (message == '') {
+            return;
+        }
+
+        let self = textBox;
+
+        $.ajax({
+            url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue') }}",
+            type: 'POST',
+            data: {
+                "issue_id": issueId,
+                "message": message,
+                "sendTo": sendToStr,
+                "_token": "{{ csrf_token() }}",
+                "status": 2
+            },
+            dataType: "json",
+            success: function (response) {
+                toastr["success"]("Message sent successfully!", "Message");
+                $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " +
+                    response.message.message + '</li>');
+                $(self).removeAttr('disabled');
+                $(self).val('');
+            },
+            beforeSend: function () {
+                $(self).attr('disabled', true);
+            },
+            error: function () {
+                alert('There was an error sending the message...');
+                $(self).removeAttr('disabled', true);
+            }
+        });
+    });
+
+    $(document).on('change', '.menu-task-assign-user', function() {
+        let id = $(this).attr('data-id');
+        let userId = $(this).val();
+        if (userId == '') {
+            return;
+        }
+        $.ajax({
+            url: "{{route('task.AssignTaskToUser')}}",
+            data: {
+                user_id: userId,
+                issue_id: id
+            },
+            success: function() {
+                toastr["success"]("User assigned successfully!", "Message")
+            },
+            error: function(error) {
+                toastr["error"](error.responseJSON.message, "Message")
+            }
+        });
+    });
+
+    $(document).on("click", ".menu-upload-document-btn", function () {
+        var id = $(this).data("id");
+        $("#menu-upload-document-modal").find("#hidden-identifier").val(id);
+        $("#menu-upload-document-modal").modal("show");
+    });
+
+    $(document).on('click', '.menu-show-user-history', function() {
+        var issueId = $(this).data('id');
+        $('#user_history_div table tbody').html('');
+        $.ajax({
+            url: "{{ route('task/user/history') }}",
+            data: {
+                id: issueId
+            },
+            success: function(data) {
+                $.each(data.users, function(i, item) {
+                    $('#user_history_div table tbody').append(
+                        '<tr>\
+                                <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
+                                    <td>' + ((item['user_type'] != null) ? item['user_type'] : '-') + '</td>\
+                                    <td>' + ((item['old_name'] != null) ? item['old_name'] : '-') + '</td>\
+                                    <td>' + ((item['new_name'] != null) ? item['new_name'] : '-') + '</td>\
+                                    <td>' + item['updated_by'] + '</td>\
+                                </tr>'
+                    );
+                    $("#menu_user_history_modal").css('z-index','-1');
+                });
+            }
+        });
+        $('#menu_user_history_modal').modal('show');
+    });
+
+    $(document).on('click', '.menu-send-message', function() {
+        var thiss = $(this);
+        var data = new FormData();
+        var task_id = $(this).data('taskid');
+        // var message = $(this).siblings('input').val();
+        if ($(this).hasClass("onpriority")) {
+            var message = $('#getMsgPopup' + task_id).val();
+        } else {
+            var message = $('#getMsg' + task_id).val();
+        }
+        if (message != "") {
+            $("#message_confirm_text").html(message);
+            $("#confirm_task_id").val(task_id);
+            $("#confirm_message").val(message);
+            $("#confirm_status").val(1);
+            $("#menu_confirmMessageModal").modal();
+        }
+    });
+
+    $(document).on('click', '.menu-confirm-messge-button', function() {
+        var thiss = $(this);
+        var data = new FormData();
+        var task_id = $("#confirm_task_id").val();
+        var message = $("#confirm_message").val();
+        var status = $("#confirm_status").val();
+        //    alert(message)
+        data.append("task_id", task_id);
+        data.append("message", message);
+        data.append("status", status);
+        // var checkedValue = $('.send_message_recepients:checked').val();
+        var checkedValue = [];
+        var i = 0;
+        $('.send_message_recepients:checked').each(function() {
+            checkedValue[i++] = $(this).val();
+        });
+        data.append("send_message_recepients", checkedValue);
+        //  console.log(checkedValue);
+        if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+                $.ajax({
+                    //  url: '/whatsapp/sendMessage/task',
+                    url: "{{ route('whatsapp.send','task')}}",
+                    type: 'POST',
+                    "dataType": 'json', // what to expect back from the PHP script, if anything
+                    "cache": false,
+                    "contentType": false,
+                    "processData": false,
+                    "data": data,
+                    beforeSend: function() {
+                        $(thiss).attr('disabled', true);
+                    }
+                }).done(function(response) {
+                    $(thiss).siblings('input').val('');
+                    $('#getMsg' + task_id).val('');
+                    $('#menu_confirmMessageModal').modal('hide');
+                    if (cached_suggestions) {
+                        suggestions = JSON.parse(cached_suggestions);
+                        if (suggestions.length == 10) {
+                            suggestions.push(message);
+                            suggestions.splice(0, 1);
+                        } else {
+                            suggestions.push(message);
+                        }
+                        localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                        cached_suggestions = localStorage['message_suggestions'];
+                    } else {
+                        suggestions.push(message);
+                        localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                        cached_suggestions = localStorage['message_suggestions'];
+                    }
+                    $(thiss).attr('disabled', false);
+                }).fail(function(errObj) {
+                    $('#menu_confirmMessageModal').modal('hide');
+                    $(thiss).attr('disabled', false);
+                    alert("Could not send message");
+                });
+            }
+        } else {
+            alert('Please enter a message first');
+        }
+    });
+
+    $(document).on("submit", "#menu-upload-task-documents", function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var postData = new FormData(form[0]);
+        $.ajax({
+            method: "post",
+            url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'uploadDocument']) }}",
+            data: postData,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function (response) {
+                if (response.code == 200) {
+                    toastr["success"]("Status updated!", "Message")
+                    $("#menu-upload-document-modal").modal("hide");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on("click", ".menu-list-document-btn", function () {
+        var id = $(this).data("id");
+        $.ajax({
+            method: "GET",
+            url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'getDocument']) }}",
+            data: {
+                id: id
+            },
+            dataType: "json",
+            success: function (response) {
+                if (response.code == 200) {
+                    $("#menu-blank-modal").find(".modal-title").html("Document List");
+                    $("#menu-blank-modal").find(".modal-body").html(response.data);
+                    $("#menu-blank-modal").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
     });
 
     $(document).on('change', '.choose-username', function() {
@@ -5356,6 +5898,17 @@ if (!\Auth::guest()) {
         e.preventDefault();
         $("#menu-create-database-model").modal("show");
     });
+
+    $(document).on("click", ".menu-show-task", function(e) {
+        e.preventDefault();
+        $("#menu-show-task-model").modal("show");
+    });
+
+    $(document).on("click", ".menu-show-dev-task", function(e) {
+        e.preventDefault();
+        $("#menu-show-dev-task-model").modal("show");
+    });
+
     $(document).on("click", ".permission-grant", function(e) {
         e.preventDefault();
         var permission = $(this).data('id');
