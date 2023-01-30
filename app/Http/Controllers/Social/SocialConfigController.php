@@ -19,26 +19,22 @@ class SocialConfigController extends Controller
     public function index(Request $request)
     {
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->term || $request->date && $request->customer_support == 0) {
-
             $query = SocialConfig::query();
 
             $socialConfigs = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
         } else {
             $query = SocialConfig::query();
 
-            if($request->store_website_id)
-            {
-                $query->whereIn('store_website_id',$request->store_website_id);
+            if ($request->store_website_id) {
+                $query->whereIn('store_website_id', $request->store_website_id);
             }
 
-            if($request->user_name)
-            {
-                $query->whereIn('email',$request->user_name);
+            if ($request->user_name) {
+                $query->whereIn('email', $request->user_name);
             }
 
-            if($request->platform)
-            {
-                $query->whereIn('platform',$request->platform);
+            if ($request->platform) {
+                $query->whereIn('platform', $request->platform);
             }
             $socialConfigs = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
         }
@@ -48,7 +44,7 @@ class SocialConfigController extends Controller
         $platforms = SocialConfig::select('platform')->distinct()->get();
         $selected_website = $request->store_website_id;
         $selected_user_name = $request->user_name;
-        $selected_platform = $request->platform ;
+        $selected_platform = $request->platform;
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.configs.partials.data', compact('socialConfigs'))->render(),
@@ -56,7 +52,7 @@ class SocialConfigController extends Controller
             ], 200);
         }
 
-        return view('social.configs.index', compact('socialConfigs','websites','user_names','platforms','selected_website','selected_user_name','selected_platform'));
+        return view('social.configs.index', compact('socialConfigs', 'websites', 'user_names', 'platforms', 'selected_website', 'selected_user_name', 'selected_platform'));
     }
 
     /**
