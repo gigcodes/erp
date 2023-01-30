@@ -19,55 +19,64 @@
     <div id="myDiv">
        <img id="loading-image" src="{{env('APP_URL')}}/images/pre-loader.gif" style="display:none;"/>
    </div>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading"> Configs</h2>
-            <!-- <div class="pull-left">
-                <form action="{{ route('whatsapp.config.index') }}" method="GET" class="form-inline align-items-start">
-                    <div class="form-group mr-3 mb-3">
-                        <input name="term" type="text" class="form-control global" id="term"
-                               value="{{ isset($term) ? $term : '' }}"
-                               placeholder="number , provider, username">
-                    </div>
-                    <div class="form-group ml-3">
-                        <div class='input-group date' id='filter-date'>
-                            <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
-
-                            <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                  </span>
+        <div class="col-md-12">
+            <div class="row">
+            <div class="col-lg-12 margin-tb">
+                <h2 class="page-heading"> Configs</h2>
+                <div class="col-lg-12">
+                    <form action="" method="GET" class="form-inline align-items-start">
+                        <div class="row mr-3 mb-3">
+                            <div class="form-group">
+                                <select id="store_website_id" class="form-control store_website_id" name="store_website_id[]" multiple>
+                                    @foreach ($websites as $id => $website)
+                                        <option value="{{ $website->id }}" {{ in_array($website->id,$selected_website?? []) ? 'selected' : '' }}>{{ $website->title }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group ml-3">
+                                <select id="user_name" class="form-control user_name" name="user_name[]" multiple>
+                                    @foreach ($user_names as $id => $user_name)
+                                        <option value="{{ $user_name->email }}" {{ in_array($user_name->email,$selected_user_name?? []) ? 'selected' : '' }}>{{ $user_name->email }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group ml-3">
+                                <select id="platform" class="form-control platform" name="platform[]" multiple>
+                                    @foreach ($platforms as $id => $platform)
+                                        <option value="{{ $platform->platform }}" {{ in_array($platform->platform,$selected_platform?? []) ? 'selected' : '' }}>{{ $platform->platform }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-image"><img src="{{asset('images/filter.png')}}"/></button>
                         </div>
-                    </div>
-
-
-                    <button type="submit" class="btn btn-image"><img src="{{env('APP_URL')}}//images/filter.png" /></button>
-                </form>
-            </div> -->
-            <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</a>
+                    </form>
+                </div>
+                <div class="pull-right">
+                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-    @include("social.header_menu")
-      
-    <div class="table-responsive mt-3">
+        @if ($message = Session::get('success'))
+            <div class="alert alert-success">
+                <p>{{ $message }}</p>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        @include("social.header_menu")
+
+        <div class="table-responsive mt-3">
       <table class="table table-bordered" id="passwords-table">
         <thead>
           <tr>
@@ -101,7 +110,7 @@
         </tbody>
       </table>
     </div>
-
+    </div>
 @include('social.configs.partials.add-modal')
    
 @endsection
@@ -116,7 +125,17 @@
         $(document).ready(function() {
             $(".select-multiple").multiselect();
             $(".select-multiple2").select2();
+            $(".store_website_id").select2({
+                placeholder : "Select Store Website",
+            });
+            $(".user_name").select2({
+                placeholder : "Select User Name",
+            });
+            $(".platform").select2({
+                placeholder : "Select Platform",
+            });
         });
+
 
         $('#filter-date').datetimepicker({
             format: 'YYYY-MM-DD',
@@ -158,7 +177,7 @@
        
     }
 
-        $(document).ready(function() {
+    $(document).ready(function() {
         src = "{{ route('social.config.index') }}";
         $(".search").autocomplete({
         source: function(request, response) {
