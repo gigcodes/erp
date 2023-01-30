@@ -225,7 +225,7 @@ class ReplyController extends Controller
         if ($parent_category) {
             $parentNode = ReplyCategory::select(\DB::raw('group_concat(id) as ids'))->whereIn('id', $parent_category)->where('parent_id', '=', 0)->first();
             if ($parentNode) {
-                $subCatChild = ReplyCategory::whereIn('parent_id', explode(",",$parentNode->ids))->get()->pluck('id')->toArray();
+                $subCatChild = ReplyCategory::whereIn('parent_id', explode(',', $parentNode->ids))->get()->pluck('id')->toArray();
                 $categoryChildNode = ReplyCategory::whereIn('parent_id', $subCatChild)->get()->pluck('id')->toArray();
             }
         }
@@ -281,10 +281,9 @@ class ReplyController extends Controller
         $category = $subCategory = [];
         foreach ($allSubCategory as $key => $value) {
             $categoryList = ReplyCategory::where('id', $value->parent_id)->first();
-            if($categoryList->parent_id == 0)
-            {
+            if ($categoryList->parent_id == 0) {
                 $category[$value->id] = $value->name;
-            }else{
+            } else {
                 $subCategory[$value->id] = $value->name;
             }
         }
