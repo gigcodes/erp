@@ -217,12 +217,15 @@ class ReplyController extends Controller
     {
         $storeWebsite = $request->get('store_website_id');
         $keyword = $request->get('keyword');
-        $category = $request->get('category_id');
+        $parent_category = $request->get('parent_category_ids') ? $request->get('parent_category_ids') : [];
+        $category_ids = $request->get('category_ids') ? $request->get('category_ids') : [];
+        $sub_category_ids = $request->get('sub_category_ids') ? $request->get('sub_category_ids') : [];
+
         $categoryChildNode = [];
-        if ($category) {
-            $parentNode = ReplyCategory::where('id', '=', $category)->where('parent_id', '=', 0)->first();
+        if ($parent_category) {
+            $parentNode = ReplyCategory::select(\DB::raw('group_concat(id) as ids'))->whereIn('id', $parent_category)->where('parent_id', '=', 0)->first();
             if ($parentNode) {
-                $subCatChild = ReplyCategory::where('parent_id', $parentNode->id)->get()->pluck('id')->toArray();
+                $subCatChild = ReplyCategory::whereIn('parent_id', explode(",",$parentNode->ids))->get()->pluck('id')->toArray();
                 $categoryChildNode = ReplyCategory::whereIn('parent_id', $subCatChild)->get()->pluck('id')->toArray();
             }
         }
@@ -241,17 +244,30 @@ class ReplyController extends Controller
                 $q->orWhere('reply_categories.name', 'LIKE', '%'.$keyword.'%')->orWhere('replies.reply', 'LIKE', '%'.$keyword.'%');
             });
         }
-        if (! empty($category)) {
+        if (! empty($parent_category)) {
             if ($categoryChildNode) {
                 $replies = $replies->where(function ($q) use ($categoryChildNode) {
                     $q->orWhereIn('reply_categories.id', $categoryChildNode);
                 });
             } else {
-                $replies = $replies->where(function ($q) use ($category) {
-                    $q->orWhere('reply_categories.id', '=', $category)->orWhere('reply_categories.parent_id', '=', $category);
+                $replies = $replies->where(function ($q) use ($parent_category) {
+                    $q->orWhereIn('reply_categories.id', $parent_category)->where('parent_id', '=', 0);
                 });
             }
         }
+
+        if (! empty($category_ids)) {
+            $replies = $replies->where(function ($q) use ($category_ids) {
+                $q->orWhereIn('reply_categories.parent_id', $category_ids)->where('parent_id', '!=', 0);
+            });
+        }
+
+        if (! empty($sub_category_ids)) {
+            $replies = $replies->where(function ($q) use ($sub_category_ids) {
+                $q->orWhereIn('reply_categories.id', $sub_category_ids)->where('parent_id', '!=', 0);
+            });
+        }
+
         $replies = $replies->paginate(25);
         foreach ($replies as $key => $value) {
             $subCat = explode('>', $value->parentList());
@@ -259,7 +275,21 @@ class ReplyController extends Controller
             $replies[$key]['parent_secound'] = isset($subCat[1]) ? $subCat[1] : '';
         }
 
-        return view('reply.list', compact('replies'));
+        $parentCategory = $allSubCategory = [];
+        $parentCategory = ReplyCategory::where('parent_id', 0)->get();
+        $allSubCategory = ReplyCategory::where('parent_id', '!=', 0)->get();
+        $category = $subCategory = [];
+        foreach ($allSubCategory as $key => $value) {
+            $categoryList = ReplyCategory::where('id', $value->parent_id)->first();
+            if($categoryList->parent_id == 0)
+            {
+                $category[$value->id] = $value->name;
+            }else{
+                $subCategory[$value->id] = $value->name;
+            }
+        }
+
+        return view('reply.list', compact('replies', 'parentCategory', 'category', 'subCategory', 'parent_category', 'category_ids', 'sub_category_ids'));
     }
 
     public function replyListDelete(Request $request)
