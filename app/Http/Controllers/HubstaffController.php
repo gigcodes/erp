@@ -74,9 +74,17 @@ class HubstaffController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $members = HubstaffMember::all();
+        $usersFilter = [];
+        $users = $request->get('user_filter');
+        if((int) $users > 0)
+        {
+            $members = HubstaffMember::join('users', 'users.id', 'hubstaff_members.user_id')->whereIn('hubstaff_members.user_id', $users)->get();
+            $usersFilter = User::select('id', 'name')->whereIn('id', $users)->get();
+        }else{
+            $members = HubstaffMember::all();
+        }
         $users = User::all('id', 'name');
 
         return view(
@@ -84,6 +92,7 @@ class HubstaffController extends Controller
             [
                 'members' => $members,
                 'users' => $users,
+                'usersFilter' => $usersFilter,
             ]
         );
     }
@@ -682,5 +691,27 @@ class HubstaffController extends Controller
         }
 
         return response()->json(['code' => 500, 'data' => [], 'message' => 'Id is missing']);
+    }
+
+    public function userList(Request $request)
+    {
+        $user = User::orderBy('name');
+        if (! empty($request->q)) {
+            $user->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%'.$request->q.'%');
+            });
+        }
+        $user = $user->paginate(30);
+        $result['total_count'] = $user->total();
+        $result['incomplete_results'] = $user->nextPageUrl() !== null;
+
+        foreach ($user as $user) {
+            $result['items'][] = [
+                'id' => $user->id,
+                'text' => $user->name,
+            ];
+        }
+
+        return response()->json($result);
     }
 }

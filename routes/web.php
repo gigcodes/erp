@@ -2644,7 +2644,7 @@ Route::middleware('auth')->group(function () {
     Route::get('hubstaff/debug', [HubstaffController::class, 'debug']);
     Route::get('hubstaff/payments', [UserController::class, 'payments']);
     Route::post('hubstaff/makePayment', [UserController::class, 'makePayment']);
-
+    Route::get('hubstaff/userlist', [HubstaffController::class, 'userList'])->name('hubstaff.userList');
     /***
      * use for Postman
      * Created By Nikunj
