@@ -771,7 +771,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/{id}/originalColor', [ProductController::class, 'originalColor']);
     Route::post('products/{id}/submitForApproval', [ProductController::class, 'submitForApproval']);
     Route::get('products/{id}/category-history', [ProductCategoryController::class, 'history']);
-    Route::post('products/{id}/addListingRemarkToProduct', [ProductController::class, 'addListingRemarkToProduct']);
+//    Route::post('products/{id}/addListingRemarkToProduct', [ProductController::class, 'addListingRemarkToProduct']);
     Route::get('products/{id}/get-translation-product', [ProductController::class, 'getTranslationProduct']);
     Route::post('products/{id}/
     ', [ProductController::class, 'updateApprovedBy']);

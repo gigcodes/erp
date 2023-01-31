@@ -17,6 +17,7 @@ class UserProductFeedback extends Model
     protected $casts = [
         'content' => 'array',
     ];
+    protected $table = 'user_product_feedbacks';
 
     public function product()
     {
