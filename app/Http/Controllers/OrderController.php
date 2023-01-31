@@ -2637,12 +2637,58 @@ class OrderController extends Controller
         return response()->json($customer_array->orders);
     }
 
-    public function callsHistory()
+    public function callsHistory(Request $request)
     {
-        $calls = CallHistory::latest()->paginate(Setting::get('pagination'));
+        $calls = CallHistory::latest();
+        $storeWebId = $request->get('storewebsite_filter');
+        $customerIds = $request->get('customer_filter');
+        $status = $request->get('status_filter');
+        $customer_num = $request->get('phone_number') ? $request->get('phone_number') : '';
+        $storeWebsite = $customer = $callHistoryStatus = [];
+        if((int) $storeWebId > 0)
+        {
+            $calls = $calls->whereIn('store_website_id', $storeWebId);
+            $storeWebsite = StoreWebsite::whereIn('id', $storeWebId)->orderBy('website')->get();
+        }
+        if((int) $customerIds > 0){
+            $calls = $calls->whereIn('customer_id', $customerIds);
+            $customer = Customer::orWhereIn('id', $customerIds)->orderBy('name')->get();
+        }
+        if((int) $status > 0){
+            $calls = $calls->where(function($query) use($status) {
+                foreach($status as $term) {
+                    $query->orWhere('status', 'like', "%$term%");
+                };
+            });
+            $callHistoryStatus = CallHistory::where(function($query) use($status) {
+                foreach($status as $term) {
+                    $query->orWhere('status', 'like', "%$term%");
+                };
+            })->groupBy('status')->get();
+        }
 
+        if(isset($request->phone_number))
+        {
+            $phoneNumber = explode(",",$request->phone_number);
+            $phone = explode(",",$request->phone_number);
+            $customerPhone = Customer::select(\DB::raw('group_concat(id) as customer_ids'))->where(function($query) use($phone) {
+                foreach($phone as $term) {
+                    $query->orWhere('phone', 'like', "%$term%");
+                };
+            })->first();
+            if(!empty($customerPhone->customer_ids))
+            {
+                $customer_ids = explode(",", $customerPhone->customer_ids);
+                $calls = $calls->whereIn('customer_id', $customer_ids);
+            }
+        }
+        $calls = $calls->paginate(Setting::get('pagination'));
         return view('orders.call_history', [
             'calls' => $calls,
+            'customer' => $customer,
+            'storeWebsite' => $storeWebsite,
+            'callHistoryStatus' => $callHistoryStatus,
+            'customer_num' => $customer_num
         ]);
     }
 
@@ -4979,4 +5025,70 @@ class OrderController extends Controller
 
         return response()->json(['code' => 200, 'data' => $statusHistory]);
     }
+
+    public function customerList(Request $request)
+    {
+        $customer = Customer::where('name', '!=', '')->orderBy('name');
+        if (! empty($request->q)) {
+            $customer->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%'.$request->q.'%');
+            });
+        }
+        $customer = $customer->paginate(30);
+        $result['total_count'] = $customer->total();
+        $result['incomplete_results'] = $customer->nextPageUrl() !== null;
+
+        foreach ($customer as $customer) {
+            $result['items'][] = [
+                'id' => $customer->id,
+                'text' => $customer->name,
+            ];
+        }
+        // dd($result);
+        return response()->json($result);
+    }
+
+    public function callhistoryStatusList(Request $request)
+    {
+        $callhistory = CallHistory::groupBy('status');
+        if (! empty($request->q)) {
+            $callhistory->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%'.$request->q.'%');
+            });
+        }
+        $callhistory = $callhistory->paginate(30);
+        $result['total_count'] = $callhistory->total();
+        $result['incomplete_results'] = $callhistory->nextPageUrl() !== null;
+
+        foreach ($callhistory as $callhistory) {
+            $result['items'][] = [
+                'id' => $callhistory->status,
+                'text' => $callhistory->status,
+            ];
+        }
+        return response()->json($result);
+    }
+
+    public function storeWebsiteList(Request $request)
+    {
+        $storewebsite = StoreWebsite::orderBy('website');
+        if (! empty($request->q)) {
+            $storewebsite->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%'.$request->q.'%');
+            });
+        }
+        $storewebsite = $storewebsite->paginate(30);
+        $result['total_count'] = $storewebsite->total();
+        $result['incomplete_results'] = $storewebsite->nextPageUrl() !== null;
+
+        foreach ($storewebsite as $storewebsite) {
+            $result['items'][] = [
+                'id' => $storewebsite->id,
+                'text' => $storewebsite->website,
+            ];
+        }
+        // dd($result);
+        return response()->json($result);
+    }
+
 }
