@@ -3045,19 +3045,19 @@ class CustomerController extends Controller
         }
 
         if ($request->name != '') {
-            $customers_all->whereIn('name',$request->name);
+            $customers_all->whereIn('name', $request->name);
         }
 
         if ($request->email != '') {
-            $customers_all->whereIn('email',$request->email);
+            $customers_all->whereIn('email', $request->email);
         }
 
         if ($request->phone != '') {
-            $customers_all->whereIn('phone',$request->phone);
+            $customers_all->whereIn('phone', $request->phone);
         }
 
         if ($request->store_website != '') {
-            $customers_all->whereIn('store_website_id',$request->store_website);
+            $customers_all->whereIn('store_website_id', $request->store_website);
         }
 
         $customers_all->orderBy('created_at', 'desc');
