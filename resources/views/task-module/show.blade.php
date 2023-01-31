@@ -17,6 +17,10 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 
     <style>
+        .communication_th {
+            width: 10% !important;
+            min-width: 250px !important;
+        }
         #message-wrapper {
             height: 450px;
             overflow-y: scroll;
@@ -630,12 +634,10 @@
             {{-- href="{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}"--}}
 
             @if(auth()->user()->isAdmin())
-
                 <li><button type="button" class="btn btn-xs btn-secondary my-3" data-toggle='modal' data-target='#taskStatusModal' id="">Create Status</button></li>&nbsp;
-
-
+                <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button></li>&nbsp;
             @endif
-            <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button></li>&nbsp;
+
         </ul>
         <div class="tab-content ">
             <!-- Pending task div start -->
@@ -649,23 +651,22 @@
                                 <th width="4%">ID</th>
                                 <th width="7%">Date</th>
                                 <th width="4%" class="category">Category</th>
-                                <th width="6%">Task Subject</th>
+                                <th width="4%">Task Subject</th>
                                 <th width="10%">Assign To</th>
                                 <th width="8%">Status</th>
-                                <th width="7%">Tracked time</th>
-                                <th width="17%">Communication</th>
-                                <th width="10%">Estimated Time</th>
+                                <th width="5%">Tracked time</th>
+                                <th class="communication_th">Communication</th>
+                                <th width="6%">Estimated Time</th>
                                 <th width="6%">Estimated Start Datetime</th>
                                 <th width="6%">Estimated End Datetime</th>
-                                <th width="8%">
+                                <th width="6%">
                                     ICON &nbsp;
                                     <label><input type="checkbox" class="show-finished-task" name="show_finished" value="on"> Finished</label>
                                 </th>
                             </tr>
                             </thead>
-                            <tbody class="pending-row-render-view infinite-scroll-pending-inner">
-
-                            @if(count($data['task']['pending']) >0)
+                            <tbody class="pending-row-render-view">
+                                @if(count($data['task']['pending']) >0)
                                 @foreach($data['task']['pending'] as $task)
                                     @php
                                         $taskDueDate = $task->due_date;
@@ -791,7 +792,7 @@
                                         {{ $users_list }}
                                     </span>
                                             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
-                                            <div class="col-md-12 expand-col dis-none" style="padding:0px;">
+                                            <div class="col-md-12 expand-col-lead{{$task->id}} dis-none" style="padding:0px;">
                                                 <br>
                                                 @if(auth()->user()->isAdmin()  || $isTeamLeader)
                                                     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
@@ -888,8 +889,8 @@
                                             @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                                 <div style="margin-bottom:10px;width: 100%;">
                                                     <?php $text_box = "100"; ?>
-                                                    <div class="d-flex">
                                                         <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
+                                                    <div class="d-flex">
                                                         <div style="max-width: 30px;">
                                                             <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
                                                         </div>
@@ -1028,7 +1029,7 @@
                                                     @else
                                                         <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
                                                     @endif
-                                                    <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                                    <button class="btn btn-image expand-row-btn-lead" data-task_id="{{ $task->id }}"><img src="/images/forward.png"></button>
                                                     <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>
 
                                                 </div>
@@ -2122,6 +2123,10 @@
         });
         $(document).on('click', '.expand-row-btn', function() {
             $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
+        });
+        $(document).on('click', '.expand-row-btn-lead', function() {
+           var id =  $(this).data('task_id');
+            $(".expand-col-lead"+id).toggleClass('dis-none');
         });
         $(document).on("click", ".set-remark", function(e) {
             $('.remark_pop').val("");
