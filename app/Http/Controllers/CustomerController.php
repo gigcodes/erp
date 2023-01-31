@@ -3045,25 +3045,28 @@ class CustomerController extends Controller
         }
 
         if ($request->name != '') {
-            $customers_all->where('name', 'like', '%'.$request->name.'%');
+            $customers_all->whereIn('name',$request->name);
         }
 
         if ($request->email != '') {
-            $customers_all->orwhere('email', 'like', '%'.$request->email.'%');
+            $customers_all->whereIn('email',$request->email);
         }
 
         if ($request->phone != '') {
-            $customers_all->orwhere('phone', 'like', '%'.$request->phone.'%');
+            $customers_all->whereIn('phone',$request->phone);
         }
 
         if ($request->store_website != '') {
-            $customers_all->orwhere('store_website_id', 'like', $request->store_website);
+            $customers_all->whereIn('store_website_id',$request->store_website);
         }
 
         $customers_all->orderBy('created_at', 'desc');
         $total = $customers_all->count();
         $customers_all = $customers_all->paginate(Setting::get('pagination'));
         $store_website = StoreWebsite::all();
+        $customers_name = Customer::select('name')->distinct()->where('store_website_id', '>', 0)->get();
+        $customers_phone = Customer::select('phone')->distinct()->where('store_website_id', '>', 0)->get();
+        $customers_email = Customer::select('email')->distinct()->where('store_website_id', '>', 0)->get();
 
         if ($request->ajax()) {
             return view('customers.account_ajax', [
@@ -3075,6 +3078,9 @@ class CustomerController extends Controller
                 'customers_all' => $customers_all,
                 'total' => $total,
                 'store_website' => $store_website,
+                'customers_name' => $customers_name,
+                'customers_phone' => $customers_phone,
+                'customers_email' => $customers_email,
 
             ]);
         }
