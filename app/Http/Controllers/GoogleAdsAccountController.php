@@ -63,7 +63,7 @@ class GoogleAdsAccountController extends Controller
             'store_websites' => 'required',
             'config_file_path' => 'required',
             'status' => 'required',
-            'notes' => 'required'
+            'notes' => 'required',
         ]);
 
         $accountArray = [
@@ -165,9 +165,9 @@ class GoogleAdsAccountController extends Controller
         );
 
         $authUrl = $oauth2->buildFullAuthorizationUri([
-                            'prompt' => 'consent'
-                        ]);
-        
+            'prompt' => 'consent',
+        ]);
+
         $authUrl = filter_var($authUrl, FILTER_SANITIZE_URL);
 
         return redirect()->away($authUrl);
