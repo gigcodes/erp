@@ -678,10 +678,10 @@ class ChatMessagesController extends Controller
             });
             $records->where('user_id', $request->get('user_id'))
                 ->orWhereHas('user', function ($query) use ($keywords) {
-                foreach ($keywords as $keyword) {
-                    $query->where('name', 'like', '%'.$keyword.'%');
-                }
-            });
+                    foreach ($keywords as $keyword) {
+                        $query->where('name', 'like', '%'.$keyword.'%');
+                    }
+                });
         }
 
         if (! empty($request->user_id)) {
