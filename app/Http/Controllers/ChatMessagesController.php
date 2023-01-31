@@ -669,31 +669,35 @@ class ChatMessagesController extends Controller
                 $query->orWhereNotNull('customer_id');
             });
         if (! empty($keywords)) {
-            $records = $records->where(function ($query) use ($keywords) {
+            $keywords['user_id'] = $request->get('user_id');
+            $records->where(function ($query) use ($keywords) {
                 foreach ($keywords as $keyword) {
                     $query->orWhere('message', 'like', '%'.$keyword.'%');
                     $query->orWhere('created_at', 'like', '%'.$keyword.'%');
                 }
-            })->orWhereHas('user', function ($query) use ($keywords) {
+            });
+            $records->where('user_id', $request->get('user_id'))
+                ->orWhereHas('user', function ($query) use ($keywords) {
                 foreach ($keywords as $keyword) {
                     $query->where('name', 'like', '%'.$keyword.'%');
                 }
             });
         }
+
         if (! empty($request->user_id)) {
-            $records = $records->where('user_id', $request->user_id);
+            $records->where('user_id', $request->user_id);
         }
 
         if (! empty($request->vendor_id)) {
-            $records = $records->where('vendor_id', $request->vendor_id);
+            $records->where('vendor_id', $request->vendor_id);
         }
 
         if (! empty($request->customer_id)) {
-            $records = $records->where('customer_id', $request->customer_id);
+            $records->where('customer_id', $request->customer_id);
         }
 
         if (! empty($request->created_at)) {
-            $records = $records->whereDate('created_at', date('Y-m-d', strtotime($request->created_at)));
+            $records->whereDate('created_at', date('Y-m-d', strtotime($request->created_at)));
         }
 
         $records = $records->latest()->paginate(20);

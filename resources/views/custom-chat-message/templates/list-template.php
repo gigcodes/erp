@@ -5,7 +5,7 @@
       	<td>{{:prop.message}}</td>
       	<td>{{:prop.sender}}</td>
       	<td>{{:prop.sender_name}}</td>
-      	<td></td>
+      	<td><button type="button" data-message="{{>prop.message}}" class="btn btn-delete-template copy_chat_message"><i class="fa fa-clipboard" aria-hidden="true"></i></button></td>
       </tr>
     {{/props}}  
 </script>
