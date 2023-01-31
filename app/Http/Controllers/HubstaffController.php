@@ -78,11 +78,10 @@ class HubstaffController extends Controller
     {
         $usersFilter = [];
         $users = $request->get('user_filter');
-        if((int) $users > 0)
-        {
+        if ((int) $users > 0) {
             $members = HubstaffMember::join('users', 'users.id', 'hubstaff_members.user_id')->whereIn('hubstaff_members.user_id', $users)->get();
             $usersFilter = User::select('id', 'name')->whereIn('id', $users)->get();
-        }else{
+        } else {
             $members = HubstaffMember::all();
         }
         $users = User::all('id', 'name');
