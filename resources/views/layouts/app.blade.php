@@ -1640,8 +1640,7 @@ if (!empty($notifications)) {
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span
-                                            class="caret"></span></a>
+                                        aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
@@ -2138,6 +2137,9 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
+                                </li>
+                                    <li class="nav-item dropdown">
+                                    <a href="{{route('social.config.index')}}">Social Config</a>
                                 </li>
                                 @endif
                             </ul>
