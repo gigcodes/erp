@@ -510,11 +510,12 @@
         </div>
     </div>
 </div>
+
 <div id="modalDevInformationUpdates" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Task's Information Update</h4>
+                <h4 class="modal-title">Dev's Information Update</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -523,20 +524,19 @@
                 $cls_2 = 'col-md-4';
                 ?>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Estimated Time: [In Minutes]</label>
                         <div class="form-group">
                             <input type="number" class="form-control" name="dev_approximate" value="" min="1" autocomplete="off" />
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Remark:</label>
                         <div class="form-group">
                             <textarea class="form-control" name="dev_remark" rows="2"></textarea>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funDevInformationUpdates('approximate')">Update</button>
                             <button type="button" class="btn btn-default show-time-history">History</button>
@@ -544,10 +544,10 @@
                     </div>
                 </div>
 
-                <hr />
+                <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Estimated Start Datetime:</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
@@ -556,8 +556,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funDevInformationUpdates('start_date')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')">History</button>
@@ -565,10 +564,10 @@
                     </div>
                 </div>
 
-                <hr />
+                <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Estimated End Datetime: [Due Date]</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
@@ -577,8 +576,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funDevInformationUpdates('due_date')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('due_date')">History</button>
@@ -586,17 +584,16 @@
                     </div>
                 </div>
 
-                <hr />
+                <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Cost:</label>
                         <div class="form-group">
                             <input type="text" class="form-control" name="dev_cost" value="" autocomplete="off" />
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funDevInformationUpdates('cost')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')">History</button>
@@ -604,16 +601,16 @@
                     </div>
                 </div>
 
-                <hr />
+                    <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
                     <div class="col-md-6">
                         <label>Actual Start Time:</label>
-                        <div class="form-group cls-actual_start_date"></div>
+                        <div class="cls-actual_start_date"></div>
                     </div>
                     <div class="col-md-6">
                         <label>Actual End Time:</label>
-                        <div class="form-group cls-actual_end_date"></div>
+                        <div class="cls-actual_end_date"></div>
                     </div>
                 </div>
             </div>
@@ -624,7 +621,7 @@
     </div>
 </div>
 <div id="modalTaskInformationUpdates" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Task's Information Update</h4>
@@ -636,20 +633,19 @@
                 $cls_2 = 'col-md-4';
                 ?>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Estimated Time: [In Minutes]</label>
                         <div class="form-group">
                             <input type="number" class="form-control" name="approximate" value="" min="1" autocomplete="off" />
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Remark:</label>
                         <div class="form-group">
                             <textarea class="form-control" name="remark" rows="2"></textarea>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('approximate')">Update</button>
                             <button type="button" class="btn btn-default show-time-history">History</button>
@@ -657,10 +653,10 @@
                     </div>
                 </div>
 
-                <hr />
+                    <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Estimated Start Datetime:</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
@@ -669,8 +665,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('start_date')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')">History</button>
@@ -678,10 +673,10 @@
                     </div>
                 </div>
 
-                <hr />
+                    <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Estimated End Datetime: [Due Date]</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
@@ -690,8 +685,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('due_date')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('due_date')">History</button>
@@ -699,17 +693,16 @@
                     </div>
                 </div>
 
-                <hr />
+                    <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Cost:</label>
                         <div class="form-group">
                             <input type="text" class="form-control" name="cost" value="" autocomplete="off" />
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('cost')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')">History</button>
@@ -717,16 +710,16 @@
                     </div>
                 </div>
 
-                <hr />
+                <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
                     <div class="col-md-6">
                         <label>Actual Start Time:</label>
-                        <div class="form-group cls-actual_start_date"></div>
+                        <div class="cls-actual_start_date"></div>
                     </div>
                     <div class="col-md-6">
                         <label>Actual End Time:</label>
-                        <div class="form-group cls-actual_end_date"></div>
+                        <div class="cls-actual_end_date"></div>
                     </div>
                 </div>
             </div>
