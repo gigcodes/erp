@@ -261,23 +261,65 @@
         Private
         @endif
     </td>
+    @php
+        $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
+    @endphp
     <td class="p-2">
-        <div>
-            <div class="row cls_action_box" style="margin:0px;">
-                @if(auth()->user()->isAdmin())
+        <div style="margin-bottom:10px;width: 100%;">
+            <div class="d-flex">
+                <input type="number" class="form-control" name="approximates{{$task->id}}" value="{{$task->approximate}}" min="1" autocomplete="off">
+                <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('approximate',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+            </div>
+        </div>
+    </td>
+    <td class="p-2">
+        <div class="form-group d-flex">
+            <div class='input-group date cls-start-due-date'>
+                <input type="text" class="form-control" name="start_dates{{$task->id}}" value="{{$single->task_start_date}}" autocomplete="off" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+        </div>
+    </td>
+    <td class="p-2">
+        <div class="form-group d-flex">
+            <div class='input-group date cls-start-due-date'>
+                <input type="text" class="form-control" name="due_dates{{$task->id}}" value="{{$single->task_new_due_date}}" autocomplete="off" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+        </div>
+    </td>
+    <td class="p-2">
+        <div class="dropdown dropleft">
+            <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Actions
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
+                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$task->id}}')"><i class="fa fa-arrow-down"></i></button>
+    </td>
+</tr>
+<tr class="action-btn-tr-{{$task->id}} d-none">
+    <td class="font-weight-bold">Action</td>
+    <td colspan="11">
+        <div class="row cls_action_box" style="margin:0px;">
+            @if(auth()->user()->isAdmin())
                 <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
-                @endif
+            @endif
 
-                <button data-toggle="modal" data-target="#taskReminderModal" class='btn pd-5 task-set-reminder' data-id="{{ $task->id }}" data-frequency="{{ !empty($task->reminder_message) ? $task->frequency : '60' }}" data-reminder_message="{{ !empty($task->reminder_message) ? $task->reminder_message : 'Plz update' }}" data-reminder_from="{{ $task->reminder_from }}" data-reminder_last_reply="{{ ($task && !empty($task->reminder_last_reply)) ? $task->reminder_last_reply : '' }}">
-                    <i class="fa fa-bell @if(!empty($task->reminder_message) && $task->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
-                </button>
+            <button data-toggle="modal" data-target="#taskReminderModal" class='btn pd-5 task-set-reminder' data-id="{{ $task->id }}" data-frequency="{{ !empty($task->reminder_message) ? $task->frequency : '60' }}" data-reminder_message="{{ !empty($task->reminder_message) ? $task->reminder_message : 'Plz update' }}" data-reminder_from="{{ $task->reminder_from }}" data-reminder_last_reply="{{ ($task && !empty($task->reminder_last_reply)) ? $task->reminder_last_reply : '' }}">
+                <i class="fa fa-bell @if(!empty($task->reminder_message) && $task->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
+            </button>
 
-                @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id() || $task->master_user_id == Auth::id())
+            @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id() || $task->master_user_id == Auth::id())
                 <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button>
                 @if ($task->assign_from == Auth::id())
-                <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png" /></button>
+                    <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png" /></button>
                 @else
-                <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png" /></button>
+                    <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png" /></button>
                 @endif
 
                 <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
@@ -289,35 +331,25 @@
                 <button type="button" class="btn preview-img-btn pd-5" data-id="{{ $task->id }}">
                     <i class="fa fa-list" aria-hidden="true"></i>
                 </button>
-                @endif
-                @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
+            @endif
+            @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
                 @if ($task->is_private == 1)
-                <button disabled type="button" class="btn btn-image pd-5"><img src="{{asset('images/private.png')}}" /></button>
+                    <button disabled type="button" class="btn btn-image pd-5"><img src="{{asset('images/private.png')}}" /></button>
                 @else
-                {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a> --}}
+                    {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a> --}}
                 @endif
-                @endif
+            @endif
 
-                @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
+            @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
                 <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a>
-                @endif
+            @endif
 
-                @if ($task->is_flagged == 1)
+            @if ($task->is_flagged == 1)
                 <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/flagged.png')}}" /></button>
-                @else
+            @else
                 <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
-                @endif
-                <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
-            </div>
-        </div>
-
-        <div class="dropdown dropleft">
-            <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Actions
-            </a>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
-                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
-            </div>
+            @endif
+            <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
         </div>
     </td>
 </tr>

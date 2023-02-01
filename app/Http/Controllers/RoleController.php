@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Permission;
 use App\Role;
+use function GuzzleHttp\json_encode;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -40,7 +41,9 @@ class RoleController extends Controller
             ], 200);
         }
 
-        return view('roles.index', compact('roles'))
+        $permission = Permission::get();
+
+        return view('roles.index', compact('roles', 'permission'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
@@ -88,8 +91,13 @@ class RoleController extends Controller
     public function show($id)
     {
         $role = Role::find($id);
+        $rolePermissions = $role->permissions;
+        $data = [
+            'role' => $role,
+            'rolePermissions' => $rolePermissions,
+        ];
 
-        return view('roles.show', compact('role'));
+        return $data;
     }
 
     /**
@@ -102,8 +110,15 @@ class RoleController extends Controller
     {
         $role = Role::find($id);
         $permission = Permission::get();
+        $rolePermissions = $role->permissions;
 
-        return view('roles.edit', compact('role', 'permission'));
+        $data = [
+            'role' => $role,
+            'rolePermissions' => $rolePermissions,
+            'permission' => $permission,
+        ];
+
+        return $data;
     }
 
     /**
@@ -116,18 +131,18 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required',
-            'permission' => 'required',
+            'role_name' => 'required',
+            'permission1' => 'required',
         ]);
 
         $role = Role::find($id);
-        $role->name = $request->input('name');
+        $role->name = $request->input('role_name');
         $role->save();
 
-        $role->permissions()->sync($request->input('permission'));
+        $role->permissions()->sync($request->input('permission1'));
+        $data = ['success' => 'Role updated successfully'];
 
-        return redirect()->route('roles.index')
-                         ->with('success', 'Role updated successfully');
+        return $data;
     }
 
     /**
@@ -147,5 +162,23 @@ class RoleController extends Controller
     public function unAuthorized()
     {
         return view('errors.401');
+    }
+
+    public function search_role(Request $request)
+    {
+        $permission = Permission::where('name', 'LIKE', '%'.$request->search_role.'%')->get();
+        $permission_array = explode(',', $request->permission);
+
+        $html = '<strong>Permission:</strong><br/>';
+        foreach ($permission as $k => $value) {
+            $checked = '';
+            if (in_array($value['id'], $permission_array)) {
+                $checked = 'checked';
+            }
+
+            $html .= '<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'.$value['id'].'" '.$checked.'><span style="padding-left: 4px;">'.$value->name.'</span></label><br/>';
+        }
+
+        return json_encode($html);
     }
 }

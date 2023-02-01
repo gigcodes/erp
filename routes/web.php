@@ -289,6 +289,7 @@ use App\Http\Controllers\SystemSizeController;
 use App\Http\Controllers\TargetLocationController;
 use App\Http\Controllers\TaskCategoriesController;
 use App\Http\Controllers\TaskCategoryController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskHistoryController;
 use App\Http\Controllers\TaskModuleController;
 use App\Http\Controllers\TasksController;
@@ -447,10 +448,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/csv-translator', [CsvTranslatorController::class, 'index'])->name('csvTranslator.list');
     Route::post('/csv-translator/upload', [CsvTranslatorController::class, 'upload'])->name('csvTranslator.uploadFile');
-    Route::get('/csv-translator/export', [CsvTranslatorController::class, 'export'])->name('csvTranslator.export');
     Route::post('/csv-translator/update', [CsvTranslatorController::class, 'update'])->name('csvTranslator.update');
     Route::post('/csv-translator/history', [CsvTranslatorController::class, 'history'])->name('csvTranslator.history');
     Route::get('/csv-filter', [CsvTranslatorController::class, 'filterCsvTranslator'])->name('csvTranslator.filter');
+    Route::post('/csv-translator/approvedByAdmin', [CsvTranslatorController::class, 'approvedByAdmin'])->name('csvTranslator.filter');
+    Route::post('/csv-translator/permissions', [CsvTranslatorController::class, 'userPermissions'])->name('csvTranslator.permission');
 });
 
 /** Magento Settings */
@@ -659,9 +661,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('livechat/save', [LiveChatController::class, 'save'])->name('livechat.save');
     Route::post('livechat/remove', [LiveChatController::class, 'remove'])->name('livechat.remove');
     Route::resource('roles', RoleController::class);
+    Route::post('roles/update/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::resource('permissions', PermissionController::class);
     Route::get('permissions/grandaccess/users', [PermissionController::class, 'users'])->name('permissions.users');
     Route::get('unauthorized', [RoleController::class, 'unAuthorized']);
+    Route::get('search_role', [RoleController::class, 'search_role'])->name('search_role');
     Route::get('users/logins', [UserController::class, 'login'])->name('users.login.index');
     Route::post('users/status-change', [UserController::class, 'statusChange']);
     Route::get('users/loginips', [UserController::class, 'loginIps'])->name('users.login.ips');
@@ -861,6 +865,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
     Route::get('sop/search', [SopController::class, 'search']);
+    Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch']);
     Route::get('soplogs', [SopController::class, 'sopnamedata_logs'])->name('sopname.logs');
     Route::get('sop/DownloadData/{id}', [SopController::class, 'downloaddata'])->name('sop.download');
     // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
@@ -4500,3 +4505,9 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::get('/command-logs/{id}', [RedisQueueController::class, 'commandLogs'])->name('redisQueue.commandLogs');
     Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
 });
+
+// Task Summary::
+Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('tasksSummary');
+Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList');
+Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList');
+Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
