@@ -75,6 +75,9 @@
                                     <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}" style="color: #808080;"></i>
                                   @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
                                     <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
+                                    <!-- To push the FAQ Over every website using the API -->
+                                    <i onclick="return confirm('Are you sure you want to push FAQ?')" class="fa fa-question  upload_faq" data-id="{{ $reply->id }}" alt="Push To FAQ" style="color: #808080;"></i>
+
                                     <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
                                 </td>
                             </tr>
@@ -281,6 +284,32 @@ $(document).on('click', '.show_logs', function() {
         }
     });
     $('#reply_logs_modal').modal('show');
+});
+
+
+$(document).on("click",".upload_faq",function() {
+    var $this = $(this);
+    $.ajax({
+        url: "{{ url('push/faq') }}",
+        type: 'POST',
+        data: {
+          _token: "{{ csrf_token() }}",
+          id: $this.data("id")
+        },
+        beforeSend: function() {
+            $("#loading-image").show();
+        }
+      }).done( function(response) {
+            $("#loading-image").hide();
+            if(response.code == 200) {
+                toastr["success"](response.message);
+                // location.reload();
+            }else{
+               toastr["error"]('Something went wrong!');
+            }
+      }).fail(function(errObj) {
+            $("#loading-image").hide();
+      });
 });
 </script>
 @endsection
