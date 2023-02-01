@@ -1189,11 +1189,14 @@ class TwilioController extends FindByNumberController
                 return $response;
             }
         } else {
+            $recordedText = '';
             if (isset($inputs['SpeechResult'])) {
                 $recordedText = $inputs['SpeechResult'];
             } else {
-                $recUrl = $inputs['RecordingUrl'];
-                $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                if (isset($inputs['RecordingUrl'])) {
+                    $recUrl = $inputs['RecordingUrl'];
+                    $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                }
             }
 
             $reply = ChatbotQuestion::where('value', 'like', '%'.$recordedText.'%')->orWhere('value', 'like', '%'.str_replace(' ', '_', $recordedText).'%')->pluck('suggested_reply')->first();

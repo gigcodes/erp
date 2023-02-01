@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Setting;
 use App\Status;
 use App\Task;
+use App\TaskStatus;
 use App\tasktypes;
 use App\User;
 use Illuminate\Http\Request;
@@ -221,5 +222,132 @@ class TaskController extends Controller
         $results = DB::select('select * from reamrks where taskid = :taskid', ['taskid' => $taskid]);
 
         return $results;
+    }
+
+    /**
+     * function to show the user wise task's statuses counts.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function taskSummary(Request $request)
+    {
+        $userListWithStatuesCnt = User::select('tasks.id', 'users.id as userid', 'users.name', 'tasks.assign_to', 'tasks.status', DB::raw('(SELECT tasks.created_at from tasks where tasks.assign_to = users.id order by tasks.created_at DESC limit 1) AS created_date'), 'users.name', DB::raw('count(tasks.id) statusCnt'));
+        $userListWithStatuesCnt = $userListWithStatuesCnt->join('tasks', 'tasks.assign_to', 'users.id')->where('users.is_task_planned', 1);
+
+        // Code for filter
+        //Get all searchable user list
+        $userslist = $statuslist = null;
+        $filterUserIds = $request->get('users_filter');
+        $filterStatusIds = $request->get('status_filter');
+
+        //Get all searchable status list
+        if ((int) $filterUserIds > 0 && (int) $filterStatusIds > 0) {
+            $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('users.id', $filterUserIds)->WhereIn('tasks.status', $filterStatusIds);
+            $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
+            $userslist = User::whereIn('id', $filterUserIds)->get();
+        } elseif ((int) $filterUserIds > 0) {
+            $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('users.id', $filterUserIds);
+            $userslist = User::whereIn('id', $request->get('users_filter'))->get();
+        } elseif ((int) $filterStatusIds > 0) {
+            $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('tasks.status', $filterStatusIds);
+            $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
+        }
+
+        $userListWithStatuesCnt = $userListWithStatuesCnt->groupBy('users.id', 'tasks.assign_to', 'tasks.status')
+            ->orderBy('created_date', 'desc')->orderBy('tasks.status', 'asc')
+            ->get();
+        // dd($userListWithStatuesCnt);
+        $getTaskStatus = TaskStatus::get();
+        $getTaskStatusIds = TaskStatus::select(DB::raw('group_concat(id) as ids'))->first();
+        $arrTaskStatusIds = explode(',', $getTaskStatusIds['ids']);
+
+        $arrStatusCount = [];
+        $arrUserNameId = [];
+        foreach ($userListWithStatuesCnt as $key => $value) {
+            $status = $value['status'];
+            $arrStatusCount[$value['userid']][$status] = $value['statusCnt'];
+            $arrUserNameId[$value['userid']]['name'] = $value['name'];
+            $arrUserNameId[$value['userid']]['userid'] = $value['userid'];
+            foreach ($arrTaskStatusIds as $key => $arrTaskStatusIdvalue) {
+                if (! array_key_exists($arrTaskStatusIdvalue, $arrStatusCount[$value['userid']])) {
+                    $arrStatusCount[$value['userid']][$arrTaskStatusIdvalue] = 0;
+                }
+            }
+            isset($arrStatusCount[$value['userid']]) ? ksort($arrStatusCount[$value['userid']]) : '';
+        }
+
+        return view('task-summary.index', compact('userListWithStatuesCnt', 'getTaskStatus', 'arrUserNameId', 'arrStatusCount', 'userslist', 'statuslist'));
+    }
+
+    /**
+     * function to show all the task list based on specific status and user
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $user_id, $status
+     * @return \Illuminate\Http\Response
+     */
+    public function taskList(Request $request)
+    {
+        $taskDetails = Task::where('status', $request->taskStatusId)->where('assign_to', $request->userId)->get();
+
+        return response()->json(['data' => $taskDetails]);
+    }
+
+    /**
+     * Function to get user's name - it's use for lazy loading of users data
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function usersList(Request $request)
+    {
+        $users = User::orderBy('name');
+        if (! empty($request->q)) {
+            $users->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%'.$request->q.'%');
+            });
+        }
+        $users = $users->paginate(30);
+        $result['total_count'] = $users->total();
+        $result['incomplete_results'] = $users->nextPageUrl() !== null;
+
+        foreach ($users as $user) {
+            $result['items'][] = [
+                'id' => $user->id,
+                'text' => $user->name,
+            ];
+        }
+
+        return response()->json($result);
+    }
+
+    /**
+     * Function to get user's name - it's use for lazy loading of users data
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function statusList(Request $request)
+    {
+        $taskStatus = TaskStatus::orderBy('name');
+        if (! empty($request->q)) {
+            $taskStatus->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%'.$request->q.'%');
+            });
+        }
+        $taskStatus = $taskStatus->paginate(30);
+        $result['total_count'] = $taskStatus->total();
+        $result['incomplete_results'] = $taskStatus->nextPageUrl() !== null;
+
+        foreach ($taskStatus as $status) {
+            $result['items'][] = [
+                'id' => $status->id,
+                'text' => $status->name,
+            ];
+        }
+
+        return response()->json($result);
     }
 }
