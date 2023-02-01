@@ -125,7 +125,7 @@
                         <td>{{(isset($callBusyMessage['agent']) ? $callBusyMessage['agent'] : '' )}}</td>
                         <td>
                             <div class="d-flex pb-2">
-                                <audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
+                                <audio src="{{$callBusyMessage['recording_urls']}}" controls preload="metadata">
                                 <p>Alas, your browser doesn't support html5 audio.</p>
                                 </audio>
                                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-http-status" title="Http Status" data-toggle="modal" data-target="#show-recording-text{{$key}}" data-request="N/A" data-response="N/A">
