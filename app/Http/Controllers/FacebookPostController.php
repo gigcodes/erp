@@ -69,9 +69,11 @@ class FacebookPostController extends Controller
      *   tags={"Facebook"},
      *   summary="facbook posts details",
      *   operationId="facbook-posts-details",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -116,9 +118,11 @@ class FacebookPostController extends Controller
      *   tags={"Facebook"},
      *   summary="Set facbook post status",
      *   operationId="set-facbook-post-status",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
