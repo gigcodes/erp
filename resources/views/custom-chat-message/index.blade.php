@@ -33,70 +33,56 @@
 
     <div class="row ml-2 mr-2">
         <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
-            <div class="pull-left">
                 <div class="form-inline">
                     <form class="form-inline message-search-handler form-search-data" method="get">
-                        <div class="row">
-                            <div class="col-auto p-0">
-                                <div class="form-group mr-2">
-                                    <?php echo Form::text("created_at",request("date"),["class"=> "form-control datepicker","placeholder" => "Select Date", "id"=> "created_at"]) ?>
-                                </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                            <?php echo Form::text("created_at",request("date"),["class"=> "form-control datepicker","placeholder" => "Select Date", "id"=> "created_at"]) ?>
+                        </div>
+                        </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                                <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword", "id"=> "search-keywords"]) ?>
                             </div>
-
-                            <div class="col-auto p-0">
-                                <div class="form-group mr-2">
-                                    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword", "id"=> "search-keywords"]) ?>
-                                </div>
+                        </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                                <select class="form-control" name="user_id">
+                                    <option value="">Select user</option>
+                                    @foreach(\App\User::orderBy('name')->pluck('name','id')->toArray() as $k => $user)
+                                        <option value="{{ $k }}">{{ $user }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-
-                            <div class="col-auto p-0">
-                                <div class="form-group mr-2">
-                                    <select class="form-control" name="user_id">
-                                        <option value="">Select user</option>
-                                        @foreach(\App\User::pluck('name','id')->toArray() as $k => $user)
-                                            <option value="{{ $k }}">{{ $user }}</option>
-                                        @endforeach    
-                                    </select>
-                                </div>
+                        </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                                <select class="form-control" name="vendor_id">
+                                    <option value="">Select vendor</option>
+                                        @foreach(\App\Vendor::orderBy('name')->pluck('name','id')->toArray() as $k => $vendor)
+                                            <option value="{{ $k }}">{{ $vendor }}</option>
+                                        @endforeach
+                                </select>
                             </div>
-
-                            <div class="col-auto p-0">
-                                <div class="form-group mr-2">
-                                    <select class="form-control" name="vendor_id">
-                                        <option value="">Select vendor</option>
-                                            @foreach(\App\Vendor::pluck('name','id')->toArray() as $k => $vendor)
-                                                <option value="{{ $k }}">{{ $vendor }}</option>
-                                            @endforeach
-                                    </select>
-                                </div>
+                        </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                                <select class="form-control" name="customer_id">
+                                    <option value="">Select customer</option>
+                                        @foreach(\App\Customer::orderBy('name')->pluck('name','id')->toArray() as $k => $customer)
+                                            <option value="{{ $k }}">{{ $customer }}</option>
+                                        @endforeach
+                                </select>
                             </div>
-
-                            <div class="col-auto p-0">
-                                <div class="form-group mr-2">
-                                    <select class="form-control" name="customer_id">
-                                        <option value="">Select customer</option>
-                                            @foreach(\App\Customer::pluck('name','id')->toArray() as $k => $customer)
-                                                <option value="{{ $k }}">{{ $customer }}</option>
-                                            @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-
-
-                            <div class="pull-right">
-                                <button type="button" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
-                                    <img src="/images/search.png" style="cursor: default;">
-                                </button>
-                            </div>
-
-                        
-                            
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
+                                <img src="/images/search.png" style="cursor: default;">
+                            </button>
                         </div>
                     </form>
-
                 </div>
-            </div>
+
             <div class="pull-right">
                 <div class="form-inline">
                     
