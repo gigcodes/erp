@@ -241,7 +241,10 @@
 </script>
 
 <script type="text/javascript">
-	
+    function Showactionbtn(id){
+        $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
+
     $('.select-multiple').select2({width: '100%'});
 	$(document).on("click",".add_next_action",function() {
         siteHelpers.addNextAction($(this));
