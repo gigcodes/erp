@@ -2619,6 +2619,10 @@ if (!empty($notifications)) {
                                                         href="{{route('twilio.call.statistic')}}">Twilio Call
                                                         Statistic</a>
                                                 </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('twilio.conditions')}}">Twilio Conditions</a>
+                                                </li>
                                             </ul>
                                         </li>
 
