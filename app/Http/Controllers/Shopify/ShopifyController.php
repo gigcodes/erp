@@ -94,9 +94,11 @@ class ShopifyController extends Controller
      *   tags={"Shopify"},
      *   summary="Create Shopify Order",
      *   operationId="shopify-create-order",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -146,9 +148,11 @@ class ShopifyController extends Controller
      *   tags={"Shopify"},
      *   summary="Shopify create customer",
      *   operationId="shopify-create-customer",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",

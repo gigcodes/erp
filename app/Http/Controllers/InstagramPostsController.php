@@ -308,9 +308,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="post instagram",
      *   operationId="post-instagram",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -457,9 +459,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="get instagram account details",
      *   operationId="get-instagram-account-details",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -484,9 +488,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="get instagram comments list",
      *   operationId="get-instagram-comment-list",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -517,9 +523,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="send instagram comments",
      *   operationId="send-instagram-comment",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -542,9 +550,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="Get instagram hashtag list",
      *   operationId="get-instagram-hashtag-list",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -574,9 +584,11 @@ class InstagramPostsController extends Controller
      *   tags={"Local"},
      *   summary="Save Local instagram post",
      *   operationId="save-local-instagram-post",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -695,9 +707,11 @@ class InstagramPostsController extends Controller
      *   tags={"Local"},
      *   summary="Get Local instagram user post",
      *   operationId="get-local-instagram-user-post",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
