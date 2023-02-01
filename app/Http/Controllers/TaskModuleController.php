@@ -113,6 +113,10 @@ class TaskModuleController extends Controller
         if ($request->category != '') {
             $categoryWhereClause = "AND category = $request->category";
             $category = $request->category;
+            if ($request->category == 1) {
+                $categoryWhereClause = '';
+                $category = '';
+            }
             /*if ($request->category != 1) {
                $categoryWhereClause = "AND category = $request->category";
                $category = $request->category;
@@ -627,17 +631,52 @@ class TaskModuleController extends Controller
         // }
 
         // $category = '';
+
+        // Lead user process starts
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
+        $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
+        $team_members_array_unique_ids = '';
+        if (count($model_team) > 0) {
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
+            $team_ids = implode(',', $team_id_array);
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
+        }
+        $team_members_array_unique = array_unique($team_members_array);
+        $team_members_array_unique_ids = implode(',', $team_members_array_unique);
+        // Lead user process ends
+
         //My code start
         $selected_user = $request->input('selected_user');
-        $usrlst = User::orderby('name')->where('is_active', 1)->get();
+
+        if (Auth::user()->hasRole('Admin')) {
+            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+        } elseif ($isTeamLeader) {
+            $usrlst = User::orderby('name')->where('is_active', 1)->whereIn('id', $team_members_array_unique)->get();
+        } else {
+            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+        }
+
         $users = Helpers::getUserArray($usrlst);
         $task_categories = TaskCategory::where('parent_id', 0)->get();
+        $selected_category = $request->category;
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
         $task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(
             [
                 'name' => 'category',
                 'class' => 'form-control input-sm',
             ]
-        )->selected($request->category)->renderAsDropdown();
+        )->selected($selected_category)->renderAsDropdown();
 
         $categories = [];
         foreach (TaskCategory::all() as $category) {
@@ -663,24 +702,24 @@ class TaskModuleController extends Controller
 
         if ($request->ajax()) {
             if ($type == 'pending') {
-                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
             } elseif ($type == 'statutory_not_completed') {
-                return view('task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+                return view('task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
             } elseif ($type == 'completed') {
-                return view('task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+                return view('task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
             } else {
-                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
             }
         }
 
         if ($request->is_statutory_query == 3) {
-            return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+            return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
         } else {
             $statuseslist = TaskStatus::pluck('name', 'id')->toArray();
             $selectStatusList = TaskStatus::pluck('id')->toArray();
             $taskstatus = TaskStatus::get();
 
-            return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList'));
+            return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList', 'isTeamLeader'));
         }
     }
 
@@ -2119,7 +2158,6 @@ class TaskModuleController extends Controller
                     //'cost'=>'sometimes|integer'
                 ]
             );
-
             $bug_list_ids = explode(',', $request->task_bug_ids);
             $model_bug_tracker = BugTracker::whereIn('id', $bug_list_ids)->get()->toArray();
             $bug_tracker_array = [];
