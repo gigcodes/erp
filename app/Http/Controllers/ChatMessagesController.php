@@ -676,15 +676,14 @@ class ChatMessagesController extends Controller
                     $query->orWhere('created_at', 'like', '%'.$keyword.'%');
                 }
             });
-            if (!empty($request->user_id))
-            {
+            if (! empty($request->user_id)) {
                 $records->where('user_id', $request->get('user_id'));
             }
             $records->orWhereHas('user', function ($query) use ($keywords) {
-                    foreach ($keywords as $keyword) {
-                        $query->where('name', 'like', '%'.$keyword.'%');
-                    }
-                });
+                foreach ($keywords as $keyword) {
+                    $query->where('name', 'like', '%'.$keyword.'%');
+                }
+            });
         }
 
         if (! empty($request->user_id)) {
