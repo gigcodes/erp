@@ -20,6 +20,12 @@
 		a {
 				color: #333;
 		}
+		.Website-task {
+            overflow: unset !important;
+            text-overflow: unset !important;
+            white-space: unset !important;
+        }
+
 	</style>
 	<div class="row">
 		<table class="table table-bordered" id="reply_history_div">
