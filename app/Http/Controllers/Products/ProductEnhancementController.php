@@ -18,6 +18,7 @@ class ProductEnhancementController extends Controller
      *   tags={"Products"},
      *   summary="get product enhance where product status is imageEnhancement",
      *   operationId="get-product-enhance",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -70,9 +71,11 @@ class ProductEnhancementController extends Controller
      *   tags={"Products"},
      *   summary="post product enhance",
      *   operationId="post-product-enhance",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="images[]",
      *          in="formData",
