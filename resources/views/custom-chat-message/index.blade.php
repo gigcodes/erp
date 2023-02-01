@@ -222,7 +222,7 @@ function loadMore(search = null) {
     var $loader = $('.infinite-scroll-products-loader');
     page = page + 1;
     $.ajax({
-        url: "http://localhost/erp/public/index.php/custom-chat-message/records?page="+page+"&search="+search,
+        url: "/custom-chat-message/records?page="+page+"&search="+search,
         type: 'GET',
         data: $('.form-search-data').serialize(),
         beforeSend: function() {
