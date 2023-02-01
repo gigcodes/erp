@@ -3,6 +3,7 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\StoreViewCodeServerMap;
 use App\StoreWebsite;
 use App\Website;
 use App\WebsiteStore;
@@ -24,12 +25,14 @@ class WebsiteStoreViewController extends Controller
         $storeWebsites = StoreWebsite::orderBy('title', 'ASC')->pluck('title', 'id')->toArray();
         $websiteStores = WebsiteStore::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $languages = \App\Language::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
+        $storeServers = StoreViewCodeServerMap::groupBy('server_id')->get();
 
         return view('storewebsite::website-store-view.index', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'websiteStores' => $websiteStores,
             'languages' => $languages,
+            'storeServers' => $storeServers,
         ]);
     }
 
