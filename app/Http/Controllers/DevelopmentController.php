@@ -870,6 +870,9 @@ class DevelopmentController extends Controller
         if ((int) $request->get('assigned_to') > 0) {
             $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
+        if ((int) $request->get('lead') > 0) {
+            $issues = $issues->where('developer_tasks.master_user_id', $request->get('lead'));
+        }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
         }
