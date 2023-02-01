@@ -1111,8 +1111,8 @@ class DevelopmentController extends Controller
         $users = Helpers::getUserArray(User::orderBy('name')->get());
         $statusList = \DB::table('task_statuses')->select('name')->orderBy('name')->pluck('name', 'name')->toArray();
         $statusList = array_merge([
-                                      '' => 'Select Status',
-                                  ], $statusList);
+            '' => 'Select Status',
+        ], $statusList);
 
         // Hide resolved
         if (! auth()->user()->isReviwerLikeAdmin()) {

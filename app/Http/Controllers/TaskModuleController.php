@@ -1448,7 +1448,8 @@ class TaskModuleController extends Controller
             $searchWhereClause = ' AND (id LIKE "%'.$term.'%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%'.$term.'%") OR task_subject LIKE "%'.$term.'%" OR task_details LIKE "%'.$term.'%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%")))';
         }
 
-        if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {            $searchWhereClause .= ' AND is_statutory = '.$request->get('is_statutory_query');
+        if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
+            $searchWhereClause .= ' AND is_statutory = '.$request->get('is_statutory_query');
         } else {
             $searchWhereClause .= ' AND is_statutory != 3';
         }
@@ -1472,7 +1473,7 @@ class TaskModuleController extends Controller
         $status_filter = '';
         $selectStatusList = TaskStatus::pluck('id')->toArray();
 
-            $status_filter = " AND status IN ('".implode("','", $selectStatusList)."')";
+        $status_filter = " AND status IN ('".implode("','", $selectStatusList)."')";
 //        if ($request->filter_status) {
 //        } else {
 //            //1 => for "done" lable status
@@ -3223,11 +3224,11 @@ class TaskModuleController extends Controller
             );
         }
 
-        $documents = $request->input('document', []) ? $request->input('document', []) : $request->document ;
+        $documents = $request->input('document', []) ? $request->input('document', []) : $request->document;
 
         $task = Task::find($request->task_id);
         if (! empty($documents)) {
-            $count = count(array($documents));
+            $count = count([$documents]);
 
             $message = '['.$loggedUser->name.'] - #ISSUE-'.$task->id.' - '.$task->task_subject."\n\n ".$count.' new attchment'.($count > 1 ? 's' : '');
 
