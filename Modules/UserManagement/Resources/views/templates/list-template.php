@@ -1,7 +1,6 @@
 <script type="text/x-jsrender" id="template-result-block">
 	<style>
 		table#reply_history_div {
-			table-layout: fixed;
 			border-collapse: collapse;
 			width: 100%;
 		}
@@ -23,7 +22,7 @@
 		}
 	</style>
 	<div class="row">
-		<table class="table table-bordered"style="table-layout:fixed;" id="reply_history_div">
+		<table class="table table-bordered" id="reply_history_div">
 			<thead>
 				<tr>
 					<th style="width:2%" >ID</th> 
