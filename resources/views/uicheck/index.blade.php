@@ -11,7 +11,11 @@
 	.preview-category input.form-control {
 		width: auto;
 	}
-
+	.infinite-scroll table.dataTable {
+		width: 100% !important;
+		display: inline-block !important;
+		overflow-x: scroll !important;
+	}
 	#loading-image {
 		position: fixed;
 		top: 50%;
@@ -258,17 +262,17 @@
 					<tr>
 						<th width="5%"><input type="checkbox" id="checkAll" title="click here to select all" /></th>
 						<th width="5%">Uicheck Id</th>
-						<th width="10%">Categories</th>
-						<th width="5%">Website</th>
+						<th width="8%">Categories</th>
+						<th width="4%">Website</th>
 						@if (Auth::user()->hasRole('Admin'))
-						<th width="6%">Assign To</th>
+						<th width="8%">Assign To</th>
 						@endif
 						<th width="10%">Issue</th>
-						<th width="10%">Communication</th>
+						<th width="12%">Communication</th>
 						<th width="10%">Developer Status</th>
 						<th width="10%">Type</th>
 						<th width="10%">Admin Status</th>
-						<th width="10%">Actions</th>
+						<th width="5%">Actions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -425,7 +429,7 @@
 				<h2>All History</h2>
 				<button type="button" class="close" data-dismiss="modal">×</button>
 			</div>
-			<div class="modal-body" style="overflow-y: scroll; height: 650px;">
+			<div class="modal-body" style="overflow-y: scroll;height: 650px;">
 				<select class="searAllhistory select2" onchange="loadAllHistory(1)" style="width: 150px;">
 					<option value="">- Select -</option>
 					<?php foreach ($users as $user) {
@@ -1107,6 +1111,7 @@
 	}
 
 	function funLanUpdate(id) {
+		siteLoader(true);
 		let mdl = jQuery('#modalCreateLanguage');
 		let uicheckId = jQuery('.uicheckId').val();
 		let uilanmessage = jQuery('.uilanmessage'+id).val();
