@@ -16,7 +16,9 @@ class MissingBrandController extends Controller
      *   tags={"Scraper"},
      *   summary="Save unknown brand",
      *   operationId="scraper-save-missing-brand",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
+     *
      *      @SWG\Parameter(
      *          name="name",
      *          in="path",

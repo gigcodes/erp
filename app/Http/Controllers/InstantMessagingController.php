@@ -19,9 +19,11 @@ class InstantMessagingController extends Controller
      *   tags={"Instant Messaging"},
      *   summary="Get Instant Message",
      *   operationId="get-instant-msg",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -137,9 +139,11 @@ class InstantMessagingController extends Controller
      *   tags={"Instant Messaging"},
      *   summary="post process Webhook",
      *   operationId="post-process-webhook",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -267,9 +271,11 @@ class InstantMessagingController extends Controller
      *   tags={"Instant Messaging"},
      *   summary="update phone Status",
      *   operationId="update-phone-status",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
