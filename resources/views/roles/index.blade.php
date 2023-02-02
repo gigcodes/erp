@@ -165,7 +165,6 @@
         </div>
     </div>
 
-<<<<<<< HEAD
 
     <div class="modal fade" id="ajaxModelexaview" tabindex="-1" aria-labelledby="ModalLabel"  aria-hidden="true">
         <div class="modal-dialog">
@@ -194,7 +193,6 @@
                         </div>
                     </div>
                 </div>
-=======
     <div id="newCreateRole" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -237,7 +235,6 @@
                     <button type="submit" class="btn btn-primary form-save-btn">Save changes</button>
                 </div>
                 {!! Form::close() !!}
->>>>>>> 75f724c53 (roles in pop up)
             </div>
         </div>
     </div>
@@ -405,35 +402,30 @@
                 $('.permissions').html(data);
             });
         });
-<<<<<<< HEAD
-    </script>
-=======
-    }
 
-    $('.search_role').on('keyup',function(){
-        var search_role = $('.search_role').val();
-        $.ajax({
-            url: "{{route('search_role')}}",
-            dataType: "json",
-            data: {search_role: search_role},
-            beforeSend: function () {
-                $("#loading-image").show();
-            },
+        /* $('.search_role').on('keyup',function(){
+            var search_role = $('.search_role').val();
+            $.ajax({
+                url: "{{route('search_role')}}",
+                dataType: "json",
+                data: {search_role: search_role},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
 
-        }).done(function (data) {
-            $("#loading-image").hide();
-            var html = '<strong>Permission:</strong><br/>';
-            $.each(data, function(k, v) {
-                html +='<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'+ k.id +'"><span style="padding-left: 4px;">'+ v.name+ '</span></label><br/>';
+            }).done(function (data) {
+                $("#loading-image").hide();
+                var html = '<strong>Permission:</strong><br/>';
+                $.each(data, function(k, v) {
+                    html +='<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'+ k.id +'"><span style="padding-left: 4px;">'+ v.name+ '</span></label><br/>';
+                });
+                console.log(html);
+                $('.permissions').html(html);
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
             });
-            console.log(html);
-            $('.permissions').html(html);
-
-        }).fail(function (jqXHR, ajaxOptions, thrownError) {
-            alert('No response from server');
-        });
-    });
+        }); */
 </script>
->>>>>>> 75f724c53 (roles in pop up)
 
 @endsection

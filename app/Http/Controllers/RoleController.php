@@ -164,7 +164,6 @@ class RoleController extends Controller
     public function search_role(Request $request)
     {
         $permission = Permission::where('name', 'LIKE', '%'.$request->search_role.'%')->get();
-<<<<<<< HEAD
         $permission_array = explode(',', $request->permission);
 
         $html = '<strong>Permission:</strong><br/>';
@@ -178,9 +177,5 @@ class RoleController extends Controller
         }
 
         return json_encode($html);
-=======
-
-        return $permission;
->>>>>>> 75f724c53 (roles in pop up)
     }
 }
