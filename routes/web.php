@@ -2500,6 +2500,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 */
 Route::middleware('auth')->group(function () {
 	Route::post('push/faq', 		[FaqPushController::class, 'pushFaq']);
+	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 

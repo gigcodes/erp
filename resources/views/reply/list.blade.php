@@ -25,6 +25,11 @@
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
                             </div>
+                            <div class="col-md-1 pd-sm">
+                                 <button type="submit" class="btn btn-primary search push_all_faq">
+                                    Push FAQ
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -295,6 +300,31 @@ $(document).on("click",".upload_faq",function() {
         data: {
           _token: "{{ csrf_token() }}",
           id: $this.data("id")
+        },
+        beforeSend: function() {
+            $("#loading-image").show();
+        }
+      }).done( function(response) {
+            $("#loading-image").hide();
+            if(response.code == 200) {
+                toastr["success"](response.message);
+                // location.reload();
+            }else{
+               toastr["error"]('Something went wrong!');
+            }
+      }).fail(function(errObj) {
+            $("#loading-image").hide();
+      });
+});
+
+$(document).on("click",".push_all_faq",function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    $.ajax({
+        url: "{{ url('push/faq/all') }}",
+        type: 'POST',
+        data: {
+          _token: "{{ csrf_token() }}"
         },
         beforeSend: function() {
             $("#loading-image").show();
