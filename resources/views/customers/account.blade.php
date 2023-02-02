@@ -102,24 +102,24 @@
 
     @include('partials.flash_messages')
 
-   
-    <div class="table-responsive mt-3">
+
+    <div class="table-responsive mt-3" style="overflow-x: auto !important;">
       <table class="table table-bordered">
         <thead>
           <tr>
-           <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Date</th>
-            <th>Whatsapp Number</th>
-            <th>Address</th>
-            <th>City</th>
-            <th>Pincode</th>
-            <th>Country</th>
-            <th>Store Website</th>
-            <th>Action</th>
-            
+           <th width="1%">ID</th>
+            <th width="4%">Name</th>
+            <th width="4%">Email</th>
+            <th width="4%">Phone</th>
+            <th width="6%">Date</th>
+            <th width="6%">Whatsapp Number</th>
+            <th width="12%">Address</th>
+            <th width="5%">City</th>
+            <th width="5%">Pincode</th>
+            <th width="5%">Country</th>
+            <th width="6%">Store Website</th>
+            <th width="2%">Action</th>
+
           </tr>
         </thead>
 
