@@ -6,7 +6,7 @@
 				</th>
 				<th width="3%">ID</th>
 				<th width="1%">Store Website</th>
-				<th width="1%">Name</th>
+				<th width="2%">Name</th>
 				<th width="1%">Mobile</th>
 				<th width="15%">Next Action</th>
 				<th width="20%">Shortcuts</th>
@@ -198,12 +198,8 @@
 								<button type="button" class="btn btn-xs load-communication-modal pull-left mt-2" data-object="customer" data-limit="10" data-id="{{$item->id}}" data-is_admin="1" data-is_hod_crm="" data-load-type="text" data-all="1" title="Load messages">
 									<i class="fa fa-comments-o"></i>
 								</button>
-						</div>
-						<div class="btn-toolbar" role="toolbar">
-							<div class="w-100">
-								<div class="communication-div-{{$item->id}}">
-									<span class="message-chat-txt" data-toggle="popover" data-placement="top" data-content="{{$item->message}}" data-original-title="" title="">{{$item->short_message}}</span>	
-								</div>
+							<div class="communication-div-{{$item->id}} pull-left" style="margin-top: 8px !important;">
+								<span class="message-chat-txt" data-toggle="popover" data-placement="top" data-content="{{$item->message}}" data-original-title="" title="">{{$item->short_message}}</span>
 							</div>
 						</div>
 					</td>
