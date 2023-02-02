@@ -1514,6 +1514,10 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
+                                        Meeting List</a>
+                                </li>                                
                             </ul>
                         </li>
                         <li class="nav-item dropdown">

@@ -2171,6 +2171,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::delete('vendors/{vendor}/payments/{vendor_payment}', [VendorPaymentController::class, 'destroy'])->name('vendors.payments.destroy');
     Route::resource('vendors', VendorController::class);
     Route::post('vendors/update-status', [VendorController::class, 'updateStatus'])->name('vendor.status.update');
+    Route::get('vendors/meetings/list', [VendorController::class, 'zoomMeetingList'])->name('vendor.meeting.list');
+    Route::post('vendors/update-meeting-description', [VendorController::class, 'updateMeetingDescription'])->name('vendor.meeting.update');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');
@@ -2287,6 +2289,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('merge-category', [VendorCategoryController::class, 'mergeCategory'])->name('vendor-category.merge-category');
         Route::get('/permission', [VendorCategoryController::class, 'usersPermission'])->name('vendor-category.permission');
         Route::post('/update/permission', [VendorCategoryController::class, 'updatePermission'])->name('vendor-category.update.permission');
+        Route::get('/', [VendorCategoryController::class, 'index'])->name('vendor-category.index');
 
         Route::prefix('{id}')->group(function () {
             Route::get('edit', [VendorCategoryController::class, 'edit'])->name('vendor-category.edit');
