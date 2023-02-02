@@ -5,93 +5,94 @@
 @endsection
 
 @section('content')
-
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Customer Account ({{$total}})</h2>
             <div class="pull-left">
               <form class="form-inline" action="{{url('customers/accounts')}}" method="GET">
-                <div class="col">
+                    <div class="col">
                   <div class="form-group">
                     <div class='input-group'>
-                      <input type='text' placeholder="Search name" class="form-control" name="name"  value="{{ isset($_GET['name'])?$_GET['name']:''}}" />
-                     
-
-                     
+                        <select class="form-control name" name="name[]" multiple>
+                            @foreach($customers_name as $s)
+                                @php
+                                    $sel='';
+                                    if(isset($_GET['name']) && in_array($s->name,$_GET['name']))
+                                        $sel="selected='selected'";
+                                @endphp
+                                <option {{ $sel}} value="{{$s->name}}">{{$s->name}} </option>
+                            @endforeach
+                        </select>
                     </div>
                   </div>
                 </div>
-                <div class="col">
+                    <div class="col">
                   <div class="form-group">
                     <div class='input-group'>
-                      
-                      <input type='text' placeholder="Search Email" class="form-control" name="email"  value="{{ isset($_GET['email'])?$_GET['email']:''}}"  />
-                      
-
-                     
+                        <select class="form-control email" name="email[]" multiple>
+                            @foreach($customers_email as $s)
+                                @php
+                                    $sel='';
+                                    if(isset($_GET['email']) && in_array($s->email,$_GET['email']))
+                                        $sel="selected='selected'";
+                                @endphp
+                                <option {{ $sel}} value="{{$s->email}}">{{$s->email}} </option>
+                            @endforeach
+                        </select>
                     </div>
                   </div>
                 </div>
-                <div class="col">
-                  <div class="form-group">
-                    <div class='input-group'>
-                      
-                      
-                      <input type='text' placeholder="Search phone" class="form-control" name="phone"  value="{{ isset($_GET['phone'])?$_GET['phone']:''}}"  />
-
-                     
+                    <div class="col">
+                      <div class="form-group">
+                        <div class='input-group'>
+                            <select class="form-control phone" name="phone[]" multiple>
+                                @foreach($customers_phone as $s)
+                                    @php
+                                        $sel='';
+                                        if(isset($_GET['phone']) && in_array($s->phone,$_GET['phone']))
+                                        $sel="selected='selected'";
+                                    @endphp
+                                    <option {{ $sel}} value="{{$s->phone}}">{{$s->phone}} </option>
+                                @endforeach
+                            </select>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                  <div class="col">
+                    <div class="col">
                       <div class="form-group">
                           <div class='input-group'>
-
-
                               <input type='date' placeholder="Start Date" class="form-control" name="from_date"  value="{{ isset($_GET['from_date'])?$_GET['from_date']:''}}"  />
-
-
                           </div>
                       </div>
                   </div>
-                  <div class="col">
+                    <div class="col">
                       <div class="form-group">
                           <div class='input-group'>
-
-
                               <input type='date' placeholder="End Date" class="form-control" name="to_date"  value="{{ isset($_GET['to_date'])?$_GET['to_date']:''}}"  />
-
-
                           </div>
                       </div>
                   </div>
-
-                <div class="col">
+                    <div class="col">
                   <div class="form-group">
                     <div class='input-group'>
-                      <select class="form-control" name="store_website" >
-                        <option value="">Select Store Website</option>
-                      @foreach($store_website as $s)
-                        @php
-                          $sel='';
-                          if( isset($_GET['store_website']) && $_GET['store_website']==$s->id)
-                              $sel="selected='selected'";
-                        @endphp      
+                      <select class="form-control store_website" name="store_website[]" multiple>
+                              @foreach($store_website as $s)
+                                @php
+                                  $sel='';
+                                  if(isset($_GET['store_website']) && in_array($s->id,$_GET['store_website']))
+                                        $sel="selected='selected'";
+                                @endphp
 
-                      <option {{ $sel}} value="{{$s->id}}">{{$s->title}} </option>
-                     @endforeach
-                     </select>
-                     
+                              <option {{ $sel}} value="{{$s->id}}">{{$s->title}} </option>
+                             @endforeach
+                        </select>
                     </div>
                   </div>
                 </div>
-
-                
-
-                <div class="col">
-                  <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    <div class="col">
+                  <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
                 </div>
-              </form>
+                </form>
             </div>
             <div class="pull-right">
             
@@ -101,24 +102,24 @@
 
     @include('partials.flash_messages')
 
-   
-    <div class="table-responsive mt-3">
+
+    <div class="table-responsive mt-3" style="overflow-x: auto !important;">
       <table class="table table-bordered">
         <thead>
           <tr>
-           <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Date</th>
-            <th>Whatsapp Number</th>
-            <th>Address</th>
-            <th>City</th>
-            <th>Pincode</th>
-            <th>Country</th>
-            <th>Store Website</th>
-            <th>Action</th>
-            
+           <th width="1%">ID</th>
+            <th width="4%">Name</th>
+            <th width="4%">Email</th>
+            <th width="4%">Phone</th>
+            <th width="6%">Date</th>
+            <th width="6%">Whatsapp Number</th>
+            <th width="12%">Address</th>
+            <th width="5%">City</th>
+            <th width="5%">Pincode</th>
+            <th width="5%">Country</th>
+            <th width="6%">Store Website</th>
+            <th width="2%">Action</th>
+
           </tr>
         </thead>
 
@@ -246,6 +247,21 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script>
+    $(document).ready(function (){
+        $('.store_website').select2({
+            placeholder:'Select Store Website',
+        });
+        $('.phone').select2({
+            placeholder:'Select Phone',
+        });
+        $('.email').select2({
+            placeholder:'Select Email',
+        });
+        $('.name').select2({
+            placeholder:'Select Name',
+        });
+    });
+
     $.ajaxSetup({
 		headers: {
 			'X-CSRF-TOKEN': "{{ csrf_token() }}"

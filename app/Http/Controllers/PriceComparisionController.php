@@ -15,9 +15,11 @@ class PriceComparisionController extends Controller
      *   tags={"Price Comparision"},
      *   summary="Price Comparision",
      *   operationId="price-comparision",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -58,9 +60,11 @@ class PriceComparisionController extends Controller
      *   tags={"Price Comparision"},
      *   summary="Store Price Comparision",
      *   operationId="store-price-comparision",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -176,9 +180,11 @@ class PriceComparisionController extends Controller
      *   tags={"Price Comparision"},
      *   summary="Send Price Comparision",
      *   operationId="send-price-comparision",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
