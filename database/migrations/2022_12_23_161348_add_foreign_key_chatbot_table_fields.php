@@ -36,7 +36,7 @@ class AddForeignKeyChatbotTableFields extends Migration
 
         DB::statement('INSERT INTO `chatbot_questions` (`id`, `value`, `suggested_reply`, `category_id`, `workspace_id`, `created_at`, `updated_at`, `keyword_or_question`, `sending_time`, `repeat`, `is_active`, `erp_or_watson`, `auto_approve`, `chat_message_id`, `task_category_id`, `assigned_to`, `task_description`, `task_type`, `repository_id`, `module_id`, `dynamic_reply`, `watson_account_id`, `watson_status`) VALUES ("119", "Test", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "0", NULL, "0", NULL, NULL, NULL, NULL, NULL, NULL, NULL, "0", NULL, NULL);');
 
-        DB::statement('ALTER TABLE `chatbot_question_examples` ADD FOREIGN KEY (`chatbot_question_id`) REFERENCES `chatbot_questions`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;');
+        // DB::statement('ALTER TABLE `chatbot_question_examples` ADD FOREIGN KEY (`chatbot_question_id`) REFERENCES `chatbot_questions`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;');
     }
 
     /**
