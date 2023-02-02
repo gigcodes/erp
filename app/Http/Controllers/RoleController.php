@@ -32,7 +32,7 @@ class RoleController extends Controller
         }
 
         $roles = $query->orderBy('id', 'DESC')->paginate(25)->appends(request()->except(['page']));
-
+        $permission = Permission::get();
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('roles.partials.list-roles', compact('roles'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
@@ -41,10 +41,7 @@ class RoleController extends Controller
             ], 200);
         }
 
-        $permission = Permission::get();
-
-        return view('roles.index', compact('roles', 'permission'))
-            ->with('i', ($request->input('page', 1) - 1) * 10);
+        return view('roles.index', compact('roles','permission'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -167,6 +164,7 @@ class RoleController extends Controller
     public function search_role(Request $request)
     {
         $permission = Permission::where('name', 'LIKE', '%'.$request->search_role.'%')->get();
+<<<<<<< HEAD
         $permission_array = explode(',', $request->permission);
 
         $html = '<strong>Permission:</strong><br/>';
@@ -180,5 +178,9 @@ class RoleController extends Controller
         }
 
         return json_encode($html);
+=======
+
+        return $permission;
+>>>>>>> 75f724c53 (roles in pop up)
     }
 }
