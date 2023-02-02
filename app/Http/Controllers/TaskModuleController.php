@@ -1405,7 +1405,7 @@ class TaskModuleController extends Controller
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
             }
 
-            $userquery = ' AND (assign_from = '.$userid.' OR  second_master_user_id = '.$searchSecondMasterUserId.' OR  master_user_id = '.$searchMasterUserId.' OR  id IN (SELECT task_id FROM task_users WHERE user_id = '.$userid.' AND type LIKE "%User%")) ';
+            $userquery = ' AND (assign_from = '.$userid.' OR  second_master_user_id = '.$searchSecondMasterUserId.' OR  master_user_id = '.$searchMasterUserId.')';
         } else {
             $userid = $request->input('selected_user');
 
@@ -1419,7 +1419,7 @@ class TaskModuleController extends Controller
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
             }
 
-            $userquery = ' AND (master_user_id = '.$searchMasterUserId.' OR  second_master_user_id = '.$searchSecondMasterUserId.' OR  id IN (SELECT task_id FROM task_users WHERE user_id = '.$userid.' AND type LIKE "%User%")) ';
+            $userquery = ' AND (master_user_id = '.$searchMasterUserId.' OR  second_master_user_id = '.$searchSecondMasterUserId.')';
         }
 
         if (! $request->input('type') || $request->input('type') == '') {
@@ -1429,23 +1429,11 @@ class TaskModuleController extends Controller
         }
         $activeCategories = TaskCategory::where('is_active', 1)->pluck('id')->all();
 
-        $categoryWhereClause = '';
-        $category = '';
-        // $request->category = $request->category ? $request->category : 1;
-        if ($request->category != '') {
-            $categoryWhereClause = "AND category = $request->category";
-            $category = $request->category;
-            if ($request->category == 1) {
-                $categoryWhereClause = '';
-                $category = '';
-            }
-        }
-
         $term = $request->term ?? '';
         $searchWhereClause = '';
 
         if ($request->term != '') {
-            $searchWhereClause = ' AND (id LIKE "%'.$term.'%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%'.$term.'%") OR task_subject LIKE "%'.$term.'%" OR task_details LIKE "%'.$term.'%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%")))';
+            $searchWhereClause = ' AND (id LIKE "%'.$term.'%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%'.$term.'%") OR task_subject LIKE "%'.$term.'%" OR task_details LIKE "%'.$term.'%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%"))) AND id = "'.$term.'" ';
         }
 
         if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
@@ -1474,20 +1462,6 @@ class TaskModuleController extends Controller
         $selectStatusList = TaskStatus::pluck('id')->toArray();
 
         $status_filter = " AND status IN ('".implode("','", $selectStatusList)."')";
-//        if ($request->filter_status) {
-//        } else {
-//            //1 => for "done" lable status
-//            $status_filter = " AND status NOT IN ('1')";
-//        }
-
-        $flag_filter = ' ';
-
-        if ($request->ajax()) {
-            $flag_filter = '';
-            if ($request->flag_filter) {
-                $flag_filter = ' ';
-            }
-        }
 
         if ($type == 'pending') {
             $paginate = 50;
@@ -1528,7 +1502,7 @@ class TaskModuleController extends Controller
 			) AS tasks
 			WHERE (deleted_at IS NULL) 
             AND (id IS NOT NULL) 
-            AND is_statutory != 1 '.$isCompleteWhereClose.$userquery.$status_filter.$flag_filter.$categoryWhereClause.$searchWhereClause.$orderByClause.' ; '
+            AND is_statutory != 1 '.$isCompleteWhereClose.$status_filter.$searchWhereClause.$orderByClause.' ; '
             );
 
             foreach ($data['task']['pending'] as $task) {
@@ -1561,6 +1535,8 @@ class TaskModuleController extends Controller
                 $search_term_suggestions[] = $task->task_subject;
                 $search_term_suggestions[] = $task->task_details;
             }
+
+
         }
 
         //task pending backup

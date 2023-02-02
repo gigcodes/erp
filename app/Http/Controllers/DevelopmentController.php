@@ -1056,32 +1056,7 @@ class DevelopmentController extends Controller
         $title = 'Task List';
 
         $issues = DeveloperTask::with('timeSpent');
-        if ($type == 'issue') {
-            $issues = $issues->where('developer_tasks.task_type_id', '3');
-        }
-        if ($type == 'devtask') {
-            $issues = $issues->where('developer_tasks.task_type_id', '1');
-        }
-        if ((int) $request->get('submitted_by') > 0) {
-            $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
-        }
-        if ((int) $request->get('responsible_user') > 0) {
-            $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
-        }
-        if ((int) $request->get('corrected_by') > 0) {
-            $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
-        }
-        if ((int) $request->get('assigned_to') > 0) {
-            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
-        }
-        if ($request->get('module')) {
-            $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
-        }
-        if (! empty($request->get('task_status', []))) {
-            $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
-        } else {
-            $issues = $issues->where('developer_tasks.status', 'In Progress');
-        }
+
         $whereCondition = '';
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
