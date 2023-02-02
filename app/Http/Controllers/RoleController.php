@@ -41,7 +41,7 @@ class RoleController extends Controller
             ], 200);
         }
 
-        return view('roles.index', compact('roles','permission'))->with('i', ($request->input('page', 1) - 1) * 10);
+        return view('roles.index', compact('roles', 'permission'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**
