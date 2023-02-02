@@ -1535,8 +1535,6 @@ class TaskModuleController extends Controller
                 $search_term_suggestions[] = $task->task_subject;
                 $search_term_suggestions[] = $task->task_details;
             }
-
-
         }
 
         //task pending backup
