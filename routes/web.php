@@ -1381,6 +1381,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/export', [TaskModuleController::class, 'exportTask'])->name('task.export');
     Route::post('task/addRemarkStatutory', [TaskModuleController::class, 'addRemark'])->name('task.addRemarkStatutory');
 
+    Route::get('task/search/', [TaskModuleController::class, 'searchTask'])->name('task.module.search');
     Route::get('task/{id}', [TaskModuleController::class, 'show'])->name('task.module.show');
 
     Route::resource('task', TaskModuleController::class);
@@ -1870,6 +1871,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('development/task/bulk-delete', [DevelopmentController::class, 'deleteBulkTasks']);
     Route::get('development/task/get-document', [DevelopmentController::class, 'getDocument']);
     Route::get('development/task/export-task', [DevelopmentController::class, 'exportTask']);
+    Route::get('development/task/search/', [DevelopmentController::class, 'searchDevTask'])->name('devtask.module.search');
 
     Route::resource('task-types', TaskTypesController::class);
 
