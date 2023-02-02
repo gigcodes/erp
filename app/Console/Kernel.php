@@ -506,7 +506,7 @@ class Kernel extends ConsoleKernel
         //2020-02-17 $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
         // Update the inventory (every fifteen minutes)
-        // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
+        $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
