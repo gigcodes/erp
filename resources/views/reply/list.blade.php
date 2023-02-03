@@ -4,15 +4,18 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Quick Replies List</h2>
-        <div class="pull-left">
+        <div class="pull">
             <div class="row">
                 <div class="col-md-12 ml-sm-4">            
                     <form action="{{ route('reply.replyList') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-6 pd-sm">
+                            <div class="col-md-2 pd-sm">
                                 {{ Form::select("store_website_id", ["" => "-- Select Website --"] + \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control"]) }}
                             </div>
-                            <div class="col-md-5 pd-sm">
+                            <div class="col-md-2 pd-sm">
+                                {{ Form::select("category_id", ["" => "-- Select Category/Sub Category --"] + \App\ReplyCategory::pluck('name','id')->toArray(),request('category_id'),["class" => "form-control"]) }}
+                            </div>
+                            <div class="col-md-2 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
                             </div>
                             
@@ -46,6 +49,8 @@
                         <tr>
                             <th width="3%">ID</th>
                             <th width="10%">Store website</th>
+                            <th width="10%">Parent Category</th>
+                            <th width="10%">Sub Category </th>
                             <th width="10%">Category</th>
                             <th width="10%">Reply</th>
                             <th width="7%">Model</th>
@@ -55,10 +60,14 @@
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
+						
+						
                             <tr>
                                 <td id="reply_id">{{ $reply->id }}</td>
                                 <td class="Website-task" id="reply-store-website">{{ $reply->website }}</td>
-                                <td class="Website-task" id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
+                                <td class="Website-task" id="reply_category_parent_first">{{ $reply->parent_first }}</td>
+                                <td class="Website-task" id="reply_category_parent_secound">{{ $reply->parent_secound }}</td>
+                                <td class="Website-task" id="reply_category_name">{{ $reply->category_name }}</td>
                                 <td style="cursor:pointer;" id="reply_text" class="change-reply-text Website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
                                 <td class="Website-task" id="reply_model">{{ $reply->model }}</td>
                                 <td class="Website-task">{{ $reply->intent_id }}</td>
@@ -69,6 +78,15 @@
                                   @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
                                     <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
                                     <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
+									 <button type="button" title="Flagged for Translate" data-reply_id="{{ $reply->id }}" data-is_flagged="<?php if($reply->is_flagged=='1') { echo '1'; } else { echo '0'; } ?>" onclick="updateTranslateReply(this)" class="btn" style="padding: 0px 1px;">
+										<?php if($reply->is_flagged == '1') { ?>
+											<i class="fa fas fa-toggle-on"></i>
+										<?php } else { ?>										
+											<i class="fa fas fa-toggle-off"></i>
+										<?php } ?>
+									</button>
+									
+									
                                 </td>
                             </tr>
                         @endforeach
@@ -275,5 +293,56 @@ $(document).on('click', '.show_logs', function() {
     });
     $('#reply_logs_modal').modal('show');
 });
+
+
+
+
+function updateTranslateReply(ele) {
+    let btn = jQuery(ele);
+    let reply_id = btn.data('reply_id');
+    let is_flagged = btn.data('is_flagged');
+	
+	
+	
+	//alert(is_flagged)
+
+    if (confirm(btn.data('is_flagged') == 1 ? 'Are you sure want unflagged this ?' : 'Are you sure want flagged this ?')) {
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('reply.replytranslate') }}",
+            type: 'POST',
+            data: {
+                reply_id: reply_id,
+                is_flagged: is_flagged,
+            },
+            dataType: 'json',
+            beforeSend: function () {
+                jQuery("#loading-image").show();
+            },
+            success: function (res) {
+                toastr["success"](res.message);
+                jQuery("#loading-image").hide();
+                btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
+                if (is_flagged == 1) {
+                    btn.find('.fa').addClass('fa-toggle-off');
+                }
+                else {
+                    btn.find('.fa').addClass('fa-toggle-on');
+                }
+                btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
+            },
+            error: function (res) {
+                if (res.responseJSON != undefined) {
+                    toastr["error"](res.responseJSON.message);
+                }
+                jQuery("#loading-image").hide();
+            }
+        });
+    }
+}
+
+
 </script>
 @endsection

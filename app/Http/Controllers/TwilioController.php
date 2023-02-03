@@ -1189,11 +1189,14 @@ class TwilioController extends FindByNumberController
                 return $response;
             }
         } else {
+            $recordedText = '';
             if (isset($inputs['SpeechResult'])) {
                 $recordedText = $inputs['SpeechResult'];
             } else {
-                $recUrl = $inputs['RecordingUrl'];
-                $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                if (isset($inputs['RecordingUrl'])) {
+                    $recUrl = $inputs['RecordingUrl'];
+                    $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                }
             }
 
             $reply = ChatbotQuestion::where('value', 'like', '%'.$recordedText.'%')->orWhere('value', 'like', '%'.str_replace(' ', '_', $recordedText).'%')->pluck('suggested_reply')->first();
@@ -2396,9 +2399,11 @@ class TwilioController extends FindByNumberController
      *   tags={"Twilio"},
      *   summary="post twilio conference",
      *   operationId="post-twilio-conference",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -2446,9 +2451,11 @@ class TwilioController extends FindByNumberController
      *   tags={"Twilio"},
      *   summary="post twilio mute conference",
      *   operationId="post-twilio-mute-conference",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -2484,9 +2491,11 @@ class TwilioController extends FindByNumberController
      *   tags={"Twilio"},
      *   summary="post twilio hold conference",
      *   operationId="post-twilio-hold-conference",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -2522,9 +2531,11 @@ class TwilioController extends FindByNumberController
      *   tags={"Twilio"},
      *   summary="post twilio remove conference",
      *   operationId="post-twilio-remove-conference",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",

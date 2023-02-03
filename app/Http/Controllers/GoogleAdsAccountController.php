@@ -63,6 +63,7 @@ class GoogleAdsAccountController extends Controller
             'store_websites' => 'required',
             'config_file_path' => 'required',
             'status' => 'required',
+            'notes' => 'required',
         ]);
 
         $accountArray = [
@@ -146,6 +147,7 @@ class GoogleAdsAccountController extends Controller
         $client_secret = $request->client_secret;
         Session::put('client_id', $client_id);
         Session::put('client_secret', $client_secret);
+        Session::save();
 
         $api = intval(2);
 
@@ -162,7 +164,14 @@ class GoogleAdsAccountController extends Controller
             ]
         );
 
-        header('Location: '.$oauth2->buildFullAuthorizationUri());
+        $authUrl = $oauth2->buildFullAuthorizationUri([
+            'prompt' => 'consent',
+        ]);
+
+        $authUrl = filter_var($authUrl, FILTER_SANITIZE_URL);
+
+        return redirect()->away($authUrl);
+        //header('Location: '.$oauth2->buildFullAuthorizationUri());
     }
 
     /*
