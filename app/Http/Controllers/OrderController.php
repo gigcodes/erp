@@ -2534,7 +2534,7 @@ class OrderController extends Controller
         // ->join("leads", "leads.id", "call_busy_messages.lead_id")
             ->leftjoin('call_recordings as cr', 'cr.twilio_call_sid', 'call_busy_messages.caller_sid')
             ->leftjoin('twilio_call_data as tcd', 'tcd.call_sid', 'call_busy_messages.caller_sid')
-            ->select('call_busy_messages.*', 'cr.recording_url', 'tcd.aget_user_id', 'tcd.from', 'tcd.to', 'tcd.call_data')
+            ->select('call_busy_messages.*', 'cr.recording_url as recording_urls', 'tcd.aget_user_id', 'tcd.from', 'tcd.to', 'tcd.call_data')
             ->groupby('call_busy_messages.caller_sid')
             ->orderBy('call_busy_messages.id', 'DESC');
 
@@ -2562,7 +2562,9 @@ class OrderController extends Controller
             if (is_numeric($value['twilio_call_sid'])) {
                 // code...
                 $formatted_phone = str_replace('+', '', $value['twilio_call_sid']);
-                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->where('store_website_id', $storeId->store_website_id)->get()->toArray();
+                if (! empty($storeId->store_website_id)) {
+                    $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->where('store_website_id', $storeId->store_website_id)->get()->toArray();
+                }
 
                 if ($value['aget_user_id'] != '') {
                     $user_data = User::where('id', $value['aget_user_id'])->first();
@@ -4128,9 +4130,11 @@ class OrderController extends Controller
      *   tags={"Customer"},
      *   summary="Get customer order details",
      *   operationId="get-customer-order-details",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",

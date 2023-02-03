@@ -17,6 +17,7 @@ class BrokenLinkCheckerController extends Controller
      *   tags={"Scraper"},
      *   summary="Get broken link details",
      *   operationId="scraper-get-broken-link-details",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
