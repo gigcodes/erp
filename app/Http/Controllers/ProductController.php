@@ -5082,7 +5082,7 @@ class ProductController extends Controller
                         PushToMagento::dispatch($product, $website, $log, $mode);
                         $i++;
                     } else {
-                        ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
+                        ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', null, null, null, null, null);
                     }
                 }
             } else {
