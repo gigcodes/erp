@@ -340,6 +340,10 @@
 		baseUrl: "<?php echo url("/"); ?>"
 	});
 
+	function Showactionbtn(id){
+		$(".action-btn-tr-"+id).toggleClass('d-none')
+	}
+
 	$(document).on("click", ".open-build-process-history", function(href) {
 		$.ajax({
 			url: 'store-website/' + $(this).data('id') + '/build-process/history',

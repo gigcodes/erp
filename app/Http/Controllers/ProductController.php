@@ -1141,7 +1141,8 @@ class ProductController extends Controller
             if ($category->parent_id != 0) {
                 $parent = $category->parent;
                 if ($parent->parent_id != 0) {
-                    $category_tree[$parent->parent_id][$parent->id][$category->id];
+                    //$category_tree[$parent->parent_id][$parent->id][$category->id];
+                    in_array($category->id, $category_tree[$parent->parent_id] ?? []);
                 } else {
                     $category_tree[$parent->id][$category->id] = $category->id;
                 }
@@ -3356,9 +3357,11 @@ class ProductController extends Controller
      *   tags={"Scraper"},
      *   summary="Return images array where the product status = auto crop",
      *   operationId="scraper-get-product-img",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="product_id",
      *          in="path",
@@ -3593,9 +3596,11 @@ class ProductController extends Controller
      *   tags={"Crop"},
      *   summary="Save cropped image for product",
      *   operationId="crop-save-product-img",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="product_id",
      *          in="path",

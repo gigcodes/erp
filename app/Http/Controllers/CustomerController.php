@@ -197,8 +197,7 @@ class CustomerController extends Controller
 
         $finalOrderStats = [];
         foreach ($order_stats as $key => $order_stat) {
-            $finalOrderStats[] = [
-                $order_stat->order_status,
+            $finalOrderStats[] = [$order_stat->order_status,
                 $order_stat->total,
                 ($order_stat->total / $totalCount) * 100,
                 [
@@ -219,6 +218,7 @@ class CustomerController extends Controller
                     '#34495e',
                     '#7f8c8d',
                 ][$key],
+
             ];
         }
 
@@ -294,8 +294,12 @@ class CustomerController extends Controller
             ->pluck('counts', 'clothing_size');
 
         $groups = QuickSellGroup::select('id', 'name', 'group')->orderby('name', 'asc')->get();
+        $storeWebsites = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
+        $solo_numbers = (new SoloNumbers)->all();
 
         return view('customers.index', [
+            'storeWebsites' => $storeWebsites,
+            'solo_numbers' => $solo_numbers,
             'customers' => $results[0],
             'customers_all' => $customers_all,
             'customer_ids_list' => json_encode($results[1]),
@@ -1358,7 +1362,7 @@ class CustomerController extends Controller
         ]);
 
         $customer = new Customer;
-
+        $customer->store_website_id = ! empty($request->store_website_id) ? $request->store_website_id : '';
         $customer->name = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
@@ -1382,7 +1386,7 @@ class CustomerController extends Controller
 
         $customer->save();
 
-        return redirect()->route('customer.index')->with('success', 'You have successfully added new customer!');
+        return redirect()->back()->with('success', 'You have successfully added new customer!');
     }
 
     public function addNote($id, Request $request)
@@ -3045,25 +3049,28 @@ class CustomerController extends Controller
         }
 
         if ($request->name != '') {
-            $customers_all->where('name', 'like', '%'.$request->name.'%');
+            $customers_all->whereIn('name', $request->name);
         }
 
         if ($request->email != '') {
-            $customers_all->orwhere('email', 'like', '%'.$request->email.'%');
+            $customers_all->whereIn('email', $request->email);
         }
 
         if ($request->phone != '') {
-            $customers_all->orwhere('phone', 'like', '%'.$request->phone.'%');
+            $customers_all->whereIn('phone', $request->phone);
         }
 
         if ($request->store_website != '') {
-            $customers_all->orwhere('store_website_id', 'like', $request->store_website);
+            $customers_all->whereIn('store_website_id', $request->store_website);
         }
 
         $customers_all->orderBy('created_at', 'desc');
         $total = $customers_all->count();
         $customers_all = $customers_all->paginate(Setting::get('pagination'));
         $store_website = StoreWebsite::all();
+        $customers_name = Customer::select('name')->distinct()->where('store_website_id', '>', 0)->get();
+        $customers_phone = Customer::select('phone')->distinct()->where('store_website_id', '>', 0)->get();
+        $customers_email = Customer::select('email')->distinct()->where('store_website_id', '>', 0)->get();
 
         if ($request->ajax()) {
             return view('customers.account_ajax', [
@@ -3075,6 +3082,9 @@ class CustomerController extends Controller
                 'customers_all' => $customers_all,
                 'total' => $total,
                 'store_website' => $store_website,
+                'customers_name' => $customers_name,
+                'customers_phone' => $customers_phone,
+                'customers_email' => $customers_email,
 
             ]);
         }
