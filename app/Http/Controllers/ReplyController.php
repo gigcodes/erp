@@ -251,20 +251,20 @@ class ReplyController extends Controller
                 });
             } else {
                 $replies = $replies->where(function ($q) use ($parent_category) {
-                    $q->orWhereIn('reply_categories.id', $parent_category)->where('parent_id', '=', 0);
+                    $q->orWhereIn('reply_categories.id', $parent_category)->where('reply_categories.parent_id', '=', 0);
                 });
             }
         }
 
         if (! empty($category_ids)) {
             $replies = $replies->where(function ($q) use ($category_ids) {
-                $q->orWhereIn('reply_categories.parent_id', $category_ids)->where('parent_id', '!=', 0);
+                $q->orWhereIn('reply_categories.parent_id', $category_ids)->where('reply_categories.parent_id', '!=', 0);
             });
         }
 
         if (! empty($sub_category_ids)) {
             $replies = $replies->where(function ($q) use ($sub_category_ids) {
-                $q->orWhereIn('reply_categories.id', $sub_category_ids)->where('parent_id', '!=', 0);
+                $q->orWhereIn('reply_categories.id', $sub_category_ids)->where('reply_categories.parent_id', '!=', 0);
             });
         }
 
