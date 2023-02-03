@@ -498,9 +498,11 @@ class InstagramController extends Controller
      *   tags={"Instagram"},
      *   summary="Instagram get Message Thread",
      *   operationId="instagram-get-thread",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -550,9 +552,11 @@ class InstagramController extends Controller
      *   tags={"Instagram"},
      *   summary="Instagram Post Message Thread",
      *   operationId="instagram-post-thread",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",

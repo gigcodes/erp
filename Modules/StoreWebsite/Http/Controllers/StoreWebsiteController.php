@@ -65,7 +65,7 @@ class StoreWebsiteController extends Controller
         $title = 'List | Store Website';
         $services = Service::get();
         $assetManager = AssetsManager::whereNotNull('ip');
-        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('website')->get();
         $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
         
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
@@ -108,7 +108,7 @@ class StoreWebsiteController extends Controller
             });
         }
 
-        $records = $records->get();
+        $records = $records->orderBy('website')->get();
 
         return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }

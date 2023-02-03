@@ -21,9 +21,11 @@ class SearchQueueController extends Controller
      *   tags={"Search"},
      *   summary="get search",
      *   operationId="get-search",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -68,9 +70,11 @@ class SearchQueueController extends Controller
      *   tags={"Search"},
      *   summary="upload content",
      *   operationId="upload-content",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",

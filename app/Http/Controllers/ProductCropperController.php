@@ -355,6 +355,7 @@ class ProductCropperController extends Controller
      *   tags={"Crop"},
      *   summary="Get Crop amends",
      *   operationId="crop-get-crop-amends",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -373,9 +374,11 @@ class ProductCropperController extends Controller
      *   tags={"Crop"},
      *   summary="Save Crop amends",
      *   operationId="crop-save-crop-amends",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="file",
      *          in="formData",
