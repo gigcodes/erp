@@ -28,7 +28,7 @@ class AddIndexChatbotTableFields extends Migration
         DB::statement('ALTER TABLE `chatbot_replies` ADD INDEX(`is_read`);');
         DB::statement('ALTER TABLE `chat_message_phrases` ADD INDEX(`word_id`);');
         DB::statement('ALTER TABLE `chat_message_phrases` ADD INDEX(`chat_id`);');
-        DB::statement('ALTER TABLE `chat_messages` ADD INDEX(`test_case_id`);');
+        DB::statement('ALTER TABLE `chat_messages` ADD INDEX(`test_suites_id`);');
         DB::statement('ALTER TABLE `chat_messages` ADD INDEX(`bug_id`);');
         DB::statement('ALTER TABLE `chat_messages` CHANGE `bug_id` `bug_id` INT(11) UNSIGNED NULL DEFAULT NULL;');
     }

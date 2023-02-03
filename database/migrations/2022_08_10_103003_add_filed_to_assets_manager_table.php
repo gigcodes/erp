@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFieldToAssetsManagerTable extends Migration
+class AddFiledToAssetsManagerTable extends Migration
 {
     /**
      * Run the migrations.
