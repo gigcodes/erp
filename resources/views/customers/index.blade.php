@@ -241,13 +241,16 @@
                     {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Send Message to All</button> --}}
                 @endif
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
-                <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a>
+{{--                    href="{{ route('customer.create') }}"--}}
+                <a type="button" class="btn btn-secondary" data-toggle="modal" data-target="#customerCreateModal">+</a>
                 <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
             </div>
         </div>
     </div>
 
     @include('customers.partials.modal-merge')
+
+    @include('customers.partials.modal-customer-create')
 
     {{-- @include('customers.partials.modal-send-to-all') --}}
 
