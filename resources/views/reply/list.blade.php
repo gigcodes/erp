@@ -4,15 +4,18 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Quick Replies List</h2>
-        <div class="pull-left">
+        <div class="pull">
             <div class="row">
                 <div class="col-md-12 ml-sm-4">            
                     <form action="{{ route('reply.replyList') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-6 pd-sm">
+                            <div class="col-md-2 pd-sm">
                                 {{ Form::select("store_website_id", ["" => "-- Select Website --"] + \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control"]) }}
                             </div>
-                            <div class="col-md-5 pd-sm">
+                            <div class="col-md-2 pd-sm">
+                                {{ Form::select("category_id", ["" => "-- Select Category/Sub Category --"] + \App\ReplyCategory::pluck('name','id')->toArray(),request('category_id'),["class" => "form-control"]) }}
+                            </div>
+                            <div class="col-md-2 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
                             </div>
                             
@@ -46,6 +49,8 @@
                         <tr>
                             <th width="3%">ID</th>
                             <th width="10%">Store website</th>
+                            <th width="10%">Parent Category</th>
+                            <th width="10%">Sub Category </th>
                             <th width="10%">Category</th>
                             <th width="10%">Reply</th>
                             <th width="7%">Model</th>
@@ -60,7 +65,9 @@
                             <tr>
                                 <td id="reply_id">{{ $reply->id }}</td>
                                 <td class="Website-task" id="reply-store-website">{{ $reply->website }}</td>
-                                <td class="Website-task" id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
+                                <td class="Website-task" id="reply_category_parent_first">{{ $reply->parent_first }}</td>
+                                <td class="Website-task" id="reply_category_parent_secound">{{ $reply->parent_secound }}</td>
+                                <td class="Website-task" id="reply_category_name">{{ $reply->category_name }}</td>
                                 <td style="cursor:pointer;" id="reply_text" class="change-reply-text Website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
                                 <td class="Website-task" id="reply_model">{{ $reply->model }}</td>
                                 <td class="Website-task">{{ $reply->intent_id }}</td>

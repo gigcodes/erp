@@ -348,8 +348,10 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
 
-        $schedule->command('command:tasks-time-reminder')->dailyAt('01:00'); // status detail
-        $schedule->command('command:date_time_reminder')->dailyAt('01:00'); // status detail
+        //This command will runs every day in the night to send a message to the user to update the time...
+        //$schedule->command('command:tasks-time-reminder')->dailyAt('01:00'); // status detail
+        //$schedule->command('command:date_time_reminder')->dailyAt('01:00'); // status detail
+
         $schedule->command('command:send_message')->hourly();
 
         $schedule->command('websitelog')->daily(); // website log
@@ -694,7 +696,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('databaselog:cron')->dailyAt('0:00');
     }
 
-    /**
+    /**`
      * Register the commands for the application.
      *
      * @return void

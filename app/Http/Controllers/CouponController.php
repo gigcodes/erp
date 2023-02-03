@@ -155,21 +155,21 @@ class CouponController extends Controller
                         '$expiration'
                     )";
 
-                // return '<button title="edit" onclick="editCoupon' . $functionCall . '" class="btn btn-default">
+                    // return '<button title="edit" onclick="editCoupon' . $functionCall . '" class="btn btn-default">
                     //     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                // </button>
+                    // </button>
 
-                // <button title="copy" onclick="copyCoupon' . $functionCall . '" class="btn btn-default">
+                    // <button title="copy" onclick="copyCoupon' . $functionCall . '" class="btn btn-default">
                     //     <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
-                // </button>
+                    // </button>
 
-                // <button title="report" onclick="showReport' . $functionCall . '" class="btn btn-default">
+                    // <button title="report" onclick="showReport' . $functionCall . '" class="btn btn-default">
                     //     <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-                // </button>
+                    // </button>
 
-                // <button title="delete" onclick="deleteCoupon' . $functionCall . '" class="btn btn-default">
+                    // <button title="delete" onclick="deleteCoupon' . $functionCall . '" class="btn btn-default">
                     //     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                // </button>';
+                    // </button>';
                 },
             ],
         ];
