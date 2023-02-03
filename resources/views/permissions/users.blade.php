@@ -47,15 +47,17 @@
             <div class="col-lg-12 margin-tb">
                 <div class="pull-right">
                     <form action="{{ route('permissions.users') }}" method="get" class="mb-2 d-flex">
-                            <select name="search_row[]" id="search_row" class="form-control search_row select2" multiple>
-                                @foreach($permissions as $permission)
-                                    @if(!empty(Request::get('search_row')))
-                                    <option value="{{ $permission->name }}" {{ in_array($permission->name,Request::get('search_row'))?'selected':''}}>{{ $permission->name }}</option>
-                                    @else
-                                    <option value="{{ $permission->name }}">{{ $permission->name }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
+                            <div class="form-group">
+                                <select name="search_row[]" id="search_row" class="form-control search_row select2" multiple>
+                                    @foreach($permissions as $permission)
+                                        @if(!empty(Request::get('search_row')))
+                                            <option value="{{ $permission->name }}" {{ in_array($permission->name,Request::get('search_row'))?'selected':''}}>{{ $permission->name }}</option>
+                                        @else
+                                            <option value="{{ $permission->name }}">{{ $permission->name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
                         <button type="submit" class="btn btn-secondary ml-3 mb-3" href=""><i class="fa fa-search"></i></button>
                     </form>
                 </div>
@@ -113,7 +115,7 @@
                         @endforeach
                         </tbody>
                     </table>
-                   
+
                 </div>
 
             </div>
@@ -128,7 +130,7 @@
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript">
         $('.select2').select2({
-            placeholder: 'Select Row',
+            placeholder: 'Select Permission',
         });
         $(document).ready(function () {
             $('#dtHorizontalExample').DataTable({
