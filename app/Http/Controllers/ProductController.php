@@ -1448,8 +1448,7 @@ class ProductController extends Controller
                 $products = Product::query()->where('assigned_to', auth()->user()->id);
             }
             $products = $products->where(function ($query) {
-                $query->where('status_id', StatusHelper::$finalApproval);
-                $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
+                $query->where('status_id', StatusHelper::$productConditionsChecked);
             });
 
             $products = $products->where('is_conditions_checked', 1);
@@ -1502,7 +1501,7 @@ class ProductController extends Controller
                 }
             }
             $products = $products->orderBy('llm_id', 'desc');
-            $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title']);
+            $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title', 'SW.id as sw_id']);
             $products = $products->paginate(20);
             $productsCount = $products->total();
             $imageCropperRole = auth()->user()->hasRole('ImageCropers');
@@ -5107,8 +5106,8 @@ class ProductController extends Controller
         $limit = $request->get('no_of_product', 100);
         $products = Product::select('*')
             ->where('short_description', '!=', '')->where('name', '!=', '')
-//            ->where('status_id', StatusHelper::$productConditionsChecked)
-            ->where('status_id', StatusHelper::$finalApproval)
+            ->where('status_id', StatusHelper::$productConditionsChecked)
+            // ->where('status_id', StatusHelper::$finalApproval)
 //            $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
             ->groupBy('brand', 'category')
             ->limit($limit)
@@ -5134,9 +5133,7 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        if ($log->queue == 'sololuxury' && ($product->id == '371297' || $product->id == '388465')) {
-                            PushToMagentoJob::dispatch($product, $website, $log, $category, $mode)->onQueue($log->queue);
-                        }
+                        PushToMagentoJob::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
