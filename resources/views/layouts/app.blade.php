@@ -2277,6 +2277,10 @@ if (!empty($notifications)) {
                                                         Errors</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('twilio.webhook.error.logs') }}">Twilio
+                                                        Webhook Error Logs</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
                                                     <a href="{{ route('twilio-manage-accounts') }}">Twilio Account
                                                         Management</a>
                                                 </li>
