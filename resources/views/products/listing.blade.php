@@ -370,7 +370,7 @@
                                     <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
 
                                     <span class="quick-price-inr">{{ $product->price_inr }}</span>
-                                    <span class="quick-price-special">{{ $product->price_special }}</span>
+                                    <span class="quick-price-special">{{ $product->price_special_offer }}</span>
                                 </td>
 
                                 {{-- <td>

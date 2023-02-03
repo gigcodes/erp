@@ -198,6 +198,15 @@
                                 @endif
                             </select>
                         </div>
+                        <div class="col-md-2 pd-sm">
+                            <select class="form-control" name="lead" id="lead">
+                                <option value="">Lead</option>
+                                @foreach ($users as $id => $user)
+                                    <option {{ $request->get('lead') == $id ? 'selected' : '' }}
+                                            value="{{ $id }}">{{ $user }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     @endif
                     <div class="col-md-2 pd-sm">
                         <select name="order" id="order_query" class="form-control">
