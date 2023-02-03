@@ -1210,6 +1210,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/preview-sent-mails', [OrderController::class, 'orderPreviewSentMails']);
     Route::get('customer/getcustomerinfo', [CustomerController::class, 'customerinfo'])->name('customer.getcustomerinfo');
 
+    Route::get('order/customer/list', [OrderController::class, 'customerList'])->name('order.customerList');
+    Route::get('order/call/history/status', [OrderController::class, 'callhistoryStatusList'])->name('order.callhistoryStatusList');
+    Route::get('order/store/website', [OrderController::class, 'storeWebsiteList'])->name('order.storeWebsiteList');
+
     Route::get('order/invoices', [OrderController::class, 'viewAllInvoices']);
     Route::post('order/create-product', [OrderController::class, 'createProduct'])->name('order.create.product');
 
