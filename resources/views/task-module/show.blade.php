@@ -633,13 +633,13 @@
 
             {{-- href="{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}"--}}
 
-            @if(auth()->user()->isAdmin())
-
+            @if(Auth::user()->isAdmin())
                 <li><button type="button" class="btn btn-xs btn-secondary my-3" data-toggle='modal' data-target='#taskStatusModal' id="">Create Status</button></li>&nbsp;
-
-
             @endif
-            <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button></li>&nbsp;
+            @if (Auth::user()->isAdmin())
+                <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button></li>&nbsp;
+            @endif
+
         </ul>
         <div class="tab-content ">
             <!-- Pending task div start -->
@@ -794,7 +794,7 @@
                                         {{ $users_list }}
                                     </span>
                                             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
-                                            <div class="col-md-12 expand-col dis-none" style="padding:0px;">
+                                            <div class="col-md-12 expand-col-lead{{$task->id}} dis-none" style="padding:0px;">
                                                 <br>
                                                 @if(auth()->user()->isAdmin()  || $isTeamLeader)
                                                     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
@@ -1031,7 +1031,7 @@
                                                     @else
                                                         <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
                                                     @endif
-                                                    <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                                    <button class="btn btn-image expand-row-btn-lead" data-task_id="{{ $task->id }}"><img src="/images/forward.png"></button>
                                                     <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>
 
                                                 </div>
@@ -2125,6 +2125,10 @@
         });
         $(document).on('click', '.expand-row-btn', function() {
             $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
+        });
+        $(document).on('click', '.expand-row-btn-lead', function() {
+           var id =  $(this).data('task_id');
+            $(".expand-col-lead"+id).toggleClass('dis-none');
         });
         $(document).on("click", ".set-remark", function(e) {
             $('.remark_pop').val("");
