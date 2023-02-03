@@ -34,23 +34,38 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
-                <h2> Grand Permission To Users</h2>
+    <div class="col-12">
+        <div class="row">
+            <div class="col-lg-12 margin-tb">
+                <div class="pull-left">
+                    <h2> Grand Permission To Users</h2>
+                </div>
+                <div class="pull-right">
+                    <a class="btn btn-secondary mt-3" href="{{ route('permissions.index') }}"> Back</a>
+                </div>
             </div>
-            <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('permissions.index') }}"> Back</a>
+            <div class="col-lg-12 margin-tb">
+                <div class="pull-right">
+                    <form action="{{ route('permissions.users') }}" method="get" class="mb-2 d-flex">
+                            <select name="search_row[]" id="search_row" class="form-control search_row select2" multiple>
+                                @foreach($permissions as $permission)
+                                    @if(!empty(Request::get('search_row')))
+                                    <option value="{{ $permission->name }}" {{ in_array($permission->name,Request::get('search_row'))?'selected':''}}>{{ $permission->name }}</option>
+                                    @else
+                                    <option value="{{ $permission->name }}">{{ $permission->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        <button type="submit" class="btn btn-secondary ml-3 mb-3" href=""><i class="fa fa-search"></i></button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-
-    <div class="row">
+        <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <div class="table-wrapper-scroll-y my-custom-scrollbar">
-
                     <table id="dtHorizontalExample" class="table table-striped table-bordered table-sm" cellspacing="0"
                            width="100%">
                         <thead>
@@ -58,9 +73,12 @@
                             <th>Sr</th>
                             <th>Users </th>
                             @foreach($permissions as $permission)
-                                <th>{{ $permission->name }}</th>
+                                @if(!empty(Request::get('search_row')) && in_array($permission->name,Request::get('search_row')))
+                                    <th>{{ $permission->name }}</th>
+                                @elseif(empty(Request::get('search_row')))
+                                    <th>{{ $permission->name }}</th>
+                                @endif
                             @endforeach
-                            >
                         </tr>
                         </thead>
                         <tbody>
@@ -69,15 +87,27 @@
                                 <td>{{++$i }}</td>
                                 <td><a href="/users/{{ $user->id }}/edit">{{ $user->name }} ({{ count($user->permissions) }})</a></td>
                                 @foreach($permissions as $permission)
+                                    @if(!empty(Request::get('search_row')) && in_array($permission->name,Request::get('search_row')))
                                     <td>
                                         @if(in_array($permission->name, $user->permissions->pluck('name')->toArray()))
-                                            <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},1)" style="background-color: lightgreen !important;""><img src='/images/icons-checkmark.png' }}' height="10" width="10"/>
+                                            <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},1)" style="background-color: lightgreen !important;"><img src="{{asset('/images/icons-checkmark.png') }}" height="10" width="10"/>
                                             </button>
                                         @else
-                                            <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},0)"><img src='/images/icons-delete.png' }}' height="10" width="10"/>
+                                            <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},0)"><img src="{{asset('/images/icons-delete.png') }}" height="10" width="10"/>
                                             </button>
                                         @endif
                                     </td>
+                                    @elseif(empty(Request::get('search_row')))
+                                        <td>
+                                            @if(in_array($permission->name, $user->permissions->pluck('name')->toArray()))
+                                                <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},1)" style="background-color: lightgreen !important;"><img src="{{asset('/images/icons-checkmark.png') }}" height="10" width="10"/>
+                                                </button>
+                                            @else
+                                                <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},0)"><img src="{{asset('/images/icons-delete.png') }}" height="10" width="10"/>
+                                                </button>
+                                            @endif
+                                        </td>
+                                    @endif
                                 @endforeach
                             </tr>
                         @endforeach
@@ -90,12 +120,16 @@
         </div>
 
     </div>
+    </div>
 @endsection
 
 @section('scripts')
 
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript">
+        $('.select2').select2({
+            placeholder: 'Select Row',
+        });
         $(document).ready(function () {
             $('#dtHorizontalExample').DataTable({
                 "scrollX": true
