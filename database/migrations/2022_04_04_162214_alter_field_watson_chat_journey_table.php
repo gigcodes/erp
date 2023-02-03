@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AlterWatsonChatJourneyTable1 extends Migration
+class AlterFieldWatsonChatJourneyTable extends Migration
 {
     /**
      * Run the migrations.
@@ -11,7 +13,9 @@ class AlterWatsonChatJourneyTable1 extends Migration
      */
     public function up()
     {
-        \DB::statement('ALTER TABLE watson_chat_journey MODIFY COLUMN chat_id TEXT');
+        Schema::table('watson_chat_journey', function (Blueprint $table) {
+            $table->text('chat_id')->change();
+        });
     }
 
     /**

@@ -14,7 +14,8 @@ class AlterTestCaseChatMessage extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-            $table->bigInteger('test_case_id')->nullable()->after('bug_id');
+            $table->bigInteger('bug_id')->nullable();
+            $table->bigInteger('test_case_id')->nullable();
         });
     }
 
