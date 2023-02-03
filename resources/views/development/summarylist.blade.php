@@ -172,7 +172,6 @@
             <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('development.summarylist') }}" method="GET">
 
-
                     <div class="col-md-2 pd-sm pd-rt">
                         <input type="text" style="width:100%;" name="subject" id="subject_query"
                                placeholder="Issue Id / Subject" class="form-control"
@@ -183,16 +182,27 @@
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
                                 <option {{ $request->get('module') == $module->id ? 'selected' : '' }}
-                                        value="{{ $module->id }}">{{ $module->name }}</option>
+                                        value="{{ $module->id }}" {{ !empty(app('request')->input('module_id')) ? app('request')->input('module_id') ==  $module->id ? 'selected' : '' : '' }}>{{ $module->name }}</option>
                             @endforeach
                         </select>
                     </div>
+
                     @if (auth()->user()->isReviwerLikeAdmin())
                         <div class="col-md-2 pd-sm">
-                            <select class="form-control" name="assigned_to" id="assigned_to">
+                            <select class="form-control globalSelect2" data-ajax="{{ route('development.userslist') }}" multiple name="assigned_to[]" id="assigned_to" data-placeholder="Search Users By Name">
                                 <option value="">Assigned To</option>
+                                @if($userslist)
+                                    @foreach ($userslist as $id => $user)
+                                        <option value="{{ $user['id'] }}" selected>{{ $user['name'] }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="col-md-2 pd-sm">
+                            <select class="form-control" name="lead" id="lead">
+                                <option value="">Lead</option>
                                 @foreach ($users as $id => $user)
-                                    <option {{ $request->get('assigned_to') == $id ? 'selected' : '' }}
+                                    <option {{ $request->get('lead') == $id ? 'selected' : '' }}
                                             value="{{ $id }}">{{ $user }}</option>
                                 @endforeach
                             </select>

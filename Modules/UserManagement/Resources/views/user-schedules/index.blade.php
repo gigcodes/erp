@@ -3,6 +3,12 @@
 @section('favicon', 'user-management.png')
 @section('large_content')
 @include('partials.flash_messages')
+<style>
+.div-slot {
+	width: 75px;
+	padding: 3px !important;
+}
+</style>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;background-color:rgba(255,255,255,0.6);"></div>
 <div class="row">
     <div class="col-md-12 p-0">
@@ -72,15 +78,28 @@
             </div>
         </div>
         <div class="col-lg-12">
-            <table id="listUserSchedule" class="table table-bordered" style="width:100%">
+            <table id="listUserSchedule" class="table table-bordered" style="font-size:10px;" style="width:100%">
                 <thead>
+					<tr>
+                        <th data-data="name" data-name="name" width="10%" data-sortable="false"></th>
+                        <th data-data="date" data-name="date" width="6%" data-sortable="false"></th>
+						
+                        <th  colspan="12" style="text-align: center;">Hourly Slots [T-? = Task] [DT-? = Dev Task]</th>
+						
+						
+                    </tr>
                     <tr>
-                        <th data-data="name" data-name="name" width="14%" data-sortable="false">User Name</th>
-                        <th data-data="date" data-name="date" width="8%" data-sortable="false">Date</th>
-                        <th data-data="slots" data-name="slots" width="78%" data-sortable="false">Hourly Slots [T-? = Task] [DT-? = Dev Task]</th>
+                        <th data-data="name" data-name="name" width="10%" data-sortable="false">User Name</th>
+                        <th data-data="date" data-name="date" width="6%" data-sortable="false">Date</th>
+						<?php for($i=0;$i<13;$i++) { ?>
+                        <th data-data="slots<?php echo $i; ?>" data-name="slots<?php echo $i; ?>" width="5%"   data-sortable="false" style="text-align: center;">Slots <?php echo $i; ?></th>
+						<?php } ?>
+						
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+				
+				</tbody>
             </table>
         </div>
     </div>

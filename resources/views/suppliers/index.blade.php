@@ -97,20 +97,22 @@
                                 </select>
 					</div>
 					<div class="form-group">
-							<select class="form-control" name="type">
-                                <option value="">Select Type</option>
-                                <option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
-                                <option value="not_updated" {{ isset($type) && $type == 'not_updated' ? 'selected' : '' }}>Not Updated</option>
-                                <option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
-							</select>
+                        <select class="form-control globalSelect2" data-placeholder="Select Type" style="width:100%" name="type[]" multiple>
+{{--                            <option value="">Select Type</option>--}}
+{{--                            @dd(request()->get('supplier_status_id'))--}}
+                            <option value="has_error" {{ isset($type) && in_array('has_error',$type) ? 'selected' : '' }}>Has Error</option>
+                            <option value="not_updated" {{ isset($type) && in_array('not_updated',$type) ? 'selected' : '' }}>Not Updated</option>
+                            <option value="updated" {{ isset($type) && in_array('updated',$type) ? 'selected' : '' }}>Updated</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
-                        {!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
+{{--                        ["" => "select supplier status"]--}}
+                        {!! Form::select('supplier_status_id[]',$supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm globalSelect2 w-100','multiple','data-placeholder' =>"Select Supplier Status"]) !!}
                     </div>
                 
 					<div class="form-group">
-							{!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
+							{!!Form::select('supplier_category_id[]',$suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm globalSelect2 w-100','multiple','data-placeholder' =>"Select Category"])!!}
 
 					</div>
 					{{-- <div class="form-group col-md-3">
@@ -133,12 +135,9 @@
 							</optgroup>
 							</select>
 					</div> --}}
+{{--                    ["" => "-- Select Updated By--"]--}}
 					<div class="form-group">
-						<?php echo Form::select("updated_by",
-							["" => "-- Select Updated By--"] +\App\User::pluck("name","id")->toArray(),
-							request('updated_by'),
-							["class"=> "form-control select-multiple2", "style" => "width: 100%"]
-						); ?>
+						<?php echo Form::select("updated_by[]", \App\User::pluck("name","id")->toArray(), request('updated_by'),["class"=> "form-control select-multiple2 globalSelect2",'multiple', "style" => "width: 100%",'data-placeholder' =>"Select Updated By"]); ?>
  {{-- <select class="form-control globalSelect2" data-ajax="{{ route('select2.updatedby_users') }}" style="width:100%" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple >
     @foreach($suppliers_all as $supplier)
         <option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
@@ -147,16 +146,16 @@
 
                     </div>
 					<div class="form-group">
-							<select class="form-control" name="scrappertype">
-							<option value="">Select Scrapper</option>
+							<select class="form-control globalSelect2" data-placeholder="Select Scrapper" style="width:100%" name="scrappertype[]" multiple>
+                            {{--<option value="">Select Scrapper</option>--}}
 							<option value="1" {{ isset($scrappertype) && $scrappertype == '1' ? 'selected' : '' }}>SCRAPPER</option>
 							<option value="2" {{ isset($scrappertype) && $scrappertype == '2' ? 'selected' : '' }}>EXCEL</option>
 							<option value="3" {{ isset($scrappertype) && $scrappertype == '3' ? 'selected' : '' }}>NONE</option>
 							</select>
 					</div>
 					<div class="form-group">
-							<select class="form-control" name="supplier_price_range_id">
-								<option value="">Price Range</option>
+							<select class="form-control globalSelect2" data-placeholder="Price Range" style="width:100%" name="supplier_price_range_id[]" multiple>
+{{--								<option value="">Price Range</option>--}}
 								@foreach($allSupplierPriceRanges as $priceRange)
 									<option value="{{$priceRange['id']}}" {{ (Request::get('supplier_price_range_id')) && Request::get('supplier_price_range_id') == $priceRange['id'] ? 'selected' : '' }}>{{$priceRange['full_range']}}</option>
 								@endforeach
@@ -168,7 +167,7 @@
 						</div>
                     </div-->
                     <div class="form-group">
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
                     </div>
 				</div>
 				</form>
@@ -200,7 +199,7 @@
         <thead>
           <tr>
               <th width="2%">ID</th>
-              <th width="10%">Name</th>
+              <th width="12%">Name</th>
               <th width="5%">Scrapper</th>
               <th width="5%">Language</th>
               <th width="5%">Designers</th>
@@ -208,7 +207,7 @@
               <th width="5%">Size System</th>
               <th width="7%">Category</th>
               <th width="7%">Sub Category</th>
-              <th width="20%">Communication</th>
+              <th width="18%">Communication</th>
               <th width="5%">Translation</th>
               <th width="5%">Priority</th>
               <th width="10%">Action</th>
@@ -221,39 +220,38 @@
                     <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
                 </td>
 				<td>
-					{{ $supplier->supplier }}
-         
-					@if ($supplier->has_error == 1)
-						<span class="text-danger">!!!</span>
-					@endif
-            <div class="form-group">
-                <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
-                    <option value="">-No Selected-</option>
-                    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
-                        @if($number != "0")
-                            <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
-                        @endif
-                    @endforeach
-                </select>
-            </div>
+                    <div class="form-group">
+                        <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+                            <option value="">-No Selected-</option>
+                            @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                @if($number != "0")
+                                    <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    {{ $supplier->supplier }}
+                    @if ($supplier->has_error == 1)
+                        <span class="text-danger">!!!</span>
+                    @endif
 				</td>
-        <td>
-        <select name="scrapper" class="form-control scrapper" data-scrapper-id="{{ $supplier->id }}">
-              <option value="">Select</option>
-              <option value="1" {{ ($supplier->scrapper == '1') ? 'selected' : ''}} >SCRAPPER</option>
-              <option value="2" {{ ($supplier->scrapper == '2') ? 'selected' : ''}}>EXCEL</option>
-              <option value="3" {{ ($supplier->scrapper == '3') ? 'selected' : ''}}>NONE</option>
-        </select>
-        </td>
-        <td>
-        <select class="form-control language" name="language" data-scrapper-id="<?php echo $supplier->id; ?>">
-               <option value="">Select Language</option>
-                @forelse ($languages as $key => $item)
-                    <option value="{{ $item->id }}" {{ (@$supplier->language_id == $item->id) ? 'selected' : ''}} >{{ $item->name }}</option>
-                @empty
-                @endforelse
-        </select>
-        </td>
+                <td>
+                    <select name="scrapper" class="form-control scrapper" data-scrapper-id="{{ $supplier->id }}">
+                          <option value="">Select</option>
+                          <option value="1" {{ ($supplier->scrapper == '1') ? 'selected' : ''}} >SCRAPPER</option>
+                          <option value="2" {{ ($supplier->scrapper == '2') ? 'selected' : ''}}>EXCEL</option>
+                          <option value="3" {{ ($supplier->scrapper == '3') ? 'selected' : ''}}>NONE</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control language" name="language" data-scrapper-id="<?php echo $supplier->id; ?>">
+                        <option value="">Select Language</option>
+                            @forelse ($languages as $key => $item)
+                                <option value="{{ $item->id }}" {{ (@$supplier->language_id == $item->id) ? 'selected' : ''}} >{{ $item->name }}</option>
+                            @empty
+                            @endforelse
+                    </select>
+                </td>
 				{{-- <td>{{ $supplier->source }}</td> --}}
 				<td class="expand-row">
 					@if(strlen($supplier->brands) > 4)
@@ -354,10 +352,10 @@
 					@elseif ($supplier->last_type == "message")
 						{{ strlen($supplier->message) > 10 ? substr($supplier->message, 0, 10).'...' : $supplier->message }}
 					@endif
-					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
-					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
-					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
-					<a type="button" class="btn btn-xs btn-image show-translate-history"  data-id="{{$supplier->id}}"  title="Show history"><img src="/images/history.svg" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="{{asset('/images/archive.png')}}" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="{{asset('/images/icon-pdf.svg')}}" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image show-translate-history"  data-id="{{$supplier->id}}"  title="Show history"><img src="{{asset('/images/history.svg')}}" alt=""></a>
 				</td>
 					<!--td>
 						<input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-onstyle="secondary" data-width="10">
@@ -387,42 +385,42 @@
                 </td>
 				<td class='action-btn'>
 						@if ($supplier->is_flagged == 1)
-							<button type="button" class="btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+							<button type="button" class="btn-image flag-supplier" title="Flag Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/flagged.png')}}" /></button>
 							@else
-							<button type="button" class="btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+							<button type="button" class="btn-image flag-supplier" title="Flag Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/unflagged.png')}}" /></button>
 							@endif
 							@if($supplier->phone)
-							<button type="button" class="btn-image call-select popup" data-id="{{ $supplier->id }}"><img src="/images/call.png"/></button>
+							<button type="button" class="btn-image call-select popup" title="Call Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/call.png')}}"/></button>
 
 							@if ($supplier->is_blocked == 1)
-								<button type="button" class="btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/blocked-twilio.png"/></button>
+								<button type="button" class="btn-image block-twilio" title="Blocked Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/blocked-twilio.png')}}"/></button>
 							@else
-								<button type="button" class="btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/unblocked-twilio.png"/></button>
+								<button type="button" class="btn-image block-twilio" title="Unblocked Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/unblocked-twilio.png')}}"/></button>
 							@endif
 							@endif
-							<button data-toggle="modal" data-target="#reminderModal" class="btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
+							<button data-toggle="modal" data-target="#reminderModal" title="Reminder" class="btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
 								<img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
 							</button>
 					
 					
-						<a href="{{ route('supplier.show', $supplier->id) }}" class="d-inline btn-image" href=""><img src="/images/view.png" /></a>
+						<a href="{{ route('supplier.show', $supplier->id) }}" title="Show Supplier" class="d-inline btn-image" href=""><img src="{{asset('/images/view.png')}}" /></a>
 
 						{{-- <button type="button" class="btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
-						<button data-toggle="modal" data-target="#zoomModal" class="btn-image set-meetings" data-id="{{ $supplier->id }}" data-type="supplier"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
-						<button type="button" class="btn-image edit-supplier d-inline" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
-						<button type="button" class="btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></button>
+						<button data-toggle="modal" data-target="#zoomModal" title="Set Meetings" class="btn-image set-meetings" data-id="{{ $supplier->id }}" data-type="supplier"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
+						<button type="button" class="btn-image edit-supplier d-inline" title="Supplier Edit" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="{{asset('/images/edit.png')}}" /></button>
+						<button type="button" class="btn-image make-remark d-inline" title="Supplier Remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="{{asset('/images/remark.png')}}" /></button>
 
 						{!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
-						<button type="submit" class="btn-image d-inline"><img src="/images/delete.png" /></button>
+						<button type="submit" class="btn-image d-inline" title="Delete"><img src="{{asset('/images/delete.png')}}" /></button>
 						{!! Form::close() !!}
 
 						@if ($supplier->scraped_brands_raw != '')
-						<button data-toggle="modal" data-target="#updateBrand" class="btn-image update-brand" data-id="{{ $supplier->id }}" title="Update Brands">
+						<button data-toggle="modal" data-target="#updateBrand" title="Update Brand" class="btn-image update-brand" data-id="{{ $supplier->id }}" title="Update Brands">
 						<img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
 						</button>
                         @endif
-                        <button type="button" class="btn send-email-common-btn" data-toemail="{{$supplier->email}}" data-object="supplier" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
-                        <button type="button" class="btn quick-reply-model" data-id="{{$supplier->id}}"><i class="fa fa-fast-forward"></i></button>
+                        <button type="button" class="btn send-email-common-btn" title="Send Email" data-toemail="{{$supplier->email}}" data-object="supplier" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
+                        <button type="button" class="btn quick-reply-model" title="Quick Reply" data-id="{{$supplier->id}}"><i class="fa fa-fast-forward"></i></button>
 				</td>
 				</tr>
           @endforeach
@@ -605,7 +603,7 @@
                                     </select>
                                 </div>
                                 <div style="float: right; width: 14%;">
-                                    <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                                    <a class="btn btn-image delete_category"><img src="{{asset('/images/delete.png')}}"></a>
                                 </div>
                             </div>
                             <div class="col-6 d-inline form-inline">
@@ -619,7 +617,7 @@
                                     </select>
                                 </div>
                                 <div style="float: right; width: 14%;">
-                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                                    <a class="btn btn-image delete_quick_comment"><img src="{{asset('/images/delete.png')}}"></a>
                                 </div>
                             </div>
                         </div>
