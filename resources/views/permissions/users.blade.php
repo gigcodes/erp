@@ -47,6 +47,17 @@
             <div class="col-lg-12 margin-tb">
                 <div class="pull-right">
                     <form action="{{ route('permissions.users') }}" method="get" class="mb-2 d-flex">
+                            <div class="form-group mr-2">
+                                <select name="assign_permission[]" id="assign_permission" class="form-control assign_permission" multiple>
+                                    @if(Request::get('assign_permission'))
+                                        <option value="1" {{ in_array('1',Request::get('assign_permission'))?'selected':''}}>Activated Permission</option>
+                                        <option value="0" {{ in_array('0',Request::get('assign_permission'))?'selected':''}}>Deactivated Permission</option>
+                                    @else
+                                        <option value="1">Activated Permission</option>
+                                        <option value="0">Deactivated Permission</option>
+                                    @endif
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <select name="search_row[]" id="search_row" class="form-control search_row select2" multiple>
                                     @foreach($permissions as $permission)
@@ -87,7 +98,7 @@
                         @foreach($users as $user)
                             <tr>
                                 <td>{{++$i }}</td>
-                                <td><a href="/users/{{ $user->id }}/edit">{{ $user->name }} ({{ count($user->permissions) }})</a></td>
+                                <td><a href="/users/{{ $user->id }}/edit">{{ $user->name }} ({{ (!empty($user->permissions)) ? count($user->permissions) :'' }})</a></td>
                                 @foreach($permissions as $permission)
                                     @if(!empty(Request::get('search_row')) && in_array($permission->name,Request::get('search_row')))
                                     <td>
@@ -131,6 +142,9 @@
     <script type="text/javascript">
         $('.select2').select2({
             placeholder: 'Select Permission',
+        });
+        $('.assign_permission').select2({
+            placeholder: 'Select Status',
         });
         $(document).ready(function () {
             $('#dtHorizontalExample').DataTable({

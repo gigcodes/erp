@@ -137,6 +137,12 @@ class PermissionController extends Controller
     {
         $users = User::where('is_active', 1)->orderBy('name', 'asc')->get();
         $permissions = Permission::orderBy('name', 'asc')->get();
+        if(!empty($request->assign_permission) && in_array('1',$request->assign_permission))
+        {
+            $users = Permission::join('permission_user','permission_user.permission_id','=','permissions.id')->join('users','users.id','=','permission_user.user_id')->groupBy('permission_user.user_id')->get();
+            $permissions = \DB::select('select * from permissions where id in (select id from permissions p inner join permission_user pu on p.id = pu.permission_id) order by name');
+        }
+//        dd($users);
 
         return view('permissions.users', compact('users', 'permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
