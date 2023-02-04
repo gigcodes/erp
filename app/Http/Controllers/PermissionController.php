@@ -135,16 +135,68 @@ class PermissionController extends Controller
 
     public function users(Request $request)
     {
-        $users = User::where('is_active', 1)->orderBy('name', 'asc')->get();
-        $permissions = Permission::orderBy('name', 'asc')->get();
-        if(!empty($request->assign_permission) && in_array('1',$request->assign_permission))
-        {
-            $users = Permission::join('permission_user','permission_user.permission_id','=','permissions.id')->join('users','users.id','=','permission_user.user_id')->groupBy('permission_user.user_id')->get();
-            $permissions = \DB::select('select * from permissions where id in (select id from permissions p inner join permission_user pu on p.id = pu.permission_id) order by name');
-        }
-//        dd($users);
+        $users = User::where('users.is_active', 1)->orderBy('name', 'asc');
+        $permissions = Permission::orderBy('name', 'asc');
 
-        return view('permissions.users', compact('users', 'permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
+        $permission_datas = Permission::orderBy('name', 'asc')->get();
+        $user_datas = User::where('is_active', 1)->orderBy('name', 'asc')->get();
+
+        if(!empty($request->assign_permission) && in_array('1',$request->assign_permission) && !in_array('0',$request->assign_permission))
+        {
+            $users = $users->select('users.*')->join('permission_user','permission_user.user_id','=','users.id')->join('permissions','permission_user.permission_id','=','permissions.id')->groupBy('permission_user.user_id');
+
+            if($request->search_user)
+            {
+                $permissions = \DB::table('permissions')->whereIn('permissions.id', function($query) {
+                    $query->select('permissions.id')->from('permissions')->join('permission_user', 'permissions.id' ,'=', 'permission_user.permission_id')->whereIn('permission_user.user_id',\Request::input('search_user'));
+                })->orderBy('permissions.name');
+            }else{
+                $permissions = \DB::table('permissions')->whereIn('permissions.id', function($query) {
+                    $query->select('permissions.id')->from('permissions')->join('permission_user', 'permissions.id' ,'=', 'permission_user.permission_id');
+                })->orderBy('permissions.name');
+            }
+
+        }
+
+        if(!empty($request->assign_permission) && in_array('0',$request->assign_permission) && !in_array('1',$request->assign_permission))
+        {
+            if(!$request->search_user)
+            {
+                $users = $users->whereNotIn(
+                    'users.id', function ($query){
+                    $query->select('permission_user.user_id')->from('permission_user');
+                });
+            }
+            if($request->search_user)
+            {
+                $where = \DB::table('permission_user')->whereIn('user_id' ,$request->search_user)->pluck('permission_id');
+                $permissions = \DB::table('permissions')->whereIn('permissions.id', function($query) {
+                    $query->select('permissions.id')->from('permissions')->join('permission_user', 'permissions.id' ,'!=', 'permission_user.permission_id');
+                })->whereNotIn('permissions.id',$where)->orderBy('permissions.name');
+            }else{
+                $permissions = \DB::table('permissions')->whereIn('permissions.id', function($query) {
+                    $query->select('permissions.id')->from('permissions')->join('permission_user', 'permissions.id' ,'!=', 'permission_user.permission_id');
+                })->orderBy('permissions.name');
+            }
+        }
+
+        if($request->search_row)
+        {
+            $permissions = $permissions->whereIn('permissions.name', $request->search_row);
+        }
+
+        if($request->search_user)
+        {
+            $users = $users->whereIn('users.id',$request->search_user);
+        }
+
+
+
+        $users = $users->get();
+        $permissions = $permissions->get();
+
+
+        return view('permissions.users', compact('users', 'permissions','user_datas','permission_datas'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**

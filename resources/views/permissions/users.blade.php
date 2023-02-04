@@ -48,6 +48,17 @@
                 <div class="pull-right">
                     <form action="{{ route('permissions.users') }}" method="get" class="mb-2 d-flex">
                             <div class="form-group mr-2">
+                                <select name="search_user[]" id="search_user" class="form-control search_user" multiple>
+                                    @foreach($user_datas as $user)
+                                        @if(!empty(Request::get('search_user')))
+                                            <option value="{{ $user->id }}" {{ in_array($user->id,Request::get('search_user'))?'selected':''}}>{{ $user->name }}</option>
+                                        @else
+                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group mr-2">
                                 <select name="assign_permission[]" id="assign_permission" class="form-control assign_permission" multiple>
                                     @if(Request::get('assign_permission'))
                                         <option value="1" {{ in_array('1',Request::get('assign_permission'))?'selected':''}}>Activated Permission</option>
@@ -60,7 +71,7 @@
                             </div>
                             <div class="form-group">
                                 <select name="search_row[]" id="search_row" class="form-control search_row select2" multiple>
-                                    @foreach($permissions as $permission)
+                                    @foreach($permission_datas as $permission)
                                         @if(!empty(Request::get('search_row')))
                                             <option value="{{ $permission->name }}" {{ in_array($permission->name,Request::get('search_row'))?'selected':''}}>{{ $permission->name }}</option>
                                         @else
@@ -145,6 +156,9 @@
         });
         $('.assign_permission').select2({
             placeholder: 'Select Status',
+        });
+        $('.search_user').select2({
+            placeholder: 'Select User',
         });
         $(document).ready(function () {
             $('#dtHorizontalExample').DataTable({
