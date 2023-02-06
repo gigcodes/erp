@@ -1,6 +1,6 @@
 ### Link your developer account to a new or existing Google Cloud project.
  
-[![Link your developer account to a new or existing Google Cloud project](https://github.com/ludxb/erp/blob/3d205c0564e63526bb3585eb7ab50600a6c55aa2/documentation/images/link_your_dev_acc.png)](https://github.com/ludxb/erp/blob/3d205c0564e63526bb3585eb7ab50600a6c55aa2/documentation/images/link_your_dev_acc.png)
+[![Link your developer account to a new or existing Google Cloud project](https://github.com/ludxb/erp/blob/8a1431797e6cd8fdf0768149c57fc50714c531d2/documentation/images/link1.jpg)]
 
 [![Link your developer account to a new or existing Google Cloud project](https://github.com/ludxb/erp/blob/3d205c0564e63526bb3585eb7ab50600a6c55aa2/documentation/images/link_youdev_2.png)]
 
