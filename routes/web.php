@@ -329,6 +329,7 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\FaqPushController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -922,6 +923,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('reply-list/update', [ReplyController::class, 'replyUpdate'])->name('reply.replyUpdate');
     Route::get('reply-history', [ReplyController::class, 'getReplyedHistory'])->name('reply.replyhistory');
     Route::get('reply-logs', [ChatbotMessageLogsController::class, 'replyLogs'])->name('reply.replylogs');
+    Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
+    Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', [AutoReplyController::class, 'updateReply']);
@@ -1209,6 +1212,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/product/change-status', [OrderController::class, 'productItemStatusChange']);
     Route::post('order/preview-sent-mails', [OrderController::class, 'orderPreviewSentMails']);
     Route::get('customer/getcustomerinfo', [CustomerController::class, 'customerinfo'])->name('customer.getcustomerinfo');
+
+    Route::get('order/customer/list', [OrderController::class, 'customerList'])->name('order.customerList');
+    Route::get('order/call/history/status', [OrderController::class, 'callhistoryStatusList'])->name('order.callhistoryStatusList');
+    Route::get('order/store/website', [OrderController::class, 'storeWebsiteList'])->name('order.storeWebsiteList');
 
     Route::get('order/invoices', [OrderController::class, 'viewAllInvoices']);
     Route::post('order/create-product', [OrderController::class, 'createProduct'])->name('order.create.product');
@@ -1909,6 +1916,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('development/flagtask', [DevelopmentController::class, 'flagtask'])->name('development.flagtask');
     Route::post('development/gettasktimemessage', [DevelopmentController::class, 'gettasktimemessage'])->name('development.gettasktimemessage');
     Route::post('development/getlogtasktimemessage', [DevelopmentController::class, 'getlogtasktimemessage'])->name('development.getlogtasktimemessage');
+    Route::get('development/users', [DevelopmentController::class, 'usersList'])->name('development.userslist');
 
     Route::get('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks');
     Route::post('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks_post');
@@ -2495,6 +2503,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 });
 
+
+/**
+* This route will push the FAQ to series of website with help of API
+*/
+Route::middleware('auth')->group(function () {
+	Route::post('push/faq', 		[FaqPushController::class, 'pushFaq']);
+	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
+});
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
@@ -2650,7 +2666,7 @@ Route::middleware('auth')->group(function () {
     Route::get('hubstaff/debug', [HubstaffController::class, 'debug']);
     Route::get('hubstaff/payments', [UserController::class, 'payments']);
     Route::post('hubstaff/makePayment', [UserController::class, 'makePayment']);
-
+    Route::get('hubstaff/userlist', [HubstaffController::class, 'userList'])->name('hubstaff.userList');
     /***
      * use for Postman
      * Created By Nikunj
