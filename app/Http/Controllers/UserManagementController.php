@@ -11,6 +11,7 @@ use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
 use App\UserFeedbackStatus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class UserManagementController extends Controller
 {
@@ -65,9 +66,9 @@ class UserManagementController extends Controller
         $othertask = Task::where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed')->select();
         $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed');
         if ($request->user_id != '' && (\Auth::user()->isAdmin)) {
-            $query1->orWhere('users.id', $request->user_id);
+            $query1->where('users.id', $request->user_id);
         } elseif ((\Auth::user()->isAdmin) == false) {
-            $query1->orWhere('users.id', $request->user_id);
+            $query1->where('users.id', $request->user_id);
         }
         $query1->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
         $query1 = $query1->addSelect(\DB::raw("'Othertask' as task_type,'task' as message_type"));
@@ -87,6 +88,7 @@ class UserManagementController extends Controller
             $sop->category_id = $request->cat_id;
             $sop->user_id = \Auth::user()->id;
             $sop->sop = $request->sop_text;
+            $sop->sops_id = $request->sops_id;
             $sop->save();
             UserFeedbackCategory::where('id', $request->cat_id)->update(['sop_id' => $sop->id, 'sop' => $request->sop_text, 'sops_id' => $request->sops_id]);
 
@@ -103,8 +105,29 @@ class UserManagementController extends Controller
                 return response()->json(['code' => '500',  'message' => 'History not found']);
             }
             $sop = UserFeedbackCategorySopHistory::where('category_id', $request->cat_id)->get();
+            $html = '';
+            if($sop)
+            {
+                foreach($sop as $value) {
+                    $sop_data = Sop::where('id', $value->sops_id)->first();
+                    $html.= "<tr><td>". $value->id ."</td><td>". $value->sop . "</td>";
+                    if(!empty($sop_data))
+                    {
 
-            return response()->json(['code' => '200', 'data' => $sop, 'message' => 'Data listed successfully']);
+                        $html.= "<td class='expand-row-msg' data-name='content' data-id='$value->id'>
+                                <div class='sop-short-content-$value->id'>". \Str::of($sop_data->content)->limit(25, '...') ."</div>
+                                <div style='word-break:break-all;' class='sop-full-content-$value->id hidden'>".$sop_data->content."</div></td>";
+                    }else{
+                        $html.= "<td></td>";
+                    }
+                    $html.="</tr>";
+                }
+            }else{
+                $html.= '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+            }
+//            dd($html);
+
+            return response()->json(['code' => '200', 'data' => $html, 'message' => 'Data listed successfully']);
         } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }

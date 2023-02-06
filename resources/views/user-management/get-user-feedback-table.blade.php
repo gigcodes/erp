@@ -149,7 +149,9 @@
                             <div class="row">
                                 <div class="col-4 pr-0">
                                     <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
-                                    <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" title="Add Sop Name and category" data-target="#exampleModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                    @if(Auth::user()->isAdmin())
+                                        <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" title="Add Sop Name and category" data-target="#exampleModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                    @endif
                                 </div>
                                 <div class="sop-text-{{$cat->id}}" style="float: left;">
                                     <div class="expand-row-msg" data-name="name" data-id="{{$cat->id}}"  style="float: left;">
@@ -409,7 +411,7 @@ aria-hidden="true">
     </div>
 </div>
 <div id="sop-history" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="max-width: 1200px; width:1200px;">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
@@ -787,16 +789,16 @@ aria-hidden="true">
                 success:function(response){
                     if (response.code == 200) {
                         toastr["success"](response.message);
-                        var t = '';
-                        $.each(response.data, function(k, v) {
-                            t += `<tr><td>` + v.id + `</td>`;
-                            t += `<td>` + v.sop + `</td>`;
-                            t += `<td>` + v.created_at + `</td></tr>`;
-                        });
-                        if (t == '') {
-                            t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
-                        }
-                        $("#sop-history").find(".show-sop-history-records").html(t);
+                        // var t = '';
+                        // $.each(response.data, function(k, v) {
+                        //     t += `<tr><td>` + v.id + `</td>`;
+                        //     t += `<td>` + v.sop + `</td>`;
+                        //     t += `<td>` + v.created_at + `</td></tr>`;
+                        // });
+                        // if (t == '') {
+                        //     t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                        // }
+                        $("#sop-history").find(".show-sop-history-records").html(response.data);
                         $("#sop-history").modal("show");
 
                     } else {
@@ -804,6 +806,14 @@ aria-hidden="true">
                     }
                 }
             });
+        });
+        $(document).on('dblclick', '.expand-row-msg', function() {
+            var name = $(this).data('name');
+            var id = $(this).data('id');
+            var full = '.expand-row-msg .sop-short-' + name + '-' + id;
+            var mini = '.expand-row-msg .sop-full-' + name + '-' + id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
         });
 
         $(document).on('click','.sop-comment-history',function(){
