@@ -52,6 +52,11 @@
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
                             </div>
+                            <div class="col-md-1 pd-sm">
+                                 <button type="submit" class="btn btn-primary search push_all_faq">
+                                    Push FAQ
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -102,16 +107,19 @@
                                     <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}" style="color: #808080;"></i>
                                   @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
                                     <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
+                                    <!-- To push the FAQ Over every website using the API -->
+                                    <i class="fa fa-question  upload_faq" data-id="{{ $reply->id }}" alt="Push To FAQ" style="color: #808080;"></i>
+
                                     <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
-									 <button type="button" title="Flagged for Translate" data-reply_id="{{ $reply->id }}" data-is_flagged="<?php if($reply->is_flagged=='1') { echo '1'; } else { echo '0'; } ?>" onclick="updateTranslateReply(this)" class="btn" style="padding: 0px 1px;">
-										<?php if($reply->is_flagged == '1') { ?>
-											<i class="fa fas fa-toggle-on"></i>
-										<?php } else { ?>										
-											<i class="fa fas fa-toggle-off"></i>
-										<?php } ?>
-									</button>
-									
-									
+                                     <button type="button" title="Flagged for Translate" data-reply_id="{{ $reply->id }}" data-is_flagged="<?php if($reply->is_flagged=='1') { echo '1'; } else { echo '0'; } ?>" onclick="updateTranslateReply(this)" class="btn" style="padding: 0px 1px;">
+                                        <?php if($reply->is_flagged == '1') { ?>
+                                            <i class="fa fas fa-toggle-on"></i>
+                                        <?php } else { ?>                                       
+                                            <i class="fa fas fa-toggle-off"></i>
+                                        <?php } ?>
+                                    </button>
+                                    
+                                    
                                 </td>
                             </tr>
                         @endforeach
@@ -225,10 +233,10 @@ $(document).on("click",".fa-trash-bin-record",function() {
           id: $this.data("id")
         },
         beforeSend: function() {
-            $("#loading-image").show();
+            $("#loading-image-preview").show();
         }
       }).done( function(response) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
             if(response.code == 200) {
                 toastr["success"](response.message);
                 location.reload();
@@ -236,7 +244,7 @@ $(document).on("click",".fa-trash-bin-record",function() {
                toastr["error"]('Record is unable to delete!');
             }
       }).fail(function(errObj) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
       });
 });
 
@@ -250,10 +258,10 @@ $(document).on("click",".push_to_watson",function() {
           id: $this.data("id")
         },
         beforeSend: function() {
-            $("#loading-image").show();
+            $("#loading-image-preview").show();
         }
       }).done( function(response) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
             if(response.code == 200) {
                 toastr["success"](response.message);
                 //location.reload();
@@ -261,7 +269,7 @@ $(document).on("click",".push_to_watson",function() {
                toastr["error"]('Unable to push!');
             }
       }).fail(function(errObj) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
       });
 });
 
@@ -279,7 +287,11 @@ $(document).on('click', '.show-reply-history', function() {
     $.ajax({
         url: "{{ route('reply.replyhistory') }}",
         data: {id: issueId},
+        beforeSend: function() {
+            $("#loading-image-preview").show();
+        },
         success: function (data) {
+            $("#loading-image-preview").hide();
             if(data != 'error') {
                 $.each(data.histories, function(i, item) {
                     $('#reply_history_div table tbody').append(
@@ -291,6 +303,11 @@ $(document).on('click', '.show-reply-history', function() {
                         );
                 });
             }
+        },
+        error:function(err){
+
+            $("#loading-image-preview").hide();
+            
         }
     });
     $('#reply_history_modal').modal('show');
@@ -302,7 +319,11 @@ $(document).on('click', '.show_logs', function() {
     $.ajax({
         url: "{{ route('reply.replylogs') }}",
         data: {id: issueId},
+        beforeSend: function() {
+            $("#loading-image-preview").show();
+        },
         success: function (data) {
+            $("#loading-image-preview").hide();
             if(data != 'error') {
                 $.each(data.logs, function(i, item) {
                     $('#reply_logs_div table tbody').append(
@@ -314,62 +335,120 @@ $(document).on('click', '.show_logs', function() {
                         );
                 });
             }
+        },
+        error: function(err){
+            $("#loading-image-preview").hide();
         }
     });
     $('#reply_logs_modal').modal('show');
 });
 
+$(document).on("click",".upload_faq",function() {
+    if(!confirm('Are you sure you want to push FAQ?')){
+        return false;
+    }
+
+    var $this = $(this);
+    $.ajax({
+        url: "{{ url('push/faq') }}",
+        type: 'POST',
+        data: {
+          _token: "{{ csrf_token() }}",
+          id: $this.data("id")
+        },
+        beforeSend: function() {
+            $("#loading-image-preview").show();
+        }
+      }).done( function(response) {
+            $("#loading-image-preview").hide();
+            if(response.code == 200) {
+                toastr["success"](response.message);
+                // location.reload();
+            }else{
+               toastr["error"]('Something went wrong!');
+            }
+      }).fail(function(errObj) {
+            $("#loading-image-preview").hide();
+      });
+});
+
+$(document).on("click",".push_all_faq",function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    $.ajax({
+        url: "{{ url('push/faq/all') }}",
+        type: 'POST',
+        data: {
+          _token: "{{ csrf_token() }}"
+        },
+        beforeSend: function() {
+            $("#loading-image-preview").show();
+        }
+      }).done( function(response) {
+            $("#loading-image-preview").hide();
+            if(response.code == 200) {
+                toastr["success"](response.message);
+                // location.reload();
+            }else{
+               toastr["error"]('Something went wrong!');
+            }
+      }).fail(function(errObj) {
+            $("#loading-image-preview").hide();
+      });
+});
+
+$(document).ready(function(){
+    function updateTranslateReply(ele) {
+        let btn = jQuery(ele);
+        let reply_id = btn.data('reply_id');
+        let is_flagged = btn.data('is_flagged');
+        
+        
+        
+        //alert(is_flagged)
+
+        if (confirm(btn.data('is_flagged') == 1 ? 'Are you sure want unflagged this ?' : 'Are you sure want flagged this ?')) {
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('reply.replytranslate') }}",
+                type: 'POST',
+                data: {
+                    reply_id: reply_id,
+                    is_flagged: is_flagged,
+                },
+                dataType: 'json',
+                beforeSend: function () {
+                    jQuery("#loading-image-preview").show();
+                },
+                success: function (res) {
+                    toastr["success"](res.message);
+                    jQuery("#loading-image-preview").hide();
+                    btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
+                    if (is_flagged == 1) {
+                        btn.find('.fa').addClass('fa-toggle-off');
+                    }
+                    else {
+                        btn.find('.fa').addClass('fa-toggle-on');
+                    }
+                    btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
+                },
+                error: function (res) {
+                    if (res.responseJSON != undefined) {
+                        toastr["error"](res.responseJSON.message);
+                    }
+                    jQuery("#loading-image-preview").hide();
+                }
+            });
+        }
+    }
+})
 
 $(document).on('click', '#quick-reply-list .quick-website-task', function() {
     var trclass = $(this).parent()[0].className;
     $("."+trclass+" .quick-website-task").addClass("content-open-on-click");
 });
-
-function updateTranslateReply(ele) {
-    let btn = jQuery(ele);
-    let reply_id = btn.data('reply_id');
-    let is_flagged = btn.data('is_flagged');
-	
-	
-	
-	//alert(is_flagged)
-
-    if (confirm(btn.data('is_flagged') == 1 ? 'Are you sure want unflagged this ?' : 'Are you sure want flagged this ?')) {
-        jQuery.ajax({
-            headers: {
-                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-            },
-            url: "{{ route('reply.replytranslate') }}",
-            type: 'POST',
-            data: {
-                reply_id: reply_id,
-                is_flagged: is_flagged,
-            },
-            dataType: 'json',
-            beforeSend: function () {
-                jQuery("#loading-image").show();
-            },
-            success: function (res) {
-                toastr["success"](res.message);
-                jQuery("#loading-image").hide();
-                btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
-                if (is_flagged == 1) {
-                    btn.find('.fa').addClass('fa-toggle-off');
-                }
-                else {
-                    btn.find('.fa').addClass('fa-toggle-on');
-                }
-                btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
-            },
-            error: function (res) {
-                if (res.responseJSON != undefined) {
-                    toastr["error"](res.responseJSON.message);
-                }
-                jQuery("#loading-image").hide();
-            }
-        });
-    }
-}
 
 </script>
 @endsection

@@ -536,7 +536,7 @@
               </div>
 
               <div class="form-group pl-3 d-flex">
-                <button type="button" class="btn btn-xs btn-image call-twilio " data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
+                <button type="button" class="btn btn-xs btn-image call-twilio " data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}"><img src="/images/call.png" /></button>
 
                 @if ($customer->is_blocked == 1)
                   <button type="button" class="btn btn-xs btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
@@ -2171,7 +2171,7 @@
               <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                   @csrf
                   <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                  <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
+                  <input type="hidden" name="instruction" value="{{ @$users_array[\App\Setting::get('call_shortcut')] }} call this client">
                   <input type="hidden" name="category_id" value="10">
                   <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 
@@ -2275,7 +2275,7 @@
             @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                   <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
@@ -2343,7 +2343,7 @@
                         @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
-                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                             <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
@@ -2415,7 +2415,7 @@
             @foreach ($customer->instructions()->where('verified', 1)->latest('completed_at')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                   <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
@@ -2475,7 +2475,7 @@
                         @foreach ($customer->instructions()->where('verified', 1)->latest('completed_at')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
-                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}" data-auth-id="{{ Auth::id() }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                             <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
