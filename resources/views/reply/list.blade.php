@@ -200,10 +200,10 @@ $(document).on("click",".fa-trash-bin-record",function() {
           id: $this.data("id")
         },
         beforeSend: function() {
-            $("#loading-image").show();
+            $("#loading-image-preview").show();
         }
       }).done( function(response) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
             if(response.code == 200) {
                 toastr["success"](response.message);
                 location.reload();
@@ -211,7 +211,7 @@ $(document).on("click",".fa-trash-bin-record",function() {
                toastr["error"]('Record is unable to delete!');
             }
       }).fail(function(errObj) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
       });
 });
 
@@ -225,10 +225,10 @@ $(document).on("click",".push_to_watson",function() {
           id: $this.data("id")
         },
         beforeSend: function() {
-            $("#loading-image").show();
+            $("#loading-image-preview").show();
         }
       }).done( function(response) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
             if(response.code == 200) {
                 toastr["success"](response.message);
                 //location.reload();
@@ -236,7 +236,7 @@ $(document).on("click",".push_to_watson",function() {
                toastr["error"]('Unable to push!');
             }
       }).fail(function(errObj) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
       });
 });
 
@@ -254,7 +254,11 @@ $(document).on('click', '.show-reply-history', function() {
     $.ajax({
         url: "{{ route('reply.replyhistory') }}",
         data: {id: issueId},
+        beforeSend: function () {
+            jQuery("#loading-image-preview").show();
+        },
         success: function (data) {
+            jQuery("#loading-image-preview").hide();
             if(data != 'error') {
                 $.each(data.histories, function(i, item) {
                     $('#reply_history_div table tbody').append(
@@ -266,6 +270,9 @@ $(document).on('click', '.show-reply-history', function() {
                         );
                 });
             }
+        },
+        error: function(er){
+            jQuery("#loading-image-preview").hide();
         }
     });
     $('#reply_history_modal').modal('show');
@@ -277,7 +284,11 @@ $(document).on('click', '.show_logs', function() {
     $.ajax({
         url: "{{ route('reply.replylogs') }}",
         data: {id: issueId},
+        beforeSend: function () {
+            jQuery("#loading-image-preview").show();
+        },
         success: function (data) {
+            jQuery("#loading-image-preview").hide();
             if(data != 'error') {
                 $.each(data.logs, function(i, item) {
                     $('#reply_logs_div table tbody').append(
@@ -289,6 +300,9 @@ $(document).on('click', '.show_logs', function() {
                         );
                 });
             }
+        },
+        error:function(err){
+            jQuery("#loading-image-preview").hide();
         }
     });
     $('#reply_logs_modal').modal('show');
@@ -319,16 +333,23 @@ function updateTranslateReply(ele) {
             },
             dataType: 'json',
             beforeSend: function () {
-                jQuery("#loading-image").show();
+                jQuery("#loading-image-preview").show();
             },
             success: function (res) {
-                toastr["success"](res.message);
-                jQuery("#loading-image").hide();
-                btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
-                if (is_flagged == 1) {
+                if(res.code == 200){
+                    toastr["success"](res.message);
+                }
+                else{
+                    toastr["error"](res.message);                    
+                }
+                jQuery("#loading-image-preview").hide();
+                
+                if (is_flagged == 1 && res.code == 200) {
+                    btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
                     btn.find('.fa').addClass('fa-toggle-off');
                 }
-                else {
+                else if(res.code == 200){
+                    btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
                     btn.find('.fa').addClass('fa-toggle-on');
                 }
                 btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
@@ -337,7 +358,7 @@ function updateTranslateReply(ele) {
                 if (res.responseJSON != undefined) {
                     toastr["error"](res.responseJSON.message);
                 }
-                jQuery("#loading-image").hide();
+                jQuery("#loading-image-preview").hide();
             }
         });
     }
