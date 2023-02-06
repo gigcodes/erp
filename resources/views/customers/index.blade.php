@@ -362,11 +362,11 @@
                                 <button type="button" class="btn btn-image call-select popup" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png"/></button>
 
                                 <div class="numberSend" id="show{{ $customer->id }}">
-                                    <select class="form-control call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}">
+                                    <select class="form-control call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}" data-auth-id="{{ Auth::id() }}">
                                         <option disabled selected>Select Number</option>
-                                        @foreach(\Config::get("twilio.caller_id") as $caller)
-                                            <option value="{{ $caller }}">{{ $caller }}</option>
-                                        @endforeach
+                                        @if ($customer->phone_number)
+                                            <option value="{{ $customer->phone_number }}">{{ $customer->phone_number }}</option>
+                                        @endif
                                     </select>
                                 </div>
 
@@ -2387,6 +2387,7 @@
         $(document).on('click', '.call-select', function () {
             var id = $(this).data('id');
             $('#show' + id).toggle();
+            $(`#show${id} select option:first`).prop('selected', true);
             console.log('#show' + id);
         });
 
