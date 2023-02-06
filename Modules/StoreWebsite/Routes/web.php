@@ -40,6 +40,8 @@ Route::group([
     Route::post('generate-reindex', [StoreWebsiteController::class, 'generateReIndexfile']);
     Route::post('generate-api-token', [StoreWebsiteController::class, 'generateApiToken']);
     Route::get('get-api-token', [StoreWebsiteController::class, 'getApiToken']);
+    Route::post('generate-admin-password', [StoreWebsiteController::class, 'generateAdminPassword']);
+    Route::get('get-admin-password', [StoreWebsiteController::class, 'getAdminPassword']);
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');
 
@@ -54,6 +56,8 @@ Route::group([
     Route::post('/save-user-in-magento', [StoreWebsiteController::class, 'saveUserInMagento'])->name('store-website.save-user-in-magento');
     Route::post('/delete-user-in-magento', [StoreWebsiteController::class, 'deleteUserInMagento'])->name('store-website.delete-user-in-magento');
     Route::post('/update-company-website-address', [StoreWebsiteController::class, 'updateCompanyWebsiteAddress']);
+    Route::get('/copy-website-store-views/{id}', [StoreWebsiteController::class, 'copyWebsiteStoreViews']);
+    Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
     Route::group([
         'prefix' => '{id}',
     ], function () {
