@@ -45,6 +45,7 @@ use App\SuggestedProduct;
 use App\Supplier;
 use App\TwilioPriority;
 use App\User;
+use App\StoreWebsiteTwilioNumber;
 use Auth;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
@@ -197,8 +198,7 @@ class CustomerController extends Controller
 
         $finalOrderStats = [];
         foreach ($order_stats as $key => $order_stat) {
-            $finalOrderStats[] = [
-                $order_stat->order_status,
+            $finalOrderStats[] = [$order_stat->order_status,
                 $order_stat->total,
                 ($order_stat->total / $totalCount) * 100,
                 [
@@ -219,6 +219,7 @@ class CustomerController extends Controller
                     '#34495e',
                     '#7f8c8d',
                 ][$key],
+
             ];
         }
 
@@ -294,8 +295,12 @@ class CustomerController extends Controller
             ->pluck('counts', 'clothing_size');
 
         $groups = QuickSellGroup::select('id', 'name', 'group')->orderby('name', 'asc')->get();
+        $storeWebsites = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
+        $solo_numbers = (new SoloNumbers)->all();
 
         return view('customers.index', [
+            'storeWebsites' => $storeWebsites,
+            'solo_numbers' => $solo_numbers,
             'customers' => $results[0],
             'customers_all' => $customers_all,
             'customer_ids_list' => json_encode($results[1]),
@@ -493,6 +498,7 @@ class CustomerController extends Controller
                 chat_messages.*,
                 chat_messages.status AS message_status,
                 chat_messages.number,
+                twilio_active_numbers.phone_number as phone_number,
                 orders.*,
                 order_products.*,
                 leads.*
@@ -567,6 +573,12 @@ class CustomerController extends Controller
                 ) AS leads
             ON
                 customers.id = leads.customer_id
+            LEFT JOIN store_website_twilio_numbers
+            ON
+                store_website_twilio_numbers.store_website_id = customers.store_website_id
+            LEFT JOIN twilio_active_numbers
+            On
+                twilio_active_numbers.id = store_website_twilio_numbers.twilio_active_number_id
             WHERE
                 customers.deleted_at IS NULL AND
                 customers.id IS NOT NULL
@@ -1358,7 +1370,7 @@ class CustomerController extends Controller
         ]);
 
         $customer = new Customer;
-
+        $customer->store_website_id = ! empty($request->store_website_id) ? $request->store_website_id : '';
         $customer->name = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
@@ -1382,7 +1394,7 @@ class CustomerController extends Controller
 
         $customer->save();
 
-        return redirect()->route('customer.index')->with('success', 'You have successfully added new customer!');
+        return redirect()->back()->with('success', 'You have successfully added new customer!');
     }
 
     public function addNote($id, Request $request)
@@ -1470,6 +1482,10 @@ class CustomerController extends Controller
     public function postShow(Request $request, $id)
     {
         $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
+        $storeActiveNumber = StoreWebsiteTwilioNumber::select('twilio_active_numbers.account_sid as a_sid', 'twilio_active_numbers.phone_number as phone_number')
+                    ->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')
+                    ->where('store_website_twilio_numbers.store_website_id', $customer->store_website_id)
+                    ->first(); // Get store website active number assigned with customer
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
 
         //$emails = Email::select()->where('to', $customer->email)->paginate(15);
@@ -1537,6 +1553,7 @@ class CustomerController extends Controller
             'facebookMessages' => $facebookMessages,
             'searchedMessages' => $searchedMessages,
             'broadcastsNumbers' => $broadcastsNumbers,
+            'storeActiveNumber' => $storeActiveNumber,
         ]);
     }
 

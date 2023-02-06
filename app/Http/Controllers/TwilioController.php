@@ -3617,7 +3617,7 @@ class TwilioController extends FindByNumberController
         $twilio_accounts = TwilioCredential::where('status', true)->where('twiml_app_sid', '!=', null)->get();
         $id = $request->get('id');
         if ($id != null) {
-            $twilio_account_details = TwilioCredential::where(['id' => 1])->with('numbers.assigned_stores', 'numbers.forwarded.forwarded_number_details.user_availabilities')->first();
+            $twilio_account_details = TwilioCredential::where(['id' => $id])->with('numbers.assigned_stores', 'numbers.forwarded.forwarded_number_details.user_availabilities')->first();
             $customer_role_users = RoleUser::where(['role_id' => 50])->with('user')->get();
 
             return view('twilio.manage-calls', compact('twilio_accounts', 'customer_role_users', 'twilio_account_details'));
