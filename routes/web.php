@@ -329,6 +329,7 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\FaqPushController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -2502,6 +2503,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 });
 
+
+/**
+* This route will push the FAQ to series of website with help of API
+*/
+Route::middleware('auth')->group(function () {
+	Route::post('push/faq', 		[FaqPushController::class, 'pushFaq']);
+	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
+});
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
