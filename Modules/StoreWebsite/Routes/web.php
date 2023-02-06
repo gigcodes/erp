@@ -40,6 +40,8 @@ Route::group([
     Route::post('generate-reindex', [StoreWebsiteController::class, 'generateReIndexfile']);
     Route::post('generate-api-token', [StoreWebsiteController::class, 'generateApiToken']);
     Route::get('get-api-token', [StoreWebsiteController::class, 'getApiToken']);
+    Route::post('generate-admin-password', [StoreWebsiteController::class, 'generateAdminPassword']);
+    Route::get('get-admin-password', [StoreWebsiteController::class, 'getAdminPassword']);
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');
 

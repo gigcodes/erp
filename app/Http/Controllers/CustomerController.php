@@ -45,6 +45,7 @@ use App\SuggestedProduct;
 use App\Supplier;
 use App\TwilioPriority;
 use App\User;
+use App\StoreWebsiteTwilioNumber;
 use Auth;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
@@ -497,6 +498,7 @@ class CustomerController extends Controller
                 chat_messages.*,
                 chat_messages.status AS message_status,
                 chat_messages.number,
+                twilio_active_numbers.phone_number as phone_number,
                 orders.*,
                 order_products.*,
                 leads.*
@@ -571,6 +573,12 @@ class CustomerController extends Controller
                 ) AS leads
             ON
                 customers.id = leads.customer_id
+            LEFT JOIN store_website_twilio_numbers
+            ON
+                store_website_twilio_numbers.store_website_id = customers.store_website_id
+            LEFT JOIN twilio_active_numbers
+            On
+                twilio_active_numbers.id = store_website_twilio_numbers.twilio_active_number_id
             WHERE
                 customers.deleted_at IS NULL AND
                 customers.id IS NOT NULL
@@ -1474,6 +1482,10 @@ class CustomerController extends Controller
     public function postShow(Request $request, $id)
     {
         $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
+        $storeActiveNumber = StoreWebsiteTwilioNumber::select('twilio_active_numbers.account_sid as a_sid', 'twilio_active_numbers.phone_number as phone_number')
+                    ->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')
+                    ->where('store_website_twilio_numbers.store_website_id', $customer->store_website_id)
+                    ->first(); // Get store website active number assigned with customer
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
 
         //$emails = Email::select()->where('to', $customer->email)->paginate(15);
@@ -1541,6 +1553,7 @@ class CustomerController extends Controller
             'facebookMessages' => $facebookMessages,
             'searchedMessages' => $searchedMessages,
             'broadcastsNumbers' => $broadcastsNumbers,
+            'storeActiveNumber' => $storeActiveNumber,
         ]);
     }
 
