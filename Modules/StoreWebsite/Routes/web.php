@@ -56,6 +56,11 @@ Route::group([
     Route::post('/update-company-website-address', [StoreWebsiteController::class, 'updateCompanyWebsiteAddress']);
     Route::get('/copy-website-store-views/{id}', [StoreWebsiteController::class, 'copyWebsiteStoreViews']);
     Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
+
+    // Create Tags for multiple website
+    Route::post('create-tag',    [StoreWebsiteController::class, 'create_tags'])->name('store-website.create_tags');
+    Route::post('attach-tag',    [StoreWebsiteController::class, 'attach_tags'])->name('store-website.attach_tags');
+
     Route::group([
         'prefix' => '{id}',
     ], function () {

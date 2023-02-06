@@ -53,6 +53,8 @@ use Illuminate\Support\Str;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
+use App\Models\WebsiteStoreTag;
+
 class StoreWebsiteController extends Controller
 {
     /**
@@ -60,15 +62,18 @@ class StoreWebsiteController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(WebsiteStoreTag   $WebsiteStoreTag)
     {
         $title = 'List | Store Website';
         $services = Service::get();
+
+        $tags   =   $WebsiteStoreTag->get();
+
         $assetManager = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('website')->get();
         $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes','tags'));
     }
 
     public function logWebsiteUsers($id)
@@ -1339,5 +1344,68 @@ class StoreWebsiteController extends Controller
         }
 
         return response()->json(['code' => 200, 'message' => 'Website store views copied successfully']);
+    }
+
+    /**
+    * Create tags for multiple website and stores
+    */
+    function    create_tags(Request     $request,   WebsiteStoreTag     $WebsiteStoreTag){
+        $data           =   $request->all();
+
+        $validator = Validator::make($data, [
+            'tag'       => 'required'
+        ]);
+
+        if ($validator->fails()) {
+
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : ".$er.'<br>';
+                }
+            }
+            
+            \Flash::error($outputString);
+            return response()->back();
+        }
+
+        $insertArray    =   [
+            'tags'  =>  \Str::slug($data['tag'])
+        ];
+        //check and create the tags
+        $WebsiteStoreTag->updateOrCreate($insertArray);
+
+        return redirect()->back();
+    }
+
+    function    attach_tags(Request     $request,   StoreWebsite   $StoreWebsite){
+        $data   =   $request->all();
+
+         $validator = Validator::make($data, [
+            'store_id' => 'required',
+            'tag_attached' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : ".$er.'<br>';
+
+                }
+            }
+
+            \Flash::error($outputString);
+            return response()->back();
+        }
+
+        //attach the tag 
+        $StoreWebsite->where(['id' => $data['store_id']])->update(['tag_id' => $data['tag_attached']]);
+
+        return redirect()->back();
+
     }
 }
