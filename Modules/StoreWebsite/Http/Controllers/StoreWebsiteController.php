@@ -67,8 +67,10 @@ class StoreWebsiteController extends Controller
         $assetManager = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('website')->get();
         $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
+        
+        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'storeWebsiteUsers'));
     }
 
     public function logWebsiteUsers($id)
@@ -1339,5 +1341,68 @@ class StoreWebsiteController extends Controller
         }
 
         return response()->json(['code' => 200, 'message' => 'Website store views copied successfully']);
+    }
+
+    /**
+    *
+    */
+    public function generateAdminPassword(Request $request)
+    {
+        $usernames = $request->username;
+
+        if ($request->username) {
+            foreach ($usernames as $key => $username) {                
+
+                if( starts_with($key, 'edit:') ){
+
+                    list($idd, $i) = $id = explode(':', $key);                    
+
+                    // update
+                    if($request->store_website_id[$key]){
+                        StoreWebsiteUsers::where('id', $id[1])->update(
+                            ['username' => $username, 'password' => $request->password[$key], 'store_website_id' => $request->store_website_id[$key]]
+                        );
+                    }
+                }else{
+                    // check
+                    if($request->store_website_id[$key]){
+                        $params['username'] = $username;                  
+                        $params['password'] = $request->password[$key];
+                        $params['store_website_id'] = $request->store_website_id[$key];                    
+
+                        // new
+                        $StoreWebsiteUsersid = StoreWebsiteUsers::create($params); 
+                    }                   
+                }
+            }
+            session()->flash('msg', 'Admin Password Updated Successfully.');
+
+            return redirect()->back();
+        } else {
+            session()->flash('msg', 'Admin Password is invalid.');
+
+            return redirect()->back();
+        }
+    }
+    
+
+
+    /**
+    *
+    */
+    public function getAdminPassword(Request $request)
+    {
+        $search = $request->search;
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
+        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0);
+        if ($search != null) {
+            $storeWebsiteUsers = $storeWebsiteUsers->where('username', 'Like', '%'.$search.'%')->orWhere('password', 'Like', '%'.$search.'%');
+        }
+        $storeWebsiteUsers = $storeWebsiteUsers->get();
+
+        return response()->json([
+            'tbody' => view('storewebsite::admin-password', compact('storeWebsites', 'storeWebsiteUsers'))->render(),
+
+        ], 200);
     }
 }
