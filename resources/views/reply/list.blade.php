@@ -3,17 +3,44 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Quick Replies List</h2>
+        <h2 class="page-heading">Quick Replies List ({{ $replies->total() }})</h2>
         <div class="pull">
             <div class="row">
                 <div class="col-md-12 ml-sm-4">            
                     <form action="{{ route('reply.replyList') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-2 pd-sm">
-                                {{ Form::select("store_website_id", ["" => "-- Select Website --"] + \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control"]) }}
+                                {{ Form::select("store_website_id[]", \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+                            </div>
+                            <!-- <div class="col-md-2 pd-sm">
+                                {{ Form::select("category_id", ["" => "-- Select Category/Sub Category --"] + \App\ReplyCategory::pluck('name','id')->toArray(),request('category_id'),["class" => "form-control"]) }}
+                            </div> -->
+                            <div class="col-md-2 pd-sm">
+                                <select class="form-control globalSelect2" style="width:100%" name="parent_category_ids[]" data-placeholder="Search Parent Category By Name.." multiple >
+                                    @if ($parentCategory)
+                                        @foreach($parentCategory as $key => $parentCategory)
+                                            <option value="{{ $parentCategory->id }}" @if(in_array($parentCategory->id, $parent_category)) echo selected @endif>{{ $parentCategory->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
                             </div>
                             <div class="col-md-2 pd-sm">
-                                {{ Form::select("category_id", ["" => "-- Select Category/Sub Category --"] + \App\ReplyCategory::pluck('name','id')->toArray(),request('category_id'),["class" => "form-control"]) }}
+                                <select class="form-control globalSelect2" style="width:100%" name="category_ids[]" data-placeholder="Search Category By Name.." multiple >
+                                    @if ($category)
+                                        @foreach($category as $key => $category)
+                                        <option value="{{ $key }}" @if(in_array($key, $category_ids)) echo selected @endif>{{ $category }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="col-md-2 pd-sm">
+                                <select class="form-control globalSelect2" style="width:100%" name="sub_category_ids[]" data-placeholder="Search Sub Category By Name.." multiple >
+                                    @if ($subCategory)
+                                        @foreach($subCategory as $key => $subCategory)
+                                        <option value="{{ $key }}" @if(in_array($key, $sub_category_ids)) echo selected @endif>{{ $subCategory }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
                             </div>
                             <div class="col-md-2 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
@@ -55,8 +82,8 @@
                             <th width="3%">ID</th>
                             <th width="10%">Store website</th>
                             <th width="10%">Parent Category</th>
-                            <th width="10%">Sub Category </th>
-                            <th width="10%">Category</th>
+                            <th width="10%">Category </th>
+                            <th width="10%">Sub Category</th>
                             <th width="10%">Reply</th>
                             <th width="7%">Model</th>
                             <th width="5%">Intent Id</th>
@@ -65,17 +92,15 @@
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
-                        
-                        
-                            <tr>
+                            <tr class="quick-website-task-{{ $reply->id }}" data-id="{{ $reply->id }}">
                                 <td id="reply_id">{{ $reply->id }}</td>
-                                <td class="Website-task" id="reply-store-website">{{ $reply->website }}</td>
-                                <td class="Website-task" id="reply_category_parent_first">{{ $reply->parent_first }}</td>
-                                <td class="Website-task" id="reply_category_parent_secound">{{ $reply->parent_secound }}</td>
-                                <td class="Website-task" id="reply_category_name">{{ $reply->category_name }}</td>
-                                <td style="cursor:pointer;" id="reply_text" class="change-reply-text Website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
-                                <td class="Website-task" id="reply_model">{{ $reply->model }}</td>
-                                <td class="Website-task">{{ $reply->intent_id }}</td>
+                                <td class="quick-website-task" id="reply-store-website">{{ $reply->website }}</td>
+                                <td class="quick-website-task" id="reply_category_parent_first">{{ $reply->parent_first }}</td>
+                                <td class="quick-website-task" id="reply_category_parent_secound">{{ $reply->parent_secound }}</td>
+                                <td class="quick-website-task" id="reply_category_name">{{ $reply->category_name }}</td>
+                                <td style="cursor:pointer;" id="reply_text" class="change-reply-text quick-website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
+                                <td class="quick-website-task" id="reply_model">{{ $reply->model }}</td>
+                                <td class="quick-website-task">{{ $reply->intent_id }}</td>
                                 <td id="reply_model">{{ $reply->created_at }}</td>
                                 <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
                                 <td id="reply_action">
@@ -317,7 +342,6 @@ $(document).on('click', '.show_logs', function() {
 });
 
 $(document).on("click",".upload_faq",function() {
-
     if(!confirm('Are you sure you want to push FAQ?')){
         return false;
     }
@@ -430,5 +454,11 @@ function updateTranslateReply(ele) {
             });
         }
     }
+
+$(document).on('click', '#quick-reply-list .quick-website-task', function() {
+    var trclass = $(this).parent()[0].className;
+    $("."+trclass+" .quick-website-task").addClass("content-open-on-click");
+});
+
 </script>
 @endsection
