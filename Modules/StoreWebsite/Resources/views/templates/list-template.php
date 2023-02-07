@@ -99,6 +99,8 @@
                             </button>
                            <button type="button" class="btn btn-xs btn-image  load-duplicate-modal mt-1" data-target="#newDuplicate"  data-id="{{>prop.id}}" title="Duplicate store website"><i class="fa fa-copy"></i> </button>
 
+                           <button type="button" class="btn btn-xs btn-image  load-tag-modal mt-1" data-toggle="modal" data-target="#store-attach-tag"  data-id="{{>prop.id}}" title="Create Tag"><i class="fa fa-link"></i> </button>
+
                             {{if prop.is_dev_website == 1 }}
                                 <a style="padding:1px;" class="btn d-inline btn-image execute-bash-command-select-folder"  data-folder_name="{{>prop.site_folder}}" href="#" data-id="{{>prop.id}}" title="Execute Bash Command">
                                     <img src="/images/send.png" style="color:gray; cursor: nwse-resize; width: 0px;">
