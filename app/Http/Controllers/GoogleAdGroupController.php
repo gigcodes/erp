@@ -3,26 +3,16 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use Google\AdsApi\AdWords\AdWordsServices;
-use Google\AdsApi\AdWords\AdWordsSession;
-use Google\AdsApi\AdWords\AdWordsSessionBuilder;
-use Google\AdsApi\AdWords\v201809\cm\AdGroup;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupOperation;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupService;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupStatus;
-use Google\AdsApi\AdWords\v201809\cm\AdRotationMode;
-use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyConfiguration;
-use Google\AdsApi\AdWords\v201809\cm\CpcBid;
-use Google\AdsApi\AdWords\v201809\cm\CriterionTypeGroup;
-use Google\AdsApi\AdWords\v201809\cm\Money;
-use Google\AdsApi\AdWords\v201809\cm\Operator;
-use Google\AdsApi\AdWords\v201809\cm\OrderBy;
-use Google\AdsApi\AdWords\v201809\cm\Paging;
-use Google\AdsApi\AdWords\v201809\cm\Predicate;
-use Google\AdsApi\AdWords\v201809\cm\PredicateOperator;
-use Google\AdsApi\AdWords\v201809\cm\Selector;
-use Google\AdsApi\AdWords\v201809\cm\SortOrder;
-use Google\AdsApi\Common\OAuth2TokenBuilder;
+use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
+use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
+use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
+use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
+use Google\Ads\GoogleAds\Util\V12\ResourceNames;
+use Google\Ads\GoogleAds\V12\Enums\AdGroupStatusEnum\AdGroupStatus;
+use Google\Ads\GoogleAds\V12\Enums\AdGroupTypeEnum\AdGroupType;
+use Google\Ads\GoogleAds\V12\Resources\AdGroup;
+use Google\Ads\GoogleAds\V12\Services\AdGroupOperation;
+use Google\Ads\GoogleAds\Util\FieldMasks;
 use Illuminate\Http\Request;
 
 class GoogleAdGroupController extends Controller
@@ -177,58 +167,61 @@ class GoogleAdGroupController extends Controller
             ]);
 
             $adGroupStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
-//        $criterionTypeGroups = ['KEYWORD', 'USER_INTEREST_AND_LIST', 'VERTICAL', 'GENDER', 'AGE_RANGE', 'PLACEMENT', 'PARENT', 'INCOME_RANGE', 'NONE', 'UNKNOWN'];
-//        $adRotationModes = ['UNKNOWN', 'OPTIMIZE', 'ROTATE_FOREVER'];
+            // $criterionTypeGroups = ['KEYWORD', 'USER_INTEREST_AND_LIST', 'VERTICAL', 'GENDER', 'AGE_RANGE', 'PLACEMENT', 'PARENT', 'INCOME_RANGE', 'NONE', 'UNKNOWN'];
+            // $adRotationModes = ['UNKNOWN', 'OPTIMIZE', 'ROTATE_FOREVER'];
             $addgroupArray = [];
             $adGroupName = $request->adGroupName;
             $microAmount = $request->microAmount * 1000000;
             $adGroupStatus = $adGroupStatusArr[$request->adGroupStatus];
+
             $acDetail = $this->getAccountDetail($campaignId);
             $account_id = $acDetail['account_id'];
+
             $storagepath = $this->getstoragepath($account_id);
             $addgroupArray['adgroup_google_campaign_id'] = $campaignId;
             $addgroupArray['ad_group_name'] = $adGroupName;
             $addgroupArray['bid'] = $request->microAmount;
             $addgroupArray['status'] = $adGroupStatus;
-//        $criterionTypeGroup = $criterionTypeGroups[$request->criterionTypeGroup];
-//        $adRotationMode = $adRotationModes[$request->adRotationMode];
+            // $criterionTypeGroup = $criterionTypeGroups[$request->criterionTypeGroup];
+            // $adRotationMode = $adRotationModes[$request->adRotationMode];
 
-            $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
+            // Get OAuth2 configuration from file.
+            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
 
-            $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
+            // Generate a refreshable OAuth2 credential for authentication.
+            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
 
-            $adGroupService = (new AdWordsServices())->get($session, AdGroupService::class);
+            $googleAdsClient = (new GoogleAdsClientBuilder())
+                                ->from($oAuth2Configuration)
+                                ->withOAuth2Credential($oAuth2Credential)
+                                ->build();
 
-            $operations = [];
+            $customerId = $googleAdsClient->getLoginCustomerId();
 
-            /// Create an ad group with required settings and specified status.
-            $adGroup = new AdGroup();
-            $adGroup->setCampaignId($campaignId);
-            $adGroup->setName($adGroupName);
+            $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
 
-            // Set bids (required).
-            $bid = new CpcBid();
-            $money = new Money();
-            $money->setMicroAmount($microAmount);
-            $bid->setBid($money);
-            $biddingStrategyConfiguration = new BiddingStrategyConfiguration();
-            $biddingStrategyConfiguration->setBids([$bid]);
-            $adGroup->setBiddingStrategyConfiguration($biddingStrategyConfiguration);
+            // Constructs another ad group.
+            $adGroup = new AdGroup([
+                'name' => $adGroupName,
+                'campaign' => $campaignResourceName,
+                'status' => self::getAdGroupStatus($adGroupStatus),
+                'cpc_bid_micros' => $microAmount
+            ]);
 
-            $adGroup->setStatus($adGroupStatus);
+            $adGroupOperation = new AdGroupOperation();
+            $adGroupOperation->setCreate($adGroup);
 
-            // Create an ad group operation and add it to the operations list.
-            $operation = new AdGroupOperation();
-            $operation->setOperand($adGroup);
-            $operation->setOperator(Operator::ADD);
-            $operations[] = $operation;
+            // Issues a mutate request to add the ad groups.
+            $adGroupServiceClient = $googleAdsClient->getAdGroupServiceClient();
+            $response = $adGroupServiceClient->mutateAdGroups(
+                $customerId,
+                [$adGroupOperation]
+            );
 
-            // Create the ad groups on the server
-            $result = $adGroupService->mutate($operations);
-            $addedGroup = $result->getValue();
-            $addedGroupId = $addedGroup[0]->getId();
-            $addgroupArray['google_adgroup_id'] = $addedGroupId;
-            $addgroupArray['adgroup_response'] = json_encode($addedGroup[0]);
+            $addedAdGroup = $response->getResults()[0];
+
+            $addgroupArray['google_adgroup_id'] = $addedAdGroup->getId();
+            $addgroupArray['adgroup_response'] = json_encode($addedAdGroup);
             \App\GoogleAdsGroup::create($addgroupArray);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup added successfully');
@@ -243,13 +236,13 @@ class GoogleAdGroupController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $storagepath = $this->getstoragepath($account_id);
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
+        // $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
-        // Construct an API session configured from a properties file and the
-        // OAuth2 credentials above.
-        $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
+        // // Construct an API session configured from a properties file and the
+        // // OAuth2 credentials above.
+        // $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
 
-        $adGroupService = (new AdWordsServices())->get($session, AdGroupService::class);
+        // $adGroupService = (new AdWordsServices())->get($session, AdGroupService::class);
 
         // Create a selector to select all ad groups for the specified campaign.
         /* $selector = new Selector();
@@ -302,40 +295,40 @@ class GoogleAdGroupController extends Controller
             $addgroupArray['bid'] = $request->cpcBidMicroAmount;
             $addgroupArray['status'] = $adGroupStatus;
 
-            $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
+            // Get OAuth2 configuration from file.
+            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
 
-            // Construct an API session configured from a properties file and the
-            // OAuth2 credentials above.
-            $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
+            // Generate a refreshable OAuth2 credential for authentication.
+            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
 
-            $adGroupService = (new AdWordsServices())->get($session, AdGroupService::class);
+            $googleAdsClient = (new GoogleAdsClientBuilder())
+                                ->from($oAuth2Configuration)
+                                ->withOAuth2Credential($oAuth2Credential)
+                                ->build();
 
-            $operations = [];
-            // Create ad group with the specified ID.
-            $adGroup = new AdGroup();
-            $adGroup->setId($adGroupId);
-            $adGroup->setName($adGroupName);
-            $adGroup->setStatus($adGroupStatus);
+            $customerId = $googleAdsClient->getLoginCustomerId();
 
-            // Update the CPC bid if specified.
-            if (! is_null($cpcBidMicroAmount)) {
-                $bid = new CpcBid();
-                $money = new Money();
-                $money->setMicroAmount($cpcBidMicroAmount);
-                $bid->setBid($money);
-                $biddingStrategyConfiguration = new BiddingStrategyConfiguration();
-                $biddingStrategyConfiguration->setBids([$bid]);
-                $adGroup->setBiddingStrategyConfiguration($biddingStrategyConfiguration);
-            }
+            // Creates an ad group object with the specified resource name and other changes.
+            $adGroup = new AdGroup([
+                'resource_name' => ResourceNames::forAdGroup($customerId, $adGroupId),
+                'cpc_bid_micros' => $cpcBidMicroAmount,
+                'status' => self::getAdGroupStatus($adGroupStatus)
+            ]);
 
-            // Create ad group operation and add it to the list.
-            $operation = new AdGroupOperation();
-            $operation->setOperand($adGroup);
-            $operation->setOperator(Operator::SET);
-            $operations[] = $operation;
+            $adGroupOperation = new AdGroupOperation();
+            $adGroupOperation->setUpdate($adGroup);
+            $adGroupOperation->setUpdateMask(FieldMasks::allSetFieldsOf($adGroup));
 
-            // Update the ad group on the server.
-            $result = $adGroupService->mutate($operations);
+            // Issues a mutate request to update the ad group.
+            $adGroupServiceClient = $googleAdsClient->getAdGroupServiceClient();
+            $response = $adGroupServiceClient->mutateAdGroups(
+                $customerId,
+                [$adGroupOperation]
+            );
+
+            $updatedAdGroup = $response->getResults()[0];
+            $addgroupArray['adgroup_response'] = json_encode($updatedAdGroup);
+
             $adGroupUpdate = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->update($addgroupArray);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup updated successfully');
@@ -350,39 +343,67 @@ class GoogleAdGroupController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $storagepath = $this->getstoragepath($account_id);
-        // Generate a refreshable OAuth2 credential for authentication.
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
-        // Construct an API session configured from a properties file and the
-        // OAuth2 credentials above.
         try {
-            $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
+            // Get OAuth2 configuration from file.
+            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
 
-            $adWordsServices = new AdWordsServices();
+            // Generate a refreshable OAuth2 credential for authentication.
+            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
 
-            $adGroupService = $adWordsServices->get($session, AdGroupService::class);
+            $googleAdsClient = (new GoogleAdsClientBuilder())
+                                ->from($oAuth2Configuration)
+                                ->withOAuth2Credential($oAuth2Credential)
+                                ->build();
 
-            $operations = [];
-            // Create ad group with REMOVED status.
-            $adGroup = new AdGroup();
-            $adGroup->setId($adGroupId);
-            $adGroup->setStatus(AdGroupStatus::REMOVED);
+            $customerId = $googleAdsClient->getLoginCustomerId();
 
-            // Create ad group operation and add it to the list.
-            $operation = new AdGroupOperation();
-            $operation->setOperand($adGroup);
-            $operation->setOperator(Operator::SET);
-            $operations[] = $operation;
+            // Creates ad group resource name.
+            $adGroupResourceName = ResourceNames::forAdGroup($customerId, $adGroupId);
 
-            // Remove the ad group on the server.
-            $result = $adGroupService->mutate($operations);
+            // Constructs an operation that will remove the ad group with the specified resource name.
+            $adGroupOperation = new AdGroupOperation();
+            $adGroupOperation->setRemove($adGroupResourceName);
 
-            $adGroup = $result->getValue()[0];
+            // Issues a mutate request to remove the ad group.
+            $adGroupServiceClient = $googleAdsClient->getAdGroupServiceClient();
+            $response = $adGroupServiceClient->mutateAdGroups(
+                $customerId,
+                [$adGroupOperation]
+            );
+
+            $removedAdGroup = $response->getResults()[0];
+
             \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->delete();
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup deleted successfully');
         } catch (Exception $e) {
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actError', $this->exceptionError);
+        }
+    }
+
+    //get ad group status  
+    private function getAdGroupStatus($v)
+    {
+        switch ($v) {
+            case 'UNKNOWN':
+                return AdGroupStatus::UNKNOWN;
+                break;
+
+            case 'ENABLED':
+                return AdGroupStatus::ENABLED;
+                break;
+
+            case 'PAUSED':
+                return AdGroupStatus::PAUSED;
+                break;
+
+            case 'REMOVED':
+                return AdGroupStatus::REMOVED;
+                break;
+
+            default:
+                return AdGroupStatus::UNKNOWN;
         }
     }
 }
