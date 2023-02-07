@@ -3044,6 +3044,9 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project
                                             Directory manager</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown dropdown-submenu">
