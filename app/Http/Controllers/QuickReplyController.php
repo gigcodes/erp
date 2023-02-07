@@ -105,9 +105,9 @@ class QuickReplyController extends Controller
     public function quickReplies(Request $request)
     {
         try {
-            $subcat = '';
-            $all_categories = ReplyCategory::where('parent_id', 0);
-//            $all_categories = $all_categories->with(['childrenRecursive']);
+            $subcat = '';            
+            $all_categories = ReplyCategory::where('parent_id', 0);            
+           // return $all_categories = $all_categories->with(['childrenRecursive'])->get();
 
             if ($request->sub_category) {
                 $subcat = $request->sub_category;
@@ -115,17 +115,21 @@ class QuickReplyController extends Controller
                 $all_categories->where('id', $parent_id->parent_id);
             }
             $all_categories = $all_categories->get();
-            $store_websites = StoreWebsite::all();
+            $store_websites = StoreWebsite::get();
             $sub_categories = ['' => 'Select Sub Category'] + ReplyCategory::where('parent_id', '!=', 0)->pluck('name', 'id')->toArray();
             $website_length = count($store_websites);
 
             //all categories replies related to store website id
 //            $all_replies = DB::select("SELECT * from replies");
-            $all_replies = Reply::all();
+            $all_replies = Reply::whereNotNull('store_website_id')->select('id','category_id','reply','store_website_id')->get();
             $category_wise_reply = [];
             foreach ($all_replies as $replies) {
-                $category_wise_reply[$replies->category_id][$replies->store_website_id][$replies->id] = $replies;
+                if(!empty($replies->store_website_id)){
+                    $category_wise_reply[$replies->category_id][$replies->store_website_id][$replies->id] = $replies->toArray();
+                }
             }
+
+
             if ($all_categories) {
                 foreach ($all_categories as $k => $_cat) {
                     $childs = ReplyCategory::where('parent_id', $_cat->id);
