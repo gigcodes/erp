@@ -53,9 +53,11 @@ class MailinglistController extends Controller
      *   tags={"Mailing List"} ,
      *   summary="Add customer to mailing list",
      *   operationId="mail-list",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="email",
      *          in="path",

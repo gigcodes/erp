@@ -11,6 +11,7 @@ use App\User;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SopController extends Controller
 {
@@ -192,6 +193,39 @@ class SopController extends Controller
         $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->paginate(10);
 
         return view('products.sop', compact('usersop'));
+    }
+
+    public function ajaxsearch(Request $request)
+    {
+        $searchsop = $request->get('search');
+        if (! empty($searchsop)) {
+            $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->get();
+        } else {
+            $usersop = Sop::all();
+        }
+        $users = User::all();
+
+        $html = '';
+        foreach ($usersop as $key => $value) {
+            $html .= '<tr id="sid'.$value->id.'" class="parent_tr" data-id="'.$value->id.'">
+                        <td class="sop_table_id">'.$value->id.'</td>
+                            <td class="expand-row-msg" data-name="name" data-id="'.$value->id.'">
+                                <span class="show-short-name-'.$value->id.'">'.Str::limit($value->name, 17, '..').'</span>
+                                <span style="word-break:break-all;" class="show-full-name-'.$value->id.' hidden">'.$value->name.'</span>
+                            </td>
+                            <td class="expand-row-msg Website-task " data-name="content" data-id="'.$value->id.'">
+                                <span class="show-short-content-{{$value->id}}">'.Str::limit($value->content, 50, '..').'</span>
+                                <span style="word-break:break-all;" class="show-full-content-'.$value->id.' hidden">'.$value->content.'</span>
+                            </td>
+                            <td class="p-1">
+                                <a href="javascript:;" data-id="'.$value->id.'" class="menu_editor_edit btn btn-xs p-2" >
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>';
+        }
+
+        return $html;
     }
 
     public function downloaddata($id)

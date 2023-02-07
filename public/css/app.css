@@ -11392,12 +11392,12 @@ table.table-striped-custom tbody tr td {
     width: 800px;
 }
 
-.Website-task{
+.Website-task, .quick-website-task{
     overflow:hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
 }
-.modal-body .Website-task:hover{
+.modal-body .Website-task:hover, .modal-body .quick-website-task:hover {
     overflow: visible;
      white-space:normal;
 }
@@ -11484,6 +11484,12 @@ thead tr:hover .Website-task{
     overflow: visible !important;
     white-space: normal !important;
     word-break: break-all; 
+}
+
+#quick-reply-list .content-open-on-click{
+    overflow: visible !important;
+    white-space: normal !important;
+    word-break: break-all;
 }
 
 #app{

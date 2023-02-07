@@ -41,6 +41,7 @@ use App\StoreWebsiteUserHistory;
 use App\StoreWebsiteUsers;
 use App\User;
 use App\Website;
+use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Auth;
 use Carbon\Carbon;
@@ -52,6 +53,8 @@ use Illuminate\Support\Str;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
+use App\Models\WebsiteStoreTag;
+
 class StoreWebsiteController extends Controller
 {
     /**
@@ -59,15 +62,21 @@ class StoreWebsiteController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(WebsiteStoreTag   $WebsiteStoreTag)
     {
         $title = 'List | Store Website';
         $services = Service::get();
-        $assetManager = AssetsManager::whereNotNull('ip');
-        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
-        $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes'));
+        $tags   =   $WebsiteStoreTag->get();
+
+        $assetManager = AssetsManager::whereNotNull('ip');
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('website')->get();
+        $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
+        
+        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
+
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes','tags', 'storeWebsiteUsers'));
+
     }
 
     public function logWebsiteUsers($id)
@@ -105,7 +114,7 @@ class StoreWebsiteController extends Controller
             });
         }
 
-        $records = $records->get();
+        $records = $records->orderBy('website')->get();
 
         return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }
@@ -1226,6 +1235,239 @@ class StoreWebsiteController extends Controller
 
         return response()->json([
             'tbody' => view('storewebsite::api-token', compact('storeWebsites'))->render(),
+
+        ], 200);
+    }
+
+    public function deleteStoreViews($serverId)
+    {
+        set_time_limit(0);
+        $storeServers = StoreViewCodeServerMap::where('server_id', '=', $serverId)->pluck('id')->toArray();
+        $storeWebsiteIds = StoreWebsite::WhereIn('store_code_id', $storeServers)->pluck('id')->toArray();
+
+        if (count($storeWebsiteIds) == 0) {
+            return response()->json(['code' => 500, 'message' => 'Store websites not found for the selected server']);
+        }
+
+        $serverCodes = StoreViewCodeServerMap::where('server_id', '=', $serverId)->get();
+        if ($serverCodes->count() == 0) {
+            return response()->json(['code' => 500, 'message' => 'No store coded found for the selected website']);
+        }
+
+        $serverCodesPartials = [];
+        foreach ($serverCodes as $code) {
+            $codeArray = explode('-', $code->code);
+            $serverCodesPartials[] = $codeArray[0];
+        }
+        $serverCodesPartials = array_unique($serverCodesPartials);
+        $noWebsiteIds = [];
+        foreach ($storeWebsiteIds as $storeWebsiteId) {
+            $websites = Website::whereIn('code', $serverCodesPartials)->where('store_website_id', '=', $storeWebsiteId)
+                ->groupBy('code')->orderBy('id', 'asc')->pluck('id');
+            if ($websites->count() == 0) {
+                $noWebsiteIds[] = $storeWebsiteId;
+                \Log::info('No websites found belongs to the store website id '.$storeWebsiteId);
+            }
+            $websitesToBeRemoved = Website::whereNotIn('id', $websites)->where('store_website_id', '=', $storeWebsiteId)->pluck('id');
+
+            $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
+            WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
+            \Log::info('Store views belongs to  the following ids deleted: '.json_encode($websiteStoresToBeRemoved));
+            WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
+            \Log::info('Website stores belongs to  the following ids deleted: '.json_encode($websitesToBeRemoved));
+            Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
+            \Log::info('Websites belongs to  the following ids deleted: '.json_encode($websitesToBeRemoved));
+        }
+
+        return response()->json(['code' => 200, 'message' => 'Website store views deleted successfully! The following store websites dont have websites: '.json_encode($noWebsiteIds)]);
+    }
+
+    public function copyWebsiteStoreViews($storeWebsiteId)
+    {
+        set_time_limit(0);
+        $storeWebsiteIds = StoreWebsite::Where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
+        if (count($storeWebsiteIds) == 1 && $storeWebsiteId == $storeWebsiteIds[0]->id) {
+            if ($storeWebsiteIds[0]->parent_id) {
+                $storeWebsiteIds = StoreWebsite::Where('parent_id', '=', $storeWebsiteIds[0]->parent_id)->orWhere('id', '=', $storeWebsiteIds[0]->parent_id)->get();
+            } else {
+                return response()->json(['code' => 500, 'message' => 'No store websites found in the series of selected store website']);
+            }
+        }
+        $swIds = [];
+        foreach ($storeWebsiteIds as $row) {
+            if ($row->id != $storeWebsiteId) {
+                $swIds[] = $row->id;
+            }
+        }
+        \Log::info('Source store website id: '.$storeWebsiteId);
+
+        foreach ($swIds as $swId) {
+            \Log::info('Target store website id: '.$swId);
+            $websitesToBeRemoved = Website::where('store_website_id', '=', $swId)->pluck('id');
+            $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
+            WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
+            \Log::info('Deleted the following store views: '.json_encode($websiteStoresToBeRemoved));
+            WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->delete();
+            \Log::info('Deleted the following website store: '.json_encode($websitesToBeRemoved));
+            Website::whereIn('id', $websitesToBeRemoved)->where('store_website_id', '=', $storeWebsiteId)->delete();
+            \Log::info('Deleted the following websites: '.json_encode($websitesToBeRemoved));
+        }
+
+        $websites = Website::where('store_website_id', '=', $storeWebsiteId)->get();
+
+        foreach ($websites as $website) {
+            \Log::info('Copying started from website : '.$website->title);
+            $websiteStore = WebsiteStore::where('website_id', '=', $website->id)->get();
+            foreach ($swIds as $row) {
+                $dataRow['name'] = $website->name;
+                $dataRow['code'] = $website->code;
+                $dataRow['platform_id'] = $website->platform_id;
+                $dataRow['store_website_id'] = $row;
+                $lastRow = Website::create($dataRow);
+
+                foreach ($websiteStore as $wsRow) {
+                    $websiteStoreViews = WebsiteStoreView::where('website_store_id', '=', $wsRow->id)->get();
+                    $wsData['name'] = $wsRow->name;
+                    $wsData['code'] = $wsRow->code;
+                    $wsData['platform_id'] = $wsRow->platform_id;
+                    $wsData['website_id'] = $lastRow->id;
+                    $lastWsRow = WebsiteStore::create($wsData);
+
+                    foreach ($websiteStoreViews as $websiteStoreView) {
+                        $wsvData['name'] = $websiteStoreView->name;
+                        $wsvData['code'] = $websiteStoreView->code;
+                        $wsvData['platform_id'] = $websiteStoreView->platform_id;
+                        $wsvData['website_store_id'] = $lastWsRow->id;
+                        $wsvData['store_group_id'] = $websiteStoreView->store_group_id;
+                        $wsvData['ref_theme_group_id'] = $websiteStoreView->ref_theme_group_id;
+                        WebsiteStoreView::create($wsvData);
+                    }
+                }
+            }
+        }
+
+        return response()->json(['code' => 200, 'message' => 'Website store views copied successfully']);
+    }
+
+    /**
+    * Create tags for multiple website and stores
+    */
+    function    create_tags(Request     $request,   WebsiteStoreTag     $WebsiteStoreTag){
+        $data           =   $request->all();
+
+        $validator = Validator::make($data, [
+            'tag'       => 'required'
+        ]);
+
+        if ($validator->fails()) {
+
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : ".$er.'<br>';
+                }
+            }
+            
+            \Flash::error($outputString);
+            return response()->back();
+        }
+
+        $insertArray    =   [
+            'tags'  =>  \Str::slug($data['tag'])
+        ];
+        //check and create the tags
+        $WebsiteStoreTag->updateOrCreate($insertArray);
+
+        return redirect()->back();
+    }
+
+    function    attach_tags(Request     $request,   StoreWebsite   $StoreWebsite){
+        $data   =   $request->all();
+
+         $validator = Validator::make($data, [
+            'store_id' => 'required',
+            'tag_attached' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : ".$er.'<br>';
+
+                }
+            }
+
+            \Flash::error($outputString);
+            return response()->back();
+        }
+
+        //attach the tag 
+        $StoreWebsite->where(['id' => $data['store_id']])->update(['tag_id' => $data['tag_attached']]);
+
+        return redirect()->back();
+
+    }
+    
+    public function generateAdminPassword(Request $request)
+    {
+        $usernames = $request->username;
+
+        if ($request->username) {
+            foreach ($usernames as $key => $username) {                
+
+                if( starts_with($key, 'edit:') ){
+
+                    list($idd, $i) = $id = explode(':', $key);                    
+
+                    // update
+                    if($request->store_website_id[$key]){
+                        StoreWebsiteUsers::where('id', $id[1])->update(
+                            ['username' => $username, 'password' => $request->password[$key], 'store_website_id' => $request->store_website_id[$key]]
+                        );
+                    }
+                }else{
+                    // check
+                    if($request->store_website_id[$key]){
+                        $params['username'] = $username;                  
+                        $params['password'] = $request->password[$key];
+                        $params['store_website_id'] = $request->store_website_id[$key];                    
+
+                        // new
+                        $StoreWebsiteUsersid = StoreWebsiteUsers::create($params); 
+                    }                   
+                }
+            }
+            session()->flash('msg', 'Admin Password Updated Successfully.');
+
+            return redirect()->back();
+        } else {
+            session()->flash('msg', 'Admin Password is invalid.');
+
+            return redirect()->back();
+        }
+    }
+    
+
+
+    /**
+    *
+    */
+    public function getAdminPassword(Request $request)
+    {
+        $search = $request->search;
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
+        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0);
+        if ($search != null) {
+            $storeWebsiteUsers = $storeWebsiteUsers->where('username', 'Like', '%'.$search.'%')->orWhere('password', 'Like', '%'.$search.'%');
+        }
+        $storeWebsiteUsers = $storeWebsiteUsers->get();
+
+        return response()->json([
+            'tbody' => view('storewebsite::admin-password', compact('storeWebsites', 'storeWebsiteUsers'))->render(),
 
         ], 200);
     }

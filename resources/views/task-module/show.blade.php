@@ -6,17 +6,21 @@
 
 @section('styles')
 
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+{{--    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />--}}
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="{{asset('css/bootstrap-datetimepicker.min.css')}}">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 
     <style>
+        .communication_th {
+            width: 10% !important;
+            min-width: 250px !important;
+        }
         #message-wrapper {
             height: 450px;
             overflow-y: scroll;
@@ -211,7 +215,17 @@
         input.cmn-toggle-round:checked+label:after {
             margin-left: 20px;
         }
+        .btn.btn-image {
+             margin-top: 0px !important;
+        }
         /*end toggle button*/
+
+        .tablesorter-header-inner {
+            white-space: nowrap;
+        }
+        .show-finished-task {
+            height: auto;
+        }
     </style>
 @endsection
 
@@ -619,13 +633,13 @@
 
             {{-- href="{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}"--}}
 
-            @if(auth()->user()->isAdmin())
-
+            @if(Auth::user()->isAdmin())
                 <li><button type="button" class="btn btn-xs btn-secondary my-3" data-toggle='modal' data-target='#taskStatusModal' id="">Create Status</button></li>&nbsp;
-
-
             @endif
-            <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button></li>&nbsp;
+            @if (Auth::user()->isAdmin())
+                <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button></li>&nbsp;
+            @endif
+
         </ul>
         <div class="tab-content ">
             <!-- Pending task div start -->
@@ -636,25 +650,26 @@
                         <table class="table table-sm table-bordered">
                             <thead>
                             <tr>
-                                <th width="5%">ID</th>
-                                <th width="8%">Date</th>
-                                <th width="10%" class="category">Category</th>
-                                <th width="10%">Task Subject</th>
+                                <th width="4%">ID</th>
+                                <th width="7%">Date</th>
+                                <th width="4%" class="category">Category</th>
+                                <th width="4%">Task Subject</th>
                                 <th width="10%">Assign To</th>
                                 <th width="8%">Status</th>
-                                <th width="7%">Tracked time</th>
-                                <th width="23%">Communication</th>
-                                <th width="19%">
-                                    Action &nbsp;
+                                <th width="5%">Tracked time</th>
+                                <th class="communication_th">Communication</th>
+                                <th width="6%">Estimated Time</th>
+                                <th width="6%">Estimated Start Datetime</th>
+                                <th width="6%">Estimated End Datetime</th>
+                                <th width="6%">
+                                    ICON &nbsp;
                                     <label><input type="checkbox" class="show-finished-task" name="show_finished" value="on"> Finished</label>
                                 </th>
                             </tr>
                             </thead>
-                            <tbody class="pending-row-render-view infinite-scroll-pending-inner">
-
-                            @if(count($data['task']['pending']) >0)
+                            <tbody class="pending-row-render-view">
+                                @if(count($data['task']['pending']) >0)
                                 @foreach($data['task']['pending'] as $task)
-
                                     @php
                                         $taskDueDate = $task->due_date;
                             $task->due_date='';
@@ -779,7 +794,7 @@
                                         {{ $users_list }}
                                     </span>
                                             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
-                                            <div class="col-md-12 expand-col dis-none" style="padding:0px;">
+                                            <div class="col-md-12 expand-col-lead{{$task->id}} dis-none" style="padding:0px;">
                                                 <br>
                                                 @if(auth()->user()->isAdmin()  || $isTeamLeader)
                                                     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
@@ -872,13 +887,12 @@
                                                 @endif
                                             </div>
                                         </td>
-
                                         <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
                                             @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                                 <div style="margin-bottom:10px;width: 100%;">
                                                     <?php $text_box = "100"; ?>
-                                                    <div class="d-flex">
                                                         <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
+                                                    <div class="d-flex">
                                                         <div style="max-width: 30px;">
                                                             <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
                                                         </div>
@@ -932,6 +946,49 @@
                                             @endif
                                         </td>
                                         <td class="p-2">
+                                            <div style="margin-bottom:10px;width: 100%;">
+                                                <div class="d-flex">
+                                                    <input type="number" class="form-control" name="approximates{{$task->id}}" value="{{$task->approximate}}" min="1" autocomplete="off">
+                                                    <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('approximate',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        @php
+                                            $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
+                                        @endphp
+                                        <td class="p-2">
+                                            <div class="form-group d-flex">
+                                                <div class='input-group date cls-start-due-date'>
+                                                    <input type="text" class="form-control" name="start_dates{{$task->id}}" value="{{$single->task_start_date}}" autocomplete="off" />
+                                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                </div>
+                                                    <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                                            </div>
+                                        </td>
+                                        <td class="p-2">
+                                            <div class="form-group d-flex">
+                                                <div class='input-group date cls-start-due-date'>
+                                                    <input type="text" class="form-control" name="due_dates{{$task->id}}" value="{{$single->task_new_due_date}}" autocomplete="off" />
+                                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                </div>
+                                                <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                                            </div>
+                                        </td>
+                                        <td class="p-2">
+                                            <div class="dropdown dropleft">
+                                                <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Actions
+                                                </a>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
+                                                    <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$task->id}}')"><i class="fa fa-arrow-down"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="action-btn-tr-{{$task->id}} d-none">
+                                        <td class="font-weight-bold">Action</td>
+                                        <td colspan="11">
                                             <div>
                                                 <div class="row cls_action_box" style="margin:0px;">
                                                     @if(auth()->user()->isAdmin())
@@ -974,18 +1031,9 @@
                                                     @else
                                                         <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
                                                     @endif
-                                                    <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                                    <button class="btn btn-image expand-row-btn-lead" data-task_id="{{ $task->id }}"><img src="/images/forward.png"></button>
                                                     <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>
 
-                                                </div>
-                                            </div>
-
-                                            <div class="dropdown dropleft">
-                                                <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    Actions
-                                                </a>
-                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
-                                                    <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -1423,6 +1471,109 @@
 
     <script src="{{asset('js/bootstrap-multiselect.min.js')}}"></script>
     <script>
+        function Showactionbtn(id){
+            $(".action-btn-tr-"+id).toggleClass('d-none')
+        }
+    </script>
+
+    <script>
+        // function Showactionbtn(id){
+        //     $(".action-btn-tr").removeClass('d-none');
+        // }
+
+        function funTaskInformationUpdatesTime(type,id) {
+            if (type == 'start_date') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('task.update.start-date') }}",
+                        type: 'POST',
+                        data: {
+                            task_id: id,
+                            value: $('input[name="start_dates'+id+'"]').val(),
+                        }
+                    }).done(function(res) {
+                        siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'due_date') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('task.update.due-date') }}",
+                        type: 'POST',
+                        data: {
+                            task_id: id,
+                            value: $('input[name="due_dates'+id+'"]').val(),
+                        }
+                    }).done(function(res) {
+                        siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'cost') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('task.update.cost') }}",
+                        type: 'POST',
+                        data: {
+                            task_id: id,
+                            cost: mdl.find('input[name="cost"]').val(),
+                        }
+                    }).done(function(res) {
+                        siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'approximate') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('task.update.approximate') }}",
+                        type: 'POST',
+                        data: {
+                            task_id: id,
+                            approximate: $('input[name="approximates'+id+'"]').val(),
+                            remark: mdl.find('textarea[name="remark"]').val(),
+                        }
+                    }).done(function(res) {
+                        siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            }
+        }
+
         $(document).ready(function() {
             $(".multiselect").multiselect({
                 nonSelectedText: 'Status Filter',
@@ -1488,6 +1639,7 @@
                     var $loader = $('.infinite-scroll-products-loader');
                     page = page + 1;
                     $.ajax({
+
                         url: "/task?page=" + page,
                         type: 'GET',
                         data: $('.form-search-data').serialize(),
@@ -1844,6 +1996,9 @@
             });
             $(".table").tablesorter();
         });
+
+
+
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
             var data = new FormData();
@@ -1970,6 +2125,10 @@
         });
         $(document).on('click', '.expand-row-btn', function() {
             $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
+        });
+        $(document).on('click', '.expand-row-btn-lead', function() {
+           var id =  $(this).data('task_id');
+            $(".expand-col-lead"+id).toggleClass('dis-none');
         });
         $(document).on("click", ".set-remark", function(e) {
             $('.remark_pop').val("");
@@ -3322,5 +3481,16 @@
                 alert('Could not fetch payments');
             });
         });
+        jQuery(document).ready(function() {
+            applyDateTimePicker(jQuery('.cls-start-due-date'));
+        });
+        function applyDateTimePicker(eles) {
+            if (eles.length) {
+                eles.datetimepicker({
+                    format: 'YYYY-MM-DD HH:mm:ss',
+                    sideBySide: true,
+                });
+            }
+        }
     </script>
 @endsection
