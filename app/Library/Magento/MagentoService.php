@@ -102,12 +102,12 @@ class MagentoService
 
     const SKU_SEPERATOR = '-';
 
-    public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null, $category = null, $mode = null)
+    public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null, $mode = null)
     {
         $this->product = $product;
         $this->storeWebsite = $storeWebsite;
         $this->log = $log;
-        $this->category = $category;
+        $this->category = $product->categories;
         $this->mode = $mode;
         $this->charity = 0;
         $p = \App\CustomerCharity::where('product_id', $this->product->id)->first();
