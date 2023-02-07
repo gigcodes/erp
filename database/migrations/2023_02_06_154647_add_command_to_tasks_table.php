@@ -14,7 +14,7 @@ class AddCommandToTasksTable extends Migration
     public function up()
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->string('command')->after('run_in_background')->nullable();
+            $table->string('command')->after('parent_review_task_id')->nullable();
             $table->string('parameters')->after('command')->nullable();
             $table->string('timezone')->after('parameters')->nullable();
             $table->string('expression')->after('timezone')->nullable();
