@@ -446,7 +446,7 @@ class ReplyController extends Controller
             if($data!='') {
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'Replies Translated successfully']);
             } else {
-                return response()->json(['code' => 200, 'data' => [], 'message' => 'There is a problem while translating']);
+                return response()->json(['code' => 400, 'data' => [], 'message' => 'There is a problem while translating']);
             }
            
         } else {

@@ -287,11 +287,11 @@ $(document).on('click', '.show-reply-history', function() {
     $.ajax({
         url: "{{ route('reply.replyhistory') }}",
         data: {id: issueId},
-        beforeSend: function() {
-            $("#loading-image-preview").show();
+        beforeSend: function () {
+            jQuery("#loading-image-preview").show();
         },
         success: function (data) {
-            $("#loading-image-preview").hide();
+            jQuery("#loading-image-preview").hide();
             if(data != 'error') {
                 $.each(data.histories, function(i, item) {
                     $('#reply_history_div table tbody').append(
@@ -304,10 +304,8 @@ $(document).on('click', '.show-reply-history', function() {
                 });
             }
         },
-        error:function(err){
-
-            $("#loading-image-preview").hide();
-            
+        error: function(er){
+            jQuery("#loading-image-preview").hide();
         }
     });
     $('#reply_history_modal').modal('show');
@@ -319,11 +317,11 @@ $(document).on('click', '.show_logs', function() {
     $.ajax({
         url: "{{ route('reply.replylogs') }}",
         data: {id: issueId},
-        beforeSend: function() {
-            $("#loading-image-preview").show();
+        beforeSend: function () {
+            jQuery("#loading-image-preview").show();
         },
         success: function (data) {
-            $("#loading-image-preview").hide();
+            jQuery("#loading-image-preview").hide();
             if(data != 'error') {
                 $.each(data.logs, function(i, item) {
                     $('#reply_logs_div table tbody').append(
@@ -336,8 +334,8 @@ $(document).on('click', '.show_logs', function() {
                 });
             }
         },
-        error: function(err){
-            $("#loading-image-preview").hide();
+        error:function(err){
+            jQuery("#loading-image-preview").hide();
         }
     });
     $('#reply_logs_modal').modal('show');
@@ -372,33 +370,38 @@ $(document).on("click",".upload_faq",function() {
       });
 });
 
-$(document).on("click",".push_all_faq",function(e) {
-    e.preventDefault();
-    var $this = $(this);
-    $.ajax({
-        url: "{{ url('push/faq/all') }}",
-        type: 'POST',
-        data: {
-          _token: "{{ csrf_token() }}"
-        },
-        beforeSend: function() {
-            $("#loading-image-preview").show();
-        }
-      }).done( function(response) {
-            $("#loading-image-preview").hide();
-            if(response.code == 200) {
-                toastr["success"](response.message);
-                // location.reload();
-            }else{
-               toastr["error"]('Something went wrong!');
-            }
-      }).fail(function(errObj) {
-            $("#loading-image-preview").hide();
-      });
-});
 
 $(document).ready(function(){
-    function updateTranslateReply(ele) {
+
+    $(document).on("click",".push_all_faq",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            url: "{{ url('push/faq/all') }}",
+            type: 'POST',
+            data: {
+              _token: "{{ csrf_token() }}"
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+          }).done( function(response) {
+                $("#loading-image-preview").hide();
+                if(response.code == 200) {
+                    toastr["success"](response.message);
+                    // location.reload();
+                }else{
+                   toastr["error"]('Something went wrong!');
+                }
+          }).fail(function(errObj) {
+                $("#loading-image-preview").hide();
+          });
+    });
+    
+    
+})
+
+function updateTranslateReply(ele) {
         let btn = jQuery(ele);
         let reply_id = btn.data('reply_id');
         let is_flagged = btn.data('is_flagged');
@@ -423,13 +426,20 @@ $(document).ready(function(){
                     jQuery("#loading-image-preview").show();
                 },
                 success: function (res) {
-                    toastr["success"](res.message);
+                    if(res.code == 200){
+                        toastr["success"](res.message);
+                    }
+                    else{
+                        toastr["error"](res.message);                    
+                    }
                     jQuery("#loading-image-preview").hide();
-                    btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
-                    if (is_flagged == 1) {
+                    
+                    if (is_flagged == 1 && res.code == 200) {
+                        btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
                         btn.find('.fa').addClass('fa-toggle-off');
                     }
-                    else {
+                    else if(res.code == 200){
+                        btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
                         btn.find('.fa').addClass('fa-toggle-on');
                     }
                     btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
@@ -443,7 +453,6 @@ $(document).ready(function(){
             });
         }
     }
-})
 
 $(document).on('click', '#quick-reply-list .quick-website-task', function() {
     var trclass = $(this).parent()[0].className;
