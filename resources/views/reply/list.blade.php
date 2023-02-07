@@ -437,12 +437,13 @@ function updateTranslateReply(ele) {
                     if (is_flagged == 1 && res.code == 200) {
                         btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
                         btn.find('.fa').addClass('fa-toggle-off');
+                        btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
                     }
                     else if(res.code == 200){
                         btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
                         btn.find('.fa').addClass('fa-toggle-on');
+                        btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
                     }
-                    btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
                 },
                 error: function (res) {
                     if (res.responseJSON != undefined) {
