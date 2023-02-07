@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 
-class CreateStoreWebSiteTagTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +15,11 @@ class CreateStoreWebSiteTagTable extends Migration
     {
         
          Schema::create('website_store_tags', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->string('tags');
             $table->timestamps();
         });
-        
+      
     }
 
     /**
@@ -28,6 +29,7 @@ class CreateStoreWebSiteTagTable extends Migration
      */
     public function down()
     {
-       
+       Schema::dropIfExists('website_store_tags');
+
     }
-}
+};
