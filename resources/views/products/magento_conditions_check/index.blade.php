@@ -44,7 +44,7 @@
                         <a class="filter-data" href="#"><i class="fa fa-search"></i></a>
                     </div>
                     <div class="col-md-2 mt-3">
-                        <button class="btn btn-secondary float-right push-to-magento">Push to magento</button>
+                        <button type="button" class="btn btn-secondary float-right push-to-magento">Push to magento</button>
                     </div>
                 </div>
             </form>
