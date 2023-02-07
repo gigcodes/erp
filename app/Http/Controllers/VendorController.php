@@ -413,7 +413,7 @@ class VendorController extends Controller
             'category_id' => 'sometimes|nullable|numeric',
             'name' => 'required|string|max:255',
             'address' => 'sometimes|nullable|string',
-            'phone' => 'required|nullable|numeric',
+            //'phone' => 'required|nullable|numeric',
             'email' => 'sometimes|nullable|email',
             'social_handle' => 'sometimes|nullable',
             'website' => 'sometimes|nullable',
