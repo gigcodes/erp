@@ -48,7 +48,7 @@ class SeoToolController extends Controller
             }
         }
 
-        return view('seo-tools.index', compact('keywords', 'websites', 'siteAudits', 'domainOverview', 'backlinkreports'));
+        return view('seo-tools.index', compact('websites', 'siteAudits', 'domainOverview', 'backlinkreports'));
     }
 
     /**

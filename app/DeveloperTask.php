@@ -99,6 +99,7 @@ class DeveloperTask extends Model
         'repository_id',
         'last_date_time_reminder',
         'parent_review_task_id',
+        'user_feedback_cat_id',
     ];
 
     const DEV_TASK_STATUS_DONE = 'Done';

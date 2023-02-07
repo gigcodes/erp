@@ -180,7 +180,7 @@
 					@if($viewTypeName == 'errors')
 					<tr>
 						<td>Site Audit</td>
-						<td>Errors delta</td>submitSearch
+						<td>Errors delta</td>
 						<td>{{$siteAudit['errors_delta']}}</td>
 					</tr>
 					@endif

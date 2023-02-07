@@ -2128,7 +2128,8 @@
             };
             $.ajax({
                 type: 'POST',
-                url: "{{ url('products') }}/" + $(this).data('id') + '/addListingRemarkToProduct',
+                {{--url: "{{ url('products') }}/" + $(this).data('id') + '/addListingRemarkToProduct',--}}
+                url: "{{ url('products') }}/addListingRemarkToProduct",
                 data: data
             }).done(function () {
             }).fail(function (response) {

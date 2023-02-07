@@ -30,7 +30,7 @@
 </div>
 
 <div id="modalUserAvailabilityForm" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-md">
     <div class="modal-content">
       <form action="" method="post" id="addEditUserAvaibility">
         <input type="hidden" name="user_id" value="">
@@ -49,8 +49,8 @@
           <div class="row">
             <div class="col-md-12">
               <label>Days:</label>
-              <div class="form-group">
-                <label><input type="checkbox" class="form-control1" name="day[]" value="monday" style="height: auto;"> Monday</label>
+              <div class="form-group mb-0">
+                <label class="ml-2"><input type="checkbox" class="form-control1" name="day[]" value="monday" style="height: auto;"> Monday</label>
                 <label class="ml-2"><input type="checkbox" class="form-control1" name="day[]" value="tuesday" required style="height: auto;"> Tuesday</label>
                 <label class="ml-2"><input type="checkbox" class="form-control1" name="day[]" value="wednesday" required style="height: auto;"> Wednesday</label>
                 <label class="ml-2"><input type="checkbox" class="form-control1" name="day[]" value="thursday" required style="height: auto;"> Thursday</label>
@@ -133,7 +133,7 @@
 
   function funUserAvailabilityList(ele, id) {
     currModalUserAvailabilityListUserId = id;
-    siteLoader(1);
+    // siteLoader(1);
     let mdl = jQuery('#modalUserAvailabilityHistories');
     jQuery.ajax({
       headers: {
@@ -145,11 +145,11 @@
         id: currModalUserAvailabilityListUserId
       }
     }).done(function(response) {
-      siteLoader(0);
+      // siteLoader(0);
       mdl.find('.modal-body').html(response.data);
       mdl.modal('show');
     }).fail(function(err) {
-      siteLoader(0);
+      // siteLoader(0);
       siteErrorAlert(err);
     });
   }
