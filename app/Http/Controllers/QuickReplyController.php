@@ -177,7 +177,7 @@ class QuickReplyController extends Controller
                     'pushed_to_watson' => 0,
                 ]);
 
-                return new JsonResponse(['status' => 1, 'data' => $request->reply, 'message' => 'Reply updated successfully']);
+                return response()->json(['status' => 1, 'data' => $request->reply, 'message' => 'Reply updated successfully']);
             } else {
                 Reply::create([
                     'category_id' => $request->category_id,
@@ -187,10 +187,38 @@ class QuickReplyController extends Controller
                     'pushed_to_watson' => 0,
                 ]);
 
-                return new JsonResponse(['status' => 1, 'data' => $request->reply, 'message' => 'Reply added successfully']);
+                return response()->json(['status' => 1, 'data' => $request->reply, 'message' => 'Reply added successfully']);
             }
         } catch (\Exception $e) {
-            return new JsonResponse(['status' => 0, 'message' => 'Try again']);
+            return response()->json(['status' => 0, 'message' => 'Try again']);
+        }
+    }
+
+    public function copyStoreWiseReply(Request $request)
+    {
+        $data   =   $request->all();
+
+        $this->validate($request, [
+            'reply_id'                => 'required',
+            'website_store_id'  => 'required',
+        ]);
+        
+
+        try {
+                $replyContent   =   Reply::find($data['reply_id']);
+
+                Reply::create([
+                    'category_id'       => $replyContent->category_id,
+                    'store_website_id'  => $data['website_store_id'],
+                    'reply'             => $replyContent->reply,
+                    'model'             => 'Store Website',
+                    'pushed_to_watson'  => 0,
+                ]);
+
+                return response()->json(['status' => 1, 'message' => 'Reply copied successfully']);
+            
+        } catch (\Exception $e) {
+            return response()->json(['status' => 0, 'message' => 'Try again']);
         }
     }
 

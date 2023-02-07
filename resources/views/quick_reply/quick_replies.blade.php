@@ -114,8 +114,21 @@
                                                                                             <input type="text" value="{{ $val['reply'] }}" id="edit_reply_{{ $val['id'] }}" class="form-control w-75 pull-left" />
                                                                                             <button class="btn btn-sm p-0 pt-2 update_reply w-25 pull-left"><i class="fa fa-check"></i></button>
                                                                                         </li>
-                                                                                        <li id="{{ $val['id'] }}" class="edit_reply list-group-item p-2" style="overflow-wrap:break-word;">
-                                                                                            {{ $val['reply'] }}
+                                                                                        <li id="{{ $val['id'] }}" class="li_{{ $val['id'] }} list-group-item p-2" style="overflow-wrap:break-word;">
+                                                                                            <div class="row">
+                                                                                                <div class="col-md-6">
+                                                                                                    <div class="edit_reply">
+                                                                                                        {{ $val['reply'] }}   
+                                                                                                    </div>    
+                                                                                                </div>
+                                                                                                <div class="col-md-3">
+                                                                                                    <div class="pull-right">
+                                                                                                        <a href="javascript::void(0)" data-toggle="modal" data-target="website_popup" class="copy_to_reply" data-id="{{ $val['id'] }}">
+                                                                                                            Copy To <i class="fa fa-copy"></i>
+                                                                                                        </a>
+                                                                                                    </div>    
+                                                                                                </div>   
+                                                                                            </div>                                                                                             
                                                                                         </li>
                                                                                     @endforeach
                                                                                 </ul>
@@ -199,8 +212,21 @@
                                                                                                     <input type="text" value="{{ $val['reply'] }}" id="edit_reply_{{ $val['id'] }}" class="form-control w-75 pull-left" />
                                                                                                     <button class="btn btn-sm p-0 pt-2 update_reply w-25 pull-left"><i class="fa fa-check"></i></button>
                                                                                                 </li>
-                                                                                                <li id="{{ $val['id'] }}" class="edit_reply list-group-item p-2" style="overflow-wrap:break-word;">
-                                                                                                    {{ $val['reply'] }}
+                                                                                                <li id="{{ $val['id'] }}" class="li_{{ $val['id'] }} list-group-item p-2" style="overflow-wrap:break-word;">
+                                                                                                    <div class="row">
+                                                                                                        <div class="col-md-6">
+                                                                                                            <div class="edit_reply">
+                                                                                                                {{ $val['reply'] }}   
+                                                                                                            </div>    
+                                                                                                        </div>
+                                                                                                        <div class="col-md-3">
+                                                                                                            <div class="pull-right">
+                                                                                                                <a href="javascript::void(0)" class="copy_to_reply" data-toggle="modal" data-target="website_popup" data-id="{{ $val['id'] }}">
+                                                                                                                    Copy To <i class="fa fa-copy"></i>
+                                                                                                                </a>
+                                                                                                            </div>    
+                                                                                                        </div>   
+                                                                                                    </div>                                                                                             
                                                                                                 </li>
                                                                                             @endforeach
                                                                                         </ul>
@@ -278,8 +304,21 @@
                                                                                                             <input type="text" value="{{ $val['reply'] }}" id="edit_reply_{{ $val['id'] }}" class="form-control w-75 pull-left" />
                                                                                                             <button class="btn btn-sm p-0 pt-2 update_reply w-25 pull-left"><i class="fa fa-check"></i></button>
                                                                                                         </li>
-                                                                                                        <li id="{{ $val['id'] }}" class="edit_reply list-group-item p-2" style="overflow-wrap:break-word;">
-                                                                                                            {{ $val['reply'] }}
+                                                                                                        <li id="{{ $val['id'] }}" class="li_{{ $val['id'] }} list-group-item p-2" style="overflow-wrap:break-word;">
+                                                                                                            <div class="row">
+                                                                                                                <div class="col-md-6">
+                                                                                                                    <div class="edit_reply">
+                                                                                                                        {{ $val['reply'] }}   
+                                                                                                                    </div>    
+                                                                                                                </div>
+                                                                                                                <div class="col-md-3">
+                                                                                                                    <div class="pull-right">
+                                                                                                                        <a href="javascript::void(0)" class="copy_to_reply" data-toggle="modal" data-target="website_popup" data-id="{{ $val['id'] }}">
+                                                                                                                            Copy To <i class="fa fa-copy"></i>
+                                                                                                                        </a>
+                                                                                                                    </div>    
+                                                                                                                </div>   
+                                                                                                            </div>                                                                                             
                                                                                                         </li>
                                                                                                     @endforeach
                                                                                                 </ul>
@@ -312,12 +351,84 @@
         </div>
     </div>
 
+
+<div class="modal fade" id="website_popup" tabindex="-1" role="dialog" aria-labelledby="replies" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header p-0 pt-2 pl-2 pr-2">
+                <h5 class="modal-title" id="exampleModalLongTitle">Website Selection </h5>
+                <button type="button" class="close btn-xs p-0 mr-2" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body edit-modal-body" id="all-replies">
+                <input type="hidden" name="reply_id" id="reply_id" value="">
+                <select class="form-control" id="website_store_id">
+                    @if(!empty($store_websites))
+                        @foreach($store_websites as $kk => $websvc)
+                            <option value="{{ $websvc->id }}">{{ $websvc->title }}</option>
+                        @endforeach
+                    @endif
+                </select>
+
+                <div class="form-group mt-3">
+                    <a href="javascript::void(0)" class="copy_to_reply_submit pull-right btn btn-primary">Submit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     
 @endsection
 
 @section('scripts')
     <script type="text/javascript">
         $(document).ready(function(){
+
+            $(document).on('click', '.copy_to_reply', function (e) {
+                e.preventDefault();
+                var reply_id    =   $(this).attr('data-id');
+                $('#website_popup').modal('show');
+                $('#reply_id').val(reply_id);
+            });
+
+            $(document).on('click', '.copy_to_reply_submit', function (e) {
+                e.preventDefault();
+                var reply_id            =   $('#reply_id').val();
+                var website_store_id    =   $('#website_store_id').val();
+                $("#loading-image-preview").show();
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('copy-store-wise-reply') }}",
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'reply_id': reply_id,
+                        'website_store_id' : website_store_id
+                    },
+                    beforeSend: function() {
+                        $("#loading-image-preview").show();
+                    }
+                }).done(function (response) {
+                    $('#website_popup').modal('hide');
+                    $("#loading-image-preview").hide();
+                    if(response.status == 1){
+                        toastr['success'](response.message);
+                    }else{
+                        toastr['error'](response.message);
+                    }
+                    $('#reply_id').val('');
+                    // window.location.reload();
+                }).fail(function(er){
+                    console.log(er)
+                    $('#website_popup').modal('hide');
+                    toastr['error'](er.message);
+                    $("#loading-image-preview").hide();
+                    $('#reply_id').val('');
+                })
+
+            });
+
+
             $('.hide_all_inputs').hide();
             $('.hide_all_inputs_sub').hide();
             $(document).on('click', '.quick_category_add', function () {
@@ -468,7 +579,7 @@
             $(document).on('click', '.edit_reply', function(){
                 $('.hide_all_inputs').hide();
                 $('.edit_reply').show();
-                reply_id = $(this).attr('id');
+                reply_id = $(this).closest('li').attr('id');
                 $('#'+reply_id).hide();
                 $('.edit_reply_input').hide();
                 $('#edit_reply_'+reply_id).show();
