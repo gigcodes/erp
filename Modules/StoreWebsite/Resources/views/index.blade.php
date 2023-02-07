@@ -36,6 +36,10 @@
 					&nbsp;
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-api-token"> Api Token Update</button>
 					&nbsp;
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-create-tag"> Create Tag </button>
+					&nbsp;
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-list-tag"> List Tags </button>
+
 					@if($storeWebsites->count() > 0)
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button>
 					@endif
@@ -228,6 +232,119 @@
 								<div class="col-md-12">
 									<div class="form-group">
 										<button type="submit" class="btn btn-secondary submit-generete-file-btn">Generate</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="store-list-tag" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Website Tag</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						
+						<div class="row">
+							<table class="table table-border">
+								<tbody>
+									@if(!empty($tags))
+										@foreach($tags as $key => $val)
+											<tr>
+												<td>Tag</td>
+												<td><b>{{ $val->tags ?? '' }}</b></td>
+											</tr>
+										@endforeach
+									@endif
+								</tbody>
+							</table>
+						</div>
+							
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="store-create-tag" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Website Tag</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="{{ route('store-website.create_tags') }}" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+										<div class="form-group">
+											<label>Tag Name</label>
+											<input type="text" class="form-control" name="tag" placeholder="Enter The Tag">
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="store-attach-tag" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Website Tag</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="{{ route('store-website.attach_tags') }}" method="post">
+							<?php echo csrf_field(); ?>
+							<input type="hidden" name="store_id" id="store_id" value="">
+							<div class="row">
+								<div class="col-md-12">
+									<select class="form-control" name="tag_attached">
+										@if(!empty($tags))
+											@foreach($tags as $key => $val)
+												<option value="{{ $val->id}}"> {{ $val->tags }}</option>
+											@endforeach
+										@endif
+									</select>
+								</div>
+								<br>
+								&nbsp;
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update</button>
 									</div>
 								</div>
 							</div>
