@@ -119,6 +119,7 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
 use App\Http\Controllers\GoogleSearchController;
@@ -3672,6 +3673,13 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/flag', [GoogleAffiliateController::class, 'flag'])->name('affiliate.flag');
     Route::post('affiliate/email/send', [GoogleAffiliateController::class, 'emailSend'])->name('affiliate.email.send');
     Route::get('/affiliate/scrap', [GoogleAffiliateController::class, 'callScraper'])->name('google.affiliate.keyword.scrap');
+    //Google Developer API
+// Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
+
+Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+// Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
+Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
