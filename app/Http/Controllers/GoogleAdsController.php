@@ -275,7 +275,7 @@ class GoogleAdsController extends Controller
             $adGroupAdServiceClient = $googleAdsClient->getAdGroupAdServiceClient();
             $response = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
 
-            $createdAdGroupAd = $response->getResults()[0]
+            $createdAdGroupAd = $response->getResults()[0];
 
             $adsArray['google_ad_id'] = $createdAdGroupAd->getId();
             $adsArray['ads_response'] = json_encode($createdAdGroupAd);
