@@ -42,7 +42,7 @@ class FaqPushController extends Controller
                                 ->whereNotNull('store_websites.magento_url')
                                 ->whereNotNull('store_websites.api_token')
                                 ->get()
-                                ->chunk(100);
+                                ->chunk(10);
 
 
         if(empty($replyInfo)) {
