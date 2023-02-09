@@ -39,6 +39,7 @@
                                     echo "<option {{if prop.bug_type_id_val == '".$bugtype->id."'}} selected {{/if}} value='".$bugtype->id."'>".$bugtype->name.'</option>';
                                 }
 					    ?>
+
 						</select>
 					<?php } else { ?>
 					{{:prop.bug_type_id}}
@@ -100,7 +101,7 @@
 						</div>
 
 			        </td>
-			        <td class='break'>	
+         <td class='break'>	
 					<?php if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
 						<select class='form-control bug_module_in_row'  data-id="{{>prop.id}}" data-module="{{>prop.module_id}}" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
 							<option value="">Select Module</option>											
@@ -116,7 +117,6 @@
 					<?php } else { ?>
 					{{:prop.module_id}}
 					<?php } ?>	
-					
 									
 					</td>
 			        <td class='break'>

@@ -8,7 +8,6 @@
         .preview-category input.form-control {
             width: auto;
         }
-
         .break {
             word-break: break-all !important;
         }
@@ -80,6 +79,18 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+                                        <?php
+                                        $assign_to_user = request('assign_to_user');
+                                        ?>
+                                        <select class="form-control selectpicker" name="assign_to_user[]" multiple id="assign_to_user">
+                                            <option value="">Select Assign to</option>
+                                            @foreach($users as  $user)
+
+                                                <option value="{{$user->id}}">{{$user->name}} </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div class="form-group">
                                         <input name="date" type="date" class="form-control" placeholder="Search Date"
                                                id="bug-date" data-allow-clear="true"/>
@@ -110,7 +121,7 @@
                             <button class="btn btn-secondary btn-xs btn-add-status" style="color:white;"
                                     data-toggle="modal" data-target="#newStatus"> Status
                             </button>&nbsp;&nbsp;
-                            @if(Auth::user()->hasRole('Admin'))
+							@if(Auth::user()->hasRole('Admin'))
                             <button class="btn btn-secondary btn-xs btn-add-test-case-modal" style="color:white;"
                                     data-toggle="modal" data-target="#newTestCaseModal"> Add Test Cases
                             </button>&nbsp;&nbsp;
@@ -144,8 +155,7 @@
 
 
     @include("test-cases.template.list-template")
-    @include("test-cases.template.test-status")
-    @include("test-cases.template.test-cases")
+    @include("test-cases.template.test-status")	@include("test-cases.template.test-cases")									  
     @include("test-cases.create")
     @include("test-cases.edit")
 
@@ -169,6 +179,53 @@
                         <th>Updated By</th>
                     </tr>
                     <tbody class="tbh">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="newtestHistoryModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>User Test History</h3>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <table class="table">
+                    <tr>
+
+                        <th>Date</th>
+                        <th>New User</th>
+                        <th>Old User</th>
+                        <th>Updated By </th>
+                    </tr>
+                    <tbody class="tbhusertest">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade newstatusHistory" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Test Status History</h3>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <table class="table">
+                    <tr>
+
+                        <th>Date</th>
+                        <th>New Status</th>
+                        <th>Old Status</th>
+                        <th>Updated By </th>
+                    </tr>
+                    <tbody class="tbhuserteststatus">
 
                     </tbody>
                 </table>
@@ -208,7 +265,6 @@
                 bodyView: $("#common-page-layout"),
                 baseUrl: "<?php echo url("/"); ?>"
             });
-
         </script>
         <script type="text/javascript">
             $(document).on('click', '.expand-row-msg', function () {
@@ -230,7 +286,5 @@
                 $temp.remove();
                 alert("Copied!");
             });
-
-
         </script>
 @endsection

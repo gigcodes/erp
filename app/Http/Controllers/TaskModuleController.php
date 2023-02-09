@@ -113,6 +113,10 @@ class TaskModuleController extends Controller
         if ($request->category != '') {
             $categoryWhereClause = "AND category = $request->category";
             $category = $request->category;
+            if ($request->category == 1) {
+                $categoryWhereClause = '';
+                $category = '';
+            }
             /*if ($request->category != 1) {
                $categoryWhereClause = "AND category = $request->category";
                $category = $request->category;
@@ -212,6 +216,7 @@ class TaskModuleController extends Controller
             AND (id IS NOT NULL) 
             AND is_statutory != 1 '.$isCompleteWhereClose.$userquery.$status_filter.$flag_filter.$categoryWhereClause.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.'; '
             );
+//            dd($isCompleteWhereClose.$userquery.$status_filter.$flag_filter.$categoryWhereClause.$searchWhereClause.$orderByClause);
 
             foreach ($data['task']['pending'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
@@ -627,17 +632,52 @@ class TaskModuleController extends Controller
         // }
 
         // $category = '';
+
+        // Lead user process starts
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
+        $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
+        $team_members_array_unique_ids = '';
+        if (count($model_team) > 0) {
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
+            $team_ids = implode(',', $team_id_array);
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
+        }
+        $team_members_array_unique = array_unique($team_members_array);
+        $team_members_array_unique_ids = implode(',', $team_members_array_unique);
+        // Lead user process ends
+
         //My code start
         $selected_user = $request->input('selected_user');
-        $usrlst = User::orderby('name')->where('is_active', 1)->get();
+
+        if (Auth::user()->hasRole('Admin')) {
+            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+        } elseif ($isTeamLeader) {
+            $usrlst = User::orderby('name')->where('is_active', 1)->whereIn('id', $team_members_array_unique)->get();
+        } else {
+            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+        }
+
         $users = Helpers::getUserArray($usrlst);
         $task_categories = TaskCategory::where('parent_id', 0)->get();
+        $selected_category = $request->category;
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
         $task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(
             [
                 'name' => 'category',
                 'class' => 'form-control input-sm',
             ]
-        )->selected($request->category)->renderAsDropdown();
+        )->selected($selected_category)->renderAsDropdown();
 
         $categories = [];
         foreach (TaskCategory::all() as $category) {
@@ -663,24 +703,24 @@ class TaskModuleController extends Controller
 
         if ($request->ajax()) {
             if ($type == 'pending') {
-                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
             } elseif ($type == 'statutory_not_completed') {
-                return view('task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+                return view('task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
             } elseif ($type == 'completed') {
-                return view('task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+                return view('task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
             } else {
-                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
             }
         }
 
         if ($request->is_statutory_query == 3) {
-            return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
+            return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
         } else {
             $statuseslist = TaskStatus::pluck('name', 'id')->toArray();
             $selectStatusList = TaskStatus::pluck('id')->toArray();
             $taskstatus = TaskStatus::get();
 
-            return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList'));
+            return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList', 'isTeamLeader'));
         }
     }
 
@@ -1346,6 +1386,230 @@ class TaskModuleController extends Controller
                 'chatMessages' => $chatMessages,
             ]
         );
+    }
+
+    public function searchTask(Request $request)
+    {
+        $id = $request->id;
+
+        if ($request->input('selected_user') == '') {
+            $userid = Auth::id();
+
+            $searchMasterUserId = $userid;
+            if ($request->search_master_user_id != '') {
+                $searchMasterUserId = $request->search_master_user_id;
+            }
+
+            $searchSecondMasterUserId = $userid;
+            if ($request->search_second_master_user_id != '') {
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+            }
+
+            $userquery = ' AND (assign_from = '.$userid.' OR  second_master_user_id = '.$searchSecondMasterUserId.' OR  master_user_id = '.$searchMasterUserId.')';
+        } else {
+            $userid = $request->input('selected_user');
+
+            $searchMasterUserId = $userid;
+            if ($request->search_master_user_id != '') {
+                $searchMasterUserId = $request->search_master_user_id;
+            }
+
+            $searchSecondMasterUserId = $userid;
+            if ($request->search_second_master_user_id != '') {
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+            }
+
+            $userquery = ' AND (master_user_id = '.$searchMasterUserId.' OR  second_master_user_id = '.$searchSecondMasterUserId.')';
+        }
+
+        if (! $request->input('type') || $request->input('type') == '') {
+            $type = 'pending';
+        } else {
+            $type = $request->input('type');
+        }
+        $activeCategories = TaskCategory::where('is_active', 1)->pluck('id')->all();
+
+        $term = $request->term ?? '';
+        $searchWhereClause = '';
+
+        if ($request->term != '') {
+            $searchWhereClause = ' AND (id LIKE "%'.$term.'%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%'.$term.'%") OR task_subject LIKE "%'.$term.'%" OR task_details LIKE "%'.$term.'%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%"))) AND id = "'.$term.'" ';
+        }
+
+        if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
+            $searchWhereClause .= ' AND is_statutory = '.$request->get('is_statutory_query');
+        } else {
+            $searchWhereClause .= ' AND is_statutory != 3';
+        }
+
+        $orderByClause = ' ORDER BY';
+        if ($request->sort_by == 1) {
+            $orderByClause .= ' tasks.created_at desc,';
+        } elseif ($request->sort_by == 2) {
+            $orderByClause .= ' tasks.created_at asc,';
+        }
+        $data['task'] = [];
+
+        $search_term_suggestions = [];
+        $search_suggestions = [];
+        $assign_from_arr = [0];
+        $special_task_arr = [0];
+        $assign_to_arr = [0];
+        $data['task']['pending'] = [];
+        $data['task']['statutory_not_completed'] = [];
+        $data['task']['completed'] = [];
+        $status_filter = '';
+        $selectStatusList = TaskStatus::pluck('id')->toArray();
+
+        $status_filter = " AND status IN ('".implode("','", $selectStatusList)."')";
+
+        if ($type == 'pending') {
+            $paginate = 50;
+            $page = $request->get('page', 1);
+            $offSet = ($page * $paginate) - $paginate;
+
+            $orderByClause .= ' is_flagged DESC, message_created_at DESC';
+            $isCompleteWhereClose = ' AND is_verified IS NULL ';
+
+            if (! Auth::user()->isAdmin()) {
+                $isCompleteWhereClose = ' AND is_verified IS NULL ';
+            }
+            if ($request->filter_by == 1) {
+                $isCompleteWhereClose = ' AND is_completed IS NULL ';
+            }
+            if ($request->filter_by == 2) {
+                $isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
+            }
+
+            $data['task']['pending'] = DB::select(
+                '
+			SELECT tasks.*
+
+			FROM (
+			  SELECT * FROM tasks
+			  LEFT JOIN (
+				  SELECT 
+				  chat_messages.id as message_id, 
+				  chat_messages.task_id, 
+				  chat_messages.message, 
+				  chat_messages.status as message_status, 
+				  chat_messages.sent as message_type, 
+				  chat_messages.created_at as message_created_at, 
+				  chat_messages.is_reminder AS message_is_reminder,
+				  chat_messages.user_id AS message_user_id
+				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+			  ) as chat_messages  ON chat_messages.task_id = tasks.id
+			) AS tasks
+			WHERE (deleted_at IS NULL) 
+            AND (id IS NOT NULL) 
+            AND is_statutory != 1 '.$isCompleteWhereClose.$status_filter.$searchWhereClause.$orderByClause.' ; '
+            );
+
+            foreach ($data['task']['pending'] as $task) {
+                array_push($assign_to_arr, $task->assign_to);
+                array_push($assign_from_arr, $task->assign_from);
+                array_push($special_task_arr, $task->id);
+            }
+
+            $user_ids_from = array_unique($assign_from_arr);
+            $user_ids_to = array_unique($assign_to_arr);
+
+            foreach ($data['task']['pending'] as $task) {
+                $search_suggestions[] = '#'.$task->id.' '.$task->task_subject.' '.$task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
+                    $from_user = User::find($task->assign_from);
+                    if ($from_user) {
+                        $search_term_suggestions[] = $from_user->name;
+                    }
+                }
+
+                $to_exist = in_array($task->assign_to, $user_ids_to);
+                if ($to_exist) {
+                    $to_user = User::find($task->assign_to);
+                    if ($to_user) {
+                        $search_term_suggestions[] = $to_user->name;
+                    }
+                }
+                $search_term_suggestions[] = "$task->id";
+                $search_term_suggestions[] = $task->task_subject;
+                $search_term_suggestions[] = $task->task_details;
+            }
+        }
+
+        //task pending backup
+        $data['users'] = User::orderBy('name')->where('is_active', 1)->get()->toArray();
+        $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
+
+        // Lead user process starts
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
+        $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
+        $team_members_array_unique_ids = '';
+        if (count($model_team) > 0) {
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
+            $team_ids = implode(',', $team_id_array);
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
+        }
+        $team_members_array_unique = array_unique($team_members_array);
+        $team_members_array_unique_ids = implode(',', $team_members_array_unique);
+        // Lead user process ends
+
+        //My code start
+        $selected_user = $request->input('selected_user');
+
+        if (Auth::user()->hasRole('Admin')) {
+            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+        } elseif ($isTeamLeader) {
+            $usrlst = User::orderby('name')->where('is_active', 1)->whereIn('id', $team_members_array_unique)->get();
+        } else {
+            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+        }
+
+        $users = Helpers::getUserArray($usrlst);
+        $task_categories = TaskCategory::where('parent_id', 0)->get();
+        $selected_category = $request->category;
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
+        $task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(
+            [
+                'name' => 'category',
+                'class' => 'form-control input-sm',
+            ]
+        )->selected($selected_category)->renderAsDropdown();
+
+        $categories = [];
+        foreach (TaskCategory::all() as $category) {
+            $categories[$category->id] = $category->title;
+        }
+
+        if (! empty($selected_user) && ! Helpers::getadminorsupervisor()) {
+            return response()->json(['user not allowed'], 405);
+        }
+        //My code end
+        $tasks_view = [];
+        $priority = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
+
+        $openTask = \App\Task::join('users as u', 'u.id', 'tasks.assign_to')->whereNull('tasks.is_completed')->groupBy('tasks.assign_to')->select(\DB::raw('count(u.id) as total'), 'u.name as person')->pluck('total', 'person');
+
+        if ($request->is_statutory_query == 3) {
+            $title = 'Discussion tasks';
+        } else {
+            $title = 'Task & Activity';
+        }
+
+        $task_statuses = TaskStatus::all();
+
+        return view('task-module.partials.menu-search-task-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
     }
 
     public function update(Request $request, $id)
@@ -2119,7 +2383,6 @@ class TaskModuleController extends Controller
                     //'cost'=>'sometimes|integer'
                 ]
             );
-
             $bug_list_ids = explode(',', $request->task_bug_ids);
             $model_bug_tracker = BugTracker::whereIn('id', $bug_list_ids)->get()->toArray();
             $bug_tracker_array = [];
@@ -2136,128 +2399,135 @@ class TaskModuleController extends Controller
                 $site_development_module_id = $model_site_dev_category[0]['id'];
             }
 
-            $data_site['site_development_category_id'] = $site_development_module_id;
-            $data_site['bug_id'] = $request->site_id;
-            $data_site['website_id'] = $request->website_id;
-            $data_site['created_at'] = date('Y-m-d H:i:s');
-            $data_site['site_development_master_category_id'] = 4;
+            $website_multiple_arrays = array_keys($request->website_name);
 
-            $site_devlopment_exist = SiteDevelopment::where('bug_id', $request->site_id)->get()->toArray();
-            $site_developement_primary_id = 0;
-            if (count($site_devlopment_exist) == 0) {
-                $res_site_dev = SiteDevelopment::create($data_site);
-                $site_developement_primary_id = $res_site_dev->id;
-            } else {
-                if (isset($site_devlopment_exist[0]['id']) && $site_devlopment_exist[0]['id'] > 0) {
-                    $site_developement_primary_id = $site_devlopment_exist[0]['id'];
+            for ($m = 0; $m < count($website_multiple_arrays); $m++) {
+                $data_site['site_development_category_id'] = $site_development_module_id;
+                $data_site['bug_id'] = $request->site_id;
+                $data_site['website_id'] = $website_multiple_arrays[$m];
+                $data_site['created_at'] = date('Y-m-d H:i:s');
+                $data_site['site_development_master_category_id'] = 4;
+
+                $site_devlopment_exist = SiteDevelopment::where('bug_id', $request->site_id)->where('website_id', $website_multiple_arrays[$m])->get()->toArray();
+                $site_developement_primary_id = 0;
+                if (count($site_devlopment_exist) == 0) {
+                    $res_site_dev = SiteDevelopment::create($data_site);
+                    $site_developement_primary_id = $res_site_dev->id;
+                } else {
+                    if (isset($site_devlopment_exist[0]['id']) && $site_devlopment_exist[0]['id'] > 0) {
+                        $site_developement_primary_id = $site_devlopment_exist[0]['id'];
+                    }
                 }
             }
 
             $site_dev_category_id = \App\SiteDevelopment::where('id', $site_developement_primary_id)->select('site_development_category_id')->first();
             $cat_id = $site_dev_category_id->id;
             if (is_array($request->website_name)) {
+                $sub_array = [];
                 foreach ($request->website_name as $key => $website) {
-                    $site_developement_id = \App\SiteDevelopment::select('id')->where(
-                        [
-                            'site_development_category_id' => $site_dev_category_id->site_development_category_id,
-                            'website_id' => $key,
-                        ]
-                    )->first();
-                    if (isset($site_developement_id->id)) {
-                        $request->task_subject = $website;
-                        $message = '';
-                        $assignedUserId = 0;
-                        $taskType = $request->task_type;
-                        $data = $request->except('_token');
-                        // $data['site_id'] = $request->site_id;
-                        $data['site_id'] = $site_developement_primary_id;
-                        $data['bug_id'] = $request->site_id;
-                        $data['task_subject'] = $website;
-                        $data['task_bug_ids'] = $request->task_bug_ids;
-                        if ($taskType == '4' || $taskType == '5' || $taskType == '6') {
-                            $data = [];
-                            if (is_array($request->task_asssigned_to)) {
-                                $data['assigned_to'] = $request->task_asssigned_to[0];
-                            } else {
-                                $data['assigned_to'] = $request->task_asssigned_to;
-                            }
-                            $data['user_id'] = loginId();
-                            $data['subject'] = $website;
-                            $data['task'] = $request->get('task_detail');
-                            $data['task_type_id'] = 1;
-                            $data['cost'] = $request->get('cost', 0);
-                            $data['status'] = DeveloperTask::DEV_TASK_STATUS_PLANNED;
-                            $data['created_by'] = loginId();
-                            if ($taskType == 5 || $taskType == 6) {
-                                $data['task_type_id'] = 3;
-                            }
-
-                            $data['subject'] = $website;
-                            $data['task_type'] = $taskType;
-                            $data['task'] = $request->get('task_detail');
-                            $data['task_type_id'] = 1;
-                            $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id');
-                            $data['site_developement_id'] = $site_developement_primary_id;
-                            $data['cost'] = $request->get('cost', 0);
-                            $data['status'] = 'In Progress';
-                            $data['created_by'] = Auth::id();
-
-                            $task = $this->taskCreateMaster($data);
-
-                            if ($task) {
-                                if (count($bug_list_ids) > 0) {
-                                    $task_asssigned_user_to = $data['assigned_to'];
-                                    for ($k = 0; $k < count($bug_list_ids); $k++) {
-                                        $bug_tacker_id = $bug_list_ids[$k];
-                                        $bug_tracking = BugTracker::find($bug_tacker_id);
-                                        $bug_tracking->bug_status_id = 6;
-                                        $bug_tracking->assign_to = $task_asssigned_user_to;
-                                        $bug_tracking->updated_at = date('Y-m-d H:i:s');
-                                        $bug_tracking->updated_by = Auth::user()->name;
-                                        $bug_tracking->save();
-                                    }
-                                }
-                            }
-
-                            if (request('need_review_task')) {
-                                $data['parent_review_task_id'] = $task->id;
-                                $reviewTask = $cntrl->developerTaskCreate($data);
-                            }
+                    $sub_array[] = $website;
+                }
+                $site_developement_id = \App\SiteDevelopment::select('id')->where(
+                    [
+                        'site_development_category_id' => $site_dev_category_id->site_development_category_id,
+                        'website_id' => $website_multiple_arrays[0], //$key
+                    ]
+                )->first();
+                if (isset($site_developement_id->id)) {
+                    $website = implode(',', $sub_array);
+                    $request->task_subject = $website;
+                    $message = '';
+                    $assignedUserId = 0;
+                    $taskType = $request->task_type;
+                    $data = $request->except('_token');
+                    // $data['site_id'] = $request->site_id;
+                    $data['site_id'] = 0;
+                    $data['bug_id'] = $request->site_id;
+                    $data['task_subject'] = $website;
+                    $data['task_bug_ids'] = $request->task_bug_ids;
+                    if ($taskType == '4' || $taskType == '5' || $taskType == '6') {
+                        $data = [];
+                        if (is_array($request->task_asssigned_to)) {
+                            $data['assigned_to'] = $request->task_asssigned_to[0];
                         } else {
-                            $data['site_developement_id'] = $site_developement_primary_id;
-                            $data['task_subject'] = $website;
-                            $data['task_type'] = $taskType;
-                            $data['assign_from'] = loginId();
-                            $data['status'] = 5;
-                            $data['customer_id'] = $data['customer_id'] ?? null;
-                            $data['cost'] = $data['cost'] ?? null;
+                            $data['assigned_to'] = $request->task_asssigned_to;
+                        }
+                        $data['user_id'] = loginId();
+                        $data['subject'] = $website;
+                        $data['task'] = $request->get('task_detail');
+                        $data['task_type_id'] = 1;
+                        $data['cost'] = $request->get('cost', 0);
+                        $data['status'] = DeveloperTask::DEV_TASK_STATUS_PLANNED;
+                        $data['created_by'] = loginId();
+                        if ($taskType == 5 || $taskType == 6) {
+                            $data['task_type_id'] = 3;
+                        }
 
-                            $task = $this->taskCreateMaster($data);
+                        $data['subject'] = $website;
+                        $data['task_type'] = $taskType;
+                        $data['task'] = $request->get('task_detail');
+                        $data['task_type_id'] = 1;
+                        $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id');
+                        $data['site_developement_id'] = 0;
+                        $data['cost'] = $request->get('cost', 0);
+                        $data['status'] = 'In Progress';
+                        $data['created_by'] = Auth::id();
 
-                            if ($task) {
-                                if (count($bug_list_ids) > 0) {
-                                    if (is_array($request->task_asssigned_to)) {
-                                        $data['assigned_to'] = $request->task_asssigned_to[0];
-                                    } else {
-                                        $data['assigned_to'] = $request->task_asssigned_to;
-                                    }
-                                    $task_asssigned_user_to = $data['assigned_to'];
-                                    for ($k = 0; $k < count($bug_list_ids); $k++) {
-                                        $bug_tacker_id = $bug_list_ids[$k];
-                                        $bug_tracking = BugTracker::find($bug_tacker_id);
-                                        $bug_tracking->bug_status_id = 6;
-                                        $bug_tracking->assign_to = $task_asssigned_user_to;
-                                        $bug_tracking->updated_at = date('Y-m-d H:i:s');
-                                        $bug_tracking->updated_by = Auth::user()->name;
-                                        $bug_tracking->save();
-                                    }
+                        $task = $this->taskCreateMaster($data);
+
+                        if ($task) {
+                            if (count($bug_list_ids) > 0) {
+                                $task_asssigned_user_to = $data['assigned_to'];
+                                for ($k = 0; $k < count($bug_list_ids); $k++) {
+                                    $bug_tacker_id = $bug_list_ids[$k];
+                                    $bug_tracking = BugTracker::find($bug_tacker_id);
+                                    $bug_tracking->bug_status_id = 6;
+                                    $bug_tracking->assign_to = $task_asssigned_user_to;
+                                    $bug_tracking->updated_at = date('Y-m-d H:i:s');
+                                    $bug_tracking->updated_by = Auth::user()->name;
+                                    $bug_tracking->save();
                                 }
                             }
+                        }
 
-                            if (request('need_review_task')) {
-                                $data['parent_review_task_id'] = $task->id;
-                                $reviewTask = $this->taskCreateMaster($data);
+                        if (request('need_review_task')) {
+                            $data['parent_review_task_id'] = $task->id;
+                            $reviewTask = $cntrl->developerTaskCreate($data);
+                        }
+                    } else {
+                        $data['site_developement_id'] = 0;
+                        $data['task_subject'] = $website;
+                        $data['task_type'] = $taskType;
+                        $data['assign_from'] = loginId();
+                        $data['status'] = 5;
+                        $data['customer_id'] = $data['customer_id'] ?? null;
+                        $data['cost'] = $data['cost'] ?? null;
+
+                        $task = $this->taskCreateMaster($data);
+
+                        if ($task) {
+                            if (count($bug_list_ids) > 0) {
+                                if (is_array($request->task_asssigned_to)) {
+                                    $data['assigned_to'] = $request->task_asssigned_to[0];
+                                } else {
+                                    $data['assigned_to'] = $request->task_asssigned_to;
+                                }
+                                $task_asssigned_user_to = $data['assigned_to'];
+                                for ($k = 0; $k < count($bug_list_ids); $k++) {
+                                    $bug_tacker_id = $bug_list_ids[$k];
+                                    $bug_tracking = BugTracker::find($bug_tacker_id);
+                                    $bug_tracking->bug_status_id = 6;
+                                    $bug_tracking->assign_to = $task_asssigned_user_to;
+                                    $bug_tracking->updated_at = date('Y-m-d H:i:s');
+                                    $bug_tracking->updated_by = Auth::user()->name;
+                                    $bug_tracking->save();
+                                }
                             }
+                        }
+
+                        if (request('need_review_task')) {
+                            $data['parent_review_task_id'] = $task->id;
+                            $reviewTask = $this->taskCreateMaster($data);
                         }
                     }
                 }
@@ -2927,11 +3197,12 @@ class TaskModuleController extends Controller
                 ]
             );
         }
-        $documents = $request->input('document', []);
-        $task = Task::find($request->task_id);
 
+        $documents = $request->input('document', []) ? $request->input('document', []) : $request->document;
+
+        $task = Task::find($request->task_id);
         if (! empty($documents)) {
-            $count = count($documents);
+            $count = count([$documents]);
 
             $message = '['.$loggedUser->name.'] - #ISSUE-'.$task->id.' - '.$task->task_subject."\n\n ".$count.' new attchment'.($count > 1 ? 's' : '');
 

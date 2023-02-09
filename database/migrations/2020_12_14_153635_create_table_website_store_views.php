@@ -22,6 +22,7 @@ class CreateTableWebsiteStoreViews extends Migration
             $table->string('sort_order')->default(0);
             $table->string('platform_id')->nullable();
             $table->integer('website_store_id')->nullable();
+            $table->integer('store_code_id')->nullable();
             $table->timestamps();
         });
     }

@@ -9,15 +9,6 @@
         .users {
             display: none;
         }
-	@media only screen and (max-width: 1300px) and (min-width: 1150px)  {
-		.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
-		    padding: 6px;
-		    font-size: 13px;
-		}
-		.table .form-control{
-		    font-size: 12px;
-		}
-	}
     </style>
 
     <link rel="stylesheet" type="text/css"

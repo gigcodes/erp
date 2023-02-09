@@ -272,6 +272,7 @@ var getHtml = function(response) {
         }
         button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="'+message.sop_category+'" data-name="'+message.sop_name+'" data-message="'+message.sop_content+'" data-id="' + message.id + '" data-msg="'+message.message+'"><i class="fa fa-asterisk" data-message="'+message.message+'" aria-hidden="true"></i></a>';
         button += '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-server" aria-hidden="true"></i></a>';
+        button += '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard('+message.id+')" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
         // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
 
 
@@ -343,7 +344,7 @@ var getHtml = function(response) {
                 li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ parentMedia + message.parentMessage + '</div>';
             }
 
-            li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message copy_message'+message.id+'" id="main_message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendTo + ' to ' + message.sendBy + ' on ' + datetime + '</span>';
 
 
@@ -355,7 +356,7 @@ var getHtml = function(response) {
                 li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ parentMedia + message.parentMessage + '</div>';
             }
 
-            li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message copy_message'+message.id+'" id="main_message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + datetime + '</span>';
         } else {
             li += '<div>' + index + '</div>';
@@ -414,9 +415,9 @@ $(document).on('click', '.load-communication-modal', function () {
             feedback_category_id: feedback_category_id,
         },
         beforeSend: function () {
-            //$(thiss).text('Loading...');
-            // $(thiss).html("");
-            // $(thiss).html('<img src="/images/chat.png" alt="" style="cursor: nwse-resize;"><div class="spinner-border" role="status"><span class="">Loading...</span></div>');
+            $(thiss).text('Loading...');
+            $(thiss).html("");
+            $(thiss).html('<img src="/images/chat.png" alt="" style="cursor: nwse-resize;"><div class="spinner-border" role="status"><span class="">Loading...</span></div>');
         }
     }).done(function (response) {
         $(".spinner-border").css("display", "none");
@@ -1269,6 +1270,25 @@ $(document).on("click",".create-kyc-customer",function(e) {
       });
 });
 
+
+
+function CopyToClipboard(containerid) {
+    var thiss = $(this).data('message');
+    var remark_text = $('.copy_message'+containerid).html();
+    copyToClipboard(remark_text);
+    /* Alert the copied text */
+    toastr['success']("Copied the text: " + remark_text);
+    //alert("Copied the text: " + remark_text);
+}
+function copyToClipboard(text) {
+    var sampleTextarea = document.createElement("textarea");
+    document.body.appendChild(sampleTextarea);
+    text = text.replace("&gt;",">");
+    sampleTextarea.value = text; //save main text in it
+    sampleTextarea.select(); //select textarea contenrs
+    document.execCommand("copy");
+    document.body.removeChild(sampleTextarea);
+}
 
 $(document).on("click",".btn-whitelist-ip",function(e) {
     e.preventDefault();

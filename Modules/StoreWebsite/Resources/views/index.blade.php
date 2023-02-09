@@ -8,6 +8,11 @@
 	.preview-category input.form-control {
 		width: auto;
 	}
+	tbody tr .Website-task-warp{
+		overflow: hidden !important;
+		white-space: normal !important;
+		word-break: break-all;
+	}
 </style>
 
 <div class="row" id="common-page-layout">
@@ -30,8 +35,14 @@
 					<button class="btn btn-secondary magento-setting-update"> Magento Setting Update</button>
 					&nbsp;
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-api-token"> Api Token Update</button>
+					&nbsp;
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-create-tag"> Create Tag </button>
+					&nbsp;
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-list-tag"> List Tags </button>
 
-
+					@if($storeWebsites->count() > 0)
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button>
+					@endif
 				</div>
 			</div>
 			<div class="col">
@@ -232,6 +243,119 @@
 	</div>
 </div>
 
+<div class="modal fade" id="store-list-tag" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Website Tag</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						
+						<div class="row">
+							<table class="table table-border">
+								<tbody>
+									@if(!empty($tags))
+										@foreach($tags as $key => $val)
+											<tr>
+												<td>Tag</td>
+												<td><b>{{ $val->tags ?? '' }}</b></td>
+											</tr>
+										@endforeach
+									@endif
+								</tbody>
+							</table>
+						</div>
+							
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="store-create-tag" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Website Tag</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="{{ route('store-website.create_tags') }}" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+										<div class="form-group">
+											<label>Tag Name</label>
+											<input type="text" class="form-control" name="tag" placeholder="Enter The Tag">
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="store-attach-tag" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Website Tag</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="{{ route('store-website.attach_tags') }}" method="post">
+							<?php echo csrf_field(); ?>
+							<input type="hidden" name="store_id" id="store_id" value="">
+							<div class="row">
+								<div class="col-md-12">
+									<select class="form-control" name="tag_attached">
+										@if(!empty($tags))
+											@foreach($tags as $key => $val)
+												<option value="{{ $val->id}}"> {{ $val->tags }}</option>
+											@endforeach
+										@endif
+									</select>
+								</div>
+								<br>
+								&nbsp;
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" id="store-api-token" role="dialog">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
@@ -295,6 +419,78 @@
 	</div>
 </div>
 
+<div class="modal fade" id="admin-passwords" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Admin Password</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<div style="display:flex !important; float:right !important;">
+							<input type="text" class="form-control admin-password-search" name="search" placeholder="Search">
+							&nbsp;
+							<button style="display: inline-block;width: 10%"
+									class="btn btn-sm btn-image btn-secondary btn-search-admin-password">
+								<img src="/images/search.png" style="cursor: default;">
+							</button>
+							&nbsp;
+							<button style="display: inline-block;width: 10%"
+									class="btn btn-sm btn-image btn-secondary btn-refresh-admin-password">
+								<img src="/images/resend2.png" style="cursor: default;">
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="/store-website/generate-admin-password" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+										<table class="table table-bordered overlay admin-password-table" id="tblAdminPassword">
+											<thead>
+											<tr>
+												<th>Id</th>
+												<th width="30%">Website</th>
+												<th width="30%">Username</th>
+												<th width="30%">Password</th>												
+											</tr>
+											</thead>
+											<tbody>
+												@include('storewebsite::admin-password')
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<div class="col-md-12">
+									<div class="form-group">
+										<div class="col-md-12">
+											<div class="row float-right">												
+												<button type="button" data-id="" class="btn btn-add-admin-password float-right" style="border:1px solid">
+										            <i class="fa fa-plus" aria-hidden="true"></i>
+									            </button>
+									            &nbsp;
+												<button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update Admin Password</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="execute_bash_command_select_folderModal" class="modal fade" role="dialog">
 	<div class="modal-dialog">
 		<!-- Modal content-->
@@ -334,6 +530,10 @@
 		bodyView: $("#common-page-layout"),
 		baseUrl: "<?php echo url("/"); ?>"
 	});
+
+	function Showactionbtn(id){
+		$(".action-btn-tr-"+id).toggleClass('d-none')
+	}
 
 	$(document).on("click", ".open-build-process-history", function(href) {
 		$.ajax({
@@ -410,6 +610,7 @@
 			});
 		
 	});
+	
 	$(document).on("click", ".execute-bash-command-select-folder", function(href) {
 		var folder_name = $(this).data('folder_name');
 		var id = $(this).data('id');
@@ -427,9 +628,8 @@
 		} else {
 			alert("Please Check Record Site Folder Name.");
 		}
-		
-		
 	});
+
 	$(document).on("click", ".execute-bash-command", function(href) {
 		if(confirm ("Do you want to run this script???")){
 			
@@ -470,12 +670,12 @@
 	}
 
 	$(document).on('click', '.expand-row-msg', function () {
-      var name = $(this).data('name');
-      var id = $(this).data('id');
-      var full = '.expand-row-msg .show-short-'+name+'-'+id;
-      var mini ='.expand-row-msg .show-full-'+name+'-'+id;
-      $(full).toggleClass('hidden');
-      $(mini).toggleClass('hidden');
+		var name = $(this).data('name');
+		var id = $(this).data('id');
+		var full = '.expand-row-msg .show-short-'+name+'-'+id;
+		var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+		$(full).toggleClass('hidden');
+		$(mini).toggleClass('hidden');
     });
 
 	
@@ -487,6 +687,7 @@
 		else
 			$(cls).css('height', '44px');
 	});
+
 	$(document).on("click",".btn-copy-api-token",function() {
 		var apiToken = $(this).data('value');
 		var $temp = $("<input>");
@@ -496,6 +697,7 @@
 		$temp.remove();
 		alert("Copied!");
 	});
+
 	$(document).on("click",".btn-copy-server-ip",function() {
 		var serverip = $(this).data('value');
 		var $temp = $("<input>");
@@ -506,7 +708,7 @@
 		alert("Copied!");
 	});
 
-		$(document).on('click','.btn-search-api-token',function(){
+	$(document).on('click','.btn-search-api-token',function(){
 		src = 'store-website/get-api-token'
 		search = $('.api-token-search').val()
 		$.ajax({
@@ -519,17 +721,12 @@
 			beforeSend: function () {
 				$("#loading-image").show();
 			},
-
 		}).done(function (data) {
 			$("#loading-image").hide();
 			$(".api-token-table tbody").empty().html(data.tbody);
-
-
-
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
 			alert('No response from server');
 		});
-
 	})
 
 	$(document).on('click','.btn-refresh-api-token',function(){
@@ -557,6 +754,62 @@
 		});
 
 	})
+
+	$(document).on('click','.btn-search-admin-password',function(){
+		src = 'store-website/get-admin-password'
+		search = $('.admin-password-search').val()
+		$.ajax({
+			url: src,
+			dataType: "json",
+			type: "GET",
+			data: {
+				search : search,
+			},
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+		}).done(function (data) {
+			$("#loading-image").hide();
+			$(".admin-password-table tbody").empty().html(data.tbody);
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			alert('No response from server');
+		});
+	})
+
+	$(document).on('click','.btn-refresh-admin-password',function(){
+		src = 'store-website/get-admin-password'
+		$.ajax({
+			url: src,
+			dataType: "json",
+			type: "GET",
+			data: {
+
+			},
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+
+		}).done(function (data) {
+			$("#loading-image").hide();
+			$(".admin-password-search").val("");
+			$(".admin-password-table tbody").empty().html(data.tbody);
+
+
+
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			alert('No response from server');
+		});
+
+	})	
+
+    // add more admin password
+    var j = 1;
+    $('.btn-add-admin-password').click(function(){        
+        
+        $('#tblAdminPassword').append('<tr id="rowAdminPassword'+j+'"><td width="10%"></td><td width="30%"><select name="store_website_id[new:'+j+']" class="form-control websiteMode"><option value="">-- Select a website--</option>@foreach($storeWebsites as $key => $storeWebsite)<option value="{{ $storeWebsite->id }}">{{ $storeWebsite->title }}</option>@endforeach</select></td><td width="30%"><input type="text" class="form-control" name="username[new:'+j+']" placeholder="Enter username"/></td><td width="30%"><input type="text" class="form-control" name="password[new:'+j+']" placeholder="Enter password"/></td></tr>');
+        
+        j++;
+    });
 </script>
 
 @endsection

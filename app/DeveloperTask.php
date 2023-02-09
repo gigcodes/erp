@@ -99,6 +99,7 @@ class DeveloperTask extends Model
         'repository_id',
         'last_date_time_reminder',
         'parent_review_task_id',
+        'user_feedback_cat_id',
     ];
 
     const DEV_TASK_STATUS_DONE = 'Done';
@@ -331,6 +332,25 @@ class DeveloperTask extends Model
             DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 0);
         } else {
             $this->estimate_date = $new;
+            $this->save();
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
+        }
+    }
+
+    public function updateEstimateDueDate($new)
+    {
+        $type = 'due_date';
+        $old = $this->due_date;
+
+        $count = DeveloperTaskHistory::query()
+            ->where('model', \App\DeveloperTask::class)
+            ->where('attribute', $type)
+            ->where('developer_task_id', $this->id)
+            ->count();
+        if ($count) {
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 0);
+        } else {
+            $this->due_date = $new;
             $this->save();
             DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
         }

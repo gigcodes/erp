@@ -126,6 +126,7 @@ use App\Console\Commands\StoreLiveChats;
 use App\Console\Commands\SyncCustomersFromMagento;
 use App\Console\Commands\TwilioCallLogs;
 use App\Console\Commands\TwilioErrors;
+use App\Console\Commands\TwillioMessagesCommand;
 use App\Console\Commands\UpdateCharities;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
@@ -319,6 +320,7 @@ class Kernel extends ConsoleKernel
         ZabbixProblemImport::class,
         SendQueuedMessages::class,
         DatabaseLogCron::class,
+        TwillioMessagesCommand::class,
     ];
 
     /**
@@ -338,14 +340,18 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('twilio:errors')->dailyAt('01:00');
 
+        $schedule->command('command:twillio_messages')->everyMinute(); // Send twlio message to store website customers
+
         $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
 
-        $schedule->command('command:tasks-time-reminder')->dailyAt('01:00'); // status detail
-        $schedule->command('command:date_time_reminder')->dailyAt('01:00'); // status detail
+        //This command will runs every day in the night to send a message to the user to update the time...
+        //$schedule->command('command:tasks-time-reminder')->dailyAt('01:00'); // status detail
+        //$schedule->command('command:date_time_reminder')->dailyAt('01:00'); // status detail
+
         $schedule->command('command:send_message')->hourly();
 
         $schedule->command('websitelog')->daily(); // website log
@@ -690,7 +696,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('databaselog:cron')->dailyAt('0:00');
     }
 
-    /**
+    /**`
      * Register the commands for the application.
      *
      * @return void
