@@ -87,41 +87,51 @@ input:checked + .slider:before {
                 </script>
             @endif
             <div class="row">
-                <div class="col-md-6">
-                    
-                    <form action="{{ route('google.developer-api.anr') }}" method="GET">
-                    	@csrf
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-md-5">
-                                   <input type="text" class="form-control" id="search" name="search"></input>
-
-                                </div>
-                               
-                               <div class="col-md-6">
-                               <input type="submit" class="form-control" id="sub" name="sub"></input>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    
-                </div>
-            
+                <div class="col-lg-12 margin-tb mb-3">
+        <h2 class="page-heading">ANR Report </h2>
             </div>
+          
             
            
-        </div>
+        
         <div class="col-md-12">
- @if($output=='connect')
- <a href="{{$output2}}">Connect</a>	
- @else
- {{$output}}
- {{$res}}
- @endif
-	
+ <div class="table-responsive mt-3">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th width="5%">ID</th>
+            <th width="5%">App Name</th>
+            <th width="5%">Aggregation Period</th>
+            <th width="10%">LatestEndTime</th>
+            <th width="10%">Time Zone</th>
+            
+          </tr>
+        </thead>
+
+        <tbody>
+   
+
+
+
+@foreach ($anrs as $anr)
+ 
+<tr>
+<td>{{ $id+=1 }}</td>
+<td>{{ $anr->name }}</td>
+<td>{{ $anr->aggregation_period }}</td>
+<td>{{ $anr->latestEndTime }}</td>
+<td>{{ $anr->timezone }}</td>
+</tr>
+@endforeach
+ </tbody>
+</table>   
+
+
+    
         </div>
     </div>
     <div style="height: 600px;">
+    </div>
     </div>
 @endsection
 
