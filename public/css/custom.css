@@ -2578,8 +2578,8 @@ table {
 }
 
 .history_model{
-  bottom: 5px;
-  right: 5px;
+  bottom: 0px;
+  right: 10px;
 }
 
 .csvData-table tbody td{
@@ -2590,8 +2590,15 @@ table {
 
 .editbtn_model{
   position: absolute;
-  top:25px;
+  top:5px;
   right:8px;
+  font-size: 15px;
+}
+
+.viewbtn_model{
+  position: absolute;
+  top: 27px;
+  right: 30px;
   font-size: 15px;
 }
 
