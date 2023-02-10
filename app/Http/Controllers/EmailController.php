@@ -21,7 +21,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Mail;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\ClientManager;
 
 class EmailController extends Controller
@@ -895,7 +894,6 @@ class EmailController extends Controller
         ]);
 
         $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
-       //$emailAddresses = EmailAddress::where('host', '!=', 'amourint.com')->where('driver', 'imap')->orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
             try {
@@ -904,7 +902,7 @@ class EmailController extends Controller
                     'host' => $emailAddress->host,
                     'port' => 993,
                     'encryption' => 'ssl',
-                    'validate_cert' => true,
+                    'validate_cert' => false,
                     'username' => $emailAddress->username,
                     'password' => $emailAddress->password,
                     'protocol' => 'imap',

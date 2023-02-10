@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Redirect;
 use Mail;
 use Response;
 use Session;
-use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\ClientManager;
 
 class OldController extends Controller

@@ -16,7 +16,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Mail;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\ClientManager;
 
 class EmailDataExtractionController extends Controller

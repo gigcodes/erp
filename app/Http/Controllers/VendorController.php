@@ -33,7 +33,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Mail;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\ClientManager;
 
 class VendorController extends Controller

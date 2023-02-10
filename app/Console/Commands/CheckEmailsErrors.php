@@ -7,7 +7,6 @@ use App\CronJobReport;
 use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\ClientManager;
 
 class CheckEmailsErrors extends Command

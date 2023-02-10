@@ -7,7 +7,6 @@ use App\ResourceCategory;
 use App\ResourceImage;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\ClientManager;
 
 class RecieveResourceImages extends Command

@@ -50,7 +50,7 @@ use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
-use Webklex\PHPIMAP\Client;
+
 use Webklex\PHPIMAP\ClientManager;
 
 class PurchaseController extends Controller
@@ -2022,7 +2022,7 @@ class PurchaseController extends Controller
     public function emailInbox(Request $request)
     {
         try{
-            $cm = new ClientManager($options = []);
+            $cm = new ClientManager();
             $imap = $cm->make([
                 'host' => env('IMAP_HOST_PURCHASE'),
                 'port' => env('IMAP_PORT_PURCHASE'),
