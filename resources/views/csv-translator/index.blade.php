@@ -152,7 +152,7 @@
 </div>
 
 <div class="float-right my-3">
-    @if(!auth()->user()->hasRole('Lead Translator'))
+    @if(auth()->user()->hasRole('Lead Translator'))
     <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-secondary btn_import">Import CSV</button>
     <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
     @endif
@@ -165,7 +165,7 @@
         <thead>
             
             <tr>
-            @if(!auth()->user()->hasRole('Lead Translator'))
+            @if(auth()->user()->hasRole('Lead Translator'))
                 <th>Id</th>
                 <th>Keyword</th>
                 <th>En</th>
@@ -440,7 +440,7 @@
     var cols;
 </script>
 
-@if(!auth()->user()->hasRole('Lead Translator'))
+@if(auth()->user()->hasRole('Lead Translator'))
     <script>   
         cols =  [{ data: 'id' },
             { data: 'key' },
