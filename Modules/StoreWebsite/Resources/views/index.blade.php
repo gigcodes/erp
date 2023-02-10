@@ -38,7 +38,10 @@
 					&nbsp;
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-create-tag"> Create Tag </button>
 					&nbsp;
-					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-list-tag"> List Tags </button>
+					<button class="btn btn-secondary get_store_tags"> List Tags </button>
+					&nbsp;
+					<button class="btn btn-secondary attached_store_tags"> Attached Tags </button>
+					&nbsp;
 
 					@if($storeWebsites->count() > 0)
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button>
@@ -303,7 +306,7 @@
 								</div>
 								<div class="col-md-12">
 									<div class="form-group">
-										<button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update</button>
+										<button type="submit" class="btn btn-secondary submit_create_tag float-right float-lg-right">Update</button>
 									</div>
 								</div>
 							</div>
@@ -344,7 +347,7 @@
 								&nbsp;
 								<div class="col-md-12">
 									<div class="form-group">
-										<button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update</button>
+										<button type="submit" class="btn btn-secondary attach_tag_ajax submit float-right float-lg-right">Update</button>
 									</div>
 								</div>
 							</div>
@@ -412,6 +415,36 @@
 								</div>
 							</div>
 						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="show-attach-tags" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Website Tags</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<table class="table-border table">
+							<thead>
+								<tr>
+									<th>Website</th>
+									<th>Tag</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+							</tbody>
+						</table>
 					</div>
 				</div>
 			</div>
@@ -535,6 +568,141 @@
 		$(".action-btn-tr-"+id).toggleClass('d-none')
 	}
 
+	//Post the tag with website and attach
+	$(document).on("click", ".attach_tag_ajax", function(e) {
+		e.preventDefault();
+		var url 		=  "{{ route('store-website.attach_tags') }}";
+
+		var formData 	=	$(this).closest('form').serialize();
+
+		$('#loading-image-preview').show();
+		$.ajax({
+			url 	: 	url,
+			method 	: 	'POST',
+			data 	: 	formData,
+			success : 	function(resp){
+				
+				if (resp.code == 200) {					
+					toastr["success"](resp.message);
+				} else {
+					toastr["error"](resp.message);
+				}
+				$('#loading-image-preview').hide();
+				$('#store-attach-tag').modal('hide');
+			},
+			error 	: 	function(err){
+				$('#loading-image-preview').hide();
+				$('#store-create-tag').modal('hide');
+				toastr["error"](err.message);
+			}
+		})
+	});
+
+	//Get a list of store tags
+	$(document).on("click", ".get_store_tags", function(e) {
+		e.preventDefault();
+		var url 		=  "{{ route('store-website.list_tags') }}";
+
+		$('#loading-image-preview').show();
+		$.ajax({
+			url 	: 	url,
+			method 	: 	'GET',
+			success : 	function(resp){
+				
+				if (resp.code == 200) {
+					var html = '';
+					for(var key in resp.data){
+						var innerData  = resp.data[key];
+						html += '<tr> <td>Tag</td> <td><b>'+innerData.tags +'</b></td> </tr>';
+					}
+
+					$('#store-list-tag tbody').html(html);
+				$('#loading-image-preview').hide();
+					$('#store-list-tag').modal('show');
+					
+				} else {
+					toastr["error"](resp.message);
+				}
+
+
+			},
+			error 	: 	function(err){
+				$('#loading-image-preview').hide();
+				$('#store-create-tag').modal('hide');
+				toastr["error"](err.message);
+			}
+		})
+
+	});
+
+	//get list of website with their tags
+	$(document).on("click", ".attached_store_tags", function(e) {
+		e.preventDefault();
+		var url 		=  "{{ route('store-website.attach_tags_store') }}";
+
+		$('#loading-image-preview').show();
+		$.ajax({
+			url 	: 	url,
+			method 	: 	'GET',
+			success : 	function(resp){
+				
+				
+			console.log(resp);
+			if (resp.code == 200) {
+				var response 	=	resp.data;
+				var html 		= 	'';
+
+				for(var key in response){
+					html 	+= '<tr> <td>'+ response[key]['website']+'</td> <td>'+ response[key]['tags']['tags']+'</td> </tr>';
+				}
+
+				$('#show-attach-tags table tbody').html(html);
+				toastr["success"](resp.message);
+			} else {
+				toastr["error"](resp.message);
+			}
+			$('#loading-image-preview').hide();
+			$('#show-attach-tags').modal('show');
+		
+			},
+			error 	: 	function(err){
+				$('#loading-image-preview').hide();
+				$('#store-create-tag').modal('hide');
+				toastr["error"](err.message);
+			}
+		})
+
+	});
+
+	//Create tags 
+	$(document).on("click", ".submit_create_tag", function(e) {
+		e.preventDefault();
+		var url 		=  "{{ route('store-website.create_tags') }}";
+		var formData 	=	$(this).closest('form').serialize();
+
+		$('#loading-image-preview').show();
+		$.ajax({
+			url 	: 	url,
+			method 	: 	'POST',
+			data 	: 	formData,
+			success : 	function(resp){
+				$('#loading-image-preview').hide();
+				$('#store-create-tag').modal('hide');
+				if (resp.code == 200) {
+					toastr["success"](resp.message);
+				} else {
+					toastr["error"](resp.message);
+				}
+
+			},
+			error 	: 	function(err){
+				$('#loading-image-preview').hide();
+				$('#store-create-tag').modal('hide');
+				toastr["error"](err.message);
+			}
+		})
+
+	});
 	$(document).on("click", ".open-build-process-history", function(href) {
 		$.ajax({
 			url: 'store-website/' + $(this).data('id') + '/build-process/history',
