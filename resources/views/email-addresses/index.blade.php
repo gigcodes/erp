@@ -84,6 +84,9 @@
             <div class="pull-left ml-3">
                 <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#passwordCreateModal"><i class="fa fa-plus"></i></button>
             </div>
+            <div class="pull-left ml-3">
+              <button class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#store-api-token">Email Update</button>
+            </div>
         </div>
     </div>
 
@@ -806,6 +809,67 @@
          50% 50% no-repeat;display:none;">
 </div>
 
+<div class="modal fade" id="store-api-token" role="dialog">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><b>Store Api Token</b></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-12">
+                <div style="display:flex !important; float:right !important;"><input type="text" class="form-control email-address-search" name="search"
+                                                                                     placeholder="Search">
+                  &nbsp;
+                  <button style="display: inline-block;width: 10%"
+                          class="btn btn-sm btn-image btn-secondary btn-search-email-address">
+                    <img src="{{asset('/images/search.png')}}" style="cursor: default;">
+                  </button>
+                  &nbsp;
+                  <button style="display: inline-block;width: 10%"
+                          class="btn btn-sm btn-image btn-secondary btn-refresh-email-address">
+                    <img src="{{asset('/images/resend2.png')}}" style="cursor: default;">
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <form action="{{route('email.address.update')}}" method="post">
+                  <?php echo csrf_field(); ?>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="table-responsive mt-3">
+                        <table class="table table-bordered overlay email-address-table">
+                          <thead>
+                          <tr>
+                            <th>Id</th>
+                            <th width="50%">Email</th>
+                            <th width="50%">Password</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          @include('email-addresses.partials.email-address')
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update</button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -823,6 +887,42 @@
 
 </script>
   <script type="text/javascript">
+    $(document).on('click','.btn-search-email-address',function(){
+      search = $('.email-address-search').val()
+      $.ajax({
+        url: "{{route('email.address.search')}}",
+        dataType: "json",
+        type: "GET",
+        data: {
+          search : search,
+        },
+        beforeSend: function () {
+          $("#loading-image").show();
+        },
+      }).done(function (data) {
+        $("#loading-image").hide();
+        $(".email-address-table tbody").empty().html(data.tbody);
+      });
+    });
+    $(document).on('click','.btn-refresh-email-address',function(){
+      search = '';
+      $.ajax({
+        url: "{{route('email.address.search')}}",
+        dataType: "json",
+        type: "GET",
+        data: {
+          search : search,
+        },
+        beforeSend: function () {
+          $("#loading-image").show();
+        },
+      }).done(function (data) {
+        $("#loading-image").hide();
+        $('.email-address-search').val('');
+        $(".email-address-table tbody").empty().html(data.tbody);
+      });
+    });
+
     $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
       var id = $(this).data('id');

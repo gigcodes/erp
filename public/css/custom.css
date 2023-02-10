@@ -2283,15 +2283,20 @@ table {
 }
 
 #quick-sidebars .fa-2x {
-  font-size: 1.2em;
+  font-size: 14px;
   background: #dddddd9c;
   padding: 5px;
   border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#quick-sidebars .fa-stack {
-  height: 1.7em;
-}
+/*#quick-sidebars .fa-stack {*/
+/*  height: 1.7em;*/
+/*}*/
 
 
 
@@ -2512,11 +2517,172 @@ table {
 #problem-table{
   width: 100% !important;
 }
+.quick-description {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+  max-width: 140px;
+  height: 1.2em;
+  white-space: nowrap;
+}
+#zabbix-table{
+  width: 100% !important;
+}
+.singleline-flex{
+  display: flex;
+  justify-content: space-between;
+  column-gap: 5px;
+  align-items: flex-start;
+}
+.zabbix  .modal-body{
+  padding: 0;
+}
+.zabbix  .modal-table{
+  position: sticky;
+  top:0;
+  background: rgb(191 184 184);
+}
+#zabbix-table_wrapper{
+  overflow: auto;
+}
+#problem-table{
+  width: 100% !important;
+}
 .btnsearchSubmit{
   display: inline-block;
   width: 10%
 }
+
+.select-multiple-checkbox label.checkbox {
+  display: flex;
+  justify-content: start;
+}
+
+.select-multiple-checkbox label.checkbox input {
+  margin-right: 10px !important;
+  box-shadow: none !important;
+}
+
 .attrbtnPage{
 	display: inline-block;
   width: 10%
 }
+
+.csvData-table{
+  width:100% !important;
+}
+
+.min-w-100{
+  min-width: 100%;
+}
+
+.history_model{
+  bottom: 5px;
+  right: 5px;
+}
+
+.csvData-table tbody td{
+  position: relative;
+  padding-right: 40px !important;
+  padding-bottom: 40px !important;
+}
+
+.editbtn_model{
+  position: absolute;
+  top:5px;
+  right:8px;
+  font-size: 15px;
+}
+
+/**Tasks Summary Start**/
+
+.headingTaskSummary{
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tbl-tasks-summary{
+  margin-left: 5%;
+  margin-top: 20px;
+  margin-right: 5%;
+  display: block;
+  overflow-x: auto;
+}
+
+.tbl-tasks-summary th {
+  border: 1px solid black;
+  text-align:center;
+}
+
+.tbl-tasks-summary table {
+  border-collapse: collapse;
+}
+
+.tbl-tasks-summary>thead>tr>th{
+  padding: 10px 12px !important;
+}
+
+#taskHistoryModal .scrollable {
+  max-height:550px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+/* .taskStatusCnt{
+  text-align:right;
+} */
+
+.taskStatusCnt button.btn.btn-xs.show-task-history {
+  margin-left: 5px;
+}
+
+#loading-image-task-summary{
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: url('/images/pre-loader.gif') 50% 50% no-repeat;
+  display:none;
+}
+
+#taskHistoryModal .modal-content{
+  width: 850px;
+  padding: 0% 2% 2% 2%;
+}
+
+.tblTaskHistory{
+  font-size: 13px;
+}
+
+.tblTaskHistory>tbody>tr.headTbltasklist>td{
+  text-align: center;
+}
+
+.tblTaskHistory .tbltasklist>tr>td{
+  padding: 1%;
+}
+
+.filterTaskSummary .filter_drp .form-group{
+  width:10%;
+  padding-left:15px;
+}
+
+.taskStatusCnt{
+  text-align: center;
+}
+
+.margin-l{
+  margin-left: 4%;
+}
+
+button.show-task-history{
+  float: right;
+}
+/**Tasks Summary End**/

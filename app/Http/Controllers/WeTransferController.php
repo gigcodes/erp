@@ -25,9 +25,11 @@ class WeTransferController extends Controller
      *   tags={"Wetransfer"},
      *   summary="Get wetransfer link",
      *   operationId="get-wetransfer-link",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -52,9 +54,11 @@ class WeTransferController extends Controller
      *   tags={"Wetransfer"},
      *   summary="store wetransfer file",
      *   operationId="store-wetransfer-file",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",

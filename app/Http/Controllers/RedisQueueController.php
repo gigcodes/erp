@@ -237,4 +237,14 @@ class RedisQueueController extends Controller
         }
     }
 
+    public function getAllQueues()
+    {
+        $queues = RedisQueue::all();
+        $queue1 = [];
+        foreach ($queues as $queue) {
+            $queue1[] = $queue->name;
+        }
+
+        return $queue1;
+    }
 }

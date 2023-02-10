@@ -29,6 +29,11 @@ var page = {
             page.createDuplicate($(this).data('id'));
         });
 
+        page.config.bodyView.on("click",".load-tag-modal",function(e) {
+            e.preventDefault();
+            page.showtags($(this));
+        });
+
         // delete product templates
         page.config.bodyView.on("click",".btn-delete-template",function(e) {
             if(!confirm("Are you sure you want to delete record?")) {
@@ -219,6 +224,10 @@ var page = {
         });
 
 
+    },
+    showtags: function(ele) {
+        console.log('id');
+        $('#store-attach-tag #store_id').val(ele.data("id"));
     },
     openStoreReindexHistory: function(ele) {
         var _z = {
@@ -546,9 +555,8 @@ var page = {
             }
         }
         this.sendAjax(_z, "saveSite");*/
-
         var id = $('#store_website_id').val();
-        var title = $('[name="title"]').val();
+        var title = $('#swTitle').val();
         var website = $('[name="website"]').val();
         var semrush_project_id = $('[name="semrush_project_id"]').val();
         var mailing_service_id = $('[name="mailing_service_id"]').val();
@@ -598,6 +606,7 @@ var page = {
         var is_price_override = $('[name="is_price_override"]').val(); // selected
         var files = $('#key_file_path1')[0].files[0];
         var site_folder = $('[name="site_folder"]').val();
+        var store_code_id = $('[name="store_code_id"]').val();
 
         var formData = new FormData();
         formData.append("id", id);
@@ -649,6 +658,7 @@ var page = {
         formData.append("icon", icon);
         formData.append("key_file_path1", files);
         formData.append("site_folder", site_folder);
+        formData.append("store_code_id", store_code_id);
 
         $.ajaxSetup({
             headers: {

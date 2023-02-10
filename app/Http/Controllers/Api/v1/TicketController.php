@@ -38,9 +38,11 @@ class TicketController extends Controller
      *   tags={"Ticket"},
      *   summary="create ticket",
      *   operationId="create-ticket",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -113,7 +115,7 @@ class TicketController extends Controller
             'email_log' => 'Email initiated',
             'message' => $email->to,
         ]);
-        // \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
+        \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
         if (! is_null($success)) {
             $message = $this->generate_erp_response('ticket.success', 0, $default = 'Ticket #'.$data['ticket_id'].' created successfully', request('lang_code'));
@@ -176,9 +178,11 @@ class TicketController extends Controller
      *   tags={"Ticket"},
      *   summary="Send ticket to customers",
      *   operationId="send-ticket-to-customer",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",

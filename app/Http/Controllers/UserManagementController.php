@@ -11,6 +11,7 @@ use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
 use App\UserFeedbackStatus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class UserManagementController extends Controller
 {
@@ -87,6 +88,7 @@ class UserManagementController extends Controller
             $sop->category_id = $request->cat_id;
             $sop->user_id = \Auth::user()->id;
             $sop->sop = $request->sop_text;
+            $sop->sops_id = $request->sops_id;
             $sop->save();
             UserFeedbackCategory::where('id', $request->cat_id)->update(['sop_id' => $sop->id, 'sop' => $request->sop_text, 'sops_id' => $request->sops_id]);
 
@@ -103,8 +105,29 @@ class UserManagementController extends Controller
                 return response()->json(['code' => '500',  'message' => 'History not found']);
             }
             $sop = UserFeedbackCategorySopHistory::where('category_id', $request->cat_id)->get();
+            $html = '';
+            if($sop)
+            {
+                foreach($sop as $value) {
+                    $sop_data = Sop::where('id', $value->sops_id)->first();
+                    $html.= "<tr><td>". $value->id ."</td><td>". $value->sop . "</td>";
+                    if(!empty($sop_data))
+                    {
 
-            return response()->json(['code' => '200', 'data' => $sop, 'message' => 'Data listed successfully']);
+                        $html.= "<td class='expand-row-msg' data-name='content' data-id='$value->id'>
+                                <div class='sop-short-content-$value->id'>". \Str::of($sop_data->content)->limit(25, '...') ."</div>
+                                <div style='word-break:break-all;' class='sop-full-content-$value->id hidden'>".$sop_data->content."</div></td>";
+                    }else{
+                        $html.= "<td></td>";
+                    }
+                    $html.="</tr>";
+                }
+            }else{
+                $html.= '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+            }
+//            dd($html);
+
+            return response()->json(['code' => '200', 'data' => $html, 'message' => 'Data listed successfully']);
         } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
@@ -114,9 +137,11 @@ class UserManagementController extends Controller
     {
         try {
             if ($request->sop_history_id == '') {
-                return response()->json(['code' => '500',  'message' => 'History not found']);
+                return response()->json(['code' => '200', 'data' => [], 'message' => 'Data listed successfully']);
             }
-            $sopComment = UserFeedbackCategorySopHistoryComment::where('sop_history_id', $request->sop_history_id)->get();
+            $sopComment = UserFeedbackCategorySopHistoryComment::leftJoin('users', 'users.id', 'user_feedback_category_sop_history_comments.user_id')
+                ->select('user_feedback_category_sop_history_comments.*', 'users.name As username')
+                ->where('sop_history_id', $request->sop_history_id)->get();
 
             return response()->json(['code' => '200', 'data' => $sopComment, 'message' => 'Data listed successfully']);
         } catch (\Exception $e) {

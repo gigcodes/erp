@@ -6,10 +6,10 @@
 
 @section('styles')
     <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style type="text/css">
         .numberSend {
             width: 160px;
@@ -155,45 +155,55 @@
 
 @section('large_content')
     <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
 
     @include('partials.flash_messages')
 
     <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
     @if (auth()->user()->isReviwerLikeAdmin())
-                <a href="javascript:" class="btn custom-button mt-3"style="height: 35px;" id="newTaskModalBtn" >Add New Dev Task </a>
-            @endif
-                
+        <a href="javascript:" class="btn custom-button mt-3" style="height: 35px;" id="newTaskModalBtn">Add New Dev Task </a>
+    @endif
+
     <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
-          
+
             <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('development.summarylist') }}" method="GET">
 
-                  
                     <div class="col-md-2 pd-sm pd-rt">
                         <input type="text" style="width:100%;" name="subject" id="subject_query"
-                            placeholder="Issue Id / Subject" class="form-control"
-                            value="{{ !empty(app('request')->input('subject')) ? app('request')->input('subject') : '' }}">
+                               placeholder="Issue Id / Subject" class="form-control"
+                               value="{{ !empty(app('request')->input('subject')) ? app('request')->input('subject') : '' }}">
                     </div>
                     <div class="col-md-2 pd-sm pd-rt">
                         <select class="form-control" name="module_id" id="module_id">
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
                                 <option {{ $request->get('module') == $module->id ? 'selected' : '' }}
-                                    value="{{ $module->id }}">{{ $module->name }}</option>
+                                        value="{{ $module->id }}" {{ !empty(app('request')->input('module_id')) ? app('request')->input('module_id') ==  $module->id ? 'selected' : '' : '' }}>{{ $module->name }}</option>
                             @endforeach
                         </select>
                     </div>
+
                     @if (auth()->user()->isReviwerLikeAdmin())
                         <div class="col-md-2 pd-sm">
-                            <select class="form-control" name="assigned_to" id="assigned_to">
+                            <select class="form-control globalSelect2" data-ajax="{{ route('development.userslist') }}" multiple name="assigned_to[]" id="assigned_to" data-placeholder="Search Users By Name">
                                 <option value="">Assigned To</option>
+                                @if($userslist)
+                                    @foreach ($userslist as $id => $user)
+                                        <option value="{{ $user['id'] }}" selected>{{ $user['name'] }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="col-md-2 pd-sm">
+                            <select class="form-control" name="lead" id="lead">
+                                <option value="">Lead</option>
                                 @foreach ($users as $id => $user)
-                                    <option {{ $request->get('assigned_to') == $id ? 'selected' : '' }}
-                                        value="{{ $id }}">{{ $user }}</option>
+                                    <option {{ $request->get('lead') == $id ? 'selected' : '' }}
+                                            value="{{ $id }}">{{ $user }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -204,66 +214,75 @@
                             <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
                             <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="priority">Sort by priority</option>
                             <option {{$request->get('order')== "oldest_first" ? 'selected' : ''}} value="oldest_first">Olderst First</option>
-                            
+
                         </select>
                     </div>
                     <div class="col-md-2">
-                            <select class="form-control" name="unread_messages" id="unread_messages">
-                                <option value="">Filter By Messages</option>
-                                    <option {{ $request->get('unread_messages') == "unread" ? 'selected' : '' }}
-                                        value="unread">Unread</option>
-                               
-                            </select>
-                        </div>
+                        <select class="form-control" name="unread_messages" id="unread_messages">
+                            <option value="">Filter By Messages</option>
+                            <option {{ $request->get('unread_messages') == "unread" ? 'selected' : '' }}
+                                    value="unread">Unread
+                            </option>
+
+                        </select>
+                    </div>
                     <div class="col-md-2 pd-sm status-selection">
-                        <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control multiselect', 'multiple' => true]); ?>
-                       
+                        <?php echo Form::select(
+                            'task_status[]', $statusList, request()->get('task_status', array_values($statusList)), [
+                                               'class' => 'form-control multiselect',
+                                               'multiple' => true
+                                           ]
+                        ); ?>
+
+                    </div>
+
+                    <div class="pd-sm status-selection">
+                        <button type="button" class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
                     </div>
 
 
                     <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
-                        id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
+                            id="show"><img src="<?php echo $base_url; ?>/images/filter.png"/></button>
 
-                       
-                    
+
                 </form>
-              
+
             </div>
         </div>
 
     </div>
 
-  
+
     <div class="infinite-scroll">
         <div class="table-responsive mt-3">
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
-                    <tr>
-                        <th width="8%">ID</th>
-                        <th width="12%">MODULE</th>
-                        <th width="13%">Assigned To</th>
-                        <th width="13%">Lead</th>
-                        <th width="35%">Communication</th>
-                        <th width="10%">Send To</th>
-                        <th width="10%">Status</th>
-                        <th width="10%">Actions</th>
-                    </tr>
+                <tr>
+                    <th width="8%">ID</th>
+                    <th width="12%">MODULE</th>
+                    <th width="13%">Assigned To</th>
+                    <th width="13%">Lead</th>
+                    <th width="15%">Communication</th>
+                    <th width="10%">Send To</th>
+                    <th width="10%">Status</th>
+                    <th width="10%">Actions</th>
+                </tr>
                 </thead>
 
                 <tbody id="vendor-body">
-                  
-                    @include("development.partials.summarydatas")
-                   
+
+                @include("development.partials.summarydatas")
 
 
                 </tbody>
             </table>
         </div>
         <?php echo $issues->appends(request()->except('page'))->links(); ?>
-        <img class="infinite-scroll-products-loader center-block" src="{{env('APP_URL')}}/images/loading.gif" alt="Loading..." style="display: none" />
+        <img class="infinite-scroll-products-loader center-block" src="{{env('APP_URL')}}/images/loading.gif" alt="Loading..." style="display: none"/>
     </div>
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
+    @include("development.partials.modal-summary-task-color")
 
 
     <div id="python-action-history" class="modal fade" role="dialog">
@@ -271,20 +290,20 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Action History</h4>
-                   
+
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12" id="python-action-history_div">
                             <table class="table">
                                 <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Old Status</th>
-                                        <th>New Status</th>
-                                        <th>Updated by</th>
-                                        <th></th>
-                                    </tr>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Old Status</th>
+                                    <th>New Status</th>
+                                    <th>Updated by</th>
+                                    <th></th>
+                                </tr>
                                 </thead>
                                 <tbody>
                                 </tbody>
@@ -312,13 +331,13 @@
                     <div class="col-md-12" id="status_history_div">
                         <table class="table">
                             <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Old Status</th>
-                                    <th>New Status</th>
-                                    <th>Updated by</th>
-                                    <th></th>
-                                </tr>
+                            <tr>
+                                <th>Date</th>
+                                <th>Old Status</th>
+                                <th>New Status</th>
+                                <th>Updated by</th>
+                                <th></th>
+                            </tr>
                             </thead>
                             <tbody>
                             </tbody>
@@ -344,30 +363,31 @@
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
-                              <tr>
+                            <tr>
                                 <th style="width:1%;">ID</th>
                                 <th style=" width: 12%">Update By</th>
                                 <th style="word-break: break-all; width:12%">Remark</th>
                                 <th style="width: 11%">Created at</th>
                                 <th style="width: 11%">Action</th>
-                              </tr>
+                            </tr>
                             </thead>
                             <tbody class="task-create-get-list-view">
                             </tbody>
                         </table>
                     </div>
                 </div>
-               <div class="modal-footer">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
+
 @endsection
 
 @section('scripts')
     <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
+            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
     </script>
     <script src="{{ asset('js/zoom-meetings.js') }}"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -375,14 +395,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript">
-        $(document).ready(function() {
+        $(document).ready(function () {
             $(".multiselect").multiselect({
                 nonSelectedText: 'Please Select'
             });
         });
 
 
-        $(document).on('click', '.expand-row-msg', function() {
+        $(document).on('click', '.expand-row-msg', function () {
             var id = $(this).data('id');
             console.log(id);
             var full = '.expand-row-msg .td-full-container-' + id;
@@ -390,7 +410,7 @@
             $(full).toggleClass('hidden');
             $(mini).toggleClass('hidden');
         });
-        $(document).on('change', '.assign-master-user', function() {
+        $(document).on('change', '.assign-master-user', function () {
             let id = $(this).attr('data-id');
             let userId = $(this).val();
 
@@ -404,81 +424,82 @@
                     master_user_id: userId,
                     issue_id: id
                 },
-                success: function() {
+                success: function () {
                     toastr["success"]("Master User assigned successfully!", "Message")
                 },
-                error: function(error) {
+                error: function (error) {
                     toastr["error"](error.responseJSON.message, "Message")
 
                 }
             });
 
         });
-    $(document).on("click",".set-remark",function(e) {
-        $('.remark_pop').val("");
-        var task_id = $(this).data('task_id');
-        $('.sub_remark').attr( "data-task_id", task_id );
-    });
+        $(document).on("click", ".set-remark", function (e) {
+            $('.remark_pop').val("");
+            var task_id = $(this).data('task_id');
+            $('.sub_remark').attr("data-task_id", task_id);
+        });
 
 
-    $(document).on("click",".set-remark, .sub_remark",function(e) {
-        var thiss = $(this);
-        var task_id = $(this).data('task_id');
-        var remark = $('.remark_pop').val();
-        $.ajax({
-            type: "POST",
-            url: "{{route('task.create.get.remark')}}",
-            headers: {
-                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-            },
-            data: {
-                task_id : task_id,
-                remark : remark,
-                type : "Quick-dev-task",
-            },
-            beforeSend: function () {
-                $("#loading-image").show();
-            }
-        }).done(function (response) {
-            if(response.code == 200) {
-                $("#loading-image").hide();
-                $("#preview-task-create-get-modal").modal("show");
-                $(".task-create-get-list-view").html(response.data);
-                $('.remark_pop').val("");
-                toastr['success'](response.message);
-            }else{
+        $(document).on("click", ".set-remark, .sub_remark", function (e) {
+            var thiss = $(this);
+            var task_id = $(this).data('task_id');
+            var remark = $('.remark_pop').val();
+            $.ajax({
+                type: "POST",
+                url: "{{route('task.create.get.remark')}}",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    task_id: task_id,
+                    remark: remark,
+                    type: "Quick-dev-task",
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                if (response.code == 200) {
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html(response.data);
+                    $('.remark_pop').val("");
+                    toastr['success'](response.message);
+                } else {
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html("");
+                    toastr['error'](response.message);
+                }
+
+            }).fail(function (response) {
                 $("#loading-image").hide();
                 $("#preview-task-create-get-modal").modal("show");
                 $(".task-create-get-list-view").html("");
                 toastr['error'](response.message);
-            }
-            
-        }).fail(function (response) {
-            $("#loading-image").hide();
-            $("#preview-task-create-get-modal").modal("show");
-            $(".task-create-get-list-view").html("");
-            toastr['error'](response.message);
+            });
         });
-    });
-    $(document).on("click",".copy_remark",function(e) {
-        var thiss = $(this);
-        var remark_text = thiss.data('remark_text');
-        copyToClipboard(remark_text);
-        /* Alert the copied text */
-        toastr['success']("Copied the text: " + remark_text);
-        //alert("Copied the text: " + remark_text);
-    });
-    function copyToClipboard(text) {
-        var sampleTextarea = document.createElement("textarea");
-        document.body.appendChild(sampleTextarea);
-        sampleTextarea.value = text; //save main text in it
-        sampleTextarea.select(); //select textarea contenrs
-        document.execCommand("copy");
-        document.body.removeChild(sampleTextarea);
-    }
+        $(document).on("click", ".copy_remark", function (e) {
+            var thiss = $(this);
+            var remark_text = thiss.data('remark_text');
+            copyToClipboard(remark_text);
+            /* Alert the copied text */
+            toastr['success']("Copied the text: " + remark_text);
+            //alert("Copied the text: " + remark_text);
+        });
+
+        function copyToClipboard(text) {
+            var sampleTextarea = document.createElement("textarea");
+            document.body.appendChild(sampleTextarea);
+            sampleTextarea.value = text; //save main text in it
+            sampleTextarea.select(); //select textarea contenrs
+            document.execCommand("copy");
+            document.body.removeChild(sampleTextarea);
+        }
 
 
-    $(document).on('change', '.set-responsible-user', function() {
+        $(document).on('change', '.set-responsible-user', function () {
             let id = $(this).attr('data-id');
             let userId = $(this).val();
 
@@ -492,13 +513,13 @@
                     responsible_user_id: userId,
                     issue_id: id
                 },
-                success: function() {
+                success: function () {
                     toastr["success"]("User assigned successfully!", "Message")
                 }
             });
         });
 
-        $(document).on('change', '.assign-user', function() {
+        $(document).on('change', '.assign-user', function () {
             let id = $(this).attr('data-id');
             let userId = $(this).val();
 
@@ -512,10 +533,10 @@
                     assigned_to: userId,
                     issue_id: id
                 },
-                success: function() {
+                success: function () {
                     toastr["success"]("User assigned successfully!", "Message")
                 },
-                error: function(error) {
+                error: function (error) {
                     toastr["error"](error.responseJSON.message, "Message")
 
                 }
@@ -523,7 +544,7 @@
 
         });
 
-        $(document).on('change', '.task-module', function() {
+        $(document).on('change', '.task-module', function () {
             let id = $(this).attr('data-id');
             let moduleID = $(this).val();
 
@@ -537,7 +558,7 @@
                     module_id: moduleID,
                     issue_id: id
                 },
-                success: function() {
+                success: function () {
                     toastr["success"]("Module assigned successfully!", "Message")
                 }
             });
@@ -557,10 +578,10 @@
                     issue_id: id,
                     is_resolved: status
                 },
-                success: function() {
+                success: function () {
                     toastr["success"]("Status updatedd!", "Message")
                 },
-                error: function(error) {
+                error: function (error) {
                     toastr["error"](error.responseJSON.message);
                 }
             });
@@ -577,12 +598,12 @@
                 url: BASE_URL + '/vendor-search',
                 dataType: 'json',
                 delay: 750,
-                data: function(params) {
+                data: function (params) {
                     return {
                         q: params.term, // search term
                     };
                 },
-                processResults: function(data, params) {
+                processResults: function (data, params) {
                     for (var i in data) {
                         data[i].id = data[i].name ? data[i].name : data[i].text;
                     }
@@ -597,11 +618,11 @@
                 },
             },
             placeholder: 'Search by name',
-            escapeMarkup: function(markup) {
+            escapeMarkup: function (markup) {
                 return markup;
             },
             minimumInputLength: 1,
-            templateResult: function(customer) {
+            templateResult: function (customer) {
 
                 if (customer.name) {
                     //return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
@@ -620,12 +641,12 @@
                 url: BASE_URL + '/vendor-search-phone',
                 dataType: 'json',
                 delay: 750,
-                data: function(params) {
+                data: function (params) {
                     return {
                         q: params.term, // search term
                     };
                 },
-                processResults: function(data, params) {
+                processResults: function (data, params) {
                     for (var i in data) {
                         data[i].id = data[i].phone ? data[i].phone : data[i].text;
                     }
@@ -640,11 +661,11 @@
                 },
             },
             placeholder: 'Search by phone number',
-            escapeMarkup: function(markup) {
+            escapeMarkup: function (markup) {
                 return markup;
             },
             minimumInputLength: 1,
-            templateResult: function(customer) {
+            templateResult: function (customer) {
 
                 if (customer.name) {
                     return "<p style='color:#BABABA;'>" + customer.phone + "</p>";
@@ -654,9 +675,9 @@
 
         });
 
-        $(document).on('click', '.emailToAllModal', function() {
+        $(document).on('click', '.emailToAllModal', function () {
             var select_vendor = [];
-            $('.select_vendor').each(function() {
+            $('.select_vendor').each(function () {
                 if ($(this).prop("checked")) {
                     select_vendor.push($(this).val());
                 }
@@ -673,12 +694,12 @@
 
         });
 
-        $(document).on('click', '.send-email-to-vender', function() {
+        $(document).on('click', '.send-email-to-vender', function () {
             $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val($(this).data('id'));
             $('#emailToAllModal').modal("show");
         });
 
-        $(document).on('click', '.set-reminder', function() {
+        $(document).on('click', '.set-reminder', function () {
             let vendorId = $(this).data('id');
             let frequency = $(this).data('frequency');
             let message = $(this).data('reminder_message');
@@ -696,7 +717,7 @@
             vendorToRemind = vendorId;
         });
 
-        $(document).on('click', '.save-reminder', function() {
+        $(document).on('click', '.save-reminder', function () {
             var reminderModal = $("#reminderModal");
             let frequency = $('#frequency').val();
             let message = $('#reminder_message').val();
@@ -706,7 +727,7 @@
             $.ajax({
                 url: "{{ action([\App\Http\Controllers\VendorController::class, 'updateReminder']) }}",
                 type: 'POST',
-                success: function() {
+                success: function () {
                     toastr['success']('Reminder updated successfully!');
                 },
                 data: {
@@ -720,7 +741,7 @@
             });
         });
 
-        $(document).on('click', '.edit-vendor', function() {
+        $(document).on('click', '.edit-vendor', function () {
             var vendor = $(this).data('vendor');
             var url = "{{ url('vendors') }}/" + vendor.id;
 
@@ -740,13 +761,13 @@
             $('#vendor_account_swift').val(vendor.account_swift);
         });
 
-        $(document).on('click', '.create-agent', function() {
+        $(document).on('click', '.create-agent', function () {
             var id = $(this).data('id');
 
             $('#agent_vendor_id').val(id);
         });
 
-        $(document).on('click', '.edit-agent-button', function() {
+        $(document).on('click', '.edit-agent-button', function () {
             var agent = $(this).data('agent');
             var url = "{{ url('agent') }}/" + agent.id;
 
@@ -757,7 +778,7 @@
             $('#agent_email').val(agent.email);
         });
 
-        $(document).on('click', '.make-remark', function(e) {
+        $(document).on('click', '.make-remark', function (e) {
             e.preventDefault();
 
             var id = $(this).data('id');
@@ -776,7 +797,7 @@
             }).done(response => {
                 var html = '';
 
-                $.each(response, function(index, value) {
+                $.each(response, function (index, value) {
                     html += ' <p> ' + value.remark + ' <br> <small>By ' + value.user_name +
                         ' updated on ' + moment(value.created_at).format('DD-M H:mm') +
                         ' </small></p>';
@@ -786,7 +807,7 @@
             });
         });
 
-        $('#addRemarkButton').on('click', function() {
+        $('#addRemarkButton').on('click', function () {
             var id = $('#add-remark input[name="id"]').val();
             var remark = $('#add-remark').find('textarea[name="remark"]').val();
 
@@ -808,14 +829,14 @@
                     'DD-M H:mm') + ' </small></p>';
 
                 $("#makeRemarkModal").find('#remark-list').append(html);
-            }).fail(function(response) {
+            }).fail(function (response) {
                 console.log(response);
 
                 alert('Could not fetch remarks');
             });
         });
 
-        $(document).on('click', '.expand-row', function() {
+        $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
             if (selection.toString().length === 0) {
                 $(this).find('.td-mini-container').toggleClass('hidden');
@@ -823,7 +844,7 @@
             }
         });
 
-        $(document).on('click', '.load-email-modal', function() {
+        $(document).on('click', '.load-email-modal', function () {
             var id = $(this).data('id');
             $.ajax({
                 type: 'POST',
@@ -834,9 +855,9 @@
                 data: {
                     id: id
                 },
-            }).done(function(response) {
+            }).done(function (response) {
                 var html = '<div class="speech-wrapper">';
-                response.forEach(function(message) {
+                response.forEach(function (message) {
                     var content = '';
                     content += 'To : ' + message.to + '<br>';
                     content += 'From : ' + message.from + '<br>';
@@ -894,12 +915,12 @@
                         html +=
                             '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' +
                             content + '</p><br/><span class="timestamp">' + message.created_at.date
-                            .substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+                                .substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
                     } else if (message.inout == 'out') {
                         html +=
                             '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' +
                             content + '</p><br/><span class="timestamp">' + message.created_at.date
-                            .substr(0, 19) +
+                                .substr(0, 19) +
                             '</span></div> <div class="bubble-arrow alt"></div></div>';
                     }
                 });
@@ -908,19 +929,19 @@
 
                 $("#email-list-history").find(".modal-body").html(html);
                 $("#email-list-history").modal("show");
-            }).fail(function(response) {
+            }).fail(function (response) {
                 console.log(response);
 
                 alert('Could not load email');
             });
         });
-        $(document).on("keyup", '.search_email_pop', function() {
+        $(document).on("keyup", '.search_email_pop', function () {
             var value = $(this).val().toLowerCase();
-            $(".speech-wrapper .bubble").filter(function() {
+            $(".speech-wrapper .bubble").filter(function () {
                 $(this).toggle($(this).find('.message').text().toLowerCase().indexOf(value) > -1)
             });
         });
-        $(document).on('click', '.send-message', function() {
+        $(document).on('click', '.send-message', function () {
             var thiss = $(this);
             var data = new FormData();
             var vendor_id = $(this).data('vendorid');
@@ -940,15 +961,15 @@
                         "contentType": false,
                         "processData": false,
                         "data": data,
-                        beforeSend: function() {
+                        beforeSend: function () {
                             $(this).attr('disabled', true);
                         }
-                    }).done(function(response) {
+                    }).done(function (response) {
                         this.closest('tr').find('.chat_messages').html(this.siblings('input').val());
                         $(this).siblings('input').val('');
 
                         $(this).attr('disabled', false);
-                    }).fail(function(errObj) {
+                    }).fail(function (errObj) {
                         $(this).attr('disabled', false);
 
                         alert("Could not send message");
@@ -959,7 +980,7 @@
                 alert('Please enter a message first');
             }
         });
-        $(document).on('click', '.send-message1', function() {
+        $(document).on('click', '.send-message1', function () {
             var thiss = $(this);
             var data = new FormData();
             var vendor_id = $(this).data('vendorid');
@@ -978,16 +999,16 @@
                         "contentType": false,
                         "processData": false,
                         "data": data,
-                        beforeSend: function() {
+                        beforeSend: function () {
                             $(thiss).attr('disabled', true);
                         }
-                    }).done(function(response) {
+                    }).done(function (response) {
                         //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
                         $("#message-chat-txt-" + vendor_id).html(message);
                         $("#messageid_" + vendor_id).val('');
 
                         $(this).attr('disabled', false);
-                    }).fail(function(errObj) {
+                    }).fail(function (errObj) {
                         $(this).attr('disabled', false);
 
                         alert("Could not send message");
@@ -998,7 +1019,7 @@
                 alert('Please enter a message first');
             }
         });
-        $(document).on('change', '.update-category-user', function() {
+        $(document).on('change', '.update-category-user', function () {
             let catId = $(this).attr('data-categoryId');
             let userId = $(this).val();
 
@@ -1008,14 +1029,14 @@
                     user_id: userId,
                     category_id: catId
                 },
-                success: function(response) {
+                success: function (response) {
                     toastr['success']('User assigned to category completely!')
                 }
             });
 
         });
 
-        $(document).on('click', '.add-cc', function(e) {
+        $(document).on('click', '.add-cc', function (e) {
             e.preventDefault();
 
             if ($('#cc-label').is(':hidden')) {
@@ -1034,15 +1055,15 @@
             $('#cc-list').append(el);
         });
 
-        $(document).on('click', '.cc-delete-button', function(e) {
+        $(document).on('click', '.cc-delete-button', function (e) {
             e.preventDefault();
             var parent = $(this).parent().parent();
 
-            parent.hide(300, function() {
+            parent.hide(300, function () {
                 parent.remove();
                 var n = 0;
 
-                $('.cc-input').each(function() {
+                $('.cc-input').each(function () {
                     n++;
                 });
 
@@ -1054,7 +1075,7 @@
 
         // bcc
 
-        $(document).on('click', '.add-bcc', function(e) {
+        $(document).on('click', '.add-bcc', function (e) {
             e.preventDefault();
 
             if ($('#bcc-label').is(':hidden')) {
@@ -1073,15 +1094,15 @@
             $('#bcc-list').append(el);
         });
 
-        $(document).on('click', '.bcc-delete-button', function(e) {
+        $(document).on('click', '.bcc-delete-button', function (e) {
             e.preventDefault();
             var parent = $(this).parent().parent();
 
-            parent.hide(300, function() {
+            parent.hide(300, function () {
                 parent.remove();
                 var n = 0;
 
-                $('.bcc-input').each(function() {
+                $('.bcc-input').each(function () {
                     n++;
                 });
 
@@ -1091,7 +1112,7 @@
             });
         });
 
-        $(document).on('click', '.block-twilio', function() {
+        $(document).on('click', '.block-twilio', function () {
             var vendor_id = $(this).data('id');
             var thiss = $(this);
 
@@ -1102,16 +1123,16 @@
                     _token: "{{ csrf_token() }}",
                     vendor_id: vendor_id
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     $(thiss).text('Blocking...');
                 }
-            }).done(function(response) {
+            }).done(function (response) {
                 if (response.is_blocked == 1) {
                     $(thiss).html('<img src="/images/blocked-twilio.png" />');
                 } else {
                     $(thiss).html('<img src="/images/unblocked-twilio.png" />');
                 }
-            }).fail(function(response) {
+            }).fail(function (response) {
                 $(thiss).html('<img src="/images/unblocked-twilio.png" />');
 
                 alert('Could not block customer!');
@@ -1120,16 +1141,16 @@
             });
         });
 
-        $(document).on('click', '.call-select', function() {
+        $(document).on('click', '.call-select', function () {
             var id = $(this).data('id');
             $('#show' + id).toggle();
             console.log('#show' + id);
         });
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             src = "{{ route('vendors.index') }}";
             $(".search").autocomplete({
-                source: function(request, response) {
+                source: function (request, response) {
                     id = $('#id').val();
                     name = $('#name').val();
                     email = $('#email').val();
@@ -1148,11 +1169,11 @@
                             address: address,
                             category: category,
                         },
-                        beforeSend: function() {
+                        beforeSend: function () {
                             $("#loading-image").show();
                         },
 
-                    }).done(function(data) {
+                    }).done(function (data) {
                         $("#loading-image").hide();
                         console.log(data);
                         $("#vendor-table tbody").empty().html(data.tbody);
@@ -1163,7 +1184,7 @@
                         }
                         $(".select2-quick-reply").select2({});
 
-                    }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
                         alert('No response from server');
                     });
                 },
@@ -1172,21 +1193,21 @@
             });
 
 
-            $(document).ready(function() {
+            $(document).ready(function () {
                 src = "{{ route('vendors.index') }}";
                 $("#search_id").autocomplete({
-                    source: function(request, response) {
+                    source: function (request, response) {
                         $.ajax({
                             url: src,
                             dataType: "json",
                             data: {
                                 term: request.term
                             },
-                            beforeSend: function() {
+                            beforeSend: function () {
                                 $("#loading-image").show();
                             },
 
-                        }).done(function(data) {
+                        }).done(function (data) {
                             $("#loading-image").hide();
                             $("#vendor-table tbody").empty().html(data.tbody);
                             if (data.links.length > 10) {
@@ -1197,7 +1218,7 @@
                             }
                             $(".select2-quick-reply").select2({});
 
-                        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                        }).fail(function (jqXHR, ajaxOptions, thrownError) {
                             alert('No response from server');
                         });
                     },
@@ -1206,7 +1227,7 @@
                 });
             });
 
-            $(document).on("change", ".quickComment", function(e) {
+            $(document).on("change", ".quickComment", function (e) {
 
                 var message = $(this).val();
 
@@ -1221,14 +1242,14 @@
                         data: {
                             reply: message
                         }
-                    }).done(function(data) {
+                    }).done(function (data) {
 
-                    }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
                         alert('No response from server');
                     });
                 }
                 $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected")
-                .text());
+                    .text());
 
             });
 
@@ -1236,7 +1257,7 @@
                 tags: true
             });
 
-            $(document).on("click", ".delete_quick_comment", function(e) {
+            $(document).on("click", ".delete_quick_comment", function (e) {
                 var deleteAuto = $(this).closest(".d-flex").find(".quickComment").find("option:selected")
                     .val();
                 if (typeof deleteAuto != "undefined") {
@@ -1250,10 +1271,10 @@
                         data: {
                             id: deleteAuto
                         }
-                    }).done(function(data) {
+                    }).done(function (data) {
                         if (data.code == 200) {
                             $(".quickComment").empty();
-                            $.each(data.data, function(k, v) {
+                            $.each(data.data, function (k, v) {
                                 $(".quickComment").append("<option value='" + k + "'>" + v +
                                     "</option>");
                             });
@@ -1262,7 +1283,7 @@
                             });
                         }
 
-                    }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
                         alert('No response from server');
                     });
                 }
@@ -1277,11 +1298,11 @@
             $('#createUser').modal('show');
         }
 
-        $('#createUser').on('hidden.bs.modal', function() {
+        $('#createUser').on('hidden.bs.modal', function () {
             $('#createUser').removeAttr('data-email');
         })
 
-        $(document).on("click", "#vendor_id", function() {
+        $(document).on("click", "#vendor_id", function () {
             $('#createUser').modal('hide');
             id = $(this).attr('data-id');
             $.ajax({
@@ -1294,16 +1315,16 @@
                 data: {
                     id: id
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     $("#loading-image").show();
                 },
-            }).done(function(data) {
+            }).done(function (data) {
                 $("#loading-image").hide();
                 if (data.code == 200) {
                     alert(data.data);
                 }
 
-            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 $("#loading-image").hide();
                 alert('No response from server');
             });
@@ -1314,17 +1335,17 @@
             const email = $('#createUser').attr('data-email');
 
             $.ajax({
-                    type: "POST",
-                    url: "/vendors/inviteGithub",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        email
-                    }
-                })
-                .done(function(data) {
+                type: "POST",
+                url: "/vendors/inviteGithub",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    email
+                }
+            })
+                .done(function (data) {
                     alert(data.message);
                 })
-                .fail(function(error) {
+                .fail(function (error) {
                     alert(error.responseJSON.message);
                 });
 
@@ -1337,17 +1358,17 @@
             console.log(email);
 
             $.ajax({
-                    type: "POST",
-                    url: BASE_URL + "/vendors/inviteHubstaff",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        email
-                    }
-                })
-                .done(function(data) {
+                type: "POST",
+                url: BASE_URL + "/vendors/inviteHubstaff",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    email
+                }
+            })
+                .done(function (data) {
                     alert(data.message);
                 })
-                .fail(function(error) {
+                .fail(function (error) {
                     alert(error.responseJSON.message);
                 })
         }
@@ -1356,7 +1377,7 @@
             format: 'YYYY-MM-DD HH:mm'
         });
 
-        $(document).on("change", ".vendor-update-status", function() {
+        $(document).on("change", ".vendor-update-status", function () {
             var $this = $(this);
             $.ajax({
                 type: "POST",
@@ -1366,15 +1387,15 @@
                     vendor_id: $this.data("id"),
                     status: $this.prop('checked')
                 }
-            }).done(function(data) {
+            }).done(function (data) {
                 if (data.code == 200) {
                     toastr["success"](data.message);
                 }
-            }).fail(function(error) {
+            }).fail(function (error) {
 
             })
         });
-        $(document).on("click", ".vendor-update-status-icon", function() {
+        $(document).on("click", ".vendor-update-status-icon", function () {
             var $this = $(this);
             var vendor_id = $(this).attr("data-id");
             var hdn_vendorstatus = $("#hdn_vendorstatus_" + vendor_id).val();
@@ -1386,7 +1407,7 @@
                     vendor_id: $this.data("id"),
                     status: hdn_vendorstatus
                 }
-            }).done(function(data) {
+            }).done(function (data) {
                 if (data.code == 200) {
                     //toastr["success"](data.message);
                     if (hdn_vendorstatus == "true") {
@@ -1402,7 +1423,7 @@
                     }
 
                 }
-            }).fail(function(error) {
+            }).fail(function (error) {
 
             })
         });
@@ -1416,15 +1437,15 @@
             float: 'right',
             nextSelector: '.pagination li.active + li a',
             contentSelector: 'div.infinite-scroll',
-            callback: function() {
+            callback: function () {
                 $('ul.pagination').first().remove();
                 $('ul.pagination').show();
             }
         });
 
-        $(document).on('click', '.create_broadcast', function() {
+        $(document).on('click', '.create_broadcast', function () {
             var vendors = [];
-            $(".select_vendor").each(function() {
+            $(".select_vendor").each(function () {
                 if ($(this).prop("checked") == true) {
                     vendors.push($(this).val());
                 }
@@ -1436,10 +1457,10 @@
             $("#create_broadcast").modal("show");
         });
 
-        $("#send_message").submit(function(e) {
+        $("#send_message").submit(function (e) {
             e.preventDefault();
             var vendors = [];
-            $(".select_vendor").each(function() {
+            $(".select_vendor").each(function () {
                 if ($(this).prop("checked") == true) {
                     vendors.push($(this).val());
                 }
@@ -1462,9 +1483,9 @@
                     message: $("#send_message").find("#message_to_all_field").val(),
                     vendors: vendors
                 }
-            }).done(function() {
+            }).done(function () {
                 window.location.reload();
-            }).fail(function(response) {
+            }).fail(function (response) {
                 $(thiss).text('No');
 
                 alert('Could not say No!');
@@ -1483,14 +1504,14 @@
                     _token: "{{ csrf_token() }}",
                     status: 2
                 },
-                success: function() {
+                success: function () {
                     toastr["success"]("Message sent successfully!", "Message");
 
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     $(self).attr('disabled', true);
                 },
-                error: function() {
+                error: function () {
                     alert('There was an error sending the message...');
                     $(self).removeAttr('disabled', true);
                 }
@@ -1502,7 +1523,7 @@
 
             $('#file-input' + id).trigger('click');
 
-            $('#file-input' + id).change(function() {
+            $('#file-input' + id).change(function () {
                 event.preventDefault();
                 let image_upload = new FormData();
                 let TotalImages = $(this)[0].files.length; //Total Images
@@ -1524,14 +1545,14 @@
                         async: true,
                         contentType: false,
                         processData: false,
-                        beforeSend: function() {
+                        beforeSend: function () {
                             $("#loading-image").show();
                         },
-                        success: function(images) {
+                        success: function (images) {
                             $("#loading-image").hide();
                             alert('Images send successfully');
                         },
-                        error: function() {
+                        error: function () {
                             console.log(`Failed`)
                         }
                     })
@@ -1541,13 +1562,13 @@
 
         // $('#filecount').filestyle({htmlIcon: '<span class="oi oi-random"></span>',badge: true, badgeName: "badge-danger"});
 
-        $(document).on("click", ".upload-document-btn", function() {
+        $(document).on("click", ".upload-document-btn", function () {
             var id = $(this).data("id");
             $("#upload-document-modal").find("#hidden-identifier").val(id);
             $("#upload-document-modal").modal("show");
         });
 
-        $(document).on("submit", "#upload-task-documents", function(e) {
+        $(document).on("submit", "#upload-task-documents", function (e) {
             e.preventDefault();
             var form = $(this);
             var postData = new FormData(form[0]);
@@ -1558,7 +1579,7 @@
                 processData: false,
                 contentType: false,
                 dataType: "json",
-                success: function(response) {
+                success: function (response) {
                     if (response.code == 200) {
                         toastr["success"]("Status updated!", "Message")
                         $("#upload-document-modal").modal("hide");
@@ -1569,7 +1590,7 @@
             });
         });
 
-        $(document).on("click", ".list-document-btn", function() {
+        $(document).on("click", ".list-document-btn", function () {
             var id = $(this).data("id");
             $.ajax({
                 method: "GET",
@@ -1578,7 +1599,7 @@
                     id: id
                 },
                 dataType: "json",
-                success: function(response) {
+                success: function (response) {
                     if (response.code == 200) {
                         $("#blank-modal").find(".modal-title").html("Document List");
                         $("#blank-modal").find(".modal-body").html(response.data);
@@ -1591,8 +1612,7 @@
         });
 
 
-
-        $(document).on('click', '.send-message-open', function(event) {
+        $(document).on('click', '.send-message-open', function (event) {
             var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
             var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
             let issueId = textBox.attr('data-id');
@@ -1614,17 +1634,17 @@
                     "status": 2
                 },
                 dataType: "json",
-                success: function(response) {
+                success: function (response) {
                     toastr["success"]("Message sent successfully!", "Message");
                     $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " +
                         response.message.message + '</li>');
                     $(self).removeAttr('disabled');
                     $(self).val('');
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     $(self).attr('disabled', true);
                 },
-                error: function() {
+                error: function () {
                     alert('There was an error sending the message...');
                     $(self).removeAttr('disabled', true);
                 }
@@ -1632,7 +1652,7 @@
         });
 
 
-        $(document).on('click', '.show-status-history', function() {
+        $(document).on('click', '.show-status-history', function () {
             var data = $(this).data('history');
             var issueId = $(this).data('id');
             $('#status_quick_history_modal table tbody').html('');
@@ -1641,9 +1661,9 @@
                 data: {
                     id: issueId
                 },
-                success: function(data) {
+                success: function (data) {
                     if (data != 'error') {
-                        $.each(data, function(i, item) {
+                        $.each(data, function (i, item) {
                             if (item['is_approved'] == 1) {
                                 var checked = 'checked';
                             } else {
@@ -1688,13 +1708,12 @@
             e.preventDefault();
             var form = $(this);
             var actionUrl = form.attr('action');
-            
+
             $.ajax({
                 type: "POST",
                 url: actionUrl,
                 data: form.serialize(), // serializes the form's elements.
-                success: function(data)
-                {
+                success: function (data) {
                     toastr['success']('Task added successfully!!', 'success');
                     loadMoreProducts();
                     $('#newTaskModal').modal('hide');
@@ -1703,35 +1722,35 @@
             });
         });
         var isLoadingProducts = false;
+
         function loadMoreProducts() {
-             var $loader = $('.infinite-scroll-products-loader');
+            var $loader = $('.infinite-scroll-products-loader');
             $.ajax({
                 url: '{{route("development.summarylist")}}',
                 type: 'GET',
-                beforeSend: function() {
+                beforeSend: function () {
                     $loader.show();
-                   
+
                 }
             })
-            .done(function(data) {
-                // console.log(data);
-                if('' === data.trim())
-                    return;
+                .done(function (data) {
+                    // console.log(data);
+                    if ('' === data.trim())
+                        return;
 
-                $loader.hide();
+                    $loader.hide();
 
-                $('#vendor-body').html(data);
+                    $('#vendor-body').html(data);
 
-                isLoadingProducts = false;
-            })
-            .fail(function(jqXHR, ajaxOptions, thrownError) {
-                console.error('something went wrong');
+                    isLoadingProducts = false;
+                })
+                .fail(function (jqXHR, ajaxOptions, thrownError) {
+                    console.error('something went wrong');
 
-                isLoadingProducts = false;
-            });
+                    isLoadingProducts = false;
+                });
         }
 
-        
 
     </script>
 @endsection
