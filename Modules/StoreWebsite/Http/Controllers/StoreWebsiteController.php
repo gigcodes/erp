@@ -1349,6 +1349,15 @@ class StoreWebsiteController extends Controller
         return response()->json(['code' => 200, 'message' => 'Website store views copied successfully']);
     }
 
+    function    list_tags(Request     $request,   WebsiteStoreTag     $WebsiteStoreTag){
+        $list = $WebsiteStoreTag->all();
+        if(!empty($list)){
+            return response()->json(['code' => 200, 'data' => $list, 'message' => 'List found']);
+
+        }
+            return response()->json(['code' => 400, 'message' => 'Tags Not found']);
+    }
+
     /**
     * Create tags for multiple website and stores
     */
@@ -1369,8 +1378,7 @@ class StoreWebsiteController extends Controller
                 }
             }
             
-            \Flash::error($outputString);
-            return response()->back();
+            return response()->json(['code' => 400, 'message' => $outputString]);
         }
 
         $insertArray    =   [
@@ -1379,7 +1387,8 @@ class StoreWebsiteController extends Controller
         //check and create the tags
         $WebsiteStoreTag->updateOrCreate($insertArray);
 
-        return redirect()->back();
+        return response()->json(['code' => 200, 'message' => 'Tags Added Successfully']);
+        
     }
 
     function    attach_tags(Request     $request,   StoreWebsite   $StoreWebsite){
@@ -1401,15 +1410,23 @@ class StoreWebsiteController extends Controller
                 }
             }
 
-            \Flash::error($outputString);
-            return response()->back();
+            return response()->json(['code' => 400, 'message' => $outputString]);
         }
 
         //attach the tag 
         $StoreWebsite->where(['id' => $data['store_id']])->update(['tag_id' => $data['tag_attached']]);
 
-        return redirect()->back();
+        return response()->json(['code' => 200, 'message' => 'Tags Attach Successfully']);
+    }
 
+
+    function    attach_tags_store(StoreWebsite   $StoreWebsite){
+        $list    =   $StoreWebsite->select('tag_id','website','title')->whereNotNull('tag_id')->with('tags')->get();
+        if(!empty($list)){
+            return response()->json(['code' => 200, 'data' => $list, 'message' => 'List found']);
+
+        }
+        return response()->json(['code' => 400, 'message' => 'Tags Not found']);
     }
     
     public function generateAdminPassword(Request $request)
