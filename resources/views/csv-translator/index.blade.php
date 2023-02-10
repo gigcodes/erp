@@ -495,6 +495,7 @@
         csvTable = $('#csvData-table').DataTable({
             ajax: "{{route('csvTranslator.list')}}",
             responsive: true,
+            pageLength: 50,
             searchDelay: 500,
             processing: true,
             serverSide: true,
@@ -596,8 +597,7 @@
         
     });
 
-
-        $(document).on("change",'input:radio[name="radio1"]',function(){
+    $(document).on("change",'input:radio[name="radio1"]',function(){
             var id,language,status;
             if($(this).val() == 'checked'){
                  id = $(this).data('id');
