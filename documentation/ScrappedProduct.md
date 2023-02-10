@@ -10,28 +10,32 @@ The scrapped product journey starts from `syncProductsFromNodeApp` function in t
 		- 2.1.4) Convert if $ is present to USD  
 		- 2.1.5) Convert if US$ is present to USD currency 
 		- 2.1.6) Make proper array for images replace '%20'
+		- 2.1.7) Merge price parameter to request If request parameter price is not empty
 	- **2.2) LogScrapeValidationUsingRequest : ( With Error Means any product which doesnt have that value wont be stored in Database and Warning means Product will be stored )**   
 		- 2.2.1) validate if Website name is present with error
 		- 2.2.2) check if its proper url and url is present with error
-		- 2.2.3) sku cannot be empty and minimum five characters with error
+		- 2.2.3) sku cannot be empty
+		- 2.2.3) SKU Regrex -
+			brand not found or sku_format regex generated an exception or sku_format_without_color regex generated an exception then return warning 
 		- 2.2.4) validate Brand cannot be empty with error
-		- 2.2.5) validate Title cannot be empty with error
 		- 2.2.6) validate Description is empty with warning 
-		- 2.2.7) validate Property For Category with warning
 		- 2.2.8) Size system cannot be empty with error
+		- 2.2.7) validate Property For Category with warning
+		- 2.2.9) validate Product without Image with warning
 		- 2.2.9) validate Product has Image with error
 		- 2.2.10) validate Currency and currency should be min 3 character with error
-		- 2.2.11) validate Price should not be emoty with ERROR
+		- 2.2.11) validate Price should not be empty with ERROR
 			- 2.2.11.1) Comma in the price
 			- 2.2.11.2) More than one dot in the price
 			- 2.2.11.3) Price must be of type float/double
 		- 2.2.12) validate Discounted price must be of type float/double with error 
-		- 2.2.13) SKU Regrex Check	
-	    - in this we log the validation and check for sku using regrex
 	- **2.3) Try to Get Proper SKU using ProductHelper::getSku -> here we remove special character like (/,-,_,+,|,\\)**
 	- **2.4) We try to Get Brand from brand reference or if brand name is proper then from brands**
 	- **2.5) Get Category From Properties**
 	- **2.6) Remove categories if it is matching with sku**
+	- **2.5) Get Color From Properties**
+	- **2.5) Get Compostion From Properties**
+	- **2.7) Scraped Product Price Correction .**
 	- **2.7) Check if scraped_product is found update the details or store new scraped_product.**
 3. ### Saving Scraped Product 
 	- **Fields Saved in Scraper Products :**
@@ -54,8 +58,11 @@ The scrapped product journey starts from `syncProductsFromNodeApp` function in t
         - `category` ,
         - `validated` ,
         - `validation_result` (Whole Validation Result is saved here)
+4. ### Saving Scrapper Request
+	- check if scraper of same id have records with same day , then update the end time,request_sent and request_failed otherwise it's create new entry in `scrap_request_histories` table
 4. ### After saving product in Scrapped Product we send it to ProductsCreator::createProduct to create Product
 	- **4.1 Search For Supplier, If Supplier is not found Error Log Is Generated For Product**
+	- **4.1 Get Supplier Language Details If Found Then Google Traslation Can Translate Data And Assign To Scraped Product**
 	- **4.2 formatPrices :**
 		- 4.2.1) price_eur => Main Price From Product
 		- 4.2.2) price_inr => Based on Product Brand Price is converted to INR using euro_to_inr field , if brand euro_to_inr is not present then it will take default value from Setting::get('euro_to_inr') so price will be ( Main Price From Product * euro_to_inr )
