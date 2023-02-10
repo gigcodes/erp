@@ -8,6 +8,19 @@
 	.preview-category input.form-control {
 	  width: auto;
 	}
+	.push-brand {
+		height: 14px;
+	}
+	.icon-log-history {
+		display: table-caption;
+	}
+	#page-view-result table tr th:last-child,
+	#page-view-result table tr th:nth-last-child(2) {
+		width: 50px !important;
+		min-width: 50px !important;
+		max-width: 50px !important;
+	}
+
 </style>
 <style>
 	.loader-small {
@@ -159,7 +172,7 @@
 				        	<th data-id="{{$k}}" width="4%">
 								<?php echo $title; ?>
 								<br>
-				        		<a class="brand-history text-dark"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+				        		<a class="brand-history btn p-0"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
 				        		<a class="missing-brand-history text-dark" data-id="{{$k}}" href="javascript:;" ><i class="fa fa-close" aria-hidden="true"></i></a>
 				        	</th>
 				        <?php } ?>	
