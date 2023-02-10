@@ -330,6 +330,7 @@ use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
 use App\Http\Controllers\FaqPushController;
+use App\Http\Controllers\GoogleAdsLogController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -3826,6 +3827,8 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
             });
         });
     });
+
+    Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {

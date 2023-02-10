@@ -69,7 +69,7 @@ class GoogleAdsController extends Controller
             ['ads' => $adsInfo['ads'], 'totalNumEntries' => $adsInfo['totalNumEntries'],
                 'campaignId' => $campaignId, 'adGroupId' => $adGroupId]); */
 
-        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->first();
+        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
         $query = \App\GoogleAd::query();
 
         if ($request->headline) {
@@ -110,6 +110,14 @@ class GoogleAdsController extends Controller
         }
 
         $totalEntries = $adsInfo->total();
+
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Ad',
+                    'message' => "Viewed ad listing for ". $groupDetail->ad_group_name
+                );
+        insertGoogleAdsLog($input);
 
         return view('googleads.index', ['ads' => $adsInfo, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'adGroupId' => $adGroupId, 'groupname' => @$groupDetail->ad_group_name]);
     }
@@ -180,13 +188,24 @@ class GoogleAdsController extends Controller
     // go to ad create page
     public function createPage($campaignId, $adGroupId)
     {
-        //
+        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
+
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Ad',
+                    'message' => "Viewed ad create for ". $groupDetail->ad_group_name
+                );
+        insertGoogleAdsLog($input);
+
         return view('googleads.create', ['campaignId' => $campaignId, 'adGroupId' => $adGroupId]);
     }
 
     // create ad
     public function createAd(Request $request, $campaignId, $adGroupId)
     {
+        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
+
         //create account
         $this->validate($request, [
             'headlinePart1' => 'required|max:25',
@@ -281,8 +300,26 @@ class GoogleAdsController extends Controller
             $adsArray['ads_response'] = json_encode($createdAdGroupAd);
             \App\GoogleAd::create($adsArray);
 
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Ad',
+                        'message' => "Created ad for ". $groupDetail->ad_group_name,
+                        'response' => json_encode($adsArray)
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actSuccess', 'Ads created successfully');
         } catch (Exception $e) {
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Ad',
+                        'message' => 'Create new ad > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads/create')->with('actError', $this->exceptionError);
         }
     }
@@ -303,6 +340,8 @@ class GoogleAdsController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $storagepath = $this->getstoragepath($account_id);
+
+        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
         try {
             // Get OAuth2 configuration from file.
@@ -334,10 +373,31 @@ class GoogleAdsController extends Controller
 
             $removedAdGroupAd = $response->getResults()[0];
 
-            \App\GoogleAd::where('adgroup_google_campaign_id', $campaignId)->where('google_adgroup_id', $adGroupId)->where('google_ad_id', $adId)->delete();
+            $ad = \App\GoogleAd::where('adgroup_google_campaign_id', $campaignId)->where('google_adgroup_id', $adGroupId)->where('google_ad_id', $adId)->first();
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Ad',
+                        'message' => "Deleted ad for ". $groupDetail->ad_group_name,
+                        'response' => json_encode($ad)
+                    );
+
+            $ad->delete();
+            
+            insertGoogleAdsLog($input);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actSuccess', 'Ads deleted successfully');
         } catch (Exception $e) {
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Ad',
+                        'message' => 'Delete ad > ' . $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actError', $this->exceptionError);
         }
     }

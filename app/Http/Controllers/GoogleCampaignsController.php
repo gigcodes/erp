@@ -113,6 +113,14 @@ class GoogleCampaignsController extends Controller
 
         $biddingStrategyTypes = $this->getBiddingStrategyTypeArray();
 
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Campaign',
+                    'message' => "Viewed campaign listing"
+                );
+        insertGoogleAdsLog($input);
+
         return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries, 'biddingStrategyTypes' => $biddingStrategyTypes]);
         /*$adWordsServices = new AdWordsServices();
          $campInfo = $this->getCampaigns($adWordsServices, $session);
@@ -194,6 +202,14 @@ class GoogleCampaignsController extends Controller
     public function createPage()
     {
         $biddingStrategyTypes = $this->getBiddingStrategyTypeArray();
+
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Campaign',
+                    'message' => "Viewed create campaign"
+                );
+        insertGoogleAdsLog($input);
 
         return view('googlecampaigns.create', compact('biddingStrategyTypes'));
     }
@@ -371,9 +387,25 @@ class GoogleCampaignsController extends Controller
             $campaignArray['google_campaign_id'] = $createdCampaign->getId();
             $campaignArray['campaign_response'] = json_encode($createdCampaign);
             
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Campaign',
+                        'message' => "Created new campaign",
+                        'response' => json_encode($campaignArray)
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign created successfully');
         } catch (Exception $e) {
-            // echo'<pre>'.print_r($e,true).'</pre>'; exit;
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Campaign',
+                        'message' => 'Create new campaign > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect()->to('google-campaigns/create?account_id='.$request->account_id)->with('actError', $e->getMessage());
         }
     }
@@ -420,7 +452,15 @@ class GoogleCampaignsController extends Controller
         ];
         // */
         $biddingStrategyTypes = $this->getBiddingStrategyTypeArray();
-        $campaign = \App\GoogleAdsCampaign::where('google_campaign_id', $campaignId)->first();
+        $campaign = \App\GoogleAdsCampaign::where('google_campaign_id', $campaignId)->firstOrFail();
+
+         // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Campaign',
+                    'message' => "Viewed update campaign for ". $campaign->name
+                );
+        insertGoogleAdsLog($input);
 
         return view('googlecampaigns.update', ['campaign' => $campaign, 'biddingStrategyTypes' => $biddingStrategyTypes]);
     }
@@ -556,8 +596,25 @@ class GoogleCampaignsController extends Controller
             $campaignArray['campaign_response'] = json_encode($updatedCampaign);
             \App\GoogleAdsCampaign::whereId($campaignDetail->id)->update($campaignArray);
 
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Campaign',
+                        'message' => 'Updated campaign details for '. $campaignName,
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign updated successfully');
         } catch (Exception $e) {
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Campaign',
+                        'message' => 'Update campaign > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect()->to('google-campaigns/update/'.$request->campaignId.'?account_id='.$account_id)->with('actError', $e->getMessage());
         }
     }
@@ -566,7 +623,10 @@ class GoogleCampaignsController extends Controller
     public function deleteCampaign(Request $request, $campaignId)
     {
         try {
+            
             $account_id = $request->delete_account_id;
+            $googleAdsCampaign = \App\GoogleAdsCampaign::where('account_id', $account_id)->where('google_campaign_id', $campaignId)->firstOrFail();
+
             $storagepath = $this->getstoragepath($account_id);
             
             // Get OAuth2 configuration from file.
@@ -593,10 +653,28 @@ class GoogleCampaignsController extends Controller
             $campaignServiceClient = $googleAdsClient->getCampaignServiceClient();
             $response = $campaignServiceClient->mutateCampaigns($customerId, [$campaignOperation]);
 
-            \App\GoogleAdsCampaign::where('account_id', $account_id)->where('google_campaign_id', $campaignId)->delete();
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Campaign',
+                        'message' => 'Deleted campaign',
+                        'response' => json_encode($googleAdsCampaign)
+                    );
+
+            $googleAdsCampaign->delete();
+
+            insertGoogleAdsLog($input);
 
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign deleted successfully');
         } catch (Exception $e) {
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Campaign',
+                        'message' => 'Delete campaign > ' . $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actError', $this->exceptionError);
         }
     }
@@ -633,7 +711,13 @@ class GoogleCampaignsController extends Controller
                             'budget_resource_name' => $createdBudget->getResourceName(),
                         );
         } catch (Exception $e) {
-            dd($e);            
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Campaign',
+                        'message' => 'Create campaign budget > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);           
         }
 
         return $response;
@@ -669,7 +753,13 @@ class GoogleCampaignsController extends Controller
                             'budget_resource_name' => $updatedBudget->getResourceName(),
                         );
         } catch (Exception $e) {
-            dd($e);            
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Campaign',
+                        'message' => 'Update campaign budget > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);     
         }
 
         return $response;
@@ -751,7 +841,6 @@ class GoogleCampaignsController extends Controller
     // get network settings
     private function getNetworkSettings($channel_type, $channel_sub_type)
     {
-
         $networkSettingsArr = array(
                                 'target_google_search' => false,
                                 'target_search_network' => false,

@@ -99,6 +99,14 @@ class GoogleAdGroupController extends Controller
 
         $totalEntries = $adGroups->total();
 
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Ad Group',
+                    'message' => "Viewed ad group listing for ". $campaign_name
+                );
+        insertGoogleAdsLog($input);
+
         return view('googleadgroups.index', ['adGroups' => $adGroups, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'campaign_name' => $campaign_name, 'campaign_account_id' => $campaign_account_id]);
     }
 
@@ -154,6 +162,14 @@ class GoogleAdGroupController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $campaign_name = $acDetail['campaign_name'];
 
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Ad Group',
+                    'message' => "Viewed create ad group for ". $campaign_name
+                );
+        insertGoogleAdsLog($input);
+
         return view('googleadgroups.create', ['campaignId' => $campaignId, 'campaign_name' => $campaign_name]);
     }
 
@@ -176,6 +192,7 @@ class GoogleAdGroupController extends Controller
 
             $acDetail = $this->getAccountDetail($campaignId);
             $account_id = $acDetail['account_id'];
+            $campaign_name = $acDetail['campaign_name'];
 
             $storagepath = $this->getstoragepath($account_id);
             $addgroupArray['adgroup_google_campaign_id'] = $campaignId;
@@ -224,8 +241,26 @@ class GoogleAdGroupController extends Controller
             $addgroupArray['adgroup_response'] = json_encode($addedAdGroup);
             \App\GoogleAdsGroup::create($addgroupArray);
 
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Ad Group',
+                        'message' => "Created ad group for ". $campaign_name,
+                        'response' => json_encode($addgroupArray)
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup added successfully');
         } catch (Exception $e) {
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Ad Group',
+                        'message' => "Create ad group > ". $e->getMessage()
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups/create')->with('actError', $this->exceptionError);
         }
     }
@@ -235,6 +270,8 @@ class GoogleAdGroupController extends Controller
     {
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
+        $campaign_name = $acDetail['campaign_name'];
+
         $storagepath = $this->getstoragepath($account_id);
         // $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
@@ -268,7 +305,15 @@ class GoogleAdGroupController extends Controller
             'status' => $adGroup->getStatus(),
             'bidAmount' => $adGroup->getBiddingStrategyConfiguration()->getBids()[0]->getBid()->getMicroAmount() / 1000000
         ]; */
-        $adGroup = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->first();
+        $adGroup = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->firstOrFail();
+
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Ad Group',
+                    'message' => "Viewed update ad group for ". $adGroup->ad_group_name
+                );
+        insertGoogleAdsLog($input);
 
         return view('googleadgroups.update', ['adGroup' => $adGroup, 'campaignId' => $campaignId]);
     }
@@ -283,6 +328,8 @@ class GoogleAdGroupController extends Controller
         try {
             $acDetail = $this->getAccountDetail($campaignId);
             $account_id = $acDetail['account_id'];
+            $campaign_name = $acDetail['campaign_name'];
+
             $storagepath = $this->getstoragepath($account_id);
             $addgroupArray = [];
             $adGroupStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
@@ -331,8 +378,26 @@ class GoogleAdGroupController extends Controller
 
             $adGroupUpdate = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->update($addgroupArray);
 
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Ad Group',
+                        'message' => "Updated account details for ". $adGroupName,
+                        'response' => json_encode($addgroupArray)
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup updated successfully');
         } catch (Exception $e) {
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Ad Group',
+                        'message' => 'Update ad group > '. $e->getMessage()
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups/update/'.$request->adGroupId)->with('actError', $this->exceptionError);
         }
     }
@@ -342,7 +407,11 @@ class GoogleAdGroupController extends Controller
     {
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
+        $campaign_name = $acDetail['campaign_name'];
+
         $storagepath = $this->getstoragepath($account_id);
+
+        $adGroup = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->firstOrFail();
 
         try {
             // Get OAuth2 configuration from file.
@@ -374,10 +443,29 @@ class GoogleAdGroupController extends Controller
 
             $removedAdGroup = $response->getResults()[0];
 
-            \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->delete();
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Ad Group',
+                        'message' => "Deleted ad group for ". $campaign_name,
+                        'response' => json_encode($adGroup)
+                    );
+
+            $adGroup->delete();
+
+            insertGoogleAdsLog($input);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup deleted successfully');
         } catch (Exception $e) {
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Ad Group',
+                        'message' => 'Delete ad group > ' . $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actError', $this->exceptionError);
         }
     }

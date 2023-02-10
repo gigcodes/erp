@@ -665,3 +665,14 @@ function getCommunicationData($sdc, $sw)
 
     return $merged;
 }
+
+function insertGoogleAdsLog($input){
+    if(is_array($input)){
+        $input['user_id'] = auth()->id();
+        $input['user_ip_address'] = request()->ip();
+
+        \App\Models\GoogleAdsLog::create($input);
+    }
+
+    return true;
+}
