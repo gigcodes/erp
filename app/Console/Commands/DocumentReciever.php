@@ -6,7 +6,8 @@ use App\CronJobReport;
 use App\Document;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class DocumentReciever extends Command
 {
@@ -46,8 +47,8 @@ class DocumentReciever extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            $oClient = new Client([
+            $cm = new ClientManager();
+            $oClient = $cm->make([
                 'host' => env('IMAP_HOST_DOCUMENT'),
                 'port' => env('IMAP_PORT_DOCUMENT'),
                 'encryption' => env('IMAP_ENCRYPTION_DOCUMENT'),

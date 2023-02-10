@@ -8,7 +8,8 @@ use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class FetchEmails extends Command
 {
@@ -48,8 +49,8 @@ class FetchEmails extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            $imap = new Client([
+            $cm = new ClientManager();
+            $imap = $cm->make([
                 'host' => env('IMAP_HOST_PURCHASE'),
                 'port' => env('IMAP_PORT_PURCHASE'),
                 'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
@@ -291,61 +292,64 @@ class FetchEmails extends Command
                         }
                     } else {
                         dump('No Agent just Supplier emails');
+                        if($inbox){
+                            $emails = $inbox->messages()->where($type['direction'], $supplier->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
 
-                        $emails = $inbox->messages()->where($type['direction'], $supplier->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+                            $emails = $emails->leaveUnread()->get();
 
-                        $emails = $emails->leaveUnread()->get();
+                            foreach ($emails as $email) {
+                                if ($email->hasHTMLBody()) {
+                                    $content = $email->getHTMLBody();
+                                } else {
+                                    $content = $email->getTextBody();
+                                }
 
-                        foreach ($emails as $email) {
-                            if ($email->hasHTMLBody()) {
-                                $content = $email->getHTMLBody();
-                            } else {
-                                $content = $email->getTextBody();
-                            }
+                                if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                                    //dump('NEW EMAIL fourth');
 
-                            if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
-                                //dump('NEW EMAIL fourth');
+                                    $attachments_array = [];
+                                    $attachments = $email->getAttachments();
 
-                                $attachments_array = [];
-                                $attachments = $email->getAttachments();
+                                    $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
+                                        $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
+                                        file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
+                                        $path = 'email-attachments/'.$attachment->name;
 
-                                $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
-                                    $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                                    file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                                    $path = 'email-attachments/'.$attachment->name;
-
-                                    if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
-                                        if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                            $excel = $supplier->getSupplierExcelFromSupplierEmail();
-                                            ErpExcelImporter::excelFileProcess($attachment->name, $excel, $supplier->email);
+                                        if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
+                                            if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                                                $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                                                ErpExcelImporter::excelFileProcess($attachment->name, $excel, $supplier->email);
+                                            }
+                                        } elseif ($attachment->getExtension() == 'zip') {
+                                            if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                                                $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                                                $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
+                                                $attachments_array = $attachments;
+                                            }
                                         }
-                                    } elseif ($attachment->getExtension() == 'zip') {
-                                        if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                            $excel = $supplier->getSupplierExcelFromSupplierEmail();
-                                            $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
-                                            $attachments_array = $attachments;
-                                        }
-                                    }
 
-                                    $attachments_array[] = $path;
-                                });
+                                        $attachments_array[] = $path;
+                                    });
 
-                                $params = [
-                                    'model_id' => $supplier->id,
-                                    'model_type' => Supplier::class,
-                                    'type' => $type['type'],
-                                    'seen' => $email->getFlags()['seen'],
-                                    'from' => $email->getFrom()[0]->mail,
-                                    'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                    'subject' => $email->getSubject(),
-                                    'message' => $content,
-                                    'template' => 'customer-simple',
-                                    'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                    'created_at' => $email->getDate(),
-                                ];
+                                    $params = [
+                                        'model_id' => $supplier->id,
+                                        'model_type' => Supplier::class,
+                                        'type' => $type['type'],
+                                        'seen' => $email->getFlags()['seen'],
+                                        'from' => $email->getFrom()[0]->mail,
+                                        'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                        'subject' => $email->getSubject(),
+                                        'message' => $content,
+                                        'template' => 'customer-simple',
+                                        'additional_data' => json_encode(['attachment' => $attachments_array]),
+                                        'created_at' => $email->getDate(),
+                                    ];
 
-                                Email::create($params);
+                                    Email::create($params);
+                                }
                             }
+                        }else{
+                            dump('empty inbox');
                         }
                     }
                 }

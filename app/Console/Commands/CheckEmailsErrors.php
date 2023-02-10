@@ -7,13 +7,14 @@ use App\CronJobReport;
 use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class CheckEmailsErrors extends Command
 {
     /**
      * The name and signature of the console command.
-     *
+     * 
      * @var string
      */
     protected $signature = 'check:emails-errors';
@@ -47,8 +48,8 @@ class CheckEmailsErrors extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            $imap = new Client([
+            $cm = new ClientManager();
+            $imap = $cm->make([
                 'host' => env('IMAP_HOST_PURCHASE'),
                 'port' => env('IMAP_PORT_PURCHASE'),
                 'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),

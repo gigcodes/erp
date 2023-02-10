@@ -6,7 +6,8 @@ use App\CronJobReport;
 use App\Customer;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class CreateCustomersIfNewEmailComes extends Command
 {
@@ -46,8 +47,8 @@ class CreateCustomersIfNewEmailComes extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            $imap = new Client([
+            $cm = new ClientManager();
+            $imap = $cm->make([
                 'host' => env('IMAP_HOST_PURCHASE'),
                 'port' => env('IMAP_PORT_PURCHASE'),
                 'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
@@ -60,8 +61,7 @@ class CreateCustomersIfNewEmailComes extends Command
             $imap->connect();
 
             $inbox = $imap->getFolder('INBOX');
-
-            $messages = $inbox->getMessages();
+            $messages = $inbox->messages();
 
             foreach ($messages as $message) {
                 $email = $message->getAttributes()['from'][0]->mail;

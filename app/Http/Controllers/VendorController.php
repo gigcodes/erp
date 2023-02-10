@@ -33,7 +33,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Mail;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class VendorController extends Controller
 {
@@ -914,108 +915,116 @@ class VendorController extends Controller
 
     public function emailInbox(Request $request)
     {
-        $imap = new Client([
-            'host' => env('IMAP_HOST_PURCHASE'),
-            'port' => env('IMAP_PORT_PURCHASE'),
-            'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
-            'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-            'username' => env('IMAP_USERNAME_PURCHASE'),
-            'password' => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
-        ]);
+        try{
+            $cm = new ClientManager();
+            $imap = $cm->make([
+                'host' => env('IMAP_HOST_PURCHASE'),
+                'port' => env('IMAP_PORT_PURCHASE'),
+                'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+                'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+                'username' => env('IMAP_USERNAME_PURCHASE'),
+                'password' => env('IMAP_PASSWORD_PURCHASE'),
+                'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
+            ]);
 
-        $imap->connect();
+            $imap->connect();
+            if($request->vendor_id){
+                $vendor = Vendor::find($request->vendor_id);
 
-        $vendor = Vendor::find($request->vendor_id);
+                if ($request->type == 'inbox') {
+                    $inbox_name = 'INBOX';
+                    $direction = 'from';
+                    $type = 'incoming';
+                } else {
+                    $inbox_name = 'INBOX.Sent';
+                    $direction = 'to';
+                    $type = 'outgoing';
+                }
 
-        if ($request->type == 'inbox') {
-            $inbox_name = 'INBOX';
-            $direction = 'from';
-            $type = 'incoming';
-        } else {
-            $inbox_name = 'INBOX.Sent';
-            $direction = 'to';
-            $type = 'outgoing';
-        }
+                $inbox = $imap->getFolder($inbox_name);
 
-        $inbox = $imap->getFolder($inbox_name);
+                $latest_email = Email::where('type', $type)->where('model_id', $vendor->id)->where('model_type', \App\Vendor::class)->latest()->first();
 
-        $latest_email = Email::where('type', $type)->where('model_id', $vendor->id)->where('model_type', \App\Vendor::class)->latest()->first();
+                $latest_email_date = $latest_email
+                    ? Carbon::parse($latest_email->created_at)
+                    : Carbon::parse('1990-01-01');
 
-        $latest_email_date = $latest_email
-            ? Carbon::parse($latest_email->created_at)
-            : Carbon::parse('1990-01-01');
+                $vendorAgentsCount = $vendor->agents()->count();
 
-        $vendorAgentsCount = $vendor->agents()->count();
-
-        if ($vendorAgentsCount == 0) {
-            $emails = $inbox->messages()->where($direction, $vendor->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
-            $emails = $emails->leaveUnread()->get();
-            $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails);
-        } elseif ($vendorAgentsCount == 1) {
-            $emails = $inbox->messages()->where($direction, $vendor->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
-            $emails = $emails->leaveUnread()->get();
-            $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails);
-        } else {
-            foreach ($vendor->agents as $key => $agent) {
-                if ($key == 0) {
-                    $emails = $inbox->messages()->where($direction, $agent->email)->where([
-                        ['SINCE', $latest_email_date->format('d M y H:i')],
-                    ]);
+                if ($vendorAgentsCount == 0) {
+                    $emails = $inbox->messages()->where($direction, $vendor->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+                    $emails = $emails->leaveUnread()->get();
+                    $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails);
+                } elseif ($vendorAgentsCount == 1) {
+                    $emails = $inbox->messages()->where($direction, $vendor->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
                     $emails = $emails->leaveUnread()->get();
                     $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails);
                 } else {
-                    $additional = $inbox->messages()->where($direction, $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
-                    $additional = $additional->leaveUnread()->get();
-                    $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $additional);
-                    // $emails = $emails->merge($additional);
+                    foreach ($vendor->agents as $key => $agent) {
+                        if ($key == 0) {
+                            $emails = $inbox->messages()->where($direction, $agent->email)->where([
+                                ['SINCE', $latest_email_date->format('d M y H:i')],
+                            ]);
+                            $emails = $emails->leaveUnread()->get();
+                            $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails);
+                        } else {
+                            $additional = $inbox->messages()->where($direction, $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+                            $additional = $additional->leaveUnread()->get();
+                            $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $additional);
+                            // $emails = $emails->merge($additional);
+                        }
+                    }
                 }
+
+                $db_emails = $vendor->emails()->with('model')->where('type', $type)->get();
+
+                $emails_array = [];
+                $count = 0;
+                foreach ($db_emails as $key2 => $email) {
+                    $dateCreated = $email->created_at->format('D, d M Y');
+                    $timeCreated = $email->created_at->format('H:i');
+                    $userName = null;
+                    if ($email->model instanceof Supplier) {
+                        $userName = $email->model->supplier;
+                    } elseif ($email->model instanceof Customer) {
+                        $userName = $email->model->name;
+                    }
+
+                    $emails_array[$count + $key2]['id'] = $email->id;
+                    $emails_array[$count + $key2]['subject'] = $email->subject;
+                    $emails_array[$count + $key2]['seen'] = $email->seen;
+                    $emails_array[$count + $key2]['type'] = $email->type;
+                    $emails_array[$count + $key2]['date'] = $email->created_at;
+                    $emails_array[$count + $key2]['from'] = $email->from;
+                    $emails_array[$count + $key2]['to'] = $email->to;
+                    $emails_array[$count + $key2]['message'] = $email->message;
+                    $emails_array[$count + $key2]['cc'] = $email->cc;
+                    $emails_array[$count + $key2]['bcc'] = $email->bcc;
+                    $emails_array[$count + $key2]['replyInfo'] = "On {$dateCreated} at {$timeCreated}, $userName <{$email->from}> wrote:";
+                    $emails_array[$count + $key2]['dateCreated'] = $dateCreated;
+                    $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
+                }
+
+                $emails_array = array_values(Arr::sort($emails_array, function ($value) {
+                    return $value['date'];
+                }));
+
+                $emails_array = array_reverse($emails_array);
+
+                $perPage = 10;
+                $currentPage = LengthAwarePaginator::resolveCurrentPage();
+                $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
+                $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
+
+                $view = view('vendors.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
+
+                return response()->json(['emails' => $view]);
+            }else{
+                return response()->json(['message' => 'Something went wrong! No request data vaialable.'], 422);
             }
+        }catch (Exception $e) {
+            return response()->json(['message' => 'Something went wrong!'], 422);
         }
-
-        $db_emails = $vendor->emails()->with('model')->where('type', $type)->get();
-
-        $emails_array = [];
-        $count = 0;
-        foreach ($db_emails as $key2 => $email) {
-            $dateCreated = $email->created_at->format('D, d M Y');
-            $timeCreated = $email->created_at->format('H:i');
-            $userName = null;
-            if ($email->model instanceof Supplier) {
-                $userName = $email->model->supplier;
-            } elseif ($email->model instanceof Customer) {
-                $userName = $email->model->name;
-            }
-
-            $emails_array[$count + $key2]['id'] = $email->id;
-            $emails_array[$count + $key2]['subject'] = $email->subject;
-            $emails_array[$count + $key2]['seen'] = $email->seen;
-            $emails_array[$count + $key2]['type'] = $email->type;
-            $emails_array[$count + $key2]['date'] = $email->created_at;
-            $emails_array[$count + $key2]['from'] = $email->from;
-            $emails_array[$count + $key2]['to'] = $email->to;
-            $emails_array[$count + $key2]['message'] = $email->message;
-            $emails_array[$count + $key2]['cc'] = $email->cc;
-            $emails_array[$count + $key2]['bcc'] = $email->bcc;
-            $emails_array[$count + $key2]['replyInfo'] = "On {$dateCreated} at {$timeCreated}, $userName <{$email->from}> wrote:";
-            $emails_array[$count + $key2]['dateCreated'] = $dateCreated;
-            $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
-        }
-
-        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
-            return $value['date'];
-        }));
-
-        $emails_array = array_reverse($emails_array);
-
-        $perPage = 10;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
-        $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
-
-        $view = view('vendors.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
-
-        return response()->json(['emails' => $view]);
     }
 
     private function createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails)

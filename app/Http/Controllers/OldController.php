@@ -21,7 +21,8 @@ use Illuminate\Support\Facades\Redirect;
 use Mail;
 use Response;
 use Session;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class OldController extends Controller
 {
@@ -567,7 +568,8 @@ class OldController extends Controller
     //Recieve Email
     public function emailInbox(Request $request)
     {
-        $imap = new Client([
+        $cm = new ClientManager();
+        $imap = $cm->make([
             'host' => 'mail.myinteriormart.com',
             'port' => 143,
             'encryption' => 'tls',

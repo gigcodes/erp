@@ -7,7 +7,8 @@ use App\ResourceCategory;
 use App\ResourceImage;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class RecieveResourceImages extends Command
 {
@@ -47,8 +48,8 @@ class RecieveResourceImages extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            $oClient = new Client([
+            $cm = new ClientManager();
+            $oClient = $cm->make([
                 'host' => env('IMAP_HOST_RESOURCEIMAGE'),
                 'port' => env('IMAP_PORT_RESOURCEIMAGE'),
                 'encryption' => env('IMAP_ENCRYPTION_RESOURCEIMAGE'),
