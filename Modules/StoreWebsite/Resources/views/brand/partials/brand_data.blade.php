@@ -23,7 +23,7 @@ foreach($brands as $brand) {
 	?>
 		<td>
 			<input id="<?php echo $brand->id.$swid; ?>" data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $swid; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
-			<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$swid]) !!}" class="log_history text-dark">
+			<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$swid]) !!}" class="log_history btn p-0">
 				<i class="fa fa-info-circle icon-log-history" aria-hidden="true"></i>
 			</a>
 			<br>

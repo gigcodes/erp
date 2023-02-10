@@ -12,7 +12,9 @@
 		height: 14px;
 	}
 	.icon-log-history {
-		display: table-caption;
+		margin-top: -7px !important;
+		display: flex;
+		/*display: table-caption;*/
 	}
 	#page-view-result table tr th:last-child,
 	#page-view-result table tr th:nth-last-child(2) {
