@@ -51,7 +51,7 @@ class MagentoServiceJob implements ShouldQueue
         // Set time limit
         set_time_limit(0);
         $magentoService = new MagentoService($this->_product, $this->_website, $this->log, $this->mode);
-        $magentoService->assignProductOperation();
+        $magentoService->pushProduct();
     }
 
     public function failed(\Throwable $exception = null)

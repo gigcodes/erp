@@ -413,7 +413,7 @@ class VendorController extends Controller
             'category_id' => 'sometimes|nullable|numeric',
             'name' => 'required|string|max:255',
             'address' => 'sometimes|nullable|string',
-            'phone' => 'required|nullable|numeric',
+            //'phone' => 'required|nullable|numeric',
             'email' => 'sometimes|nullable|email',
             'social_handle' => 'sometimes|nullable',
             'website' => 'sometimes|nullable',
@@ -464,7 +464,7 @@ class VendorController extends Controller
                 $userEmail = null;
             }
             $userPhone = User::where('phone', $request->phone)->first();
-            if ($userEmail == null && $userPhone == null) {
+            if ($userEmail == null) {
                 $user = new User;
                 $user->name = str_replace(' ', '_', $request->name);
                 if ($request->email == null) {

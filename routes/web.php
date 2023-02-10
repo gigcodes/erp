@@ -1139,7 +1139,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
     });
 
-    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', [UserManagementController::class, 'taskCount']);
+    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', [UserManagementController::class, 'taskCount'])->name('hr-ticket.countdevtask');
 
     //
     // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
@@ -1920,6 +1920,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks');
     Route::post('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks_post');
+
+    Route::get('development/task-summary', [DevelopmentController::class, 'developmentTaskSummary'])->name('development.tasksSummary');
+    Route::post('development/task-list', [DevelopmentController::class, 'developmentTaskList'])->name('development.tasksList');
 
     Route::post('save/task/message', [DevelopmentController::class, 'saveTaskMessage'])->name('development.taskmessage');
     Route::post('save/tasktime/message', [DevelopmentController::class, 'saveTaskTimeMessage'])->name('development.tasktimemessage');
@@ -4036,6 +4039,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/quick-replies', [QuickReplyController::class, 'quickReplies'])->name('quick-replies');
     Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', [QuickReplyController::class, 'getStoreWiseReplies'])->name('store-wise-replies');
     Route::post('/save-store-wise-reply', [QuickReplyController::class, 'saveStoreWiseReply'])->name('save-store-wise-reply');
+    Route::post('/copy-store-wise-reply', [QuickReplyController::class, 'copyStoreWiseReply'])->name('copy-store-wise-reply');
     Route::post('/save-sub', [QuickReplyController::class, 'saveSubCat'])->name('save-sub');
     Route::post('/attached-images-grid/customer/create-template', [ProductController::class, 'createTemplate'])->name('attach.cus.create.tpl');
 
