@@ -668,6 +668,7 @@ class ChatMessagesController extends Controller
                 $query->orWhereNotNull('user_id');
                 $query->orWhereNotNull('customer_id');
             });
+
         if($request->get('keyword') != null)
         {
             $records->where('message', 'like', '%'.$request->keyword.'%');

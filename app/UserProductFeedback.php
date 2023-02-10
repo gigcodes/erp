@@ -18,6 +18,8 @@ class UserProductFeedback extends Model
         'content' => 'array',
     ];
 
+    protected $table = 'user_product_feedbacks';
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');

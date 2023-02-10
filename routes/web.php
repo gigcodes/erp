@@ -329,6 +329,7 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\FaqPushController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -775,7 +776,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/{id}/originalColor', [ProductController::class, 'originalColor']);
     Route::post('products/{id}/submitForApproval', [ProductController::class, 'submitForApproval']);
     Route::get('products/{id}/category-history', [ProductCategoryController::class, 'history']);
-    Route::post('products/{id}/addListingRemarkToProduct', [ProductController::class, 'addListingRemarkToProduct']);
+//    Route::post('products/{id}/addListingRemarkToProduct', [ProductController::class, 'addListingRemarkToProduct']);
     Route::get('products/{id}/get-translation-product', [ProductController::class, 'getTranslationProduct']);
     Route::post('products/{id}/
     ', [ProductController::class, 'updateApprovedBy']);
@@ -922,6 +923,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('reply-list/update', [ReplyController::class, 'replyUpdate'])->name('reply.replyUpdate');
     Route::get('reply-history', [ReplyController::class, 'getReplyedHistory'])->name('reply.replyhistory');
     Route::get('reply-logs', [ChatbotMessageLogsController::class, 'replyLogs'])->name('reply.replylogs');
+    Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
+    Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', [AutoReplyController::class, 'updateReply']);
@@ -1136,7 +1139,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
     });
 
-    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', [UserManagementController::class, 'taskCount']);
+    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', [UserManagementController::class, 'taskCount'])->name('hr-ticket.countdevtask');
 
     //
     // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
@@ -1209,6 +1212,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/product/change-status', [OrderController::class, 'productItemStatusChange']);
     Route::post('order/preview-sent-mails', [OrderController::class, 'orderPreviewSentMails']);
     Route::get('customer/getcustomerinfo', [CustomerController::class, 'customerinfo'])->name('customer.getcustomerinfo');
+
+    Route::get('order/customer/list', [OrderController::class, 'customerList'])->name('order.customerList');
+    Route::get('order/call/history/status', [OrderController::class, 'callhistoryStatusList'])->name('order.callhistoryStatusList');
+    Route::get('order/store/website', [OrderController::class, 'storeWebsiteList'])->name('order.storeWebsiteList');
 
     Route::get('order/invoices', [OrderController::class, 'viewAllInvoices']);
     Route::post('order/create-product', [OrderController::class, 'createProduct'])->name('order.create.product');
@@ -1381,6 +1388,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/export', [TaskModuleController::class, 'exportTask'])->name('task.export');
     Route::post('task/addRemarkStatutory', [TaskModuleController::class, 'addRemark'])->name('task.addRemarkStatutory');
 
+    Route::get('task/search/', [TaskModuleController::class, 'searchTask'])->name('task.module.search');
     Route::get('task/{id}', [TaskModuleController::class, 'show'])->name('task.module.show');
 
     Route::resource('task', TaskModuleController::class);
@@ -1870,6 +1878,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('development/task/bulk-delete', [DevelopmentController::class, 'deleteBulkTasks']);
     Route::get('development/task/get-document', [DevelopmentController::class, 'getDocument']);
     Route::get('development/task/export-task', [DevelopmentController::class, 'exportTask']);
+    Route::get('development/task/search/', [DevelopmentController::class, 'searchDevTask'])->name('devtask.module.search');
 
     Route::resource('task-types', TaskTypesController::class);
 
@@ -1907,9 +1916,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('development/flagtask', [DevelopmentController::class, 'flagtask'])->name('development.flagtask');
     Route::post('development/gettasktimemessage', [DevelopmentController::class, 'gettasktimemessage'])->name('development.gettasktimemessage');
     Route::post('development/getlogtasktimemessage', [DevelopmentController::class, 'getlogtasktimemessage'])->name('development.getlogtasktimemessage');
+    Route::get('development/users', [DevelopmentController::class, 'usersList'])->name('development.userslist');
 
     Route::get('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks');
     Route::post('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks_post');
+
+    Route::get('development/task-summary', [DevelopmentController::class, 'developmentTaskSummary'])->name('development.tasksSummary');
+    Route::post('development/task-list', [DevelopmentController::class, 'developmentTaskList'])->name('development.tasksList');
 
     Route::post('save/task/message', [DevelopmentController::class, 'saveTaskMessage'])->name('development.taskmessage');
     Route::post('save/tasktime/message', [DevelopmentController::class, 'saveTaskTimeMessage'])->name('development.tasktimemessage');
@@ -2493,6 +2506,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 });
 
+
+/**
+* This route will push the FAQ to series of website with help of API
+*/
+Route::middleware('auth')->group(function () {
+	Route::post('push/faq', 		[FaqPushController::class, 'pushFaq']);
+	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
+});
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
@@ -2648,7 +2669,7 @@ Route::middleware('auth')->group(function () {
     Route::get('hubstaff/debug', [HubstaffController::class, 'debug']);
     Route::get('hubstaff/payments', [UserController::class, 'payments']);
     Route::post('hubstaff/makePayment', [UserController::class, 'makePayment']);
-
+    Route::get('hubstaff/userlist', [HubstaffController::class, 'userList'])->name('hubstaff.userList');
     /***
      * use for Postman
      * Created By Nikunj
@@ -4018,6 +4039,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/quick-replies', [QuickReplyController::class, 'quickReplies'])->name('quick-replies');
     Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', [QuickReplyController::class, 'getStoreWiseReplies'])->name('store-wise-replies');
     Route::post('/save-store-wise-reply', [QuickReplyController::class, 'saveStoreWiseReply'])->name('save-store-wise-reply');
+    Route::post('/copy-store-wise-reply', [QuickReplyController::class, 'copyStoreWiseReply'])->name('copy-store-wise-reply');
     Route::post('/save-sub', [QuickReplyController::class, 'saveSubCat'])->name('save-sub');
     Route::post('/attached-images-grid/customer/create-template', [ProductController::class, 'createTemplate'])->name('attach.cus.create.tpl');
 
