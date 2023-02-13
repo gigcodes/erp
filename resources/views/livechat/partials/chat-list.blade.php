@@ -63,9 +63,7 @@ $srno=1;
                 @endphp
 
                 @if(!empty($chat_last_message))
-                {
                     <div class="typing-indicator" id="typing-indicator">{{isset($chat_last_message)?$chat_last_message->message:''}}</div>
-                }
                 @endif
 
                 <div class="row quick margin-left-right-set">
