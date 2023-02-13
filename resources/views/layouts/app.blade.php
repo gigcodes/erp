@@ -6004,7 +6004,7 @@ if (!\Auth::guest()) {
 
     $(document).on('change', '#autoTranslate', function(e) {
         e.preventDefault();
-        var customerId = $("input[name='message-id'").val();
+        var customerId = $("input[name='message-id']").val();
         var language = $(".auto-translate").val();
         let self = $(this);
         $.ajax({
