@@ -135,6 +135,8 @@ class PermissionController extends Controller
 
     public function users(Request $request)
     {
+        ini_set('max_execution_time', 300);
+
         $users = User::where('users.is_active', 1)->orderBy('name', 'asc');
         $permissions = Permission::orderBy('name', 'asc');
 
