@@ -63,14 +63,14 @@ class SupplierController extends Controller
         // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
         $solo_numbers = (new SoloNumbers)->all();
         $term = $request->term ?? '';
-        $type = $request->type ?? '';
+        $type = $request->type ?? [];
         $supplier_filter = $request->supplier_filter ?? '';
-        $scrappertype = $request->scrappertype ?? '';
+        $scrappertype = isset($request->scrappertype) ? implode(',', $request->scrappertype) : '';
         //$status = $request->status ?? '';
-        $supplier_category_id = $request->supplier_category_id ?? '';
-        $supplier_status_id = $request->supplier_status_id ?? '';
-        $supplier_price_range_id = $request->supplier_price_range_id ?? '';
-        $updated_by = $request->updated_by ?? '';
+        $supplier_category_id = isset($request->supplier_category_id) ? implode(',', $request->supplier_category_id) : '';
+        $supplier_status_id = isset($request->supplier_status_id) ? implode(',', $request->supplier_status_id) : '';
+        $supplier_price_range_id = isset($request->supplier_price_range_id) ? implode(',', $request->supplier_price_range_id) : '';
+        $updated_by = isset($request->updated_by) ? implode(',', $request->updated_by) : '';
         $source = $request->get('source') ?? '';
         $typeWhereClause = '';
 
@@ -89,24 +89,24 @@ class SupplierController extends Controller
         }*/
 
         if ($supplier_price_range_id != '') {
-            $typeWhereClause .= ' AND supplier_price_range_id='.$supplier_price_range_id;
+            $typeWhereClause .= ' AND supplier_price_range_id in ('.$supplier_price_range_id.')';
         }
 
         if ($supplier_category_id != '') {
-            $typeWhereClause .= ' AND supplier_category_id='.$supplier_category_id;
+            $typeWhereClause .= ' AND supplier_category_id in ('.$supplier_category_id.')';
         }
         if ($supplier_status_id != '') {
-            $typeWhereClause .= ' AND supplier_status_id='.$supplier_status_id;
+            $typeWhereClause .= ' AND supplier_status_id in ('.$supplier_status_id.')';
         }
         if ($scrappertype != '') {
-            $typeWhereClause .= ' AND suppliers.scrapper='.$scrappertype;
+            $typeWhereClause .= ' AND suppliers.scrapper in ('.$scrappertype.')';
         }
         if ($updated_by != '') {
-            $typeWhereClause .= ' AND updated_by='.$updated_by;
+            $typeWhereClause .= ' AND updated_by in ('.$updated_by.')';
         }
 
         if ($request->status) {
-            $typeWhereClause .= ' AND suppliers.status='.$request->status;
+            $typeWhereClause .= ' AND suppliers.status in ('.$request->status.')';
         }
 
         if ($supplier_filter) {

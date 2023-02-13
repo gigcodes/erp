@@ -72,106 +72,105 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List ({{ $suppliers->total() }})</h2>
-			  <form class="" action="{{ route('supplier.index') }}" method="GET">
-				<div class="row filter_drp">
-                  	<div class="form-group">
-						<div class="">
-							<input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search">
-						</div>
-                  	</div>
-					{{-- <div class="form-group">
-						<div class="col-md-3">
-							<input type="text" class="form-control" name="source" id="source" placeholder="Source..">
-						</div>
-					</div> --}}
-					<div class="form-group">
-                        
+            <form class="" action="{{ route('supplier.index') }}" method="GET">
+                <div class="row filter_drp">
+                    <div class="form-group">
+                        <div class="">
+                            <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search">
+                        </div>
+                    </div>
+                    {{-- <div class="form-group">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="source" id="source" placeholder="Source..">
+                        </div>
+                    </div> --}}
+                    <div class="form-group">
+
                         <select class="form-control globalSelect2" data-ajax="{{ route('select2.suppliers') }}" style="width:100%" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple >
-                            @if ($suppliers_all)        
+                            @if ($suppliers_all)
                                 @foreach($suppliers_all as $supplier)
-                                <option value="{{ $supplier->id }}" selected>{{ $supplier->supplier }}</option>
+                                    <option value="{{ $supplier->id }}" selected>{{ $supplier->supplier }}</option>
                                 @endforeach
                             @endif
                             <option ></option>
-                                 
-                                </select>
-					</div>
-					<div class="form-group">
-							<select class="form-control" name="type">
-                                <option value="">Select Type</option>
-                                <option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
-                                <option value="not_updated" {{ isset($type) && $type == 'not_updated' ? 'selected' : '' }}>Not Updated</option>
-                                <option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
-							</select>
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control globalSelect2" data-placeholder="Select Type" style="width:100%" name="type[]" multiple>
+                            {{--                            <option value="">Select Type</option>--}}
+                            {{--                            @dd(request()->get('supplier_status_id'))--}}
+                            <option value="has_error" {{ isset($type) && in_array('has_error',$type) ? 'selected' : '' }}>Has Error</option>
+                            <option value="not_updated" {{ isset($type) && in_array('not_updated',$type) ? 'selected' : '' }}>Not Updated</option>
+                            <option value="updated" {{ isset($type) && in_array('updated',$type) ? 'selected' : '' }}>Updated</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
-                        {!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
+                        {{--                        ["" => "select supplier status"]--}}
+                        {!! Form::select('supplier_status_id[]',$supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm globalSelect2 w-100','multiple','data-placeholder' =>"Select Supplier Status"]) !!}
                     </div>
-                
-					<div class="form-group">
-							{!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
 
-					</div>
-					{{-- <div class="form-group col-md-3">
-							<select class="form-control select-multiple2" style="width: 100%" name="brand[]" data-placeholder="Select brand.." multiple>
-							<optgroup label="Brands">
-								@foreach ($brands as $key => $value)
-								<option value="{{ $value->id }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value->name }}</option>
-								@endforeach
-							</optgroup>
-							</select>
-					</div> --}}
-					{{-- <div class="form-group col-md-3">
-							<select  style="width: 100%" class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
-							<optgroup label="Brands">
-								@foreach ($scrapedBrands as $key => $value)
-								@if(!in_array($value, $selectedBrands))
-									<option value="{{ $value }}"> {{ $value}}</option>
-								@endif
-								@endforeach
-							</optgroup>
-							</select>
-					</div> --}}
-					<div class="form-group">
-						<?php echo Form::select("updated_by",
-							["" => "-- Select Updated By--"] +\App\User::pluck("name","id")->toArray(),
-							request('updated_by'),
-							["class"=> "form-control select-multiple2", "style" => "width: 100%"]
-						); ?>
- {{-- <select class="form-control globalSelect2" data-ajax="{{ route('select2.updatedby_users') }}" style="width:100%" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple >
-    @foreach($suppliers_all as $supplier)
-        <option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
-    @endforeach
-</select> --}}
+                    <div class="form-group">
+                        {!!Form::select('supplier_category_id[]',$suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm globalSelect2 w-100','multiple','data-placeholder' =>"Select Category"])!!}
 
                     </div>
-					<div class="form-group">
-							<select class="form-control" name="scrappertype">
-							<option value="">Select Scrapper</option>
-							<option value="1" {{ isset($scrappertype) && $scrappertype == '1' ? 'selected' : '' }}>SCRAPPER</option>
-							<option value="2" {{ isset($scrappertype) && $scrappertype == '2' ? 'selected' : '' }}>EXCEL</option>
-							<option value="3" {{ isset($scrappertype) && $scrappertype == '3' ? 'selected' : '' }}>NONE</option>
-							</select>
-					</div>
-					<div class="form-group">
-							<select class="form-control" name="supplier_price_range_id">
-								<option value="">Price Range</option>
-								@foreach($allSupplierPriceRanges as $priceRange)
-									<option value="{{$priceRange['id']}}" {{ (Request::get('supplier_price_range_id')) && Request::get('supplier_price_range_id') == $priceRange['id'] ? 'selected' : '' }}>{{$priceRange['full_range']}}</option>
-								@endforeach
-							</select>
-					</div>
-					<!--div class="form-group ml-3">
+                    {{-- <div class="form-group col-md-3">
+                            <select class="form-control select-multiple2" style="width: 100%" name="brand[]" data-placeholder="Select brand.." multiple>
+                            <optgroup label="Brands">
+                                @foreach ($brands as $key => $value)
+                                <option value="{{ $value->id }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value->name }}</option>
+                                @endforeach
+                            </optgroup>
+                            </select>
+                    </div> --}}
+                    {{-- <div class="form-group col-md-3">
+                            <select  style="width: 100%" class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
+                            <optgroup label="Brands">
+                                @foreach ($scrapedBrands as $key => $value)
+                                @if(!in_array($value, $selectedBrands))
+                                    <option value="{{ $value }}"> {{ $value}}</option>
+                                @endif
+                                @endforeach
+                            </optgroup>
+                            </select>
+                    </div> --}}
+                    {{--                    ["" => "-- Select Updated By--"]--}}
+                    <div class="form-group">
+                        <?php echo Form::select("updated_by[]", \App\User::pluck("name","id")->toArray(), request('updated_by'),["class"=> "form-control select-multiple2 globalSelect2",'multiple', "style" => "width: 100%",'data-placeholder' =>"Select Updated By"]); ?>
+                        {{-- <select class="form-control globalSelect2" data-ajax="{{ route('select2.updatedby_users') }}" style="width:100%" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple >
+                           @foreach($suppliers_all as $supplier)
+                               <option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
+                           @endforeach
+                       </select> --}}
+
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control globalSelect2" data-placeholder="Select Scrapper" style="width:100%" name="scrappertype[]" multiple>
+                            {{--<option value="">Select Scrapper</option>--}}
+                            <option value="1" {{ isset($scrappertype) && $scrappertype == '1' ? 'selected' : '' }}>SCRAPPER</option>
+                            <option value="2" {{ isset($scrappertype) && $scrappertype == '2' ? 'selected' : '' }}>EXCEL</option>
+                            <option value="3" {{ isset($scrappertype) && $scrappertype == '3' ? 'selected' : '' }}>NONE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control globalSelect2" data-placeholder="Price Range" style="width:100%" name="supplier_price_range_id[]" multiple>
+                            {{--								<option value="">Price Range</option>--}}
+                            @foreach($allSupplierPriceRanges as $priceRange)
+                                <option value="{{$priceRange['id']}}" {{ (Request::get('supplier_price_range_id')) && Request::get('supplier_price_range_id') == $priceRange['id'] ? 'selected' : '' }}>{{$priceRange['full_range']}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                <!--div class="form-group ml-3">
 						<div class="col-md-3">
 							<input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}><label for="status">Active</label>
 						</div>
                     </div-->
                     <div class="form-group">
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                        <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
                     </div>
-				</div>
-				</form>
+                </div>
+            </form>
         </div>
         <div class="col-lg-12 margin-tb mt-3">
           <button type="button" class="btn btn-secondary manage-scraped-brand-raw" data-toggle="modal" data-target="#manageScrapedBrandsRaw">
@@ -211,7 +210,7 @@
               <th width="20%">Communication</th>
               <th width="5%">Translation</th>
               <th width="5%">Priority</th>
-              <th width="10%">Action</th>
+              <th width="4%">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -385,46 +384,55 @@
 						</select>
 					</div>       
                 </td>
-				<td class='action-btn'>
-						@if ($supplier->is_flagged == 1)
-							<button type="button" class="btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
-							@else
-							<button type="button" class="btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
-							@endif
-							@if($supplier->phone)
-							<button type="button" class="btn-image call-select popup" data-id="{{ $supplier->id }}"><img src="/images/call.png"/></button>
 
-							@if ($supplier->is_blocked == 1)
-								<button type="button" class="btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/blocked-twilio.png"/></button>
-							@else
-								<button type="button" class="btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/unblocked-twilio.png"/></button>
-							@endif
-							@endif
-							<button data-toggle="modal" data-target="#reminderModal" class="btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
-								<img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
-							</button>
-					
-					
-						<a href="{{ route('supplier.show', $supplier->id) }}" class="d-inline btn-image" href=""><img src="/images/view.png" /></a>
 
-						{{-- <button type="button" class="btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
-						<button data-toggle="modal" data-target="#zoomModal" class="btn-image set-meetings" data-id="{{ $supplier->id }}" data-type="supplier"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
-						<button type="button" class="btn-image edit-supplier d-inline" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
-						<button type="button" class="btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></button>
+                <td>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Supplierbtn({{$supplier->id}})"><i class="fa fa-arrow-down"></i></button>
+                </td>
 
-						{!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
-						<button type="submit" class="btn-image d-inline"><img src="/images/delete.png" /></button>
-						{!! Form::close() !!}
+            </tr>
+            <tr class="action-supplierbtn-tr-{{$supplier->id}} d-none">
+                <td class="font-weight-bold">Action</td>
+                <td class='action-btn' colspan="12">
+                @if ($supplier->is_flagged == 1)
+                    <button type="button" class="btn-image flag-supplier" title="Flag Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/flagged.png')}}" /></button>
+                @else
+                    <button type="button" class="btn-image flag-supplier" title="Flag Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/unflagged.png')}}" /></button>
+                @endif
+                @if($supplier->phone)
+                    <button type="button" class="btn-image call-select popup" title="Call Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/call.png')}}"/></button>
 
-						@if ($supplier->scraped_brands_raw != '')
-						<button data-toggle="modal" data-target="#updateBrand" class="btn-image update-brand" data-id="{{ $supplier->id }}" title="Update Brands">
-						<img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
-						</button>
-                        @endif
-                        <button type="button" class="btn send-email-common-btn" data-toemail="{{$supplier->email}}" data-object="supplier" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
-                        <button type="button" class="btn quick-reply-model" data-id="{{$supplier->id}}"><i class="fa fa-fast-forward"></i></button>
-				</td>
-				</tr>
+                    @if ($supplier->is_blocked == 1)
+                        <button type="button" class="btn-image block-twilio" title="Blocked Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/blocked-twilio.png')}}"/></button>
+                    @else
+                        <button type="button" class="btn-image block-twilio" title="Unblocked Supplier" data-id="{{ $supplier->id }}"><img src="{{asset('/images/unblocked-twilio.png')}}"/></button>
+                    @endif
+                @endif
+                <button data-toggle="modal" data-target="#reminderModal" title="Reminder" class="btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
+                    <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
+                </button>
+
+
+                <a href="{{ route('supplier.show', $supplier->id) }}" title="Show Supplier" class="d-inline btn-image" href=""><img src="{{asset('/images/view.png')}}" /></a>
+
+                {{-- <button type="button" class="btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
+                <button data-toggle="modal" data-target="#zoomModal" title="Set Meetings" class="btn-image set-meetings" data-id="{{ $supplier->id }}" data-type="supplier"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
+                <button type="button" class="btn-image edit-supplier d-inline" title="Supplier Edit" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="{{asset('/images/edit.png')}}" /></button>
+                <button type="button" class="btn-image make-remark d-inline" title="Supplier Remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="{{asset('/images/remark.png')}}" /></button>
+
+                {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
+                <button type="submit" class="btn-image d-inline" title="Delete"><img src="{{asset('/images/delete.png')}}" /></button>
+                {!! Form::close() !!}
+
+                @if ($supplier->scraped_brands_raw != '')
+                    <button data-toggle="modal" data-target="#updateBrand" title="Update Brand" class="btn-image update-brand" data-id="{{ $supplier->id }}" title="Update Brands">
+                        <img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
+                    </button>
+                @endif
+                <button type="button" class="btn send-email-common-btn" title="Send Email" data-toemail="{{$supplier->email}}" data-object="supplier" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
+                <button type="button" class="btn quick-reply-model" title="Quick Reply" data-id="{{$supplier->id}}"><i class="fa fa-fast-forward"></i></button>
+            </td>
+            </tr>
           @endforeach
         </tbody>
       </table>
@@ -647,6 +655,10 @@
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script type="text/javascript" src="/js/common-helper.js"></script>
   <script type="text/javascript">
+
+      function Supplierbtn(id){
+          $(".action-supplierbtn-tr-"+id).toggleClass('d-none')
+      }
 
       var supplierToRemind = null;
         $(document).ready(function() {
