@@ -4,13 +4,14 @@
 				<th id="sno" width="1%">
 					<input type="checkbox" class="checkbox-select-all">
 				</th>
-				<th width="1%">ID</th>
-				<th width="1%">Name</th>
+				<th width="3%">ID</th>
+				<th width="1%">Store Website</th>
+				<th width="2%">Name</th>
 				<th width="1%">Mobile</th>
-				<th width="20%">Next Action</th>
+				<th width="15%">Next Action</th>
 				<th width="20%">Shortcuts</th>
-				<th width="10%">Communication</th>
-				<th width="8%">Actions</th>
+				<th width="20%">Communication</th>
+				<th width="1%">Actions</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -18,6 +19,7 @@
 				<tr>
 					<td><input type="checkbox" name="items[]" value="{{$item->id}}" class="items-id"></td>
 					<td>{{$item->id}}</td>
+					<td>{{!empty($item->storeWebsite)?$item->storeWebsite->title:''}}</td>
 					<td>{{$item->short_name}}</td>
 					<td>{{ $item->phone }}</td>
 					<td id="new_action_td h-100">
@@ -188,72 +190,69 @@
 					<td class="communication">
 						<div class="btn-toolbar" role="toolbar">
 							<div class="w-100">
-								<textarea rows="1" class="form-control quick-message-field w-75 pull-left" name="message" placeholder="Message"></textarea>
+								<textarea rows="1" class="form-control quick-message-field" name="message" placeholder="Message"></textarea>
+							</div>
 								<button class="btn btn-sm btn-xs send-message pull-left mt-2" data-customerid="{{$item->id}}">
 									<i class="fa fa-paper-plane"></i>
 								</button>
 								<button type="button" class="btn btn-xs load-communication-modal pull-left mt-2" data-object="customer" data-limit="10" data-id="{{$item->id}}" data-is_admin="1" data-is_hod_crm="" data-load-type="text" data-all="1" title="Load messages">
 									<i class="fa fa-comments-o"></i>
 								</button>
-							</div>
-						</div>
-						<div class="btn-toolbar" role="toolbar">
-							<div class="w-100">
-								<div class="communication-div-{{$item->id}}">
-									<span class="message-chat-txt" data-toggle="popover" data-placement="top" data-content="{{$item->message}}" data-original-title="" title="">{{$item->short_message}}</span>	
-								</div>
+							<div class="communication-div-{{$item->id}} pull-left" style="margin-top: 8px !important;">
+								<span class="message-chat-txt" data-toggle="popover" data-placement="top" data-content="{{$item->message}}" data-original-title="" title="">{{$item->short_message}}</span>
 							</div>
 						</div>
 					</td>
-					<td>
+					<td><button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn({{$item->id}})"><i class="fa fa-arrow-down"></i></button></td>
+				</tr>
+				<tr class="action-btn-tr-{{$item->id}} d-none">
+					<td></td>
+					<td width="2%">Actions</td>
+					<td colspan="6">
 						<div class="btn-toolbar" role="toolbar">
-							<div class="w-100 mb-1">
-								<button type="button" class="btn btn-xs load-communication-modal mr-1" data-object="customer" data-id="{{$item->id}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds">
-									<i class="fa fa-folder"></i>
-								</button>
-								<button type="button" class="btn btn-xs load-communication-modal mr-1" data-object="customer" data-id="{{$item->id}}" data-attached="1" data-load-type="pdf" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load PDF">
-									<i class="fa fa-file"></i>
-								</button>
-								<button type="button" class="btn btn-xs load-communication-modal mr-1" data-object="customer" data-id="{{$item->id}}" data-attached="1" data-load-type="broadcast" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Broadcast">
-									<i class="fa fa-image"></i>
-								</button>
-								@if($item->do_not_disturb==1)
+							<button type="button" class="btn btn-xs load-communication-modal mr-1" data-object="customer" data-id="{{$item->id}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds">
+								<i class="fa fa-folder"></i>
+							</button>
+							<button type="button" class="btn btn-xs load-communication-modal mr-1" data-object="customer" data-id="{{$item->id}}" data-attached="1" data-load-type="pdf" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load PDF">
+								<i class="fa fa-file"></i>
+							</button>
+							<button type="button" class="btn btn-xs load-communication-modal mr-1" data-object="customer" data-id="{{$item->id}}" data-attached="1" data-load-type="broadcast" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Broadcast">
+								<i class="fa fa-image"></i>
+							</button>
+							@if($item->do_not_disturb==1)
 								<a class="btn btn-xs cls_dnt_btn do_not_disturb mr-1" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
 									<i class="fa fa-ban"></i>
 								</a>
-								@else
+							@else
 								<a class="btn btn-xs cls_dnt_btn do_not_disturb mr-1" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
 									<i class="fa fa-ban"></i>
 								</a>
-								@endif
-								<a class="btn btn-xs create-customer-related-task mr-1" title="Task" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
+							@endif
+							<a class="btn btn-xs create-customer-related-task mr-1" title="Task" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
 									<i class="fa fa-plus"></i>
 								</a>
-							</div>
-							<div class="w-100">
-								<a class="btn btn-xs count-customer-tasks mr-1" title="Task Count" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
-									<i class="fa fa-clipboard"></i>
-								</a>
-								@if($item->in_w_list==1)
+							<a class="btn btn-xs count-customer-tasks mr-1" title="Task Count" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
+								<i class="fa fa-clipboard"></i>
+							</a>
+							@if($item->in_w_list==1)
 								<a class="btn btn-xs mr-1" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
 									<i class="fa fa-check-double"></i>
 								</a>
-								@endif
-								<button type="button" class="btn btn-xs create-customer-ticket-modal mr-1" title="Create Ticket" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#create-customer-ticket-modal">
-									<i class="fa fa-file"></i>
-								</button>
-								<button type="button" class="btn btn-xs show-customer-tickets-modal mr-1" title="Show Tickets" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#show-customer-tickets-modal">
-									<i class="fa fa-tags"></i>
-								</button>
-								<a href="javascript:;" class="btn btn-xs add-chat-phrases mr-1" title="Create Question">
-									<i class="fa fa-plus"></i>
+							@endif
+							<button type="button" class="btn btn-xs create-customer-ticket-modal mr-1" title="Create Ticket" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#create-customer-ticket-modal">
+								<i class="fa fa-file"></i>
+							</button>
+							<button type="button" class="btn btn-xs show-customer-tickets-modal mr-1" title="Show Tickets" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#show-customer-tickets-modal">
+								<i class="fa fa-tags"></i>
+							</button>
+							<a href="javascript:;" class="btn btn-xs add-chat-phrases mr-1" title="Create Question">
+								<i class="fa fa-plus"></i>
 								<a href="javascript:;" class="btn btn-xs latest-scraped-shortcut" data-toggle="modal" data-target="#categoryBrandModal" data-id="{{$item->id}}" title="Send Latest Scrapped">
 									<i class="fa fa-paper-plane" aria-hidden="true"></i>
 								</a>
-							</div>
+							</a>
 						</div>
 					</td>
-					
 				</tr>
 				@endforeach
 		    </tbody>

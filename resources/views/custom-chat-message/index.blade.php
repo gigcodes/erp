@@ -33,70 +33,56 @@
 
     <div class="row ml-2 mr-2">
         <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
-            <div class="pull-left">
                 <div class="form-inline">
                     <form class="form-inline message-search-handler form-search-data" method="get">
-                        <div class="row">
-                            <div class="form-group mr-2">
-                                <div class="col pr-0">
-                                    <?php echo Form::text("created_at",request("date"),["class"=> "form-control datepicker","placeholder" => "Select Date", "id"=> "created_at"]) ?>
-                                </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                            <?php echo Form::text("created_at",request("date"),["class"=> "form-control datepicker","placeholder" => "Select Date", "id"=> "created_at"]) ?>
+                        </div>
+                        </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                                <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword", "id"=> "search-keywords"]) ?>
                             </div>
-
-                            <div class="form-group mr-2">
-                                <div class="col pr-0">
-                                    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword", "id"=> "search-keywords"]) ?>
-                                </div>
+                        </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                                <select class="form-control" name="user_id">
+                                    <option value="">Select user</option>
+                                    @foreach(\App\User::orderBy('name')->pluck('name','id')->toArray() as $k => $user)
+                                        <option value="{{ $k }}">{{ $user }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-
-                            <div class="form-group mr-2">
-                                <div class="col pr-0">
-                                    <select class="form-control" name="user_id">
-                                        <option value="">Select user</option>
-                                        @foreach(\App\User::pluck('name','id')->toArray() as $k => $user)
-                                            <option value="{{ $k }}">{{ $user }}</option>
-                                        @endforeach    
-                                    </select>
-                                </div>
+                        </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                                <select class="form-control" name="vendor_id">
+                                    <option value="">Select vendor</option>
+                                        @foreach(\App\Vendor::orderBy('name')->pluck('name','id')->toArray() as $k => $vendor)
+                                            <option value="{{ $k }}">{{ $vendor }}</option>
+                                        @endforeach
+                                </select>
                             </div>
-
-                            <div class="form-group mr-2">
-                                <div class="col pr-0">
-                                    <select class="form-control" name="vendor_id">
-                                        <option value="">Select vendor</option>
-                                            @foreach(\App\Vendor::pluck('name','id')->toArray() as $k => $vendor)
-                                                <option value="{{ $k }}">{{ $vendor }}</option>
-                                            @endforeach
-                                    </select>
-                                </div>
-                            </div>   
-                            
-                            <div class="form-group mr-2">
-                                <div class="col pr-0">
-                                    <select class="form-control" name="customer_id">
-                                        <option value="">Select customer</option>
-                                            @foreach(\App\Customer::pluck('name','id')->toArray() as $k => $customer)
-                                                <option value="{{ $k }}">{{ $customer }}</option>
-                                            @endforeach
-                                    </select>
-                                </div>
-                            </div>   
-
-                            
-                            
-                            <div class="pull-right">
-                                <button type="button" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
-                                    <img src="/images/search.png" style="cursor: default;">
-                                </button>
+                        </div>
+                        <div class="form-group mr-2 mb-2">
+                            <div class="p-0">
+                                <select class="form-control" name="customer_id">
+                                    <option value="">Select customer</option>
+                                        @foreach(\App\Customer::orderBy('name')->pluck('name','id')->toArray() as $k => $customer)
+                                            <option value="{{ $k }}">{{ $customer }}</option>
+                                        @endforeach
+                                </select>
                             </div>
-
-                        
-                            
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
+                                <img src="/images/search.png" style="cursor: default;">
+                            </button>
                         </div>
                     </form>
-
                 </div>
-            </div>
+
             <div class="pull-right">
                 <div class="form-inline">
                     
@@ -156,6 +142,32 @@
     </div>  
 </div>
 
+<div class="modal fade" id="Show_message_display" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">Message</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered text-wrap w-auto min-w-100">
+                    <thead>
+                    <tr>
+                        <th>Message</th>
+                    </tr>
+                    </thead>
+                    <tbody class="chat_message_history">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include("custom-chat-message.templates.list-template")
 
 <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
@@ -167,6 +179,23 @@
 <!-- <script type="text/javascript" src="{{ asset('/js/custom_chat_message.js') }}"></script> -->
 
 <script type="text/javascript">
+    $(document).on("click",".copy_chat_message", function (){
+        var thiss = $(this);
+        var remark_text = thiss.data('message');
+        copyToClipboard(remark_text);
+        /* Alert the copied text */
+        toastr['success']("Copied the text: " + remark_text);
+    });
+
+    function copyToClipboard(text) {
+        var sampleTextarea = document.createElement("textarea");
+        document.body.appendChild(sampleTextarea);
+        sampleTextarea.value = text; //save main text in it
+        sampleTextarea.select(); //select textarea contenrs
+        document.execCommand("copy");
+        document.body.removeChild(sampleTextarea);
+    }
+
     $(document).on('submit','.form-search-data',function(e){
         e.preventDefault();
         var keyword = $("#search-keywords").val();
@@ -188,6 +217,14 @@
         var _this = $(this);
         var search = _this.attr('data-id');
         loadMore(search)
+    });
+
+    $(document).on("click",".show_chat_message", function(e) {
+        e.preventDefault();
+        $("#Show_message_display").modal('show');
+        var _this = $(this);
+        var content = _this.attr('data-content');
+        $('.chat_message_history').html('<td>'+content+'</td>')
     });
     // page.init({
     //  bodyView : $("#common-page-layout"),

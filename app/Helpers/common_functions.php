@@ -281,6 +281,13 @@ function replace_dash($string)
     return preg_replace('/\s+/', '_', strtolower($string));
 }
 
+function replaceSpaceWithDash($string)
+{
+    $string = str_replace(' ', '-', strtolower($string)); // Replaces all spaces with hyphens.
+
+    return preg_replace('/\s+/', '-', strtolower($string));
+}
+
 function storeERPLog($erpData)
 {
     if (! empty($erpData)) {

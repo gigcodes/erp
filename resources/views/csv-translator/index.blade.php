@@ -42,7 +42,27 @@
             border: none;
             background: none
         }
-     
+
+        table.csvData-table tbody tr td div{
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        table.csvData-table tbody tr td .bg-success{
+            padding: 5px !important;
+        }
+
+        table.csvData-table tbody tr td .bg-custom-grey{
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+        .csvData-table tbody td {
+            padding-bottom: 10px !important;
+        }
 
         @media (max-width: 1280px) {
             table.table {
@@ -132,16 +152,20 @@
 </div>
 
 <div class="float-right my-3">
+    @if(auth()->user()->hasRole('Lead Translator'))
     <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-secondary btn_import">Import CSV</button>
-    <a class="btn btn-secondary btn_export" href="{{ route('csvTranslator.export') }}" target="_blank">Export CSV</a>
     <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
+    @endif
+    <a class="btn btn-secondary btn_export" href="#" target="_self">Export CSV</a>
 </div>
 
 
-<div class="table-responsive mt-3" style="margin-top:20px;">
-    <table class="table table-bordered text-wrap csvData-table" style="border: 1px solid #ddd;" id="csvData-table">
+<div class="table-responsive mt-3 table-horizontal-scroll" style="margin-top:20px;">
+    <table class="table table-bordered text-wrap csvData-table w-100" style="border: 1px solid #ddd;" id="csvData-table">
         <thead>
+            
             <tr>
+            @if(auth()->user()->hasRole('Lead Translator'))
                 <th>Id</th>
                 <th>Keyword</th>
                 <th>En</th>
@@ -156,7 +180,16 @@
                 <th>ZH</th>
                 <th>AR</th>
                 <th>UR</th>
+                @else
+                @php $language = json_decode($lang);@endphp
+                @foreach ($language as $columToDraw)
+                    <th>{{$columToDraw->data}}</th>
+                @endforeach
+                @endif
             </tr>
+            
+
+            
         </thead>
         <tbody>
 
@@ -203,10 +236,23 @@
                             <option value="ur">UR</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Select Action</label>
+                        <select class="form-control" name="action" id="actionId">
+                            <option>Select</option>
+                            <option value="view">view</option>
+                            <option value="edit">edit</option>
+                        </select>
+                    </div>
+                    <div class="d-none alert alert-class">
+
+                    </div>
+
                 </form>
             </div>
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-submit-form" data-dismiss="modal">Add
+                <button type="button" class="btn btn-secondary btn-submit-form">Add
                     Permission</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
@@ -305,6 +351,32 @@
 </div>
 </div>
 
+<div class="modal fade" id="Show_message_display" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">Csv Translator</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered text-wrap w-auto min-w-100">
+                    <thead>
+                    <tr>
+                        <th>Message</th>
+                    </tr>
+                    </thead>
+                    <tbody class="chat_message_history">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -314,242 +386,150 @@
 </script>
 <script type="text/javascript">
     $(document).on('click', '.btn_import', function() {
+
         var myDropzone = new Dropzone("form#my-dropzone", {
-            url: "{{ route('csvTranslator.uploadFile') }}"
-        });
-        myDropzone.on('complete', function() {
-            $(".success-alert").removeClass('d-none');
-            $(".success-alert").addClass('mt-2');
-            $(".success-alert").text('Successfully Imported');
-            setTimeout(function() {
-                $("#csv_import_model").modal('hide');
-                window.location.reload();
-            }, 500);
+            url: "{{ route('csvTranslator.uploadFile') }}",
+            acceptedFiles: ".xlsx,.csv",
+        }).on('complete', function(response) {
+            if(response.status === 'error'){
+                $(".success-alert").removeClass('d-none');
+                $(".success-alert").addClass('alert-danger');
+                $(".success-alert").text('oops something went wrong...!!!');
+                $(".success-alert").removeClass('alert-success');
+            }else{
+                $(".success-alert").removeClass('d-none');
+                $(".success-alert").addClass('mt-2');
+                $(".success-alert").text('Successfully Imported');
+                setTimeout(function() {
+                    $("#csv_import_model").modal('hide');
+                    window.location.reload();
+                }, 500);
+            }
+            
         })
     });
-    var userId;
-    var langId;
+    
+    $(document).on('click', ".btn-submit-form", function() {
+        var userId = $("#selectUserId").val();
+        var langId = $("#selectLangId").val();
+        var actionId = $("#actionId").val();
+        $(".alert-class").text('');
+        $.ajax({
+            url:'http://localhost/erp/public/index.php/csv-translator/permissions',
+            method:'POST',
+            data:{'user_id':userId,'lang_id':langId,'action':actionId,'_token':"{{csrf_token()}}"},
+            success:function(response){
+                if(response.status === 200){       
+                    $(".alert-class").text("Successfully added");
+                    $(".alert-class").addClass("alert-success");
+                    $(".alert-class").removeClass("alert-danger");
+                    $(".alert-class").removeClass("d-none");
+                    window.location.reload();
+                }else{
+                    $("#selectUserId").val('');
+                    $("#selectLangId").val('');
+                    $("#actionId").val('');
+                    $(".alert-class").removeClass("alert-success");
+                    $(".alert-class").text("Permission already exist");
+                    $(".alert-class").removeClass("d-none");
+                    $(".alert-class").addClass("alert-danger");
+                }
+            }
+        })
+    });
+    var cols;
+</script>
+
+@if(auth()->user()->hasRole('Lead Translator'))
+    <script>   
+        cols =  [{ data: 'id' },
+            { data: 'key' },
+            { data: 'en', render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="en" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            }},
+            { data: 'es',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="es" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } },
+            { data: 'ru',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ru" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } },
+            { data: 'ko' ,render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ko" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            }},
+            { data: 'ja',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ja" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } },
+            { data: 'it',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="it" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } },
+            { data: 'de',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="de" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } },
+            { data: 'fr',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="fr" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } },
+            { data: 'nl',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="nl" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } },
+            { data: 'zh',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="zh" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } },
+            { data: 'ar',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ar" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } },
+            { data: 'ur',render: function(data, type, row, meta) {
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+            } }]
+    </script>
+@else
+    <script>
+        cols = <?php echo $lang; ?>;
+    </script>
+@endif
+    <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
 
 
-    var oTable;
+<script>
+    var csvTable;
     $(document).ready(function() {
-        oTable = $('#csvData-table').DataTable({
-            lengthMenu: [
-                [10, 25, 50, -1],
-                [10, 25, 50, "All"]
-            ],
+        csvTable = $('#csvData-table').DataTable({
+            ajax: "{{route('csvTranslator.list')}}",
             responsive: true,
+            pageLength: 50,
             searchDelay: 500,
             processing: true,
             serverSide: true,
-            sScrollX: true,
-            searching: true,
-            targets: 'no-sort',
-            bSort: false,
-            ajax: {
-                "url": "{{ route('csvTranslator.list') }}",
-                data: function(d) {
-
-                },
-            },
-            columnDefs: [{
-                targets: [],
-                orderable: false,
-                searchable: false,
-            }],
-            columns: [{
-                    data: 'id',
-                    render: function(data, type, row, meta) {
-                        return data;
-                    }
-                },
-                {
-                    data: 'key',
-                    render: function(data, type, row, meta) {
-                        return data;
-                    }
-                },
-                {
-                    data: 'en',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "en") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.en) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="en" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-
-                    }
-                },
-                {
-                    data: 'es',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "es") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.es) +
-                                '  data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="es" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'ru',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "ru") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.ru) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ru" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'ko',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "ko") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.ko) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ko" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'ja',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "ja") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.ja) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ja" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'it',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "it") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.it) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="it" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'de',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "de") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.de) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="de" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'fr',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "fr") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.fr) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="fr" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'nl',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "nl") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.nl) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="nl" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'zh',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "zh") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.zh) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="zh" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'ar',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "ar") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.ar) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ar" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                },
-                {
-                    data: 'ur',
-                    render: function(data, type, row, meta) {
-                        if (userId != null && langId === "ur") {
-                            return data + ' <a href="#" class="editbtn_model" data-lang=' +
-                                langId + ' data-user=' + userId + ' data-id=' + row.id +
-                                ' data-value=' +
-                                JSON.stringify(row.ur) +
-                                ' data-toggle="modal" data-target="#edit_model"> <i class="fa fa-pencil"></i> </a>';
-                        } else {
-                            return data+ ' <a href="#" class="history_model btn btn-secondary float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
-                        }
-                    }
-                }
-
-            ],
+            columns: cols,
         });
     });
-    $(document).on('click', ".btn-submit-form", function() {
-        userId = $("#selectUserId").val();
-        langId = $("#selectLangId").val();
-        oTable.clear().draw();
+
+    $(document).on("click",".show_csv_co", function(e) {
+        e.preventDefault();
+        $("#Show_message_display").modal('show');
+        var _this = $(this);
+        var content = _this.html();
+        var aa = $('_this .show_csv_co').html();
+
+        $('.chat_message_history').html('<td>'+content+'</td>')
     });
 
+    $(".show_csv_data").click(function() {
+        var res = $('#demo').text();
+        alert(res);
+    });
+
+    $(".btn_export").on('click',function(){
+            $(".csvData-table").table2excel({
+            name: "Language File",
+            filename: "csv-translator.xls", // do include extension
+            preserveColors: false // set to true if you want background colors and font colors preserved
+        });
+    });
 
     $(document).on('click', ".editbtn_model", function() {
+        setTimeout(function() {
+            $("#Show_message_display").modal('hide');
+        }, 1);
         var id = $(this).data('id');
         var formValue = $(this).data('value');
         var userId = $(this).data('user');
@@ -563,6 +543,9 @@
     });
 
     $(document).on('click','.history_model',function(){
+        setTimeout(function() {
+            $("#Show_message_display").modal('hide');
+        }, 0.1);
         var id = $(this).data('id');
         var key = $(this).data('key');
         var language = $(this).data('lang');
@@ -572,6 +555,7 @@
             method:'POST',
             data:{'id':id,"key":key,"language":language,'_token':"{{csrf_token()}}"},
             success:function(response){
+                $("#Show_message_display").modal('hide');
                 let html;
                 $(".data_history").html('');
                 if(response.data.length == 0){
@@ -588,14 +572,14 @@
                         <td>${value.ko}</td>
                         <td>${value.ja}</td>
                         <td>${value.it}</td>
-                        <td>${value.de}</td>    
+                        <td>${value.de}</td>
                         <td>${value.fr}</td>
                         <td>${value.nl}</td>
                         <td>${value.zh}</td>
                         <td>${value.ar}</td>
                         <td>${value.ur}</td>
-                        <td>${value.approver}</td>
                         <td>${value.updater}</td>
+                        <td>${value.approver}</td>
                         <td>${value.created_at}</td>
                         </tr>`;
                    });
@@ -609,18 +593,30 @@
         var langFilter = $("#lang_filter").val();
         var statusFilter =  $("#status_filter").val();
         var usersFilter = $("#users_filter").val();
-        // oTable.clear().draw();
-        oTable.ajax.url('/csv-filter?user='+usersFilter+'&status='+statusFilter+'&lang='+langFilter).load();
+        csvTable.ajax.url("/csv-filter?"+'user='+usersFilter+'&status='+statusFilter+'&lang='+langFilter).load();
         
-        // $.ajax({
-        //     url:'/csv-filter',
-        //     method:'GET',
-        //     data:{'lang':langFilter,'status':statusFilter,'user':usersFilter,'_token':"{{csrf_token()}}"},
-        //     success:function(response){
-        //         oTable.clear().draw();
-        //         // oTable.data = respponse;
-        //     }
-        // })
-    })
+    });
+
+    $(document).on("change",'input:radio[name="radio1"]',function(){
+            var id,language,status;
+            if($(this).val() == 'checked'){
+                 id = $(this).data('id');
+                 language = $(this).data('lang');
+                 status = "checked";
+            }else if($(this).val() == 'unchecked'){
+                id = $(this).data('id');
+                language = $(this).data('lang');
+                status = "unchecked";
+            }
+            $.ajax({
+                url:'/csv-translator/approvedByAdmin',
+                method:"POST",
+                data:{"id":id,"lang":language,"status":status,"_token":"{{csrf_token()}}"},
+                success:function(response){
+                    csvTable.clear().draw();
+                }
+            })
+        });
+
 </script>
 @endsection

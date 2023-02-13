@@ -1128,15 +1128,17 @@ class TwilioController extends FindByNumberController
 
     public function webhookError(Request $request)
     {
-        TwilioWebhookError::create([
-            'sid' => $request->get('Sid'),
-            'account_sid' => $request->get('AccountSid'),
-            'parent_account_sid' => $request->get('ParentAccountSid'),
-            'level' => $request->get('Level'),
-            'payload_type' => $request->get('PayloadType'),
-            'payload' => $request->get('Payload'),
-            'timestamp' => Carbon::createFromTimestamp($request->get('Timestamp'))->toDateTimeString(),
-        ]);
+        if(!empty($request->all())){
+            TwilioWebhookError::create([
+                'sid' => isset($request['Sid']) ? $request->get('Sid') : '',
+                'account_sid' => isset($request['AccountSid']) ? $request->get('AccountSid') : '',
+                'parent_account_sid' => isset($request['ParentAccountSid']) ? $request->get('ParentAccountSid') : '',
+                'level' => isset($request['Level']) ? $request->get('Level') : '',
+                'payload_type' => isset($request['PayloadType']) ? $request->get('PayloadType') : '',
+                'payload' => isset($request['Payload']) ? $request->get('Payload') : '',
+                'timestamp' => isset($request['Timestamp']) ? Carbon::createFromTimestamp($request->get('Timestamp'))->toDateTimeString() : Carbon::now()->toDateTimeString(),
+            ]);
+        }
     }
 
     public function twilioWebhookErrorLogs()
@@ -1189,11 +1191,14 @@ class TwilioController extends FindByNumberController
                 return $response;
             }
         } else {
+            $recordedText = '';
             if (isset($inputs['SpeechResult'])) {
                 $recordedText = $inputs['SpeechResult'];
             } else {
-                $recUrl = $inputs['RecordingUrl'];
-                $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                if (isset($inputs['RecordingUrl'])) {
+                    $recUrl = $inputs['RecordingUrl'];
+                    $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                }
             }
 
             $reply = ChatbotQuestion::where('value', 'like', '%'.$recordedText.'%')->orWhere('value', 'like', '%'.str_replace(' ', '_', $recordedText).'%')->pluck('suggested_reply')->first();
@@ -2396,9 +2401,11 @@ class TwilioController extends FindByNumberController
      *   tags={"Twilio"},
      *   summary="post twilio conference",
      *   operationId="post-twilio-conference",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -2446,9 +2453,11 @@ class TwilioController extends FindByNumberController
      *   tags={"Twilio"},
      *   summary="post twilio mute conference",
      *   operationId="post-twilio-mute-conference",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -2484,9 +2493,11 @@ class TwilioController extends FindByNumberController
      *   tags={"Twilio"},
      *   summary="post twilio hold conference",
      *   operationId="post-twilio-hold-conference",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -2522,9 +2533,11 @@ class TwilioController extends FindByNumberController
      *   tags={"Twilio"},
      *   summary="post twilio remove conference",
      *   operationId="post-twilio-remove-conference",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -3606,7 +3619,7 @@ class TwilioController extends FindByNumberController
         $twilio_accounts = TwilioCredential::where('status', true)->where('twiml_app_sid', '!=', null)->get();
         $id = $request->get('id');
         if ($id != null) {
-            $twilio_account_details = TwilioCredential::where(['id' => 1])->with('numbers.assigned_stores', 'numbers.forwarded.forwarded_number_details.user_availabilities')->first();
+            $twilio_account_details = TwilioCredential::where(['id' => $id])->with('numbers.assigned_stores', 'numbers.forwarded.forwarded_number_details.user_availabilities')->first();
             $customer_role_users = RoleUser::where(['role_id' => 50])->with('user')->get();
 
             return view('twilio.manage-calls', compact('twilio_accounts', 'customer_role_users', 'twilio_account_details'));

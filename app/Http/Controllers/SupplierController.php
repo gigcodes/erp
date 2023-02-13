@@ -1311,9 +1311,11 @@ class SupplierController extends Controller
      *   tags={"Scraper"},
      *   summary="Update supplier brand raw",
      *   operationId="scraper-post-supplier-brands",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=403, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="supplier_id",
      *          in="formData",

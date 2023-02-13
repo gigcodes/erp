@@ -92,7 +92,6 @@
                                     <option value="{{ $supplier->id }}" selected>{{ $supplier->supplier }}</option>
                                 @endforeach
                             @endif
-                            <option ></option>
 
                         </select>
                     </div>
@@ -202,7 +201,7 @@
         <thead>
           <tr>
               <th width="2%">ID</th>
-              <th width="10%">Name</th>
+              <th width="12%">Name</th>
               <th width="5%">Scrapper</th>
               <th width="5%">Language</th>
               <th width="5%">Designers</th>
@@ -210,7 +209,7 @@
               <th width="5%">Size System</th>
               <th width="7%">Category</th>
               <th width="7%">Sub Category</th>
-              <th width="20%">Communication</th>
+              <th width="18%">Communication</th>
               <th width="5%">Translation</th>
               <th width="5%">Priority</th>
               <th width="4%">Action</th>
@@ -223,39 +222,38 @@
                     <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
                 </td>
 				<td>
-					{{ $supplier->supplier }}
-         
-					@if ($supplier->has_error == 1)
-						<span class="text-danger">!!!</span>
-					@endif
-            <div class="form-group">
-                <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
-                    <option value="">-No Selected-</option>
-                    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
-                        @if($number != "0")
-                            <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
-                        @endif
-                    @endforeach
-                </select>
-            </div>
+                    <div class="form-group">
+                        <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+                            <option value="">-No Selected-</option>
+                            @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                @if($number != "0")
+                                    <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    {{ $supplier->supplier }}
+                    @if ($supplier->has_error == 1)
+                        <span class="text-danger">!!!</span>
+                    @endif
 				</td>
-        <td>
-        <select name="scrapper" class="form-control scrapper" data-scrapper-id="{{ $supplier->id }}">
-              <option value="">Select</option>
-              <option value="1" {{ ($supplier->scrapper == '1') ? 'selected' : ''}} >SCRAPPER</option>
-              <option value="2" {{ ($supplier->scrapper == '2') ? 'selected' : ''}}>EXCEL</option>
-              <option value="3" {{ ($supplier->scrapper == '3') ? 'selected' : ''}}>NONE</option>
-        </select>
-        </td>
-        <td>
-        <select class="form-control language" name="language" data-scrapper-id="<?php echo $supplier->id; ?>">
-               <option value="">Select Language</option>
-                @forelse ($languages as $key => $item)
-                    <option value="{{ $item->id }}" {{ (@$supplier->language_id == $item->id) ? 'selected' : ''}} >{{ $item->name }}</option>
-                @empty
-                @endforelse
-        </select>
-        </td>
+                <td>
+                    <select name="scrapper" class="form-control scrapper" data-scrapper-id="{{ $supplier->id }}">
+                          <option value="">Select</option>
+                          <option value="1" {{ ($supplier->scrapper == '1') ? 'selected' : ''}} >SCRAPPER</option>
+                          <option value="2" {{ ($supplier->scrapper == '2') ? 'selected' : ''}}>EXCEL</option>
+                          <option value="3" {{ ($supplier->scrapper == '3') ? 'selected' : ''}}>NONE</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control language" name="language" data-scrapper-id="<?php echo $supplier->id; ?>">
+                        <option value="">Select Language</option>
+                            @forelse ($languages as $key => $item)
+                                <option value="{{ $item->id }}" {{ (@$supplier->language_id == $item->id) ? 'selected' : ''}} >{{ $item->name }}</option>
+                            @empty
+                            @endforelse
+                    </select>
+                </td>
 				{{-- <td>{{ $supplier->source }}</td> --}}
 				<td class="expand-row">
 					@if(strlen($supplier->brands) > 4)
@@ -356,10 +354,10 @@
 					@elseif ($supplier->last_type == "message")
 						{{ strlen($supplier->message) > 10 ? substr($supplier->message, 0, 10).'...' : $supplier->message }}
 					@endif
-					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
-					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
-					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
-					<a type="button" class="btn btn-xs btn-image show-translate-history"  data-id="{{$supplier->id}}"  title="Show history"><img src="/images/history.svg" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="{{asset('/images/archive.png')}}" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="{{asset('/images/icon-pdf.svg')}}" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image show-translate-history"  data-id="{{$supplier->id}}"  title="Show history"><img src="{{asset('/images/history.svg')}}" alt=""></a>
 				</td>
 					<!--td>
 						<input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-onstyle="secondary" data-width="10">
@@ -616,7 +614,7 @@
                                     </select>
                                 </div>
                                 <div style="float: right; width: 14%;">
-                                    <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                                    <a class="btn btn-image delete_category"><img src="{{asset('/images/delete.png')}}"></a>
                                 </div>
                             </div>
                             <div class="col-6 d-inline form-inline">
@@ -630,7 +628,7 @@
                                     </select>
                                 </div>
                                 <div style="float: right; width: 14%;">
-                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                                    <a class="btn btn-image delete_quick_comment"><img src="{{asset('/images/delete.png')}}"></a>
                                 </div>
                             </div>
                         </div>

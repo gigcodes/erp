@@ -224,4 +224,8 @@ class StoreWebsite extends Model
     {
         return $this->hasMany(\App\ReturnExchangeStatus::class, 'store_website_id', 'id');
     }
+
+    public function     tags(){
+        return $this->hasOne(\App\Models\WebsiteStoreTag::class, 'id', 'tag_id')->select('id','tags');        
+    }
 }
