@@ -38,8 +38,8 @@ $srno=1;
                 $language = json_decode($content, true);
                 $lang='';
             @endphp
-            <td>
 
+            <td>
                 <div class="selectedValue">
                     <select id="autoTranslate" style="width: 100% !important" class="form-control auto-translate">
                         <option value="">Translation Language</option>
@@ -61,8 +61,12 @@ $srno=1;
                 @php
                     $chat_last_message=\App\ChatMessage::where('customer_id', $chatId->customer_id)->where('message_application_id', 2)->orderBy("id", "desc")->first();
                 @endphp
-                <div class="typing-indicator" id="typing-indicator">{{isset($chat_last_message)?$chat_last_message->message:''}}</div>
 
+                @if(!empty($chat_last_message))
+                {
+                    <div class="typing-indicator" id="typing-indicator">{{isset($chat_last_message)?$chat_last_message->message:''}}</div>
+                }
+                @endif
 
                 <div class="row quick margin-left-right-set">
                     <div class="cls_remove_rightpadding">
@@ -92,9 +96,10 @@ $srno=1;
                 {{--                </div>--}}
 
             </td>
-            <td class="chat-div">
 
-                <div class="row cls_quick_reply_box margin-left-right-set">
+            <td class="">
+
+                <div class="row cls_quick_reply_box margin-left-right-set mt-0">
 
                     <div class="col-md-6 cls_remove_rightpadding pl-3">
                         @php
@@ -132,6 +137,13 @@ $srno=1;
                 </div>
             </td>
             <td>
+                <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Livechatbtn('{{$chatId->id}}')"><i class="fa fa-arrow-down"></i></button>
+            </td>
+        </tr>
+
+        <tr class="action-livebtn-tr-{{$chatId->id}} d-none">
+            <td class="font-weight-bold">Action</td>
+            <td colspan="10">
                 <div >
                     <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="General Info" onclick="openPopupGeneralInfo(<?php echo $chatId->id;?>)" >
                         <i class="fa fa-info" aria-hidden="true"></i>
@@ -150,17 +162,25 @@ $srno=1;
                         <i class="fa fa-info-circle" aria-hidden="true"></i>
                     </a>
 
-					<a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs Event" onclick="openChatEventLogs('<?php echo $chatId->thread;?>')" >
+                    <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs Event" onclick="openChatEventLogs('<?php echo $chatId->thread;?>')" >
 
                         <i class="fa fa-history" aria-hidden="true"></i>
                     </a>
                     <button type="button" class="btn btn-image send-coupon p-1" data-toggle="modal" data-id="{{ $chatId->id }}" data-customerid="{{ $customer->id }}" ><i class="fa fa-envelope"></i></button>
-
-
                 </div>
 
             </td>
         </tr>
+
+
         <?php $srno++;?>
     @endforeach
 @endif
+
+@section('scripts')
+    <script>
+        function Livechatbtn(id){
+            $(".action-livebtn-tr-"+id).toggleClass('d-none')
+        }
+    </script>
+@endsection
