@@ -74,13 +74,13 @@ class SupplierController extends Controller
         $source = $request->get('source') ?? '';
         $typeWhereClause = '';
 
-        if ($type != '' && $type == 'has_error') {
+        if (isset($type) && in_array('has_error', $type)) {
             $typeWhereClause = ' AND has_error = 1';
         }
-        if ($type != '' && $type == 'not_updated') {
+        if (isset($type) && in_array('not_updated', $type)) {
             $typeWhereClause = ' AND is_updated = 0';
         }
-        if ($type != '' && $type == 'updated') {
+        if (isset($type) && in_array('updated', $type)) {
             $typeWhereClause = ' AND is_updated = 1';
         }
 

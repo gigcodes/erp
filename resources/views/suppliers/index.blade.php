@@ -146,11 +146,14 @@
 
                     </div>
                     <div class="form-group">
+                        @php
+                            $scrappertype = explode(',',$scrappertype);
+                        @endphp
                         <select class="form-control globalSelect2" data-placeholder="Select Scrapper" style="width:100%" name="scrappertype[]" multiple>
                             {{--<option value="">Select Scrapper</option>--}}
-                            <option value="1" {{ isset($scrappertype) && $scrappertype == '1' ? 'selected' : '' }}>SCRAPPER</option>
-                            <option value="2" {{ isset($scrappertype) && $scrappertype == '2' ? 'selected' : '' }}>EXCEL</option>
-                            <option value="3" {{ isset($scrappertype) && $scrappertype == '3' ? 'selected' : '' }}>NONE</option>
+                            <option value="1" {{ isset($scrappertype) && in_array('1',$scrappertype) ? 'selected' : '' }}>SCRAPPER</option>
+                            <option value="2" {{ isset($scrappertype) && in_array('2',$scrappertype) ? 'selected' : '' }}>EXCEL</option>
+                            <option value="3" {{ isset($scrappertype) && in_array('3',$scrappertype) ? 'selected' : '' }}>NONE</option>
                         </select>
                     </div>
                     <div class="form-group">
