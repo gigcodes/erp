@@ -2,7 +2,7 @@
 
 The account module is the representation of the Google Ads account, which provide to manage campaign, ads group and using Google Ads API. These module are handling with the following tables: `googleadsaccounts`, `googlecampaigns`, `googleadsgroups` and `googleads`.
 
-*API Reference:* https://developers.google.com/google-ads/api/docs/first-call/overview
+*API Reference:* https://developers.google.com/google-ads/api/docs/first-call/overview \
 *Used PHP Package:* https://github.com/googleads/google-ads-php
 
 ## Account
