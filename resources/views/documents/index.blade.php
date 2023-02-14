@@ -1,10 +1,13 @@
 @extends('layouts.app')
 
 @section('styles')
-@section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-@endsection
+    <style>
+        #coupon_rules_table_length select,input {
+            height: 12px !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -49,8 +52,9 @@
                 </form>
             </div>
             <div class="pull-right">
+                <a href="#"><button type="button" class="btn btn-secondary" id="add_category">Add Category</button></a>
                 <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
+                <a type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
 
             </div>
         </div>
@@ -279,6 +283,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        $('#add_category').click(function (){
+            $("#myModal").modal();
+        });
+    </script>
     <script>
         $(".select2").select2();
         $('#filter-date').datetimepicker({
@@ -668,7 +677,8 @@
         source: function(request, response) {
             term = $('#term').val();
             date = $('#date').val();
-          
+
+
           $.ajax({
                 url: src,
                 dataType: "json",
