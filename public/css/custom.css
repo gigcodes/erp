@@ -2686,3 +2686,25 @@ button.show-task-history{
   float: right;
 }
 /**Tasks Summary End**/
+
+.cls-actions .padding-top-action{
+  margin-top: -6px;
+}
+.cls-actions .abtn-pd{
+  padding: 6px 6px 5px 5px;
+}
+.postman-dropdown-display .dropdown-display{
+  min-height:35px !important;
+}
+
+.add-json{
+  margin-top: -5px;
+  margin-left: 10px
+}
+
+@media (min-width: 992px){
+  #addPostman .modal-lg {
+      width: 1180px !important;
+      max-width: 1500px !important;
+  }
+}
