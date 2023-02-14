@@ -113,7 +113,7 @@ class SocialCampaignController extends Controller
         }
 
         if ($request->has('daily_budget')) {
-            $data['daily_budget'] = $request->input('daily_budget');
+        //    $data['daily_budget'] = $request->input('daily_budget');
         }
 
         $config = SocialConfig::find($post->config_id);
@@ -121,21 +121,22 @@ class SocialCampaignController extends Controller
         $this->fb = new Facebook([
             'app_id' => $config->api_key,
             'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v12.0',
+            'default_graph_version' => 'v15.0',
         ]);
         $this->user_access_token = $config->token;
-        $this->ad_acc_id = 'act_1227506597778206';
+        
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-        //  $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
-
+        $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
+       // $this->ad_acc_id = 'act_723851186073937';
+        
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-                    //        dd($data);
+                      //      dd($data);
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/campaigns';
+                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/campaigns';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -151,8 +152,7 @@ class SocialCampaignController extends Controller
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create campaign', $resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
-
-                    //    dd($resp);
+                    
                     if (isset($resp->error->message)) {
                         Session::flash('message', $resp->error->message);
                     } else {
@@ -173,7 +173,7 @@ class SocialCampaignController extends Controller
                     //        dd($data);
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/campaigns';
+                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/campaigns';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -314,13 +314,13 @@ class SocialCampaignController extends Controller
     public function getAdAccount($config, $fb, $post_id)
     {
         $response = '';
-
         try {
             $token = $config->token;
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
             $response = $fb->get('/me/adaccounts', $token);
+            
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
