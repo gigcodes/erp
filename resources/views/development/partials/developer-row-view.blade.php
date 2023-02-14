@@ -22,7 +22,7 @@
     </td>
     <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a>
     </td>
-
+    <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td>
     <td>{{ $issue->subject }}</td>
 
     <td class="expand-row">
@@ -282,7 +282,32 @@
         @endif
 
     </td>
-
+    <td class="p-2">
+        <div style="margin-bottom:10px;width: 100%;">
+            <div class="form-group">
+                <input type="number" class="form-control" name="estimate_minutes{{$issue->id}}" value="{{$issue->estimate_minutes}}" min="1" autocomplete="off">
+                <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+            </div>
+        </div>
+    </td>
+    <td class="p-2">
+        <div class="form-group">
+            <div class='input-group date cls-start-due-date'>
+                <input type="text" class="form-control" name="start_dates{{$issue->id}}" value="{{$issue->start_date}}" autocomplete="off" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+        </div>
+    </td>
+    <td class="p-2">
+        <div class="form-group">
+            <div class='input-group date cls-start-due-date'>
+                <input type="text" class="form-control" name="estimate_date{{$issue->id}}" value="{{$issue->estimate_date}}" autocomplete="off" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+        </div>
+    </td>
     <td>
         <?php echo $issue->language; ?>
 
@@ -321,3 +346,121 @@
         </div>
     </td>
 </tr>
+<script>
+    function funDevTaskInformationUpdatesTime(type,id) {
+        if (type == 'start_date') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.start-date') }}",
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        value: $('input[name="start_dates'+id+'"]').val(),
+                    }
+                }).done(function(res) {
+                    siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'estimate_date') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.estimate-date') }}",
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        value: $('input[name="estimate_date'+id+'"]').val(),
+                        remark: mdl.find('input[name="remark"]').val(),
+                    }
+                }).done(function(res) {
+                    siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'cost') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.cost') }}",
+                    type: 'POST',
+                    data: {
+                        id: currTaskInformationTaskId,
+                        value: mdl.find('input[name="cost"]').val(),
+                    }
+                }).done(function(res) {
+                    siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'estimate_minutes') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.estimate-minutes') }}",
+                    type: 'POST',
+                    data: {
+                        issue_id: id,
+                        estimate_minutes: $('input[name="estimate_minutes'+id+'"]').val(),
+                        remark: mdl.find('textarea[name="remark"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'lead_estimate_time') {
+            if (confirm('Are you sure, do you want to update?')) {
+                siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.lead-estimate-minutes') }}",
+                    type: 'POST',
+                    data: {
+                        issue_id: currTaskInformationTaskId,
+                        lead_estimate_time: mdl.find('input[name="lead_estimate_time"]').val(),
+                        remark: mdl.find('input[name="lead_remark"]').val(),
+                    }
+                }).done(function(res) {
+                    siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        }
+    }
+</script>
