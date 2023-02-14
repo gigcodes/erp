@@ -8,6 +8,21 @@
 	.preview-category input.form-control {
 	  width: auto;
 	}
+	.push-brand {
+		height: 14px;
+	}
+	.icon-log-history {
+		margin-top: -7px !important;
+		display: flex;
+		/*display: table-caption;*/
+	}
+	#page-view-result table tr th:last-child,
+	#page-view-result table tr th:nth-last-child(2) {
+		width: 50px !important;
+		min-width: 50px !important;
+		max-width: 50px !important;
+	}
+
 </style>
 <style>
 	.loader-small {
@@ -48,14 +63,12 @@
 	@endif
     <div class="col-lg-12 margin-tb">
     	<div class="row" style="margin-bottom: 10px;">
-	    	<div class="col col-md-9">
+	    	<div class="col col-md-3">
 		    	<div class="row">
-	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
-		  				<img src="/images/add.png" style="cursor: default;">
-		  			</button>
+
 		  			<form class="form-inline message-search-handler" action="?" method="get">
 		  				<input type="hidden" name="push" value="1">
-						<div class="form-group">
+						<div class="form-group" style="margin-left: 30px;">
 						    <label for="keyword">Store Wesbite:</label>
 						    <?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArray(),request("store_website_id"),["class"=> "form-control select2","placeholder" => "Select Website"]) ?>
 					  	</div>
@@ -70,65 +83,68 @@
 			  		</form>
 				 </div>
 		    </div>
-		    <div class="col reconsile-brand-form">
+		    <div class="col col-md-2 reconsile-brand-form">
 				<div class="loader-small"></div>
-				<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-reconsile-history" title="Show History" data-type_history="reconsile"><i class="fa fa-info-circle"></i></button>
-		    	<div class="h" style="margin-bottom:10px;">
+					<div class="h" style="margin-bottom:10px;">
 					<div class="row">
 						<div class="form-group">
+							<label for="keyword">Store Wesbite:</label>
 			  				<?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArray(),request("store_website_id"),["class"=> "form-control select2 store-website-id","placeholder" => "Select Website"]) ?>
 			  			</div>
+						<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-reconsile-history" title="Show History" data-type_history="reconsile"><i class="fa fa-info-circle"></i></button>
+						&nbsp;
+						<div class="form-group" style="margin-top: 24px;">
+							<label for="button">&nbsp;</label>
+							<button class="btn btn-secondary btn-reconsile-brand">Reconsile</button>
+						</div>
 					</div>
 		    	</div>
+
 		    </div>
-            <div class="col">
-                <div class="h" style="margin-bottom:10px;">
-                    <div class="row">
+
+			<div class="col col-md-6">
+				<form class="form-inline message-search-handler handle-search" method="get">
+					<div class="col">
 						<div class="form-group">
-                            <button class="btn btn-secondary btn-reconsile-brand">Reconsile</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+							<?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+						</div>
+
+						<div class="form-group ml-2">
+							<label for="no-inventory">No Inventory</label>
+							<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
+						</div>
+
+
+						<div class="form-group ml-2">
+							<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
+						</div>
+
+						<div class="form-group ml-2">
+							<?php echo Form::select("brd_store_website_id",$storeWebsite,request("brd_store_website_id"),["class"=> "form-control select2","placeholder" => "Select Store Website"]) ?>
+						</div>
+
+						<div class="form-group ml-2">
+							<label for="no_brand">no Available brand</label>
+							<input type="checkbox" name="no_brand" value="1" {{ request()->has('no_brand') ? 'checked' : '' }} />
+						</div>
+						<div class="form-group">
+							<label for="button">&nbsp;</label>
+							<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+								<img src="/images/search.png" style="cursor: default;">
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+
 	    </div>
-
-	    <div class="row mb-3 ml-3">
-		    <form class="form-inline message-search-handler handle-search" method="get">
-		  		<div class="col">
-		  			<div class="form-group">
-					    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
-				  	</div>
-					
-					<div class="form-group ml-2">
-						<label for="no-inventory">No Inventory</label>
-						<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
-					</div>
-	
-					
-					<div class="form-group ml-2">
-						<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
-					</div>
-
-					<div class="form-group ml-2">
-						<?php echo Form::select("brd_store_website_id",$storeWebsite,request("brd_store_website_id"),["class"=> "form-control select2","placeholder" => "Select Store Website"]) ?>
-					</div>
-
-					<div class="form-group ml-2">
-						<label for="no_brand">no Available brand</label>
-						<input type="checkbox" name="no_brand" value="1" {{ request()->has('no_brand') ? 'checked' : '' }} />
-					</div>	
-
-
-				  	<div class="form-group">
-				  		<label for="button">&nbsp;</label>
-				  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
-				  			<img src="/images/search.png" style="cursor: default;">
-				  		</button>
-				  	</div>		
-		  		</div>
-	  		</form>
-	  	</div>	
-
+		<div class="col col-md-6">
+			<div class="row">
+				<button style="display: inline-block;width: 10% " class="btn btn-sm btn-image btn-add-action">
+					<img src="/images/add.png" style="cursor: default;">
+				</button>
+			</div>
+		</div>
 		<div class="col-md-12 margin-tb" id="page-view-result">
 			<div class="row table-horizontal-scroll">
 				<table class="table table-bordered">
@@ -158,7 +174,7 @@
 				        	<th data-id="{{$k}}" width="4%">
 								<?php echo $title; ?>
 								<br>
-				        		<a class="brand-history text-dark"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+				        		<a class="brand-history btn p-0"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
 				        		<a class="missing-brand-history text-dark" data-id="{{$k}}" href="javascript:;" ><i class="fa fa-close" aria-hidden="true"></i></a>
 				        	</th>
 				        <?php } ?>	
@@ -184,7 +200,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
 </div>

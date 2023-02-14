@@ -4043,6 +4043,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/quick-replies', [QuickReplyController::class, 'quickReplies'])->name('quick-replies');
     Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', [QuickReplyController::class, 'getStoreWiseReplies'])->name('store-wise-replies');
     Route::post('/save-store-wise-reply', [QuickReplyController::class, 'saveStoreWiseReply'])->name('save-store-wise-reply');
+    Route::post('/copy-store-wise-reply', [QuickReplyController::class, 'copyStoreWiseReply'])->name('copy-store-wise-reply');
     Route::post('/save-sub', [QuickReplyController::class, 'saveSubCat'])->name('save-sub');
     Route::post('/attached-images-grid/customer/create-template', [ProductController::class, 'createTemplate'])->name('attach.cus.create.tpl');
 
