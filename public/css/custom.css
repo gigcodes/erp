@@ -2571,7 +2571,56 @@ table {
 
 .csvData-table{
   width:100% !important;
+} 
+
+
+/* sop category multiple select option */
+.ms-options-wrap button{
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
 }
+
+.ms-options {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.ms-search {
+  margin: 0 0 15px;
+}
+
+.ms-search input {
+  width: 100%;
+}
+
+.ms-options ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.ms-options ul li label {
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: normal;
+  margin: 0 0 10px;
+  width: fit-content;
+}
+
+.ms-options ul li label input {
+  margin: 0;
+  border: 0;
+  box-shadow: none;
+  height: auto;
+}
+/* sop category multiple select option end  */
 
 .min-w-100{
   min-width: 100%;
