@@ -1308,7 +1308,8 @@ class DevelopmentController extends Controller
         $task = Task::with(['timeSpent']); // ->where('is_flagged', '1')
         $task->whereNotIn('tasks.status', [
             Task::TASK_STATUS_DONE,
-            Task::TASK_STATUS_IN_REVIEW,
+            Task::TASK_STATUS_USER_COMPLETE,
+            Task::TASK_STATUS_USER_COMPLETE_2,
         ]);
         // $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
 
@@ -1365,7 +1366,7 @@ class DevelopmentController extends Controller
         if (! empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
-        $task = $task->where('tasks.status', $inprocessStatusID->id);
+        // $task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition = $whereTaskCondition = '';
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
