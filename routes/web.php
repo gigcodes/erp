@@ -329,6 +329,7 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\FaqPushController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -861,6 +862,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('sop', [SopController::class, 'store'])->name('sop.store');
     Route::get('sop', [SopController::class, 'index'])->name('sop.index');
+
+    Route::post('sop/category', [SopController::class, 'categoryStore'])->name('sop.category'); // sop category store route
+    Route::get('sop/category-list', [SopController::class, 'categorylist'])->name('sop.categorylist'); // sop category store route
+
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
@@ -1138,7 +1143,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
     });
 
-    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', [UserManagementController::class, 'taskCount']);
+    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', [UserManagementController::class, 'taskCount'])->name('hr-ticket.countdevtask');
 
     //
     // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
@@ -1920,6 +1925,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks');
     Route::post('development/automatic/tasks', [DevelopmentController::class, 'automaticTasks'])->name('development.automatic.tasks_post');
 
+    Route::get('development/task-summary', [DevelopmentController::class, 'developmentTaskSummary'])->name('development.tasksSummary');
+    Route::post('development/task-list', [DevelopmentController::class, 'developmentTaskList'])->name('development.tasksList');
+
     Route::post('save/task/message', [DevelopmentController::class, 'saveTaskMessage'])->name('development.taskmessage');
     Route::post('save/tasktime/message', [DevelopmentController::class, 'saveTaskTimeMessage'])->name('development.tasktimemessage');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
@@ -2040,6 +2048,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     // Ad reports routes
     Route::get('social/ad/report', [SocialController::class, 'report'])->name('social.report');
+    Route::get('social/ad/report-history', [SocialController::class, 'reportHistory'])->name('social.report.history');
     Route::get('social/ad/schedules', [SocialController::class, 'getSchedules'])->name('social.ads.schedules');
     Route::post('social/ad/schedules', [SocialController::class, 'getSchedules'])->name('social.ads.schedules.p');
     Route::get('social/ad/schedules/calendar', [SocialController::class, 'getAdSchedules'])->name('social.ads.schedules.calendar');
@@ -2050,7 +2059,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('social/ad/schedules/{id}', [SocialController::class, 'showSchedule'])->name('social.ads.schedules.show');
     Route::get('social/ad/insight/{adId}', [SocialController::class, 'getAdInsights'])->name('social.ad.insight');
     Route::post('social/ad/report/paginate', [SocialController::class, 'paginateReport'])->name('social.report.paginate');
-    Route::get('social/ad/report/{ad_id}/{status}/', [SocialController::class, 'changeAdStatus'])->name('social.report.ad.status');
+    Route::get('social/ad/report/{ad_id}/{status}/{token}/', [SocialController::class, 'changeAdStatus'])->name('social.report.ad.status');
     // end to ad reports routes
 
     // AdCreative reports routes
@@ -2502,6 +2511,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 });
 
+
+/**
+* This route will push the FAQ to series of website with help of API
+*/
+Route::middleware('auth')->group(function () {
+	Route::post('push/faq', 		[FaqPushController::class, 'pushFaq']);
+	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
+});
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
@@ -2834,6 +2851,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
+    Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
@@ -4027,6 +4045,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/quick-replies', [QuickReplyController::class, 'quickReplies'])->name('quick-replies');
     Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', [QuickReplyController::class, 'getStoreWiseReplies'])->name('store-wise-replies');
     Route::post('/save-store-wise-reply', [QuickReplyController::class, 'saveStoreWiseReply'])->name('save-store-wise-reply');
+    Route::post('/copy-store-wise-reply', [QuickReplyController::class, 'copyStoreWiseReply'])->name('copy-store-wise-reply');
     Route::post('/save-sub', [QuickReplyController::class, 'saveSubCat'])->name('save-sub');
     Route::post('/attached-images-grid/customer/create-template', [ProductController::class, 'createTemplate'])->name('attach.cus.create.tpl');
 

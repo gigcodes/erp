@@ -2381,6 +2381,10 @@ if (!empty($notifications)) {
                                                         Errors</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('twilio.webhook.error.logs') }}">Twilio
+                                                        Webhook Error Logs</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
                                                     <a href="{{ route('twilio-manage-accounts') }}">Twilio Account
                                                         Management</a>
                                                 </li>
@@ -3039,6 +3043,9 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project
                                             Directory manager</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
                                     </li>
                                 </ul>
                             </li>
@@ -5997,7 +6004,7 @@ if (!\Auth::guest()) {
 
     $(document).on('change', '#autoTranslate', function(e) {
         e.preventDefault();
-        var customerId = $("input[name='message-id'").val();
+        var customerId = $("input[name='message-id']").val();
         var language = $(".auto-translate").val();
         let self = $(this);
         $.ajax({
