@@ -228,4 +228,8 @@ class StoreWebsite extends Model
     public function     tags(){
         return $this->hasOne(\App\Models\WebsiteStoreTag::class, 'id', 'tag_id')->select('id','tags');        
     }
+
+    public function getAllTaggedWebsite($tag_id){
+        return self::where(["tag_id" => $tag_id])->get();
+    }
 }

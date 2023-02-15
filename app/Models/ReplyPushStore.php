@@ -10,4 +10,8 @@ class ReplyPushStore extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    protected $fillable = [
+        "reply_id", "store_id", "platform_id",
+    ];
 }

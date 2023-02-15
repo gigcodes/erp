@@ -42,6 +42,7 @@ class ProceesPushFaq implements ShouldQueue
     private function _processSingleFaq($reply_id)
     {
         $Reply = new Reply();
+        $stores = array();
 
         $searchArray = (array) $reply_id;
 
