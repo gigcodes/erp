@@ -509,6 +509,7 @@ class Kernel extends ConsoleKernel
 
         // Update the inventory (every fifteen minutes)
         // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
+        $schedule->command('magento:get-config-value')->dailyAt('00:00')->timezone('Asia/Dubai');
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
