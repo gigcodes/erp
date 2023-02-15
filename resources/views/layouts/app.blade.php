@@ -2034,6 +2034,29 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+                                @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-users')}}">Usage</a>
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sales')}}">Sales</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sub')}}">Subscription</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-ads')}}">Ads</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-rate')}}">Ratings</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-pay')}}">Payments</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                @endif
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>Google<span

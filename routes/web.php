@@ -331,6 +331,7 @@ use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
 use App\Http\Controllers\FaqPushController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AppConnect\AppConnectController;
 
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
@@ -4533,3 +4534,15 @@ Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('tasksS
 Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList');
 Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList');
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
+
+
+Route::prefix('appconnect')->middleware('auth')->group(function () {
+Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
+Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
+Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
+Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
+Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+ });
+
+   
