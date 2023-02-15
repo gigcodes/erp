@@ -48,7 +48,7 @@ class ProceesPushFaq implements ShouldQueue
 
         try {
             $replyInfoArray = $Reply
-                ->select("replies.store_website_id", "magento_url", "stage_magento_url", "dev_magento_url", "stage_api_token", "dev_api_token", "api_token", "replies.reply", "rep_cat.name", "replies.category_id", "replies.id")
+                ->select("replies.store_website_id", "store_websites.tag_id","magento_url", "stage_magento_url", "dev_magento_url", "stage_api_token", "dev_api_token", "api_token", "replies.reply", "rep_cat.name", "replies.category_id", "replies.id")
                 ->join("store_websites", "store_websites.id", "=", "replies.store_website_id")
                 ->join("reply_categories as rep_cat", "rep_cat.id", "=", "replies.category_id")
                 ->whereIn("replies.id", $searchArray)
@@ -62,8 +62,7 @@ class ProceesPushFaq implements ShouldQueue
             foreach ($replyInfoArray as $key => $replyInfo) {
                 //get list of all store websites
                 $StoreWebsite   =   new \App\StoreWebsite();
-                $allWebsites    =   $StoreWebsite->getAllTaggedWebsite($replyInfo->store_website_id );
-
+                $allWebsites    =   $StoreWebsite->getAllTaggedWebsite( $replyInfo->tag_id );
                
                 if(!empty($allWebsites)){
                     foreach ($allWebsites as $websitekey => $websitevalue) {
