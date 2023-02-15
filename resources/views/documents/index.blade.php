@@ -4,15 +4,15 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <style>
-        #coupon_rules_table_length select,input {
+        .need_to_send {
             height: 12px !important;
         }
     </style>
 @endsection
 
 @section('content')
-
-    <div class="row">
+    <div class="col-md-12">
+        <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Documents Manager</h2>
             <div class="pull-left">
@@ -33,7 +33,7 @@
                                 </select>
                             </div> -->
 
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class='input-group date' id='filter-date'>
                                     <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
 
@@ -145,8 +145,8 @@
             </tbody>
         </table>
     </div>
-
     {!! $documents->appends(Request::except('page'))->links() !!}
+    </div>
     @include('partials.modals.remarks')
     @include('documents.partials.modal-addCategory')
     @include('documents.partials.modal-documentWhatsApp')
