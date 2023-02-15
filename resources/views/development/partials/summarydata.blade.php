@@ -32,6 +32,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             @endforeach
         </select>
     </td>
+    <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td>
     <td>
         <!--   <label for="" style="font-size: 12px;">Assigned To :</label>-->
         <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
@@ -45,9 +46,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 @endif
             @endforeach
         </select>
-        <!--     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>-->
-    </td>
-    <td>
+        <label for="" style="font-size: 12px;margin-top:10px;"><strong>Lead</strong></label>
         <select class="form-control assign-master-user select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
             <option value="">Select...</option>
             <?php $masterUser = isset($issue->masterUser->id) ? $issue->masterUser->id : 0; ?>
@@ -111,14 +110,40 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             ); ?>
         @endif
     </td>
+    <td class="p-2">
+        <div style="margin-bottom:10px;width: 100%;">
+            <div class="form-group">
+                <input type="number" class="form-control" name="estimate_minutes{{$issue->id}}" value="{{$issue->estimate_minutes}}" min="1" autocomplete="off">
+                <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+            </div>
+        </div>
+    </td>
+    <td class="p-2">
+        <div class="form-group">
+            <div class='input-group date cls-start-due-date'>
+                <input type="text" class="form-control" name="start_dates{{$issue->id}}" value="{{$issue->start_date}}" autocomplete="off" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+        </div>
+    </td>
+    <td class="p-2">
+        <div class="form-group">
+            <div class='input-group date cls-start-due-date'>
+                <input type="text" class="form-control" name="estimate_date{{$issue->id}}" value="{{$issue->estimate_date}}" autocomplete="off" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+        </div>
+    </td>
     <td>
-        <button class="btn btn-image set-remark" data-task_id="{{ $issue->id }}" data-task_type="Quick-dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
+        <button class="btn btn-image set-remark p-1" data-task_id="{{ $issue->id }}" data-task_type="Quick-dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
         @if ($issue->is_flagged == 1)
-            <button type="button" class="btn btn-image flag-task" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
+            <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
         @else
-            <button type="button" class="btn btn-image flag-task" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
+            <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
         @endif
-        <button type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
+        <button type="button" class="btn btn-xs show-status-history p-1" title="Show Status History" data-id="{{$issue->id}}">
             <i class="fa fa-info-circle"></i>
         </button>
     </td>
