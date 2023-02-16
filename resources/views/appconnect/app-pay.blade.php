@@ -102,7 +102,10 @@ input:checked + .slider:before {
             <th width="5%">App Name</th>
             <th width="5%">Start Date</th>
             <th width="10%">End Date</th>
-          <th width="10%">revenue</th> <th width="10%">converted_revenue</th> <th width="10%">financial_revenue</th> <th width="10%">estimated_revenue</th> <th width="10%">storefront</th> <th width="10%">store</th>
+          <th width="10%">revenue</th>
+           <th width="10%">converted_revenue</th> 
+           <th width="10%">financial_revenue</th> 
+           <th width="10%">estimated_revenue</th> 
             
             
           </tr>
@@ -121,7 +124,10 @@ input:checked + .slider:before {
 <td>{{ $report->start_date }}</td>
 <td>{{ $report->end_date }}</td>
 
-<td>{{ $report->revenue}}</td> <td>{{ $report->converted_revenue}}</td> <td>{{ $report->financial_revenue}}</td> <td>{{ $report->estimated_revenue}}</td> <td>{{ $report->storefront}}</td> <td>{{ $report->store}}</td>
+<td>{{ $report->revenue}}</td>
+ <td>{{ $report->converted_revenue}}</td> 
+<td>{{ $report->financial_revenue}}</td> 
+<td>{{ $report->estimated_revenue}}</td> 
 </tr>
 @endforeach
  </tbody>

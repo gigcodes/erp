@@ -120,8 +120,14 @@ input:checked + .slider:before {
 <td>{{ env('APPFIGURE_APP_NAME') }}</td>
 <td>{{ $report->start_date }}</td>
 <td>{{ $report->end_date }}</td>
-
-<td>{{ $report->revenue}}</td> <td>{{ $report->requests}}</td> <td>{{ $report->impressions}}</td> <td>{{ $report->ecpm}}</td> <td>{{ $report->fillrate}}</td> <td>{{ $report->ctr}}</td> <td>{{ $report->clicks}}</td> <td>{{ $report->requests_filled}}</td>
+<td>{{ $report->revenue}}</td> 
+<td>{{ $report->requests}}</td> 
+<td>{{ $report->impressions}}</td> 
+<td>{{ $report->ecpm}}</td> 
+<td>{{ $report->fillrate}}</td> 
+<td>{{ $report->ctr}}</td> 
+<td>{{ $report->clicks}}</td> 
+<td>{{ $report->requests_filled}}</td>
 </tr>
 @endforeach
  </tbody>

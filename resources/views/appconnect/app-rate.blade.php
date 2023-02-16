@@ -102,7 +102,7 @@ input:checked + .slider:before {
             <th width="5%">App Name</th>
             <th width="5%">Start Date</th>
             <th width="10%">End Date</th>
-           <th width="10%">breakdown</td> <th width="10%">new</td> <th width="10%">average</td> <th width="10%">total</td> <th width="10%">new_average</td> <th width="10%">new_total</td> <th width="10%">positive</td> <th width="10%">negative</td> <th width="10%">neutral</td> <th width="10%">new_positive</td> <th width="10%">new_negative</td> <th width="10%">new_neutral</th>
+          <th width="10%">average</td> <th width="10%">total</td> <th width="10%">new_average</td> <th width="10%">new_total</td> <th width="10%">positive</td> <th width="10%">negative</td> <th width="10%">neutral</td> <th width="10%">new_positive</td> <th width="10%">new_negative</td> <th width="10%">new_neutral</th>
             
             
           </tr>
@@ -121,7 +121,7 @@ input:checked + .slider:before {
 <td>{{ $report->start_date }}</td>
 <td>{{ $report->end_date }}</td>
 
-<td>{{ $report->breakdown}}</td> <td>{{ $report->new}}</td> <td>{{ $report->average}}</td> <td>{{ $report->total}}</td> <td>{{ $report->new_average}}</td> <td>{{ $report->new_total}}</td> <td>{{ $report->positive}}</td> <td>{{ $report->negative}}</td> <td>{{ $report->neutral}}</td> <td>{{ $report->new_positive}}</td> <td>{{ $report->new_negative}}</td> <td>{{ $report->new_neutral}}</td>
+<td>{{ $report->average}}</td> <td>{{ $report->total}}</td> <td>{{ $report->new_average}}</td> <td>{{ $report->new_total}}</td> <td>{{ $report->positive}}</td> <td>{{ $report->negative}}</td> <td>{{ $report->neutral}}</td> <td>{{ $report->new_positive}}</td> <td>{{ $report->new_negative}}</td> <td>{{ $report->new_neutral}}</td>
 
 </tr>
 @endforeach
