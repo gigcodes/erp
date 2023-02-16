@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Permission;
+use App\Setting;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PermissionController extends Controller
 {
@@ -135,8 +137,6 @@ class PermissionController extends Controller
 
     public function users(Request $request)
     {
-        ini_set('max_execution_time', 300);
-
         $users = User::where('users.is_active', 1)->orderBy('name', 'asc');
         $permissions = Permission::orderBy('name', 'asc');
 
@@ -192,11 +192,9 @@ class PermissionController extends Controller
             $users = $users->whereIn('users.id',$request->search_user);
         }
 
+        $users = $users->paginate(10);
 
-
-        $users = $users->get();
-        $permissions = $permissions->get();
-
+        $permissions = $permissions->paginate(10);
 
         return view('permissions.users', compact('users', 'permissions','user_datas','permission_datas'))->with('i', ($request->input('page', 1) - 1) * 10);
     }

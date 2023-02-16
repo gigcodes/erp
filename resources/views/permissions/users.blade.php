@@ -141,6 +141,9 @@
                 </div>
 
             </div>
+            <div class="float-right">
+                {{ $users->appends(request()->all())->links() }}
+            </div>
         </div>
 
     </div>
@@ -160,12 +163,12 @@
         $('.search_user').select2({
             placeholder: 'Select User',
         });
-        $(document).ready(function () {
-            $('#dtHorizontalExample').DataTable({
-                "scrollX": true
-            });
-            $('.dataTables_length').addClass('bs-select');
-        });
+        // $(document).ready(function () {
+        //     $('#dtHorizontalExample').DataTable({
+        //         "scrollX": true,
+        //     });
+        //     $('.dataTables_length').addClass('bs-select');
+        // });
 
         function activatePermission($permission_id , $user_id , $is_Active) {
             if($permission_id == null && $user_id == null){
