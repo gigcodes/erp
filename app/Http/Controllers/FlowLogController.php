@@ -22,7 +22,7 @@ class FlowLogController extends Controller
                 'flows.store_website_id',
                 'store_websites.website',
                 'flow_log_messages.modalType',
-                'flow_log_messages.created_at',
+                'flow_log_messages.created_at as ct',
                 'customers.name as lead_name',
             ])
         ->join('flows', 'flows.id', 'flow_logs.flow_id')

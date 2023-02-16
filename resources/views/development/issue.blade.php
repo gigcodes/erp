@@ -214,6 +214,139 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <script src="{{env('APP_URL')}}/js/bootstrap-filestyle.min.js"></script>
 
 <script>
+    jQuery(document).ready(function() {
+        applyDateTimePicker(jQuery('.cls-start-due-date'));
+    });
+    function applyDateTimePicker(eles) {
+        if (eles.length) {
+            eles.datetimepicker({
+                format: 'YYYY-MM-DD HH:mm:ss',
+                sideBySide: true,
+            });
+        }
+    }
+
+    function funGetTaskInformationModal() {
+        return jQuery('#modalTaskInformationUpdates');
+    }
+
+    function funDevTaskInformationUpdatesTime(type,id) {
+        if (type == 'start_date') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.start-date') }}",
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        value: $('input[name="start_dates'+id+'"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'estimate_date') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.estimate-date') }}",
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        value: $('input[name="estimate_date'+id+'"]').val(),
+                        remark: mdl.find('input[name="remark"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'cost') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.cost') }}",
+                    type: 'POST',
+                    data: {
+                        id: currTaskInformationTaskId,
+                        value: mdl.find('input[name="cost"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'estimate_minutes') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.estimate-minutes') }}",
+                    type: 'POST',
+                    data: {
+                        issue_id: id,
+                        estimate_minutes: $('input[name="estimate_minutes'+id+'"]').val(),
+                        remark: mdl.find('textarea[name="remark"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'lead_estimate_time') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.lead-estimate-minutes') }}",
+                    type: 'POST',
+                    data: {
+                        issue_id: currTaskInformationTaskId,
+                        lead_estimate_time: mdl.find('input[name="lead_estimate_time"]').val(),
+                        remark: mdl.find('input[name="lead_remark"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        }
+    }
+
     $(document).on("click", ".set-remark", function(e) {
         $('.remark_pop').val("");
         var task_id = $(this).data('task_id');
