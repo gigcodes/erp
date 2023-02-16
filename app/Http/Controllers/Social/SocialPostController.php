@@ -462,8 +462,7 @@ class SocialPostController extends Controller
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
             ]);
-
-            $response = json_decode(curl_exec($curl), true);
+            $response = json_decode(curl_exec($curl));
             curl_close($curl);
            
 
@@ -478,17 +477,17 @@ class SocialPostController extends Controller
        
        
         if ($response != '') {
-           
-            try {
-                $pages = $response['data'];
-                foreach ($pages as $key => $value) {
-                    
-                    if ($value['id'] == $page_id) {
-                        $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get account details->'.$value);
-                        return $value['access_token'];
+          try {
+                foreach ($response->data as $key => $value) {
+                    if(isset($value->id)){
+                        if ($value->id == $page_id) {
+                            $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get account details');
+                            return $value->access_token;
+                        }
                     }
+                    
                 }
-                
+
                 // foreach ($pages as $val) {
                 //     if ($val['id'] == $page_id) {
                 //         return $val['access_token'];
