@@ -694,6 +694,9 @@ class Kernel extends ConsoleKernel
 
         // Database log Cron
         $schedule->command('databaselog:cron')->dailyAt('0:00');
+
+        // Ads history Cron
+        $schedule->command('social:ads-history')->dailyAt('0:00');
     }
 
     /**`

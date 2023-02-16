@@ -120,11 +120,11 @@ class SocialAdsetController extends Controller
         }
 
         $config = SocialConfig::find($post->config_id);
-
+        $page_id = $config->page_id;
         $this->fb = new Facebook([
             'app_id' => $config->api_key,
             'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v12.0',
+            'default_graph_version' => 'v15.0',
         ]);
         $this->user_access_token = $config->token;
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
@@ -134,17 +134,18 @@ class SocialAdsetController extends Controller
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-                    //        dd($data);
+                    
                     $data['access_token'] = $this->user_access_token;
                     $data['name'] = $request->input('name');
                     //	$data['destination_type']=$request->input('destination_type');
+                    // $data['campaign_id'] = '23853645665760505'; //$request->input('campaign_id');
                     $data['campaign_id'] = $request->input('campaign_id');
                     $data['billing_event'] = $request->input('billing_event');
                     $data['bid_amount'] = 100;
 
                     //	$data['start_time']=strtotime($request->input('start_time'));
                     $data['OPTIMIZATION_GOAL'] = 'REACH';
-                    $data['end_time'] = strtotime($request->input('end_time'));
+                    //   $data['end_time'] = strtotime($request->input('end_time'));
                     $data['targeting'] = json_encode(['geo_locations' => ['countries' => ['US']]]);
                     if ($request->has('daily_budget')) {
                         $data['daily_budget'] = (int) $request->input('daily_budget');
@@ -152,11 +153,10 @@ class SocialAdsetController extends Controller
                     $data['bid_amount'] = $request->input('bid_amount');
                     $data['daily_budget'] = $request->input('daily_budget');
                     $data['status'] = $request->input('status');
-
-                    // $data["bid_amount"]=1000;
-                    //$data["daily_budget"]=10000;
-
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/adsets';
+                    $data['promoted_object'] = json_encode(['page_id' => $page_id ]);
+                    
+                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/adsets';
+                    //$url = 'https://graph.facebook.com/v15.0/act_723851186073937/adsets';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -216,7 +216,7 @@ class SocialAdsetController extends Controller
                     //    $data["bid_amount"]=1000;
                     //$data["daily_budget"]=10000;
 
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/adsets';
+                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/adsets';
 
                     // Call to Graph api here
                     $curl = curl_init();
