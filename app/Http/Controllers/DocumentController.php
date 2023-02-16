@@ -139,6 +139,7 @@ class DocumentController extends Controller
 
         if (! empty($document->file_contents)) {
             $finfo = new finfo(FILEINFO_MIME_TYPE);
+
             $mime = $finfo->buffer($document->file_contents);
 
             return response($document->file_contents)
@@ -551,12 +552,14 @@ class DocumentController extends Controller
         $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
         $category = DocumentCategory::select('id', 'name')->get();
         $api_keys = ApiKey::select('number')->get();
+        $emailAddresses = EmailAddress::orderBy('id', 'asc')->pluck('from_address', 'id');
 
         return view('documents.email', [
             'documents' => $documents,
             'users' => $users,
             'category' => $category,
             'api_keys' => $api_keys,
+            'emailAddresses' => $emailAddresses,
         ]);
     }
 }
