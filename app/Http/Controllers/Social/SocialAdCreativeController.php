@@ -113,7 +113,7 @@ class SocialAdCreativeController extends Controller
         $this->fb = new Facebook([
             'app_id' => $config->api_key,
             'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v12.0',
+            'default_graph_version' => 'v15.0',
         ]);
         $this->user_access_token = $config->token;
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
@@ -123,10 +123,10 @@ class SocialAdCreativeController extends Controller
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-                    //        dd($data);
+                    
                     $data['access_token'] = $this->user_access_token;
-
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/adcreatives';
+                    //$url = 'https://graph.facebook.com/v15.0/act_723851186073937/adcreatives';
+                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/adcreatives';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -140,11 +140,9 @@ class SocialAdCreativeController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create adcreatives', $resp);
-                    //    dd($resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
 
-                    //    dd($resp);
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
                         //  $post->ref_campaign_id=$resp->id;
@@ -167,10 +165,10 @@ class SocialAdCreativeController extends Controller
                 }
             } else {
                 try {
-                    //        dd($data);
+                    
                     $data['access_token'] = $this->user_access_token;
 
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/adcreatives';
+                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/adcreatives';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -355,9 +353,9 @@ class SocialAdCreativeController extends Controller
 
     public function getPostData($config)
     {
-        $token = $config->token;
+        $token = $config->page_token;
         $page_id = $config->page_id;
-        $url = "https://graph.facebook.com/v12.0/$page_id?fields=posts&access_token=$token";
+        $url = "https://graph.facebook.com/v15.0/$page_id?fields=posts&access_token=$token";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -379,7 +377,7 @@ class SocialAdCreativeController extends Controller
     {
         $token = $config->token;
         $page_id = $config->page_id;
-        $url = "https://graph.facebook.com/v12.0/$page_id?fields=instagram_business_account&access_token=$token";
+        $url = "https://graph.facebook.com/v15.0/$page_id?fields=instagram_business_account&access_token=$token";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
