@@ -159,6 +159,7 @@ class SocialPostController extends Controller
                 'app_secret' => $config->api_secret,
                 'default_graph_version' => 'v15.0',
             ]);
+            
             $this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
     
             $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
@@ -447,8 +448,25 @@ class SocialPostController extends Controller
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get token->'.$token);
-            $response = $fb->get('/me/accounts', $token);
-            
+            //$response = $fb->get('/me/accounts', $token);
+            $curl = curl_init();
+            $url = sprintf('https://graph.facebook.com/v15.0//me/accounts?access_token='.$token);
+
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ]);
+
+            $response = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+           
+
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
@@ -456,19 +474,29 @@ class SocialPostController extends Controller
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
         }
+
+       
        
         if ($response != '') {
+           
             try {
-                $pages = $response->getGraphEdge()->asArray();
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get account details->'.$pages);
-                foreach ($pages as $key) {
-                    if ($key['id'] == $page_id) {
-                        return $key['access_token'];
+                $pages = $response['data'];
+                foreach ($pages as $key => $value) {
+                    
+                    if ($value['id'] == $page_id) {
+                        $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get account details->'.$value);
+                        return $value['access_token'];
                     }
                 }
-            } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->'.$e->getMessage());
-            }
+                
+                // foreach ($pages as $val) {
+                //     if ($val['id'] == $page_id) {
+                //         return $val['access_token'];
+                //     }
+                // }
+             } catch (\Exception $e) {
+                 $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->'.$e->getMessage());
+             }
         }
     }
 
