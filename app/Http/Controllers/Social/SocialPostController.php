@@ -143,6 +143,7 @@ class SocialPostController extends Controller
 
     public function store(Request $request)
     {
+       
         $post = new SocialPost;
         $post->config_id = $request->config_id;
         $post->caption = $request->message;
@@ -158,8 +159,8 @@ class SocialPostController extends Controller
             'default_graph_version' => 'v12.0',
         ]);
         $this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
-        $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
 
+        $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         // $request->validate([
         // 	'message' => 'required',
         // 	'source.*' => 'mimes:jpeg,bmp,png,gif,tiff,jpg',
@@ -168,6 +169,7 @@ class SocialPostController extends Controller
         // ]);
 
         // Message
+        
         $message = $request->input('message');
         if ($this->page_access_token != '') {
             if ($config->platform == 'facebook') {
@@ -286,28 +288,33 @@ class SocialPostController extends Controller
                     }
                 }
             } else {
-                $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to insta condition');
+                 $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to insta condition');
                 $insta_id = $this->getInstaID($config, $this->fb, $post->id);
+                
+
                 if ($insta_id != '') {
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'get-insta-id', $insta_id);
                     $images = [];
-
+                    
                     /*foreach($request->file('source') as $key =>$source)
-                      {
-                          dd($source);
-                          $filename = str_random(40).'_'.$source[0]->getClientOriginalName();
-
-                            $source->move(public_path().'/social_images/', $filename);
-                //        $path = $request->files[$key]->store('social_images');
-                          $path =  asset('social_images/'.$filename);
-                           $media_id = $this->addMedia($config,$post,$path,$insta_id);
-
-                          dd($path);
-
-
-                      }*/
+                    {
+                        dd($source);
+                        $filename = str_random(40).'_'.$source[0]->getClientOriginalName();
+                        
+                        $source->move(public_path().'/social_images/', $filename);
+                        //        $path = $request->files[$key]->store('social_images');
+                        $path =  asset('social_images/'.$filename);
+                        $media_id = $this->addMedia($config,$post,$path,$insta_id);
+                        
+                        dd($path);
+                        
+                        
+                    }*/
+                    
 
                     if ($request->hasfile('source')) {
+                        ini_set('memory_limit','-1');   // Added memory limit allowing maximum memory
+                        ini_set('max_execution_time','-1'); 
                         $this->socialPostLog($config->id, $post->id, $config->platform, 'come to image', 'source');
                         foreach ($request->file('source') as $image) {
                             $media = MediaUploader::fromSource($image)
@@ -325,9 +332,13 @@ class SocialPostController extends Controller
                     }
 
                     if ($post->getMedia(config('constants.media_tags'))->first()) {
+                        ini_set('memory_limit','-1');   // Added memory limit allowing maximum memory
+                        ini_set('max_execution_time','-1'); 
+                        
                         $this->socialPostLog($config->id, $post->id, $config->platform, 'come to getMedia', 'find media');
                         foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
                             $mediaurl = $file->getUrl();
+                            
                             $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id);
                             if (! empty($media_id)) {
                                 $res = $this->publishMedia($config, $post, $media_id, $insta_id);
@@ -417,14 +428,19 @@ class SocialPostController extends Controller
 
     public function getPageAccessToken($config, $fb, $post_id)
     {
+        
         $response = '';
 
         try {
-            $token = $config->token;
+           $token = $config->token;
+            
+            // 'EAAIALK1F98IBAEOcpbWHkBG2KyDfaqNoFWpgvxBw9k5wWn2RiQYXlsQFhzoQYHp9ZCwxjuM3Y3IMKKyGVYIvn2WM3bTGBxNbRR18OtbTtJFH2kZBsZCmPDMnZBuK8QkGQbrhdKrjLYAZB1y8WNRd5CtdnoJfv6Mvk4p5fLbZAd9CbbaaBc44espdHp2obEpxdIPPhB8QoqXXD7D3TwxypmOSFLTlzcOvqdUGuqyHZA5qAZDZD';
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
+
             $response = $fb->get('/me/accounts', $token);
+            
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
@@ -478,6 +494,7 @@ class SocialPostController extends Controller
 
     private function addMedia($config, $post, $mediaurl, $insta_id)
     {
+        //$mediaurl = 'https://t3.gstatic.com/licensed-image?q=tbn:ANd9GcSJ8o7X29SK1xD2JsVcP2_A0E8ZDGWV3ib5es32LHnzHQ3gu5_p9bReGNF9nxf39k-4Lumy6iEFjkQbgJg';
         $token = $config->token;
         $page_id = $config->page_id;
         $post_id = $post->id;
@@ -502,7 +519,6 @@ class SocialPostController extends Controller
 
             return $resp['id'];
         }
-
         return '';
     }
 
