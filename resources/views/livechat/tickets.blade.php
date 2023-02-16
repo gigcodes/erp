@@ -212,7 +212,7 @@
                         <button type="button" class="btn btn-image mt-2" id="send-message"><img src="{{ asset('images/whatsapp-logo.png')}}"/></button>
                     </div>
                     <div>
-                        <button class="btn btn-xs btn-secondary" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                        <button class="btn btn-xs btn-secondary mt-2" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
                     </div>
                 </div>
 
@@ -234,22 +234,23 @@
             <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
                 <thead>
                 <tr>
-                    <th style="width: 4%;"></th>
-                    <th style="width: 4%;">Id</th>
-                    <th style="width: 8%;">Source</th>
+                    <th style="width: 5%;"></th>
+                    <th style="width: 5%;">Id</th>
+                    <th style="width: 6%;">Source</th>
                     <th style="width: 8%;">Name</th>
                     <th style="width: 8%;">Email</th>
-                    <th style="width: 5%;">Subject</th>
-                    <th style="width: 6%;">Message</th>
+                    <th class="chat-msg" style="width: 5%;">Subject</th>
+                    <th class="chat-msg" style="width: 6%;">Message</th>
                     <th style="width: 6%;">Asg name</th>
-                    <th style="width: 5%;">Brand</th>
-                    <th style="width: 5%;">Country</th>
+                    <th class="chat-msg" style="width: 5%;">Brand</th>
+                    <th class="chat-msg" style="width: 5%;">Country</th>
                     <th style="width: 5%;">Ord no</th>
                     <th style="width: 8%;">Ph no</th>
-                    <th style="width: 13%;">Msg Box</th>
-                    <th style="width: 13%;">Resolution Date</th>
+                    <th style="width: 16%;">Msg Box</th>
+                    <th class="chat-msg" style="width: 13%;">Resolution Date</th>
                     <th style="width: 6%;">Status</th>
-                    <th style="width: 5%;">Created</th>
+                    <th class="chat-msg" style="width: 6%;">Created</th>
+                    <th class="chat-msg" style="width: 5%;">Action</th>
                 </tr>
                 </thead>
                 <tbody id="content_data" class="infinite-scroll-pending-inner">

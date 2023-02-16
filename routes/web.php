@@ -862,6 +862,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('sop', [SopController::class, 'store'])->name('sop.store');
     Route::get('sop', [SopController::class, 'index'])->name('sop.index');
+
+    Route::post('sop/category', [SopController::class, 'categoryStore'])->name('sop.category'); // sop category store route
+    Route::get('sop/category-list', [SopController::class, 'categorylist'])->name('sop.categorylist'); // sop category store route
+
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
@@ -2044,6 +2048,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     // Ad reports routes
     Route::get('social/ad/report', [SocialController::class, 'report'])->name('social.report');
+    Route::get('social/ad/report-history', [SocialController::class, 'reportHistory'])->name('social.report.history');
     Route::get('social/ad/schedules', [SocialController::class, 'getSchedules'])->name('social.ads.schedules');
     Route::post('social/ad/schedules', [SocialController::class, 'getSchedules'])->name('social.ads.schedules.p');
     Route::get('social/ad/schedules/calendar', [SocialController::class, 'getAdSchedules'])->name('social.ads.schedules.calendar');
@@ -2054,7 +2059,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('social/ad/schedules/{id}', [SocialController::class, 'showSchedule'])->name('social.ads.schedules.show');
     Route::get('social/ad/insight/{adId}', [SocialController::class, 'getAdInsights'])->name('social.ad.insight');
     Route::post('social/ad/report/paginate', [SocialController::class, 'paginateReport'])->name('social.report.paginate');
-    Route::get('social/ad/report/{ad_id}/{status}/', [SocialController::class, 'changeAdStatus'])->name('social.report.ad.status');
+    Route::get('social/ad/report/{ad_id}/{status}/{token}/', [SocialController::class, 'changeAdStatus'])->name('social.report.ad.status');
     // end to ad reports routes
 
     // AdCreative reports routes
@@ -2846,6 +2851,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
+    Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
