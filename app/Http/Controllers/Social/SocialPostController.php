@@ -159,6 +159,7 @@ class SocialPostController extends Controller
                 'app_secret' => $config->api_secret,
                 'default_graph_version' => 'v15.0',
             ]);
+            
             $this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
     
             $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
@@ -487,6 +488,7 @@ class SocialPostController extends Controller
                         return $value['access_token'];
                     }
                 }
+                
                 // foreach ($pages as $val) {
                 //     if ($val['id'] == $page_id) {
                 //         return $val['access_token'];
