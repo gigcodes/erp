@@ -96,7 +96,7 @@ class SocialPostController extends Controller
         $fb = new Facebook([
             'app_id' => $config->api_key,
             'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v12.0',
+            'default_graph_version' => 'v15.0',
         ]);
 
         $data['caption'] = $post->caption;
@@ -157,7 +157,7 @@ class SocialPostController extends Controller
             $this->fb = new Facebook([
                 'app_id' => $config->api_key,
                 'app_secret' => $config->api_secret,
-                'default_graph_version' => 'v12.0',
+                'default_graph_version' => 'v15.0',
             ]);
             $this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
     
@@ -436,7 +436,7 @@ class SocialPostController extends Controller
 
     public function getPageAccessToken($config, $fb, $post_id)
     {
-        
+        $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get token function call..');
         $response = '';
 
         try {
@@ -446,7 +446,7 @@ class SocialPostController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get token->'.$token);
             $response = $fb->get('/me/accounts', $token);
             
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
@@ -456,9 +456,11 @@ class SocialPostController extends Controller
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
         }
+       
         if ($response != '') {
             try {
                 $pages = $response->getGraphEdge()->asArray();
+                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get account details->'.$pages);
                 foreach ($pages as $key) {
                     if ($key['id'] == $page_id) {
                         return $key['access_token'];
