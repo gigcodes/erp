@@ -20,10 +20,12 @@ class ProceesPushFaq implements ShouldQueue
      * @return void
      */
     private $data;
-    public function __construct($data)
+    private $reqType;
+    public function __construct($data,$reqType = "pushFaq")
     {
         // Assign the variable received from Request
         $this->data = $data;
+        $this->reqType = $reqType;
     }
 
     /**
@@ -34,16 +36,15 @@ class ProceesPushFaq implements ShouldQueue
     public function handle()
     {
         $reply_id = $this->data;
+        $reqType  = $this->reqType;
 
         //Loop the records one by one
-        $this->_processSingleFaq($reply_id);
+        $this->_processSingleFaq($reply_id,$reqType);
     }
 
-    private function _processSingleFaq($reply_id)
+    private function _processSingleFaq($reply_id,$reqType)
     {
         $Reply = new Reply();
-        $stores = array();
-
         $searchArray = (array) $reply_id;
 
         try {
@@ -61,8 +62,12 @@ class ProceesPushFaq implements ShouldQueue
 
             foreach ($replyInfoArray as $key => $replyInfo) {
                 //get list of all store websites
-                $StoreWebsite   =   new \App\StoreWebsite();
-                $allWebsites    =   $StoreWebsite->getAllTaggedWebsite( $replyInfo->tag_id );
+                $storeWebsite   =   new \App\StoreWebsite();
+                if((isset($replyInfo->tag_id) && $replyInfo->tag_id != "") && $reqType == "pushFaq"){
+                    $allWebsites    =   $storeWebsite->getAllTaggedWebsite( $replyInfo->tag_id );
+                } else {
+                    $allWebsites = $storeWebsite->where("id",$replyInfo->store_website_id)->get();
+                }
                
                 if(!empty($allWebsites)){
                     foreach ($allWebsites as $websitekey => $websitevalue) {
@@ -82,6 +87,7 @@ class ProceesPushFaq implements ShouldQueue
                                         ->get();
 
                         if (!$fetchStores->isEmpty()) {
+                            $stores = array();
                             foreach ($fetchStores as $fetchStore) {
                                 $stores[] = $fetchStore->code;
                             }
@@ -93,15 +99,16 @@ class ProceesPushFaq implements ShouldQueue
 
                         //create a payload for API
                         $faqQuestion = $replyInfo->name;
-                        $faqAnswer = $replyInfo->reply;
+                        
                         $faqCategoryId = $replyInfo->category_id;
                         $faqCategoryId = 1;
 
                         if (!empty($url) && !empty($api_token)) {
                             foreach ($stores as $key => $storeValue) {
-
-                                $platformInfo = \App\Models\ReplyPushStore::where(["reply_id" => $replyInfo->id, "store_id" => $storeValue, ])->first();
-
+                                $language = isset(explode('-', $storeValue)[1]) && explode('-', $storeValue)[1] != "" ? explode('-', $storeValue)[1] : "";
+                                $platformInfo = \App\Models\ReplyPushStore::where(["reply_id" => $replyInfo->id, "store_id" => $storeValue])->first();
+                                $translateReplies = \App\TranslateReplies::where('translate_to', $language)->where('replies_id', $replyInfo->id)->first();
+                                $faqAnswer = isset($translateReplies->translate_text) && $translateReplies->translate_text != "" ? $translateReplies->translate_text : $replyInfo->reply;
                                 if ($platformInfo && !empty($platformInfo->id)) {
                                     $postdata = "{\n    \"faq\": {\n        \"faq_category_id\": \"$faqCategoryId\",\n        \"id\": \"$platformInfo->platform_id\",\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }\n}";
                                 } else {

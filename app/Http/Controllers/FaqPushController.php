@@ -56,7 +56,8 @@ class FaqPushController extends Controller
 
                 //Pluck only ID from array 
                 $insertArray    =   $value->pluck('id');
-                ProceesPushFaq::dispatch($insertArray->toArray());     //insert a Array and create a job of 100 at a time.
+                $reqType = "pushFaqAll";
+                ProceesPushFaq::dispatch($insertArray->toArray(),$reqType);     //insert a Array and create a job of 100 at a time.
             }
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Record Added']);
