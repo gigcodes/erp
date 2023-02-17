@@ -108,7 +108,7 @@ class SocialAdsController extends Controller
         $this->fb = new Facebook([
             'app_id' => $config->api_key,
             'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v12.0',
+            'default_graph_version' => 'v15.0',
         ]);
         $this->user_access_token = $config->token;
         $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
@@ -119,9 +119,10 @@ class SocialAdsController extends Controller
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-                    //        dd($data);
+                    
                     $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/ads';
+                   // $url = 'https://graph.facebook.com/v15.0/act_723851186073937/ads';
+                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/ads';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -363,15 +364,16 @@ class SocialAdsController extends Controller
     public function getPostData($config)
     {
         $token = $config->token;
-        $page_id = $config->page_id;
         $this->fb = new Facebook([
             'app_id' => $config->api_key,
             'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v12.0',
+            'default_graph_version' => 'v15.0',
         ]);
+        
         $this->ad_acc_id = $this->getAdAccount($config, $this->fb, 0);
-
-        $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id."/?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token=$token";
+       // $this->ad_acc_id = 'act_723851186073937';
+        
+        $url = "https://graph.facebook.com/v15.0/$this->ad_acc_id?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token=$token";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -383,7 +385,6 @@ class SocialAdsController extends Controller
         curl_setopt($ch, CURLOPT_POST, 0);
         $resp = curl_exec($ch);
         $resp = json_decode($resp, true);
-        // dd($resp);
         if (isset($resp['error'])) {
             return ['type' => 'error', 'message' => $resp['error']['message']];
         } else {

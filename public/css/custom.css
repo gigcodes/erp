@@ -2571,15 +2571,64 @@ table {
 
 .csvData-table{
   width:100% !important;
+} 
+
+
+/* sop category multiple select option */
+.ms-options-wrap button{
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
 }
+
+.ms-options {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.ms-search {
+  margin: 0 0 15px;
+}
+
+.ms-search input {
+  width: 100%;
+}
+
+.ms-options ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.ms-options ul li label {
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: normal;
+  margin: 0 0 10px;
+  width: fit-content;
+}
+
+.ms-options ul li label input {
+  margin: 0;
+  border: 0;
+  box-shadow: none;
+  height: auto;
+}
+/* sop category multiple select option end  */
 
 .min-w-100{
   min-width: 100%;
 }
 
 .history_model{
-  bottom: 5px;
-  right: 5px;
+  bottom: 0px;
+  right: 10px;
 }
 
 .csvData-table tbody td{
@@ -2592,6 +2641,13 @@ table {
   position: absolute;
   top:5px;
   right:8px;
+  font-size: 15px;
+}
+
+.viewbtn_model{
+  position: absolute;
+  top: 27px;
+  right: 30px;
   font-size: 15px;
 }
 
@@ -2686,3 +2742,25 @@ button.show-task-history{
   float: right;
 }
 /**Tasks Summary End**/
+
+.cls-actions .padding-top-action{
+  margin-top: -6px;
+}
+.cls-actions .abtn-pd{
+  padding: 6px 6px 5px 5px;
+}
+.postman-dropdown-display .dropdown-display{
+  min-height:35px !important;
+}
+
+.add-json{
+  margin-top: -5px;
+  margin-left: 10px
+}
+
+@media (min-width: 992px){
+  #addPostman .modal-lg {
+      width: 1180px !important;
+      max-width: 1500px !important;
+  }
+}

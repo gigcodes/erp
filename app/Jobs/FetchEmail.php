@@ -13,7 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class FetchEmail implements ShouldQueue
 {
@@ -46,7 +46,8 @@ class FetchEmail implements ShouldQueue
         //
         $emailAddress = $this->emailAddress;
         try {
-            $imap = new Client([
+            $cm = new ClientManager();
+            $imap = $cm->make([
                 'host' => $emailAddress->host,
                 'port' => 993,
                 'encryption' => 'ssl',
@@ -99,7 +100,7 @@ class FetchEmail implements ShouldQueue
                 if ($latest_email_date) {
                     $emails = $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y'));
                 } else {
-                    $emails = $inbox->messages();
+                    $emails = ($inbox) ? $inbox->messages() : '';
                 }
 
                 $emails = $emails->get();
