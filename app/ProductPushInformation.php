@@ -10,6 +10,10 @@ class ProductPushInformation extends Model
 {
     protected $guarded = [];
 
+    protected $table = 'product_push_informations';
+
+    protected $fillable = ['product_id','sku','status','quantity','stock_status','deleted_at','store_website_id','is_added_from_csv','real_product_id','is_available'];
+
     use SoftDeletes;
 
     public static function boot()
