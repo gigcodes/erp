@@ -34,7 +34,7 @@
                 @endif
                 @endforeach
             </select>
-            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+            <button style="float:right;padding-right:0px;height: 10px!important;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
             <!--     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>-->
         </div>
     </td>
@@ -62,9 +62,13 @@
         {{ $issue->estimate_minutes }}
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}" data-userId="{{$issue->user_id}}"><i class="fa fa-info-circle"></i></button>
     </td>
-    <td style="vertical-align: baseline;">
-        {{ $issue->estimate_date }}
-        <button style="float:right;padding-right:0px;margin-left: auto;" type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+    <td>
+        <div class="d-flex">
+            <div>
+                {{ $issue->estimate_date }}
+            </div>
+            <button style="padding-right:0px;margin-left: auto;height: 10px!important;" type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+        </div>
     </td>
     <td>
         {{ $issue->due_date }}
@@ -111,20 +115,38 @@
             @endif
         </div>
     </td>
-    <td>
+<td>
+    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Quickbtn('{{$issue->id}}')"><i class="fa fa-arrow-down"></i></button>
+</td>
+</tr>
+
+<tr class="action-quickbtn-tr-{{$issue->id}} d-none">
+    <td class="font-weight-bold">Action</td>
+    <td colspan="9">
         <button type="button" title="Tasktime history" class="btn tasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
             <i class="fa fa-comments-o"></i>
         </button>
+
         <button type="button" title="LogTasktime history" class="btn logtasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
             <i class="fa fa-history"></i>
         </button>
+
         @if ($issue->is_flagged == 1)
-        <button type="button" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}" /></button>
+            <button type="button" title="Flag Task" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}" /></button>
         @else
-        <button type="button" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
+            <button type="button" title="Flag Task" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
         @endif
+
         <button type="button" data-type="develop" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
             <i class="fa fa-info-circle"></i>
         </button>
     </td>
 </tr>
+
+@section('scripts')
+    <script>
+        function Quickbtn(id){
+            $(".action-quickbtn-tr-"+id).toggleClass('d-none')
+        }
+    </script>
+@endsection

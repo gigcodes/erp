@@ -182,51 +182,51 @@ class CsvTranslatorController extends Controller
         if (count($permissions[$lang]) == 1) {
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'view') {
                 if ($data['status_'.$lang] === 'checked') {
-                    return '<div class="bg-success p-4 text-white">'.$language."<a href='#' class='history_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a></div>";
+                    return '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 } else {
-                    return '<div class="bg-custom-grey p-4">'.$language."<a href='#' class='history_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a></div>";
+                    return '<div class="bg-custom-grey show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 }
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'edit') {
                 if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success p-4 text-white">'.$language."<a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a></div>";
+                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 } else {
-                    return  '<div class="bg-custom-grey p-3">'.$language."<a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a></div>";
+                    return  '<div class="bg-custom-grey show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 }
             }
         }
 
-        if (count($permission[$lang]) == 2) {
+        if (count($permissions[$lang]) == 2) {
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'view') {
                 if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success p-4 text-white">'.$language."<a href='#' class='history_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a></div>";
+                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 } else {
-                    return   '<div class="bg-custom-grey p-4">'.$language."<a href='#' class='history_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a></div>";
+                    return   '<div class="bg-custom-grey show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 }
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'edit') {
                 if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success p-4 text-white">'.$language."<a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a></div>";
+                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 } else {
-                    return  '<div class="bg-custom-grey p-3">'.$language."<a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a></div>";
+                    return  '<div class="bg-custom-grey p-2 show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 }
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][1]) && $permissions[$lang][1] == 'view') {
                 if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success p-4 text-white">'.$language."<a href='#' class='history_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a></div>";
+                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 } else {
-                    return   '<div class="bg-custom-grey p-4">'.$language."<a href='#' class='history_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a></div>";
+                    return   '<div class="bg-custom-grey show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 }
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][1]) && $permissions[$lang][1] == 'edit') {
                 if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success p-4 text-white">'.$language."<a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a></div>";
+                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 } else {
-                    return  '<div class="bg-custom-grey p-3">'.$language."<a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a></div>";
+                    return  '<div class="bg-custom-grey p-2 show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 }
             }
         }
