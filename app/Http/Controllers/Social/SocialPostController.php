@@ -171,7 +171,8 @@ class SocialPostController extends Controller
             // ]);
     
             // Message
-            
+           
+
             $message = $request->input('message');
             if ($this->page_access_token != '') {
                 if ($config->platform == 'facebook') {
@@ -183,9 +184,11 @@ class SocialPostController extends Controller
                         $data['published'] = 'false';
                         $data['access_token'] = $this->page_access_token;
                         try {
+
                             foreach ($request->file('source') as $key => $source) {
                                 $data['source'] = $this->fb->fileToUpload($source);
-    
+                                
+                                
                                 // post multi-photo story
                                 $multiPhotoPost['attached_media['.$key.']'] = '{"media_fbid":"'.$this->fb->post('/me/photos', $data)->getGraphNode()->asArray()['id'].'"}';
                             }
@@ -201,14 +204,14 @@ class SocialPostController extends Controller
                                 $multiPhotoPost['scheduled_publish_time'] = strtotime($request->input('date'));
                             }
                             $resp = $this->fb->post('/me/feed', $multiPhotoPost)->getGraphNode()->asArray();
-    
+                           
                             if (isset($resp->error->message)) {
                                 $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $resp->error->message);
                                 Session::flash('message', $resp->error->message);
                             } else {
                                 $post->status = 1;
-                                if (isset($resp['post_id'])) {
-                                    $post->ref_post_id = $resp['post_id'];
+                                if (isset($resp['id'])) {
+                                    $post->ref_post_id = $resp['id'];
                                 }
     
                                 $post->save();
@@ -269,13 +272,12 @@ class SocialPostController extends Controller
                         }
                         try {
                             $resp = $this->fb->post('/me/feed', $data)->getGraphNode()->asArray();
-    
                             if (isset($resp->error->message)) {
                                 Session::flash('message', $resp->error->message);
                             } else {
                                 $post->status = 1;
-                                if (isset($resp['post_id'])) {
-                                    $post->ref_post_id = $resp['post_id'];
+                                if (isset($resp['id'])) {
+                                    $post->ref_post_id = $resp['id'];
                                 }
     
                                 $post->save();
