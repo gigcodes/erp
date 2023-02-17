@@ -47,6 +47,7 @@ class GoogleAdGroupController extends Controller
             return [
                 'account_id' => $campaignDetail->account_id,
                 'campaign_name' => $campaignDetail->campaign_name,
+                'campaign_channel_type' => $campaignDetail->channel_type,
             ];
         } else {
             abort(404, 'Invalid account!');
@@ -67,6 +68,7 @@ class GoogleAdGroupController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $campaign_account_id = $acDetail['account_id'];
         $campaign_name = $acDetail['campaign_name'];
+        $campaign_channel_type = $acDetail['campaign_channel_type'];
 
         $query = \App\GoogleAdsGroup::query();
 
@@ -91,7 +93,7 @@ class GoogleAdGroupController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('googleadgroups.partials.list-adsgroup', ['adGroups' => $adGroups, 'campaignId' => $campaignId])->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('googleadgroups.partials.list-adsgroup', ['adGroups' => $adGroups, 'campaignId' => $campaignId, 'campaign_channel_type' => $campaign_channel_type])->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string) $adGroups->render(),
                 'count' => $adGroups->total(),
             ], 200);
@@ -107,7 +109,7 @@ class GoogleAdGroupController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googleadgroups.index', ['adGroups' => $adGroups, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'campaign_name' => $campaign_name, 'campaign_account_id' => $campaign_account_id]);
+        return view('googleadgroups.index', ['adGroups' => $adGroups, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'campaign_name' => $campaign_name, 'campaign_account_id' => $campaign_account_id, 'campaign_channel_type' => $campaign_channel_type]);
     }
 
     // getting all Ad Groups of specific campaign

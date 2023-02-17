@@ -331,6 +331,7 @@ use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
+use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -3826,6 +3827,16 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::get('/create', [GoogleAdsController::class, 'createPage'])->name('ads.createPage');
                     Route::post('/create', [GoogleAdsController::class, 'createAd'])->name('ads.craeteAd');
                     Route::delete('/delete/{adId}', [GoogleAdsController::class, 'deleteAd'])->name('ads.deleteAd');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('responsive-display-ad')->group(function () {
+                    Route::get('/', [GoogleResponsiveDisplayAdController::class, 'index'])->name('responsive-display-ad.index');
+                    Route::get('/create', [GoogleResponsiveDisplayAdController::class, 'createPage'])->name('responsive-display-ad.createPage');
+                    Route::post('/create', [GoogleResponsiveDisplayAdController::class, 'createAd'])->name('responsive-display-ad.craeteAd');
+                    Route::delete('/delete/{adId}', [GoogleResponsiveDisplayAdController::class, 'deleteAd'])->name('responsive-display-ad.deleteAd');
+                    Route::get('/{adId}', [GoogleResponsiveDisplayAdController::class, 'show'])->name('responsive-display-ad.show');
                 });
             });
         });
