@@ -75,3 +75,9 @@
     - Base script through execute deployment script command
     - All output check with `Pull Request Successfully merged` condition and If it matching then change status to `Success`.
     - `magento_setting_push_logs` table in store command,store details and command output details.
+9. ### Cron/Command to get config value from Magento:
+    - This cron is created to get config value from magento and update it in magento setting table which is executeing daily midnight on `Asia/Dubai` timezone.
+    - Cron used to run one command `magento:get-config-value` mentioned in `MagentoConfigValue` file.
+    - When this command fired it will fetch data from `magento_settings` by grouping store_website_id. 
+    - From result, `/rest/V1/configvalue/get` API will call by passing `path`, `scope`, and `scope_id` parameters for each website.
+    - After getting response from above API, it will store response in to `log_requests` table and updating response to `value_on_magento` column of `magento_settings` table.
