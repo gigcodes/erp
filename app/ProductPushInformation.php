@@ -18,6 +18,9 @@ class ProductPushInformation extends Model
 
     public static function boot()
     {
+        parent::boot();
+        
+
         static::updated(function (ProductPushInformation $p) {
             $dirties = $p->getDirty();
             $old_contents = $p->getOriginal();
