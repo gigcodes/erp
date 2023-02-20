@@ -42,7 +42,7 @@ class TwiliochatController extends Controller
                     }
 
                     $agent = User::where('id', $chat->user_id)->first();
-                    $agentInital = substr($agent->name, 0, 1);
+                    $agentInital = $agent ? substr($agent->name, 0, 1) : '';
 
                     $chat->message = '<div data-chat-id="'.$chat->id.'" class="d-flex mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time"> '.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>';
                 } else {
