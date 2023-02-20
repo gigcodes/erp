@@ -3411,7 +3411,7 @@ class ProductController extends Controller
             
             // $product = $product->first();
 
-            // unset($product->priority);
+            unset($product->priority);
             // return response()->json([
             //     'status' => $product
             // ]);
