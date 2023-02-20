@@ -3399,19 +3399,19 @@ class ProductController extends Controller
             //get priority
 
             ///Commented due to query taking long time
-            // $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
-            //     // $query->where('priority','!=',null);
-            // })->whereHasMedia('original')->get()->transform(function ($productData) {
-            //     $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
+            $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
+                $query->where('priority','!=',null);
+            })->whereHasMedia('original')->get()->transform(function ($productData) {
+                $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
 
-            //     return $productData;
-            // });
-            //$product = $product->sortBy('priority')->first();
+                return $productData;
+            });
+            $product = $product->sortBy('priority')->first();
             // Comment End
+            
+            // $product = $product->first();
 
-            $product = $product->first();
-
-            unset($product->priority);
+            // unset($product->priority);
             // return response()->json([
             //     'status' => $product
             // ]);
