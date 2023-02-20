@@ -44,7 +44,7 @@
                 </form>
             </div> -->
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</a>
+              <!-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</a> -->
             </div>
         </div>
     </div>
