@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Permission;
 use App\Setting;
 use App\User;
+use Google\Service\TagManager\UserPermission;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -38,6 +39,7 @@ class PermissionController extends Controller
         return view('permissions.index', compact('users', 'permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
+
     /**
      * Show the form for creating a new resource.
      *
@@ -47,6 +49,7 @@ class PermissionController extends Controller
     {
         return view('permissions.create');
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -135,6 +138,14 @@ class PermissionController extends Controller
                          ->with('success', 'Role deleted successfully');
     }
 
+    public function delete_record(Request $request)
+    {
+        $ids = $request->user_id;
+        \DB::table("permission_user")->whereIn('user_id',explode(",",$ids))->delete();
+
+        return response()->json(['success'=>"Deleted successfully."]);
+    }
+
     public function users(Request $request)
     {
         $users = User::where('users.is_active', 1)->orderBy('name', 'asc');
@@ -157,7 +168,6 @@ class PermissionController extends Controller
                     $query->select('permissions.id')->from('permissions')->join('permission_user', 'permissions.id' ,'=', 'permission_user.permission_id');
                 })->orderBy('permissions.name');
             }
-
         }
 
         if(!empty($request->assign_permission) && in_array('0',$request->assign_permission) && !in_array('1',$request->assign_permission))
@@ -182,6 +192,8 @@ class PermissionController extends Controller
             }
         }
 
+
+
         if($request->search_row)
         {
             $permissions = $permissions->whereIn('permissions.name', $request->search_row);
@@ -194,7 +206,7 @@ class PermissionController extends Controller
 
         $users = $users->paginate(10);
 
-        $permissions = $permissions->paginate(10);
+        $permissions = $permissions->get();
 
         return view('permissions.users', compact('users', 'permissions','user_datas','permission_datas'))->with('i', ($request->input('page', 1) - 1) * 10);
     }

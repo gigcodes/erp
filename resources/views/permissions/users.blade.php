@@ -40,13 +40,18 @@
                 <div class="pull-left">
                     <h2> Grand Permission To Users</h2>
                 </div>
+
                 <div class="pull-right">
                     <a class="btn btn-secondary mt-3" href="{{ route('permissions.index') }}"> Back</a>
                 </div>
             </div>
+
             <div class="col-lg-12 margin-tb">
                 <div class="pull-right">
                     <form action="{{ route('permissions.users') }}" method="get" class="mb-2 d-flex">
+                            <div class="form-group mt-2 mr-3">
+                                <button id="permission_delete" type="button" class="btn btn-secondary delete_all" value="" data-id="">Remove Permission</button>
+                            </div>
                             <div class="form-group mr-2">
                                 <select name="search_user[]" id="search_user" class="form-control search_user" multiple>
                                     @foreach($user_datas as $user)
@@ -87,19 +92,20 @@
         </div>
 
         <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="col-xs-12 col   -sm-12 col-md-12">
             <div class="form-group">
-                <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                <div class="table-wrapper-scroll-y my-custom-scrollbar" style="overflow: scroll;">
                     <table id="dtHorizontalExample" class="table table-striped table-bordered table-sm" cellspacing="0"
                            width="100%">
                         <thead>
                         <tr>
+                            <th><input type="checkbox" id="master"></th>
                             <th>Sr</th>
                             <th>Users </th>
                             @foreach($permissions as $permission)
-                                @if(!empty(Request::get('search_row')) && in_array($permission->name,Request::get('search_row')))
+                                @if(in_array($permission->name, $user->permissions->pluck('name')->toArray()))
                                     <th>{{ $permission->name }}</th>
-                                @elseif(empty(Request::get('search_row')))
+                                @else
                                     <th>{{ $permission->name }}</th>
                                 @endif
                             @endforeach
@@ -107,11 +113,11 @@
                         </thead>
                         <tbody>
                         @foreach($users as $user)
-                            <tr>
+                            <tr id="tr_{{$user->id}}">
+                                <td><input type="checkbox" class="sub_chk" name="user_id[]" data-id="{{$user->id}}" multiple></td>
                                 <td>{{++$i }}</td>
                                 <td><a href="/users/{{ $user->id }}/edit">{{ $user->name }} ({{ (!empty($user->permissions)) ? count($user->permissions) :'' }})</a></td>
                                 @foreach($permissions as $permission)
-                                    @if(!empty(Request::get('search_row')) && in_array($permission->name,Request::get('search_row')))
                                     <td>
                                         @if(in_array($permission->name, $user->permissions->pluck('name')->toArray()))
                                             <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},1)" style="background-color: lightgreen !important;"><img src="{{asset('/images/icons-checkmark.png') }}" height="10" width="10"/>
@@ -121,17 +127,6 @@
                                             </button>
                                         @endif
                                     </td>
-                                    @elseif(empty(Request::get('search_row')))
-                                        <td>
-                                            @if(in_array($permission->name, $user->permissions->pluck('name')->toArray()))
-                                                <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},1)" style="background-color: lightgreen !important;"><img src="{{asset('/images/icons-checkmark.png') }}" height="10" width="10"/>
-                                                </button>
-                                            @else
-                                                <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},0)"><img src="{{asset('/images/icons-delete.png') }}" height="10" width="10"/>
-                                                </button>
-                                            @endif
-                                        </td>
-                                    @endif
                                 @endforeach
                             </tr>
                         @endforeach
@@ -189,5 +184,57 @@
             });
             }
         }
+
+
+
+
+        $('#master').on('click', function(e) {
+
+            if($(this).is(':checked',true))
+            {
+                $(".sub_chk").prop('checked', true);
+            } else {
+                $(".sub_chk").prop('checked',false);
+            }
+        });
+
+        var x = [];
+        $("input[type='checkbox']").change(function(){
+            var id = $(this).attr('data-id');
+            if(this.checked){
+                x.push(id);
+            }
+            else {
+                var index = x.indexOf(id);
+                x.splice(index, 1);
+            }
+            $('#permission_delete').val(x.join(','));
+        });
+
+        var x = [];
+        $("#master").change(function(){
+            $.each($("input[name='user_id[]']:checked"), function(){
+                x.push($(this).data('id'));
+            });
+
+            $('#permission_delete').val(x.join(','));
+        });
+
+        $('#permission_delete').on('click', function(e) {
+            var $user_id = $('#permission_delete').val();
+
+            $.ajax({
+                type: "get",
+                url: "/permissions/grandaccess/delete",
+                data: {"_token": "{{ csrf_token() }}","user_id": $user_id},
+                dataType: "json",
+                success: function(message) {
+                    location.reload(true);
+                }
+            });
+        });
+
+
+
     </script>
 @endsection
