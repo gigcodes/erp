@@ -2,6 +2,9 @@
 
 namespace App;
 
+use App\Customer;
+use App\TwilioActiveNumber;
+use App\WatsonAccount;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -75,7 +78,7 @@ class CallBusyMessage extends Model
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 
-    public function convertSpeechToText($recording_url)
+    public function convertSpeechToText($recording_url, $store_website_id = 0, $to = null, $from = null)
     {
         $recording_url = trim($recording_url);
         $ch1 = curl_init();
@@ -86,11 +89,45 @@ class CallBusyMessage extends Model
         $http_code = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
         curl_close($ch1);
         if (($http_code == '200') || ($http_code == '302')) {
-            $apiKey = 'LhLBdFbWlwujC38ym7PcILaalqTBQN7Jb-50H0ij4nkG';
-            $url = 'https://api.eu-gb.speech-to-text.watson.cloud.ibm.com/instances/9e2e85a8-4bea-4070-b3d3-cef36b5697f0';
+            // $apiKey = 'LhLBdFbWlwujC38ym7PcILaalqTBQN7Jb-50H0ij4nkG';
+            // $url = 'https://api.eu-gb.speech-to-text.watson.cloud.ibm.com/instances/9e2e85a8-4bea-4070-b3d3-cef36b5697f0';
+
+            // If store id not found
+            if($store_website_id == 0) {
+                // Check To number is exist in DB
+                $twilioActive = TwilioActiveNumber::where('phone_number', $to)->first();
+
+                if(!empty($twilioActive)) {
+                    $store_website_id = $twilioActive->assigned_stores->store_website_id ?? 0;
+                } else {
+                    // Check From number is exist in DB
+                    $customerInfo = Customer::where('phone', str_replace('+', '', $from))->first();
+
+                    if(!empty($customerInfo)) {
+                        $store_website_id = $customerInfo->store_website_id ?? 0;
+                    }
+                }
+            }
+
+            // Get watson account associated with store websites
+            $watsonAccount = WatsonAccount::where('store_website_id', $store_website_id)->first();
+
+            // Check if watson account is linked with store website
+            if(empty($watsonAccount)) {
+                return '';
+            }
+
+            // Watson account is linked but speech to text URL not available
+            if(empty($watsonAccount->speech_to_text_url) || empty($watsonAccount->speech_to_text_api_key)) {
+                return '';
+            }
+
+            $apiKey = $watsonAccount->speech_to_text_api_key;
+            $url = $watsonAccount->speech_to_text_url;
+
             $ch = curl_init();
             $file = file_get_contents($recording_url);
-            curl_setopt($ch, CURLOPT_URL, $url.'/v1/recognize');
+            curl_setopt($ch, CURLOPT_URL, $url.'/v1/recognize?model=en-US_NarrowbandModel');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
 
@@ -109,7 +146,12 @@ class CallBusyMessage extends Model
             curl_close($ch);
             $result = json_decode($result);
 
-            return $recordedText = $result->results[0]->alternatives[0]->transcript;
+            // If result found
+            if(!empty($result->results) && count($result->results) > 0) {
+                return $result->results[0]->alternatives[0]->transcript;
+            } else {
+                return '';
+            }
         } else {
             return '';
         }
