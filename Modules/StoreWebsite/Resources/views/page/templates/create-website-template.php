@@ -46,7 +46,7 @@
 			{{/if}}
       <div class="form-row">
         <div class="form-group col-md-3">
-          <select name="page" class="form-control website-page-change">
+          <select name="page" class="form-control website-page-change" id="website-page-change">
             <option value="">Copy From Page</option>
               <?php foreach ($pages as $k => $page) { ?>
                 <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
