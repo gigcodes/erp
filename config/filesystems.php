@@ -90,6 +90,13 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
         ],
 
+        'google_ads' => [
+            'driver' => 'local',
+            'root' => storage_path('app/google_ads'),
+            'url' => env('APP_URL').'/storage/google_ads',
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*
@@ -105,6 +112,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('storage/google_ads') => storage_path('app/google_ads'),
     ],
 
 ];

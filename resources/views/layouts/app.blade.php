@@ -2139,6 +2139,9 @@ if (!empty($notifications)) {
                                     <li class="nav-item dropdown">
                                     <a href="{{route('social.config.index')}}">Social Config</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.adset.index')}}">Social Adset</a>
+                                </li>
                                 @endif
                             </ul>
                         </li>

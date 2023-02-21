@@ -113,7 +113,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
                         <button type="button" class="btn btn-default" data-toggle="modal" data-target="#push_logs">Sync Logs</button>
                     </div>
-                    <div class="pull-left cls_filter_box">
+                </form>
+                <div class="pull-left cls_filter_box">
                 {{Form::open(array('url'=>route('magento.setting.updateViaFile'), 'class'=>'form-inline','files' => true))}}
                     <div class="form-group ml-3 mt-2 cls_filter_inputbox" style="margin-left: 10px;">
                         <?php echo Form::file('file'); ?>
@@ -122,8 +123,6 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <button type="submit" onclick="confirm('Are you sure you want to update setting ?')" class="btn btn-default">Start sync</button>
                     </div>
                 </form>
-				</form>		
-				
              </div>
          </div> 
 
@@ -189,12 +188,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
                                 <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->value ; ?>')" >{{ substr($magentoSetting->value,0,12) }} @if(strlen($magentoSetting->value) > 12) ... @endif</td>
 
-                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php if(isset($newValues[$magentoSetting['id']])) {echo  $newValues[$magentoSetting['id']];   } ?>')">
-
-
-                                    @if(isset($newValues[$magentoSetting['id']])) {{ substr( $newValues[$magentoSetting['id']], 0,10) }} @if(strlen($newValues[$magentoSetting['id']]) > 10) ... @endif @endif
-
-
+                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php if(isset($magentoSetting->value_on_magento)) {echo  $magentoSetting->value_on_magento;   } ?>')">
+                                    @if(isset($magentoSetting->value_on_magento)) {{ substr( $magentoSetting->value_on_magento, 0,10) }} @if(strlen($magentoSetting->value_on_magento) > 10) ... @endif @endif
                                 </td>
 
                                 <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
@@ -515,23 +510,30 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 <script type="text/javascript">
     $(function (){
         $('.store-website-select').on('change', function() {
-            $.ajax({
-                url: '{{ url("get-all/store-websites/") }}/' + $(this).val(),
-                method: 'get',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                }
-            }).done(function (response) {
-                let childWebsites = new Array();
-                $.each(response, function (key, val) {
-                    childWebsites[key] = val.id;
+            var selected_website = $(this).val();
+            if(selected_website != '') {
+                $.ajax({
+                    url: '{{ url("get-all/store-websites/") }}/' + $(this).val(),
+                    method: 'get',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    let childWebsites = new Array();
+                    $.each(response, function (key, val) {
+                        childWebsites[key] = val.id;
+                    });
+                    $('.website.select2-hidden-accessible').select2().val(childWebsites).trigger("change")
+                    $("#loading-image").hide();
                 });
-                $('.select2-hidden-accessible').select2().val(childWebsites).trigger("change")
-                $("#loading-image").hide();
-            });
+            } else {
+                let childWebsites = new Array();
+                $('.website.select2-hidden-accessible').select2().val(childWebsites).trigger("change")
+            }
+            
         });
     })
     $(document).ready(function () {
@@ -589,7 +591,15 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
             }
         }).done(function (response) {
             $("#loading-image").hide();
-            // location.reload();
+            if (response.code == 200) {
+                toastr['success'](response.message);
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                toastr['error'](response.message);
+            }
+            
         }).fail(function () {
             console.log("error");
             $("#loading-image").hide();
@@ -713,6 +723,9 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         if (scope == 'default') {
             $('#add-setting-popup .website_store').addClass('d-none');
             $('#add-setting-popup .website_store_form').addClass('d-none');
+            $('#add-setting-popup .website_store_view_form').addClass('d-none');
+            $('#add-setting-popup .website_store').trigger('change');
+            $('#add-setting-popup .website_store_view').trigger('change');
             return false;
         } else if (scope == 'websites') {
             //$('#add-setting-popup .website').attr('multiple', false).val('');
@@ -732,7 +745,11 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
             $('#add-setting-popup .website_store_view_form').removeClass('d-none');
         }
     })
-
+    $('#add-setting-popup').on('hidden.bs.modal', function () {
+        $("form[name=add-magento-setting-form]")[0].reset();
+        $(".website.select2-hidden-accessible").val('').trigger('change');
+    });
+    
     $(document).on('click', '.search_sync_clear', function () {
         var syncDate = $('.sync_search_date').val();
 
@@ -854,7 +871,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
             response.data.forEach(function (value, index) {
                 html += `<option value="${value.id}">${value.code}</option>`
             })
-            $('#add-setting-popup .website_store_view').append(html);
+            $('#add-setting-popup .website_store_view').html(html);
             $('#add-setting-popup .website_store_view').select2();
         }).fail(function () {
             console.log("error");

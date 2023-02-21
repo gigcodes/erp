@@ -12,6 +12,7 @@ class SocialAccountCommentController extends Controller
 {
     public function index($postId)
     {
+        echo "Due to lake of permission we could not load comment section!!"; die();
         $post = BusinessPost::find($postId);
         $comments = BusinessComment::where('is_parent', 0)->where('post_id', $postId)->latest('time')->get();
 

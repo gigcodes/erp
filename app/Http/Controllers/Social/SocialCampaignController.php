@@ -128,7 +128,7 @@ class SocialCampaignController extends Controller
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
-       // $this->ad_acc_id = 'act_723851186073937';
+        //$this->ad_acc_id = 'act_723851186073937';
         
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
@@ -154,8 +154,11 @@ class SocialCampaignController extends Controller
                     curl_close($curl);
                     
                     if (isset($resp->error->message)) {
+                        $post->live_status = 'error';
+                        $post->save();
                         Session::flash('message', $resp->error->message);
                     } else {
+                        $post->live_status = 'sucess';
                         $post->ref_campaign_id = $resp->id;
                         $post->save();
                         Session::flash('message', 'Campaign created  successfully');
@@ -192,8 +195,11 @@ class SocialCampaignController extends Controller
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
+                        $post->live_status = 'error';
+                        $post->save();
                         Session::flash('message', $resp->error->message);
                     } else {
+                        $post->live_status = 'sucess';
                         $post->ref_campaign_id = $resp->id;
                         $post->save();
                         Session::flash('message', 'Campaign created  successfully');
