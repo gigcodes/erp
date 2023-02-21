@@ -85,6 +85,21 @@
                             <div class="alert alert-danger">{{$errors->first('token')}}</div>
                             @endif
                         </div>
+
+                        <div class="form-group">
+                            <strong>Ads Manager Account:</strong>
+                            <select class="form-control" name="store_website_id">
+                                <option value="0">Select Ads Manager Account</option>
+                                @foreach($websites as $website)
+                                <option value="{{ $website->id }}" @if($website->id == $socialConfig->store_website_id) selected @endif>{{ $website->title }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('website'))
+                            <div class="alert alert-danger">{{$errors->first('website')}}</div>
+                            @endif
+                        </div>
+
                         <div class="form-group">
                             <strong>Page Id:</strong>
                             <input type="text" name="page_id" class="form-control" value="{{ $socialConfig->page_id }}" >

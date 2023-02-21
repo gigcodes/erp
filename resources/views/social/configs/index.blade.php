@@ -121,6 +121,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
       <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+     //   $('#adset_id').click(function()
+        $('#token').focusout(function()
+       
+        { 
+            let token = $("#token").val();
+           // alert(token)
+            if(!token){
+                alert('please enter token first');
+            }
+          //  alert('checked')
+            src = "{{ route('social.config.adsmanager') }}";
+
+            $.ajax({
+                    url:'{{route("social.config.adsmanager")}}',
+                    dataType:'json',
+                    data:{
+                        token:token,
+                    },
+                    success:function(result){
+                        //console.log(result);
+                        if(result){
+                            $("#loading-image").hide();
+                            let html = `<option value="">-----Select Adsets-----</option>`;
+                            if(result){
+                                console.log("come toadsets adsets ");
+                                console.log(result);
+                                $.each(result,function(key,value){
+                                    html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                });
+                            }
+                            $('#adset_id').html(html);
+                        
+                        }else{
+                            $("#loading-image").hide();
+                            alert("token Expired");
+                        }
+                    },
+                    error:function(exx){
+
+                    }
+                });
+
+        });
 
         $(document).ready(function() {
             $(".select-multiple").multiselect();

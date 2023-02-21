@@ -4425,6 +4425,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('config/store', [Social\SocialConfigController::class, 'store'])->name('social.config.store');
     Route::post('config/edit', [Social\SocialConfigController::class, 'edit'])->name('social.config.edit');
     Route::post('config/delete', [Social\SocialConfigController::class, 'destroy'])->name('social.config.delete');
+    Route::get('config/adsmanager', [Social\SocialConfigController::class, 'getadsAccountManager'])->name('social.config.adsmanager');
 
     Route::get('posts/{id}', [Social\SocialPostController::class, 'index'])->name('social.post.index');
     Route::post('post/store', [Social\SocialPostController::class, 'store'])->name('social.post.store');
