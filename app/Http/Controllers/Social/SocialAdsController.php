@@ -302,7 +302,8 @@ class SocialAdsController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $fb->get('/me/adaccounts', $token);
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token);
+            $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
