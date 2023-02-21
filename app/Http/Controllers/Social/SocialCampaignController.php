@@ -33,27 +33,69 @@ class SocialCampaignController extends Controller
 
     public function index(Request $request)
     {
+        $socialcampaign = SocialCampaign::orderby('id', 'desc');
+        $campaign_data = $socialcampaign->get();
+
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
             //  $query = SocialCampaign::where('config_id',$id);
 
-            $campaigns = SocialCampaign::orderby('id', 'desc')->paginate(Setting::get('pagination'));
+            $campaigns = SocialCampaign::orderby('id', 'desc');
         } else {
-            $campaigns = SocialCampaign::latest()->paginate(Setting::get('pagination'));
+            $campaigns = SocialCampaign::latest();
         }
         $websites = \App\StoreWebsite::select('id', 'title')->get();
 
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
 
+
+
+
+        if(!empty($request->date))
+        {
+            $campaigns->where('created_at', 'LIKE', '%'.$request->date.'%');
+        }
+
+        if(!empty($request->config_name))
+        {
+            $campaigns->whereIn('config_id', $request->config_name);
+        }
+
+        if(!empty($request->campaign_name))
+        {
+            $campaigns->where('name', $request->campaign_name);
+        }
+
+        if(!empty($request->objective))
+        {
+            $campaigns->whereIn('objective_name', $request->objective);
+        }
+
+        if(!empty($request->type))
+        {
+            $type = $request->type;
+            $campaigns->where('buying_type', 'LIKE', '%'.$request->type.'%');
+        }
+
+        if(!empty($request->status))
+        {
+            $status = $request->status;
+            $campaigns->where('status', 'LIKE', '%'.$request->status.'%');
+        }
+
+
+        $campaigns = $campaigns->paginate(Setting::get('pagination'));
+
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.campaigns.data', compact('campaigns', 'configs'))->render(),
+                'tbody' => view('social.campaigns.data', compact('campaigns', 'configs','campaign_data','type','status'))->render(),
                 'links' => (string) $campaigns->render(),
             ], 200);
         }
 
-        return view('social.campaigns.index', compact('campaigns', 'configs'));
+        return view('social.campaigns.index', compact('campaigns', 'configs','campaign_data'));
+
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
