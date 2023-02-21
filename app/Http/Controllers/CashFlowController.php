@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\CashFlow;
+use App\Customer;
 use App\File;
 use App\Helpers;
 use App\Loggers\HubstuffCommandLog;
@@ -11,7 +12,9 @@ use App\MonetaryAccount;
 use App\Purchase;
 use App\ReadOnly\CashFlowCategories;
 use App\Setting;
+use App\StoreWebsite;
 use App\User;
+use App\WebsiteStore;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,9 +30,17 @@ class CashFlowController extends Controller
      */
     public function index(Request $request)
     {
+//        dd($request);
+
         $date_fornightly = Carbon::now()->format('d');
 
-        $cash_flow = CashFlow::with(['user', 'files']);
+        $cash_flow = CashFlow::with(['user', 'files','website']);
+        $website_name = StoreWebsite::get();
+
+        if ($request->site_name != '') {
+            $cash_flow->join('store_website_orders', 'cash_flows.cash_flow_able_id', 'store_website_orders.order_id')->join('store_websites', 'store_websites.id', 'store_website_orders.website_id')->whereIn('store_websites.website',$request->site_name);
+        }
+
         if ($request->type != '') {
             $cash_flow->where('type', $request->type);
         }
@@ -64,14 +75,15 @@ class CashFlowController extends Controller
                 }
             }
         }
-
-        if ($request->daterange != '') {
-            $date = explode('-', $request->daterange);
+        if ($request->hidden_daterange != '') {
+            $date = explode('-', $request->hidden_daterange);
             $datefrom = date('Y-m-d', strtotime($date[0]));
             $dateto = date('Y-m-d', strtotime($date[1]));
             $cash_flow->whereRaw("date(date) between date('$datefrom') and date('$dateto')");
         }
+
         $cash_flows = $cash_flow->orderBy('date', 'desc')->orderBy('cash_flows.id', 'desc')->paginate(Setting::get('pagination'));
+
         $users = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
         //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
@@ -81,6 +93,7 @@ class CashFlowController extends Controller
             return view('cashflows.index_page', [
                 'cash_flows' => $cash_flows,
                 'users' => $users,
+                'website_name' => $website_name,
                 'categories' => $categories,
                 'purchases' => $purchases,
             ]);
@@ -88,6 +101,7 @@ class CashFlowController extends Controller
             return view('cashflows.index', [
                 'cash_flows' => $cash_flows,
                 'users' => $users,
+                'website_name' => $website_name,
                 'categories' => $categories,
                 'purchases' => $purchases,
             ]);

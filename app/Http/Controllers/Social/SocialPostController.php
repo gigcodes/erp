@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
 use Session;
+use App\Helpers\SocialHelper;
 
 class SocialPostController extends Controller
 {
@@ -161,7 +162,7 @@ class SocialPostController extends Controller
             ]);
             
             $this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
-    
+            
             $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
             // $request->validate([
             // 	'message' => 'required',
@@ -171,7 +172,8 @@ class SocialPostController extends Controller
             // ]);
     
             // Message
-            
+           
+
             $message = $request->input('message');
             if ($this->page_access_token != '') {
                 if ($config->platform == 'facebook') {
@@ -183,9 +185,11 @@ class SocialPostController extends Controller
                         $data['published'] = 'false';
                         $data['access_token'] = $this->page_access_token;
                         try {
+
                             foreach ($request->file('source') as $key => $source) {
                                 $data['source'] = $this->fb->fileToUpload($source);
-    
+                                
+                                
                                 // post multi-photo story
                                 $multiPhotoPost['attached_media['.$key.']'] = '{"media_fbid":"'.$this->fb->post('/me/photos', $data)->getGraphNode()->asArray()['id'].'"}';
                             }
@@ -201,14 +205,14 @@ class SocialPostController extends Controller
                                 $multiPhotoPost['scheduled_publish_time'] = strtotime($request->input('date'));
                             }
                             $resp = $this->fb->post('/me/feed', $multiPhotoPost)->getGraphNode()->asArray();
-    
+                           
                             if (isset($resp->error->message)) {
                                 $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $resp->error->message);
                                 Session::flash('message', $resp->error->message);
                             } else {
                                 $post->status = 1;
-                                if (isset($resp['post_id'])) {
-                                    $post->ref_post_id = $resp['post_id'];
+                                if (isset($resp['id'])) {
+                                    $post->ref_post_id = $resp['id'];
                                 }
     
                                 $post->save();
@@ -269,13 +273,12 @@ class SocialPostController extends Controller
                         }
                         try {
                             $resp = $this->fb->post('/me/feed', $data)->getGraphNode()->asArray();
-    
                             if (isset($resp->error->message)) {
                                 Session::flash('message', $resp->error->message);
                             } else {
                                 $post->status = 1;
-                                if (isset($resp['post_id'])) {
-                                    $post->ref_post_id = $resp['post_id'];
+                                if (isset($resp['id'])) {
+                                    $post->ref_post_id = $resp['id'];
                                 }
     
                                 $post->save();
@@ -449,23 +452,11 @@ class SocialPostController extends Controller
             // If you provided a 'default_access_token', the '{access-token}' is optional.
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get token->'.$token);
             //$response = $fb->get('/me/accounts', $token);
-            $curl = curl_init();
+            
+            
             $url = sprintf('https://graph.facebook.com/v15.0//me/accounts?access_token='.$token);
-
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
-            ]);
-            $response = json_decode(curl_exec($curl));
-            curl_close($curl);
-           
-
+            $response = SocialHelper::curlGetRequest($url);
+            
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
@@ -473,7 +464,6 @@ class SocialPostController extends Controller
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
         }
-
        
        
         if ($response != '') {
