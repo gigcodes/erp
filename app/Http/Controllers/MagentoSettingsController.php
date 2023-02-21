@@ -81,51 +81,7 @@ class MagentoSettingsController extends Controller
         $data = $magentoSettings;
         $data = $data->groupBy('store_website_id')->toArray();
         $newValues = [];
-        foreach ($data as $websiteId => $settings) {
-            $websiteUrl = StoreWebsite::where('id', $websiteId)->pluck('magento_url')->first();
-            if ($websiteUrl != null and $websiteUrl != '') {
-                $bits = parse_url($websiteUrl);
-                if (isset($bits['host'])) {
-                    $web = $bits['host'];
-                    if (! Str::contains($websiteUrl, 'www')) {
-                        $web = 'www.'.$bits['host'];
-                    }
-                    $websiteUrl = 'https://'.$web;
-                    $conf['data'] = [];
-                    foreach ($settings as $setting) {
-                        $conf['data'][] = ['path' => $setting['path'], 'scope' => $setting['scope'], 'scope_id' => $setting['scope_id']];
-                    }
-                    $curl = curl_init();
-                    // Set cURL options
-                    curl_setopt_array($curl, [
-                        CURLOPT_URL => $websiteUrl.'/rest/V1/configvalue/get',
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 300,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'POST',
-                        CURLOPT_POSTFIELDS => json_encode($conf),
-                        CURLOPT_HTTPHEADER => [
-                            'content-type: application/json',
-                        ],
-                    ]);
-
-                    // Get response
-                    $response = curl_exec($curl);
-
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    LogRequest::log($startTime, $websiteUrl.'/rest/V1/configvalue/get', 'POST', json_encode($conf), json_decode($response), $httpcode, 'index', \App\Http\Controllers\MagentoSettingsController::class);
-
-                    $response = json_decode($response, true);
-
-                    foreach ($settings as $key => $setting) {
-                        $newValues[$setting['id']] = isset($response[$key]) ? $response[$key]['value'] : null;
-                    }
-                    curl_close($curl);
-                }
-            }
-        }
+        
         $countList = MagentoSetting::all();
         if (is_array($request->website) || $request->name || $request->path || $request->status || $request->scope) {
             $counter = $magentoSettings->count();
@@ -179,7 +135,7 @@ class MagentoSettingsController extends Controller
         $value = $request->value;
         $datatype = $request->datatype;
         $copyWebsites = (! empty($request->websites)) ? $request->websites : [];
-
+        $save_record_status = 0;
         foreach ($request->scope as $scope) {
             if ($scope === 'default') {
                 $totalWebsites = array_merge($request->website, $copyWebsites);
@@ -200,13 +156,17 @@ class MagentoSettingsController extends Controller
                             'data_type' => $datatype,
                             'created_by' => Auth::id(),
                         ]);
+                        $save_record_status = 1;
                     }
                 }
             }
 
             if ($scope === 'websites') {
-                $websiteStores = WebsiteStore::whereIn('id', $request->website_store)->get();
+                $websiteStores = [];
                 $stores = [];
+                if ($request->website_store != null) {
+                    $websiteStores = WebsiteStore::whereIn('id', $request->website_store)->get();
+                }
                 foreach ($websiteStores as $websiteStore) {
                     $stores[] = $websiteStore->code;
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
@@ -223,10 +183,11 @@ class MagentoSettingsController extends Controller
                             'data_type' => $datatype,
                             'created_by' => Auth::id(),
                         ]);
+                        $save_record_status = 1;
                     }
                 }
 
-                if (! empty($copyWebsites)) {
+                if (! empty($copyWebsites) && ! empty($stores)) {
                     foreach ($copyWebsites as $cw) {
                         $websiteStores = WebsiteStore::join('websites as w', 'w.id', 'website_stores.website_id')->where('w.store_website_id', $cw)->whereIn('website_stores.code', $stores)->whereNotIn('website_stores.id', $request->website_store)->get();
                         foreach ($websiteStores as $websiteStore) {
@@ -244,6 +205,7 @@ class MagentoSettingsController extends Controller
                                     'data_type' => $datatype,
                                     'created_by' => Auth::id(),
                                 ]);
+                                $save_record_status = 1;
                             }
                         }
                     }
@@ -273,6 +235,7 @@ class MagentoSettingsController extends Controller
                             'data_type' => $datatype,
                             'created_by' => Auth::id(),
                         ]);
+                        $save_record_status = 1;
                     }
                 }
 
@@ -296,14 +259,21 @@ class MagentoSettingsController extends Controller
                                     'data_type' => $datatype,
                                     'created_by' => Auth::id(),
                                 ]);
+                                $save_record_status = 1;
                             }
                         }
                     }
                 }
             }
         }
-
-        return response()->json(['status' => true]);
+        
+        $return = [];
+        if($save_record_status == 1) {
+            $return = ['code' => 200, 'message' => 'Magento setting has been created.'];
+        } else {
+            $return = ['code' => 500, 'message' => 'Magento setting has not been created.'];
+        }
+        return response()->json($return);
     }
 
     public function update(Request $request)
@@ -526,9 +496,9 @@ class MagentoSettingsController extends Controller
         foreach ($magentoSettings as $magentoSetting) {
             if ($magentoSetting['scope'] == 'default') {
                 $scopeId = 0;
-            } elseif ($scope === 'websites') {
+            } elseif ($magentoSetting['scope'] === 'websites') {
                 $scopeId = WebsiteStore::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
-            } elseif ($scope === 'stores') {
+            } elseif ($magentoSetting['scope'] === 'stores') {
                 $scopeId = WebsiteStoreView::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
             }
             $settings .= $magentoSetting['scope'].','.$scopeId.','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
@@ -562,8 +532,13 @@ class MagentoSettingsController extends Controller
 
     public function websiteStoreViews(Request $request)
     {
+        $website_store_ids = $request->website_id;
+        $website_store_view_data = [];
+        if(!empty($website_store_ids)) {
+            $website_store_view_data = WebsiteStoreView::select('id', 'code')->whereNotNull('code')->whereIn('website_store_id', $website_store_ids)->get();
+        }
         return response()->json([
-            'data' => WebsiteStoreView::select('id', 'code')->whereNotNull('code')->where('website_store_id', $request->website_id)->get(),
+            'data' => $website_store_view_data,
         ]);
     }
 
