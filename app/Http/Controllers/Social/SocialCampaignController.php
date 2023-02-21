@@ -127,7 +127,6 @@ class SocialCampaignController extends Controller
         
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-       // $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
         $this->ad_acc_id = $config->ads_manager;
         
         if ($this->ad_acc_id != '') {
