@@ -3496,10 +3496,66 @@ class OrderController extends Controller
         return response()->json(['code' => 200, '_h' => 'No records found']);
     }
 
-    public function viewAllInvoices()
+//    public function viewAllInvoices()
+//    {
+//        // error_reporting(0);
+//        $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc')->paginate(30);
+//
+//        $invoice_array = $invoices->toArray();
+//        $invoice_id = array_column($invoice_array['data'], 'id');
+//
+//        $orders_array = Order::whereIn('invoice_id', $invoice_id)->get();
+//
+//        $duty_shipping = [];
+//        foreach ($orders_array as $key => $order) {
+//            $duty_shipping[$order->id]['id'] = $order->id;
+//
+//            $website_code_data = $order->duty_tax;
+//            if ($website_code_data != null) {
+//                $product_qty = count($order->order_product);
+//
+//                $code = $website_code_data->website_code->code;
+//
+//                $duty_countries = $website_code_data->website_code->duty_of_country;
+//                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
+//
+//                $duty_amount = ($duty_countries->default_duty * $product_qty);
+//                $shipping_amount = ($shipping_countries->price * $product_qty);
+//
+//                $duty_shipping[$order->invoice_id]['shipping'] = $duty_amount;
+//                $duty_shipping[$order->invoice_id]['duty'] = $shipping_amount;
+//            } else {
+//                $duty_shipping[$order->invoice_id]['shipping'] = 0;
+//                $duty_shipping[$order->invoice_id]['duty'] = 0;
+//            }
+//        }
+//
+//        return view('orders.invoices.index', compact('invoices', 'duty_shipping'));
+//    }
+
+    public function viewAllInvoices(Request $request)
     {
-        // error_reporting(0);
-        $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc')->paginate(30);
+        $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc');
+        if(!empty($request->invoice_date)){
+            $invoices = $invoices->whereDate('invoice_date',$request->invoice_date);
+        }
+
+        if(!empty($request->invoice_number)){
+            $invoices = $invoices->whereIn('invoice_number',$request->invoice_number);
+        }
+
+        if(!empty($request->customer_id)){
+            $invoices = $invoices->WhereHas('orders.customer', function ($query) use ($request) {
+                $query->whereIn('customer_id', $request['customer_id']);
+            });
+        }
+
+        if(!empty($request->store_website_id)){
+            $invoices = $invoices->WhereHas('orders.customer', function ($query) use ($request) {
+                $query->whereIn('store_website_id', $request['store_website_id']);
+            });
+        }
+        $invoices = $invoices->paginate(30);
 
         $invoice_array = $invoices->toArray();
         $invoice_id = array_column($invoice_array['data'], 'id');
@@ -3530,7 +3586,10 @@ class OrderController extends Controller
             }
         }
 
-        return view('orders.invoices.index', compact('invoices', 'duty_shipping'));
+        $invoiceNumber = Invoice::orderBy('id', 'desc')->select('id','invoice_number')->get();
+        $customerName = Customer::select('id','name')->orderBy('id', 'desc')->groupBy('name')->get();
+        $websiteName = StoreWebsite::select('id','website')->orderBy('id', 'desc')->groupBy('website')->get();
+        return view('orders.invoices.index', compact('invoices', 'duty_shipping','invoiceNumber','customerName','websiteName'));
     }
 
     public function addInvoice($id)
