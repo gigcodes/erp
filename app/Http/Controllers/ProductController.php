@@ -3377,11 +3377,15 @@ class ProductController extends Controller
      */
     public function giveImage(Request $request)
     {
+        \Log::info('crop_image_start_time: '.date('Y-m-d H:i:s'));
         $productId = request('product_id', null);
         $supplierId = request('supplier_id', null);
         if ($productId != null) {
+            \Log::info('product_start_time_if_block: '.date('Y-m-d H:i:s'));
             $product = Product::where('id', $productId)->where('category', '>', 3)->first();
+            \Log::info('product_end_time_if_block: '.date('Y-m-d H:i:s'));
         } elseif ($supplierId != null) {
+            \Log::info('product_supplier_start_time: '.date('Y-m-d H:i:s'));
             $product = Product::join('product_suppliers as ps', 'ps.product_id', 'products.id')
                 ->where('ps.supplier_id', $supplierId)
                 ->where('products.status_id', StatusHelper::$autoCrop)
@@ -3390,7 +3394,9 @@ class ProductController extends Controller
                 ->orderBy('products.scrap_priority', 'DESC')
                 ->select('products.*')
                 ->first();
+            \Log::info('product_supplier_end_time: '.date('Y-m-d H:i:s'));
         } else {
+            \Log::info('product_image_start_time_else_block: '.date('Y-m-d H:i:s'));
             // Get next product
             $product = Product::where('status_id', StatusHelper::$autoCrop)
                 ->where('category', '>', 3);
@@ -3409,6 +3415,8 @@ class ProductController extends Controller
             $product = $product->sortBy('priority')->first();
             // Comment End
             
+            \Log::info('product_image_end_time_else_block: '.date('Y-m-d H:i:s'));
+
             // $product = $product->first();
 
             unset($product->priority);
@@ -3431,13 +3439,14 @@ class ProductController extends Controller
             $product->status_id = StatusHelper::$isBeingCropped;
             $product->save();
         }
-
+        
+        \Log::info('mediables_start_time: '.date('Y-m-d H:i:s'));
         $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', \App\Product::class)->where('tag', 'original')->get();
-
+        \Log::info('mediables_end_time: '.date('Y-m-d H:i:s'));
         //deleting old images
-
+        \Log::info('old_image_start_time: '.date('Y-m-d H:i:s'));
         $oldImages = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', \App\Product::class)->where('tag', '!=', 'original')->get();
-
+        \Log::info('old_image_end_time: '.date('Y-m-d H:i:s'));
         //old scraped products
         if ($oldImages) {
             foreach ($oldImages as $img) {
@@ -3462,12 +3471,14 @@ class ProductController extends Controller
             ]);
         }
 
+        \Log::info('media_start_time: '.date('Y-m-d H:i:s'));
         $images = Media::select('id', 'filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id', $mediableArray)->get();
 
         foreach ($images as $image) {
             $output['media_id'] = $image->id;
             $image->setAttribute('pivot', $output);
         }
+        \Log::info('media_end_time: '.date('Y-m-d H:i:s'));
 
         //WIll use in future to detect Images removed to fast the query for now
         //foreach ($images as $image) {
@@ -3515,7 +3526,8 @@ class ProductController extends Controller
         } catch (\ErrorException $e) {
             //
         }
-
+        
+        \Log::info('website_array_start_time: '.date('Y-m-d H:i:s'));
         //Getting Website Color
         $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
         if (count($websiteArrays) == 0) {
@@ -3545,6 +3557,7 @@ class ProductController extends Controller
                 }
             }
         }
+        \Log::info('website_array_end_time: '.date('Y-m-d H:i:s'));
         if (! isset($colors)) {
             $colors = [];
         }
@@ -3553,7 +3566,8 @@ class ProductController extends Controller
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
             $product->save();
-
+            
+            \Log::info('crop_image_end_time: '.date('Y-m-d H:i:s'));
             // Return JSON
             return response()->json([
                 'status' => 'no_product',
@@ -3583,7 +3597,8 @@ class ProductController extends Controller
             ]);
 
             $res['token'] = $http->id;
-
+            
+            \Log::info('crop_image_end_time: '.date('Y-m-d H:i:s'));
             // Return product
             return response()->json($res);
         }
