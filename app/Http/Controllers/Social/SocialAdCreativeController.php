@@ -117,8 +117,8 @@ class SocialAdCreativeController extends Controller
         ]);
         $this->user_access_token = $config->token;
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-        $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
-        //
+        // $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
+        $this->ad_acc_id = $config->ads_manager;
 
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
