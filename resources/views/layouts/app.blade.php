@@ -2142,7 +2142,6 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a href="{{route('social.campaign.index')}}">Social Campaign</a>
                                 </li>
-
                                 @endif
                             </ul>
                         </li>

@@ -111,6 +111,7 @@
                             <th style="width:10%">Buying Type</th>
                             <th style="width:10%">Daily Budget</th>
                             <th style="width:5%">Status</th>
+                            <th style="width:5%">Live Status    </th>
                             <th style="width:5%">Action</th>
                         </tr>
                         <tbody class="infinite-scroll-data">
