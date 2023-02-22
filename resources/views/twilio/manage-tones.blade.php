@@ -30,7 +30,7 @@
 							<div class="col-md-3 p-2  border-top border-bottom border-right border-left"><input type="file" name="end_work_ring">
 								@if($twilioMessageTone->end_work_ring != null)
 									<div class="d-flex">
-										<audio src="{{url('twilio/'.$twilioMessageTone->end_work_ring)}}" controls="" preload="metadata">
+										<audio src="{{url('twilio/'.rawurlencode($twilioMessageTone->end_work_ring))}}" controls="" preload="metadata">
 										</audio>
 									</div>
 								@endif
@@ -38,7 +38,7 @@
 							<div class="col-md-3 p-2  border-top border-bottom border-right border-left"><input type="file" name="intro_ring">
 								@if($twilioMessageTone->intro_ring != null)
 									<div class="d-flex">
-										<audio src="{{url('twilio/'.$twilioMessageTone->intro_ring)}}" controls="" preload="metadata">
+										<audio src="{{url('twilio/'.rawurlencode($twilioMessageTone->intro_ring))}}" controls="" preload="metadata">
 										</audio>
 									</div>
 								@endif
@@ -46,7 +46,7 @@
 							<div class="col-md-3 p-2  border-top border-bottom border-right border-left"><input type="file" name="busy_ring">
 								@if($twilioMessageTone->busy_ring != null)
 									<div class="d-flex ">
-										<audio src="{{url('twilio/'.$twilioMessageTone->busy_ring)}}" controls="" preload="metadata">
+										<audio src="{{url('twilio/'.rawurlencode($twilioMessageTone->busy_ring))}}" controls="" preload="metadata">
 										</audio>
 									</div>
 								@endif

@@ -418,11 +418,11 @@ class TwilioController extends FindByNumberController
         $introRing = 'https://'.$request->getHost().'/intro_ring.mp3';
 
         if (isset($messageTones['end_work_ring']) and $messageTones['end_work_ring'] != null) {
-            $endworkRing = url('twilio/'.$messageTones['end_work_ring']);
+            $endworkRing = url('twilio/'.rawurlencode($messageTones['end_work_ring']));
         }
 
         if (isset($messageTones['intro_ring']) and $messageTones['intro_ring'] != null) {
-            $introRing = url('twilio/'.$messageTones['intro_ring']);
+            $introRing = url('twilio/'.rawurlencode($messageTones['intro_ring']));
         }
 
         $welcomeMessage = StoreWebsite::where('id', $store_website_id)->pluck('twilio_greeting_message')->first();

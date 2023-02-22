@@ -176,6 +176,7 @@ class SocialCampaignController extends Controller
             if ($config->platform == 'facebook') {
                 try {
                       //      dd($data);
+                    $this->ad_acc_id = $config->ads_manager; 
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
                     $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/campaigns';
