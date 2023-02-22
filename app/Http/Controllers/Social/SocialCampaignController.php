@@ -13,6 +13,7 @@ use Facebook\Facebook;
 use Illuminate\Http\Request;
 use Response;
 use Session;
+use App\Helpers\SocialHelper;
 
 class SocialCampaignController extends Controller
 {
@@ -319,8 +320,9 @@ class SocialCampaignController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $fb->get('/me/adaccounts', $token);
-            
+            // $response = $fb->get('/me/adaccounts', $token); //Old
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token); //New using graph API
+            $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error

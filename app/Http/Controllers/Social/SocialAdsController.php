@@ -12,6 +12,7 @@ use Facebook\Facebook;
 use Illuminate\Http\Request;
 use Response;
 use Session;
+use App\Helpers\SocialHelper;
 
 class SocialAdsController extends Controller
 {
