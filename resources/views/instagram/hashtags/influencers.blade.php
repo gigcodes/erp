@@ -367,11 +367,11 @@ button[disabled]:hover {
                     <thead >
                     <tr>
 
-                        <th style="width:2%">#</th>
-                        <th style="width:6%">Platform</th>
+                        <th style="width:6%">#</th>
+                        <th style="width:7%">Platform</th>
                         <th style="width:5%">Date</th>
                         <th style="width:7%">Username</th>
-                        <th style="width:7%">Email</th>
+                        <th style="width:6%">Email</th>
                         <th style="width:7%">Hashtag</th>
                         <th style="width:5%">Posts</th>
                         <th style="width:7%">Followers</th>
@@ -379,9 +379,9 @@ button[disabled]:hover {
                         <th style="width:6%">Country</th>
                         <th style="width:8%">Description</th>
                         <th style="width:9%">Sender</th>
-                        <th style="width:12%">Communication</th>
-                        <th style="width:11%">Auto Reply</th>
-                        <th style="width:6%">Action</th>
+                        <th style="width:20%">Communication</th>
+                        <th style="width:10%">Auto Reply</th>
+                        <th style="width:5%">Action</th>
                         <!-- <th>Phone</th>
                         <th>Website</th>
                         <th>Twitter</th>

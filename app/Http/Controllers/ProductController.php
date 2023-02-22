@@ -3396,28 +3396,31 @@ class ProductController extends Controller
                 ->first();
             \Log::info('product_supplier_end_time: '.date('Y-m-d H:i:s'));
         } else {
-            \Log::info('product_image_start_time_else_block: '.date('Y-m-d H:i:s'));
-            // Get next product
-            $product = Product::where('status_id', StatusHelper::$autoCrop)
-                ->where('category', '>', 3);
-            // Add order
-            $product = QueryHelper::approvedListingOrder($product);
-            //get priority
+           // Get next product
+            $product = Product::join('product_suppliers as ps', 'ps.product_id', 'products.id')
+                                ->join('suppliers', 'ps.supplier_id', 'suppliers.id')
+                                ->where('products.status_id', StatusHelper::$autoCrop)
+                                ->where('products.category', '>', 3)
+                                ->where('products.stock', '>=', 1)
+                                ->orderBy('products.scrap_priority', 'DESC')
+                                ->select('products.*');
 
-            ///Commented due to query taking long time
+            // Prioritize suppliers
+            $prioritizeSuppliers = "CASE WHEN brand IN (4,13,15,18,20,21,24,25,27,30,32,144,145) AND category IN (11,39,5,41,14,42,60,17,31,63) AND products.supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+            $product = $product->orderByRaw($prioritizeSuppliers);
+            // Show on sale products first
+            $product = $product->orderBy('is_on_sale', 'DESC');
+            // Show latest approvals first
+            $product = $product->orderBy('listing_approved_at', 'DESC');
+            // $product = $product->first();
+            // dd($product);
             $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
-                $query->where('priority','!=',null);
+            $query->where('priority','!=',null);
             })->whereHasMedia('original')->get()->transform(function ($productData) {
                 $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
-
                 return $productData;
             });
-            $product = $product->sortBy('priority')->first();
-            // Comment End
-            
-            \Log::info('product_image_end_time_else_block: '.date('Y-m-d H:i:s'));
-
-            // $product = $product->first();
+            $product = $product->first();
 
             unset($product->priority);
             // return response()->json([
