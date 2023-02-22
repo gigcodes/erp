@@ -282,10 +282,10 @@
               <td>{{-- $order->balance_amount --}}
                 @if ($order_product && $order_product->product)
               <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
-              @endif 
-              @if(count($order->orderProducts)) 
+              @endif
+              @if(count($order->orderProducts))
               @php
-                $image_array = [];                    
+                $image_array = [];
                 foreach($order->orderProducts as $pid){
                   $product = $pid->product;
                   if($product){
@@ -301,7 +301,7 @@
                 }
               @endphp
               @endif
-              @if(count($image_array))
+              @if(isset($image_array) && count($image_array))
               <button type="button" class="btn btn-xs image-button" style="cursor: pointer;" data-image-array="{{json_encode($image_array)}}" data-customer-id="{{$order->customer_id}}" data-order-id="{{$order->id}}" data-product-id="{{implode(',', $order->orderProducts->pluck('product_id')->toArray())}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt="" style="cursor: pointer; width: 16px;"></button>
               @endif
               </td>
