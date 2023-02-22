@@ -3396,10 +3396,9 @@ class ProductController extends Controller
                 ->first();
             \Log::info('product_supplier_end_time: '.date('Y-m-d H:i:s'));
         } else {
+            \Log::info('product_image_start_time_else_block: '.date('Y-m-d H:i:s'));
            // Get next product
-            $product = Product::join('product_suppliers as ps', 'ps.product_id', 'products.id')
-                                ->join('suppliers', 'ps.supplier_id', 'suppliers.id')
-                                ->where('products.status_id', StatusHelper::$autoCrop)
+            $product = Product::where('products.status_id', StatusHelper::$autoCrop)
                                 ->where('products.category', '>', 3)
                                 ->where('products.stock', '>=', 1)
                                 ->orderBy('products.scrap_priority', 'DESC')
@@ -3412,15 +3411,17 @@ class ProductController extends Controller
             $product = $product->orderBy('is_on_sale', 'DESC');
             // Show latest approvals first
             $product = $product->orderBy('listing_approved_at', 'DESC');
-            // $product = $product->first();
-            // dd($product);
+            
             $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
-            $query->where('priority','!=',null);
-            })->whereHasMedia('original')->get()->transform(function ($productData) {
-                $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
-                return $productData;
-            });
-            $product = $product->first();
+                $query->where('priority','!=',null);
+            })
+            ->whereHasMedia('original')
+            ->first();
+            
+            if(!empty($product)) {
+                $product->priority = isset($product->suppliers_info->first()->supplier->priority) ? $product->suppliers_info->first()->supplier->priority : 5;
+            }
+            \Log::info('product_image_end_time_else_block: '.date('Y-m-d H:i:s'));
 
             unset($product->priority);
             // return response()->json([
