@@ -1,32 +1,22 @@
 <?php /*@foreach ($tasks as $key => $task)
 @endforeach*/ ?>
-<?php
-// $special_task = \App\Task::find($task->id);
-$task = $issue;
-$special_task = $task;
-?>
-<tr style="color:grey;">
+@foreach($tasks as $key => $task)
+    <?php
+    // $special_task = \App\Task::find($task->id);
+//    $task = $issue;
+    $special_task = $task;
+    ?>
+    <tr style="color:grey;">
     <td><input type="checkbox" name="taskIds[]" class="rowCheckbox" value="{{ $task->id }}"></td>
     <td style="display:table-cell;vertical-align: baseline;">
         {{ $task->id }}
     </td>
-    <td>
-        <div class="d-flex">
-            <select class="form-control assign-task-user select2" data-id="{{ $task->id }}" name="assign_to" id="user_{{ $task->id }}">
-                <option value="">Select...</option>
-                <?php $assignedId = isset($task->assign_to) ? $task->assign_to : 0; ?>
-                @foreach ($users as $id => $name)
-                @if ($assignedId == $id)
-                <option value="{{ $id }}" selected>{{ $name }}</option>
-                @else
-                <option value="{{ $id }}">{{ $name }}</option>
-                @endif
-                @endforeach
-            </select>
-            <button style="float:right;padding-right:0px; background: none;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{ $task->id }}" data-type="task"><i class="fa fa-info-circle"></i></button>
-        </div>
+    <td style="vertical-align: baseline;">
+        {{ $task->created_at }}
     </td>
-
+    <td style="word-break: break-all">
+        {{ $task->website }}
+    </td>
 
     <td style="vertical-align: baseline;">
         @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
@@ -34,27 +24,41 @@ $special_task = $task;
 
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history_task" title="Show tracked time History" data-id="{{ $task->id }}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
-            <button style="float:right;padding-right:0px;" onclick="funTaskInformationModal(this, '{{$task->id}}')" type="button" class="btn btn-xs" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-refresh"></i></button>
+            <button style="float:right;padding-right:0px;" onclick="funTaskInformationModal(this, '{{$task->id}}')" type="button" class="btn btn-xs" title="Show tracked time History" data-id="{{$task->id}}" data-type="tester"><i class="fa fa-refresh"></i></button>
     </td>
-    <td style="vertical-align: baseline;">
-        @php
-        if($task->approximate != '0') { echo $task->approximate; }
-
-        @endphp
-        <button type="button" style="float:right;" class="btn btn-xs show-time-history-task" title="Show History" data-id="{{ $task->id }}" data-user_id="{{ $task->assign_to }}" style="background: none;"><i class="fa fa-info-circle"></i></button>
-    </td>
-    <td style="vertical-align: baseline;">
-        @php
-        if($task->start_date != '0') { echo $task->start_date; }
-
-        @endphp
+    <td>{{$task->task_subject}}</td>
+    <td>
+        <div class="d-flex">
+            <select class="form-control assign-task-user select2" data-id="{{ $task->id }}" name="assign_to" id="user_{{ $task->id }}">
+                <option value="">Select...</option>
+                <?php $assignedId = isset($task->assign_to) ? $task->assign_to : 0; ?>
+                @foreach ($users as $id => $name)
+                    @if ($assignedId == $id)
+                        <option value="{{ $id }}" selected>{{ $name }}</option>
+                    @else
+                        <option value="{{ $id }}">{{ $name }}</option>
+                    @endif
+                @endforeach
+            </select>
+            <button style="float:right;padding-right:0px; background: none;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{ $task->id }}" data-type="task"><i class="fa fa-info-circle"></i></button>
+        </div>
     </td>
     <td style="vertical-align: baseline;">
         @php
         if($task->due_date != '0') { echo $task->due_date; }
         @endphp
-            <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{ $task->id }}" data-type="task" style="float:right;margin-left: auto;"><i class="fa fa-info-circle"></i></button>
+        <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{ $task->id }}" data-type="task" style="float:right;margin-left: auto;"><i class="fa fa-info-circle"></i></button>
     </td>
+    <td style="vertical-align: baseline;">
+        @php
+            if($task->approximate != '0') { echo $task->approximate; }
+        @endphp
+        <button type="button" style="float:right;" class="btn btn-xs show-time-history-task" title="Show History" data-id="{{ $task->id }}" data-user_id="{{ $task->assign_to }}" style="background: none;"><i class="fa fa-info-circle"></i></button>
+    </td>
+    <td>
+        {{$task->due_date}}
+    </td>
+
     <td style="vertical-align: baseline;">
         <div class="d-flex">
             <input type="text" class="form-control send-message-textbox" data-id="{{ $task->id }}" id="send_message_{{ $task->id }}" name="send_message_{{ $task->id }}" style="margin-bottom:5px;width:calc(100% - 24px);display:inline;" />
@@ -82,8 +86,6 @@ $special_task = $task;
             </span>
         </div>
     </td>
-
-    
     <td class="communication-td devtask-com " style="border-bottom: none; display: block;">
         <div class="d-flex">
             <select id="master_user_id" class="form-control change-task-status select2" data-id="{{ $task->id }}" name="master_user_id" id="user_{{ $task->id }}">
@@ -132,3 +134,4 @@ $special_task = $task;
     </td> --}}
 
 </tr>
+@endforeach
