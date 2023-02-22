@@ -336,25 +336,6 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td class="Website-task"title="theunlimitedlulxury.com">theunlimitedlulxury.com</td>
-                <td>chrome</td>
-                <td>windows</td>
-                <td class="Website-task"title="india">india</td>
-                <td>IN</td>
-                <td class="Website-task"title="Returuning Visitor">Returuning Visitor</td>
-                <td class="Website-task"title="video/6254471?key=84644b22536310e75ea9cc07535f06a1">video/6254471?key=84644b22536310e75ea9cc07535f06a1</td>
-                <td>22.667</td>
-                <td>4</td>
-                <td>2</td>
-                <td>25.0</td>
-                <td>2</td>
-                <td>50</td>
-                <td></td>
-                <td></td>
-                <td>2</td>
-                <td class="Website-task"title="2021-11-25">2021-11-25</td>
-            </tr>
             @foreach ($google_analytics_data as $data)
                 <tr>
                     <td>{{ $data->website }}</td>
