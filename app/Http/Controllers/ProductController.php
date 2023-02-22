@@ -3532,14 +3532,15 @@ class ProductController extends Controller
         
         \Log::info('website_array_start_time: '.date('Y-m-d H:i:s'));
         //Getting Website Color
-        $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+        $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
+        // dd($websiteArrays);
         if (count($websiteArrays) == 0) {
             $colors = [];
         } else {
             foreach ($websiteArrays as $websiteArray) {
-                $website = StoreWebsite::find($websiteArray);
+                $website =  $websiteArray;
                 if ($website) {
-                    $isCropped = SiteCroppedImages::where('website_id', $websiteArray)
+                    $isCropped = SiteCroppedImages::where('website_id', $websiteArray->id)
                         ->where('product_id', $product->id)->exists();
                     if (! $isCropped) {
                         [$r, $g, $b] = sscanf($website->cropper_color, '#%02x%02x%02x');
@@ -3712,16 +3713,19 @@ class ProductController extends Controller
                     // check the store website count is existed with the total image
                     $storeWebCount = $product->getMedia($tag)->count();
                     if ($productMediacount <= $storeWebCount) {
-                        $store_websites = StoreWebsite::where('cropper_color', '%'.$request->get('color'))->first();
-                        if ($store_websites !== null) {
-                            if (isset($req['store']) && $req['store'] == $store_websites->title) {
-                                $exist = SiteCroppedImages::where('website_id', $store_websites->id)
-                                    ->where('product_id', $product->id)->exists();
-                                if (! $exist) {
-                                    SiteCroppedImages::create([
-                                        'website_id' => $store_websites->id,
-                                        'product_id' => $product->id,
-                                    ]);
+                        $store_website_detail = StoreWebsite::where('cropper_color','LIKE','%'.$request->get('color'))->first();
+                        if ($store_website_detail !== null) {
+                            $store_websites = StoreWebsite::where('tag_id',$store_website_detail->tag_id)->get();
+                            foreach ($store_websites as $sw_key => $sw_data) {
+                                if (isset($req['store']) && $req['store'] == $sw_data->title) {
+                                    $exist = SiteCroppedImages::where('website_id', $sw_data->id)
+                                        ->where('product_id', $product->id)->exists();
+                                    if (! $exist) {
+                                        SiteCroppedImages::create([
+                                            'website_id' => $sw_data->id,
+                                            'product_id' => $product->id,
+                                        ]);
+                                    }
                                 }
                             }
                         }
