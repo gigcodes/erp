@@ -8,7 +8,7 @@
                       value="{{$influencer->id}}">
          </td>
 
-         <td style="white-space: nowrap;">
+         <td style="white-space: nowrap; word-break:break-all;">
           {{!empty($influencer->platform) ? $influencer->platform : "Instagram"}}
         </td>
 	      
@@ -82,7 +82,7 @@
         </td>
 
         <td>
-		        <div  style="flex-direction: column;">
+              <div  style="flex-direction: column;">
               @php 
                    $thread =\App\InstagramThread::where('scrap_influencer_id', $influencer->id)->first();
               @endphp
@@ -98,15 +98,10 @@
                 @endif
               @endif
 
-
-		        
-
-            
-
             <div class="row m-0">
 
               <div class="col-md-12 form-inline p-0">
-                  <textarea placeholder="Message..." name="" class="quick-message-field form-control w-75 mr-2" 
+                  <textarea placeholder="Message..." name="" class="quick-message-field form-control w-75 mr-2"
                             id="message{{ $influencer->id }}"></textarea>
                   <input type="hidden" id="message-id" name="message-id" />
                   <a  class="btn btn-xs text-dark  btn-image send-message" href="javascript:void(0)">
@@ -167,37 +162,45 @@
           <?php }
           ?>
         </select>
-    </td> 
+    </td>
 
     <td>
-      <div class="d-flex">
+        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Influencersbtn('{{$influencer->id}}')"><i class="fa fa-arrow-down"></i></button>
+    </td>
+</tr>
 
-        <button title="Retrieve latest post and comment." 
-                class="btn btn-image latest-post pd-2 action-icon btn-xs text-dark" data-id="{{ $influencer->id }}">
-          <i class="fa fa-plus"style="color: gray; margin-top: 9px;"></i>
-        </button>
-            
-        <button class="btn btn-image expand-row-btn pd-2 action-icon btn-xs text-dark" 
-                data-id="{{ $influencer->id }}">
-                <i class="fa fa-forward"style="color: gray; margin-top: 9px;"></i>
-        </button>
-        <!-- @if($influencer->hasMedia('instagram-screenshot'))
-          @php
-            $url = $influencer->getMedia('instagram-screenshot')->first()->getUrl();
-          @endphp
-          <a href="{{$url}}" target="_blank" class="btn btn-xs text-dark" 
+
+    <tr class="action-influencersbtn-tr-{{$influencer->id}} d-none">
+        <td class="font-weight-bold" colspan="1">Action</td>
+        <td colspan="14">
+            <div class="d-flex">
+
+                <button title="Retrieve latest post and comment."
+                        class="btn btn-image latest-post pd-2 action-icon btn-xs text-dark" data-id="{{ $influencer->id }}">
+                    <i class="fa fa-plus"style="color: gray; margin-top: 9px;"></i>
+                </button>
+
+                <button title="Forward"
+                        class="btn btn-image expand-row-btn pd-2 action-icon btn-xs text-dark"
+                        data-id="{{ $influencer->id }}">
+                    <i class="fa fa-forward"style="color: gray; margin-top: 9px;"></i>
+                </button>
+            <!-- @if($influencer->hasMedia('instagram-screenshot'))
+                @php
+                    $url = $influencer->getMedia('instagram-screenshot')->first()->getUrl();
+                @endphp
+                        <a href="{{$url}}" target="_blank" class="btn btn-xs text-dark"
                 data-id="{{ $influencer->id }}">
                 <i class="fa fa-picture-o"></i>
           </a>
         @endif -->
-        <a href="{{$influencer->url}}" target="_blank" class="btn btn-xs text-dark" 
-                data-id="{{ $influencer->id }}">
-                <i class="fa fa-picture-o"style="color: gray; margin-top: 5px;"></i>
-          </a>
-
-      </div>
-    </td>
-</tr>
+                <a href="{{$influencer->url}}" title="Picture" target="_blank" class="btn btn-xs text-dark"
+                   data-id="{{ $influencer->id }}">
+                    <i class="fa fa-picture-o"style="color: gray; margin-top: 3px;"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
 
 
 
@@ -249,7 +252,11 @@
 </div>
 
 
-
+<script>
+    function Influencersbtn(id){
+        $(".action-influencersbtn-tr-"+id).toggleClass('d-none')
+    }
+</script>
 <script>
   function showModal( body , name ){
       $('#exampleModalLabel').html( name );

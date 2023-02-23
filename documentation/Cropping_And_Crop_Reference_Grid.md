@@ -1,9 +1,58 @@
-# Crop Reference Overview
+# Get Images for Crop (Crop API)
+- This functionality is used to generate cropping attribute of specific product
+- Process start from `giveImage` function of the `ProductController` file.
+- There are two parameters used to get product details and parameters are product_id and supplier_id
+- Checking If product_id is requested then it will get data from products table by checking product_id condition and category should be > 3 required.
+- Checking If supplier_id is requested then it will get data from products table also join with product_suppliers table by checking supplier_id condition and category should be > 3 required.
+- If not requested product_id and supplier_id the it will get data by checking status_id, category, stock, media, and priority condition.
+- Gettting data from mediables table with checking tag is original
+- Gettting data from mediables table with checking tag is not original
+- Process of deleting old images of specific product.
+- Getting data from media table with checking mediables table ids of specific product and after getting data it will setting media_id attribute to specific media.
+- Getting other information related to category.
+- Getting specific product related unique store websites by tag groupping.
+- Inside store website loop through check availibility in site_cropped_images table If it not exists then collecting cropper_color data and push.
+- Checking parent category condition if it's empty then update product status to 33($attributeRejectCategory)
+- If parent category is not empty then check if debug is requested then update product status to 15($isBeingCropped)
+- Check If child category is `Unknown Category` then remove this text.
+- Providing response and it store to `crop_image_get_requests` table
+
+# Save Images for Crop (Save Image API)
+- This functionality is used to save cropped images of specific product
+- Process start from `saveImage` function of the `ProductController` file.
+- This function first save the request and crop_image_get_request_id to `crop_image_http_request_responses` table.
+- If request has a file then `productMediaCount` calculated from total original images(media) of that product.
+- Media uploader through upload image to `product/` directory and inside product_id directory
+- Checking is color is requested then convert color name into hexa format.
+- Checking the store website count is existed with the total image and if it true then getting store website detail by checking cropper_color condition otherwise it will assign tag value to `constants.media_gallery_tag` from the config.
+- If store website details found then getting store_websites data by tag
+- Inside store_websites loop check data to site_cropped_images table in exists or not, If not exists then it will create new record to site_cropped_images table. 
+- Updating product with media and crop_count increment by 1. 
+- Creating new entry to `cropped_image_references` table
+- Updating `cropped_image_reference_id` value of `crop_image_http_request_responses` table.
+- Getting total number crop images as `cropCount` of specific products from `cropped_image_references` table
+- `productMediaCount` will be multiple by number of store website where it exist
+- If `productMediaCount` is less than or equals to `cropCount` then product's status_id changed based on it price. 
+    - If price is not null and in range of min and max price status set as `finalApproved`(9) otherwise set as `priceCheck`(41), scrap priority is also set to 0.
+- In case above consition not satisfy, product status won't change and save as it is.
+- If product category is > 0 and category `status_after_autocrop` is > 0 then calling `updateStatus` function and updating product status.
+- If product status is `AI`(3) then call `ProductAi` job.
+    - Inside `ProductAi` updating status to `autoCrop`(4)
+    - Getting specific product all media url in `arrImages` and checking it's empty then it will return.
+    - Setting category,color,composite, and gender to `resultScraper`
+    - `resultAI` in getting properties from images by using `GoogleVisionHelper`.
+    - Store specific product data to `log_scraper_vs_ai` table
+    - Updating product color to `$resultAI->color` if product color is empty
+    - Updating product status to `autoCrop`(4)
+    - Creating log with message `Successfully handled AI`
+- Finally If not any exception get then updating `response` in `status` value to `success` of `crop_image_http_request_responses` table otherwise `response` in `status` value set to `status`.
+
+# Crop Reference grid
 - This page used to manage cropped image details, crop newly uploaded product images, add new images
 ## Fetch data
 - Process start from `grid` function of the `CroppedImageReferenceController` file.
 - This grid will display data from `cropped_image_references` table with eloquent relationship and also join with `products` table.
-- Defaults it gives `50` record grid.
+- Defaults it gives `10` record grid.
 - There are five filter condition applied and If any one is not empty then will apply filter while fetching records.
 - Three count fetched from DB:
     - Total products is total number of records from `cropped_image_references` table.
