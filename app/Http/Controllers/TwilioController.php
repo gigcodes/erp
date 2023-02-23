@@ -418,11 +418,11 @@ class TwilioController extends FindByNumberController
         $introRing = 'https://'.$request->getHost().'/intro_ring.mp3';
 
         if (isset($messageTones['end_work_ring']) and $messageTones['end_work_ring'] != null) {
-            $endworkRing = url('twilio/'.$messageTones['end_work_ring']);
+            $endworkRing = url('twilio/'.rawurlencode($messageTones['end_work_ring']));
         }
 
         if (isset($messageTones['intro_ring']) and $messageTones['intro_ring'] != null) {
-            $introRing = url('twilio/'.$messageTones['intro_ring']);
+            $introRing = url('twilio/'.rawurlencode($messageTones['intro_ring']));
         }
 
         $welcomeMessage = StoreWebsite::where('id', $store_website_id)->pluck('twilio_greeting_message')->first();
@@ -610,7 +610,7 @@ class TwilioController extends FindByNumberController
                     );
 
                     $gather->say(
-                        'Currently All Lines are bussy 451'.
+                        'Currently All Lines are busy.'.
                         'Please press 1 for a leave a message. Press 2 for a '.
                         'Hold a Call response.',
                         ['loop' => 3]
@@ -926,7 +926,7 @@ class TwilioController extends FindByNumberController
                     );
 
                     $gather->say(
-                        'Currently All Lines are bussy 756'.
+                        'Currently All Lines are busy.'.
                         'Please press 1 for a leave a message. Press 2 for a '.
                         'Hold a Call response.',
                         ['loop' => 3]
@@ -1197,7 +1197,7 @@ class TwilioController extends FindByNumberController
             } else {
                 if (isset($inputs['RecordingUrl'])) {
                     $recUrl = $inputs['RecordingUrl'];
-                    $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                    $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl, 0, $inputs['Called'], $inputs['Caller']);
                 }
             }
 
@@ -1559,7 +1559,7 @@ class TwilioController extends FindByNumberController
             );
 
             $gather->say(
-                'Currently All Lines are bussy 451'.
+                'Currently All Lines are busy.'.
                 'Please press 1 for a leave a message. Press 2 for a '.
                 'Hold a Call response.',
                 ['loop' => 3]
@@ -1822,14 +1822,88 @@ class TwilioController extends FindByNumberController
                 }
             }
         } else {
+            $recordurl = 'https://'.$request->getHost().'/twilio/storetranscript';
+            $customer = $object; // Customer's data
             if (isset($inputs['SpeechResult'])) {
                 $recordedText = str_replace('.', '', $inputs['SpeechResult']);
             } else {
                 $recUrl = $inputs['RecordingUrl'];
                 //$recUrl = "https://erpdev3.theluxuryunlimited.com/audios/audio-file.flac";
-                $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
+                $recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl, $time_store_web_id, $to, $number);
             }
-            $catId = \App\ReplyCategory::where(\DB::raw('lower(name)'), 'like', strtolower($recordedText))
+
+            // If recorded text is not found again call ivr function
+            if(empty($recordedText) || empty($customer)) {
+                $response->say('Sorry your answer is not found. Returning to the main menu.');
+                $response->redirect(route('ivr', ['count' => 2], false));
+
+                return $response;
+            }
+
+            $params = [
+                'number' => $customer->phone,
+                'message' => $recordedText,
+                'media_url' => null,
+                'approved' => 0,
+                'status' => 0,
+                'contact_id' => null,
+                'erp_user' => null,
+                'supplier_id' => null,
+                'task_id' => null,
+                'dubizzle_id' => null,
+                'vendor_id' => null,
+                'customer_id' => $customer->id,
+            ];
+
+            // Store first data in chat message table
+            $messageModel = ChatMessage::create($params);
+
+            // Create auto reply message if answer found in our DB else go to watson reply
+            \App\Helpers\MessageHelper::sendwatson($customer, $recordedText, null, $messageModel, $params, false);
+
+            // take reply given to customer
+            $checkReply = \App\ChatbotReply::where(['replied_chat_id' => $messageModel->id])->first();
+
+            if(!empty($checkReply)) {
+                $response->say($checkReply['answer']);
+                $response->pause(['length' => 2]);
+
+                $gather = $response->gather(
+                    [
+                        'input' => 'speech dtmf',
+                        'numDigits' => 1,
+                        'action' => route('twilio_call_menu_response', [], false),
+                    ]
+                );
+
+                $gather->say(
+                    'Speak any keyword for any further assistance. Press 0 For a Communicate with Our Agent or simply hang up the call',
+                    ['loop' => 3]
+                );
+
+                $response->record(
+                    ['maxLength' => '10',
+                        'method' => 'GET',
+                        'action' => route('twilio_call_menu_response', [], false),
+                        'transcribeCallback' => $recordurl,
+                    ]
+                );
+            } else {
+                // call agent
+                $gather = $response->gather(
+                    [
+                        'numDigits' => 1,
+                        'action' => route('twilio_call_menu_response', [], false),
+                        'finishOnKey' => '*',
+                    ]
+                );
+
+                $gather->say(
+                    'Please press 0 to communicate with our agent or press the star key to end the call.',
+                    ['loop' => 3]
+                );
+            }
+            /*$catId = \App\ReplyCategory::where(\DB::raw('lower(name)'), 'like', strtolower($recordedText))
                     ->orWhere(\DB::raw('lower(name)'), 'like', str_replace(' ', '_', strtolower($recordedText)))
                     ->where('parent_id', 51)
                     ->pluck('id')->first();
@@ -1906,7 +1980,7 @@ class TwilioController extends FindByNumberController
                 ['log' => 'User in Twilio Call Menu Respone, Speech - '.$recordedText.'<br> Response - '.$reply, 'account_sid' => ($request->input('AccountSid') ?? 0), 'call_sid' => ($request->input('CallSid') ?? 0), 'phone' => ($request->input('From') ?? 0), 'type' => 'speech']
             );
 
-            $response->redirect(route('ivr', ['count' => 2], false));
+            $response->redirect(route('ivr', ['count' => 2], false)); */
 
             return $response;
         }

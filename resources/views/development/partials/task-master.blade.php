@@ -9,18 +9,22 @@
 </style>
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
     <tr>
-        <th style="width:15%;">ID</th>
-        <th style="width:8%;">Module</th>
-        <th style="width:12%;">Subject</th>
+        <th style="width:12%;">ID</th>
+        <th style="width:5%;">Module</th>
+        <th style="width:5%;">Date</th>
+        <th style="width:8%;">Subject</th>
         <th style="width:20%;">Communication</th>
         <th style="width:10%;">Est Completion Time</th>
         <th style="width:10%;">Est Completion Date</th>
-        <th style="width:7%;">Tracked Time</th>
-        <th style="width:15%;">Developers</th>
-        <th style="width:12%;">Status</th>
-        <th style="width:6%;">Cost</th>
-        <th style="width:8%;">Milestone</th>
-        <th style="width:8%;">Actions</th>
+        <th style="width:9%;">Tracked Time</th>
+        <th style="width:13%;">Developers</th>
+        <th style="width:10%;">Status</th>
+        <th style="width:5%;">Cost</th>
+        <th style="width:7%;">Milestone</th>
+        <th style="width:10%">Estimated Time</th>
+        <th style="width:10%">Estimated Start Datetime</th>
+        <th style="width:10%">Estimated End Datetime</th>
+        <th style="width:7%;">Actions</th>
     </tr>
     <?php
     $isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();

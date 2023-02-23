@@ -31,12 +31,8 @@
                                 <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->path ; ?>')" >{{ substr($magentoSetting->path,0,12) }} @if(strlen($magentoSetting->path) > 12) ... @endif</td>
 
                                 <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->value ; ?>')" >{{ substr($magentoSetting->value,0,12) }} @if(strlen($magentoSetting->value) > 12) ... @endif</td>
-								<td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php if(isset($newValues[$magentoSetting['id']])) {echo  $newValues[$magentoSetting['id']];   } ?>')">
-
-
-                                    @if(isset($newValues[$magentoSetting['id']])) {{ substr( $newValues[$magentoSetting['id']], 0,10) }} @if(strlen($newValues[$magentoSetting['id']]) > 10) ... @endif @endif
-
-
+								<td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php if(isset($magentoSetting->value_on_magento)) {echo  $magentoSetting->value_on_magento;   } ?>')">
+                                    @if(isset($magentoSetting->value_on_magento)) {{ substr( $magentoSetting->value_on_magento, 0,10) }} @if(strlen($magentoSetting->value_on_magento) > 10) ... @endif @endif
                                 </td>
                                 <td>{{ $magentoSetting->created_at }}</td>
                                 <td>{{ $magentoSetting->status }}</td>
