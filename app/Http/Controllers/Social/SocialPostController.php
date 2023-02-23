@@ -279,12 +279,9 @@ class SocialPostController extends Controller
                              $response = SocialHelper::curlPostRequest($image_upload_url,$fbVideo);
                              $response = json_decode($response);
                              
-                             if($response->id){
+                             if(isset($response->id)){
                                 $post->status = 1;
-                                if (isset($response->id)) {
-                                    $post->ref_post_id = $response->id;
-                                }
-    
+                                $post->ref_post_id = $response->id;
                                 $post->save();
                                 Session::flash('message', 'Content Posted successfully');
                                 $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
