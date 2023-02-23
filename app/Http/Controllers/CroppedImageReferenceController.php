@@ -152,7 +152,7 @@ class CroppedImageReferenceController extends Controller
                     $query->whereNull('cropped_image_references.new_media_id');
                 }
             }
-            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')->paginate(50);
+            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')->paginate(10);
         } else {
             // $query->whereHas('product', function ($qu) use ($request) {
             //     $qu->where('status_id', '!=', StatusHelper::$cropRejected);
@@ -165,7 +165,7 @@ class CroppedImageReferenceController extends Controller
               ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
                   $q->with('newMedia');
               }])
-                ->paginate(50);
+                ->paginate(10);
         }
         $total = $products->count();
 

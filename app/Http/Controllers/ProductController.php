@@ -3585,13 +3585,19 @@ class ProductController extends Controller
                 $product->save();
             }
 
+            $category_text = '';
+            if($child == 'Unknown Category') {
+                $category_text = $parent;
+            } else {
+                $category_text = $parent.' '.$child;
+            }
             $res = [
                 'product_id' => $product->id,
                 'image_urls' => $images,
                 'l_measurement' => $product->lmeasurement,
                 'h_measurement' => $product->hmeasurement,
                 'd_measurement' => $product->dmeasurement,
-                'category' => "$parent $child",
+                'category' => $category_text,
                 'colors' => $colors,
             ];
 
