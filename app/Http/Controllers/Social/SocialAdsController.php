@@ -138,7 +138,8 @@ class SocialAdsController extends Controller
             'default_graph_version' => 'v15.0',
         ]);
         $this->user_access_token = $config->token;
-        $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
+        // $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
+        $this->ad_acc_id = $config->ads_manager;
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         //  $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
@@ -397,7 +398,8 @@ class SocialAdsController extends Controller
             'default_graph_version' => 'v15.0',
         ]);
         
-        $this->ad_acc_id = $this->getAdAccount($config, $this->fb, 0);
+        $this->ad_acc_id = $config->ads_manager;
+        // $this->ad_acc_id = $this->getAdAccount($config, $this->fb, 0);
        // $this->ad_acc_id = 'act_723851186073937';
         
         $url = "https://graph.facebook.com/v15.0/$this->ad_acc_id?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token=$token";

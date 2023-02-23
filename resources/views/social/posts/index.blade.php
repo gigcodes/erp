@@ -112,6 +112,30 @@
                 }
             });
        });
+        
+       $(document).on("click",".post-delete",function(e) {
+        e.preventDefault();
+            var post_id = $(this).data("id");
+            if (confirm("Are you sure?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('social.post.postdelete') }}",
+                    data: {"_token": "{{ csrf_token() }}", "post_id": post_id},
+                    dataType: "json",
+                    success: function (message) {
+                        alert('Deleted Post');
+                    location.reload(true);
+                    }, error: function () {
+                        alert('Something went wrong');
+                    }
+
+                });
+            }
+            return false;
+
+           
+        });
+        
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
             
