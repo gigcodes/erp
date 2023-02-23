@@ -263,6 +263,13 @@ class SocialPostController extends Controller
 
                         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to video upload');
                         try{
+
+
+                            $file = $request->file('video1');
+                            $filename = $file->getClientOriginalName();
+                            $file->storeAs('public/videos', $filename);
+                            $path = storage_path('app/public/videos/' . $filename);
+                           
                            // $access_token = 'EAAIALK1F98IBAD5OFxcIGnZAZBLFy9a4xMV9ZANNyf1EKTI7bqDGHZAgZAE6txVSZCXFvJTpQ2KsBxeBs7bxAplZAiwtATHaY25doLKXKuxUXb0gvuOUuLTJXOVZCZCXLTpqZC5PbdRP2IMHgl4ZAgGmRszvXRPGBOFgDi0A5Bsx8ZChse8LXKgeDeYWD8tLpsi6tkAP72JodYj4ZAWuxXZBlDH1WmceDp59P1HuMZD';
 
                             $access_token = $config->page_token;
@@ -272,7 +279,7 @@ class SocialPostController extends Controller
                             
                             $fbVideo = [
                                 'access_token' =>$access_token, 
-                                'source' =>new CURLFile($video_file_path), 
+                                'source' =>new CURLFile($path), 
                                 'description' => $message, 
                             ];
 
