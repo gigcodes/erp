@@ -15,6 +15,9 @@
         #reason-select{
             display: none;
         }
+        .table-responsive {
+            overflow-x: auto !important;
+        }
     </style>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />  
 @endsection
