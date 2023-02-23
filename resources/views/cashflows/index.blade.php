@@ -14,31 +14,46 @@
             border: 1px solid #ddd;
             background-color: #fff;
         }
+        @media only screen and (max-width: 1315px) {
+            .cashflow_date
+            {
+                width: 3%;
+            }
+            .delete_button
+            {
+                position: absolute;
+                margin-top: auto;
+            }
+        }
+
     </style>
     <div class="row  pr-4 pl-4 cashflow-table">
         <div class="col-md-12 margin-tb p-0">
-            <h2 class="page-heading">Cash Flow</h2>
-        </div>  
-        <div class="row m-0 pr-4 pl-4 cashflow-table">
-            <div class="pull-right">
+            <h2 class="page-heading">Cash Flow ({{count($cash_flows)}})</h2>
+        </div>
+        <div class="row cashflow-table">
+            <div class="col-md-12">
+            <div class="pull-left">
               <button type="button" class="btn btn-secondary mr-2"style="padding: 4px 12px;" data-toggle="modal" data-target="#cashCreateModal">+</button>
             </div>
-            </h2>
-            
             <form class="form-search-data">
-               
                 <div class="row">
-                    <div class="col-xs-6 col-md-2 pd-2">
+                    <div class="col">
                         <div class="form-group cls_task_subject">
-                            <input type="text" name="site_name" placeholder="Search Site Name" id="site_name" class="form-control input-sm ui-autocomplete-input" value="" autocomplete="off">
+                            <select class="form-control input-sm ui-autocomplete-input globalSelect2" name="site_name[]" id="site_name" data-placeholder="Search Website Name.." multiple>
+                                @foreach($website_name as $web_name)
+                                    <option value="{{$web_name->website}}" {{ Request::get('site_name') && in_array($web_name->website, Request::get('site_name')) ? 'selected' : '' }}>{{$web_name->website}}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
-                    <div class="col-xs-6 col-md-2 pd-2">
+                    <div class="col">
                         <div class="form-group">
-                        <input type="text" name="daterange" placeholder="Search date" id="daterange" class="form-control input-sm ui-autocomplete-input" value="<?php if (isset($_GET['daterange'])) { echo $_GET['daterange'] ;} ?>" autocomplete="off">    </div>
+                            <input type="text" name="daterange" placeholder="Search date" id="daterange" class="form-control input-sm ui-autocomplete-input" value="<?php if (isset($_GET['daterange'])) { echo $_GET['daterange'] ;} ?>" autocomplete="off">
+                            <input type="hidden" name="hidden_daterange" id="hidden_daterange" class="form-control hidden_daterange">
+                        </div>
                     </div>
-                    
-                      <div class="col-xs-6 col-md-2 pd-2">
+                    <div class="col">
                         <div class="form-group">
                             <select onchange="get_bname();" name="module_type" id="module_type" class="form-control input-sm">
                                 <option selected="" value="0"> Filter By Module / Type</option>
@@ -46,43 +61,36 @@
                                 <option value="payment_receipt"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='payment_receipt') {  echo "selected='selected'" ;} ?> >Payment Receipt</option>
                                 <option value="assent_manager" <?php if (isset($_GET['module_type']) && $_GET['module_type']=='assent_manager') {  echo "selected='selected'" ;} ?> >Assent Manager</option>
                                 <option value="vendor_frequency" <?php if (isset($_GET['module_type']) && $_GET['module_type']=='vendor_frequency') {  echo "selected='selected'" ;} ?> >Vendor Payment Manager</option>
-                          
+
                             </select>
                         </div>
                     </div>
-                    <div class="col-xs-6 col-md-2 pd-2">
+                    <div class="col">
                         <div class="form-group">
                             <select name="b_name" id="b_name" class="form-control input-sm">
                                 <option value="">Benefiiciary</option>
-                                
                             </select>
                         </div>
                     </div>
-                    <div class="col-xs-6 col-md-2 pd-2">
+                    <div class="col">
                         <div class="form-group">
                             <select name="type" id="type" class="form-control input-sm">
                                 <option value="">Filter by Type</option>
                                 <option value="Pending"  <?php if (isset($_GET['type']) && $_GET['type']=='Pending') {  echo "selected='selected'" ;} ?> >Pending</option>
                                 <option value="Received"  <?php if (isset($_GET['type']) && $_GET['type']=='Received') {  echo "selected='selected'" ;} ?> >Received</option>
                                 <option value="Paid" <?php if (isset($_GET['type']) && $_GET['type']=='Paid') {  echo "selected='selected'" ;} ?> >Paid</option>
-                                
+
                             </select>
                         </div>
                     </div>
-                    
-                    
-
-                    
-
-                    <div class="col-xs-6 col-md-2 pd-2 d-flex">
-                    <button type="button" onclick="$('.form-search-data').submit();" class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}"style="margin-top:-6px;"></button>
-                  </div>
-                    
-                </div>    
-                
+                    <div class="pt-2">
+                        <button type="button" onclick="$('.form-search-data').submit();" class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}"style="margin-top:-6px;"></button>
+                    </div>
+                </div>
             </form>
+            </div>
           </div>
-          
+
         </div>
     </div>
 
@@ -109,11 +117,11 @@
              <table class="table table-bordered" style="table-layout: fixed;">
                  <thead>
                  <tr>
-                     <th width="2%">Date</th>
+                     <th class="cashflow_date" width="2%">Date</th>
                      <th width="2%">Module</th>
                      <th width="2%">Website</th>
                      <th width="3%">Bene Name</th>
-                     <th width="2%">Type</th>
+                     <th width="3%">Category</th>
                      <th width="3%">Description</th>
                      <th width="2%">Amount</th>
                      <th width="2%">Am(EUR)</th>
@@ -125,37 +133,101 @@
                      <th width="2%">Actions</th>
                  </tr>
                  </thead>
-
                  <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                  @foreach ($cash_flows as $cash_flow)
                      <tr>
-                         <td class="small align-middle">{{ date('Y-m-d', strtotime($cash_flow->date)) }}</td>
+                         <td class="small align-middle pt-0">{{ date('Y-m-d', strtotime($cash_flow->date)) }}</td>
                          <td class="voucher">{!! $cash_flow->getLink() !!}</td>
-                         <td>@switch($cash_flow->cash_flow_able_type)
-                               @case('\App\Order')
-                                    <a href="{{ @$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website_url }}" target="_blank">{{$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website ?? ''}}</a></p>        
+                         <td style="word-break: break-all">
+                             @switch($cash_flow->cash_flow_able_type)
+                               @case('App\Order')
+                                    <a href="{{ @$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website_url }}" target="_blank">{{$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website ?? ''}}</a></p>
                                     @break
                              @default
-                               
-                             @endswitch 
+
+                             @endswitch
                          </td>
-                         <td class="Website-task">{!! $cash_flow->get_bname()!!} </td>
-                         <td class="Website-task">{{ class_basename($cash_flow->cashFlowAble) }}</td>
-                         <td class="Website-task">
-                             {{ $cash_flow->description }}
-                             @if ($cash_flow->files && count($cash_flow->files) > 0)
-                                 <ul>
-                                     @foreach ($cash_flow->files as $file)
-                                         <li><a href="{{ route('cashflow.download', $file->id) }}" class="btn-link">{{ $file->filename }}</a></li>
-                                     @endforeach
-                                 </ul>
+
+{{--                         <td class="Website-task">{!! $cash_flow->get_bname()!!} </td>--}}
+{{--                         <td class="Website-task">{{ class_basename($cash_flow->cashFlowAble) }}</td>--}}
+{{--                         <td class="Website-task">--}}
+{{--                             {{ $cash_flow->description }}--}}
+{{--                             @if ($cash_flow->files && count($cash_flow->files) > 0)--}}
+{{--                                 <ul>--}}
+{{--                                     @foreach ($cash_flow->files as $file)--}}
+{{--                                         <li><a href="{{ route('cashflow.download', $file->id) }}" class="btn-link">{{ $file->filename }}</a></li>--}}
+{{--                                     @endforeach--}}
+{{--                                 </ul>--}}
+{{--                             @endif--}}
+{{--                         </td>--}}
+
+                         <td class="expand-row">
+                             @if(strlen($cash_flow->get_bname()) > 4)
+                                 @php
+                                     $dns = $cash_flow->get_bname();
+                                     $dns = str_replace('"[', '', $dns);
+                                     $dns = str_replace(']"', '', $dns);
+                                 @endphp
+
+                                 <div class="td-mini-container brand-supplier-mini-{{ $cash_flow->id }}">
+                                     {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                                 </div>
+                                 <div class="td-full-container hidden brand-supplier-full-{{ $cash_flow->id }}">
+                                     {{ $dns }}
+                                 </div>
+                             @else
+                                 N/A
                              @endif
                          </td>
-                         <td class="Website-task">@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}
+
+
+                         <td class="expand-row" style="word-wrap: break-word;">
+                             @if(strlen(class_basename($cash_flow->cashFlowAble)) > 4)
+                                 @php
+                                     $dns = class_basename($cash_flow->cashFlowAble);
+                                     $dns = str_replace('"[', '', $dns);
+                                     $dns = str_replace(']"', '', $dns);
+                                 @endphp
+
+                                 <div class="td-mini-container brand-supplier-mini-{{ $cash_flow->id }}">
+                                     {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                                 </div>
+                                 <div class="td-full-container hidden brand-supplier-full-{{ $cash_flow->id }}">
+                                     {{ $dns }}
+                                 </div>
+                             @else
+                                 N/A
+                             @endif
+                         </td>
+
+                         <td class="expand-row">
+                             @if(strlen($cash_flow->description) > 4)
+                                 @php
+                                     $dns = class_basename($cash_flow->description);
+                                     $dns = str_replace('"[', '', $dns);
+                                     $dns = str_replace(']"', '', $dns);
+                                 @endphp
+
+                                 <div class="td-mini-container brand-supplier-mini-{{ $cash_flow->id }}">
+                                     {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                                 </div>
+                                 <div class="td-full-container hidden brand-supplier-full-{{ $cash_flow->id }}">
+                                     {{ $dns }}
+                                 </div>
+                             @else
+                                 N/A
+                             @endif
+                         </td>
+
+
+
+
+                         <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}
                             @if($cash_flow->cash_flow_able_type =="App\HubstaffActivityByPaymentFrequency")
-                              <button  type="button" class="btn btn-xs show-calculation"style="margin-top: -2px;" title="Show History" data-id="{{ $cash_flow->id }}"><i class="fa fa-info-circle"></i></button> 
+                              <button  type="button" class="btn btn-xs show-calculation"style="margin-top: -2px;" title="Show History" data-id="{{ $cash_flow->id }}"><i class="fa fa-info-circle"></i></button>
                             @endif
                          </td>
+
                          <td>{{ $cash_flow->amount_eur }}</td>
                          <td>{{$cash_flow->currency}} {{ $cash_flow->erp_amount }}</td>
                          <td>{{ $cash_flow->erp_eur_amount }}</td>
@@ -165,12 +237,18 @@
                          <td>{{ ucwords($cash_flow->type) }}</td>
                          <td>{{ \Carbon\Carbon::parse($cash_flow->billing_due_date)->format('d-m-Y') }}</td>
                          <td>
+                             <button type="button" class="btn btn-secondary btn-sm" onclick="CashFlowbtn('{{$cash_flow->id}}')"><i class="fa fa-arrow-down"></i></button>
+                         </td>
+
+                     </tr>
+                     <tr class="action-cashflowbtn-tr-{{$cash_flow->id}} d-none">
+                         <td class="font-weight-bold">Action</td>
+                         <td colspan="13">
                              <a title="Do Payment" data-id="{{ $cash_flow->id }}" data-mnt-amount="{{ $cash_flow->amount }}" data-mnt-account="{{ $cash_flow->monetary_account_id }}" class="do-payment-btn"><span><i class="fa fa-money" aria-hidden="true"></i></span></a>
                              {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
-                             <button type="submit" class="btn pt-0 pb-0 btn-image"><img src="/images/delete.png" /></button>
+                             <button type="submit" class="delete_button btn btn-image"><img src="{{asset('/images/delete.png')}}" /></button>
                              {!! Form::close() !!}
                          </td>
-                        
                      </tr>
                  @endforeach
                  </tbody>
@@ -178,7 +256,7 @@
           </div>
        <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
-      
+
    </div>
 
     <div id="cashCreateModal" class="modal fade" role="dialog">
@@ -301,7 +379,7 @@
               <?php
                   echo Form::text('amount',null, ['placeholder' => 'Insert Amount','class' => 'form-control', 'id' => 'cashflow-amount']);
               ?>
-            </div>  
+            </div>
             <div class="form-group">
               <strong>Type:</strong>
               <?php
@@ -317,7 +395,7 @@
             <div class="form-group">
               <strong>Monetary Account:</strong>
               <?php
-                  $monetaryAccount = \App\MonetaryAccount::pluck("name","id")->toArray(); 
+                  $monetaryAccount = \App\MonetaryAccount::pluck("name","id")->toArray();
                   echo Form::select('monetary_account_id',$monetaryAccount, null, ['placeholder' => 'Select a Account','class' => 'form-control', "id" => "monetary-account-id-txt"]);
               ?>
             </div>
@@ -356,13 +434,13 @@
                       <th>Rate</th>
                       <th>Amount</th>
                       <th>Currency</th>
-                    
+
                     </tr>
                   </thead>
                  <tbody class="show_counting_data"><tbody>
 
                 </table>
-                      
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -379,20 +457,26 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script>
+
+      function CashFlowbtn(id){
+          $(".action-cashflowbtn-tr-"+id).toggleClass('d-none')
+      }
+
+
   $(function() {
     $(document).on('click', '.show-calculation', function() {
         var issueId = $(this).data('id');
-  
+
         $.ajax({
             url: "{{route('cashflow.getPaymentDetails')}}",
             data: {id: issueId},
             success: function (data) {
               $(".show_counting_data").html(data);
-              $("#show_counting").modal();   
+              $("#show_counting").modal();
             }
         });
-    
-  
+
+
     });
 
 
@@ -401,8 +485,10 @@
       opens: 'left'
     }, function(start, end, label) {
       console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+      $('#hidden_daterange').val(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
     });
   });
+
 </script>
   <script type="text/javascript">
     $(document).ready(function() {
@@ -447,6 +533,14 @@
       $("#do-payment-model").modal("show");
     });
 
+    $(document).on('click', '.expand-row', function() {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
+
     $(document).on("click",".submit-cashflow",function(e) {
         e.preventDefault();
         var form = $(this).closest("form");
@@ -482,11 +576,11 @@
   </script>
 
 <script>
-        
+
         var isLoading = false;
         var page = 1;
         $(document).ready(function () {
-            
+
             $(window).scroll(function() {
                 if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
                     loadMore();
@@ -507,12 +601,12 @@
                         $loader.show();
                     },
                     success: function (data) {
-                        
+
                         $loader.hide();
                         if('' === data.trim())
                             return;
                         $('.infinite-scroll-cashflow-inner').append(data);
-                        
+
 
                         isLoading = false;
                     },
@@ -521,7 +615,7 @@
                         isLoading = false;
                     }
                 });
-            }            
+            }
         });
 
         function get_bname()
@@ -530,7 +624,7 @@
           $("#b_name").empty();
           if (module_type!='')
           {
-              
+
             $.ajax({
                     url: "{{url('cashflow/getbnamelist')}}?model_type="+ module_type,
                     type: 'GET',
@@ -540,17 +634,17 @@
                         const [key, value] = entry;
                         $("#b_name").append("<option value='"+data[key]+"'>"+data[key]+"</option>");
                      });
-               
+
                     },
                     error: function () {
-                       
+
                     }
                 });
-              
-              
-              
-          }      
+
+
+
+          }
         }
 
-  </script>      
+  </script>
 @endsection

@@ -330,6 +330,8 @@ use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
 use App\Http\Controllers\FaqPushController;
+use App\Http\Controllers\GoogleAdsLogController;
+use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -2850,6 +2852,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('list-message', [SocialAccountController::class, 'listMessage'])->name('social.message.list');
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
+    Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
@@ -3833,8 +3836,20 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::delete('/delete/{adId}', [GoogleAdsController::class, 'deleteAd'])->name('ads.deleteAd');
                 });
             });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('responsive-display-ad')->group(function () {
+                    Route::get('/', [GoogleResponsiveDisplayAdController::class, 'index'])->name('responsive-display-ad.index');
+                    Route::get('/create', [GoogleResponsiveDisplayAdController::class, 'createPage'])->name('responsive-display-ad.createPage');
+                    Route::post('/create', [GoogleResponsiveDisplayAdController::class, 'createAd'])->name('responsive-display-ad.craeteAd');
+                    Route::delete('/delete/{adId}', [GoogleResponsiveDisplayAdController::class, 'deleteAd'])->name('responsive-display-ad.deleteAd');
+                    Route::get('/{adId}', [GoogleResponsiveDisplayAdController::class, 'show'])->name('responsive-display-ad.show');
+                });
+            });
         });
     });
+
+    Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
@@ -4411,6 +4426,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('config/store', [Social\SocialConfigController::class, 'store'])->name('social.config.store');
     Route::post('config/edit', [Social\SocialConfigController::class, 'edit'])->name('social.config.edit');
     Route::post('config/delete', [Social\SocialConfigController::class, 'destroy'])->name('social.config.delete');
+    Route::get('config/adsmanager', [Social\SocialConfigController::class, 'getadsAccountManager'])->name('social.config.adsmanager');
 
     Route::get('posts/{id}', [Social\SocialPostController::class, 'index'])->name('social.post.index');
     Route::post('post/store', [Social\SocialPostController::class, 'store'])->name('social.post.store');

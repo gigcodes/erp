@@ -106,7 +106,7 @@ class SupplierController extends Controller
         }
 
         if ($request->status) {
-            $typeWhereClause .= ' AND suppliers.status='.$request->status;
+            $typeWhereClause .= ' AND suppliers.status in ('.$request->status.')';
         }
 
         if ($supplier_filter) {
