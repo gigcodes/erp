@@ -166,6 +166,7 @@
                     </tbody>
                 </table>
             </div>
+            {!! $products->appends(Request::except('page'))->links() !!}
         </div>
 
         
@@ -696,11 +697,11 @@
 	//var page = 1;
 	$(document).ready(function () {
 
-		$(window).scroll(function() {
+		/*$(window).scroll(function() {
 			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
 				loadMore();
 			}
-		});
+		});*/
 
 		function loadMore() {
 			if (isLoading)
