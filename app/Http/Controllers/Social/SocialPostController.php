@@ -15,6 +15,7 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
 use Session;
 use App\Helpers\SocialHelper;
+use CURLFile;
 
 class SocialPostController extends Controller
 {
@@ -186,39 +187,74 @@ class SocialPostController extends Controller
                         $data['access_token'] = $this->page_access_token;
                         try {
 
-                            foreach ($request->file('source') as $key => $source) {
-                                $data['source'] = $this->fb->fileToUpload($source);
-                                
-                                
-                                // post multi-photo story
-                                $multiPhotoPost['attached_media['.$key.']'] = '{"media_fbid":"'.$this->fb->post('/me/photos', $data)->getGraphNode()->asArray()['id'].'"}';
-                            }
-    
-                            // Uploading Multi story facebook photo
-                            $multiPhotoPost['access_token'] = $this->page_access_token;
-                            $multiPhotoPost['message'] = $message;
-                            if ($request->has('date') && $request->input('date') > date('Y-m-d')) {
-                                $post->posted_on = $request->input('date');
-                                $post->save();
-    
-                                $multiPhotoPost['published'] = 'false';
-                                $multiPhotoPost['scheduled_publish_time'] = strtotime($request->input('date'));
-                            }
-                            $resp = $this->fb->post('/me/feed', $multiPhotoPost)->getGraphNode()->asArray();
+                            //$page_id = 107451495586072;
+                            //$access_token = 'EAAU1BZAGVu9MBAAa3auPFsrLd1d3FIR36Gnvo05t4YeiUCUbXZByxHsjsvvfSeN1IyhZCsmqhjRyJ7Yp6HI685WjzfFGq2bVU2eM1X69bHpq8cdyVVonacxhbs6UFacRZBWuLst9g1vvacLMnP8EbtTqo0KsYoUBwgy87Qo2wdcCKV5mqvqYx5OAfBZCNLzcEDaIGYQdG8H9jShF2rFdC22BWps6JmsEZD';
+
+                            $access_token = $config->token;
+                            $page_id = $config->page_id;
+
+                            $image_upload_url = 'https://graph.facebook.com/'.$page_id.'/photos';
                            
-                            if (isset($resp->error->message)) {
-                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $resp->error->message);
-                                Session::flash('message', $resp->error->message);
-                            } else {
-                                $post->status = 1;
-                                if (isset($resp['id'])) {
-                                    $post->ref_post_id = $resp['id'];
+                            foreach ($request->file('source') as $key => $source) {
+                               // $data['source'] = $this->fb->fileToUpload($source);
+                                
+                               $image_path = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png';
+
+                               $chatApiArrayImage = [
+                                   'access_token' =>$access_token, 
+                                   'source' =>new CURLFile($source), 
+                                   'message' => $message, 
+                               ];
+   
+                                $response = SocialHelper::curlPostRequest($image_upload_url,$chatApiArrayImage);
+                                $response = json_decode($response);
+                                if (isset($response->error->message)) {
+                                    $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
+                                    Session::flash('message', $response->error->message);
                                 }
-    
+
+                                $post->posted_on = $request->input('date');
+                                $post->status = 1;
+                                if (isset($response->post_id)) {
+                                    $post->ref_post_id = $response->post_id;
+                                }
                                 $post->save();
-                                $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
-                                Session::flash('message', 'Content Posted successfully');
                             }
+                            
+                            $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
+                            Session::flash('message', 'Content Posted successfully');
+
+                            // Uploading Multi story facebook photo
+                            // $multiPhotoPost['access_token'] = $access_token;
+                            // $multiPhotoPost['message'] = $message;
+                            // if ($request->has('date') && $request->input('date') > date('Y-m-d')) {
+                            //     $post->posted_on = $request->input('date');
+                            //     $post->save();
+    
+                            //     $multiPhotoPost['published'] = 'false';
+                            //     $multiPhotoPost['scheduled_publish_time'] = strtotime($request->input('date'));
+                            // }
+
+                         
+                            // $feed_url = 'https://graph.facebook.com/'.$page_id.'/feed';
+                            // $response = SocialHelper::curlPostRequest($feed_url,$multiPhotoPost);
+                             
+                            
+
+                            //$resp = $this->fb->post('/me/feed', $multiPhotoPost)->getGraphNode()->asArray();
+                           
+                            // if (isset($resp->error->message)) {
+                            //     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $resp->error->message);
+                            //     Session::flash('message', $resp->error->message);
+                            // } else {
+                            //     $post->status = 1;
+                            //     if (isset($resp['id'])) {
+                            //         $post->ref_post_id = $resp['id'];
+                            //     }
+    
+                            //     $post->save();
+                               
+                            // }
                         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
                             \Log::info($e); // handle exception
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
