@@ -611,7 +611,7 @@ class MessageHelper
                 foreach ($replies as $reply) {
                     if ($message != '' && $customer) {
                         $keyword = $reply->question;
-                        if (($keyword == $message || strpos(strtolower(trim($keyword)), strtolower(trim($message))) !== false) && $reply->suggested_reply) {
+                        if (($keyword == $message || strpos(strtolower(trim($message)), strtolower(trim($keyword))) !== false) && $reply->suggested_reply) {
                             /*if($reply->auto_approve) {
                             $status = 2;
                             }
