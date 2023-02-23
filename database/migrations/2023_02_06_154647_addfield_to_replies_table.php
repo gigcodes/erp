@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         
-         DB::statement("ALTER TABLE `replies` ADD `platform_id` INT NULL AFTER `is_pushed`;");
-         DB::statement("ALTER TABLE `translate_Replies` ADD `platform_id` INT NULL AFTER `translate_text`;");
+         DB::statement("ALTER TABLE `replies` ADD `platform_id` INT NULL;");
+         DB::statement("ALTER TABLE `translate_Replies` ADD `platform_id` INT NULL;");
       
     }
 
