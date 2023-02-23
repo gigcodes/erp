@@ -2140,7 +2140,10 @@ if (!empty($notifications)) {
                                     <a href="{{route('social.config.index')}}">Social Config</a>
                                 </li>
                                 <li class="nav-item dropdown">
-                                    <a href="{{route('social.campaign.index')}}">Social Campaign</a>
+                                    <a href="{{route('social.adcreative.index')}}">Social Ad Creative</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.ad.index')}}">Social Ads</a>
                                 </li>
                                 @endif
                             </ul>
