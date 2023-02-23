@@ -2136,11 +2136,11 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
                                 </li>
-                                    <li class="nav-item dropdown">
+                                <li class="nav-item dropdown">
                                     <a href="{{route('social.config.index')}}">Social Config</a>
                                 </li>
                                 <li class="nav-item dropdown">
-                                    <a href="{{route('social.adset.index')}}">Social Adset</a>
+                                    <a href="{{route('social.campaign.index')}}">Social Campaign</a>
                                 </li>
                                 @endif
                             </ul>
