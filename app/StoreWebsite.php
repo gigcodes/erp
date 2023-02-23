@@ -230,6 +230,6 @@ class StoreWebsite extends Model
     }
 
     public function getAllTaggedWebsite($tag_id) {
-        return self::where(["tag_id" => $tag_id])->whereNotNull("tag_id")->get();
+        return self::where(["tag_id" => $tag_id])->select('tag_id','id')->whereNotNull("tag_id")->get();
     }
 }
