@@ -93,56 +93,58 @@ class CroppedImageReferenceController extends Controller
 
     public function grid(Request $request)
     {
-        $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category'])->join('products', 'products.id', 'cropped_image_references.product_id');
+        
+        $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
+        // $query = $query->join('products', 'products.id', 'cropped_image_references.product_id');
 
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
             if (is_array(request('category'))) {
                 if (request('category') != null && request('category')[0] != 1) {
-                    // $query->whereHas('product', function ($qu) use ($request) {
-                    //     $qu->whereIn('category', request('category'));
-                    // });
-                    $query->whereIn('products.category', request('category'));
+                    $query->whereHas('product', function ($qu) use ($request) {
+                        $qu->whereIn('category', request('category'));
+                    });
+                    // $query->whereIn('products.category', request('category'));
                 }
             } else {
                 if (request('category') != null && request('category') != 1) {
-                    // $query->whereHas('product', function ($qu) use ($request) {
-                    //     $qu->where('category', request('category'));
-                    // });
-                    $query->where('products.category', request('category'));
+                    $query->whereHas('product', function ($qu) use ($request) {
+                        $qu->where('category', request('category'));
+                    });
+                    // $query->where('products.category', request('category'));
                 }
             }
 
             if (isset($request->filter_id) && $request->filter_id) {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->where('id', $request->filter_id);
-                // });
-                $query->where('products.id', $request->filter_id);
+                $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->where('id', $request->filter_id);
+                });
+                // $query->where('products.id', $request->filter_id);
             }
 
             if (request('brand') != null && $request->brand) {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->whereIn('brand', request('brand'));
-                // });
-                $query->whereIn('products.brand', request('brand'));
+                $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->whereIn('brand', request('brand'));
+                });
+                // $query->whereIn('products.brand', request('brand'));
             }
 
             if (request('supplier') != null) {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->whereIn('supplier', request('supplier'));
-                // });
-                $query->whereIn('products.supplier', request('supplier'));
+                $query = $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->whereIn('supplier', request('supplier'));
+                });
+                // $query->whereIn('products.supplier', request('supplier'));
             }
 
             if (request('status') != null && request('status') != 0) {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->where('status_id', request('status'));
-                // });
-                $query->where('products.status_id', request('status'));
+                $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->where('status_id', request('status'));
+                });
+                // $query->where('products.status_id', request('status'));
             } else {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->where('status_id', '!=', StatusHelper::$cropRejected);
-                // });
-                $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
+                $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->where('status_id', '!=', StatusHelper::$cropRejected);
+                });
+                // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
             }
 
             if (request('crop') != null) {
@@ -152,20 +154,19 @@ class CroppedImageReferenceController extends Controller
                     $query->whereNull('cropped_image_references.new_media_id');
                 }
             }
-            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')->paginate(50);
+            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')->paginate(10);
         } else {
-            // $query->whereHas('product', function ($qu) use ($request) {
-            //     $qu->where('status_id', '!=', StatusHelper::$cropRejected);
-            // });
-
-            $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
+            $query->whereHas('product', function ($qu) use ($request) {
+                $qu->where('status_id', '!=', StatusHelper::$cropRejected);
+            });
+            // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
 
             $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')
                 ->groupBy('cropped_image_references.original_media_id')
               ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
                   $q->with('newMedia');
               }])
-                ->paginate(50);
+                ->paginate(10);
         }
         $total = $products->count();
 

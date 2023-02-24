@@ -1,6 +1,5 @@
-@extends('layouts.app')
 
-@section('styles')
+
 <style type="text/css">
     .select2-search__field{
         padding-left: 5px;
@@ -15,10 +14,13 @@
         #reason-select{
             display: none;
         }
+        .table-responsive {
+            overflow-x: auto !important;
+        }
     </style>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />  
-@endsection
-@section('content')
+
+
 <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
@@ -163,6 +165,7 @@
                     </tbody>
                 </table>
             </div>
+            {!! $products->appends(Request::except('page'))->links() !!}
         </div>
 
         
@@ -237,9 +240,9 @@
  @include('partials.modals.task-module')
  @include('partials.modals.large-image-modal')
    
-@endsection
 
-@section('scripts')
+
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
@@ -693,11 +696,11 @@
 	//var page = 1;
 	$(document).ready(function () {
 
-		$(window).scroll(function() {
+		/*$(window).scroll(function() {
 			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
 				loadMore();
 			}
-		});
+		});*/
 
 		function loadMore() {
 			if (isLoading)
@@ -738,4 +741,3 @@
 	//End load more functionality
     </script>
 
-@endsection
