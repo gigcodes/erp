@@ -93,6 +93,7 @@ class CroppedImageReferenceController extends Controller
 
     public function grid(Request $request)
     {
+        dd('here');
         $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
         // $query = $query->join('products', 'products.id', 'cropped_image_references.product_id');
 
