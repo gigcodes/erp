@@ -33,12 +33,12 @@
 
         </div>
         <?php } ?>
+
         <form id="add-remark">
           <input type="hidden" name="id" value="">
           <div class="form-group">
-            <textarea rows="2" name="remark" class="form-control" placeholder="Start the Remark"></textarea>
+            <textarea rows="4" name="remark" class="form-control" placeholder="Start the Remark"></textarea>
           </div>
-          {{-- We dont need following settings for email page --}}
           @if (empty($type) || $type != 'email')
             <div class="form-group">
               <label><input type="checkbox" class="need_to_send" value="1">&nbsp;Need to Send Message ?</label>
@@ -47,7 +47,7 @@
               <label><input type="checkbox" class="inlcude_made_by" value="1">&nbsp;Want to include Made By ?</label>
             </div>
           @endif
-          <button type="button" class="btn btn-secondary btn-block mt-2" id="{{ (!empty($type) && $type == 'scrap') ? 'scrapAddRemarkbutton' : 'addRemarkButton' }}">Add</button>
+          <button type="button" class="btn btn-secondary btn-block mt-2 w-auto" id="{{ (!empty($type) && $type == 'scrap') ? 'scrapAddRemarkbutton' : 'addRemarkButton' }}">Add</button>
         </form>
       </div>
 

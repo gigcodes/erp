@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
 use Session;
+use App\Helpers\SocialHelper;
+use CURLFile;
 
 class SocialPostController extends Controller
 {
@@ -51,6 +53,38 @@ class SocialPostController extends Controller
         }
 
         return view('social.posts.index', compact('posts', 'websites', 'id'));
+    }
+
+    public function deletePost(Request $request)
+    {
+        $query = SocialPost::where('ref_post_id',$request["post_id"])->get();
+        $config = SocialConfig::find($query[0]["config_id"]);
+        
+        $pageAccessToken = $config["page_token"];
+        $postId = $request["post_id"]; // Replace with the ID of the post you want to delete
+        $apiEndpoint = 'https://graph.facebook.com/'.$postId.'?access_token='.$pageAccessToken;
+        $curlSession = curl_init($apiEndpoint);
+
+        curl_setopt($curlSession, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($curlSession);
+        curl_close($curlSession);
+
+        $responseData = json_decode($response, true);
+        if($responseData["success"]){
+            $query->delete();
+            
+            return redirect()->back()->withSuccess('Post deleted sucessfully!!');
+            
+            return Response::json([
+                'success' => true,
+                'message' => ' Config Deleted',
+            ]);
+        }else{
+            return false;
+        }
+        
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
@@ -96,7 +130,7 @@ class SocialPostController extends Controller
         $fb = new Facebook([
             'app_id' => $config->api_key,
             'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v12.0',
+            'default_graph_version' => 'v15.0',
         ]);
 
         $data['caption'] = $post->caption;
@@ -143,208 +177,248 @@ class SocialPostController extends Controller
 
     public function store(Request $request)
     {
-        $post = new SocialPost;
-        $post->config_id = $request->config_id;
-        $post->caption = $request->message;
-        $post->post_body = $request->description;
-        $post->post_by = Auth::user()->id;
-        $post->save();
+        try{
+            
+            $post = new SocialPost;
+            $post->config_id = $request->config_id;
+            $post->caption = $request->message;
+            $post->post_body = $request->description;
+            $post->post_by = Auth::user()->id;
+            $post->save();
+    
+            $config = SocialConfig::find($post->config_id);
+    
+            $this->fb = new Facebook([
+                'app_id' => $config->api_key,
+                'app_secret' => $config->api_secret,
+                'default_graph_version' => 'v15.0',
+            ]);
+            
+            $this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
+            
+            $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
+            // $request->validate([
+            // 	'message' => 'required',
+            // 	'source.*' => 'mimes:jpeg,bmp,png,gif,tiff,jpg',
+            // //	'video' =>'mimes:3g2,3gp,3gpp,asf,avi,dat,divx,dv,f4v,flv,gif,m2ts,m4v,mkv,mod,mov,mp4,mpe, mpeg,mpeg4,mpg,mts,nsv,ogm,ogv,qt,tod,tsvob,wmv',
+    
+            // ]);
+    
+            // Message
+           
 
-        $config = SocialConfig::find($post->config_id);
+            $message = $request->input('message');
+            if ($this->page_access_token != '') {
+                if ($config->platform == 'facebook') {
+                    $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to facebook condition');
+                    if ($request->hasFile('source')) {
+                        $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to Image upload');
+                        // Description
+                        $data['caption'] = ($request->input('description')) ? $request->input('description') : '';
+                        $data['published'] = 'false';
+                        $data['access_token'] = $this->page_access_token;
+                        try {
 
-        $this->fb = new Facebook([
-            'app_id' => $config->api_key,
-            'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v12.0',
-        ]);
-        $this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
-        $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
+                            $access_token = $config->page_token;
+                            $page_id = $config->page_id;
 
-        // $request->validate([
-        // 	'message' => 'required',
-        // 	'source.*' => 'mimes:jpeg,bmp,png,gif,tiff,jpg',
-        // //	'video' =>'mimes:3g2,3gp,3gpp,asf,avi,dat,divx,dv,f4v,flv,gif,m2ts,m4v,mkv,mod,mov,mp4,mpe, mpeg,mpeg4,mpg,mts,nsv,ogm,ogv,qt,tod,tsvob,wmv',
+                            $image_upload_url = 'https://graph.facebook.com/'.$page_id.'/photos';
+                           
+                            foreach ($request->file('source') as $key => $source) {
+                               
+                                $fbImage = [
+                                   'access_token' =>$access_token, 
+                                   'source' =>new CURLFile($source), 
+                                   'message' => $message, 
+                               ];
+   
+                                $response = SocialHelper::curlPostRequest($image_upload_url,$fbImage);
+                                $response = json_decode($response);
+                                if (isset($response->error->message)) {
+                                    $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
+                                    Session::flash('message', $response->error->message);
+                                }else{
+                                    
+                                    $post->posted_on = $request->input('date');
+                                    $post->status = 1;
+                                    if (isset($response->post_id)) {
+                                        $post->ref_post_id = $response->post_id;
+                                    }
+                                    $post->save();
+                                    $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
+                                    Session::flash('message', 'Content Posted successfully');
+                                }
 
-        // ]);
+                            }
+                            
+                            
 
-        // Message
-        $message = $request->input('message');
-        if ($this->page_access_token != '') {
-            if ($config->platform == 'facebook') {
-                $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to facebook condition');
-//            dd("sss");
-                if ($request->hasFile('source')) {
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to Image upload');
-                    //	dd("Ddddd");
-                    // Description
-                    $data['caption'] = ($request->input('description')) ? $request->input('description') : '';
-                    $data['published'] = 'false';
-                    $data['access_token'] = $this->page_access_token;
-                    try {
-                        foreach ($request->file('source') as $key => $source) {
-                            $data['source'] = $this->fb->fileToUpload($source);
-
-                            // post multi-photo story
-                            $multiPhotoPost['attached_media['.$key.']'] = '{"media_fbid":"'.$this->fb->post('/me/photos', $data)->getGraphNode()->asArray()['id'].'"}';
+                            
+                        } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
+                            \Log::info($e); // handle exception
+                            $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
                         }
+                    }	// Video Case
+                    elseif ($request->hasFile('video1')) {
 
-                        // Uploading Multi story facebook photo
-                        $multiPhotoPost['access_token'] = $this->page_access_token;
-                        $multiPhotoPost['message'] = $message;
-                        if ($request->has('date') && $request->input('date') > date('Y-m-d')) {
-                            $post->posted_on = $request->input('date');
-                            $post->save();
+                        $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to video upload');
+                        try{
 
-                            $multiPhotoPost['published'] = 'false';
-                            $multiPhotoPost['scheduled_publish_time'] = strtotime($request->input('date'));
+
+                            $file = $request->file('video1');
+                            $filename = $file->getClientOriginalName();
+                            $file->storeAs('public/videos', $filename);
+                            $path = storage_path('app/public/videos/' . $filename);
+                           
+                           // $access_token = 'EAAIALK1F98IBAD5OFxcIGnZAZBLFy9a4xMV9ZANNyf1EKTI7bqDGHZAgZAE6txVSZCXFvJTpQ2KsBxeBs7bxAplZAiwtATHaY25doLKXKuxUXb0gvuOUuLTJXOVZCZCXLTpqZC5PbdRP2IMHgl4ZAgGmRszvXRPGBOFgDi0A5Bsx8ZChse8LXKgeDeYWD8tLpsi6tkAP72JodYj4ZAWuxXZBlDH1WmceDp59P1HuMZD';
+
+                            $access_token = $config->page_token;
+                            $page_id = $config->page_id;
+                            $image_upload_url = 'https://graph-video.facebook.com/v15.0/'.$page_id.'/videos';
+                            $video_file_path = $request->file('video1');
+                            
+                            $fbVideo = [
+                                'access_token' =>$access_token, 
+                                'source' =>new CURLFile($path), 
+                                'description' => $message, 
+                            ];
+
+                            $response = SocialHelper::curlPostRequest($image_upload_url,$fbVideo);
+                            $response = json_decode($response);
+                            
+                            dd($response);
+                            
+                            if(isset($response->id)){
+                                $post->status = 1;
+                                $post->ref_post_id = $response->id;
+                                $post->save();
+                                Session::flash('message', 'Content Posted successfully');
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
+                            }else{
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', 'post faild');
+                                Session::flash('message', $response->error->message);
+                            }
+
+                        } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
+                            $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
                         }
-                        $resp = $this->fb->post('/me/feed', $multiPhotoPost)->getGraphNode()->asArray();
+                    }
+                    // Simple Post Case
+                    else {
+                        
+                        $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to text post');
+                        
+                        $access_token = $config->page_token;
+                        $page_id = $config->page_id;
 
-                        if (isset($resp->error->message)) {
-                            $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $resp->error->message);
-                            Session::flash('message', $resp->error->message);
+                        $pageId = $config->page_id;
+                        $messageText = $data['message'] = $message;
+                        $apiEndpoint = 'https://graph.facebook.com/' . $pageId . '/feed?message=' . urlencode($messageText) . '&access_token=' . $access_token;
+                        $curlSession = curl_init($apiEndpoint);
+
+                        curl_setopt($curlSession, CURLOPT_POST, true);
+                        curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
+
+                        $response = curl_exec($curlSession);
+                        curl_close($curlSession);
+
+                        $responseData = json_decode($response, true);
+
+                        if (isset($responseData->error->message)) {
+                            Session::flash('message', $responseData->error->message);
                         } else {
                             $post->status = 1;
-                            if (isset($resp['post_id'])) {
-                                $post->ref_post_id = $resp['post_id'];
+                            if (isset($responseData['id'])) {
+                                $post->ref_post_id = $responseData['id'];
                             }
 
                             $post->save();
-                            $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
-                            Session::flash('message', 'Content Posted successfully');
-                        }
-                    } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
-                        \Log::info($e); // handle exception
-                        $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
-                    }
-                }	// Video Case
-                elseif ($request->hasFile('video1')) {
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to video upload');
-                    try {
-                        $data['title'] = ''.trim($message).'';
-
-                        $data['description'] = ''.trim($request->input('description')).'';
-
-                        $data['source'] = $this->fb->videoToUpload(''.trim($request->file('video1')).'');
-
-                        if ($request->has('date') && $request->input('date') > date('Y-m-d')) {
-                            $post->posted_on = $request->input('date');
-                            $post->save();
-                            $data['published'] = 'false';
-                            $data['scheduled_publish_time'] = strtotime($request->input('date'));
-                        }
-                        $resp = $this->fb->post('/me/videos', $data, $this->page_access_token)->getGraphNode()->asArray()['id'];
-
-                        if (isset($resp->error->message)) {
-                            $this->socialPostLog($config->id, $post->id, $config->platform, 'error', 'post faild');
-                            Session::flash('message', $resp->error->message);
-                        } else {
-                            $post->status = 1;
-                            if (isset($resp['post_id'])) {
-                                $post->ref_post_id = $resp['post_id'];
-                            }
-
-                            $post->save();
                             Session::flash('message', 'Content Posted successfully');
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
                         }
-                    } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
-                        $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
+                        
+                        
+                        
                     }
-                }
-                // Simple Post Case
-                else {
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to text post');
-
-                    $data['description'] = $request->input('description');
-                    $data['message'] = $message;
-                    $data['access_token'] = $this->page_access_token;
-                    if ($request->has('date') && $request->input('date') > date('Y-m-d')) {
-                        $post->posted_on = $request->input('date');
-                        $post->save();
-                        $data['published'] = 'true';
-                        $data['scheduled_publish_time'] = strtotime($request->input('date'));
-                    }
-                    try {
-                        $resp = $this->fb->post('/me/feed', $data)->getGraphNode()->asArray();
-
-                        if (isset($resp->error->message)) {
-                            Session::flash('message', $resp->error->message);
-                        } else {
-                            $post->status = 1;
-                            if (isset($resp['post_id'])) {
-                                $post->ref_post_id = $resp['post_id'];
-                            }
-
-                            $post->save();
-                            Session::flash('message', 'Content Posted successfully');
-                            $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
-                        }
-                    } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
-                        $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
-                        // handle exception
-                    }
-                }
-            } else {
-                $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to insta condition');
-                $insta_id = $this->getInstaID($config, $this->fb, $post->id);
-                if ($insta_id != '') {
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'get-insta-id', $insta_id);
-                    $images = [];
-
-                    /*foreach($request->file('source') as $key =>$source)
-                      {
-                          dd($source);
-                          $filename = str_random(40).'_'.$source[0]->getClientOriginalName();
-
+                } else {
+                     $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to insta condition');
+                    $insta_id = $this->getInstaID($config, $this->fb, $post->id);
+                    
+    
+                    if ($insta_id != '') {
+                        $this->socialPostLog($config->id, $post->id, $config->platform, 'get-insta-id', $insta_id);
+                        $images = [];
+                        
+                        /*foreach($request->file('source') as $key =>$source)
+                        {
+                            dd($source);
+                            $filename = str_random(40).'_'.$source[0]->getClientOriginalName();
+                            
                             $source->move(public_path().'/social_images/', $filename);
-                //        $path = $request->files[$key]->store('social_images');
-                          $path =  asset('social_images/'.$filename);
-                           $media_id = $this->addMedia($config,$post,$path,$insta_id);
-
-                          dd($path);
-
-
-                      }*/
-
-                    if ($request->hasfile('source')) {
-                        $this->socialPostLog($config->id, $post->id, $config->platform, 'come to image', 'source');
-                        foreach ($request->file('source') as $image) {
-                            $media = MediaUploader::fromSource($image)
+                            //        $path = $request->files[$key]->store('social_images');
+                            $path =  asset('social_images/'.$filename);
+                            $media_id = $this->addMedia($config,$post,$path,$insta_id);
+                            
+                            dd($path);
+                            
+                            
+                        }*/
+                        
+    
+                        if ($request->hasfile('source')) {
+                            ini_set('memory_limit','-1');   // Added memory limit allowing maximum memory
+                            ini_set('max_execution_time','-1'); 
+                            $this->socialPostLog($config->id, $post->id, $config->platform, 'come to image', 'source');
+                            foreach ($request->file('source') as $image) {
+                                $media = MediaUploader::fromSource($image)
+                                    ->toDirectory('social_images/'.floor($post->id / config('constants.image_per_folder')))
+                                    ->upload();
+                                $post->attachMedia($media, config('constants.media_tags'));
+                            }
+                        }
+                        if ($request->hasfile('video1')) {
+                            $this->socialPostLog($config->id, $post->id, $config->platform, 'come to video', 'video');
+                            $media = MediaUploader::fromSource($request->file('video1'))
                                 ->toDirectory('social_images/'.floor($post->id / config('constants.image_per_folder')))
                                 ->upload();
                             $post->attachMedia($media, config('constants.media_tags'));
                         }
-                    }
-                    if ($request->hasfile('video1')) {
-                        $this->socialPostLog($config->id, $post->id, $config->platform, 'come to video', 'video');
-                        $media = MediaUploader::fromSource($request->file('video1'))
-                            ->toDirectory('social_images/'.floor($post->id / config('constants.image_per_folder')))
-                            ->upload();
-                        $post->attachMedia($media, config('constants.media_tags'));
-                    }
-
-                    if ($post->getMedia(config('constants.media_tags'))->first()) {
-                        $this->socialPostLog($config->id, $post->id, $config->platform, 'come to getMedia', 'find media');
-                        foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
-                            $mediaurl = $file->getUrl();
-                            $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id);
-                            if (! empty($media_id)) {
-                                $res = $this->publishMedia($config, $post, $media_id, $insta_id);
-                            }
-                            if (! empty($res)) {
-                                $post->status = 1;
-                                $post->save();
+    
+                        if ($post->getMedia(config('constants.media_tags'))->first()) {
+                            ini_set('memory_limit','-1');   // Added memory limit allowing maximum memory
+                            ini_set('max_execution_time','-1'); 
+                            
+                            $this->socialPostLog($config->id, $post->id, $config->platform, 'come to getMedia', 'find media');
+                            foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
+                                $mediaurl = $file->getUrl();
+                                
+                                $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id);
+                                if (! empty($media_id)) {
+                                    $res = $this->publishMedia($config, $post, $media_id, $insta_id);
+                                }
+                                if (! empty($res)) {
+                                    $post->status = 1;
+                                    $post->save();
+                                }
                             }
                         }
+    
+                        //    $mediaurl="https://images.unsplash.com/photo-1550330562-b055aa030d73?ixlib=rb-1.2.1";
                     }
-
-                    //    $mediaurl="https://images.unsplash.com/photo-1550330562-b055aa030d73?ixlib=rb-1.2.1";
                 }
+            } else {
+                return redirect()->back()->withError('Error in creating post');
             }
-        } else {
-            return redirect()->back()->withError('Error in creating post');
+        
+        }catch(\Exception $e){
+            $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
+            Session::flash('message', $e);
+
+            \Log::error($e);
+            
         }
+      
 
         return redirect()->route('social.post.index', $config->id);
     }
@@ -417,14 +491,23 @@ class SocialPostController extends Controller
 
     public function getPageAccessToken($config, $fb, $post_id)
     {
+        $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get token function call..');
         $response = '';
 
         try {
-            $token = $config->token;
+           $token = $config->token;
+            
+            // 'EAAIALK1F98IBAEOcpbWHkBG2KyDfaqNoFWpgvxBw9k5wWn2RiQYXlsQFhzoQYHp9ZCwxjuM3Y3IMKKyGVYIvn2WM3bTGBxNbRR18OtbTtJFH2kZBsZCmPDMnZBuK8QkGQbrhdKrjLYAZB1y8WNRd5CtdnoJfv6Mvk4p5fLbZAd9CbbaaBc44espdHp2obEpxdIPPhB8QoqXXD7D3TwxypmOSFLTlzcOvqdUGuqyHZA5qAZDZD';
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $fb->get('/me/accounts', $token);
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get token->'.$token);
+            //$response = $fb->get('/me/accounts', $token);
+            
+            
+            $url = sprintf('https://graph.facebook.com/v15.0//me/accounts?access_token='.$token);
+            $response = SocialHelper::curlGetRequest($url);
+            
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
@@ -432,17 +515,28 @@ class SocialPostController extends Controller
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
         }
+       
+       
         if ($response != '') {
-            try {
-                $pages = $response->getGraphEdge()->asArray();
-                foreach ($pages as $key) {
-                    if ($key['id'] == $page_id) {
-                        return $key['access_token'];
+          try {
+                foreach ($response->data as $key => $value) {
+                    if(isset($value->id)){
+                        if ($value->id == $page_id) {
+                            $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get account details');
+                            return $value->access_token;
+                        }
                     }
+                    
                 }
-            } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->'.$e->getMessage());
-            }
+
+                // foreach ($pages as $val) {
+                //     if ($val['id'] == $page_id) {
+                //         return $val['access_token'];
+                //     }
+                // }
+             } catch (\Exception $e) {
+                 $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->'.$e->getMessage());
+             }
         }
     }
 
@@ -478,6 +572,7 @@ class SocialPostController extends Controller
 
     private function addMedia($config, $post, $mediaurl, $insta_id)
     {
+        //$mediaurl = 'https://t3.gstatic.com/licensed-image?q=tbn:ANd9GcSJ8o7X29SK1xD2JsVcP2_A0E8ZDGWV3ib5es32LHnzHQ3gu5_p9bReGNF9nxf39k-4Lumy6iEFjkQbgJg';
         $token = $config->token;
         $page_id = $config->page_id;
         $post_id = $post->id;
@@ -502,7 +597,6 @@ class SocialPostController extends Controller
 
             return $resp['id'];
         }
-
         return '';
     }
 

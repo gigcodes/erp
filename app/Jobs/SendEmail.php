@@ -15,6 +15,7 @@ class SendEmail implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $email;
+    public $emailNewData, $emailOldData;
 
     public $tries = 3;
 
@@ -23,12 +24,16 @@ class SendEmail implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param object $email
+     * @param array $emaildetails
      * @return void
      */
-    public function __construct(Email $email)
+    public function __construct(Email $email, $emaildetails = [])
     {
         //
         $this->email = $email;
+        $this->emailOldData = $email;
+        $this->emailNewData = $emaildetails;
     }
 
     /**
@@ -38,8 +43,17 @@ class SendEmail implements ShouldQueue
      */
     public function handle()
     {
-        //
-        $email = $this->email;
+        // Used to set customer email's data to send email to customer if question has auto approve flag is yes
+        if(!empty($this->emailNewData)) {
+            $updatedEmail = $this->emailNewData;
+
+            $email = $this->email;
+            $email->to = $updatedEmail['to'];
+            $email->from = $updatedEmail['from'];
+            $email->message = $updatedEmail['message'];
+        } else {
+            $email = $this->email;
+        }
 
         try {
             $multimail = \MultiMail::to($email->to);
@@ -106,6 +120,12 @@ class SendEmail implements ShouldQueue
                 'refer_id' => $email->id,
                 'method' => 'email',
             ]);
+            if(!empty($this->emailNewData)) {
+                $emailOld = $this->emailOldData;
+                $email->to = $emailOld['to'];
+                $email->from = $emailOld['from'];
+                $email->message = $emailOld['message'];
+            }
             $email->is_draft = 0;
             $email->status = 'send';
         } catch (\Exception $e) {

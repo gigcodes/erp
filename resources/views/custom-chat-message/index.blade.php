@@ -142,6 +142,32 @@
     </div>  
 </div>
 
+<div class="modal fade" id="Show_message_display" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">Message</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered text-wrap w-auto min-w-100">
+                    <thead>
+                    <tr>
+                        <th>Message</th>
+                    </tr>
+                    </thead>
+                    <tbody class="chat_message_history">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include("custom-chat-message.templates.list-template")
 
 <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
@@ -191,6 +217,14 @@
         var _this = $(this);
         var search = _this.attr('data-id');
         loadMore(search)
+    });
+
+    $(document).on("click",".show_chat_message", function(e) {
+        e.preventDefault();
+        $("#Show_message_display").modal('show');
+        var _this = $(this);
+        var content = _this.attr('data-content');
+        $('.chat_message_history').html('<td>'+content+'</td>')
     });
     // page.init({
     //  bodyView : $("#common-page-layout"),
