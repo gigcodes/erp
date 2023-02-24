@@ -173,6 +173,12 @@ return [
             'days' => 7,
         ],
 
+        'time_doctor_activity_command' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/time-doctor-activity-command/time-doctor-activity-command.log'),
+            'days' => 7,
+        ],
+
         'bugsnag' => [
             'driver' => 'bugsnag',
         ],

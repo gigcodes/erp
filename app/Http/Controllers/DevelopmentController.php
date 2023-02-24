@@ -50,6 +50,7 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
 use Response;
 use Storage;
+use App\Library\TimeDoctor\Src\Timedoctor;
 
 class DevelopmentController extends Controller
 {
@@ -1837,6 +1838,63 @@ class DevelopmentController extends Controller
         return false;
     }
 
+    public function timeDoctorActions($type, $task, $projectId, $assignTo)
+    {
+        $check_entry = 0;
+        $project_data = [];
+        $project_data['time_doctor_project'] = $projectId;
+        $project_data['time_doctor_task_name'] = $task['task_subject'];
+        $project_data['time_doctor_task_description'] = $task['task_details'];
+
+        if ($type == 'DEVTASK') {
+            $message = '#DEVTASK-'.$task->id.' => '.$task->subject;
+            $assignedToId = $assignTo;
+        } elseif ($type == 'TASK') {
+            $message = '#TASK-'.$task->id.' => '.$task->task_subject.'. '.$task->task_details;
+            $assignedToId = $assignTo;
+        } else {
+            return false;
+        }
+
+        $assignUsersData = TimeDoctorMember::where('user_id', $assignedToId)->get();
+
+        $timedoctor = Timedoctor::getInstance();
+        
+        
+        foreach($assignUsersData as $assignedUser){
+            $companyId = $assignedUser->account_detail->company_id;
+            $accessToken = $assignedUser->account_detail->auth_token;
+            $taskSummary = substr($message, 0, 200);            
+            if (env('PRODUCTION', true)) {
+                $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );
+            } else {
+                $projectId = '#TASK-3';
+                $timeDoctorUserId = 406; //for local system
+                $timeDoctorTaskId = 34543; //for local system
+            }
+            $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
+            if( $timeDoctorTaskId != ''){                
+                if ($timeDoctorTaskId) {
+                    $task->time_doctor_task_id = $timeDoctorTaskId;
+                    $task->save();
+
+                    $time_doctor_task = new TimeDoctorTask();
+                    $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
+                    $time_doctor_task->project_id = $projectId;
+                    $time_doctor_task->time_doctor_project_id = $projectId;
+                    $time_doctor_task->summery = $message;
+                    $time_doctor_task->save();
+                    $check_entry = 1;
+                }
+            }
+        }
+        
+        if($check_entry == 1){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * return branch name or false
      */
@@ -2133,29 +2191,33 @@ class DevelopmentController extends Controller
             $taskSummery = '#TASK-'.$task->id.' => '.$summary;
         }
 
-        $hubstaffTaskId = '';
-        if (env('PRODUCTION', true)) {
-            $hubstaffTaskId = $this->createHubstaffTask(
-                $taskSummery,
-                $hubstaffUserId,
-                $hubstaff_project_id
-            );
+        if($data['task_for'] == 'time_doctor'){
+            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assign_to']);
         } else {
-            $hubstaff_project_id = '#TASK-3';
-            $hubstaffUserId = 406; //for local system
-            $hubstaffTaskId = 34543; //for local system
-        }
+            $hubstaffTaskId = '';
+            if (env('PRODUCTION', true)) {
+                $hubstaffTaskId = $this->createHubstaffTask(
+                    $taskSummery,
+                    $hubstaffUserId,
+                    $hubstaff_project_id
+                );
+            } else {
+                $hubstaff_project_id = '#TASK-3';
+                $hubstaffUserId = 406; //for local system
+                $hubstaffTaskId = 34543; //for local system
+            }
 
-        if ($hubstaffTaskId) {
-            $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->save();
+            if ($hubstaffTaskId) {
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->save();
 
-            $task = new HubstaffTask();
-            $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->project_id = $hubstaff_project_id;
-            $task->hubstaff_project_id = $hubstaff_project_id;
-            $task->summary = $task->task;
-            $task->save();
+                $task = new HubstaffTask();
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->project_id = $hubstaff_project_id;
+                $task->hubstaff_project_id = $hubstaff_project_id;
+                $task->summary = $task->task;
+                $task->save();
+            }
         }
 
         return $task;
