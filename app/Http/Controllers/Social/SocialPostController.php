@@ -285,6 +285,9 @@ class SocialPostController extends Controller
 
                             $response = SocialHelper::curlPostRequest($image_upload_url,$fbVideo);
                             $response = json_decode($response);
+                            
+                            dd($response);
+                            
                             if(isset($response->id)){
                                 $post->status = 1;
                                 $post->ref_post_id = $response->id;
