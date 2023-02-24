@@ -35,7 +35,7 @@ class StoreWebsiteAnalyticsController extends Controller
             $rules = [
                 'website' => 'required',
                 'account_id' => 'required',
-                'view_id' => 'required',
+//                'view_id' => 'required',
                 'store_website_id' => 'required|integer',
             ];
 

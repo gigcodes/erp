@@ -363,7 +363,6 @@ class GoogleCampaignsController extends Controller
                                 'bidding_strategy_type' => self::getBiddingStrategyType($bidding_strategy_type),
                                 'start_date' => $campaign_start_date,
                                 'end_date' => $campaign_end_date,
-                                'final_url_suffix' => $final_url_suffix,
                             );
             
             if($channel_type == "PERFORMANCE_MAX"){
@@ -371,6 +370,10 @@ class GoogleCampaignsController extends Controller
                 unset($campaignArr['advertising_channel_sub_type']);
             }else{
                 $campaignArr['advertising_channel_sub_type'] = self::getAdvertisingChannelSubType($channel_sub_type);
+            }
+
+            if(!empty($final_url_suffix)){
+                $campaignArr['final_url_suffix'] = $final_url_suffix;
             }
 
             if (in_array($bidding_strategy_type, ['TARGET_CPA']) && $txt_target_cpa) {
@@ -895,7 +898,7 @@ class GoogleCampaignsController extends Controller
 
         }
 
-        if ($channel_type == 'MULTI_CHANNEL' || ($channel_type == 'DISPLAY' && $channel_sub_type == 'DISPLAY_SMART_CAMPAIGN')) {
+        if ($channel_type == 'DISPLAY' || $channel_type == 'MULTI_CHANNEL' || ($channel_type == 'DISPLAY' && $channel_sub_type == 'DISPLAY_SMART_CAMPAIGN')) {
 
             $networkSettingsArr['target_content_network'] = true;
 
