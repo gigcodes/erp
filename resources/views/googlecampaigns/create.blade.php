@@ -102,6 +102,7 @@
                              <option value="DISPLAY">Display</option>
                              <option value="SHOPPING">Shopping</option>
                              <option value="MULTI_CHANNEL">Multi Channel</option>
+                             {{-- <option value="PERFORMANCE_MAX">Performance Max</option> --}}
                          </select>
                      </div>
                  </div>
@@ -112,12 +113,12 @@
                      <div class="form-input">
                          <select class="browser-default custom-select globalSelect2" id="channel_sub_type" name="channel_sub_type" style="height: auto">
                              <option value="">---select subtype---</option>
-                             <!-- <option value="UNKNOWN" selected>Unknown</option> -->
-                             <option value="SEARCH_MOBILE_APP">Mobile App Campaigns for Search</option>
-                             <option value="DISPLAY_MOBILE_APP">Mobile App Campaigns for Display</option>
+                             <option value="UNSPECIFIED" selected>Unspecified</option>
+                             <option value="SEARCH_MOBILE_APP">Mobile App Campaigns for search</option>
+                             <option value="DISPLAY_MOBILE_APP">Mobile App Campaigns for display</option>
                              <option value="SEARCH_EXPRESS">AdWords Express campaigns for search</option>
-                             <option value="DISPLAY_EXPRESS">AdWords Express campaigns for display.</option>
-                             <option value="UNIVERSAL_APP_CAMPAIGN">Google manages the keywords and ads for these campaigns</option>
+                             <option value="DISPLAY_EXPRESS">AdWords Express campaigns for display</option>
+                             {{-- <option value="UNIVERSAL_APP_CAMPAIGN">Google manages the keywords and ads for these campaigns</option> --}}
                              <option value="DISPLAY_SMART_CAMPAIGN">Smart display campaign</option>
                              <option value="SHOPPING_GOAL_OPTIMIZED_ADS">Optimize automatically towards the retailer's business objectives</option>
                              <option value="DISPLAY_GMAIL_AD">Gmail Ad Campaigns</option>
@@ -305,9 +306,19 @@
                 processData: false,
                 contentType: false,
                 success:function(response){
-                    console.log(response);
-                    console.log('done')
-                    $('#create-compaign').modal('hide');
+                    if(response.status !== undefined && response.status == false){
+                        toastr.error("Someting went to wrong! Please check logs.");
+                        location.reload();
+                    }else{
+                        $('#create-compaign').modal('hide');
+                        location.reload();
+                    }
+                },
+
+                error: function(jqXHR){
+                    if(jqXHR.responseJSON.message !== undefined){
+                        toastr.error(jqXHR.responseJSON.message);
+                    }
                 },
             });
         });
@@ -352,7 +363,7 @@
         $("#target_cost_per_action").prop('checked',false);
         $("#div_roas").hide();
         $("#div_targetspend").hide();
-        if(biddingStrategyTypeVal=="MAXIMIZE_CONVERSION_VALUE" || biddingStrategyTypeVal=="TARGET_CPA"){
+        if(biddingStrategyTypeVal=="TARGET_CPA"){
             //append HTML into form
             /* var html='<div id="maindiv_for_target"><input type="checkbox" name="target_cost_per_action" id="target_cost_per_action" value="1"> Set a target cost per action\n\
             <div id="div_html_append_1" style="display:none;">\n\
@@ -367,7 +378,7 @@
             $("#biddingStrategyType_second_div").append(html); */
             $("#maindiv_for_target").css('display','block');
         }
-        if(biddingStrategyTypeVal=="TARGET_ROAS"){
+        if(biddingStrategyTypeVal=="TARGET_ROAS" /*|| biddingStrategyTypeVal=="MAXIMIZE_CONVERSIONS"*/){
             $("#div_roas").show();
         }
 
@@ -397,7 +408,7 @@
         $("#div_targetspend").hide();
         var bidding_focus_on_val=bidding_focus_on.val();
         if(bidding_focus_on_val=="conversions"){
-                biddingStrategyArray=['TARGET_CPA','TARGET_ROAS','TARGET_SPEND','MAXIMIZE_CONVERSION','MANUAL_CPM','MANUAL_CPC'];
+                biddingStrategyArray=['TARGET_CPA','TARGET_ROAS','TARGET_SPEND','MAXIMIZE_CONVERSIONS','MANUAL_CPM','MANUAL_CPC','UNSPECIFIED'];
         }
         if(biddingStrategyArray.length>0){
             $(biddingStrategyArray).each(function(i,v){
@@ -410,8 +421,7 @@
         $("#biddingStrategyType").removeAttr('selected');
         $("#biddingStrategyType option").hide();
         
-       
-                biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+        biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
        
         if(biddingStrategyArray.length>0){
             $(biddingStrategyArray).each(function(i,v){
