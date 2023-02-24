@@ -3397,27 +3397,31 @@ class ProductController extends Controller
             \Log::info('product_supplier_end_time: '.date('Y-m-d H:i:s'));
         } else {
             \Log::info('product_image_start_time_else_block: '.date('Y-m-d H:i:s'));
-            // Get next product
-            $product = Product::where('status_id', StatusHelper::$autoCrop)
-                ->where('category', '>', 3);
-            // Add order
-            $product = QueryHelper::approvedListingOrder($product);
-            //get priority
+           // Get next product
+            $product = Product::where('products.status_id', StatusHelper::$autoCrop)
+                                ->where('products.category', '>', 3)
+                                ->where('products.stock', '>=', 1)
+                                ->orderBy('products.scrap_priority', 'DESC')
+                                ->select('products.*');
 
-            ///Commented due to query taking long time
+            // Prioritize suppliers
+            $prioritizeSuppliers = "CASE WHEN brand IN (4,13,15,18,20,21,24,25,27,30,32,144,145) AND category IN (11,39,5,41,14,42,60,17,31,63) AND products.supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+            $product = $product->orderByRaw($prioritizeSuppliers);
+            // Show on sale products first
+            $product = $product->orderBy('is_on_sale', 'DESC');
+            // Show latest approvals first
+            $product = $product->orderBy('listing_approved_at', 'DESC');
+            
             $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
                 $query->where('priority','!=',null);
-            })->whereHasMedia('original')->get()->transform(function ($productData) {
-                $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
-
-                return $productData;
-            });
-            $product = $product->sortBy('priority')->first();
-            // Comment End
+            })
+            ->whereHasMedia('original')
+            ->first();
             
+            if(!empty($product)) {
+                $product->priority = isset($product->suppliers_info->first()->supplier->priority) ? $product->suppliers_info->first()->supplier->priority : 5;
+            }
             \Log::info('product_image_end_time_else_block: '.date('Y-m-d H:i:s'));
-
-            // $product = $product->first();
 
             unset($product->priority);
             // return response()->json([
@@ -3529,14 +3533,15 @@ class ProductController extends Controller
         
         \Log::info('website_array_start_time: '.date('Y-m-d H:i:s'));
         //Getting Website Color
-        $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+        $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
+        // dd($websiteArrays);
         if (count($websiteArrays) == 0) {
             $colors = [];
         } else {
             foreach ($websiteArrays as $websiteArray) {
-                $website = StoreWebsite::find($websiteArray);
+                $website =  $websiteArray;
                 if ($website) {
-                    $isCropped = SiteCroppedImages::where('website_id', $websiteArray)
+                    $isCropped = SiteCroppedImages::where('website_id', $websiteArray->id)
                         ->where('product_id', $product->id)->exists();
                     if (! $isCropped) {
                         [$r, $g, $b] = sscanf($website->cropper_color, '#%02x%02x%02x');
@@ -3580,13 +3585,19 @@ class ProductController extends Controller
                 $product->save();
             }
 
+            $category_text = '';
+            if($child == 'Unknown Category') {
+                $category_text = $parent;
+            } else {
+                $category_text = $parent.' '.$child;
+            }
             $res = [
                 'product_id' => $product->id,
                 'image_urls' => $images,
                 'l_measurement' => $product->lmeasurement,
                 'h_measurement' => $product->hmeasurement,
                 'd_measurement' => $product->dmeasurement,
-                'category' => "$parent $child",
+                'category' => $category_text,
                 'colors' => $colors,
             ];
 
@@ -3709,16 +3720,19 @@ class ProductController extends Controller
                     // check the store website count is existed with the total image
                     $storeWebCount = $product->getMedia($tag)->count();
                     if ($productMediacount <= $storeWebCount) {
-                        $store_websites = StoreWebsite::where('cropper_color', '%'.$request->get('color'))->first();
-                        if ($store_websites !== null) {
-                            if (isset($req['store']) && $req['store'] == $store_websites->title) {
-                                $exist = SiteCroppedImages::where('website_id', $store_websites->id)
-                                    ->where('product_id', $product->id)->exists();
-                                if (! $exist) {
-                                    SiteCroppedImages::create([
-                                        'website_id' => $store_websites->id,
-                                        'product_id' => $product->id,
-                                    ]);
+                        $store_website_detail = StoreWebsite::where('cropper_color','LIKE','%'.$request->get('color'))->first();
+                        if ($store_website_detail !== null) {
+                            $store_websites = StoreWebsite::where('tag_id',$store_website_detail->tag_id)->get();
+                            foreach ($store_websites as $sw_key => $sw_data) {
+                                if (isset($req['store']) && $req['store'] == $sw_data->title) {
+                                    $exist = SiteCroppedImages::where('website_id', $sw_data->id)
+                                        ->where('product_id', $product->id)->exists();
+                                    if (! $exist) {
+                                        SiteCroppedImages::create([
+                                            'website_id' => $sw_data->id,
+                                            'product_id' => $product->id,
+                                        ]);
+                                    }
                                 }
                             }
                         }

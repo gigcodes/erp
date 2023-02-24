@@ -2852,6 +2852,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('list-message', [SocialAccountController::class, 'listMessage'])->name('social.message.list');
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
+    Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
@@ -4425,6 +4426,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('config/store', [Social\SocialConfigController::class, 'store'])->name('social.config.store');
     Route::post('config/edit', [Social\SocialConfigController::class, 'edit'])->name('social.config.edit');
     Route::post('config/delete', [Social\SocialConfigController::class, 'destroy'])->name('social.config.delete');
+    Route::get('config/adsmanager', [Social\SocialConfigController::class, 'getadsAccountManager'])->name('social.config.adsmanager');
 
     Route::get('posts/{id}', [Social\SocialPostController::class, 'index'])->name('social.post.index');
     Route::post('post/store', [Social\SocialPostController::class, 'store'])->name('social.post.store');
