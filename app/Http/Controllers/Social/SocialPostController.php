@@ -269,9 +269,6 @@ class SocialPostController extends Controller
                             ini_set('max_execution_time','-1'); 
                             $access_token = $config->page_token;
                             $page_id = $config->page_id;
-
-                            $videoFile = $_FILES['video1']['tmp_name'];
-                           // die(var_dump($_FILES['video1']));
                             $message = $request->input('message');
                             $media = MediaUploader::fromSource($request->file('video1'))
                                 ->toDirectory('social_images/'.floor($post->id / config('constants.image_per_folder')))
@@ -281,177 +278,35 @@ class SocialPostController extends Controller
                             foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
                                 $mediaurl = $file->getUrl();
                             }
-
-
-                           // $uploadUrl = "https://graph-video.facebook.com/{$page_id}/videos?access_token={$access_token}";
                             $uploadUrl = "https://graph-video.facebook.com/v16.0/{$page_id}/videos";
-                            $video_url = 'https://88df-110-227-254-30.ngrok.io/uploads/social_images/0/file_example_AVI_640_800kB-1-2.avi';
                             $curl = curl_init($uploadUrl);
                             curl_setopt($curl, CURLOPT_POST, true);
                             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                             curl_setopt($curl, CURLOPT_POSTFIELDS, array(
                                 'file_url' =>  $mediaurl,
-                                'access_token' => $access_token
+                                'access_token' => $access_token,
+                                'description' => $message
                             ));
 
                             // execute the cURL request and handle any errors
                             $response = curl_exec($curl);
                             if ($response === false) {
-                                die(curl_error($curl));
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
                             }
+                            $response = json_decode($response);
                             curl_close($curl);
 
-                            // output the response from Facebook
-                            echo $response; die();
-
-
-                           
-
-
-                           
-                            $access_token = $config->page_token;
-                            $page_id = $config->page_id;
-                            $uploadUrl = "https://graph-video.facebook.com/v15.0/{$page_id}/videos?access_token={$access_token}";
-                            // Video details
-                            $video_url = 'http://127.0.0.1:8000/uploads/social_images/0/file_example_AVI_640_800kB-1-2.avi';
-                            
-                            $videoFilePath = "/full/path/to/video.mp4";
-                            $video_title = 'YOUR_VIDEO_TITLE';
-                            $video_description = 'YOUR_VIDEO_DESCRIPTION';
-                            $curl = curl_init($uploadUrl);
-                            curl_setopt($curl, CURLOPT_POST, true);
-                            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                            curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-                                // 'source' => '@' . $video_url,
-                                'source' => $request->file('video1'),
-                                'title' => $video_title,
-                                'description' => $video_description
-                            ));
-                            $response = curl_exec($curl);
-                            if ($response === false) {
-                                die(curl_error($curl));
+                            if(isset($response->id)){
+                                $post->status = 1;
+                                $post->ref_post_id = $response->id;
+                                $post->save();
+                                Session::flash('message', 'Content Posted successfully');
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
+                            }else{
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', 'post faild');
+                                Session::flash('message', $response->error->message);
                             }
-                            curl_close($curl);
-                            
-
-                            die(var_dump($response));
-                            // $uploadUrl = "https://graph-video.facebook.com/{$pageId}/videos?access_token={$accessToken}";
-                            // $curl = curl_init($uploadUrl);
-                            // curl_setopt($curl, CURLOPT_POST, true);
-                            // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                            // curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-                            //     'source' => new CURLFile($videoFilePath),
-                            //     'title' => $videoTitle,
-                            //     'description' => $videoDescription
-                            // ));
-                            // $response = curl_exec($curl);
-                            // if ($response === false) {
-                            //     die(curl_error($curl));
-                            // }
-                            // curl_close($curl);
-
-                            // new CURLFile($video_url);
-                            // die(var_dump($video_url));
-
-                            // $video_title = 'YOUR_VIDEO_TITLE';
-                            // $video_description = 'YOUR_VIDEO_DESCRIPTION';
-
-                            // // Set video upload endpoint
-                            // //$endpoint = "https://graph-video.facebook.com/{$page_id}/videos";
-                            // $endpoint = 'https://graph-video.facebook.com/v15.0/'.$page_id.'/videos';
-
-                            // // Set video data
-                            // $data = array(
-                            //     'access_token' => $access_token,
-                            //     'file_url' => $video_url,
-                            //     'title' => $video_title,
-                            //     'description' => $video_description
-                            // );
-
-                            // // Initiate cURL
-                            // $ch = curl_init();
-
-                            // // Set cURL options
-                            // curl_setopt($ch, CURLOPT_URL, $endpoint);
-                            // curl_setopt($ch, CURLOPT_POST, true);
-                            // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-                            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-                            // // Execute cURL request
-                            // $response = curl_exec($ch);
-
-                            // // Close cURL
-                            // curl_close($ch);
-
-                            // // Output API response
-                            // echo $response;die();
-
-
-                            // $this->socialPostLog($config->id, $post->id, $config->platform, 'come to video', 'video');
-                            // $media = MediaUploader::fromSource($request->file('video1'))
-                            //     ->toDirectory('social_images/'.floor($post->id / config('constants.image_per_folder')))
-                            //     ->upload();
-                            // $post->attachMedia($media, config('constants.media_tags'));
-
-                            // foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
-                            //     $mediaurl = $file->getUrl();
-                                
-
-                              
-
-                               
-                            // }
-                            $mediaurl = 'https://88df-110-227-254-30.ngrok.io/uploads/social_images/0/file_example_AVI_640_800kB-1-2.avi';
-                               // die(var_dump($mediaurl));
-                                $access_token = $config->page_token;
-                                $page_id = $config->page_id;
-                                $image_upload_url = 'https://graph-video.facebook.com/v15.0/'.$page_id.'/videos';
-                                $video_file_path = $request->file('video1');
-                                
-                                $fbVideo = [
-                                    'access_token' =>$access_token, 
-                                    'source' =>new CURLFile($mediaurl), 
-                                    'description' => $message, 
-                                ];
-    
-                                $response = SocialHelper::curlPostRequest($image_upload_url,$fbVideo);
-                                $response = json_decode($response);
-                                
-                               
-                                if(isset($response->id)){
-                                    $post->status = 1;
-                                    $post->ref_post_id = $response->id;
-                                    $post->save();
-                                    Session::flash('message', 'Content Posted successfully');
-                                    $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
-                                }else{
-                                    $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
-                                    $this->socialPostLog($config->id, $post->id, $config->platform, 'error', 'post faild');
-                                    Session::flash('message', $response->error->message);
-                                }
-
-                            // $video = $request->file('video1');
-
-                            // // Generate a unique filename for the uploaded video
-                            // $filename = uniqid() . '.' . $video->getClientOriginalExtension();
-
-                            // // Specify the destination directory for the uploaded video
-                            // $destinationPath = public_path('uploads/videos');
-
-                            // // Get the full URL of the uploaded video
-                            // $videoUrl = Storage::disk('public')->url('uploads/videos/' . $filename);
-
-                            // die(var_dump($videoUrl));
-
-                            // $file = $request->file('video1');
-                            // $filename = $file->getClientOriginalName();
-                            // $file->storeAs('public/videos', $filename);
-                            // $path = storage_path('app/public/videos/' . $filename);
-                           
-                           // $access_token = 'EAAIALK1F98IBAD5OFxcIGnZAZBLFy9a4xMV9ZANNyf1EKTI7bqDGHZAgZAE6txVSZCXFvJTpQ2KsBxeBs7bxAplZAiwtATHaY25doLKXKuxUXb0gvuOUuLTJXOVZCZCXLTpqZC5PbdRP2IMHgl4ZAgGmRszvXRPGBOFgDi0A5Bsx8ZChse8LXKgeDeYWD8tLpsi6tkAP72JodYj4ZAWuxXZBlDH1WmceDp59P1HuMZD';
-
-                          
-
                         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
                         }
