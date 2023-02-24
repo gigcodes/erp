@@ -95,6 +95,7 @@ class CroppedImageReferenceController extends Controller
     {
         \Log::info('#####crop_reference_grid_page_start#####: '.date("Y-m-d H:i:s"));
         $query = new CroppedImageReference();
+        $query = $query->where('product_id','!=',0);
         // $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
         // $query = $query->join('products', 'products.id', 'cropped_image_references.product_id');
 
@@ -118,7 +119,7 @@ class CroppedImageReferenceController extends Controller
 
             if (isset($request->filter_id) && $request->filter_id) {
                 $query->whereHas('product', function ($qu) use ($request) {
-                    $qu->where('id', $request->filter_id);
+                    $qu->whereIn('id', $request->filter_id);
                 });
                 // $query->where('products.id', $request->filter_id);
             }
@@ -132,7 +133,7 @@ class CroppedImageReferenceController extends Controller
 
             if (request('supplier') != null) {
                 $query = $query->whereHas('product', function ($qu) use ($request) {
-                    $qu->whereIn('supplier', request('supplier'));
+                    $qu->whereIn('supplier_id', request('supplier'));
                 });
                 // $query->whereIn('products.supplier', request('supplier'));
             }
