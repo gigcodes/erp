@@ -53,7 +53,7 @@
                 <form method="GET" action="crop-references-grid" class="form-inline align-items-start">
                    
                    <div class="form-group mr-3">
-                       <select data-placeholder="Product id" style="width: 200px" class="ajax-get-product-ids form-control " id="filter-id" name="id">
+                       <select data-placeholder="Product id" style="width: 200px" class="ajax-get-product-ids form-control " id="filter-id" name="filter_id[]">
                        </select>
                     </div>
                    <div class="form-group mr-3">
