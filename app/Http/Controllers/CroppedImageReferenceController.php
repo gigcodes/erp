@@ -94,7 +94,8 @@ class CroppedImageReferenceController extends Controller
     public function grid(Request $request)
     {
         \Log::info('#####crop_reference_grid_page_start#####: '.date("Y-m-d H:i:s"));
-        $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
+        $query = new CroppedImageReference();
+        // $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
         // $query = $query->join('products', 'products.id', 'cropped_image_references.product_id');
 
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
@@ -150,12 +151,12 @@ class CroppedImageReferenceController extends Controller
 
             if (request('crop') != null) {
                 if (request('crop') == 2) {
-                    $query->whereNotNull('cropped_image_references.new_media_id');
+                    $query->whereNotNull('new_media_id');
                 } elseif (request('crop') == 3) {
-                    $query->whereNull('cropped_image_references.new_media_id');
+                    $query->whereNull('new_media_id');
                 }
             }
-            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')->paginate(10);
+            $products = $query->orderBy('id', 'desc')->paginate(10);
             \Log::info('crop_reference_grid_page_filter_end: '.date("Y-m-d H:i:s"));
         } else {
             \Log::info('crop_reference_grid_page_without_filter_start: '.date("Y-m-d H:i:s"));
@@ -164,11 +165,11 @@ class CroppedImageReferenceController extends Controller
             });
             // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
 
-            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')
-                ->groupBy('cropped_image_references.original_media_id')
-              ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
-                  $q->with('newMedia');
-              }])
+            $products = $query->orderBy('id', 'desc')
+                ->groupBy('original_media_id')
+            //   ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
+            //       $q->with('newMedia');
+            //   }])
                 ->paginate(10);
             \Log::info('crop_reference_grid_page_without_filter_end: '.date("Y-m-d H:i:s"));
         }
