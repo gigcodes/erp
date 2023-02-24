@@ -253,6 +253,7 @@ function Shipmentbtn(id){
     $(".action-shipmentbtn-tr-"+id).toggleClass('d-none')
 }
 
+
 $(".to-email, .cc-email, .bcc-email").select2({
     tags: true,
     tokenSeparators: [',', ' '],
