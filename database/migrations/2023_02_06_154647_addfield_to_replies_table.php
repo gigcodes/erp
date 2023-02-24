@@ -33,7 +33,7 @@ return new class extends Migration
             $table->integer('platform_id')->nullable();
         });
 
-        Schema::table('translate_Replies', function ($table) {
+        Schema::table('translate_replies', function ($table) {
             $table->integer('platform_id')->nullable();
         });
     }
