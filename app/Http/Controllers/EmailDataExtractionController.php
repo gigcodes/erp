@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Mail;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class EmailDataExtractionController extends Controller
 {
@@ -339,7 +339,8 @@ class EmailDataExtractionController extends Controller
     {
         $email = Email::find($id);
         $attachment = [];
-        $imap = new Client([
+        $cm = new ClientManager();
+        $imap = $cm->make([
             'host' => env('IMAP_HOST_PURCHASE'),
             'port' => env('IMAP_PORT_PURCHASE'),
             'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
