@@ -5,7 +5,7 @@
         @endphp
         <td><input type="checkbox" name="issue" value="{{ $product->id }}" class="checkBox" data-id="{{ $product->product_id }}">
             {{ $product->id }}</td>
-        <td>{{ $product->product_id  }} <br><b> {{ ( $productModel->status_id == 42 ) ? 'Auto reject' : null }}  </b></td>
+        <td>{{ $product->product_id  }} <br><b> {{ (isset($productModel) && $productModel->status_id == 42 ) ? 'Auto reject' : null }}  </b></td>
         <td>@if($productModel) @if (isset($productModel->product_category)) {{ $productModel->product_category->title }} @endif @endif</td>
         <td>@if($productModel) {{ $productModel->supplier }} @endif</td>
         <td>@if($productModel)  @if ($productModel->brands) {{ $productModel->brands->name }} @endif @endif</td>
