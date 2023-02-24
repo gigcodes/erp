@@ -6,7 +6,6 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
 <!-- Custom CSS 02/02/2021  -->
 <style>
-.table-res tbody td:last-child{display: flex; align-items: center; justify-content: flex-start; width: 100%; padding: 20px 5px; border-bottom: 0; border-left:0; } 
 .table-res tbody tr:last-child td {border-bottom: 1px solid #ddd; } 
 .table-res tbody tr:first-child td {border-top:0; } </style>
 @endsection
@@ -36,9 +35,6 @@
     </div>
 </div>
 <div class="col-md-12">
-    <div class="row col-md-12">
-        
-    </div>
     <form method="get" action="">
         <div class="row col-md-9">
              <div class="form-group">
@@ -59,7 +55,7 @@
                 </button>
             </div>
         </div>
-        <div class="col-md-3">
+            <div class="pull-right">
             <button class="btn btn-secondary generate-awb">+</button>
         </div>
     </form>
@@ -82,7 +78,7 @@
             <th  width="6%">Due Date</th>
             <th  width="7%">Paid Date</th>
             <th  width="5%">Location</th>
-            <th  width="20%">Action</th>
+            <th  width="4%">Action</th>
           </tr>
         </thead>
 
@@ -98,13 +94,18 @@
                     <td>{{ @$item->actual_weight }}</td>
                     <td class="Website-task">{{ @$item->cost_of_shipment?? 'N/A' }}</td>
                     <td class="Website-task">{{ @$item->duty_cost?? 'N/A' }}</td>
-                    <td>{{ @$item->invoice_number?? 'N/A' }}</td>
+                    <td class="Website-task">{{ @$item->invoice_number?? 'N/A' }}</td>
                     <td>{{ @$item->invoice_amount ? $item->currency.$item->invoice_amount : 'N/A' }}</td>
                     <td>{{ @$item->due_date?? 'N/A' }}</td>
                     <td>{{ $item->paid_date ? date('d-m-Y', strtotime($item->paid_date)) :  'N/A' }}</td>
-
                     <td>{{ (@$item->waybill_track_histories->count() > 0)? @$item->waybill_track_histories->last()->location : "" }}</td>
                     <td>
+                        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Shipmentbtn('{{$item->id}}')"><i class="fa fa-arrow-down"></i></button>
+                    </td>
+                </tr>
+                <tr class="action-shipmentbtn-tr-{{$item->id}} d-none">
+                    <td class="font-weight-bold">Action</td>
+                    <td colspan="14">
                         <button type="button" class="btn btn-image" id="send_email_btn" data-order-id="{{ $item->order_id }}" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
                         <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
                             <i class="fa fa-eye" aria-hidden="true"></i>
@@ -245,6 +246,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script src="{{ asset('/js/order-awb.js') }}"></script>
 <script type="text/javascript">
+
+function Shipmentbtn(id){
+    $(".action-shipmentbtn-tr-"+id).toggleClass('d-none')
+}
+
 $(".to-email, .cc-email, .bcc-email").select2({
     tags: true,
     tokenSeparators: [',', ' '],
