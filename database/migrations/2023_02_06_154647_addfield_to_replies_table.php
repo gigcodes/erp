@@ -30,5 +30,12 @@ return new class extends Migration
      */
     public function down()
     {
+        Schema::table('replies',function($table){
+            $table->dropColumn('platform_id');
+        });
+
+        Schema::table('translate_Replies',function($table){
+            $table->dropColumn('platform_id');
+        });
     }
 };
