@@ -6,8 +6,10 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
 <!-- Custom CSS 02/02/2021  -->
 <style>
-.table-res tbody tr:last-child td {border-bottom: 1px solid #ddd; } 
-.table-res tbody tr:first-child td {border-top:0; } </style>
+.table-res tbody tr:last-child td {border-bottom: 1px solid #ddd; }
+.table-res tbody tr:first-child td {border-top:0; }
+</style>
+
 @endsection
 
 @section('content')
@@ -17,7 +19,7 @@
     </div>
 @endif
 @if(session()->has('errors'))
-    @if(is_array(session()->get('errors'))) 
+    @if(is_array(session()->get('errors')))
         @foreach(session()->get('errors') as $err)
             <div class="col-lg-12 alert alert-danger">
                 {{ $err }}
@@ -105,18 +107,18 @@
                 </tr>
                 <tr class="action-shipmentbtn-tr-{{$item->id}} d-none">
                     <td class="font-weight-bold">Action</td>
-                    <td colspan="14">
-                        <button type="button" class="btn btn-image" id="send_email_btn" data-order-id="{{ $item->order_id }}" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
-                        <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
+                    <td colspan="14" style="padding: 0px 5px;">
+                        <button type="button" class="btn btn-image btn-sm p-1 mt-1" id="send_email_btn" data-order-id="{{ $item->order_id }}" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+                        <a class="btn p-1" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
                             <i class="fa fa-eye" aria-hidden="true"></i>
                         </a>
-                        <a class="btn" href="javascript:void(0);" id="create_pickup_request_btn" title="Create pickup request" data-waybillid="{{ $item->id }}">
+                        <a class="btn p-1" href="javascript:void(0);" id="create_pickup_request_btn" title="Create pickup request" data-waybillid="{{ $item->id }}">
                             <i class="fa fa-truck" aria-hidden="true"></i>
                         </a>
-                        <a class="btn" href="javascript:void(0);" id="waybill_track_history_btn" title="Way Bill Track History" data-waybill-id="{{ $item->id }}">
+                        <a class="btn p-1 mt-1" href="javascript:void(0);" id="waybill_track_history_btn" title="Way Bill Track History" data-waybill-id="{{ $item->id }}">
                             <i class="fa fa-list" aria-hidden="true"></i>
                         </a>
-                        <a class="btn" href="{{ route('order.download.package-slip', $item->id) }}" class="btn-link"><i class="fa fa-download" aria-hidden="true"></i></a>
+                        <a class="btn btn-link p-1 mt-1" href="{{ route('order.download.package-slip', $item->id) }}"><i class="fa fa-download" aria-hidden="true"></i></a>
                         <button data-editbox='{{ json_encode([
                         "box_length" => $item->box_length,
                         "box_width" => $item->box_width,
@@ -124,12 +126,12 @@
                         "actual_weight" => $item->actual_weight,
                         "volume_weight" => $item->volume_weight,
                         "id" => $item->id
-                        ]) }}' type="button" class="btn btn-image edit-box-shipment edit-box-shipment-{{$item->id}}"><i class="fa fa-th" aria-hidden="true"></i></button>
-                        <a class="btn btn-edit-shipment" href="javascript:void(0);" title="Edit icon" data-waybill-id="{{ $item->id }}">
+                        ]) }}' type="button" class="btn btn-image btn-sm p-1 mt-1 edit-box-shipment edit-box-shipment-{{$item->id}}"><i class="fa fa-th" aria-hidden="true"></i></button>
+                        <a class="btn btn-edit-shipment p-1" href="javascript:void(0);" title="Edit icon" data-waybill-id="{{ $item->id }}">
                             <i class="fa fa-edit" aria-hidden="true"></i>
                         </a>
                         @if($item->invoice_number && $item->cost_of_shipment)
-                            <a class="btn btn-payment" href="javascript:void(0);" title="Payment icon" data-waybill-id="{{ $item->id }}">
+                            <a class="btn btn-payment p-1" href="javascript:void(0);" title="Payment icon" data-waybill-id="{{ $item->id }}">
                                 <i class="fa fa-money" aria-hidden="true"></i>
                             </a>
                         @endif
@@ -208,7 +210,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -227,7 +229,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
