@@ -87,7 +87,7 @@
             <th style="width: 5% !important;">UserName</th>
             <th style="width: 5% !important;">Status</th>
             <th style="width: 5% !important;">Started At</th>
-            <th style="width: 5% !important;">Actions</th>
+            <th style="width: 7% !important;">Actions</th>
           </tr>
 
           <!-- <tr>
@@ -103,7 +103,7 @@
 
         <tbody>
 
-       @include('social.configs.partials.data') 
+       @include('social.configs.partials.data')
 
           {!! $socialConfigs->render() !!}
           

@@ -10,6 +10,7 @@ use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsException;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
 use Google\Ads\GoogleAds\V12\Common\AdTextAsset;
+use Google\Ads\GoogleAds\V12\Common\AdImageAsset;
 use Google\Ads\GoogleAds\V12\Common\ResponsiveDisplayAdInfo;
 use Google\Ads\GoogleAds\V12\Enums\AdGroupAdStatusEnum\AdGroupAdStatus;
 use Google\Ads\GoogleAds\V12\Enums\ServedAssetFieldTypeEnum\ServedAssetFieldType;
@@ -59,6 +60,7 @@ class GoogleResponsiveDisplayAdController extends Controller
             return [
                 'account_id' => $campaignDetail->account_id,
                 'campaign_name' => $campaignDetail->campaign_name,
+                'google_customer_id' => $campaignDetail->google_customer_id,
             ];
         } else {
             abort(404, 'Invalid account!');
@@ -152,6 +154,8 @@ class GoogleResponsiveDisplayAdController extends Controller
 
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
+        $customerId = $acDetail['google_customer_id'];
+
         $storagepath = $this->getstoragepath($account_id);
 
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
@@ -160,8 +164,11 @@ class GoogleResponsiveDisplayAdController extends Controller
         $input['status'] = $adStatuses[$request->adStatus];
         $input['adgroup_google_campaign_id'] = $campaignId;
         $input['google_adgroup_id'] = $adGroupId;
+        $input['google_customer_id'] = $customerId;
 
         try {
+
+            ini_set('max_execution_time', -1);
 
             // Get OAuth2 configuration from file.
             $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
@@ -174,8 +181,6 @@ class GoogleResponsiveDisplayAdController extends Controller
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
 
-            $customerId = $googleAdsClient->getLoginCustomerId();
-
             // store marketing image on folder as well as google
             $marketingImagesArr = self::storeMarketingImageOnStorageAndGoogle($googleAdsClient, $customerId, $account_id, $input['marketing_images']);
             $squareMarketingImagesArr = self::storeMarketingImageOnStorageAndGoogle($googleAdsClient, $customerId, $account_id, $input['square_marketing_images']);
@@ -187,20 +192,20 @@ class GoogleResponsiveDisplayAdController extends Controller
                         // Sets a pinning to always choose this asset for HEADLINE_1. Pinning is
                         // optional; if no pinning is set, then headlines and descriptions will be
                         // rotated and the ones that perform best will be used more often.
-                        self::createAdTextAsset($input['headline1'], ServedAssetFieldType::HEADLINE_1),
-                        self::createAdTextAsset($input['headline2'], ServedAssetFieldType::HEADLINE_2),
-                        self::createAdTextAsset($input['headline3'], ServedAssetFieldType::HEADLINE_3),
+                        self::createAdTextAsset($input['headline1']),
+                        self::createAdTextAsset($input['headline2']),
+                        self::createAdTextAsset($input['headline3']),
                     ],
                     'descriptions' => [
-                        self::createAdTextAsset($input['description1'], ServedAssetFieldType::DESCRIPTION_1),
-                        self::createAdTextAsset($input['description2'], ServedAssetFieldType::DESCRIPTION_2)
+                        self::createAdTextAsset($input['description1']),
+                        self::createAdTextAsset($input['description2'])
                     ],
-                    'long_headline' => $input['long_headline'] ?? null,
+                    'long_headline' => self::createAdTextAsset($input['long_headline']),
                     'business_name' => $input['business_name'] ?? null,
                     'marketing_images' => array_column($marketingImagesArr, 'google_asset_resource_name'),
                     'square_marketing_images' => array_column($squareMarketingImagesArr, 'google_asset_resource_name'),
                 ]),
-                'final_urls' => [$finalUrl]
+                'final_urls' => [$input['final_url']]
             ]);
 
             // Creates an ad group ad to hold the above ad.
@@ -219,8 +224,9 @@ class GoogleResponsiveDisplayAdController extends Controller
             $response = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
 
             $createdAdGroupAd = $response->getResults()[0];
+            $createdAdGroupAdResourceName = $createdAdGroupAd->getResourceName();
 
-            $input['google_ad_id'] = $createdAdGroupAd->getId();
+            $input['google_ad_id'] = substr($createdAdGroupAdResourceName, strrpos($createdAdGroupAdResourceName, "~") + 1);
             $input['ads_response'] = json_encode($createdAdGroupAd);
             $obj = GoogleResponsiveDisplayAd::create($input);
 
@@ -269,6 +275,8 @@ class GoogleResponsiveDisplayAdController extends Controller
     {
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
+        $customerId = $acDetail['google_customer_id'];
+
         $storagepath = $this->getstoragepath($account_id);
 
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
@@ -284,8 +292,6 @@ class GoogleResponsiveDisplayAdController extends Controller
                                 ->from($oAuth2Configuration)
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
-
-            $customerId = $googleAdsClient->getLoginCustomerId();
 
             // Creates ad group ad resource name.
             $adGroupAdResourceName = ResourceNames::forAdGroupAd($customerId, $adGroupId, $adId);
@@ -381,6 +387,13 @@ class GoogleResponsiveDisplayAdController extends Controller
         return $adTextAsset;
     }
 
+    private function createAdImageAsset(string $text)
+    {
+        $adImageAsset = new AdImageAsset(['asset' => $text]);
+        
+        return $adImageAsset;
+    }
+
     //get ad status  
     private function getAdStatus($v)
     {
@@ -431,10 +444,11 @@ class GoogleResponsiveDisplayAdController extends Controller
             );
 
             $addedImageAsset = $response->getResults()[0];
+            $imageAssetResourceName = $addedImageAsset->getResourceName();
 
             $response = array(
-                            'asset_id' => $addedImageAsset->getId(),
-                            'asset_resource_name' => $addedImageAsset->getResourceName(),
+                            'asset_id' => substr($imageAssetResourceName, strrpos($imageAssetResourceName, "/") + 1),
+                            'asset_resource_name' => $imageAssetResourceName,
                         );
         } catch (Exception $e) {
             // Insert google ads log 
@@ -462,7 +476,7 @@ class GoogleResponsiveDisplayAdController extends Controller
                 if(!empty($uploadedImageAsset)){
                     $response[] = array(
                                             'google_asset_id' => $uploadedImageAsset['asset_id'],
-                                            'google_asset_resource_name' => $uploadedImageAsset['asset_resource_name'],
+                                            'google_asset_resource_name' => self::createAdImageAsset($uploadedImageAsset['asset_resource_name']),
                                             'name' => $getfilename,
                                         );
                 }

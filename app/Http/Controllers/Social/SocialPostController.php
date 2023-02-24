@@ -262,33 +262,40 @@ class SocialPostController extends Controller
                     elseif ($request->hasFile('video1')) {
 
                         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to video upload');
-                        try {
-                            
+                        try{
+
+
+                            $file = $request->file('video1');
+                            $filename = $file->getClientOriginalName();
+                            $file->storeAs('public/videos', $filename);
+                            $path = storage_path('app/public/videos/' . $filename);
+                           
+                           // $access_token = 'EAAIALK1F98IBAD5OFxcIGnZAZBLFy9a4xMV9ZANNyf1EKTI7bqDGHZAgZAE6txVSZCXFvJTpQ2KsBxeBs7bxAplZAiwtATHaY25doLKXKuxUXb0gvuOUuLTJXOVZCZCXLTpqZC5PbdRP2IMHgl4ZAgGmRszvXRPGBOFgDi0A5Bsx8ZChse8LXKgeDeYWD8tLpsi6tkAP72JodYj4ZAWuxXZBlDH1WmceDp59P1HuMZD';
+
                             $access_token = $config->page_token;
                             $page_id = $config->page_id;
                             $image_upload_url = 'https://graph-video.facebook.com/v15.0/'.$page_id.'/videos';
                             $video_file_path = $request->file('video1');
                             
-
                             $fbVideo = [
                                 'access_token' =>$access_token, 
-                                'source' =>new CURLFile($video_file_path), 
+                                'source' =>new CURLFile($path), 
                                 'description' => $message, 
                             ];
 
-                             $response = SocialHelper::curlPostRequest($image_upload_url,$fbVideo);
-                             $response = json_decode($response);
-                             
-                             if($response->id){
+                            $response = SocialHelper::curlPostRequest($image_upload_url,$fbVideo);
+                            $response = json_decode($response);
+                            
+                            dd($response);
+                            
+                            if(isset($response->id)){
                                 $post->status = 1;
-                                if (isset($response->id)) {
-                                    $post->ref_post_id = $response->id;
-                                }
-    
+                                $post->ref_post_id = $response->id;
                                 $post->save();
                                 Session::flash('message', 'Content Posted successfully');
                                 $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
                             }else{
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
                                 $this->socialPostLog($config->id, $post->id, $config->platform, 'error', 'post faild');
                                 Session::flash('message', $response->error->message);
                             }
