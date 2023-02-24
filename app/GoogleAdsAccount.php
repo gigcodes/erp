@@ -22,5 +22,5 @@ class GoogleAdsAccount extends Model
      */
     protected $table = 'googleadsaccounts';
 
-    protected $fillable = ['account_name', 'store_websites', 'config_file_path', 'notes', 'status'];
+    protected $fillable = ['google_customer_id', 'account_name', 'store_websites', 'config_file_path', 'notes', 'status'];
 }
