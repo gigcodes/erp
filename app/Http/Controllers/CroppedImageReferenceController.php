@@ -93,11 +93,13 @@ class CroppedImageReferenceController extends Controller
 
     public function grid(Request $request)
     {
-        dd('here');
-        $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
+        \Log::info('#####crop_reference_grid_page_start#####: '.date("Y-m-d H:i:s"));
+        $query = new CroppedImageReference();
+        // $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
         // $query = $query->join('products', 'products.id', 'cropped_image_references.product_id');
 
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
+            \Log::info('crop_reference_grid_page_filter_start: '.date("Y-m-d H:i:s"));
             if (is_array(request('category'))) {
                 if (request('category') != null && request('category')[0] != 1) {
                     $query->whereHas('product', function ($qu) use ($request) {
@@ -149,31 +151,39 @@ class CroppedImageReferenceController extends Controller
 
             if (request('crop') != null) {
                 if (request('crop') == 2) {
-                    $query->whereNotNull('cropped_image_references.new_media_id');
+                    $query->whereNotNull('new_media_id');
                 } elseif (request('crop') == 3) {
-                    $query->whereNull('cropped_image_references.new_media_id');
+                    $query->whereNull('new_media_id');
                 }
             }
-            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')->paginate(10);
+            $products = $query->orderBy('id', 'desc')->paginate(10);
+            \Log::info('crop_reference_grid_page_filter_end: '.date("Y-m-d H:i:s"));
         } else {
+            \Log::info('crop_reference_grid_page_without_filter_start: '.date("Y-m-d H:i:s"));
             $query->whereHas('product', function ($qu) use ($request) {
                 $qu->where('status_id', '!=', StatusHelper::$cropRejected);
             });
             // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
 
-            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')
-                ->groupBy('cropped_image_references.original_media_id')
-              ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
-                  $q->with('newMedia');
-              }])
+            $products = $query->orderBy('id', 'desc')
+                ->groupBy('original_media_id')
+            //   ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
+            //       $q->with('newMedia');
+            //   }])
                 ->paginate(10);
+            \Log::info('crop_reference_grid_page_without_filter_end: '.date("Y-m-d H:i:s"));
         }
         $total = $products->count();
-
+        
+        \Log::info('crop_reference_grid_page_pending_product_start: '.date("Y-m-d H:i:s"));
         $pendingProduct = Product::where('status_id', StatusHelper::$autoCrop)->where('stock', '>=', 1)->count();
-
+        \Log::info('crop_reference_grid_page_pending_product_end: '.date("Y-m-d H:i:s"));
+        
+        \Log::info('crop_reference_grid_page_pending_category_product_start: '.date("Y-m-d H:i:s"));
         $pendingCategoryProduct = Product::where('status_id', StatusHelper::$attributeRejectCategory)->where('stock', '>=', 1)->count();
-
+        \Log::info('crop_reference_grid_page_pending_category_product_end: '.date("Y-m-d H:i:s"));
+        
+        \Log::info('crop_reference_grid_page_customer_range_start: '.date("Y-m-d H:i:s"));
         if (request('customer_range') != null) {
             $dateArray = explode('-', request('customer_range'));
             $startDate = trim($dateArray[0]);
@@ -194,7 +204,7 @@ class CroppedImageReferenceController extends Controller
         } else {
             $totalCounts = 0;
         }
-
+        \Log::info('crop_reference_grid_page_customer_range_end: '.date("Y-m-d H:i:s"));
         // dd($products);
 
         if ($request->ajax()) {
@@ -204,7 +214,7 @@ class CroppedImageReferenceController extends Controller
                 'total' => $total,
             ], 200);
         }
-
+        \Log::info('####crop_reference_grid_page_end####: '.date("Y-m-d H:i:s"));
         return view('image_references.grid', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'));
     }
 

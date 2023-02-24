@@ -17,9 +17,9 @@
             </div>
         </div>
         <div class="form-group row">
-            <label for="bid-amount" class="col-sm-2 col-form-label">Bid ($)</label>
+            <label for="bid-amount" class="col-sm-2 col-form-label">Bid amount</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="bid-amount" name="microAmount" placeholder="Bid ($)">
+                <input type="text" class="form-control" id="bid-amount" name="microAmount" placeholder="Bid amount">
                 @if ($errors->has('microAmount'))
                 <span class="text-danger">{{$errors->first('microAmount')}}</span>
                 @endif
