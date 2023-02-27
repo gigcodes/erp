@@ -2136,8 +2136,14 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
                                 </li>
-                                    <li class="nav-item dropdown">
+                                <li class="nav-item dropdown">
                                     <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.adcreative.index')}}">Social Ad Creative</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.ad.index')}}">Social Ads</a>
                                 </li>
                                 @endif
                             </ul>
@@ -3045,6 +3051,7 @@ if (!empty($notifications)) {
                                             Directory manager</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
                                         <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
                                     </li>
                                 </ul>

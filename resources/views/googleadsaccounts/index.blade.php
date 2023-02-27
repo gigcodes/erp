@@ -49,6 +49,8 @@
     </form>
     <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#refreshTokenModal">Generate Access/Refresh Token</button>
 
+    <a href="{{ route('googleadslogs.index') }}" class="float-right custom-button btn mb-3 mr-3" >Logs</a>
+
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="adsaccount-table">
             <thead>

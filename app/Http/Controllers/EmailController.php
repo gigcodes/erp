@@ -154,8 +154,9 @@ class EmailController extends Controller
 
         // If it isn't trash query remove email with status trashed
         if (! $trash_query) {
-            $query = $query->where(function ($query) {
-                return $query->where('status', '<>', 'bin')->orWhereNull('status');
+            $query = $query->where(function ($query) use ($type) {
+                $isDraft = ($type == 'draft') ? 1 : 0;
+                return $query->where('status', '<>', 'bin')->orWhereNull('status')->where('is_draft', $isDraft);
             });
         }
 
@@ -943,7 +944,7 @@ class EmailController extends Controller
 
                     $latest_email_date = $latest_email ? Carbon::parse($latest_email->created_at) : false;
                     if ($latest_email_date) {
-                        $emails = $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y'));
+                        $emails = ($inbox) ? $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y')) : '';
                     } else {
                         $emails = ($inbox) ? $inbox->messages() : '';
                     }
@@ -993,7 +994,7 @@ class EmailController extends Controller
                             });
 
                             $from = $email->getFrom()[0]->mail;
-                            $to = array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                            $to = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
 
                             // Model is sender if its incoming else its receiver if outgoing
                             if ($type['type'] == 'incoming') {
@@ -1024,9 +1025,9 @@ class EmailController extends Controller
                                 'origin_id' => $origin_id,
                                 'reference_id' => $reference_id,
                                 'type' => $type['type'],
-                                'seen' => $email->getFlags()['seen'],
+                                'seen' => count($email->getFlags()) > 0 ? $email->getFlags()['seen'] : 0,
                                 'from' => $email->getFrom()[0]->mail,
-                                'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
                                 'subject' => $email->getSubject(),
                                 'message' => $content,
                                 'template' => 'customer-simple',
@@ -1034,7 +1035,7 @@ class EmailController extends Controller
                                 'created_at' => $email->getDate(),
                             ];
 
-                            Email::create($params);
+                            $emailData = Email::create($params);
 
                             if ($type['type'] == 'incoming') {
                                 $message = trim($content);
@@ -1058,10 +1059,89 @@ class EmailController extends Controller
                                             'vendor_id' => null,
                                             'customer_id' => $customer->id,
                                             'is_email' => 1,
+                                            'from_email' => $email->getFrom()[0]->mail,
+                                            'to_email' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                            'email_id' => $emailData->id,
                                         ];
                                         $messageModel = \App\ChatMessage::create($params);
                                         \App\Helpers\MessageHelper::whatsAppSend($customer, $fragment->getContent(), null, null, $isEmail = true);
                                         \App\Helpers\MessageHelper::sendwatson($customer, $fragment->getContent(), null, $messageModel, $params, $isEmail = true);
+
+                                        // Code for if auto approve flag is YES then send Bot replay to customer email address account, If No then save email in draft tab.
+                                        $replies = \App\ChatbotQuestion::join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
+                                        ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
+                                        ->where('chatbot_questions_reply.store_website_id', ($customer->store_website_id) ? $customer->store_website_id : 1)
+                                        ->select('chatbot_questions.value', 'chatbot_questions.keyword_or_question', 'chatbot_questions.erp_or_watson', 'chatbot_questions.auto_approve', 'chatbot_question_examples.question', 'chatbot_questions_reply.suggested_reply')
+                                        ->where('chatbot_questions.erp_or_watson', 'erp')
+                                        ->get();
+
+                                        $messages = $fragment->getContent();
+
+                                        foreach ($replies as $reply) {
+                                            if ($messages != '' && $customer) {
+                                                $keyword = $reply->question;
+                                                if (($keyword == $messages || strpos(strtolower(trim($messages)), strtolower(trim($keyword))) !== false) && $reply->suggested_reply) {
+
+                                                    $lastInsertedEmail = Email::where('id', $emailData->id)->first();
+                                                    if($reply->auto_approve == 0)
+                                                    {
+                                                        $lastInsertedEmail->is_draft = 1;
+                                                        $lastInsertedEmail->save();
+                                                    } else {
+                                                        $emaildetails = [];
+
+                                                        $emaildetails['id'] = $lastInsertedEmail->id;
+                                                        $emaildetails['to'] = $customer->email;
+                                                        $emaildetails['subject'] = $lastInsertedEmail->subject;
+                                                        $emaildetails['message'] = $reply->suggested_reply;
+                                                        $from_address = "";
+                                                        $from_address = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                                                        if(empty($from_address))
+                                                        {
+                                                            $from_address = config('env.MAIL_FROM_ADDRESS');
+                                                        }
+                                                        $emaildetails['from'] = $from_address;
+
+                                                        \App\Jobs\SendEmail::dispatch($lastInsertedEmail, $emaildetails)->onQueue('send_email');
+
+                                                        $createEmail = \App\Email::create([
+                                                            'model_id' => $model_id,
+                                                            'model_type' => $model_type,
+                                                            'from' => $emaildetails['from'],
+                                                            'to' => $emaildetails['to'],
+                                                            'subject' => $emaildetails['subject'],
+                                                            'message' => $reply->suggested_reply,
+                                                            'template' => 'customer-simple',
+                                                            'additional_data' => $model_id,
+                                                            'status' => 'send',
+                                                            'store_website_id' => null,
+                                                            'is_draft' => 0,
+                                                            'type' => 'outgoing',
+                                                        ]);
+
+                                                        $chatMessage = [
+                                                            'number' => $customer->phone,
+                                                            'message' => $reply->suggested_reply,
+                                                            'media_url' => null,
+                                                            'approved' => 0,
+                                                            'status' => 0,
+                                                            'contact_id' => null,
+                                                            'erp_user' => null,
+                                                            'supplier_id' => null,
+                                                            'task_id' => null,
+                                                            'dubizzle_id' => null,
+                                                            'vendor_id' => null,
+                                                            'customer_id' => $customer->id,
+                                                            'is_email' => 1,
+                                                            'from_email' => $emaildetails['from'],
+                                                            'to_email' => $emaildetails['to'],
+                                                            'email_id' => $createEmail->id,
+                                                        ];
+                                                        \App\ChatMessage::create($chatMessage);
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

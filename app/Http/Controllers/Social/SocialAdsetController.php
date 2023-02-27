@@ -13,6 +13,7 @@ use Facebook\Facebook;
 use Illuminate\Http\Request;
 use Response;
 use Session;
+use App\Helpers\SocialHelper;
 
 class SocialAdsetController extends Controller
 {
@@ -33,26 +34,63 @@ class SocialAdsetController extends Controller
 
     public function index(Request $request)
     {
+        $adsets_data = SocialAdset::orderby('id', 'desc');
+        $adsets_data = $adsets_data->get();
+
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
-        $campaingns = \App\Social\SocialCampaign::pluck('name', 'ref_campaign_id')->where('ref_campaign_id', '!=', '');
+//        $campaingns = \App\Social\SocialCampaign::pluck('name', 'ref_campaign_id')->where('ref_campaign_id', '!=', '');
+        $campaingns = \App\Social\SocialCampaign::pluck('name', 'id');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
             //  $query = SocialAdset::where('config_id',$id);
 
-            $adsets = SocialAdset::orderby('id', 'desc')->paginate(Setting::get('pagination'));
+            $adsets = SocialAdset::orderby('id', 'desc');
         } else {
-            $adsets = SocialAdset::latest()->paginate(Setting::get('pagination'));
+            $adsets = SocialAdset::latest();
         }
+
+        if(!empty($request->date))
+        {
+            $adsets->where('created_at', 'LIKE', '%'.$request->date.'%');
+        }
+
+        if(!empty($request->config_name))
+        {
+            $adsets->whereIn('config_id', $request->config_name);
+        }
+
+        if(!empty($request->campaign_name))
+        {
+            $adsets->whereIn('campaign_id', $request->campaign_name);
+        }
+
+        if(!empty($request->event))
+        {
+            $adsets->whereIn('billing_event', $request->event);
+        }
+
+        if(!empty($request->name))
+        {
+            $adsets->where('name', 'LIKE', '%'.$request->name.'%');
+        }
+
+        if(!empty($request->status))
+        {
+            $adsets->where('status', 'LIKE', '%'.$request->status.'%');
+        }
+
+        $adsets = $adsets->paginate(Setting::get('pagination'));
+
         $websites = \App\StoreWebsite::select('id', 'title')->get();
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.adsets.data', compact('campaingns', 'adsets', 'configs'))->render(),
+                'tbody' => view('social.adsets.data', compact('campaingns', 'adsets', 'configs','adsets_data'))->render(),
                 'links' => (string) $adsets->render(),
             ], 200);
         }
 
-        return view('social.adsets.index', compact('adsets', 'configs'));
+        return view('social.adsets.index', compact('campaingns','adsets', 'configs','adsets_data'));
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
@@ -128,8 +166,8 @@ class SocialAdsetController extends Controller
         ]);
         $this->user_access_token = $config->token;
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-        $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
-        //
+        //$this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
+        $this->ad_acc_id = $config->ads_manager;
 
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
@@ -374,7 +412,9 @@ class SocialAdsetController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $fb->get('/me/adaccounts', $token);
+            // $response = $fb->get('/me/adaccounts', $token); Old
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token); //New using graph API
+            $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
