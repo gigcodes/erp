@@ -248,27 +248,28 @@ class Timedoctor
         }
     }
 
-    public function getActivityList($company_id, $access_token, $user_id, $start='', $end=''){               
+    public function getActivityList($company_id, $access_token, $user_id, $start='', $end=''){                       
         $members = TimeDoctorMember::where('time_doctor_account_id', $user_id)->select('time_doctor_user_id')->get();        
         $memberId = implode(',', array_column($members->toArray(), 'time_doctor_user_id' ) );        
         $end = date('Y-m-d', strtotime($end . ' +1 day'));
-        $url = 'https://api2.timedoctor.com/api/1.0/activity/worklog?company='.$company_id.'&user='.$memberId.'&from='.$start.'&to='.$end.'&token='.$access_token;
+        $url = 'https://api2.timedoctor.com/api/1.0/activity/worklog?company='.$company_id.'&user='.$memberId.'&from='.$start.'&to='.$end.'&token='.$access_token;        
         $httpClient = new Client();
         $response = $httpClient->get( $url );        
 
         $parsedResponse = json_decode($response->getBody()->getContents());
         $activities = [];
-        
 
-        foreach ($parsedResponse->data[0] as $activity) {
-            $res = [
-                'user_id' => $activity->userId,
-                'task_id' => $activity->taskId,
-                'starts_at' => $activity->start,
-                'tracked' => $activity->time,
-                'project'  => $activity->projectId,
-            ];
-            $activities[] = $res;
+        foreach ($parsedResponse->data as $activity_data) {
+            foreach($activity_data as $activity){
+                $res = [
+                    'user_id' => $activity->userId,
+                    'task_id' => $activity->taskId,
+                    'starts_at' => $activity->start,
+                    'tracked' => $activity->time,
+                    'project'  => $activity->projectId,
+                ];
+                $activities[] = $res;
+            }
         }
         return $activities;
     }
