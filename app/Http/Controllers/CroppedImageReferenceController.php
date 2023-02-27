@@ -166,12 +166,11 @@ class CroppedImageReferenceController extends Controller
             });
             // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
 
-            $products = $query->orderBy('id', 'desc')
-                ->groupBy('original_media_id')
+            $products = $query->orderBy('id', 'desc')->paginate(10);
+                // ->groupBy('original_media_id')
             //   ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
             //       $q->with('newMedia');
             //   }])
-                ->paginate(10);
             \Log::info('crop_reference_grid_page_without_filter_end: '.date("Y-m-d H:i:s"));
         }
         $total = $products->total();
