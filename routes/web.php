@@ -329,6 +329,7 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
@@ -4252,7 +4253,11 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 // DEV MANISH
 //System size
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
+    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');    
+});
+
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+    Route::any('/sentry-log', [SentryLogController::class, 'index'])->name('sentry-log');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
