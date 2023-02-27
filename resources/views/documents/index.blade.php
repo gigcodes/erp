@@ -1,15 +1,18 @@
 @extends('layouts.app')
 
 @section('styles')
-@section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-@endsection
+    <style>
+        .need_to_send,.inlcude_made_by {
+            height: 12px !important;
+        }
+    </style>
 @endsection
 
 @section('content')
-
-    <div class="row">
+    <div class="col-md-12">
+        <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Documents Manager</h2>
             <div class="pull-left">
@@ -30,7 +33,7 @@
                                 </select>
                             </div> -->
 
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class='input-group date' id='filter-date'>
                                     <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
 
@@ -49,8 +52,9 @@
                 </form>
             </div>
             <div class="pull-right">
+                <a href="#"><button type="button" class="btn btn-secondary" id="add_category">Add Category</button></a>
                 <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
+                <a type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
 
             </div>
         </div>
@@ -141,8 +145,8 @@
             </tbody>
         </table>
     </div>
-
     {!! $documents->appends(Request::except('page'))->links() !!}
+    </div>
     @include('partials.modals.remarks')
     @include('documents.partials.modal-addCategory')
     @include('documents.partials.modal-documentWhatsApp')
@@ -279,6 +283,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        $('#add_category').click(function (){
+            $("#myModal").modal();
+        });
+    </script>
     <script>
         $(".select2").select2();
         $('#filter-date').datetimepicker({
@@ -668,7 +677,8 @@
         source: function(request, response) {
             term = $('#term').val();
             date = $('#date').val();
-          
+
+
           $.ajax({
                 url: src,
                 dataType: "json",

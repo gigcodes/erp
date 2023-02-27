@@ -258,21 +258,31 @@
               <span style="word-break:break-all;" class="show-full-response_code-{{$postman->id}} hidden">{{$postman->response_code}}</span>
             </td>
             <td>
-              <a title="Send Request" class="btn btn-image postman-list-url-btn postman-send-request-btn1 pd-5 btn-ht" data-id="{{ $postman->id }}" data-toggle="modal" data-target="#postmanmulUrlDetailsModel" href="javascript:;">
-                <i class="fa fa-paper-plane" aria-hidden="true"></i>
-              </a>
-              <a class="btn btn-image edit-postman-btn" data-id="{{ $postman->id }}"><img data-id="{{ $postman->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
-              @if (Auth::user()->isAdmin())
-              <a class="btn delete-postman-btn" data-id="{{ $postman->id }}" href="#"><img data-id="{{ $postman->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
-              <a title="Edit History" class="btn preview_edit_history" data-id="{{ $postman->id }}" href="javascript:;"><i class="fa fa-tachometer" aria-hidden="true"></i></a>
-              @endif
-              <a class="btn postman-history-btn" data-id="{{ $postman->id }}" href="#"><i class="fa fa-history" aria-hidden="true"></i></a>
-              <a title="Preview Response" data-id="{{ $postman->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
-              <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
-              <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
-                  <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
+              <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$postman->id}}')"><i class="fa fa-arrow-down"></i></button>
             </td>
           </tr>
+          <tr class="action-btn-tr-{{$postman->id}} d-none">
+            <td class="font-weight-bold">Action</td>
+            <td colspan="11" class="cls-actions">
+                <div>
+                    <div class="row cls_action_box" style="margin:0px;">
+                      <a title="Send Request" class="btn btn-image abtn-pd postman-list-url-btn postman-send-request-btn1 pd-5 btn-ht" data-id="{{ $postman->id }}" data-toggle="modal" data-target="#postmanmulUrlDetailsModel" href="javascript:;">
+                        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                      </a>
+                      <a class="btn btn-image edit-postman-btn abtn-pd" data-id="{{ $postman->id }}"><img data-id="{{ $postman->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
+                      @if (Auth::user()->isAdmin())
+                      <a class="btn delete-postman-btn abtn-pd padding-top-action" data-id="{{ $postman->id }}" href="#"><img data-id="{{ $postman->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
+                      <a title="Edit History" class="btn abtn-pd preview_edit_history padding-top-action" data-id="{{ $postman->id }}" href="javascript:;"><i class="fa fa-tachometer" aria-hidden="true"></i></a>
+                      @endif
+                      <a class="btn postman-history-btn abtn-pd padding-top-action" data-id="{{ $postman->id }}" href="#"><i class="fa fa-history" aria-hidden="true"></i></a>
+                      <a title="Preview Response" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
+                      <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                      <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
+                      <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+            </td>
+        </tr>
           @endif
 
           @endforeach
@@ -548,48 +558,51 @@
               @csrf
               <div class="form-row">
                 <input type="hidden" id="post_id" name="id" value="" />
-
                 <div class="form-group col-md-12">
-                  <label for="title">User Name</label>
-                  <div class="dropdown-sin-1">
-                    {{-- <select style="display:none" multiple placeholder="Select"></select> multiselect --}}
+                  <div class="form-group col-md-6">
+                    <label for="title">User Name</label>
+                    <div class="dropdown-sin-1 postman-dropdown-display">
+                      {{-- <select style="display:none" multiple placeholder="Select"></select> multiselect --}}
 
-                    <select name="user_permission[]" multiple class="folder_name form-control dropdown-mul-1" id="user_permission" required>
-                      <option>--Users--</option>
+                      <select name="user_permission[]" multiple class="folder_name form-control dropdown-mul-1" id="user_permission" required >
+                        <option>--Users--</option>
+                        <?php
+                        foreach ($users as $user) {
+                          echo '<option value="' . $user->id . '" data-folder_name="' . $user->name . '">' . $user->name . '</option>';
+                        }
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="title">Folder Name</label>
+                    <input type="hidden" name="folder_real_name" id="folder_real_name">
+                    <select name="folder_name" class="form-control folder_name" id="folder_name" required>
+                      <option>--Folder--</option>
                       <?php
-                      foreach ($users as $user) {
-                        echo '<option value="' . $user->id . '" data-folder_name="' . $user->name . '">' . $user->name . '</option>';
+                      $ops = 'id';
+                      foreach ($folders as $folder) {
+                        echo '<option value="' . $folder->id . '" data-folder_name="' . $folder->name . '">' . $folder->name . '</option>';
                       }
                       ?>
                     </select>
                   </div>
                 </div>
                 <div class="form-group col-md-12">
-                  <label for="title">Folder Name</label>
-                  <input type="hidden" name="folder_real_name" id="folder_real_name">
-                  <select name="folder_name" class="form-control folder_name" id="folder_name" required>
-                    <option>--Folder--</option>
-                    <?php
-                    $ops = 'id';
-                    foreach ($folders as $folder) {
-                      echo '<option value="' . $folder->id . '" data-folder_name="' . $folder->name . '">' . $folder->name . '</option>';
-                    }
-                    ?>
-                  </select>
-                </div>
-                <div class="form-group col-md-12">
-                  <label for="request_name">Request Name</label>
-                  <input type="text" name="request_name" value="" class="form-control" id="request_name" placeholder="Enter request name">
-                </div>
-                <div class="form-group col-md-12">
-                  <label for="request_types">Request Type</label>
-                  <select name="request_types" value="" class="form-control" id="request_types">
-                    <option value="GET">GET</option>
-                    <option value="POST">POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="PATCH">PATCH</option>
-                    <option value="DELETE">DELETE</option>
-                  </select>
+                  <div class="form-group col-md-6">
+                    <label for="request_name">Request Name</label>
+                    <input type="text" name="request_name" value="" class="form-control" id="request_name" placeholder="Enter request name">
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="request_types">Request Type</label>
+                    <select name="request_types" value="" class="form-control" id="request_types">
+                      <option value="GET">GET</option>
+                      <option value="POST">POST</option>
+                      <option value="PUT">PUT</option>
+                      <option value="PATCH">PATCH</option>
+                      <option value="DELETE">DELETE</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="form-group col-md-12">
                   <label for="request_url">Request Url</label>
@@ -600,70 +613,82 @@
                   <a style="cursor: pointer;" class="add_more_urls"><i class="fa fa-plus"> Add more</i></a>
                 </div>
                 <div class="form-group col-md-12">
-                  <label for="controller_name">Controller Name</label>
-                  <input type="text" name="controller_name" value="" class="form-control" id="controller_name" placeholder="Enter Controller Name">
+                  <div class="form-group col-md-6">
+                    <label for="controller_name">Controller Name</label>
+                    <input type="text" name="controller_name" value="" class="form-control" id="controller_name" placeholder="Enter Controller Name">
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="method_name">Method Name</label>
+                    <input type="text" name="method_name" value="" class="form-control" id="method_name" placeholder="Enter Method Name">
+                  </div>
                 </div>
                 <div class="form-group col-md-12">
-                  <label for="method_name">Method Name</label>
-                  <input type="text" name="method_name" value="" class="form-control" id="method_name" placeholder="Enter Method Name">
-                </div>
-                <div class="form-group col-md-12">
-                  <label for="remark">Remark</label>
-                  <input type="text" name="remark" value="" class="form-control" id="remark" placeholder="Enter Remark">
-                </div>
+                  <div class="form-group col-md-6">
+                    <label for="remark">Remark</label>
+                    <input type="text" name="remark" value="" class="form-control" id="remark" placeholder="Enter Remark">
+                  </div>
 
-                <div class="form-group col-md-12">
-                  <label for="params">Params</label>
-                  <textarea name="params" value="" class="form-control" id="params" placeholder="Enter params ex. filedName1: value1, filedName2: value2"></textarea>
+                  <div class="form-group col-md-6">
+                    <label for="params">Params</label>
+                    <textarea name="params" value="" class="form-control" id="params" placeholder="Enter params ex. filedName1: value1, filedName2: value2"></textarea>
+                  </div>
                 </div>
                 <div class="form-group col-md-12">
-                  <label for="authorization_type">Authorization type</label>
-                  <select name="authorization_type" value="" class="form-control" id="authorization_type">
-                    <option value="Bearer Token">Bearer Token</option>
-                    <option value="Basic Auth">Basic Auth</option>
-                  </select>
+                  <div class="form-group col-md-6">
+                    <label for="authorization_type">Authorization type</label>
+                    <select name="authorization_type" value="" class="form-control" id="authorization_type">
+                      <option value="Bearer Token">Bearer Token</option>
+                      <option value="Basic Auth">Basic Auth</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="authorization_token">Authorization token</label>
+                    <input type="text" name="authorization_token" value="" class="form-control" id="authorization_token" placeholder="Enter authorization token">
+                  </div>
                 </div>
                 <div class="form-group col-md-12">
-                  <label for="authorization_token">Authorization token</label>
-                  <input type="text" name="authorization_token" value="" class="form-control" id="authorization_token" placeholder="Enter authorization token">
+                  <div class="form-group col-md-6">
+                    <label for="request_headers">headers</label>
+                    <textarea name="request_headers" value="" class="form-control" id="request_headers" placeholder="Enter headers ex. filedName1: value1, filedName2: value2"></textarea>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="body_type">Body type</label>
+                    <select name="body_type" value="" class="form-control" id="body_type">
+                      <option value="raw">Raw</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="form-group col-md-12">
-                  <label for="request_headers">headers</label>
-                  <textarea name="request_headers" value="" class="form-control" id="request_headers" placeholder="Enter headers ex. filedName1: value1, filedName2: value2"></textarea>
+                  <div class="form-group col-md-6">
+                    <label for="body_json">Body Json
+                      <button type="button" class="btn custom-button float-right mr-3 add-json" data-toggle="modal" data-target="#addPostmanJsonModel">Add Json</button>
+                    </label>
+                    <?php
+                    $postJsonVer = \App\PostmanRequestJsonHistory::all();
+                    ?>
+                    <select name="body_json" value="" class="form-control" id="body_json">
+                      <option value="">select Json</option>
+                      @foreach ($postJsonVer as $jsonVer)
+                      <?php $name = $jsonVer->json_Name ?? substr($jsonVer->request_data, 0, 60); ?>
+                      <option value="{{$jsonVer->request_data}}">{{$jsonVer->version_json.' '.$name}}</option>
+                      @endforeach
+                    </select>
+                    {{-- <input type="text" name="body_json" value="" class="form-control" id="body_json" placeholder="Enter body json Ex.  {'name': 'hello', 'type':'not'}"> --}}
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="pre_request_script">Pre request script</label>
+                    <textarea name="pre_request_script" value="" class="form-control" id="pre_request_script" placeholder="Enter pre_request_script"></textarea>
+                  </div>
                 </div>
                 <div class="form-group col-md-12">
-                  <label for="body_type">Body type</label>
-                  <select name="body_type" value="" class="form-control" id="body_type">
-                    <option value="raw">Raw</option>
-                  </select>
-                </div>
-                <div class="form-group col-md-12">
-                  <label for="body_json">Body Json
-                    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#addPostmanJsonModel">Add Json</button>
-                  </label>
-                  <?php
-                  $postJsonVer = \App\PostmanRequestJsonHistory::all();
-                  ?>
-                  <select name="body_json" value="" class="form-control" id="body_json">
-                    <option value="">select Json</option>
-                    @foreach ($postJsonVer as $jsonVer)
-                    <?php $name = $jsonVer->json_Name ?? substr($jsonVer->request_data, 0, 60); ?>
-                    <option value="{{$jsonVer->request_data}}">{{$jsonVer->version_json.' '.$name}}</option>
-                    @endforeach
-                  </select>
-                  {{-- <input type="text" name="body_json" value="" class="form-control" id="body_json" placeholder="Enter body json Ex.  {'name': 'hello', 'type':'not'}"> --}}
-                </div>
-                <div class="form-group col-md-12">
-                  <label for="pre_request_script">Pre request script</label>
-                  <textarea name="pre_request_script" value="" class="form-control" id="pre_request_script" placeholder="Enter pre_request_script"></textarea>
-                </div>
-                <div class="form-group col-md-12">
-                  <label for="tests">Tests</label>
-                  <input type="text" name="tests" value="" class="form-control" id="tests" placeholder="Enter tests">
-                </div>
-                <div class="form-group col-md-12">
-                  <label for="end_point">End Point</label>
-                  <input type="text" name="end_point" value="" class="form-control" id="end_point" placeholder="Enter end point">
+                  <div class="form-group col-md-6">
+                    <label for="tests">Tests</label>
+                    <input type="text" name="tests" value="" class="form-control" id="tests" placeholder="Enter tests">
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="end_point">End Point</label>
+                    <input type="text" name="end_point" value="" class="form-control" id="end_point" placeholder="Enter end point">
+                  </div>
                 </div>
               </div>
             </form>
@@ -939,6 +964,9 @@
 </div>
 
 <script type="text/javascript">
+    function Showactionbtn(id){
+        $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
   // $('ul.pagination').hide();
   //   $('.infinite-scroll').jscroll({
   //     autoTrigger: true,
