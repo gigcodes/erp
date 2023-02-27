@@ -10,6 +10,7 @@ class GoogleResponsiveDisplayAd extends Model
     use HasFactory;
 
     public $fillable = [
+        'google_customer_id',
         'adgroup_google_campaign_id',
         'google_adgroup_id',
         'google_ad_id',

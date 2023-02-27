@@ -39,6 +39,7 @@ class GoogleAdsCampaign extends Model
     protected $table = 'googlecampaigns';
 
     protected $fillable = [
+        'google_customer_id',
         'account_id',
         'google_campaign_id',
         'campaign_name',

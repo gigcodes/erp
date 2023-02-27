@@ -47,6 +47,7 @@ class GoogleAdGroupController extends Controller
             return [
                 'account_id' => $campaignDetail->account_id,
                 'campaign_name' => $campaignDetail->campaign_name,
+                'google_customer_id' => $campaignDetail->google_customer_id,
                 'campaign_channel_type' => $campaignDetail->channel_type,
             ];
         } else {
@@ -195,9 +196,11 @@ class GoogleAdGroupController extends Controller
             $acDetail = $this->getAccountDetail($campaignId);
             $account_id = $acDetail['account_id'];
             $campaign_name = $acDetail['campaign_name'];
+            $customerId = $acDetail['google_customer_id'];
 
             $storagepath = $this->getstoragepath($account_id);
             $addgroupArray['adgroup_google_campaign_id'] = $campaignId;
+            $addgroupArray['google_customer_id'] = $customerId;
             $addgroupArray['ad_group_name'] = $adGroupName;
             $addgroupArray['bid'] = $request->microAmount;
             $addgroupArray['status'] = $adGroupStatus;
@@ -214,8 +217,6 @@ class GoogleAdGroupController extends Controller
                                 ->from($oAuth2Configuration)
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
-
-            $customerId = $googleAdsClient->getLoginCustomerId();
 
             $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
 
@@ -238,8 +239,9 @@ class GoogleAdGroupController extends Controller
             );
 
             $addedAdGroup = $response->getResults()[0];
+            $adGroupResourceName = $addedAdGroup->getResourceName();
 
-            $addgroupArray['google_adgroup_id'] = $addedAdGroup->getId();
+            $addgroupArray['google_adgroup_id'] = substr($adGroupResourceName, strrpos($adGroupResourceName, "/") + 1);
             $addgroupArray['adgroup_response'] = json_encode($addedAdGroup);
             \App\GoogleAdsGroup::create($addgroupArray);
 
@@ -331,6 +333,7 @@ class GoogleAdGroupController extends Controller
             $acDetail = $this->getAccountDetail($campaignId);
             $account_id = $acDetail['account_id'];
             $campaign_name = $acDetail['campaign_name'];
+            $customerId = $acDetail['google_customer_id'];
 
             $storagepath = $this->getstoragepath($account_id);
             $addgroupArray = [];
@@ -355,13 +358,12 @@ class GoogleAdGroupController extends Controller
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
 
-            $customerId = $googleAdsClient->getLoginCustomerId();
-
             // Creates an ad group object with the specified resource name and other changes.
             $adGroup = new AdGroup([
                 'resource_name' => ResourceNames::forAdGroup($customerId, $adGroupId),
+                'name' => $adGroupName,
+                'status' => self::getAdGroupStatus($adGroupStatus),
                 'cpc_bid_micros' => $cpcBidMicroAmount,
-                'status' => self::getAdGroupStatus($adGroupStatus)
             ]);
 
             $adGroupOperation = new AdGroupOperation();
@@ -410,6 +412,7 @@ class GoogleAdGroupController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $campaign_name = $acDetail['campaign_name'];
+        $customerId = $acDetail['google_customer_id'];
 
         $storagepath = $this->getstoragepath($account_id);
 
@@ -426,8 +429,6 @@ class GoogleAdGroupController extends Controller
                                 ->from($oAuth2Configuration)
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
-
-            $customerId = $googleAdsClient->getLoginCustomerId();
 
             // Creates ad group resource name.
             $adGroupResourceName = ResourceNames::forAdGroup($customerId, $adGroupId);
