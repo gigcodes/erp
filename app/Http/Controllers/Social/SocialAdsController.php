@@ -170,8 +170,12 @@ class SocialAdsController extends Controller
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
+                        $post->live_status = 'error';
+                        $post->save();
                         Session::flash('message', $resp->error->message);
                     } else {
+                        $post->live_status = 'sucess';
+                        $post->save();
                         Session::flash('message', 'Campaign created  successfully');
                     }
 
@@ -186,7 +190,7 @@ class SocialAdsController extends Controller
                 try {
                     //        dd($data);
                     $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/ads';
+                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/ads';
 
                     // Call to Graph api here
                     $curl = curl_init();
