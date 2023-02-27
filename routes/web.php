@@ -329,6 +329,7 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
@@ -2852,6 +2853,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('list-message', [SocialAccountController::class, 'listMessage'])->name('social.message.list');
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
+    Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
@@ -4251,7 +4253,11 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 // DEV MANISH
 //System size
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
+    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');    
+});
+
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+    Route::any('/sentry-log', [SentryLogController::class, 'index'])->name('sentry-log');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {

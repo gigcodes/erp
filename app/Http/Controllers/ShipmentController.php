@@ -47,21 +47,25 @@ class ShipmentController extends Controller
         }
 
         if ($request->get('destination')) {
-            $waybills->where('waybills.destination', 'like', '%'.$request->get('destination').'%');
+            $waybills->where('waybills.to_customer_address_1', 'like', '%'.$request->get('destination').'%');
         }
 
         if ($request->get('order_id')) {
             $waybills->where('o.id', $request->get('order_id'));
         }
-
         if ($request->get('consignee')) {
-            $customer_name = Customer::where('name', 'like', '%'.$request->get('consignee').'%')->select('id')->get()->toArray();
-            $ids = [];
-            foreach ($customer_name as $cus) {
-                array_push($ids, $cus['id']);
-            }
-            $waybills->whereIn('waybills.customer_id', $ids);
+            $waybills->where('waybills.to_customer_name', 'like', '%'.$request->get('consignee').'%');
         }
+
+//        if ($request->get('consignee')) {
+//            $customer_name = Customer::where('name', 'like', '%'.$request->get('consignee').'%')->select('id')->get()->toArray();
+////            dd($customer_name);
+//            $ids = [];
+//            foreach ($customer_name as $cus) {
+//                array_push($ids, $cus['id']);
+//            }
+//            $waybills->whereIn('waybills.customer_id', $ids);
+//        }
 
         $waybills = $waybills->groupBy('waybills.awb');
 

@@ -83,7 +83,6 @@ class BrandController extends Controller
             });
             /*}*/
         }
-
         $keyword = request('keyword');
         if (! empty($keyWord)) {
             $brands->where(function ($q) use ($keyWord) {

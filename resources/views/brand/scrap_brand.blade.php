@@ -105,7 +105,7 @@
                                 if(isset($_GET['devCheckboxs']))
                                 {
                                 ?>
-                                <td width="5%" class="Website-task"> 
+                                <td width="5%" class="Website-task">
                                     {{ $brand->multiBrandTask($brand->id,$_GET['devCheckboxs'])->assignedUser->name}}
                                 </td>
                                 <?php

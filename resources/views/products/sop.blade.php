@@ -383,6 +383,9 @@ float: left;
                                     <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list p-2" title="Sop User" data-sop_id="{{ $value->id }}">
                                         <i class="fa fa-user-o"></i>
                                     </button>
+                                    <a href="javascript:;" data-id="{{ $value->id }}" data-content="{{$value->content}}" class="menu_editor_copy btn btn-xs p-2" >
+                                        <i class="fa fa-copy"></i>
+                                    </a>
                                 </td>
                         @endforeach
 
@@ -1005,11 +1008,12 @@ $(document).on('click', '.send-message-open', function (event) {
 
                 console.log(data.sopedit);
 
-                $('#sop_edit_id').val(data.sopedit.id)
-                $('#sop_edit_name').val(data.sopedit.name)
-                $('#sop_edit_category').val(data.sopedit.category)
-                $('#sop_old_name').val(data.sopedit.name)
-                $('#sop_old_category').val(data.sopedit.category)
+                $('#sop_edit_form #sop_edit_id').val(data.sopedit.id)
+                $('#sop_edit_form #sop_edit_name').val(data.sopedit.name)
+                $('#sop_edit_form #sop_edit_category').val(data.sopedit.category)
+                $('#sop_edit_form #sop_old_name').val(data.sopedit.name)
+                $('#sop_edit_form #sop_old_category').val(data.sopedit.category)
+                $('#sop_edit_form #sop_edit_content').val(data.sopedit.content)
 
                 CKEDITOR.instances['sop_edit_content'].setData(data.sopedit.content)
 
