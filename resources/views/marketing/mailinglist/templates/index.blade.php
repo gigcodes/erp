@@ -37,7 +37,7 @@
                             <div class="form-group ml-3">
                                 <div class='input-group date' id='filter-date'>
                                     <input type='text' class="form-control global" name="date"
-                                           value="{{ isset($date) ? $date : '' }}" placeholder="YYYY-MM-DD" id="date"/>
+                                           value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date"/>
 
                                     <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
@@ -72,7 +72,7 @@
                                 </div>
                             </div>
                             <!-- end -->
-                            <button id="filter" type="submit" class="btn mt-0 btn-image"><i class="fa fa-filter"></i>
+                            <button id="filter" type="submit" class="btn mt-0 btn-image"><img src="/images/filter.png"/>
                             </button>
                         </form>
                     </div>
@@ -407,21 +407,18 @@
                     <tr class="action-btn-tr-{{$value["id"]}} d-none">
                         <td>Action</td>
                         <td colspan="10">
-                            <a data-id="{{ $value['id'] }}" class="delete-template-act" href="javascript:;" style="color: gray;">
+                            <a data-id="{{ $value['id'] }}" class="delete-template-act pr-1" href="javascript:;" style="color: gray;">
                                 <i class="fa fa-trash"></i>
                             </a>
-                            |
-                            <a data-id="{{ $value['id'] }}" data-storage='{{ $value }}' class="edit-template-act"
+                            <a data-id="{{ $value['id'] }}" data-storage='{{ $value }}' class="edit-template-act pr-1"
                                href="javascript:;" style="color: gray;">
                                 <i class="fa fa-edit"></i>
                             </a>
-                            |
-                            <a data-id="{{ $value['id'] }}" class="add-content"
+                            <a data-id="{{ $value['id'] }}" class="add-content pr-1"
                                href="javascript:;" style="color: gray;">
                                 <i class="fa fa-send"></i>
                             </a>
-                            |
-                            <a data-id="{{ $value['id'] }}" class="add-image"
+                            <a data-id="{{ $value['id'] }}" class="add-image pr-1"
                                href="javascript:;" style="color: gray;">
                                 <i class="fa fa-list"></i>
                             </a>
@@ -498,11 +495,10 @@
             productForm.append("image", image);
             productForm.append("html_text", html_text);
 
-
             var form = $('#form-store')[0];
             var formData = new FormData(form);
             $.ajax({
-                url: "mailinglist-templates/store",
+                url: "/mailinglist-templates/store",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
@@ -525,7 +521,7 @@
         });
 
         // pawan added for calling the function on change for maillistcategory & StoreWebsite filter
-        $('#filter_mailinglist_category').on('change', function (e) {
+        $('#filter_mailinglist_category').on('change',function (e){
             e.preventDefault();
             var StoreWebsite = $('#filter_store_website').val();
             var MailingListCategory = $('#filter_mailinglist_category').val();
@@ -533,7 +529,7 @@
             // alert(StoreWebsite);
 
             $.ajax({
-                url: "http://localhost/erp/public/index.php/marketing/mailinglist-ajax",
+                url: "/marketing/mailinglist-ajax",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
@@ -550,7 +546,7 @@
             });
             // alert(MailingListCategory);
         });
-        $('#filter_store_website').on('change', function (e) {
+        $('#filter_store_website').on('change',function (e){
             e.preventDefault();
             var StoreWebsite = $('#filter_store_website').val();
             var MailingListCategory = $('#filter_mailinglist_category').val();
@@ -582,7 +578,7 @@
             var term = $('#term').val();
             var date = $('#date').val();
             $.ajax({
-                url: "http://localhost/erp/public/index.php/marketing/mailinglist-ajax",
+                url: "/marketing/mailinglist-ajax",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
@@ -604,7 +600,7 @@
             var id = ele.data("id");
             $.ajax({
                 type: 'GET',
-                url: "http://localhost/erp/public/index.php/marketing/mailinglist-templates/" + id + '/delete'
+                url: "/marketing/mailinglist-templates/" + id + '/delete'
             }).done(function (response) {
                 if (response.code == 200) {
                     ele.closest("tr").remove();
@@ -633,8 +629,8 @@
                 var formField = findForm.find("#form_" + k);
                 if (formField.length > 0) {
                     var tagName = formField.prop("tagName").toLowerCase();
-                    if (tagName == "input" || tagName == "hidden" || tagName == "textarea") {
-                        if (k === 'html_text') {
+                    if(tagName == "input" || tagName == "hidden" || tagName == "textarea") {
+                        if(k === 'html_text') {
                             CKEDITOR.instances['form_html_text'].setData(v);
                         } else {
                             formField.val(v);
@@ -661,7 +657,6 @@
 
 
             $(".edit-template-modal").modal("show");
-
         });
 
         $(document).on("click", ".create-new-template-btn", function () {
