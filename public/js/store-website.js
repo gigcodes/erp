@@ -29,6 +29,11 @@ var page = {
             page.createDuplicate($(this).data('id'));
         });
 
+        page.config.bodyView.on("click",".load-tag-modal",function(e) {
+            e.preventDefault();
+            page.showtags($(this));
+        });
+
         // delete product templates
         page.config.bodyView.on("click",".btn-delete-template",function(e) {
             if(!confirm("Are you sure you want to delete record?")) {
@@ -219,6 +224,10 @@ var page = {
         });
 
 
+    },
+    showtags: function(ele) {
+        console.log('id');
+        $('#store-attach-tag #store_id').val(ele.data("id"));
     },
     openStoreReindexHistory: function(ele) {
         var _z = {

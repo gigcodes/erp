@@ -53,6 +53,8 @@ use Illuminate\Support\Str;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
+use App\Models\WebsiteStoreTag;
+
 class StoreWebsiteController extends Controller
 {
     /**
@@ -60,17 +62,21 @@ class StoreWebsiteController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(WebsiteStoreTag   $WebsiteStoreTag)
     {
         $title = 'List | Store Website';
         $services = Service::get();
+
+        $tags   =   $WebsiteStoreTag->get();
+
         $assetManager = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('website')->get();
         $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
         
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'storeWebsiteUsers'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes','tags', 'storeWebsiteUsers'));
+
     }
 
     public function logWebsiteUsers($id)
@@ -1343,9 +1349,86 @@ class StoreWebsiteController extends Controller
         return response()->json(['code' => 200, 'message' => 'Website store views copied successfully']);
     }
 
+    function    list_tags(Request     $request,   WebsiteStoreTag     $WebsiteStoreTag){
+        $list = $WebsiteStoreTag->all();
+        if(!empty($list)){
+            return response()->json(['code' => 200, 'data' => $list, 'message' => 'List found']);
+
+        }
+            return response()->json(['code' => 400, 'message' => 'Tags Not found']);
+    }
+
     /**
-    *
+    * Create tags for multiple website and stores
     */
+    function    create_tags(Request     $request,   WebsiteStoreTag     $WebsiteStoreTag){
+        $data           =   $request->all();
+
+        $validator = Validator::make($data, [
+            'tag'       => 'required'
+        ]);
+
+        if ($validator->fails()) {
+
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : ".$er.'<br>';
+                }
+            }
+            
+            return response()->json(['code' => 400, 'message' => $outputString]);
+        }
+
+        $insertArray    =   [
+            'tags'  =>  \Str::slug($data['tag'])
+        ];
+        //check and create the tags
+        $WebsiteStoreTag->updateOrCreate($insertArray);
+
+        return response()->json(['code' => 200, 'message' => 'Tags Added Successfully']);
+        
+    }
+
+    function    attach_tags(Request     $request,   StoreWebsite   $StoreWebsite){
+        $data   =   $request->all();
+
+         $validator = Validator::make($data, [
+            'store_id' => 'required',
+            'tag_attached' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : ".$er.'<br>';
+
+                }
+            }
+
+            return response()->json(['code' => 400, 'message' => $outputString]);
+        }
+
+        //attach the tag 
+        $StoreWebsite->where(['id' => $data['store_id']])->update(['tag_id' => $data['tag_attached']]);
+
+        return response()->json(['code' => 200, 'message' => 'Tags Attach Successfully']);
+    }
+
+
+    function    attach_tags_store(StoreWebsite   $StoreWebsite){
+        $list    =   $StoreWebsite->select('tag_id','website','title')->whereNotNull('tag_id')->with('tags')->get();
+        if(!empty($list)){
+            return response()->json(['code' => 200, 'data' => $list, 'message' => 'List found']);
+
+        }
+        return response()->json(['code' => 400, 'message' => 'Tags Not found']);
+    }
+    
     public function generateAdminPassword(Request $request)
     {
         $usernames = $request->username;

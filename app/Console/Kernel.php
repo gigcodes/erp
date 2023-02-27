@@ -511,6 +511,7 @@ class Kernel extends ConsoleKernel
 
         // Update the inventory (every fifteen minutes)
         // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
+        $schedule->command('magento:get-config-value')->dailyAt('00:00')->timezone('Asia/Dubai');
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
@@ -697,8 +698,13 @@ class Kernel extends ConsoleKernel
         // Database log Cron
         $schedule->command('databaselog:cron')->dailyAt('0:00');
 
+
         //Developer Reporting API Cron
         $schedule->command('DevAPIReport:check')->hourly();
+
+        // Ads history Cron
+        $schedule->command('social:ads-history')->dailyAt('0:00');
+
     }
 
     /**`

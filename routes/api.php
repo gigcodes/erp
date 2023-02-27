@@ -306,6 +306,7 @@ Route::post('customer/add_cart_data', [Api\v1\CustomerController::class, 'add_ca
 
 // Social Webhook
 Route::get('social/webhook', [SocialWebhookController::class, 'verifyWebhook']);
+Route::get('social/webhookfbtoken', [SocialWebhookController::class, 'webhookfbtoken']);
 Route::post('social/webhook', [SocialWebhookController::class, 'webhook']);
 
 //Sync Transaction with order

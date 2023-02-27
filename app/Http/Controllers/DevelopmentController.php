@@ -1308,7 +1308,8 @@ class DevelopmentController extends Controller
         $task = Task::with(['timeSpent']); // ->where('is_flagged', '1')
         $task->whereNotIn('tasks.status', [
             Task::TASK_STATUS_DONE,
-            Task::TASK_STATUS_IN_REVIEW,
+            Task::TASK_STATUS_USER_COMPLETE,
+            Task::TASK_STATUS_USER_COMPLETE_2,
         ]);
         // $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
 
@@ -1365,7 +1366,7 @@ class DevelopmentController extends Controller
         if (! empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
-        $task = $task->where('tasks.status', $inprocessStatusID->id);
+        // $task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition = $whereTaskCondition = '';
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
@@ -4453,6 +4454,89 @@ class DevelopmentController extends Controller
         $html[] = '</table>';
 
         return respJson(200, '', ['data' => implode('', $html)]);
+    }
+
+    /**
+     * function to show the user wise development task's statuses counts.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function developmentTaskSummary(Request $request)
+    {
+        // $userListWithStatuesCnt = $getTaskStatus = $arrUserNameId = $arrStatusCount =
+        $userslist = $statuslist = null;
+        $getTaskStatus = TaskStatus::orderBy('name', 'asc')->groupBy('name')->get();
+        $getTaskStatusIds = TaskStatus::select(DB::raw('group_concat(name) as name'))->first();
+        $arrTaskStatusNames = explode(',', $getTaskStatusIds['name']);
+
+        $userListWithStatuesCnt = User::select('developer_tasks.id', 'developer_tasks.user_id', 'users.id as userid', 'users.name', 'developer_tasks.status', DB::raw('(SELECT developer_tasks.created_at from developer_tasks where developer_tasks.user_id = users.id order by developer_tasks.created_at DESC limit 1) AS created_date'), 'users.name', DB::raw('count(developer_tasks.id) statusCnt'));
+        $userListWithStatuesCnt = $userListWithStatuesCnt->join('developer_tasks', 'developer_tasks.user_id', 'users.id')->where('users.is_task_planned', 1);
+
+        // Code for filter
+        //Get all searchable user list
+        $userslist = $statuslist = null;
+        $filterUserIds = $request->get('users_filter');
+        $filterStatusIds = $request->get('status_filter');
+
+        //Get all searchable status list
+        if ((int) $filterUserIds > 0 && (int) $filterStatusIds > 0) {
+            $searchableStatus = TaskStatus::WhereIn('id', $filterStatusIds)->get();
+            $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('developer_tasks.user_id', $filterUserIds)->where(function ($query) use ($searchableStatus) {
+                foreach ($searchableStatus as $searchTerm) {
+                    $query->orWhere('developer_tasks.status', 'like', "%$searchTerm->name%");
+                }
+            });
+            $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
+            $userslist = User::whereIn('id', $filterUserIds)->get();
+        } elseif ((int) $filterUserIds > 0) {
+            $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('users.id', $filterUserIds);
+            $userslist = User::whereIn('id', $request->get('users_filter'))->get();
+        } elseif ((int) $filterStatusIds > 0) {
+            $searchableStatus = TaskStatus::WhereIn('id', $filterStatusIds)->get();
+            $userListWithStatuesCnt = $userListWithStatuesCnt->where(function ($query) use ($searchableStatus) {
+                foreach ($searchableStatus as $searchTerm) {
+                    $query->orWhere('developer_tasks.status', 'like', "%$searchTerm->name%");
+                }
+            });
+            $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
+        }
+
+        $userListWithStatuesCnt = $userListWithStatuesCnt->groupBy('users.id', 'developer_tasks.user_id', 'developer_tasks.status')
+            ->orderBy('created_date', 'desc')->orderBy('developer_tasks.status', 'asc')
+            ->get();
+
+        $arrStatusCount = [];
+        $arrUserNameId = [];
+        foreach ($userListWithStatuesCnt as $key => $value) {
+            $status = $value['status'];
+            $arrStatusCount[$value['userid']][$status] = $value['statusCnt'];
+            $arrUserNameId[$value['userid']]['name'] = $value['name'];
+            $arrUserNameId[$value['userid']]['userid'] = $value['userid'];
+            foreach ($arrTaskStatusNames as $key => $arrTaskStatusNamevalue) {
+                if (! array_key_exists($arrTaskStatusNamevalue, $arrStatusCount[$value['userid']])) {
+                    $arrStatusCount[$value['userid']][$arrTaskStatusNamevalue] = 0;
+                }
+            }
+            isset($arrStatusCount[$value['userid']]) ? ksort($arrStatusCount[$value['userid']]) : '';
+        }
+
+        return view('development.devtasksummary', compact('userListWithStatuesCnt', 'getTaskStatus', 'arrUserNameId', 'arrStatusCount', 'userslist', 'statuslist'));
+    }
+
+    /**
+     * function to show all the task list based on specific status and user
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $user_id, $status
+     * @return \Illuminate\Http\Response
+     */
+    public function developmentTaskList(Request $request)
+    {
+        $taskDetails = DeveloperTask::where('status', $request->taskStatusId)->where('user_id', $request->userId)->get();
+
+        return response()->json(['data' => $taskDetails]);
     }
 
     /**
