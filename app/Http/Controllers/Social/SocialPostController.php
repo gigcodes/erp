@@ -16,6 +16,7 @@ use Response;
 use Session;
 use App\Helpers\SocialHelper;
 use CURLFile;
+use Storage;
 
 class SocialPostController extends Controller
 {
@@ -261,33 +262,40 @@ class SocialPostController extends Controller
                     }	// Video Case
                     elseif ($request->hasFile('video1')) {
 
+                        
                         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to video upload');
                         try{
-
-
-                            $file = $request->file('video1');
-                            $filename = $file->getClientOriginalName();
-                            $file->storeAs('public/videos', $filename);
-                            $path = storage_path('app/public/videos/' . $filename);
-                           
-                           // $access_token = 'EAAIALK1F98IBAD5OFxcIGnZAZBLFy9a4xMV9ZANNyf1EKTI7bqDGHZAgZAE6txVSZCXFvJTpQ2KsBxeBs7bxAplZAiwtATHaY25doLKXKuxUXb0gvuOUuLTJXOVZCZCXLTpqZC5PbdRP2IMHgl4ZAgGmRszvXRPGBOFgDi0A5Bsx8ZChse8LXKgeDeYWD8tLpsi6tkAP72JodYj4ZAWuxXZBlDH1WmceDp59P1HuMZD';
-
+                            ini_set('memory_limit','-1');   // Added memory limit allowing maximum memory
+                            ini_set('max_execution_time','-1'); 
                             $access_token = $config->page_token;
                             $page_id = $config->page_id;
-                            $image_upload_url = 'https://graph-video.facebook.com/v15.0/'.$page_id.'/videos';
-                            $video_file_path = $request->file('video1');
-                            
-                            $fbVideo = [
-                                'access_token' =>$access_token, 
-                                'source' =>new CURLFile($path), 
-                                'description' => $message, 
-                            ];
+                            $message = $request->input('message');
+                            $media = MediaUploader::fromSource($request->file('video1'))
+                                ->toDirectory('social_images/'.floor($post->id / config('constants.image_per_folder')))
+                                ->upload();
+                            $post->attachMedia($media, config('constants.media_tags'));
 
-                            $response = SocialHelper::curlPostRequest($image_upload_url,$fbVideo);
+                            foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
+                                $mediaurl = $file->getUrl();
+                            }
+                            $uploadUrl = "https://graph-video.facebook.com/v16.0/{$page_id}/videos";
+                            $curl = curl_init($uploadUrl);
+                            curl_setopt($curl, CURLOPT_POST, true);
+                            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                            curl_setopt($curl, CURLOPT_POSTFIELDS, array(
+                                'file_url' =>  $mediaurl,
+                                'access_token' => $access_token,
+                                'description' => $message
+                            ));
+
+                            // execute the cURL request and handle any errors
+                            $response = curl_exec($curl);
+                            if ($response === false) {
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
+                            }
                             $response = json_decode($response);
-                            
-                            dd($response);
-                            
+                            curl_close($curl);
+
                             if(isset($response->id)){
                                 $post->status = 1;
                                 $post->ref_post_id = $response->id;
@@ -299,7 +307,6 @@ class SocialPostController extends Controller
                                 $this->socialPostLog($config->id, $post->id, $config->platform, 'error', 'post faild');
                                 Session::flash('message', $response->error->message);
                             }
-
                         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
                         }
@@ -422,6 +429,8 @@ class SocialPostController extends Controller
 
         return redirect()->route('social.post.index', $config->id);
     }
+
+
 
     /**
      * Display the specified resource.
