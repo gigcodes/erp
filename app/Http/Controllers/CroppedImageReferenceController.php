@@ -174,7 +174,7 @@ class CroppedImageReferenceController extends Controller
                 ->paginate(10);
             \Log::info('crop_reference_grid_page_without_filter_end: '.date("Y-m-d H:i:s"));
         }
-        $total = $products->count();
+        $total = $products->total();
         
         \Log::info('crop_reference_grid_page_pending_product_start: '.date("Y-m-d H:i:s"));
         $pendingProduct = Product::where('status_id', StatusHelper::$autoCrop)->where('stock', '>=', 1)->count();
@@ -211,7 +211,7 @@ class CroppedImageReferenceController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('image_references.partials.griddata', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'))->render(),
-                'links' => $products,
+                'links' => (string) $products->appends(request()->except(['page']))->render(),
                 'total' => $total,
             ], 200);
         }
@@ -228,7 +228,7 @@ class CroppedImageReferenceController extends Controller
 
     public function getCategories(Request $request)
     {
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2', 'id' => 'category'])
+        $category_selection = Category::attr(['text' => 'Category','name' => 'category[]', 'class' => 'form-control select-multiple2', 'id' => 'category'])
             ->renderAsArray();
         $answer = $this->setByParent($category_selection);
 
