@@ -2560,12 +2560,14 @@ Route::any('twilio/saverecording', [TwilioController::class, 'saveRecording'])->
 Route::post('twilio/update-reservation-status', [TwilioController::class, 'updateReservationStatus'])->name('update_reservation_status');
 
 Route::get('twilio/reject-call-twiml', [TwilioController::class, 'rejectIncomingCallTwiml'])->name('twilio.reject_call_twiml');
-Route::post('twilio/cancel-task-record', [TwilioController::class, 'canceldTaskRecord'])->name('twilio.cancel_task_record');
-Route::post('twilio/store-cancel-task-record', [TwilioController::class, 'storeCanceldTaskRecord'])->name('twilio.store_cancel_task_record');
-Route::post('twilio/store-complete-task-record', [TwilioController::class, 'storeCompleteTaskRecord'])->name('twilio.store_complete_task_record');
+Route::any('twilio/cancel-task-record', [TwilioController::class, 'canceldTaskRecord'])->name('twilio.cancel_task_record');
+Route::any('twilio/store-cancel-task-record', [TwilioController::class, 'storeCanceldTaskRecord'])->name('twilio.store_cancel_task_record');
+Route::any('twilio/store-complete-task-record', [TwilioController::class, 'storeCompleteTaskRecord'])->name('twilio.store_complete_task_record');
 
 Route::get(
     '/twilio/hangup', [TwilioController::class, 'showHangup'])->name('hangup');
+
+Route::post('twilio/handleIncomingCall', [TwilioController::class, 'handleIncomingCall'])->name('handleIncomingCall');;
 
 Route::get('exotel/outgoing', [ExotelController::class, 'call'])->name('exotel.call');
 Route::get('exotel/checkNumber', [ExotelController::class, 'checkNumber']);
