@@ -160,6 +160,7 @@ use App\Console\Commands\ZabbixProblemImport;
 use App\Console\Commands\ZabbixStore;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\ZoomMeetingRecordings;
+use App\Console\Commands\SaveZoomMeetingRecordings;
 use App\Console\Commands\DevAPIReport;
 use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
@@ -232,6 +233,7 @@ class Kernel extends ConsoleKernel
         TwilioCallLogs::class,
         ZoomMeetingRecordings::class,
         ZoomMeetingDeleteRecordings::class,
+        SaveZoomMeetingRecordings::class,
         FlagCustomersIfTheyHaveAComplaint::class,
         MakeKeywordAndCustomersIndex::class,
         GetMostUsedWordsInCustomerMessages::class,
@@ -721,7 +723,7 @@ class Kernel extends ConsoleKernel
 
         // Ads history Cron
         $schedule->command('social:ads-history')->dailyAt('0:00');
-
+        $schedule->command('save:zoom-meetings')->daily();
     }
 
     /**`
