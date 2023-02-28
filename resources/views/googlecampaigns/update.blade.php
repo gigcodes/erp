@@ -151,7 +151,7 @@
         $("#target_cost_per_action").prop('checked',false);
         $("#div_roas").hide();
         $("#div_targetspend").hide();
-        if(biddingStrategyTypeVal=="MAXIMIZE_CONVERSION_VALUE" || biddingStrategyTypeVal=="TARGET_CPA"){
+        if(biddingStrategyTypeVal=="TARGET_CPA"){
             //append HTML into form
             /* var html='<div id="maindiv_for_target"><input type="checkbox" name="target_cost_per_action" id="target_cost_per_action" value="1"> Set a target cost per action\n\
             <div id="div_html_append_1" style="display:none;">\n\
@@ -196,7 +196,7 @@
         $("#div_targetspend").hide();
         var bidding_focus_on_val=bidding_focus_on.val();
         if(bidding_focus_on_val=="conversions"){
-                biddingStrategyArray=['TARGET_CPA','TARGET_ROAS','TARGET_SPEND','MAXIMIZE_CONVERSION','MANUAL_CPM','MANUAL_CPC'];
+            biddingStrategyArray=['TARGET_CPA','TARGET_ROAS','TARGET_SPEND','MAXIMIZE_CONVERSIONS','MANUAL_CPM','MANUAL_CPC','UNSPECIFIED'];
         }
         if(biddingStrategyArray.length>0){
             $(biddingStrategyArray).each(function(i,v){
@@ -208,9 +208,8 @@
     $("#resetBiddingSection").click(function(){
         $("#biddingStrategyType").removeAttr('selected');
         $("#biddingStrategyType option").hide();
-        
        
-                biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+        biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
        
         if(biddingStrategyArray.length>0){
             $(biddingStrategyArray).each(function(i,v){

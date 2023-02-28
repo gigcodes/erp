@@ -132,9 +132,11 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Add Product from scraper to erp",
      *   operationId="scrape​r-post-product",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="sku",
      *          in="formData",
@@ -152,19 +154,23 @@ class ScrapController extends Controller
      *          in="formData",
      *          required=true,
      *          type="array",
+     *
      *           @SWG\Items(
      *              type="string",
      *           ),
      *      ),
+     *
      *      @SWG\Parameter(
      *          name="properties",
      *          in="formData",
      *          required=true,
      *          type="array",
+     *
      *          @SWG\Items(
      *             type="string",
      *           ),
      *      ),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",
@@ -689,9 +695,11 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="Create supplier",
      *   operationId="scraper-product-save-supplier",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="supplier",
      *          in="formData",
@@ -776,6 +784,7 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="Update/Add product from external scraper",
      *   operationId="scraper-add-procuct-supplier",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -1071,9 +1080,11 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="Process product links for scraper to check which links are available to scrap",
      *   operationId="scraper-process-product-links",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="links[]",
      *          in="formData",
@@ -1175,9 +1186,11 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="Process product links for scraper to check which links are available to scrap and will store the entry brand wise",
      *   operationId="scraper-process-product-links-by-brand",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="links[]",
      *          in="formData",
@@ -1480,6 +1493,7 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="List of product which is in queue where done = 0 in scrap_queues",
      *   operationId="scraper-products-auto-rejected",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -1492,6 +1506,7 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="List of product which is in queue where done = 0 in scrap_queues",
      *   operationId="scraper-products-get-products-to-scrape",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -1504,6 +1519,7 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="List of product which is in queue where done = 0 in scrap_queues",
      *   operationId="scraper-products-new-supplier",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -1711,6 +1727,7 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Send the next scraper",
      *   operationId="scraper-next",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=400, description="No Scraper Present"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -1759,9 +1776,11 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Update scraper end time",
      *   operationId="scraper-endtime",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=400, description="No Scraper Present"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="id",
      *          in="path",
@@ -1809,7 +1828,9 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Update scraper last started at time",
      *   operationId="scrapper-ready",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
+     *
      *      @SWG\Parameter(
      *          name="scraper_name",
      *          in="path",
@@ -1838,7 +1859,9 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Update scraper last completed at",
      *   operationId="scrapper-completed",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
+     *
      *      @SWG\Parameter(
      *          name="scraper_name",
      *          in="path",
@@ -1867,8 +1890,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="List of scraper which need to start",
      *   operationId="scraper-need-start",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="server_id",
      *          in="path",
@@ -1902,6 +1927,7 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Send product which is on request from external scraper",
      *   operationId="scraper-needed-product",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      * )
      */
@@ -1935,9 +1961,11 @@ class ScrapController extends Controller
      *   tags={"Node"},
      *   summary="Product restart node",
      *   operationId="procuct-restart-node",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -1981,9 +2009,11 @@ class ScrapController extends Controller
      *   tags={"Node"},
      *   summary="procuct get status",
      *   operationId="procuct-get-status",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -2141,8 +2171,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"} ,
      *   summary="Store scraper screenshot into database",
      *   operationId="scrape-send-screenshot",
+     *
      *   @SWG\Response(response=200, description="Screenshot saved successfully"),
      *   @SWG\Response(response=500, description="Required field is missing"),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",
@@ -2198,8 +2230,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"} ,
      *   summary="Store scraper posiotion periodically",
      *   operationId="scrape-send-position",
+     *
      *   @SWG\Response(response=200, description="History saved successfully"),
      *   @SWG\Response(response=500, description="Required field is missing"),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",
@@ -2301,8 +2335,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"} ,
      *   summary="Check scraper is auto restart ?",
      *   operationId="scrape-auto-restart",
+     *
      *   @SWG\Response(response=200, description="Success"),
      *   @SWG\Response(response=500, description="Required field is missing"),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",
@@ -2332,8 +2368,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"} ,
      *   summary="Update scraper restart time",
      *   operationId="scrape-update-restart-time",
+     *
      *   @SWG\Response(response=200, description="History saved successfully"),
      *   @SWG\Response(response=500, description="Required field is missing"),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",

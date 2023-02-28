@@ -83,7 +83,6 @@ class BrandController extends Controller
             });
             /*}*/
         }
-
         $keyword = request('keyword');
         if (! empty($keyWord)) {
             $brands->where(function ($q) use ($keyWord) {
@@ -105,7 +104,7 @@ class BrandController extends Controller
         if ($developers) {
             foreach ($developers as $_developer) {
                 if ($_developer->singleBrandTask) {
-                    $alldevs[$_developer->singleBrandTask->assignedUser->id] = $_developer->singleBrandTask->assignedUser->name;
+                    $alldevs[!empty($_developer->singleBrandTask->assignedUser)?$_developer->singleBrandTask->assignedUser->id:""] = !empty($_developer->singleBrandTask->assignedUser)?$_developer->singleBrandTask->assignedUser->name:"";
                 }
             }
         }
@@ -343,9 +342,11 @@ class BrandController extends Controller
      *   tags={"Scraper"},
      *   summary="List all brands and reference for scraper",
      *   operationId="scraper-get-brands-reference",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",

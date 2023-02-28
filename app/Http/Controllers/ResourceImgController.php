@@ -175,9 +175,11 @@ class ResourceImgController extends Controller
      *   tags={"Documents"},
      *   summary="post Documents values as per category",
      *   operationId="get-document-per-category",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",

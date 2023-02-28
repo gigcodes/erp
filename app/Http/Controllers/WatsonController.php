@@ -46,6 +46,8 @@ class WatsonController extends Controller
             'work_space_id' => 'required|string',
             'assistant_id' => 'required|string',
             'url' => 'required|string',
+            'speech_to_text_api_key' => 'required|string',
+            'speech_to_text_url' => 'required|string',
             'user_name' => 'required|string',
             'password' => 'required|string',
         ]);

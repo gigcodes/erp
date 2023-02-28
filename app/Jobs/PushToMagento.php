@@ -180,7 +180,7 @@ class PushToMagento implements ShouldQueue
                     }
 
                     try {
-                        MagentoServiceJob::dispatch($product, $website, $this->log)->onQueue($this->log->queue);
+                        MagentoServiceJob::dispatch($product, $website, $this->log, $this->mode)->onQueue($this->log->queue);
                     } catch (\Exception $e) {
                         $error_msg = 'Second Job failed: '.$e->getMessage();
                         $this->log->sync_status = 'error';
