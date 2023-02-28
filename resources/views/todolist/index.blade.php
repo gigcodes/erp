@@ -27,7 +27,6 @@
 
 
 @section('content')
-    <div class="col-md-12">
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
@@ -67,18 +66,18 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
+                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
             </div>
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal"
-                    data-target="#todolistCreateModal">+
+                    data-target="#todolistCreateModal">+</a>
                 </button>
                 &nbsp;
                 <button type="button" class="btn btn-primary" data-toggle="modal"
-                    data-target="#todolistStatusCreateModal">Add Status </button>
+                    data-target="#todolistStatusCreateModal">Add Status</a> </button>
                 <button type="button" class="btn btn-primary" data-toggle="modal"
-                    data-target="#todolistCategoryCreateModal">Add Category </button> &nbsp; &nbsp;
+                    data-target="#todolistCategoryCreateModal">Add Category</a> </button> &nbsp; &nbsp;
             </div>
         </div>
     </div>
@@ -121,7 +120,7 @@
                 </tr>
 
                 {{-- <tr>
-		  
+
             <th></th>
             <th><input type="text" id="website" class="search form-control"></th>
             <th><input type="text" id="username" class="search form-control"></th>
@@ -296,7 +295,7 @@
                             <div class='input-group date' id='todo-update-date'>
                                 <input type="text" class="form-control global" name="todo_date" placeholder="Date"
                                     value="{{ old('todo_date') }}">
-                                    
+
                                 <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </span>
@@ -325,7 +324,7 @@
 
         </div>
     </div>
-    
+
     <div id="getRemarkHistory" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
@@ -393,6 +392,7 @@
 
         </div>
     </div>
+  </div>
 
     <div id="todolistCategoryCreateModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -425,8 +425,7 @@
 
         </div>
     </div>
-
-    </div>
+  </div>
 @endsection
 
 
@@ -631,7 +630,7 @@
             $('#userIds').val(values);
         });
 
-        
+
 
         function statusChange(id, xvla) {
             $.ajax({
