@@ -27,6 +27,7 @@
 
 
 @section('content')
+    <div class="col-md-12">
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
@@ -66,18 +67,18 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
                 </form>
             </div>
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal"
-                    data-target="#todolistCreateModal">+</a>
+                    data-target="#todolistCreateModal">+
                 </button>
                 &nbsp;
                 <button type="button" class="btn btn-primary" data-toggle="modal"
-                    data-target="#todolistStatusCreateModal">Add Status</a> </button>
+                    data-target="#todolistStatusCreateModal">Add Status </button>
                 <button type="button" class="btn btn-primary" data-toggle="modal"
-                    data-target="#todolistCategoryCreateModal">Add Category</a> </button> &nbsp; &nbsp;
+                    data-target="#todolistCategoryCreateModal">Add Category </button> &nbsp; &nbsp;
             </div>
         </div>
     </div>
@@ -392,7 +393,6 @@
 
         </div>
     </div>
-  </div>
 
     <div id="todolistCategoryCreateModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -425,7 +425,8 @@
 
         </div>
     </div>
-  </div>
+
+    </div>
 @endsection
 
 
