@@ -57,6 +57,14 @@ use App\Console\Commands\IncrementFrequencyWhatsappConfig;
 use App\Console\Commands\InfluencerDescription;
 //use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\InsertPleskEmail;
+
+use App\Console\Commands\IosUsageReport;
+use App\Console\Commands\IosAdsReport;
+use App\Console\Commands\IosSalesReport;
+use App\Console\Commands\IosSubscriptionReport;
+use App\Console\Commands\IosPaymentsReport;
+use App\Console\Commands\IosRatingsReport;
+
 use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\MagentoReportLog;
 use App\Console\Commands\MagentoSettingAddUpdate;
@@ -348,8 +356,10 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
 
-        $schedule->command('command:tasks-time-reminder')->dailyAt('01:00'); // status detail
-        $schedule->command('command:date_time_reminder')->dailyAt('01:00'); // status detail
+        //This command will runs every day in the night to send a message to the user to update the time...
+        //$schedule->command('command:tasks-time-reminder')->dailyAt('01:00'); // status detail
+        //$schedule->command('command:date_time_reminder')->dailyAt('01:00'); // status detail
+
         $schedule->command('command:send_message')->hourly();
 
         $schedule->command('websitelog')->daily(); // website log
@@ -507,6 +517,7 @@ class Kernel extends ConsoleKernel
 
         // Update the inventory (every fifteen minutes)
         // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
+        $schedule->command('magento:get-config-value')->dailyAt('00:00')->timezone('Asia/Dubai');
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
@@ -651,6 +662,15 @@ class Kernel extends ConsoleKernel
         //daily cron for checking due date and add to cashflow
         $schedule->command('assetsmanagerduedate:pay')->daily();
 
+         //daily cron for checking Ios Report
+        $schedule->command('IosUsageReport:check')->daily();
+        $schedule->command('IosSalesReport:check')->daily();
+        $schedule->command('IosRatingsReport:check')->daily();
+        $schedule->command('IosAdsReport:check')->daily();
+        $schedule->command('IosPaymentsReport:check')->daily();
+        $schedule->command('IosSubscriptionReport:check')->daily();
+
+
         //for adding due date in asset manager
         $schedule->command('assetsmanagerpayment:cron Daily')->daily();
         $schedule->command('assetsmanagerpayment:cron Weekly')->weekly();
@@ -692,9 +712,12 @@ class Kernel extends ConsoleKernel
 
         // Database log Cron
         $schedule->command('databaselog:cron')->dailyAt('0:00');
+
+        // Ads history Cron
+        $schedule->command('social:ads-history')->dailyAt('0:00');
     }
 
-    /**
+    /**`
      * Register the commands for the application.
      *
      * @return void

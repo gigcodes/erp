@@ -25,8 +25,8 @@
         "google/apiclient": "^2.6",
         "google/cloud-bigquery": "^1.23",
         "google/cloud-translate": "^1.9",
-        "googleads/google-ads-php": "*",
-        "googleads/googleads-php-lib": "*",
+        "googleads/google-ads-php": "^17.1",
+        "googleads/googleads-php-lib": "^59.0",
         "guzzlehttp/guzzle": "^6.3.1|^7.2.2",
         "intervention/image": "^2.5",
         "iwasherefirst2/laravel-multimail": "^1.3",
@@ -93,7 +93,8 @@
         "beyondcode/laravel-dump-server": "^1.5",
         "phpunit/phpunit": "^9.5.10",
         "fakerphp/faker": "^1.9.1",
-        "facade/ignition": "^2.5"
+        "facade/ignition": "^2.5",
+        "overtrue/phplint":"^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -149,13 +150,11 @@
         {
             "type": "vcs",
             "url": "git@github.com:ludxb/laravel-mail-editor.git"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:umeshghediya/google-ads-php"
         }
     ],
     "scripts": {
+        "lint":"phplint --no-cache src/",
+
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
@@ -178,7 +177,7 @@
             "kylekatarnls/update-helper": true
         },
         "github-oauth": {
-            "github.com": "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"
+
         }
     },
     "minimum-stability": "dev",

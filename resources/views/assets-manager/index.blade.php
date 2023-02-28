@@ -27,14 +27,14 @@
                 <div class="form-group ml-3">
                   <?php echo Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]); ?>
                 </div>
-                <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
+                <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
               </form>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-xs ml-3 mr-3" data-toggle="modal" data-target="#assetsCreateModal"><i class="fa fa-plus"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm text-white mr-4" data-toggle="modal" data-target="#assetsCreateModal"><i class="fa fa-plus"></i></button>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-xs ml-3 mr-3" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
+                <button type="button" class="btn btn-xs ml-3 mr-3 mt-1" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
             </div>
         </div>
     </div>
@@ -62,12 +62,12 @@
               <th width="5%">Currency</th>
               <th width="3%">Location</th>
               <th width="5%">Usage</th>
-              <th width="34%">Action</th>
+              <th width="5%">Action</th>
             </tr>
           </thead>
 
           <tbody>
-            @foreach ($assets as $asset)
+            @foreach ($assets as $k => $asset)
               <tr>
                 <td>{{ $asset->id }}</td>
                 <td class="expand-row-msg" data-name="name" data-id="{{$asset->id}}">
@@ -102,25 +102,32 @@
                   <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
                 </td>
                 <td>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
                     <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
-                    <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
-                        <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
-                        {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-xs pull-left"><i class="fa fa-trash"></i></button>
-                        {!! Form::close() !!}
-                        <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$asset->id}}">
-                          <i class="fa fa-history"></i>
-                        </button>
-                        <button type="button" class="btn btn-xs show-assets-history-log pull-left" data-toggle="modal" data-target="#showAssetsHistoryLogModel"  data-assets_id="{{ $asset->id }}"><i class="fa fa-eye"></i></button>
-                        
-                        <a style="padding:1px;" class="btn d-inline btn-image execute-bash-command-select-folder"  data-folder_name="{{$asset->folder_name}}" data-id="{{$asset->id}}" href="#"  title="Execute Bash Command">
-                          <img src="/images/send.png" style="color:gray; cursor: nwse-resize; width: 0px;">
-                        </a>
-                        <button title="Response History" data-id="{{$asset->id}}" type="button"  class="btn execute_bash_command_response_history"style="padding:1px 0px;">
-                          <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
-                        </button>
                 </td>
-              </tr>
+
+            </tr>
+            <tr class="action-btn-tr-{{$asset->id}} d-none">
+                <td>Action</td>
+                <td colspan="15">
+                    <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" title="Edit Assets" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
+                    <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" title="Make Remark" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
+                    {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
+                    <button type="submit" class="btn btn-xs pull-left" title="Delete Assets"><i class="fa fa-trash"></i></button>
+                    {!! Form::close() !!}
+                    <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" title="Payment History" data-id="{{$asset->id}}">
+                        <i class="fa fa-history"></i>
+                    </button>
+                    <button type="button" class="btn btn-xs show-assets-history-log pull-left" data-toggle="modal" title="Show Assets History" data-target="#showAssetsHistoryLogModel"  data-assets_id="{{ $asset->id }}"><i class="fa fa-eye"></i></button>
+
+                    <a style="padding:1px;" class="btn d-inline btn-image execute-bash-command-select-folder" data-folder_name="{{$asset->folder_name}}" data-id="{{$asset->id}}" href="#"  title="Execute Bash Command">
+                        <img src="{{asset('/images/send.png')}}" style="color:gray; cursor: nwse-resize; width: 0px;">
+                    </a>
+                    <button title="Response History" data-id="{{$asset->id}}" type="button"  class="btn execute_bash_command_response_history"style="padding:1px 0px;">
+                        <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
+                    </button>
+                </td>
+            </tr>
             @endforeach
           </tbody>
         </table>
@@ -223,22 +230,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
+    function Showactionbtn(id){
+      $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
    $('.select-multiple').select2({width: '100%'});
-    $('ul.pagination').hide();
-    $(function() {
-      $('.infinite-scroll').jscroll({
-        autoTrigger: true,
-        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-        padding: 2500,
-        nextSelector: '.pagination li.active + li a',
-        contentSelector: 'div.infinite-scroll',
-        callback: function() {
-          $('ul.pagination').first().remove();
-          $(".select-multiple").select2();
-          initialize_select2();
-        }
-      });
-    });
+    // $('ul.pagination').hide();
+    // $(function() {
+    //   $('.infinite-scroll').jscroll({
+    //     autoTrigger: true,
+    //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+    //     padding: 2500,
+    //     nextSelector: '.pagination li.active + li a',
+    //     contentSelector: 'div.infinite-scroll',
+    //     callback: function() {
+    //       $('ul.pagination').first().remove();
+    //       $(".select-multiple").select2();
+    //       initialize_select2();
+    //     }
+    //   });
+    // });
       
     $(document).on("click", ".execute-bash-command-select-folder", function(href) {
         

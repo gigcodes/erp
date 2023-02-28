@@ -6264,7 +6264,7 @@ class WhatsAppController extends FindByNumberController
         $message_body = $message->message;
 
         if ($email_id > 0) {
-            $email = \App\Email::where('id', $message->email_id);
+            $email = \App\Email::where('id', $message->email_id)->first();
             if ($email) {
                 $subject = $email->subject;
                 $toemail == $email->from;

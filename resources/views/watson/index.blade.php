@@ -122,6 +122,14 @@
                                     <input type="text" class="form-control" name="url" required/>
                                 </div>
                                 <div class="col-md-12">
+                                    <label class="mt-3">Speech to Text Api Key</label>
+                                    <input type="text" class="form-control" name="speech_to_text_api_key" required/>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="mt-3">Speech to Text Url</label>
+                                    <input type="text" class="form-control" name="speech_to_text_url" required/>
+                                </div>
+                                <div class="col-md-12">
                                     <label class="mt-3">Usre name</label>
                                     <input type="text" class="form-control" name="user_name" required/>
                                 </div>
@@ -179,6 +187,14 @@
                                 <div class="col-md-12 mt-3">
                                     <label>Instance Url</label>
                                     <input type="text" class="form-control" id="instance_url" name="url" required/>
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <label class="mt-3">Speech to Text Api Key</label>
+                                    <input type="text" class="form-control" id="speech_to_text_api_key" name="speech_to_text_api_key" required/>
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <label class="mt-3">Speech to Text Url</label>
+                                    <input type="text" class="form-control" id="speech_to_text_url" name="speech_to_text_url" required/>
                                 </div>
                                 <div class="col-md-12">
                                     <label class="mt-3">Usre name</label>
@@ -251,6 +267,8 @@
                     $('#store_website_id').html(option);
                     $('#api_key').val(response.account.api_key);
                     $('#instance_url').val(response.account.url);
+                    $('#speech_to_text_api_key').val(response.account.speech_to_text_api_key);
+                    $('#speech_to_text_url').val(response.account.speech_to_text_url);
                     $('#account_id').val(response.account.id);
                     $('#work_space_id').val(response.account.work_space_id);
                     $('#assistant_id').val(response.account.assistant_id);

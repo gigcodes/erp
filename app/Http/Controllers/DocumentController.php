@@ -139,6 +139,7 @@ class DocumentController extends Controller
 
         if (! empty($document->file_contents)) {
             $finfo = new finfo(FILEINFO_MIME_TYPE);
+
             $mime = $finfo->buffer($document->file_contents);
 
             return response($document->file_contents)
@@ -491,9 +492,11 @@ class DocumentController extends Controller
      *   tags={"Documents"},
      *   summary="post Documents values as per user",
      *   operationId="get-document-per-user",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -549,12 +552,14 @@ class DocumentController extends Controller
         $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
         $category = DocumentCategory::select('id', 'name')->get();
         $api_keys = ApiKey::select('number')->get();
+        $emailAddresses = EmailAddress::orderBy('id', 'asc')->pluck('from_address', 'id');
 
         return view('documents.email', [
             'documents' => $documents,
             'users' => $users,
             'category' => $category,
             'api_keys' => $api_keys,
+            'emailAddresses' => $emailAddresses,
         ]);
     }
 }

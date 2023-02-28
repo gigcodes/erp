@@ -24,8 +24,8 @@
                 <td colspan="10">
                     <span class="" id="welcome_message_div">
                         <strong style="float: left;"> Greeting Message : </strong> &nbsp;
-                        <input type="text" name="welcome_message" id="welcome_message" class="form-control" style="float: left;width: 50% !important; margin-left:10px;" />&nbsp;&nbsp;
-                        <a href="#"  style="float: left; margin-left:10px;" class="btn btn-secondary save_twilio_greeting_message">Save</a> 
+                        <input type="text" name="welcome_message" id="welcome_message" value="{{ $store_web_data->twilio_greeting_message ?? '' }}" class="form-control" style="float: left;width: 50% !important; margin-left:10px;" />&nbsp;&nbsp;
+                        <a href="#"  style="float: left; margin-left:10px;" class="btn btn-secondary save_twilio_greeting_message" data-website-id="{{$web_site_id}}">Save</a>
                     </span>
                 </td>
             </tr>
@@ -226,7 +226,7 @@
 
 $('.save_twilio_greeting_message').on("click", function(e){
     var message = $('#welcome_message').val();
-    var website_id = $('.store_website_twilio_key').val();
+    var website_id = $(this).data("website-id");
    
     if(message == '')
     {

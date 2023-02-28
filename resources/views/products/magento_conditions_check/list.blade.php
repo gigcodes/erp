@@ -250,9 +250,11 @@
             </td>
             <td>
                 @php
-                  $logList = \App\Loggers\LogListMagento::select('message')
+                    $logList = \App\Loggers\LogListMagento::select('message')
                         ->where('product_id', $product->id)->where('store_website_id', $product->sw_id)->orderBy('id', 'desc')->first();
-                    echo $logList->message;
+                    if(isset($logList) && !empty($logList)) {
+                        echo $logList->message;
+                    }
                 @endphp
             </td>
             <td>
