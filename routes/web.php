@@ -119,6 +119,7 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
 use App\Http\Controllers\GoogleSearchController;
@@ -333,7 +334,9 @@ use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+
 use App\Http\Controllers\UnknownAttributeProductController;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppConnect\AppConnectController;
 
@@ -3689,6 +3692,13 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/flag', [GoogleAffiliateController::class, 'flag'])->name('affiliate.flag');
     Route::post('affiliate/email/send', [GoogleAffiliateController::class, 'emailSend'])->name('affiliate.email.send');
     Route::get('/affiliate/scrap', [GoogleAffiliateController::class, 'callScraper'])->name('google.affiliate.keyword.scrap');
+    //Google Developer API
+// Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
+
+Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+// Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
+Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -4566,6 +4576,7 @@ Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList'
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
 
 
+
 Route::prefix('appconnect')->middleware('auth')->group(function () {
 Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
 Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
@@ -4576,3 +4587,4 @@ Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name
  });
 
    
+
