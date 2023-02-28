@@ -333,6 +333,7 @@ use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+use App\Http\Controllers\UnknownAttributeProductController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -638,6 +639,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
+    Route::get('unknown-attribute-products', [UnknownAttributeProductController::class,'index'])->name('unknown.attribute.products');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
