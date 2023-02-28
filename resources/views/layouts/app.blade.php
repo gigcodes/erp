@@ -53,7 +53,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
    <style type="text/css">
         .select2-container--open{
             z-index:9999999
@@ -720,6 +720,8 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ action('\App\Http\Controllers\AttributeReplacementController@index') }}">Attribute
                                                     Replacement</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\UnknownAttributeProductController@index') }}">Incorrect Attributes</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1512,6 +1514,10 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
+                                        Meeting List</a>
+                                </li>                                
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -2034,6 +2040,7 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2057,6 +2064,7 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
                                 @endif
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>Google<span
@@ -2076,6 +2084,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.search.results')}}">Search Results</a>
                                                 </li>
+                                               
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2096,6 +2105,22 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.affiliate.results')}}">Search Results</a>
                                                 </li>
+                                            </ul>
+                                        </li>
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                v-pre>Developer API<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.developer-api.crash')}}">Crash Report</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.anr')}}">ANR Report</a>
+                                                </li>
+                                            
                                             </ul>
                                         </li>
                                     </ul>

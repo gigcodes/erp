@@ -119,6 +119,7 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
 use App\Http\Controllers\GoogleSearchController;
@@ -333,7 +334,9 @@ use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+
 use App\Http\Controllers\UnknownAttributeProductController;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppConnect\AppConnectController;
 
@@ -641,6 +644,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
     Route::get('unknown-attribute-products', [UnknownAttributeProductController::class,'index'])->name('unknown.attribute.products');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('unknown.attribute.products.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('unknown.attribute.products.get_product_attribute_detail');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -2196,6 +2201,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::delete('vendors/{vendor}/payments/{vendor_payment}', [VendorPaymentController::class, 'destroy'])->name('vendors.payments.destroy');
     Route::resource('vendors', VendorController::class);
     Route::post('vendors/update-status', [VendorController::class, 'updateStatus'])->name('vendor.status.update');
+    Route::get('vendors/meetings/list', [VendorController::class, 'zoomMeetingList'])->name('vendor.meeting.list');
+    Route::post('vendors/update-meeting-description', [VendorController::class, 'updateMeetingDescription'])->name('vendor.meeting.update');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');
@@ -2312,6 +2319,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('merge-category', [VendorCategoryController::class, 'mergeCategory'])->name('vendor-category.merge-category');
         Route::get('/permission', [VendorCategoryController::class, 'usersPermission'])->name('vendor-category.permission');
         Route::post('/update/permission', [VendorCategoryController::class, 'updatePermission'])->name('vendor-category.update.permission');
+        Route::get('/', [VendorCategoryController::class, 'index'])->name('vendor-category.index');
 
         Route::prefix('{id}')->group(function () {
             Route::get('edit', [VendorCategoryController::class, 'edit'])->name('vendor-category.edit');
@@ -2565,12 +2573,14 @@ Route::any('twilio/saverecording', [TwilioController::class, 'saveRecording'])->
 Route::post('twilio/update-reservation-status', [TwilioController::class, 'updateReservationStatus'])->name('update_reservation_status');
 
 Route::get('twilio/reject-call-twiml', [TwilioController::class, 'rejectIncomingCallTwiml'])->name('twilio.reject_call_twiml');
-Route::post('twilio/cancel-task-record', [TwilioController::class, 'canceldTaskRecord'])->name('twilio.cancel_task_record');
-Route::post('twilio/store-cancel-task-record', [TwilioController::class, 'storeCanceldTaskRecord'])->name('twilio.store_cancel_task_record');
-Route::post('twilio/store-complete-task-record', [TwilioController::class, 'storeCompleteTaskRecord'])->name('twilio.store_complete_task_record');
+Route::any('twilio/cancel-task-record', [TwilioController::class, 'canceldTaskRecord'])->name('twilio.cancel_task_record');
+Route::any('twilio/store-cancel-task-record', [TwilioController::class, 'storeCanceldTaskRecord'])->name('twilio.store_cancel_task_record');
+Route::any('twilio/store-complete-task-record', [TwilioController::class, 'storeCompleteTaskRecord'])->name('twilio.store_complete_task_record');
 
 Route::get(
     '/twilio/hangup', [TwilioController::class, 'showHangup'])->name('hangup');
+
+Route::post('twilio/handleIncomingCall', [TwilioController::class, 'handleIncomingCall'])->name('handleIncomingCall');;
 
 Route::get('exotel/outgoing', [ExotelController::class, 'call'])->name('exotel.call');
 Route::get('exotel/checkNumber', [ExotelController::class, 'checkNumber']);
@@ -3689,6 +3699,13 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/flag', [GoogleAffiliateController::class, 'flag'])->name('affiliate.flag');
     Route::post('affiliate/email/send', [GoogleAffiliateController::class, 'emailSend'])->name('affiliate.email.send');
     Route::get('/affiliate/scrap', [GoogleAffiliateController::class, 'callScraper'])->name('google.affiliate.keyword.scrap');
+    //Google Developer API
+// Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
+
+Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+// Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
+Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -4262,6 +4279,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::any('/sentry-log', [SentryLogController::class, 'index'])->name('sentry-log');
+    Route::post('sentry-log/display-user-account', [SentryLogController::class, 'displayUserAccountList'])->name('sentry.display-user');
+    Route::post('sentry-log/saveuseraccount', [SentryLogController::class, 'saveUserAccount'])->name('sentry.adduser');
+    Route::post('sentry-log/refresh_logs', [SentryLogController::class, 'refreshLogs'])->name('sentry.refresh-logs');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
@@ -4566,6 +4586,7 @@ Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList'
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
 
 
+
 Route::prefix('appconnect')->middleware('auth')->group(function () {
 Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
 Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
@@ -4576,3 +4597,4 @@ Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name
  });
 
    
+
