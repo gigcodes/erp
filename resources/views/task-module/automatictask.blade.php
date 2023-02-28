@@ -219,7 +219,7 @@
                 @csrf
                 @if (auth()->user()->isReviwerLikeAdmin())
 
-                    <div class="row">
+                    <div class="row ml-1">
                         <div class="col-md-3">
                             <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}"
                                 placeholder="search" id="term">
@@ -249,10 +249,10 @@
 
                         <div class="col-md-3">
                             <button type="button" class="btn btn-image" onclick="submitSearch()"><img
-                                    src="/images/filter.png" /></button>
+                                    src="{{asset('/images/filter.png')}}" /></button>
 
                             <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img
-                                    src="/images/resend2.png" /></button>
+                                    src="{{asset('/images/resend2.png')}}" /></button>
 
                             <a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
                                 <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
@@ -278,10 +278,10 @@
                     <tr>
                         <th width="10px"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
                         <th width="25px">ID</th>
-                        <th width="30px">Created At</th>
+                        <th width="35px">Created At</th>
                         <th width="40px">Website</th>
                         <th width="25px">Parent Task</th>
-                        <th width="25px">Subject</th>
+                        <th width="30px">Subject</th>
                         <th width="40px">Assigned To</th>
                         <th width="30px">Tracked Time</th>
                         <th width="30px">Estimated Time</th>
@@ -422,6 +422,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 
     <script>
+
+        function Taskbtn(id){
+            $(".action-taskbtn-tr-"+id).toggleClass('d-none')
+        }
+
         $(document).on('click', '.task-submit-reminder', function() {
             var task_message_form = $("#task_message_form").serialize();
             $.ajax({

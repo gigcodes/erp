@@ -132,7 +132,7 @@
                     <button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
                 </div>
 
-                <div class="pull-right">
+                <div class="p-3 pl-4 pr-0 pull-right">
                     <div style="text-align: right; margin-bottom: 10px;">
 
                         <a href="{{url('livechat/getLiveChats/eventlogs')}}" class="btn btn-xs btn-secondary">Live Chat Log</a>
@@ -167,7 +167,7 @@
                 <th style="width: 5%;">Language</th>
                 <th style="width: 20%;">Communication</th>
                 <th style="width: 27%;"></th>
-                <th style="width: 8.5%;">Actions</th>
+                <th style="width: 4%;">Actions</th>
             </tr>
             </thead>
             <tbody id="content_data" class="infinite-scroll-pending-inner">

@@ -93,86 +93,97 @@ class CroppedImageReferenceController extends Controller
 
     public function grid(Request $request)
     {
-        $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category'])->join('products', 'products.id', 'cropped_image_references.product_id');
+        \Log::info('#####crop_reference_grid_page_start#####: '.date("Y-m-d H:i:s"));
+        $query = new CroppedImageReference();
+        $query = $query->where('product_id','!=',0);
+        // $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
+        // $query = $query->join('products', 'products.id', 'cropped_image_references.product_id');
 
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
+            \Log::info('crop_reference_grid_page_filter_start: '.date("Y-m-d H:i:s"));
             if (is_array(request('category'))) {
                 if (request('category') != null && request('category')[0] != 1) {
-                    // $query->whereHas('product', function ($qu) use ($request) {
-                    //     $qu->whereIn('category', request('category'));
-                    // });
-                    $query->whereIn('products.category', request('category'));
+                    $query->whereHas('product', function ($qu) use ($request) {
+                        $qu->whereIn('category', request('category'));
+                    });
+                    // $query->whereIn('products.category', request('category'));
                 }
             } else {
                 if (request('category') != null && request('category') != 1) {
-                    // $query->whereHas('product', function ($qu) use ($request) {
-                    //     $qu->where('category', request('category'));
-                    // });
-                    $query->where('products.category', request('category'));
+                    $query->whereHas('product', function ($qu) use ($request) {
+                        $qu->where('category', request('category'));
+                    });
+                    // $query->where('products.category', request('category'));
                 }
             }
 
             if (isset($request->filter_id) && $request->filter_id) {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->where('id', $request->filter_id);
-                // });
-                $query->where('products.id', $request->filter_id);
+                $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->whereIn('id', $request->filter_id);
+                });
+                // $query->where('products.id', $request->filter_id);
             }
 
             if (request('brand') != null && $request->brand) {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->whereIn('brand', request('brand'));
-                // });
-                $query->whereIn('products.brand', request('brand'));
+                $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->whereIn('brand', request('brand'));
+                });
+                // $query->whereIn('products.brand', request('brand'));
             }
 
             if (request('supplier') != null) {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->whereIn('supplier', request('supplier'));
-                // });
-                $query->whereIn('products.supplier', request('supplier'));
+                $query = $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->whereIn('supplier_id', request('supplier'));
+                });
+                // $query->whereIn('products.supplier', request('supplier'));
             }
 
             if (request('status') != null && request('status') != 0) {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->where('status_id', request('status'));
-                // });
-                $query->where('products.status_id', request('status'));
+                $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->where('status_id', request('status'));
+                });
+                // $query->where('products.status_id', request('status'));
             } else {
-                // $query->whereHas('product', function ($qu) use ($request) {
-                //     $qu->where('status_id', '!=', StatusHelper::$cropRejected);
-                // });
-                $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
+                $query->whereHas('product', function ($qu) use ($request) {
+                    $qu->where('status_id', '!=', StatusHelper::$cropRejected);
+                });
+                // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
             }
 
             if (request('crop') != null) {
                 if (request('crop') == 2) {
-                    $query->whereNotNull('cropped_image_references.new_media_id');
+                    $query->whereNotNull('new_media_id');
                 } elseif (request('crop') == 3) {
-                    $query->whereNull('cropped_image_references.new_media_id');
+                    $query->whereNull('new_media_id');
                 }
             }
-            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')->paginate(50);
+            $products = $query->orderBy('id', 'desc')->paginate(10);
+            \Log::info('crop_reference_grid_page_filter_end: '.date("Y-m-d H:i:s"));
         } else {
-            // $query->whereHas('product', function ($qu) use ($request) {
-            //     $qu->where('status_id', '!=', StatusHelper::$cropRejected);
-            // });
+            \Log::info('crop_reference_grid_page_without_filter_start: '.date("Y-m-d H:i:s"));
+            $query->whereHas('product', function ($qu) use ($request) {
+                $qu->where('status_id', '!=', StatusHelper::$cropRejected);
+            });
+            // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
 
-            $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
-
-            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')
-                ->groupBy('cropped_image_references.original_media_id')
-              ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
-                  $q->with('newMedia');
-              }])
-                ->paginate(50);
+            $products = $query->orderBy('id', 'desc')->paginate(10);
+                // ->groupBy('original_media_id')
+            //   ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
+            //       $q->with('newMedia');
+            //   }])
+            \Log::info('crop_reference_grid_page_without_filter_end: '.date("Y-m-d H:i:s"));
         }
-        $total = $products->count();
-
+        $total = $products->total();
+        
+        \Log::info('crop_reference_grid_page_pending_product_start: '.date("Y-m-d H:i:s"));
         $pendingProduct = Product::where('status_id', StatusHelper::$autoCrop)->where('stock', '>=', 1)->count();
-
+        \Log::info('crop_reference_grid_page_pending_product_end: '.date("Y-m-d H:i:s"));
+        
+        \Log::info('crop_reference_grid_page_pending_category_product_start: '.date("Y-m-d H:i:s"));
         $pendingCategoryProduct = Product::where('status_id', StatusHelper::$attributeRejectCategory)->where('stock', '>=', 1)->count();
-
+        \Log::info('crop_reference_grid_page_pending_category_product_end: '.date("Y-m-d H:i:s"));
+        
+        \Log::info('crop_reference_grid_page_customer_range_start: '.date("Y-m-d H:i:s"));
         if (request('customer_range') != null) {
             $dateArray = explode('-', request('customer_range'));
             $startDate = trim($dateArray[0]);
@@ -193,17 +204,17 @@ class CroppedImageReferenceController extends Controller
         } else {
             $totalCounts = 0;
         }
-
+        \Log::info('crop_reference_grid_page_customer_range_end: '.date("Y-m-d H:i:s"));
         // dd($products);
 
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('image_references.partials.griddata', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'))->render(),
-                'links' => $products,
+                'links' => (string) $products->appends(request()->except(['page']))->render(),
                 'total' => $total,
             ], 200);
         }
-
+        \Log::info('####crop_reference_grid_page_end####: '.date("Y-m-d H:i:s"));
         return view('image_references.grid', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'));
     }
 
@@ -216,7 +227,7 @@ class CroppedImageReferenceController extends Controller
 
     public function getCategories(Request $request)
     {
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2', 'id' => 'category'])
+        $category_selection = Category::attr(['text' => 'Category','name' => 'category[]', 'class' => 'form-control select-multiple2', 'id' => 'category'])
             ->renderAsArray();
         $answer = $this->setByParent($category_selection);
 

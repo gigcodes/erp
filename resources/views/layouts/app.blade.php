@@ -2159,8 +2159,14 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
                                 </li>
-                                    <li class="nav-item dropdown">
+                                <li class="nav-item dropdown">
                                     <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.adcreative.index')}}">Social Ad Creative</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.ad.index')}}">Social Ads</a>
                                 </li>
                                 @endif
                             </ul>
@@ -3068,6 +3074,7 @@ if (!empty($notifications)) {
                                             Directory manager</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
                                         <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
                                     </li>
                                 </ul>
@@ -4884,7 +4891,7 @@ if (!empty($notifications)) {
         $(mini).toggleClass('hidden');
     });
 
-    $(document).on('click', '.send-message-open-menu', function (event) {
+    $(document).on('click', '.send-message-open-quick-menu', function (event) {
         var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
         var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
         let issueId = textBox.attr('data-id');
@@ -5039,6 +5046,7 @@ if (!empty($notifications)) {
                     $(thiss).siblings('input').val('');
                     $('#getMsg' + task_id).val('');
                     $('#menu_confirmMessageModal').modal('hide');
+                    toastr["success"]("Message sent successfully!", "Message");
                     if (cached_suggestions) {
                         suggestions = JSON.parse(cached_suggestions);
                         if (suggestions.length == 10) {
@@ -6027,7 +6035,7 @@ if (!\Auth::guest()) {
 
     $(document).on('change', '#autoTranslate', function(e) {
         e.preventDefault();
-        var customerId = $("input[name='message-id'").val();
+        var customerId = $("input[name='message-id']").val();
         var language = $(".auto-translate").val();
         let self = $(this);
         $.ajax({

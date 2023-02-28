@@ -329,7 +329,11 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
+use App\Http\Controllers\GoogleAdsLogController;
+use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+use App\Http\Controllers\UnknownAttributeProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppConnect\AppConnectController;
 
@@ -636,6 +640,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
+    Route::get('unknown-attribute-products', [UnknownAttributeProductController::class,'index'])->name('unknown.attribute.products');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -666,6 +671,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('roles/update/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::resource('permissions', PermissionController::class);
     Route::get('permissions/grandaccess/users', [PermissionController::class, 'users'])->name('permissions.users');
+    Route::get('permissions/grandaccess/delete', [PermissionController::class, 'delete_record'])->name('permissions.delete');
     Route::get('unauthorized', [RoleController::class, 'unAuthorized']);
     Route::get('search_role', [RoleController::class, 'search_role'])->name('search_role');
     Route::get('users/logins', [UserController::class, 'login'])->name('users.login.index');
@@ -863,6 +869,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('sop', [SopController::class, 'store'])->name('sop.store');
     Route::get('sop', [SopController::class, 'index'])->name('sop.index');
+
+    Route::post('sop/category', [SopController::class, 'categoryStore'])->name('sop.category'); // sop category store route
+    Route::get('sop/category-list', [SopController::class, 'categorylist'])->name('sop.categorylist'); // sop category store route
+
     Route::delete('sop/{id}', [SopController::class, 'delete'])->name('sop.delete');
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
@@ -2045,6 +2055,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     // Ad reports routes
     Route::get('social/ad/report', [SocialController::class, 'report'])->name('social.report');
+    Route::get('social/ad/report-history', [SocialController::class, 'reportHistory'])->name('social.report.history');
     Route::get('social/ad/schedules', [SocialController::class, 'getSchedules'])->name('social.ads.schedules');
     Route::post('social/ad/schedules', [SocialController::class, 'getSchedules'])->name('social.ads.schedules.p');
     Route::get('social/ad/schedules/calendar', [SocialController::class, 'getAdSchedules'])->name('social.ads.schedules.calendar');
@@ -2055,7 +2066,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('social/ad/schedules/{id}', [SocialController::class, 'showSchedule'])->name('social.ads.schedules.show');
     Route::get('social/ad/insight/{adId}', [SocialController::class, 'getAdInsights'])->name('social.ad.insight');
     Route::post('social/ad/report/paginate', [SocialController::class, 'paginateReport'])->name('social.report.paginate');
-    Route::get('social/ad/report/{ad_id}/{status}/', [SocialController::class, 'changeAdStatus'])->name('social.report.ad.status');
+    Route::get('social/ad/report/{ad_id}/{status}/{token}/', [SocialController::class, 'changeAdStatus'])->name('social.report.ad.status');
     // end to ad reports routes
 
     // AdCreative reports routes
@@ -2846,7 +2857,9 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('list-message', [SocialAccountController::class, 'listMessage'])->name('social.message.list');
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
+    Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
+    Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
@@ -3828,8 +3841,20 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::delete('/delete/{adId}', [GoogleAdsController::class, 'deleteAd'])->name('ads.deleteAd');
                 });
             });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('responsive-display-ad')->group(function () {
+                    Route::get('/', [GoogleResponsiveDisplayAdController::class, 'index'])->name('responsive-display-ad.index');
+                    Route::get('/create', [GoogleResponsiveDisplayAdController::class, 'createPage'])->name('responsive-display-ad.createPage');
+                    Route::post('/create', [GoogleResponsiveDisplayAdController::class, 'createAd'])->name('responsive-display-ad.craeteAd');
+                    Route::delete('/delete/{adId}', [GoogleResponsiveDisplayAdController::class, 'deleteAd'])->name('responsive-display-ad.deleteAd');
+                    Route::get('/{adId}', [GoogleResponsiveDisplayAdController::class, 'show'])->name('responsive-display-ad.show');
+                });
+            });
         });
     });
+
+    Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
@@ -4232,7 +4257,11 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 // DEV MANISH
 //System size
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
+    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');    
+});
+
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+    Route::any('/sentry-log', [SentryLogController::class, 'index'])->name('sentry-log');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
@@ -4406,6 +4435,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('config/store', [Social\SocialConfigController::class, 'store'])->name('social.config.store');
     Route::post('config/edit', [Social\SocialConfigController::class, 'edit'])->name('social.config.edit');
     Route::post('config/delete', [Social\SocialConfigController::class, 'destroy'])->name('social.config.delete');
+    Route::get('config/adsmanager', [Social\SocialConfigController::class, 'getadsAccountManager'])->name('social.config.adsmanager');
 
     Route::get('posts/{id}', [Social\SocialPostController::class, 'index'])->name('social.post.index');
     Route::post('post/store', [Social\SocialPostController::class, 'store'])->name('social.post.store');
