@@ -640,6 +640,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
     Route::get('unknown-attribute-products', [UnknownAttributeProductController::class,'index'])->name('unknown.attribute.products');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('unknown.attribute.products.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('unknown.attribute.products.get_product_attribute_detail');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 

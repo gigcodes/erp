@@ -720,6 +720,8 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ action('\App\Http\Controllers\AttributeReplacementController@index') }}">Attribute
                                                     Replacement</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\UnknownAttributeProductController@index') }}">Incorrect Attributes</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
