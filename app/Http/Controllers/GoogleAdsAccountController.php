@@ -76,6 +76,7 @@ class GoogleAdsAccountController extends Controller
     {
         //create account
         $this->validate($request, [
+            'google_customer_id' => 'required|integer',
             'account_name' => 'required',
             'store_websites' => 'required',
             'config_file_path' => 'required',
@@ -85,6 +86,7 @@ class GoogleAdsAccountController extends Controller
 
         try {
             $accountArray = [
+                'google_customer_id' => $request->google_customer_id,
                 'account_name' => $request->account_name,
                 'store_websites' => $request->store_websites,
                 'notes' => $request->notes,
@@ -146,6 +148,7 @@ class GoogleAdsAccountController extends Controller
         $account_id = $request->account_id;
         //update account
         $this->validate($request, [
+            'google_customer_id' => 'required|integer',
             'account_name' => 'required',
             'store_websites' => 'required',
             'status' => 'required',
@@ -153,6 +156,7 @@ class GoogleAdsAccountController extends Controller
 
         try {
             $accountArray = [
+                'google_customer_id' => $request->google_customer_id,
                 'account_name' => $request->account_name,
                 'store_websites' => $request->store_websites,
                 'notes' => $request->notes,

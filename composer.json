@@ -25,7 +25,7 @@
         "google/apiclient": "^2.6",
         "google/cloud-bigquery": "^1.23",
         "google/cloud-translate": "^1.9",
-        "googleads/google-ads-php": "^17.1.0",
+        "googleads/google-ads-php": "^17.1",
         "googleads/googleads-php-lib": "^59.0",
         "guzzlehttp/guzzle": "^6.3.1|^7.2.2",
         "intervention/image": "^2.5",
@@ -93,7 +93,8 @@
         "beyondcode/laravel-dump-server": "^1.5",
         "phpunit/phpunit": "^9.5.10",
         "fakerphp/faker": "^1.9.1",
-        "facade/ignition": "^2.5"
+        "facade/ignition": "^2.5",
+        "overtrue/phplint":"^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -152,6 +153,8 @@
         }
     ],
     "scripts": {
+        "lint":"phplint --no-cache src/",
+
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],

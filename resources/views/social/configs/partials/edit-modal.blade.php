@@ -11,6 +11,7 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="id" value="{{$socialConfig->id}}">
+                        <input type="hidden" id="edit_token" name="edit_token" value="{{$socialConfig->token}}">
                         <div class="form-group">
                             <strong>Website:</strong>
                             <select class="form-control" name="store_website_id">
@@ -87,16 +88,14 @@
                         </div>
 
                         <div class="form-group">
-                            <strong>Ads Manager Account:</strong>
-                            <select class="form-control" name="store_website_id">
-                                <option value="0">Select Ads Manager Account</option>
-                                @foreach($websites as $website)
-                                <option value="{{ $website->id }}" @if($website->id == $socialConfig->store_website_id) selected @endif>{{ $website->title }}</option>
-                                @endforeach
-                            </select>
-
-                            @if ($errors->has('website'))
-                            <div class="alert alert-danger">{{$errors->first('website')}}</div>
+                            <label for="">Choose Ads Manager Account</label>
+                                <input type="hidden" id="ads_manager_id" name="ads_manager_id" value="{{$socialConfig->ads_manager}}">
+                                <select class="form-control adsmanager" name="adsmanager"  id="adsmanager" required>
+                                <option value="">Select Ads Manager</option>
+                                </select>
+                            
+                            @if ($errors->has('adsmanager'))
+                                <p class="text-danger">{{$errors->first('adsmanager')}}</p>
                             @endif
                         </div>
 

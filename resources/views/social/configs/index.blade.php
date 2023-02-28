@@ -87,7 +87,7 @@
             <th style="width: 5% !important;">UserName</th>
             <th style="width: 5% !important;">Status</th>
             <th style="width: 5% !important;">Started At</th>
-            <th style="width: 5% !important;">Actions</th>
+            <th style="width: 7% !important;">Actions</th>
           </tr>
 
           <!-- <tr>
@@ -103,7 +103,7 @@
 
         <tbody>
 
-       @include('social.configs.partials.data') 
+       @include('social.configs.partials.data')
 
           {!! $socialConfigs->render() !!}
           
@@ -194,9 +194,59 @@
         // });
 
 
-    function changesocialConfig(config_id) {
-      //  alert("ter");
-        $("#ConfigEditModal"+ config_id +"" ).modal('show');
+        function changesocialConfig(config) {
+        $("#ConfigEditModal"+ config.id +"" ).modal('show');
+
+        let token = $("#edit_token").val();
+
+        if(!token){
+                alert('please enter token first');
+            }
+            src = "{{ route('social.config.adsmanager') }}";
+            $.ajax({
+                url:'{{route("social.config.adsmanager")}}',
+                dataType:'json',
+                data:{
+                    token:token,
+                },
+                success:function(result){
+                    //console.log(result);
+                    if(result){
+                        $("#loading-image").hide();
+                        let htmledit = `<option value="">-----Select Ad-Manager-Account-----</option>`;
+                        if(result){
+                            console.log("come toadsets adsets ");
+                            console.log(result);
+                            $.each(result,function(key,value){
+                                console.log("-----------dieedit",value.name);
+                                if(config.ads_manager){
+                                    if(value.id == config.ads_manager){
+                                        htmledit +=  `<option value="${value.id}" selected>${value.name}</option>`;
+                                    }else{
+                                        htmledit += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                    }
+                                    
+                                }else{
+                                    htmledit += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                }
+                                
+
+                                
+                            });
+                            $('.adsmanager').html(htmledit);
+                        }
+                        
+                    
+                    }else{
+                        $("#loading-image").hide();
+                        alert("token Expired");
+                    }
+                },
+                error:function(exx){
+
+                }
+            });
+
     }
     
     function deleteConfig(config_id) {
