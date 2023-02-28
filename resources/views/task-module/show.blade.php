@@ -647,6 +647,9 @@
                 <div class="row" style="margin:0px;">
                     <!-- <h4>List Of Pending Tasks</h4> -->
                     <div class="col-12">
+                        <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+                    </div>
+                    <div class="col-12">
                         <table class="table table-sm table-bordered">
                             <thead>
                             <tr>
@@ -1107,7 +1110,7 @@
                     </table>
                 </div>
             </div>
-            <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
+{{--            <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />--}}
 
             <div class="tab-pane" id="unassigned-tab">
                 <div class="row">
@@ -1640,7 +1643,7 @@
                     page = page + 1;
                     $.ajax({
 
-                        url: "/task?page=" + page,
+                        url: "http://localhost/erp/public/index.php/task?page=" + page,
                         type: 'GET',
                         data: $('.form-search-data').serialize(),
                         beforeSend: function() {
@@ -1721,15 +1724,21 @@
                 if (type && type != "") {
                     type = $("#tasktype").val(type);
                 }
+
+                isLoading = true;
                 type = $("#tasktype").val();
-                $('.infinite-scroll-products-loader').hide();
-                isLoading = false;
+                var $loader = $('.infinite-scroll-products-loader');
+
                 page = 1;
                 $.ajax({
                     url: "{{url('task')}}",
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
                     success: function(response) {
+                        $loader.hide();
                         if (type == 'pending') {
                             $('.pending-row-render-view').html(response);
                         }
@@ -1739,8 +1748,12 @@
                         if (type == 'completed') {
                             $('.completed-row-render-view').html(response);
                         }
+                        isLoading = false;
                     },
-                    error: function() {}
+                    error: function() {
+                        $loader.hide();
+                        isLoading = false;
+                    }
                 });
             });
             function getPriorityTaskList(id) {
