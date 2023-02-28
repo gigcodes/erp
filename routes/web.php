@@ -4274,6 +4274,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::any('/sentry-log', [SentryLogController::class, 'index'])->name('sentry-log');
+    Route::post('sentry-log/display-user-account', [SentryLogController::class, 'displayUserAccountList'])->name('sentry.display-user');
+    Route::post('sentry-log/saveuseraccount', [SentryLogController::class, 'saveUserAccount'])->name('sentry.adduser');
+    Route::post('sentry-log/refresh_logs', [SentryLogController::class, 'refreshLogs'])->name('sentry.refresh-logs');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
