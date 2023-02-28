@@ -36,7 +36,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
         <!-- class="expand-row" -->
         <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px;width:75%;display:inline;"/>
 
-        <button style="display: inline-block;" class="btn btn-sm btn-image send-message-open-menu" type="button" id="submit_message" data-id="{{$issue->id}}"><img src="{{asset('/images/filled-sent.png')}}"/></button>
+        <button style="display: inline-block;" class="btn btn-sm btn-image send-message-open-quick-menu" type="button" id="submit_message" data-id="{{$issue->id}}"><img src="{{asset('/images/filled-sent.png')}}"/></button>
         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></button>
         <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg-menu" style="word-break: break-all;margin-top:6px;" data-id="{{$issue->id}}">
             <span class="td-mini-container-{{$issue->id}}" style="margin:0px;">

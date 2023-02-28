@@ -176,7 +176,10 @@ class SocialConfigController extends Controller
         $pageId = $request->page_id;
         $config = SocialConfig::findorfail($request->id);
         $data = $request->except('_token', 'id');
-
+        if(isset($request->adsmanager)){
+            $data['ads_manager'] =  $request->adsmanager;
+        }
+        
         if ($request->platform == 'instagram') {
             $curl = curl_init();
 
