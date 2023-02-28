@@ -119,6 +119,7 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
 use App\Http\Controllers\GoogleSearchController;
@@ -329,10 +330,15 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+
+use App\Http\Controllers\UnknownAttributeProductController;
+
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AppConnect\AppConnectController;
 
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
@@ -637,6 +643,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
+    Route::get('unknown-attribute-products', [UnknownAttributeProductController::class,'index'])->name('unknown.attribute.products');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -667,6 +674,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('roles/update/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::resource('permissions', PermissionController::class);
     Route::get('permissions/grandaccess/users', [PermissionController::class, 'users'])->name('permissions.users');
+    Route::get('permissions/grandaccess/delete', [PermissionController::class, 'delete_record'])->name('permissions.delete');
     Route::get('unauthorized', [RoleController::class, 'unAuthorized']);
     Route::get('search_role', [RoleController::class, 'search_role'])->name('search_role');
     Route::get('users/logins', [UserController::class, 'login'])->name('users.login.index');
@@ -2854,6 +2862,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('list-message', [SocialAccountController::class, 'listMessage'])->name('social.message.list');
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
+    Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
@@ -3685,6 +3694,13 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/flag', [GoogleAffiliateController::class, 'flag'])->name('affiliate.flag');
     Route::post('affiliate/email/send', [GoogleAffiliateController::class, 'emailSend'])->name('affiliate.email.send');
     Route::get('/affiliate/scrap', [GoogleAffiliateController::class, 'callScraper'])->name('google.affiliate.keyword.scrap');
+    //Google Developer API
+// Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
+
+Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+// Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
+Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -4253,7 +4269,11 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 // DEV MANISH
 //System size
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
+    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');    
+});
+
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+    Route::any('/sentry-log', [SentryLogController::class, 'index'])->name('sentry-log');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
@@ -4427,6 +4447,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('config/store', [Social\SocialConfigController::class, 'store'])->name('social.config.store');
     Route::post('config/edit', [Social\SocialConfigController::class, 'edit'])->name('social.config.edit');
     Route::post('config/delete', [Social\SocialConfigController::class, 'destroy'])->name('social.config.delete');
+    Route::get('config/adsmanager', [Social\SocialConfigController::class, 'getadsAccountManager'])->name('social.config.adsmanager');
 
     Route::get('posts/{id}', [Social\SocialPostController::class, 'index'])->name('social.post.index');
     Route::post('post/store', [Social\SocialPostController::class, 'store'])->name('social.post.store');
@@ -4555,3 +4576,17 @@ Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('tasksS
 Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList');
 Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList');
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
+
+
+
+Route::prefix('appconnect')->middleware('auth')->group(function () {
+Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
+Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
+Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
+Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
+Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+ });
+
+   
+

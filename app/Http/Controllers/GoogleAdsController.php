@@ -49,6 +49,7 @@ class GoogleAdsController extends Controller
             return [
                 'account_id' => $campaignDetail->account_id,
                 'campaign_name' => $campaignDetail->campaign_name,
+                'google_customer_id' => $campaignDetail->google_customer_id,
             ];
         } else {
             abort(404, 'Invalid account!');
@@ -218,6 +219,8 @@ class GoogleAdsController extends Controller
 
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
+        $customerId = $acDetail['google_customer_id'];
+
         $storagepath = $this->getstoragepath($account_id);
 
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
@@ -232,6 +235,7 @@ class GoogleAdsController extends Controller
         $adStatus = $adStatuses[$request->adStatus];
 
         $adsArray = [];
+        $adsArray['google_customer_id'] = $customerId;
         $adsArray['adgroup_google_campaign_id'] = $campaignId;
         $adsArray['google_adgroup_id'] = $adGroupId;
         $adsArray['headline1'] = $headlinePart1;
@@ -255,8 +259,6 @@ class GoogleAdsController extends Controller
                                 ->from($oAuth2Configuration)
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
-
-            $customerId = $googleAdsClient->getLoginCustomerId();
 
             // Creates an ad and sets responsive search ad info.
             $ad = new Ad([
@@ -295,8 +297,9 @@ class GoogleAdsController extends Controller
             $response = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
 
             $createdAdGroupAd = $response->getResults()[0];
+            $createdAdGroupAdResourceName = $createdAdGroupAd->getResourceName();
 
-            $adsArray['google_ad_id'] = $createdAdGroupAd->getId();
+            $adsArray['google_ad_id'] = substr($createdAdGroupAdResourceName, strrpos($createdAdGroupAdResourceName, "~") + 1);
             $adsArray['ads_response'] = json_encode($createdAdGroupAd);
             \App\GoogleAd::create($adsArray);
 
@@ -311,7 +314,6 @@ class GoogleAdsController extends Controller
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actSuccess', 'Ads created successfully');
         } catch (Exception $e) {
-
             // Insert google ads log 
             $input = array(
                         'type' => 'ERROR',
@@ -339,6 +341,8 @@ class GoogleAdsController extends Controller
     {
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
+        $customerId = $acDetail['google_customer_id'];
+
         $storagepath = $this->getstoragepath($account_id);
 
         $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
@@ -354,8 +358,6 @@ class GoogleAdsController extends Controller
                                 ->from($oAuth2Configuration)
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
-
-            $customerId = $googleAdsClient->getLoginCustomerId();
 
             // Creates ad group ad resource name.
             $adGroupAdResourceName = ResourceNames::forAdGroupAd($customerId, $adGroupId, $adId);
@@ -423,10 +425,6 @@ class GoogleAdsController extends Controller
 
             case 'PAUSED':
                 return AdGroupAdStatus::PAUSED;
-                break;
-
-            case 'DISABLED':
-                return AdGroupAdStatus::DISABLED;
                 break;
 
             default:

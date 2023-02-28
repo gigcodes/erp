@@ -38,7 +38,8 @@ class SocialConfigController extends Controller
             }
             $socialConfigs = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
         }
-
+        
+       // $adsAccountManager = $this->getadsAccountManager();
         $websites = \App\StoreWebsite::select('id', 'title')->get();
         $user_names = SocialConfig::select('email')->distinct()->get();
         $platforms = SocialConfig::select('platform')->distinct()->get();
@@ -55,6 +56,27 @@ class SocialConfigController extends Controller
         return view('social.configs.index', compact('socialConfigs', 'websites', 'user_names', 'platforms', 'selected_website', 'selected_user_name', 'selected_platform'));
     }
 
+    public function getadsAccountManager(Request $request){
+
+        $user_access_token = $request["token"];
+        $fields = 'account_id,name,currency,balance,account_status,business_name,business_id';
+
+        $url = 'https://graph.facebook.com/v15.0/me/adaccounts?fields='.$fields;
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer '.$user_access_token
+        ]);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $data = json_decode($response, true);
+ 
+        
+        return $data['data'];
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -154,7 +176,10 @@ class SocialConfigController extends Controller
         $pageId = $request->page_id;
         $config = SocialConfig::findorfail($request->id);
         $data = $request->except('_token', 'id');
-
+        if(isset($request->adsmanager)){
+            $data['ads_manager'] =  $request->adsmanager;
+        }
+        
         if ($request->platform == 'instagram') {
             $curl = curl_init();
 

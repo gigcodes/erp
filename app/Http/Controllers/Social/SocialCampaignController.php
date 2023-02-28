@@ -13,6 +13,7 @@ use Facebook\Facebook;
 use Illuminate\Http\Request;
 use Response;
 use Session;
+use App\Helpers\SocialHelper;
 
 class SocialCampaignController extends Controller
 {
@@ -33,27 +34,69 @@ class SocialCampaignController extends Controller
 
     public function index(Request $request)
     {
+        $socialcampaign = SocialCampaign::orderby('id', 'desc');
+        $campaign_data = $socialcampaign->get();
+
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
             //  $query = SocialCampaign::where('config_id',$id);
 
-            $campaigns = SocialCampaign::orderby('id', 'desc')->paginate(Setting::get('pagination'));
+            $campaigns = SocialCampaign::orderby('id', 'desc');
         } else {
-            $campaigns = SocialCampaign::latest()->paginate(Setting::get('pagination'));
+            $campaigns = SocialCampaign::latest();
         }
         $websites = \App\StoreWebsite::select('id', 'title')->get();
 
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
 
+
+
+
+        if(!empty($request->date))
+        {
+            $campaigns->where('created_at', 'LIKE', '%'.$request->date.'%');
+        }
+
+        if(!empty($request->config_name))
+        {
+            $campaigns->whereIn('config_id', $request->config_name);
+        }
+
+        if(!empty($request->campaign_name))
+        {
+            $campaigns->where('name', $request->campaign_name);
+        }
+
+        if(!empty($request->objective))
+        {
+            $campaigns->whereIn('objective_name', $request->objective);
+        }
+
+        if(!empty($request->type))
+        {
+            $type = $request->type;
+            $campaigns->where('buying_type', 'LIKE', '%'.$request->type.'%');
+        }
+
+        if(!empty($request->status))
+        {
+            $status = $request->status;
+            $campaigns->where('status', 'LIKE', '%'.$request->status.'%');
+        }
+
+
+        $campaigns = $campaigns->paginate(Setting::get('pagination'));
+
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.campaigns.data', compact('campaigns', 'configs'))->render(),
+                'tbody' => view('social.campaigns.data', compact('campaigns', 'configs','campaign_data','type','status'))->render(),
                 'links' => (string) $campaigns->render(),
             ], 200);
         }
 
-        return view('social.campaigns.index', compact('campaigns', 'configs'));
+        return view('social.campaigns.index', compact('campaigns', 'configs','campaign_data'));
+
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
@@ -127,13 +170,14 @@ class SocialCampaignController extends Controller
         
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-        $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
-        //$this->ad_acc_id = 'act_723851186073937';
+        //$this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
+        $this->ad_acc_id = $config->ads_manager;
         
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
                       //      dd($data);
+                    //$this->ad_acc_id = $config->ads_manager; 
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
                     $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/campaigns';
@@ -325,8 +369,9 @@ class SocialCampaignController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $fb->get('/me/adaccounts', $token);
-            
+            // $response = $fb->get('/me/adaccounts', $token); //Old
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token); //New using graph API
+            $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
