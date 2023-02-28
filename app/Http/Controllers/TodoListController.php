@@ -84,10 +84,10 @@ class TodoListController extends Controller
             $todolists->user_id = Auth::user()->id ?? '';
             $todolists->title = $request->title;
             $todolists->subject = $request->subject;
-            $todolists->status = $request->status;
+            $todolists->status = $request->status ?? "";
             $todolists->todo_date = $request->todo_date;
             $todolists->remark = $request->remark;
-            $todolists->todo_category_id = $request->todo_category_id;
+            $todolists->todo_category_id = $request->todo_category_id ?? "";
             $todolists->save();
             $this->createTodolistRemarkHistory($request, $todolists->id);
             //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);

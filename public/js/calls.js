@@ -363,7 +363,7 @@
 						$('.call__to').html(conn.customParameters.get('phone'))
 					}
 
-					$confirmModal.modal('show');
+					// $confirmModal.modal('show');
 					$confirmModal.modal({
 						backdrop: 'static',
 						keyboard: false
@@ -479,6 +479,10 @@
 							url : "/twilio/reject-incoming-call",
 							method: 'GET'
 						})
+
+						if(!data.found) {
+							conn.reject();
+						}
 					})
 
 					$buttonForBlockCall.off().one('click', function () {

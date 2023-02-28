@@ -119,6 +119,7 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
 use App\Http\Controllers\GoogleSearchController;
@@ -333,7 +334,9 @@ use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+
 use App\Http\Controllers\UnknownAttributeProductController;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppConnect\AppConnectController;
 
@@ -2565,12 +2568,14 @@ Route::any('twilio/saverecording', [TwilioController::class, 'saveRecording'])->
 Route::post('twilio/update-reservation-status', [TwilioController::class, 'updateReservationStatus'])->name('update_reservation_status');
 
 Route::get('twilio/reject-call-twiml', [TwilioController::class, 'rejectIncomingCallTwiml'])->name('twilio.reject_call_twiml');
-Route::post('twilio/cancel-task-record', [TwilioController::class, 'canceldTaskRecord'])->name('twilio.cancel_task_record');
-Route::post('twilio/store-cancel-task-record', [TwilioController::class, 'storeCanceldTaskRecord'])->name('twilio.store_cancel_task_record');
-Route::post('twilio/store-complete-task-record', [TwilioController::class, 'storeCompleteTaskRecord'])->name('twilio.store_complete_task_record');
+Route::any('twilio/cancel-task-record', [TwilioController::class, 'canceldTaskRecord'])->name('twilio.cancel_task_record');
+Route::any('twilio/store-cancel-task-record', [TwilioController::class, 'storeCanceldTaskRecord'])->name('twilio.store_cancel_task_record');
+Route::any('twilio/store-complete-task-record', [TwilioController::class, 'storeCompleteTaskRecord'])->name('twilio.store_complete_task_record');
 
 Route::get(
     '/twilio/hangup', [TwilioController::class, 'showHangup'])->name('hangup');
+
+Route::post('twilio/handleIncomingCall', [TwilioController::class, 'handleIncomingCall'])->name('handleIncomingCall');;
 
 Route::get('exotel/outgoing', [ExotelController::class, 'call'])->name('exotel.call');
 Route::get('exotel/checkNumber', [ExotelController::class, 'checkNumber']);
@@ -3689,6 +3694,13 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/flag', [GoogleAffiliateController::class, 'flag'])->name('affiliate.flag');
     Route::post('affiliate/email/send', [GoogleAffiliateController::class, 'emailSend'])->name('affiliate.email.send');
     Route::get('/affiliate/scrap', [GoogleAffiliateController::class, 'callScraper'])->name('google.affiliate.keyword.scrap');
+    //Google Developer API
+// Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
+
+Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+// Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
+Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -4569,6 +4581,7 @@ Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList'
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
 
 
+
 Route::prefix('appconnect')->middleware('auth')->group(function () {
 Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
 Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
@@ -4579,3 +4592,4 @@ Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name
  });
 
    
+
