@@ -161,6 +161,7 @@ use App\Console\Commands\ZabbixStore;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\ZoomMeetingRecordings;
 use App\Console\Commands\SaveZoomMeetingRecordings;
+use App\Console\Commands\DevAPIReport;
 use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -331,6 +332,7 @@ class Kernel extends ConsoleKernel
         SendQueuedMessages::class,
         DatabaseLogCron::class,
         TwillioMessagesCommand::class,
+        DevAPIReport::class,
     ];
 
     /**
@@ -715,9 +717,12 @@ class Kernel extends ConsoleKernel
         // Database log Cron
         $schedule->command('databaselog:cron')->dailyAt('0:00');
 
+
+        //Developer Reporting API Cron
+        $schedule->command('DevAPIReport:check')->hourly();
+
         // Ads history Cron
         $schedule->command('social:ads-history')->dailyAt('0:00');
-
         $schedule->command('save:zoom-meetings')->daily();
     }
 
