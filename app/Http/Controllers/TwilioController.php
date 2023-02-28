@@ -391,9 +391,10 @@ class TwilioController extends FindByNumberController
         //TwilioLog::create(['log'=>'Call received from '. $number .', call sid is '. $call_sid . ' on IVR, Request is: '.json_encode($request->input()), 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
         //Log::channel('customerDnd')->info('Showing user profile for IVR: ');
         $count = $request->get('count');
+        $call_from_enqueue = ($request->get('call_from_enqueue') != null ? $request->get('call_from_enqueue') : 0);
         $call_with_agent = ($request->get('call_with_agent') != null ? $request->get('call_with_agent') : 0);
 
-        TwilioLog::create(['log' => 'After call received, from Mobile No '.$number.' Call with Agent is :'.$call_with_agent, 'account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number]);
+        TwilioLog::create(['log' => 'After call received, from Mobile No '.$number.' Call with Agent is :'.$call_with_agent.' and Call from enqueue is :'.$call_from_enqueue, 'account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number]);
         TwilioCallJourney::create(['account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number, 'call_entered' => 1]);
         //Log::channel('customerDnd')->info('call_with_agent:'.$call_with_agent);
         $storeId = null;
@@ -416,13 +417,18 @@ class TwilioController extends FindByNumberController
 
         $endworkRing = 'https://'.$request->getHost().'/end_work_ring.mp3';
         $introRing = 'https://'.$request->getHost().'/intro_ring.mp3';
+        $busyRing = 'https://'.$request->getHost().'/busy_ring.mp3';
 
         if (isset($messageTones['end_work_ring']) and $messageTones['end_work_ring'] != null) {
-            $endworkRing = url('twilio/'.$messageTones['end_work_ring']);
+            $endworkRing = url('twilio/'.rawurlencode($messageTones['end_work_ring']));
         }
 
         if (isset($messageTones['intro_ring']) and $messageTones['intro_ring'] != null) {
-            $introRing = url('twilio/'.$messageTones['intro_ring']);
+            $introRing = url('twilio/'.rawurlencode($messageTones['intro_ring']));
+        }
+
+        if (isset($messageTones['busy_ring']) and $messageTones['busy_ring'] != null) {
+            $busyRing = url('twilio/'.rawurlencode($messageTones['busy_ring']));
         }
 
         $welcomeMessage = StoreWebsite::where('id', $store_website_id)->pluck('twilio_greeting_message')->first();
@@ -592,6 +598,11 @@ class TwilioController extends FindByNumberController
                 } else {
                     $response->play($endworkRing);
                 }
+
+                // Leave the call and record the messsage of customer
+                if($call_from_enqueue == 1) {
+                    $response->leave(); // Makes the current call leave the queue, but doesn't hang up the call. Execution proceeds with the next verb after the '<Enqueue>' verb.
+                }
             } else {
                 TwilioCallJourney::updateOrCreate(['account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number], ['called_in_working_hours' => 1]);
 
@@ -599,37 +610,72 @@ class TwilioController extends FindByNumberController
 
                 //Log::channel('customerDnd')->info(' working Hours >> ');
 
+                // Execute this code only if call is come from enqueue verb
+                if($call_from_enqueue == 1) {
+                    switch ((int) $count) {
+                        case 0: // Coming from wait url
+                            $response->redirect(route('waiturl', ['count' => 2], false));
+                            break;
+
+                        case 1: // Coming from wait url
+                            TwilioLog::create(['log' => ' There is no agent is available for mobile number '.$number, 'account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number]);
+
+                            //Call History - START
+                            $call_history = TwilioCallData::updateOrCreate([
+                                'call_sid' => ($request->get('CallSid') ?? 0),
+                            ], [
+                                'call_sid' => ($request->get('CallSid') ?? 0),
+                                'account_sid' => ($request->get('AccountSid') ?? 0),
+                                'from' => ($request->get('Caller') ?? 0),
+                                'to' => ($request->get('Called') ?? 0),
+                                'call_data' => 'time_close',
+                                'aget_user_id' => '',
+                            ]);
+                            //Call History - END
+
+                            //Call waiting - START
+                            TwilioCallWaiting::updateOrCreate([
+                                'call_sid' => ($request->get('CallSid') ?? 0),
+                            ], [
+                                'call_sid' => ($request->get('CallSid') ?? 0),
+                                'account_sid' => ($request->get('AccountSid') ?? 0),
+                                'from' => ($request->get('Caller') ?? 0),
+                                'to' => ($request->get('Called') ?? 0),
+                                'store_website_id' => $store_website_id,
+                                'status' => 0,
+                            ]);
+                            //Call waiting - END
+
+                            if (isset($storewebsitetwiliono_data->message_busy) && in_array('message_busy', $conditions) && $storewebsitetwiliono_data->message_busy != '') {
+                                $response->Say($storewebsitetwiliono_data->message_busy);
+                            } else {
+                                $response->Say($busyRing);
+                            }
+
+                            $response->leave(); // Makes the current call leave the queue, but doesn't hang up the call. Execution proceeds with the next verb after the '<Enqueue>' verb.
+                            break;
+
+                        default:
+                            $response->say("Good Bye!")->leave();
+                            # code...
+                            break;
+                    }
+
+                    return $response;
+                }
+
                 if ($count == 2) {
                     TwilioLog::create(['log' => ' Count data is 2 for mobile number, '.$number, 'account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number]);
-                    $gather = $response->gather(
-                        [
-                            'input' => 'speech dtmf',
-                            'numDigits' => 1,
-                            'action' => route('twilio_menu_response', [], false),
-                        ]
-                    );
 
-                    $gather->say(
-                        'Currently All Lines are busy.'.
-                        'Please press 1 for a leave a message. Press 2 for a '.
-                        'Hold a Call response.',
-                        ['loop' => 3]
-                    );
-
-                    $response->record(
-                        ['maxLength' => '10',
-                            'method' => 'GET',
-                            'action' => route('twilio_menu_response', [], false),
-                            'transcribeCallback' => $recordurl,
-                        ]
-                    );
+                    // Ask customer to leave a message on beep
+                    return $this->handleIncomingCall();
                 }
 
                 if ($count == 4) {
                     if (isset($storewebsitetwiliono_data->message_not_available) && $storewebsitetwiliono_data->message_not_available != '') {
                         $response->say($storewebsitetwiliono_data->message_not_available);
                     } else {
-                        $response->say('Thanks for your patience, Our All Lines are bussy. Please leave a message');
+                        $response->say('Thanks you for your patience, Our All Lines are bussy. Please leave a message after the beep.');
                     }
 
                     $recordurl = 'https://'.$request->getHost().'/twilio/storerecording';
@@ -646,7 +692,7 @@ class TwilioController extends FindByNumberController
                         ]
                     );
                     TwilioLog::create(['log' => ' Call will be hung up beacuse count data is 4 for mobile number, '.$number, 'account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number]);
-                    $response->hangup();
+                    // $response->hangup();
 
                     return $response;
                 }
@@ -772,7 +818,7 @@ class TwilioController extends FindByNumberController
                     if (isset($storewebsitetwiliono_data->message_busy) && in_array('message_busy', $conditions) && $storewebsitetwiliono_data->message_busy != '') {
                         $response->Say($storewebsitetwiliono_data->message_busy);
                     } else {
-                        $response->Say($welcomeMessage);
+                        $response->Say($busyRing);
                     }
 
                     $count++;
@@ -1160,7 +1206,7 @@ class TwilioController extends FindByNumberController
                 // $recordurl = \Config::get("app.url") . "/twilio/storerecording";
                 $recordurl = 'https://'.$request->getHost().'/twilio/storerecording';
 
-                $response->say('Please leave a message at the beep.\nPress the star key when finished.');
+                $response->say('Please leave a message after the beep. Press the star key when finished.');
 
                 $response->record(
                     ['maxLength' => '20',
@@ -1178,15 +1224,10 @@ class TwilioController extends FindByNumberController
                 // $response->redirect(route('waiturl', ['count'=>5], false));
 
                 return $response;
-            } elseif ($selectedOption == 2) {
-                //$response->redirect(route('ivr', ['count'=>3], false));
-                $response->redirect(route('waiturl', ['count' => 4], false));
-
-                return $response;
             } else {
-                $response->say('Invalid Input. 999');
+                $response->say('Invalid number entered!');
 
-                $response->redirect(route('waiturl', ['count' => 3], false));
+                $response->redirect(route('handleIncomingCall', [], false));
 
                 return $response;
             }
@@ -1205,7 +1246,7 @@ class TwilioController extends FindByNumberController
             $response = new VoiceResponse();
             if ($reply == '' || $reply == null) {
                 $response->Say(
-                    'Invalid Input 1018',
+                    'Invalid number entered!',
                     ['voice' => 'alice', 'language' => 'en-GB']
                 );
             } else {
@@ -1223,8 +1264,7 @@ class TwilioController extends FindByNumberController
                 'Returning to the main menu',
                 ['voice' => 'Alice', 'language' => 'en-GB']
             );
-            // $response->redirect(route('ivr', [], false));
-            $response->redirect(route('waiturl', ['count' => 3], false));
+            $response->redirect(route('ivr', [], false));
 
             return $response;
         }
@@ -1350,7 +1390,7 @@ class TwilioController extends FindByNumberController
             $action_url = $request->getSchemeAndHttpHost().'/twilio/cancel-task-record';
             $recording_action_url = $request->getSchemeAndHttpHost().'/twilio/store-cancel-task-record';
 
-            if ($request->get('Reason') != 'hangup') {
+            if ($request->get('Reason') != 'hangup' && $request->get('Reason') != 'leave') {
                 $task->calls(json_decode($request->get('TaskAttributes'))->call_sid)
                 ->update([
                     'twiml' => '<Response>
@@ -1550,42 +1590,23 @@ class TwilioController extends FindByNumberController
             $count++;
             $response->redirect(route('waiturl', ['count' => $count], false));
         } elseif ($count == 3) {
-            $gather = $response->gather(
-                [
-                    'input' => 'speech dtmf',
-                    'numDigits' => 1,
-                    'action' => route('twilio_menu_response', [], false),
-                ]
-            );
-
-            $gather->say(
-                'Currently All Lines are busy.'.
-                'Please press 1 for a leave a message. Press 2 for a '.
-                'Hold a Call response.',
-                ['loop' => 3]
-            );
-
-            $response->record(
-                ['maxLength' => '10',
-                    'method' => 'GET',
-                    'action' => route('twilio_menu_response', [], false),
-                    'transcribeCallback' => $recordurl,
-                ]
-            );
+            $response->say('All agent are Busy. Please wait for your turn.');
+            $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
+            $count++;
+            $response->redirect(route('waiturl', ['count' => $count], false));
         } elseif ($count == 4) {
             // $response->play('http://com.twilio.sounds.music.s3.amazonaws.com/MARKOVICHAMP-Borghestral.mp3');
             // $response->play(url('twilio-queue-music.mp3'));
             $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
 
-            $response->redirect(route('waiturl', ['count' => $count], false));
+            $response->redirect(route('ivr', ['call_with_agent' => 1, 'count' => 1, 'call_from_enqueue' => 1], false));
         } elseif ($count == 5) {
-            $response->say('Thanks for leave a message, We will contact you soon');
+            $response->say('Thank you for your message, We will contact you soon.');
             $response->hangup();
         } else {
             // $response->play(url('twilio-queue-music.mp3'));
             $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
-            $count++;
-            $response->redirect(route('waiturl', ['count' => $count], false));
+            $response->redirect(route('ivr', ['call_with_agent' => 1, 'count' => 0, 'call_from_enqueue' => 1], false));
         }
 
         return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
@@ -1682,6 +1703,19 @@ class TwilioController extends FindByNumberController
                     'type' => (string) $tasknumber,
                 ];
                 $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task(json_encode($task), ['priority' => $priority, 'timeout' => $workflow->task_timeout]);
+
+                // This code is executed after we leave enqueue using twilio leave() function
+                $response->say('Please leave a message after the beep. Press the star key when finished.');
+
+                $response->record(
+                    [
+                        'maxLength' => '30',
+                        'method' => 'POST',
+                        'action' => route('waiturl', ['count' => 5], false),
+                        'transcribeCallback' => 'https://'.$request->getHost().'/twilio/storetranscript',
+                        'finishOnKey' => '*',
+                    ]
+                );
                 TwilioLog::create(['log' => 'Enqueue Log '.(string) $response, 'account_sid' => 0, 'call_sid' => 0, 'phone' => 0]);
 
                 return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
@@ -1808,15 +1842,15 @@ class TwilioController extends FindByNumberController
                         );
                     } else {
                         Log::channel('customerDnd')->info('else >>>');
-                        $response->say('Invalid Input 1238.');
-                        $response->redirect(route('ivr', ['count' => 2], false));
-
-                        return $response;
+                        $response->say('Invalid number entered! Returning to main menu.');
+                        $response->redirect(route('ivr', [], false));
                     }
+
+                    return $response;
                 } else {
                     Log::channel('customerDnd')->info('else >>>');
-                    $response->say('Invalid Input 1246.');
-                    $response->redirect(route('ivr', ['count' => 2], false));
+                    $response->say('Invalid number entered! Returning to main menu.');
+                    $response->redirect(route('ivr', [], false));
 
                     return $response;
                 }
@@ -2121,10 +2155,11 @@ class TwilioController extends FindByNumberController
         Log::channel('customerDnd')->info('return_refund_exchange selectedOption = '.$selectedOption);
 
         if ($selectedOption == 0) {
+            // Call with our agent
+            Log::channel('customerDnd')->info('return_refund_exchange >> Call with our agent ');
             $response->redirect(route('ivr', ['call_with_agent' => 1], false));
-
-            return $response;
         } elseif ($selectedOption == 1) {
+            //Return
             Log::channel('customerDnd')->info('return_refund_exchange >> Return ');
 
             $gather = $response->gather(
@@ -2172,18 +2207,10 @@ class TwilioController extends FindByNumberController
                 ['loop' => 3]
             );
         } else {
-            $response->say('Invalid Input 1486.');
+            $response->say('Invalid number entered!');
 
             $response->redirect(route('ivr', ['count' => 2], false));
-
-            return $response;
         }
-
-        $response->say(
-            'Returning to the main menu',
-            ['voice' => 'Alice', 'language' => 'en-GB']
-        );
-        $response->redirect(route('ivr', [], false));
 
         return $response;
     }
@@ -2660,9 +2687,13 @@ class TwilioController extends FindByNumberController
 
         $call_status = $request->get('CallStatus');
         if ($call_status == 'completed') {
-            CallRecording::where('callsid', $sid)
-                ->first()
-                ->update(['message' => $request->input('TranscriptionText')]);
+            CallRecording::updateOrCreate([
+                'callsid' => $sid,
+            ], [
+                'recording_url' => $request->input('RecordingUrl'),
+                'twilio_call_sid' => $sid,
+                'message' => $request->input('TranscriptionText'),
+            ]);
         }
 
         return 'Ok';
@@ -3153,7 +3184,7 @@ class TwilioController extends FindByNumberController
         //TwilioLog::create(['log'=>"Call is going to hungup ".json_encode($request->input())]);
         $response = new VoiceResponse();
         $response->Say(
-            'Thanks for your message. Goodbye',
+            'Thank you for your message. Goodbye',
             ['voice' => 'alice', 'language' => 'en-GB']
         );
         $response->hangup();
@@ -4902,5 +4933,29 @@ class TwilioController extends FindByNumberController
             \Log::info('handleMessageDeliveryStatus MessageSid -> '.$request->input('MessageSid'));
             \Log::info('handleMessageDeliveryStatus twilio webhook error -> '.$e->getMessage());
         }
+    }
+
+    /**
+     * This function is used to ask customer to leave a message
+     *
+     * @return XmlResponse
+     */
+    public function handleIncomingCall()
+    {
+        $response = new VoiceResponse();
+        $gather = $response->gather(
+            [
+                'input' => 'speech dtmf',
+                'numDigits' => 1,
+                'action' => route('twilio_menu_response', [], false),
+            ]
+        );
+
+        $gather->say(
+            'Currently all lines are busy. Please press 1 for a leave a message',
+            ['loop' => 3]
+        );
+
+        return $response;
     }
 }
