@@ -57,6 +57,14 @@ use App\Console\Commands\IncrementFrequencyWhatsappConfig;
 use App\Console\Commands\InfluencerDescription;
 //use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\InsertPleskEmail;
+
+use App\Console\Commands\IosUsageReport;
+use App\Console\Commands\IosAdsReport;
+use App\Console\Commands\IosSalesReport;
+use App\Console\Commands\IosSubscriptionReport;
+use App\Console\Commands\IosPaymentsReport;
+use App\Console\Commands\IosRatingsReport;
+
 use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\MagentoReportLog;
 use App\Console\Commands\MagentoSettingAddUpdate;
@@ -655,6 +663,15 @@ class Kernel extends ConsoleKernel
 
         //daily cron for checking due date and add to cashflow
         $schedule->command('assetsmanagerduedate:pay')->daily();
+
+         //daily cron for checking Ios Report
+        $schedule->command('IosUsageReport:check')->daily();
+        $schedule->command('IosSalesReport:check')->daily();
+        $schedule->command('IosRatingsReport:check')->daily();
+        $schedule->command('IosAdsReport:check')->daily();
+        $schedule->command('IosPaymentsReport:check')->daily();
+        $schedule->command('IosSubscriptionReport:check')->daily();
+
 
         //for adding due date in asset manager
         $schedule->command('assetsmanagerpayment:cron Daily')->daily();

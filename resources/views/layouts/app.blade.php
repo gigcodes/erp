@@ -2034,7 +2034,31 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
-                                
+
+                                @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-users')}}">Usage</a>
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sales')}}">Sales</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sub')}}">Subscription</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-ads')}}">Ads</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-rate')}}">Ratings</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-pay')}}">Payments</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                @endif
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>Google<span
@@ -3069,6 +3093,7 @@ if (!empty($notifications)) {
                                             Directory manager</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
                                         <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
                                     </li>
                                 </ul>
@@ -4885,7 +4910,7 @@ if (!empty($notifications)) {
         $(mini).toggleClass('hidden');
     });
 
-    $(document).on('click', '.send-message-open-menu', function (event) {
+    $(document).on('click', '.send-message-open-quick-menu', function (event) {
         var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
         var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
         let issueId = textBox.attr('data-id');
@@ -5040,6 +5065,7 @@ if (!empty($notifications)) {
                     $(thiss).siblings('input').val('');
                     $('#getMsg' + task_id).val('');
                     $('#menu_confirmMessageModal').modal('hide');
+                    toastr["success"]("Message sent successfully!", "Message");
                     if (cached_suggestions) {
                         suggestions = JSON.parse(cached_suggestions);
                         if (suggestions.length == 10) {
