@@ -3314,6 +3314,9 @@ if (!empty($notifications)) {
                                             </li>
                                         </ul>
                                     </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a class="dropdown-item" href="{{ url('learning') }}">Learning Menu</a>
+                                    </li>
                                 </ul>
                             </li>
                             </ul>
