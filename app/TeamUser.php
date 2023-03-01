@@ -17,7 +17,7 @@ class TeamUser extends Model
      * @SWG\Property(property="team_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      */
-    protected $fillable = ['team_id', 'user_id'];
+    protected $fillable = ['id','team_id', 'user_id'];
 
     public function team()
     {

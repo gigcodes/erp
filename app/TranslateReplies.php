@@ -15,6 +15,8 @@ class TranslateReplies extends Model
      *
      * @var array
      */
+    protected $table = 'translate_replies';
+
     protected $fillable = [
         'replies_id',
         'translate_from',
