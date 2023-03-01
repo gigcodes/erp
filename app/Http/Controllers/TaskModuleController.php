@@ -1505,7 +1505,7 @@ class TaskModuleController extends Controller
 			) AS tasks
 			WHERE (deleted_at IS NULL) 
             AND (id IS NOT NULL) 
-            AND is_statutory != 1 '.$isCompleteWhereClose.$status_filter.$searchWhereClause.$orderByClause.' ; '
+            AND is_statutory != 1 '.$isCompleteWhereClose.$status_filter.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.'; '
             );
 
             foreach ($data['task']['pending'] as $task) {
@@ -1539,7 +1539,6 @@ class TaskModuleController extends Controller
                 $search_term_suggestions[] = $task->task_details;
             }
         }
-
         //task pending backup
         $data['users'] = User::orderBy('name')->where('is_active', 1)->get()->toArray();
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');

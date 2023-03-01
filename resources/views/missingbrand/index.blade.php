@@ -13,14 +13,14 @@
             <h2 class="page-heading">{{ $title }} (<span id="total-count">{{ $missingBrands->total() }}</span>)</h2>
             <div class="pull-left">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-5 p-0 pl-1">
                             <div class="form-group">
                                 <input name="term" type="text" class="form-control"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="Search" id="term">
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-5 p-0 pl-1">
                             <div class="form-group">
                                 <select class="form-control select2" id="select">
                                     <option value="">Select Scrapper</option>
@@ -30,21 +30,21 @@
                                 </select>
                             </div>
                         </div>    
-                        <div class="col-md-4">
-                            <button type="button" class="form-control" onclick="filterResults()">Search</button>
+                        <div class="col-md-2 p-0">
+                            <button type="button" class="btn btn-image btn-call-data" onclick="filterResults()"><img src="{{asset('/images/filter.png')}}" style="cursor: default;"></button>
                         </div>
                     </div>
             </div>
             <div class="pull-right">
                 <button class="btn btn-secondary" onclick="automaticMerge()">Automatic Merge</button>
-                <a href="javascript:;" class="create-multi-reference">Reference</a>
+                <a href="javascript:;" class="create-multi-reference btn btn-secondary">Reference</a>
             </div>
         </div>
     </div>
 
     @include('partials.flash_messages')
 
-   <div class="table-responsive mt-3">
+   <div class="table-responsive mt-0">
         <table class="table table-bordered" id="brand-table">
             <thead>
             <tr>
