@@ -151,79 +151,81 @@
 @section("scripts")
 <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script type="text/javascript">
-  
-  $.ajaxSetup({
-      headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      }
-  });
-
-  $("#add_sentry_account").validate({
-    rules: {
-      project: "required",
-      organization: "required",
-      token: "required",
-    },
-    messages: {
-      project: "Please enter project",
-      organization: "Please enter organization",
-      token: "Please enter token",
-    },
-    errorPlacement: function(error, element) {
-      error.insertAfter(element);
-    },  
-    submitHandler: function (form) {
-        var formdata = $('#add_sentry_account').serialize();
-        $.ajax({
-            type: "POST",
-            url: "{{ route('sentry.adduser') }}",
-            data: formdata,
-            success: function(response) {
-              $('#add_sentry_account').trigger("reset");
-              if(response.code == 200){
-                toastr['success'](response.message, 'success');
-              } else {
-                toastr['error'](response.message, 'error');
-              }
-              window.location.reload();
-            }
-        })
-    }
-  });
-
-  $(document).on("click", "#add_account" , function(){        
-    $("#sentry_modal").modal('show');
-    $("#project").val('');
-    $("#organization").val('');
-    $("#token").val('');
-    $(".error").html('');
-  });
-
-  $(document).on("click", "#list_account" , function(){
-    $("#sentry_account_listing_modal").modal('show');
-    $.ajax({
-        type: "POST",
-        url: "{{ route('sentry.display-user') }}",        
-        success: function(response) {
-          $('#account_list').html( response );
+  $(document).ready(function(){
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
-    })
-  });
+    });
 
-  $(document).on('click', '#refresh_logs', function(e){
+    $("#add_sentry_account").validate({
+      rules: {
+        project: "required",
+        organization: "required",
+        token: "required",
+      },
+      messages: {
+        project: "Please enter project",
+        organization: "Please enter organization",
+        token: "Please enter token",
+      },
+      errorPlacement: function(error, element) {
+        error.insertAfter(element);
+      },  
+      submitHandler: function (form) {
+          var formdata = $('#add_sentry_account').serialize();
+          $.ajax({
+              type: "POST",
+              url: "{{ route('sentry.adduser') }}",
+              data: formdata,
+              success: function(response) {
+                $('#add_sentry_account').trigger("reset");
+                if(response.code == 200){
+                  toastr['success'](response.message, 'success');
+                } else {
+                  toastr['error'](response.message, 'error');
+                }
+                window.location.reload();
+              }
+          })
+      }
+    });
+
+    $(document).on("click", "#add_account" , function(){        
+      $("#sentry_modal").modal('show');
+      $("#project").val('');
+      $("#organization").val('');
+      $("#token").val('');
+      $(".error").html('');
+    });
+
+    $(document).on("click", "#list_account" , function(){
+      $("#sentry_account_listing_modal").modal('show');
       $.ajax({
           type: "POST",
-          url: "{{ route('sentry.refresh-logs') }}",          
+          url: "{{ route('sentry.display-user') }}",        
           success: function(response) {
-            toastr['success'](response.message, 'success');
-            $("#load_page").trigger('click');
+            $('#account_list').html( response );
           }
-      });
-  });
+      })
+    });
 
-  $(document).on('click', '#load_page', function(){
-    url = "{{ route('sentry-log') }}";
-    window.location.href = url;
-  })
+    $(document).on('click', '#refresh_logs', function(e){
+        $.ajax({
+            type: "POST",
+            url: "{{ route('sentry.refresh-logs') }}",          
+            success: function(response) {
+              toastr['success'](response.message, 'success');
+              $("#load_page").trigger('click');
+            }
+        });
+    });
+
+    $(document).on('click', '#load_page', function(){
+      url = "{{ route('sentry-log') }}";
+      window.location.href = url;
+    });
+
+  });
 </script>
 @endsection
