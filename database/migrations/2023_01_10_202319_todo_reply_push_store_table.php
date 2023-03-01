@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sentry_accounts', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('sentry_token');
-            $table->string('sentry_organization');
-            $table->string('sentry_project');
+        Schema::create('reply_push_stores', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('store_id');
+            $table->integer('reply_id');            
+            $table->integer('platform_id');            
             $table->softDeletes();
             $table->timestamps();
         });
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sentry_accounts');
+        Schema::dropIfExists('reply_push_stores');
     }
 };
