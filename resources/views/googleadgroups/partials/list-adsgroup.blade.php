@@ -9,14 +9,15 @@
         <td>{{$adGroup->created_at}}</td>
         <td>
             <div class="d-flex justify-content-between">
-                @if(@$campaign_channel_type != "SHOPPING")
+                @if(in_array(@$campaign_channel_type, ["DISPLAY", "MULTI_CHANNEL"]))
                     <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/responsive-display-ad">
                         <button type="submit" class="btn-image">Display Ads</button>
                     </form>
+                @elseif(in_array(@$campaign_channel_type, ["SEARCH"]))
+                    <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
+                        <button type="submit" class="btn-image">Ads</button>
+                    </form>
                 @endif
-                <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
-                    <button type="submit" class="btn-image">Ads</button>
-                </form>
                 {!! Form::open(['method' => 'DELETE','route' => ['adgroup.deleteAdGroup',$campaignId,$adGroup['google_adgroup_id']],'style'=>'display:inline']) !!}
                 <button type="submit" class="btn-image"><img src="/images/delete.png"></button>
                 {!! Form::close() !!}

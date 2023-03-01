@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIndexToOrdersTable extends Migration
+class AddIndexToOrderssTable extends Migration
 {
     /**
      * Run the migrations.

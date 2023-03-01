@@ -13,6 +13,7 @@ use Facebook\Facebook;
 use Illuminate\Http\Request;
 use Response;
 use Session;
+use App\Helpers\SocialHelper;
 
 class SocialAdsController extends Controller
 {
@@ -169,8 +170,12 @@ class SocialAdsController extends Controller
 
                     //    dd($resp);
                     if (isset($resp->error->message)) {
+                        $post->live_status = 'error';
+                        $post->save();
                         Session::flash('message', $resp->error->message);
                     } else {
+                        $post->live_status = 'sucess';
+                        $post->save();
                         Session::flash('message', 'Campaign created  successfully');
                     }
 
@@ -185,7 +190,7 @@ class SocialAdsController extends Controller
                 try {
                     //        dd($data);
                     $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/ads';
+                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/ads';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -330,7 +335,8 @@ class SocialAdsController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $fb->get('/me/adaccounts', $token);
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token);
+            $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
