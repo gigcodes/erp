@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Customer;
+use App\Flow;
 use App\Loggers\FlowLog;
 use App\Loggers\FlowLogMessages;
+use App\StoreWebsite;
+use App\User;
 use Illuminate\Http\Request;
 
 class FlowLogController extends Controller
@@ -13,6 +17,9 @@ class FlowLogController extends Controller
     public function index(Request $request)
     {
         $page = isset($request->page) ? $request->page : 1;
+        $flow_logs = Flow::pluck('flow_name','id');
+        $websites = StoreWebsite::pluck('website','id');
+        $leads = Customer::pluck('name','id');
 
         $logs = FlowLog::orderby('updated_at', 'desc')->select(
             [
@@ -22,15 +29,13 @@ class FlowLogController extends Controller
                 'flows.store_website_id',
                 'store_websites.website',
                 'flow_log_messages.modalType',
-                'flow_log_messages.created_at',
+                'flow_log_messages.created_at as ct',
                 'customers.name as lead_name',
             ])
         ->join('flows', 'flows.id', 'flow_logs.flow_id')
         ->join('flow_log_messages', 'flow_log_messages.flow_log_id', 'flow_logs.id')
         ->leftJoin('customers', 'customers.id', '=', 'flow_log_messages.leads')
         ->join('store_websites', 'flows.store_website_id', 'store_websites.id');
-
-        // dd($logs->limit(10)->get());
 
         if ($request->term || $request->created_at) {
             if (request('term') != null) {
@@ -49,6 +54,16 @@ class FlowLogController extends Controller
             }
         }
 
+        if ($request->flow_name) {
+            $logs = $logs->whereIn('flows.flow_name', request('flow_name'));
+        }
+        if ($request->website) {
+            $logs = $logs->whereIn('store_websites.website', request('website'));
+        }
+        if ($request->leads) {
+            $logs = $logs->whereIn('customers.name', request('leads'));
+        }
+
         $logs = $logs->orderby('flow_logs.created_at', 'desc')->groupBy('flow_logs.id');
 
         $logs = $logs->paginate(50);
@@ -58,7 +73,7 @@ class FlowLogController extends Controller
             $page_count = $page > 1 ? ($request->input('page', 1) - 1) * 50 : $request->input('page', 1) * 50;
 
             return response()->json([
-                'tbody' => view('logging.partials.flowlogdata', compact('logs', 'page'))->with('i', $page_count)->render(),
+                'tbody' => view('logging.partials.flowlogdata', compact('logs', 'page','flow_logs','websites','leads'))->with('i', $page_count)->render(),
                 'links' => (string) $logs->render(),
                 'count' => $logs->total(),
             ], 200);
@@ -66,7 +81,7 @@ class FlowLogController extends Controller
 
         $title = 'Flow Log List';
 
-        return view('logging.flowlog', compact('logs', 'title', 'page'));
+        return view('logging.flowlog', compact('logs', 'title', 'page','flow_logs','websites','leads'));
     }
 
     public function details(Request $request)

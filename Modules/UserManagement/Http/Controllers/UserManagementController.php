@@ -18,6 +18,7 @@ use App\PermissionRequest;
 use App\Role;
 use App\Task;
 use App\Team;
+use App\TeamUser;
 use App\User;
 use App\UserAvaibility;
 use App\UserAvaibilityHistory;
@@ -1210,7 +1211,7 @@ class UserManagementController extends Controller
     public function submitTeam($id, Request $request)
     {
         $user = User::find($id);
-        $isLeader = Team::where('user_id', $id)->first();
+        $isLeader = Team::where('user_id', $id)->orWhere('second_lead_id',$request->second_lead)->first();
         if ($isLeader) {
             return response()->json([
                 'code' => 500,
@@ -1228,7 +1229,15 @@ class UserManagementController extends Controller
         $team = new Team;
         $team->name = $request->name;
         $team->user_id = $id;
+        $team->second_lead_id = $request->second_lead;
         $team->save();
+
+        $team_user = TeamUser::where('team_id',$team->id)->where('user_id',$team->second_lead)->first();
+        if(!empty($team_user))
+        {
+            $team_user->delete();
+        }
+
         if (Auth::user()->hasRole('Admin')) {
             $members = $request->input('members');
             if ($members) {
@@ -1268,15 +1277,21 @@ class UserManagementController extends Controller
     {
         $team = Team::where('user_id', $id)->first();
         $team->user;
-        $team->members = $team->users()->pluck('name', 'id');
+        $team->members = $team->users()->where('users.id', '!=', $team->second_lead_id)->pluck('name', 'users.id');
         $totalMembers = $team->users()->count();
 
-        $users = User::where('id', '!=', $id)->where('is_active', 1)->get()->pluck('name', 'id');
+        $users = User::where('id', '!=', $id)->where('id', '!=', $team->second_lead_id)->where('is_active', 1)->get()->pluck('name', 'id');
+
+        if(!empty($team->second_lead_id))
+        {
+            $second_users = User::where('id',$team->second_lead_id)->first();
+        }
 
         return response()->json([
             'code' => 200,
             'team' => $team,
             'users' => $users,
+            'second_users' => !empty($second_users->name)?$second_users->name:'',
             'totalMembers' => $totalMembers,
         ]);
     }
@@ -1304,8 +1319,15 @@ class UserManagementController extends Controller
     {
         $team = Team::find($id);
 
+        $team_user = TeamUser::where('team_id',$team->id)->where('user_id',$request->second_lead)->first();
+
+        if(!empty($team_user))
+        {
+            $team_user->delete();
+        }
+
         if (Auth::user()->hasRole('Admin')) {
-            $team->update(['name' => $request->name]);
+            $team->update(['name' => $request->name , 'second_lead_id' => $request->second_lead]);
             $members = $request->input('members');
             if ($members) {
                 $team->users()->detach();
@@ -1937,6 +1959,7 @@ class UserManagementController extends Controller
     public function userSchedulesLoadData()
     {
         try {
+            $usertemp = 0;
             $count = 0;
             $data = [];
 
@@ -2144,21 +2167,59 @@ class UserManagementController extends Controller
                                         $display[] = ' ('.$slot['type'].')';
                                         $display = '<s>'.implode('', $display).'</s>';
                                     }
+
                                     $divSlots[] = '<div class="div-slot '.$class.'" title="'.$title.'" >'.$display.'</div>';
                                 }
-
+                                /*
                                 $data[] = [
                                     'name' => $user['name'],
                                     'date' => $date,
                                     'slots' => implode('', $divSlots),
                                 ];
+                                */
+
+                                $data[$usertemp]['name'] = $user['name'];
+                                $data[$usertemp]['date'] = $date;
+                                for ($p = 0; $p < 13; $p++) {
+                                    $varid = 'slots'.$p;
+                                    if (isset($divSlots[$p])) {
+                                        $str = str_replace('(AVL)', '<br>(AVL)', $divSlots[$p]);
+                                        $str = str_replace('(LUNCH)', '<br>(LUNCH)', $divSlots[$p]);
+                                        $str = str_replace('(PAST)', '<br>(PAST)', $divSlots[$p]);
+                                        $data[$usertemp][$varid] = $str;
+                                    } else {
+                                        $data[$usertemp][$varid] = '';
+                                    }
+                                }
+                                $usertemp = $usertemp + 1;
                             }
                         } else {
-                            $data[] = [
+                            /*
+                             $data[] = [
+                                 'name' => $user['name'],
+                                 'date' => '-',
+                                 'slots' => 'Availability is not set for this user.',
+                             ];
+                             */
+
+                            $data[$usertemp] = [
                                 'name' => $user['name'],
                                 'date' => '-',
-                                'slots' => 'Availability is not set for this user.',
+                                'slots0' => 'Availability is not set for this user.',
+                                'slots1' => '',
+                                'slots2' => '',
+                                'slots3' => '',
+                                'slots4' => '',
+                                'slots5' => '',
+                                'slots6' => '',
+                                'slots7' => '',
+                                'slots8' => '',
+                                'slots9' => '',
+                                'slots10' => '',
+                                'slots11' => '',
+                                'slots12' => '',
                             ];
+                            $usertemp = $usertemp + 1;
                         }
                     }
                 }

@@ -181,8 +181,7 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <select class="form-control select2" name="module_id[]" id="module_id" multiple  aria-placeholder="Select Assigned To">
-                                <option value=""  @if(request('assigned_to') == '') selected @endif>- Select a Module -</option>
+                            <select class="form-control module_select2" name="module_id[]" id="module_id" multiple  aria-placeholder="Select Assigned To">
                                 @foreach ($modules as $module)
                                 <option {{ in_array($module->id, request('module_id', [])) ? 'selected' : '' }} value="{{ $module->id }}">{{ $module->name }}</option>
                                 @endforeach
@@ -192,8 +191,7 @@
                     @if (auth()->user()->isReviwerLikeAdmin())
                     <div class="col-md-2">
                         <div class="form-group">
-                            <select class="form-control select2" name="assigned_to[]" id="assigned_to" multiple aria-placeholder="Select Assigned To">
-                                <option value="" @if(request('assigned_to') == '') selected @endif>- Select Assigned To -</option>
+                            <select class="form-control assigned_select2" name="assigned_to[]" id="assigned_to" multiple aria-placeholder="Select Assigned To">
                                 {!! makeDropdown($users, request('assigned_to', [])) !!}
                             </select>
                         </div>
@@ -213,19 +211,17 @@
                         <div class="form-group">
                             <?php
                             if (request('task_status')) {
-                                echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control select2', 'multiple' => true]);
+                                echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control task_status_select2', 'multiple' => true]);
                             } else {
-                                echo Form::select('task_status[]', $statusList, 0, ['class' => 'form-control select2', 'multiple' => true]);
+                                echo Form::select('task_status[]', $statusList, 0, ['class' => 'form-control task_status_select2', 'multiple' => true]);
                             }
                             ?>
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="form-group">
+                        <div class="form-group mb-0">
                             <label><input type="checkbox" name="empty_estimated_time" value="1" {{ $request->get('empty_estimated_time') == 1 ? 'checked' : '' }} style="height:auto;" /> Empty Estimated Time & Date</label>
                         </div>
-                    </div>
-                    <div class="col-md-2">
                         <div class="form-group">
                             <label><input type="checkbox" name="time_is_overdue" value="1" {{ $request->get('time_is_overdue') == 1 ? 'checked' : '' }} style="height:auto;" /> Time is overdue</label>
                         </div>
@@ -242,11 +238,11 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;margin-top: -13px;" class="btn btn-image" id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
-                            <a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder" style="margin-top: -13px;">
+                            <button type="submit" style="padding: 5px;margin-top:-1px;" class="btn btn-image" id="show"><img src="{{asset('/images/filter.png')}}" /></button>
+                            <a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder" style="padding: 5px;">
                                 <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
                             </a>
-                            <a data-toggle="modal" data-target="#reminderTimeMessageModal" class="btn pd-5 task-set-reminder" style="margin-top: -13px;">
+                            <a data-toggle="modal" data-target="#reminderTimeMessageModal" class="btn pd-5 task-set-reminder" style="padding: 5px;">
                                 <i class="fa fa-plus red-notification " aria-hidden="true"></i>
                             </a>
                         </div>
@@ -264,16 +260,16 @@
         <table class="table table-bordered table-striped" id="reply_history_div" style="table-layout:fixed;margin-bottom:0px;">
             <thead>
                 <tr>
-                    <th max-width="4%">ID</th>
+                    <th width="5%">ID</th>
                     <th width="10%">Subject</th>
                     <th width="12%">Assigned To</th>
-                    <th width="12%">Tracked Time</th>
+                    <th width="10%">Tracked Time</th>
                     <th width="6%">Estimated Time</th>
                     <th width="10%">Estimated Start Time</th>
                     <th width="10%">Estimated End Time</th>
-                    <th width="18%">Communication</th>
+                    <th width="20%">Communication</th>
                     <th width="10%">Status</th>
-                    <th width="8%">Action</th>
+                    <th width="5%">Action</th>
                 </tr>
             </thead>
 
@@ -510,11 +506,12 @@
         </div>
     </div>
 </div>
+
 <div id="modalDevInformationUpdates" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Task's Information Update</h4>
+                <h4 class="modal-title">Dev's Information Update</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -523,20 +520,19 @@
                 $cls_2 = 'col-md-4';
                 ?>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Estimated Time: [In Minutes]</label>
                         <div class="form-group">
                             <input type="number" class="form-control" name="dev_approximate" value="" min="1" autocomplete="off" />
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Remark:</label>
                         <div class="form-group">
                             <textarea class="form-control" name="dev_remark" rows="2"></textarea>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funDevInformationUpdates('approximate')">Update</button>
                             <button type="button" class="btn btn-default show-time-history">History</button>
@@ -544,10 +540,10 @@
                     </div>
                 </div>
 
-                <hr />
+                <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Estimated Start Datetime:</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
@@ -556,8 +552,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funDevInformationUpdates('start_date')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')">History</button>
@@ -565,10 +560,10 @@
                     </div>
                 </div>
 
-                <hr />
+                <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Estimated End Datetime: [Due Date]</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
@@ -577,8 +572,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funDevInformationUpdates('due_date')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('due_date')">History</button>
@@ -586,17 +580,16 @@
                     </div>
                 </div>
 
-                <hr />
+                <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Cost:</label>
                         <div class="form-group">
                             <input type="text" class="form-control" name="dev_cost" value="" autocomplete="off" />
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funDevInformationUpdates('cost')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')">History</button>
@@ -604,16 +597,16 @@
                     </div>
                 </div>
 
-                <hr />
+                    <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
                     <div class="col-md-6">
                         <label>Actual Start Time:</label>
-                        <div class="form-group cls-actual_start_date"></div>
+                        <div class="cls-actual_start_date"></div>
                     </div>
                     <div class="col-md-6">
                         <label>Actual End Time:</label>
-                        <div class="form-group cls-actual_end_date"></div>
+                        <div class="cls-actual_end_date"></div>
                     </div>
                 </div>
             </div>
@@ -624,7 +617,7 @@
     </div>
 </div>
 <div id="modalTaskInformationUpdates" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Task's Information Update</h4>
@@ -636,20 +629,19 @@
                 $cls_2 = 'col-md-4';
                 ?>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Estimated Time: [In Minutes]</label>
                         <div class="form-group">
                             <input type="number" class="form-control" name="approximate" value="" min="1" autocomplete="off" />
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Remark:</label>
                         <div class="form-group">
                             <textarea class="form-control" name="remark" rows="2"></textarea>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('approximate')">Update</button>
                             <button type="button" class="btn btn-default show-time-history">History</button>
@@ -657,10 +649,10 @@
                     </div>
                 </div>
 
-                <hr />
+                    <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Estimated Start Datetime:</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
@@ -669,8 +661,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('start_date')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')">History</button>
@@ -678,10 +669,10 @@
                     </div>
                 </div>
 
-                <hr />
+                    <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Estimated End Datetime: [Due Date]</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
@@ -690,8 +681,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('due_date')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('due_date')">History</button>
@@ -699,17 +689,16 @@
                     </div>
                 </div>
 
-                <hr />
+                    <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
-                    <div class="{{$cls_1}}">
+                    <div class="{{$cls_1}} col-md-12">
                         <label>Cost:</label>
                         <div class="form-group">
                             <input type="text" class="form-control" name="cost" value="" autocomplete="off" />
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
+                    <div class="{{$cls_2}} col-md-12 text-right">
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('cost')">Update</button>
                             <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')">History</button>
@@ -717,16 +706,16 @@
                     </div>
                 </div>
 
-                <hr />
+                <hr style="margin-bottom: 10px; margin-top: 10px" />
 
                 <div class="row">
                     <div class="col-md-6">
                         <label>Actual Start Time:</label>
-                        <div class="form-group cls-actual_start_date"></div>
+                        <div class="cls-actual_start_date"></div>
                     </div>
                     <div class="col-md-6">
                         <label>Actual End Time:</label>
-                        <div class="form-group cls-actual_end_date"></div>
+                        <div class="cls-actual_end_date"></div>
                     </div>
                 </div>
             </div>
@@ -869,6 +858,16 @@
         });
     });
     $(".select2").select2();
+    $(".module_select2").select2({
+        placeholder:'Select a Module',
+    });
+    $(".assigned_select2").select2({
+        placeholder:'Select Assigned To',
+    });
+    $(".task_status_select2").select2({
+        placeholder:'Select Task Status',
+    });
+
     $(document).on('click', '.task-time-submit-reminder', function() {
         var task_time_message_form = $("#task_time_message_form").serialize();
         $.ajax({

@@ -47,6 +47,11 @@ class CashFlow extends Model
         return $this->hasMany(\App\File::class, 'model_id')->where('model_type', \App\CashFlow::class);
     }
 
+    public function website()
+    {
+        return $this->hasOne(\App\Customer::class, 'id','cash_flow_able_id');
+    }
+
     public function cashFlowAble()
     {
         return $this->morphTo()->withTrashed();

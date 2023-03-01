@@ -690,6 +690,7 @@ class Tracker
      * @static
      *
      * @todo: using PMA SQL Parser when possible
+     *
      * @todo: support multi-table/view drops
      */
     public static function parseQuery($query): array

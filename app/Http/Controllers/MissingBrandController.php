@@ -16,7 +16,9 @@ class MissingBrandController extends Controller
      *   tags={"Scraper"},
      *   summary="Save unknown brand",
      *   operationId="scraper-save-missing-brand",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
+     *
      *      @SWG\Parameter(
      *          name="name",
      *          in="path",
@@ -72,7 +74,7 @@ class MissingBrandController extends Controller
         }
 
         $scrapers = MissingBrand::select('supplier')->groupBy('supplier')->get();
-        $missingBrands = $missingBrands->paginate(20);
+        $missingBrands = $missingBrands->orderBy('name','Asc')->paginate(20);
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('missingbrand.partial.data', compact('missingBrands', 'scrapers'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),

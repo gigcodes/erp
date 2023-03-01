@@ -31,6 +31,7 @@
             @endforeach
         </select>
     </td>
+    <td class="p-2">{{ Carbon\Carbon::parse($module->created_at)->format('d-m H:i') }}</td>
     <td style="vertical-align: middle;word-break: break-all;">
         <p>{{ $issue->subject ?? 'N/A' }}</p>
     </td>
@@ -192,6 +193,32 @@
         No
         @endif
     </td>
+    <td class="p-2">
+        <div style="margin-bottom:10px;width: 100%;">
+            <div class="form-group">
+                <input type="number" class="form-control" name="estimate_minutes{{$issue->id}}" value="{{$issue->estimate_minutes}}" min="1" autocomplete="off">
+                <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+            </div>
+        </div>
+    </td>
+    <td class="p-2">
+        <div class="form-group">
+            <div class='input-group date cls-start-due-date'>
+                <input type="text" class="form-control" name="start_dates{{$issue->id}}" value="{{$issue->start_date}}" autocomplete="off" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+        </div>
+    </td>
+    <td class="p-2">
+        <div class="form-group">
+            <div class='input-group date cls-start-due-date'>
+                <input type="text" class="form-control" name="estimate_date{{$issue->id}}" value="{{$issue->estimate_date}}" autocomplete="off" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+        </div>
+    </td>
     <td>
         <button class="btn btn-image set-remark" data-task_id="{{ $issue->id }}" data-task_type="Dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
         <div class="dropdown dropleft">
@@ -204,3 +231,5 @@
         </div>
     </td>
 </tr>
+
+

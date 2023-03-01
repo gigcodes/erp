@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\PurchaseProductOrderLog;
 use App\Sop;
-use App\SopPermission;
+use App\SopCategory;
+use App\SopPermission; // sop category model
 use App\User;
 // use App\Mail\downloadData;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SopController extends Controller
 {
@@ -26,8 +28,9 @@ class SopController extends Controller
         $usersop = $usersop->limit(10)->paginate(10);
 
         $total_record = $usersop->total();
+        $category_result = SopCategory::all();
 
-        return view('products.sop', compact('usersop', 'total_record', 'users'));
+        return view('products.sop', compact('usersop', 'total_record', 'users', 'category_result'));
     }
 
     public function sopnamedata_logs(Request $request)
@@ -50,25 +53,49 @@ class SopController extends Controller
         ]);
     }
 
+    /**
+     * Sop category add in table
+     *
+     * @param  Request  $request
+     * @return void
+     */
+    public function categoryStore(Request $request)
+    {
+        $category = SopCategory::where('category_name', $request->category_name)->first();
+        if ($category) {
+            return response()->json(['success' => false, 'message' => 'Category already existed']);
+        }
+        try {
+            $resp = SopCategory::create(['category_name' => $request->category_name]);
+
+            return response()->json(['success' => true, 'message' => 'Category added successfully', 'data' => $resp]);
+        } catch (\exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function categorylist()
+    {
+        $category_result = SopCategory::all();
+
+        return response()->json(['success' => true, 'data' => $category_result, 'message' => 'Record found']);
+    }
+
     public function store(Request $request)
     {
         $sopType = $request->get('type');
         $sop = Sop::where('name', $sopType)->first();
-        $cat = Sop::where('category', $request->get('category'))->first();
+
         $name = Sop::where('name', $request->get('name'))->first();
 
         if ($name) {
             return response()->json(['success' => false, 'message' => 'Name already existed']);
         }
 
-        if ($cat) {
-            return response()->json(['success' => false, 'message' => 'Category already existed']);
-        }
-
         if (! $sop) {
             $sop = new Sop();
             $sop->name = $request->get('name');
-            $sop->category = $request->get('category');
+            $sop->category = implode(',', $request->get('category'));
             $sop->content = $request->get('content');
             $sop->user_id = \Auth::id();
             $sop->save();
@@ -83,7 +110,7 @@ class SopController extends Controller
         }
 
         $user_email = User::select('email')->where('id', $sop->user_id)->get();
-        // $user_email = User::select('email')->where('id', $sop->user_id)->get();
+
         $only_date = $sop->created_at->todatestring();
 
         return response()->json(['only_date' => $only_date, 'sop' => $sop, 'user_email' => $user_email, 'params' => $params]);
@@ -166,6 +193,39 @@ class SopController extends Controller
         $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->paginate(10);
 
         return view('products.sop', compact('usersop'));
+    }
+
+    public function ajaxsearch(Request $request)
+    {
+        $searchsop = $request->get('search');
+        if (! empty($searchsop)) {
+            $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->get();
+        } else {
+            $usersop = Sop::all();
+        }
+        $users = User::all();
+
+        $html = '';
+        foreach ($usersop as $key => $value) {
+            $html .= '<tr id="sid'.$value->id.'" class="parent_tr" data-id="'.$value->id.'">
+                        <td class="sop_table_id">'.$value->id.'</td>
+                            <td class="expand-row-msg" data-name="name" data-id="'.$value->id.'">
+                                <span class="show-short-name-'.$value->id.'">'.Str::limit($value->name, 17, '..').'</span>
+                                <span style="word-break:break-all;" class="show-full-name-'.$value->id.' hidden">'.$value->name.'</span>
+                            </td>
+                            <td class="expand-row-msg Website-task " data-name="content" data-id="'.$value->id.'">
+                                <span class="show-short-content-{{$value->id}}">'.Str::limit($value->content, 50, '..').'</span>
+                                <span style="word-break:break-all;" class="show-full-content-'.$value->id.' hidden">'.$value->content.'</span>
+                            </td>
+                            <td class="p-1">
+                                <a href="javascript:;" data-id="'.$value->id.'" class="menu_editor_edit btn btn-xs p-2" >
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>';
+        }
+
+        return $html;
     }
 
     public function downloaddata($id)

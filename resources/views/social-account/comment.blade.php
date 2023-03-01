@@ -17,7 +17,6 @@
     </style>
 @endsection
 
-
 @section('content')
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
@@ -32,20 +31,21 @@
         </div>
 
     </div>
-
+    <input id="config-id" class="config-id" type="hidden" value="{{ $post->social_config_id }}">
     <div class="mt-3">
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Comment</th>
+                    <th>Reply</th>
                     <th>User</th>
                     <th>Created At</th>
                     <th>Action</th>
             </thead>
             <tbody>
                 @forelse($comments as $key => $value)
-                    <tr>
+                <tr>
                         <td>{{ $key + 1 }}</td>
                         <td style="width:50%">
                             <div style="word-break: break-word;">
@@ -55,6 +55,26 @@
                                 <img src="{{ $value->photo }}" width="100" alt="{{ $value->message }}">
                             @endif
                         </td>
+                        <td class="message-input p-0 pt-2 pl-3">
+                        <div class="cls_textarea_subbox">
+                            <div class="btn-toolbar" role="toolbar">
+                                <div class="w-75">
+                                    <textarea rows="1"
+                                        class="form-control quick-message-field cls_quick_message addToAutoComplete"
+                                        name="message" placeholder="Message" id="textareaBox_{{ $value->comment_id }}"
+                                        data-customer-id="{{ $value->comment_id }}"></textarea>
+                                </div>
+                                <div class="w-25 pl-2" role="group" aria-label="First group">
+                                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image send-message1"
+                                        data-id="textareaBox_{{ $value->comment_id }}">
+                                        <img src="/images/filled-sent.png">
+                                    </button>
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
                         <td>{{ $value->user->name }}</td>
                         <td>{{ $value->time }}</td>
                         <td>
@@ -154,5 +174,39 @@
                 }
             })
         })
+
+        $(document).on('click', '.send-message1', function() {
+        const textareaId = $(this).data('id');
+        const value = $(`#${textareaId}`).val();
+        const configId = document.getElementById("config-id").value;  
+        const contactId = $(`#${textareaId}`).data('customer-id');
+        if (value.trim()) {
+            $("#loading-image").show();
+            $.ajax({
+                url: "{{ route('social.dev.reply.comment') }}",
+                method: 'POST',
+                async: true,
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    input: value,
+                    contactId: contactId,
+                    configId: configId
+                },
+                success: function(res) {
+                    $("#loading-image").hide();
+                    document.getElementById("textareaBox_"+contactId).value = '';
+                    toastr["success"]("Message successfully send!", "Message")
+                },
+                error: function(error) {
+                    console.log(error.responseJSON);
+                    alert("Counldn't send messages")
+                    $("#loading-image").hide();
+                }
+            })
+        } else {
+            alert("Please enter a message")
+        }
+    })
+
     </script>
 @endsection

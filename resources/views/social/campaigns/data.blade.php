@@ -9,6 +9,7 @@
         <td>{{ $campaign->daily_budget }}</td>
      
         <td>{{ $campaign->status  }}</td>
+        <td>{{ $campaign->live_status  }}</td>
         <td><a href="javascript:;" data-id="{{ $campaign->id }}" class="account-history"><i class="fa fa-history" title="History"></i></a></td>
       </tr>
 @endforeach

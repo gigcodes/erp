@@ -17,7 +17,31 @@
 </div>
 @endif
 
-<h2 class="text-center">Users List from Hubstaff </h2>
+<div class="col-lg-12 margin-tb">
+    <h2 class="page-heading">Users List from Hubstaff</h2>
+</div>
+
+<div class="col-lg-12 margin-tb margin-l" style="margin-left: 1%;">
+		<form class="filterTaskSummary" action="{{ url('hubstaff/members') }}" method="GET">
+			<div class="row filter_drp">
+				<div class="form-group col-lg-2">
+					<select class="form-control globalSelect2" data-ajax="{{ route('hubstaff.userList') }}" name="user_filter[]" data-placeholder="Search Customer By Name" multiple >
+          @if($usersFilter)
+            @foreach($usersFilter as $usersfilter)
+              <option value="{{$usersfilter['id']}}" selected>{{$usersfilter->name}}</option>
+            @endforeach
+          @endif
+          </select>
+				</div>
+
+        <div class="form-group col-lg-2">
+          <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+        </div>
+      </div>
+    </form>
+</div>
+
+<!-- <h2 class="text-center">Users List from Hubstaff </h2> -->
   <form class="form-inline  float-right" method="POST" action="/hubstaff/refresh_users">
     @csrf
     <button type="submit" class="btn-danger" id="refresh_users">Refresh Users From Hubstaff</button>
