@@ -15,7 +15,7 @@ class Tag extends Model
      * @SWG\Property(property="book_tags",type="string")
      * @SWG\Property(property="tag",type="string")
      */
-    protected $table = 'book_tags';
+    protected $table = 'tags';
 
     protected $fillable = ['tag'];
 }
