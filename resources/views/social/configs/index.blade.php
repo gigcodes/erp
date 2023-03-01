@@ -52,8 +52,22 @@
                     </form>
                 </div>
                 <div class="pull-right">
+                
+                  <!-- <button type="button" class="btn btn-secondary" id="fb_redirect">Login Facebook</button> -->
+                  <a href="https://www.facebook.com/dialog/oauth?client_id=559475859451724&redirect_uri=https://56e3-110-227-254-30.ngrok.io/social/config/fbtokenback&scope=manage_pages,pages_manage_posts" style="
+    padding: 7px;
+    background-color: #6c757d;
+    color: #fff;
+    border-radius: 4px;
+    margin-left: 5px;
+    display: inline-block;
+    vertical-align: middle;
+">Login Facebook</a>
+                </div>
+                <div class="pull-right">
                   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</button>
                 </div>
+                
             </div>
         </div>
 
@@ -121,6 +135,41 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
       <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+        
+        $('#fb_redirect').click(function()
+        {
+            alert('yuuuuu');
+
+            $.ajax({
+                url:'{{route("social.config.fbtoken")}}',
+                dataType:'json',
+                data:{
+                    token:token,
+                },
+                success:function(result){
+                    if(result){
+                        $("#loading-image").hide();
+                        let html = `<option value="">-----Select Adsets-----</option>`;
+                        if(result){
+                            console.log("come toadsets adsets ");
+                            console.log(result);
+                            $.each(result,function(key,value){
+                                html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                            });
+                        }
+                        $('#adset_id').html(html);
+                    
+                    }else{
+                        $("#loading-image").hide();
+                        alert("token Expired");
+                    }
+                },
+                error:function(exx){
+
+                }
+            });
+
+        });
      //   $('#adset_id').click(function()
         $('#token').focusout(function()
        
