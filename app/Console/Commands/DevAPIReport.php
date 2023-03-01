@@ -53,7 +53,7 @@ class DevAPIReport extends Command
         $client->setClientSecret(env("GOOGLE_CLIENT_SECRET"));
         $SERVICE_ACCOUNT_NAME = env("GOOGLE_SERVICE_ACCOUNT");
          
-        $KEY_FILE = env("GOOGLE_SERVICE_CREDENTIALS");
+        $KEY_FILE = storage_path().env("GOOGLE_SERVICE_CREDENTIALS");
         $client->setAuthConfig($KEY_FILE);
         $user_to_impersonate= env("GOOGLE_SERVICE_ACCOUNT");
         $client->setSubject($user_to_impersonate);
