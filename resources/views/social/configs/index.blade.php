@@ -54,7 +54,7 @@
                 <div class="pull-right">
                 
                   <!-- <button type="button" class="btn btn-secondary" id="fb_redirect">Login Facebook</button> -->
-                  <a href="https://www.facebook.com/dialog/oauth?client_id=559475859451724&redirect_uri=https://56e3-110-227-254-30.ngrok.io/social/config/fbtokenback&scope=manage_pages,pages_manage_posts" style="
+                  <a href="https://www.facebook.com/dialog/oauth?client_id=559475859451724&redirect_uri=https://erpstage.theluxuryunlimited.com/social/config/fbtokenback&scope=manage_pages,pages_manage_posts" style="
     padding: 7px;
     background-color: #6c757d;
     color: #fff;
