@@ -2167,6 +2167,9 @@ if (!empty($notifications)) {
                                 aria-haspopup="true" aria-expanded="false">Social <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
