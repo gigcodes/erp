@@ -2628,6 +2628,11 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+/*#DEVTASK-22731 - START*/
+Route::post('livechat/tickets/update-ticket', [LiveChatController::class, 'updateTicket'])->name('livechat.tickets.update-ticket');
+Route::post('livechat/tickets/approve-ticket', [LiveChatController::class, 'approveTicket'])->name('livechat.tickets.approve-ticket');
+Route::post('livechat/tickets/ticket-data', [LiveChatController::class, 'ticketData'])->name('livechat.tickets.ticket-data');
+/*#DEVTASK-22731 - END*/
 Route::post('livechat/statuscolor', [LiveChatController::class, 'statuscolor'])->name('livechat.statuscolor');
 Route::post('tickets/email-send', [LiveChatController::class, 'sendEmail'])->name('tickets.email.send');
 Route::post('tickets/assign-ticket', [LiveChatController::class, 'AssignTicket'])->name('tickets.assign');
