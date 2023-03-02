@@ -49,10 +49,7 @@ class SocialCampaignController extends Controller
         $websites = \App\StoreWebsite::select('id', 'title')->get();
 
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
-
-
-
-
+        
         if(!empty($request->date))
         {
             $campaigns->where('created_at', 'LIKE', '%'.$request->date.'%');

@@ -402,7 +402,7 @@ class TwilioController extends FindByNumberController
         if ($activeNumber) {
             $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
         }
-        $this->findCustomerOrLeadOrOrderByNumber(str_replace('+', '', $number), $storeId->store_website_id ?? null);
+        // $this->findCustomerOrLeadOrOrderByNumber(str_replace('+', '', $number), $storeId->store_website_id ?? null);
 
         [$context, $object] = $this->findCustomerOrLeadOrOrderByNumber(str_replace('+', '', $number), $storeId->store_website_id ?? null);
 
@@ -415,20 +415,36 @@ class TwilioController extends FindByNumberController
 
         $messageTones = TwilioMessageTone::where('store_website_id', $store_website_id)->first();
 
-        $endworkRing = 'https://'.$request->getHost().'/end_work_ring.mp3';
-        $introRing = 'https://'.$request->getHost().'/intro_ring.mp3';
-        $busyRing = 'https://'.$request->getHost().'/busy_ring.mp3';
+        $checkEndworkRingExist = $checkIntroRingExist = $checkBusyRingExist = false;
 
         if (isset($messageTones['end_work_ring']) and $messageTones['end_work_ring'] != null) {
             $endworkRing = url('twilio/'.rawurlencode($messageTones['end_work_ring']));
+            $checkEndworkRingExist = $this->checkUrlExists($endworkRing); // Check URL exist or not
         }
 
         if (isset($messageTones['intro_ring']) and $messageTones['intro_ring'] != null) {
             $introRing = url('twilio/'.rawurlencode($messageTones['intro_ring']));
+            $checkIntroRingExist = $this->checkUrlExists($introRing); // Check URL exist or not
         }
 
         if (isset($messageTones['busy_ring']) and $messageTones['busy_ring'] != null) {
             $busyRing = url('twilio/'.rawurlencode($messageTones['busy_ring']));
+            $checkBusyRingExist = $this->checkUrlExists($busyRing); // Check URL exist or not
+        }
+
+        // if end work ring is not found take default one
+        if($checkEndworkRingExist == false) {
+            $endworkRing = 'https://'.$request->getHost().'/end_work_ring.mp3';
+        }
+
+        // if intro ring is not found take default one
+        if($checkIntroRingExist == false) {
+            $introRing = 'https://'.$request->getHost().'/intro_ring.mp3';
+        }
+
+        // if busy ring is not found take default one
+        if($checkBusyRingExist == false) {
+            $busyRing = 'https://'.$request->getHost().'/busy_ring.mp3';
         }
 
         $welcomeMessage = StoreWebsite::where('id', $store_website_id)->pluck('twilio_greeting_message')->first();
@@ -1577,35 +1593,63 @@ class TwilioController extends FindByNumberController
     public function waitUrl(Request $request)
     {
         $count = $request->get('count') ?? 1;
-        TwilioLog::create(['log' => 'WaitURL '.$count.' | '.$request->get('QueueTime').' | '.$request->get('AvgQueueTime'), 'account_sid' => 0, 'call_sid' => 0, 'phone' => 0]);
+
+        // Find wait url exist for store websites
+        $number = $request->get('From'); // Customer Number
+        $twilioNumber = $request->get('To'); // Twilio number
+        $storeId = null;
+        $activeNumber = TwilioActiveNumber::where('phone_number', '+'.trim($twilioNumber, '+'))->first();
+        if ($activeNumber) {
+            $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+        }
+
+        [$context, $object] = $this->findCustomerOrLeadOrOrderByNumber(str_replace('+', '', $number), $storeId->store_website_id ?? null);
+
+        $storeWebsiteId = (isset($object->store_website_id) ? $object->store_website_id : 0);
+
+        $checkWaitUrlRingExist = false;
+        if ($storeWebsiteId != 0) {
+            $messageTones = TwilioMessageTone::where('store_website_id', $storeWebsiteId)->first();
+
+            if (isset($messageTones['wait_url_ring']) and $messageTones['wait_url_ring'] != null) {
+                $waitUrlRing = url('twilio/'.rawurlencode($messageTones['wait_url_ring']));
+                $checkWaitUrlRingExist = $this->checkUrlExists($waitUrlRing); // Check URL exist or not
+            }
+        }
+
+        // if wait url ring is not found take default one
+        if($checkWaitUrlRingExist == false) {
+            $waitUrlRing = $request->getSchemeAndHttpHost().'/twilio-queue-music.mp3';
+        }
+
+        TwilioLog::create(['log' => 'WaitURL '.$count.' | '.$request->get('QueueTime').' | '.$request->get('AvgQueueTime').' | '.$waitUrlRing, 'account_sid' => 0, 'call_sid' => 0, 'phone' => 0]);
 
         $recordurl = 'https://'.$request->getHost().'/twilio/storerecording';
 
         $response = new VoiceResponse();
         if ($count == 2) {
-            $response->say('All agent are Busy. Please wait for your turn.');
-            // $response->play(url('twilio-queue-music.mp3'));
-            $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
+            $response->say('All agents are Busy. Please wait for your turn.');
+            $response->play($waitUrlRing);
 
             $count++;
             $response->redirect(route('waiturl', ['count' => $count], false));
         } elseif ($count == 3) {
-            $response->say('All agent are Busy. Please wait for your turn.');
-            $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
+            $response->say('All agents are Busy. Please wait for your turn.');
+            $response->play($waitUrlRing);
+
             $count++;
             $response->redirect(route('waiturl', ['count' => $count], false));
         } elseif ($count == 4) {
-            // $response->play('http://com.twilio.sounds.music.s3.amazonaws.com/MARKOVICHAMP-Borghestral.mp3');
-            // $response->play(url('twilio-queue-music.mp3'));
-            $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
+            $response->play($waitUrlRing);
 
             $response->redirect(route('ivr', ['call_with_agent' => 1, 'count' => 1, 'call_from_enqueue' => 1], false));
         } elseif ($count == 5) {
             $response->say('Thank you for your message, We will contact you soon.');
             $response->hangup();
         } else {
-            // $response->play(url('twilio-queue-music.mp3'));
-            $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
+            $response->say('All agents are Busy. Please wait for your turn.');
+            $response->play($waitUrlRing);
+
             $response->redirect(route('ivr', ['call_with_agent' => 1, 'count' => 0, 'call_from_enqueue' => 1], false));
         }
 
@@ -4814,6 +4858,7 @@ class TwilioController extends FindByNumberController
             'end_work_ring' => 'mimes:mp3',
             'intro_ring' => 'mimes:mp3',
             'busy_ring' => 'mimes:mp3',
+            'wait_url_ring' => 'mimes:mp3',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -4958,4 +5003,31 @@ class TwilioController extends FindByNumberController
 
         return $response;
     }
+
+    /**
+     * This function is used to check URL is exist or not
+     *
+     * @param string $url
+     * @return Boolean
+     */
+    public function checkUrlExists($url) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        // don't download content
+        curl_setopt($ch, CURLOPT_NOBODY, 1);
+        curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = curl_exec($ch);
+
+        // Check result is not empty
+        if ($result !== false) {
+            $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            return ($status_code == 200);
+        }
+
+        curl_close($ch);
+        return false;
+	}
 }

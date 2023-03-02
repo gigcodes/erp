@@ -19,6 +19,7 @@ use App\TranslateReplies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\ProcessTranslateReply;
 
 class ReplyController extends Controller
 {
@@ -142,9 +143,12 @@ class ReplyController extends Controller
             'model' => 'required',
         ]);
 
-        $data = $request->except('_token', '_method');
+        $data               =   $request->except('_token', '_method');
 
+        $reply->is_pushed   =   0;
         $reply->update($data);
+
+        (new \App\Models\ReplyLog)->addToLog($reply->id, 'System updated FAQ', 'Updated' );
 
         return redirect()->route('reply.index')->with('success', 'Quick Reply updated successfully');
     }
@@ -393,61 +397,17 @@ class ReplyController extends Controller
         }
        
         if($is_flagged == '1') {  
-            $record = \App\Reply::find($id);           
+            $record     =   \App\Reply::find($id);           
             if ($record) {  
-                $replies = $record->reply;
-                if ($replies!='') {
-                    $LanguageModel = Language::all();
-                    for($i=0;$i<count($LanguageModel);$i++) {
-                        $language = $LanguageModel[$i]->locale;
-                         // Check translation SEPARATE LINE exists or not
-                        $checkTranslationTable = Translations::select('text')->where('from', 'en')->where('to', $language)->where('text_original', $replies)->first();
-                        if ($checkTranslationTable) {
-                            $data = htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
-                        } else {   
-                            $data = '';      
-                            $googleTranslate = new GoogleTranslate();
-                            $translationString = $googleTranslate->translate($language, $replies);                           
-                            if($translationString!='') {
-                                Translations::addTranslation($replies, $translationString, 'en', $language);
-                                $data = htmlspecialchars_decode($translationString, ENT_QUOTES);
-                            }    
-                           
-                        }
 
-                        if($data!='') {
+                ProcessTranslateReply::dispatch($record, Auth::id());
 
-                            $translateReplies = TranslateReplies::where('translate_from', 'en')->where('translate_to', $language)->where('replies_id', $id)->first();
-
-                            if(count((array)$translateReplies)==0) {
-                                $translateReplies = new TranslateReplies();
-                                $translateReplies->created_by  =  Auth::id();
-                                $translateReplies->created_at  = date('Y-m-d H:i:s');
-                            } else {
-                                $translateReplies->updated_by  =  Auth::id();
-                                $translateReplies->updated_at  = date('Y-m-d H:i:s');
-                            }
-                        
-                            $translateReplies->replies_id  = $id;
-                            $translateReplies->translate_from  ='en';
-                            $translateReplies->translate_to  = $language;
-                            $translateReplies->translate_text  = $data;                        
-                            $translateReplies->save();
-
-                            $res_rec = \App\Reply::find($id);  
-                            $res_rec->is_flagged = 1;
-                            $res_rec->save();
-
-                        }
-
-                    }                   
-                }                
+                $record->is_flagged     =   1;
+                $record->save();
+                return response()->json(['code' => 200, 'data' => [], 'message' => 'Replies Set For Translatation']);                              
             }    
-            if($data!='') {
-                return response()->json(['code' => 200, 'data' => [], 'message' => 'Replies Translated successfully']);
-            } else {
-                return response()->json(['code' => 400, 'data' => [], 'message' => 'There is a problem while translating']);
-            }
+
+            return response()->json(['code' => 400, 'data' => [], 'message' => 'There is a problem while translating']);
            
         } else {
             $res_rec = \App\Reply::find($id);  
@@ -486,5 +446,14 @@ class ReplyController extends Controller
         return view('reply.translate-list', compact('replies'));
     }
 
+    function    show_logs(Request   $request,    \App\Models\ReplyLog  $ReplyLog){
+        
+        $data   =   $request->all();
+
+        $data   =   $ReplyLog->where('reply_id', $data['id'])->orderby('created_at','desc')->paginate(20);
+        $paginateHtml   =   $data->links()->render();
+        return response()->json(['code' => 200, 'paginate' =>$paginateHtml, 'data' => $data, 'message' => 'Logs found']);
+
+    }
 
 }

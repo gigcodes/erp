@@ -79,6 +79,7 @@
                         <tr>
                             <th style="width:5%">Date</th>
                             <th style="width:10%">Config Name</th>
+                            <th style="width:10%">Website</th>
                             <th style="width:30%"> Name</th>
                             <th style="width:10%">Object Story Title</th>
                             <th style="width:5%">Live Status</th>
