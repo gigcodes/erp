@@ -551,40 +551,11 @@ class SocialController extends Controller
 
         $resp = '';
         $socialConfigs = SocialConfig::latest()->paginate(Setting::get('pagination'));
-        $adAccountCollection = array();
        
       
         foreach ($socialConfigs as $config) {
-
-            $this->fb = new Facebook([
-                'app_id' => $config->api_key,
-                'app_secret' => $config->api_secret,
-                'default_graph_version' => 'v15.0',
-            ]);
-
-           
-            $response = $this->getAdAccount($config, $this->fb);
-           
-            if($response){
-                $pages = $response->getGraphEdge()->asArray();
-                
-                foreach($pages as $key => $page){
-                    $ad_acc_id = $page['id'];
-
-                    $adAccountCollection[$key]['config_id'] = $config->id;
-                    $adAccountCollection[$key]['ad_ac_id'] = $ad_acc_id;
-                    $adAccountCollection[$key]['token'] = $config->token;
-
-                    // $adAccountCollection[$config->id][$ad_acc_id] = $config->token;
-                }
-            }
-        }
-        
-      
-
-        foreach($adAccountCollection as $key => $adaccountAds){
-
-            $query = 'https://graph.facebook.com/v15.0/'.$adaccountAds["ad_ac_id"].'/campaigns?fields=ads{id,name,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend}}&limit=3000&access_token='.$adaccountAds["token"].'';
+            
+            $query = 'https://graph.facebook.com/v15.0/'.$config->ads_manager.'/campaigns?fields=ads{id,name,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend}}&limit=3000&access_token='.$config->token.'';
 
             // Call to Graph api here
             $ch = curl_init();
@@ -600,10 +571,10 @@ class SocialController extends Controller
             $resp = json_decode($resp);
             curl_close($ch);
             
-            $resp->token = $adaccountAds["config_id"];
+            $resp->token = $config->id;
 
             if($resp->data){
-              //  dd($resp);
+                
                 if (isset($resp->error->error_user_msg)) {
                     Session::flash('message', $resp->error->error_user_msg);
                 } elseif (isset($resp->error->message)) {
@@ -671,34 +642,8 @@ class SocialController extends Controller
         $adAccountCollection = array();
 
         foreach ($socialConfigs as $config) {
-
-            $this->fb = new Facebook([
-                'app_id' => $config->api_key,
-                'app_secret' => $config->api_secret,
-                'default_graph_version' => 'v15.0',
-            ]);
-
-           
-            $response = $this->getAdAccount($config, $this->fb);
-           
-            if($response){
-                $pages = $response->getGraphEdge()->asArray();
-                
-                foreach($pages as $key => $page){
-                    $ad_acc_id = $page['id'];
-
-                    $adAccountCollection[$key]['config_id'] = $config->id;
-                    $adAccountCollection[$key]['ad_ac_id'] = $ad_acc_id;
-                    $adAccountCollection[$key]['token'] = $config->token;
-
-                    // $adAccountCollection[$config->id][$ad_acc_id] = $config->token;
-                }
-            }
-        }
-
-        foreach($adAccountCollection as $key => $adaccountAds){
-
-            $query = 'https://graph.facebook.com/v15.0/'.$adaccountAds["ad_ac_id"].'/campaigns?fields=ads{adcreatives{id,name,thumbnail_url},insights.level(ad).metrics(ctr){cost_per_unique_click,spend,impressions,frequency,reach,unique_clicks,clicks,ctr,ad_name,adset_name,cpc,cpm,cpp,campaign_name,ad_id,adset_id,account_id,account_name}}&access_token='.$adaccountAds["token"].'';
+            
+            $query = 'https://graph.facebook.com/v15.0/'.$config->ads_manager.'/campaigns?fields=ads{adcreatives{id,name,thumbnail_url},insights.level(ad).metrics(ctr){cost_per_unique_click,spend,impressions,frequency,reach,unique_clicks,clicks,ctr,ad_name,adset_name,cpc,cpm,cpp,campaign_name,ad_id,adset_id,account_id,account_name}}&access_token='.$config->token.'';
 
 
             // Call to Graph api here
@@ -715,7 +660,7 @@ class SocialController extends Controller
             $resp = json_decode($resp);
             curl_close($ch);
             
-            $resp->token = $adaccountAds["config_id"];
+            $resp->token = $config->token;
 
             if($resp->data){
                 
