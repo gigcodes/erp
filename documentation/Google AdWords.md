@@ -1,6 +1,6 @@
 # Google AdWords Account, Campaign, Ads Group and Ads
 
-The account module is the representation of the Google Ads account, which provide to manage campaign, ads group and using Google Ads API. These module are handling with the following tables: `googleadsaccounts`, `googlecampaigns`, `googleadsgroups` and `googleads`.
+The account module is the representation of the Google Ads account, which provide to manage campaign, ads group and using Google Ads API. These module are handling with the following tables: `googleadsaccounts`, `googlecampaigns`, `googleadsgroups`, `googleads`, `google_responsive_display_ads`, `google_responsive_display_ad_marketing_images`, `google_app_ads` and `google_app_ad_images`.
 
 *API Reference:* https://developers.google.com/google-ads/api/docs/first-call/overview \
 *Used PHP Package:* https://github.com/googleads/google-ads-php
@@ -34,16 +34,23 @@ The ads group module has store group name, budget amount and status of ads group
 
 ## Ads
 1. **Responsive Search Ad** \
-    The responsive search ads module has store ads details and create ads on Google Ads using its API.
+    This ad module is used for `SEARCH` type campaigns. The responsive search ads module has store ads details and create ads on Google Ads using its API.
     - **Create:** It can be created by adding data in the create form. User have to enter headline 1, headline 2, headline 3, description 1, description 2, final URL, path 1, path 2 and status.
     - **Delete** option will permanently delete ads from database as well as Google Ads account.
 
     *API Reference:* https://developers.google.com/google-ads/api/docs/ads/overview
 
 2. **Responsive Display Ad** \
-    The responsive display ads module has store ads details and create responsive display ads on Google Ads using its API.
+    This ad module is used for `DISPLAY` type campaigns. The responsive display ads module has store ads details and create responsive display ads on Google Ads using its API.
     - **Create:** It can be created by adding data in the create form. User have to enter headline 1, headline 2, headline 3, description 1, description 2, final URL, long headline, business name, marketing images and square marketing images and status.
      - **View:** A view option is available in this module to show details of the all data that we entered in the creation time.
     - **Delete** option will permanently delete responsive display ads from database as well as Google Ads account.
 
     *API Reference:* https://developers.google.com/google-ads/api/docs/responsive-display-ads/overview
+
+3. **App Ad** \
+    This ad module is used for `MULTI_CHANNEL` type campaigns. The app ads module has store ads details and create app ads on Google Ads using its API.
+    - **Create:** It can be created by adding data in the create form. User have to enter headline 1, headline 2, headline 3, description 1, description 2, images and youtube video ids and status.
+     - **View:** A view option is available in this module to show details of the all data that we entered in the creation time.
+
+    *API Reference:* https://developers.google.com/google-ads/api/docs/app-campaigns/create-ad-group

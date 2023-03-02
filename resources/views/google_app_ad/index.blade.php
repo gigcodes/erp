@@ -13,30 +13,22 @@
 @endsection
 @section('content')
     <div class="container" style="margin-top: 10px">
-        <h4>Google Responsive Display Ads (<span id="ads_count">{{$totalNumEntries}}</span>) for {{$groupname}} AdsGroup <button class="btn-image float-right custom-button" onclick="window.location.href='/google-campaigns/{{$campaignId}}/adgroups';">Back to Ad groups</button></h4>
+        <h4>Google App Ads (<span id="ads_count">{{$totalNumEntries}}</span>) for {{$groupname}} AdsGroup <button class="btn-image float-right custom-button" onclick="window.location.href='/google-campaigns/{{$campaignId}}/adgroups';">Back to Ad groups</button></h4>
 
 
         <div class="pull-left" style="margin-top:15px;">
             <div class="form-group">
                 <div class="row">
                     
-                <div class="col-md-2">
+                    <div class="col-md-4">
                         <input name="headline" type="text" class="form-control" value="{{ isset($headline) ? $headline : '' }}" placeholder="Headline" id="headline">
                     </div>
-                    
-                    <div class="col-md-2">
-                        <input name="business_name" type="text" class="form-control" value="{{ isset($business_name) ? $business_name : '' }}" placeholder="Business name" id="business_name">
-                    </div>
 
-                    <div class="col-md-2">
-                        <input name="final_url" type="text" class="form-control" value="{{ isset($final_url) ? $final_url : '' }}" placeholder="Final URL" id="final_url">
-                    </div>
-
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         <select class="browser-default custom-select" id="ads_status" name="ads_status" style="height: auto">
                         <option value="">--Status--</option>
                         <option value="ENABLED">Enabled</option>
-                        <option value="PAUSED">Paused</option>
+                        {{-- <option value="PAUSED">Paused</option> --}}
                         {{-- <option value="DISABLED">Disabled</option> --}}
                     </select>
 
@@ -52,18 +44,20 @@
             </div>
         </div>
 
-    
-        <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/responsive-display-ad/create">
+        
+        @if(count($ads) == 0)
+        <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/app-ad/create">
             <button type="submit" class="float-right mb-3 custom-button" style="margin-top:10px;">Create</button>
-        </form>    
+        </form> 
+        @endif   
 
         <table class="table table-bordered" id="ads-table">
             <thead>
             <tr>
                 <th>#ID</th>
                 <th>Headline 1</th>
-                <th>Business Name</th>
-                <th>Final Url</th>
+                <th>Headline 2</th>
+                <th>Headline 3</th>
                 <th>Status</th>
                 <th>Created At</th>
                 <th>Action</th>
@@ -75,16 +69,13 @@
                 <tr>
                     <td>{{$ad->id}}</td>
                     <td>{{$ad->headline1}}</td>
-                    <td>{{$ad->business_name}}</td>
-                    <td>{{$ad->final_url}}</td>
+                    <td>{{$ad->headline2}}</td>
+                    <td>{{$ad->headline3}}</td>
                     <td>{{$ad->status}}</td>
                     <td>{{$ad->created_at}}</td>
                     <td>
                         <div class="d-flex">
-                            <a href="{{ route('responsive-display-ad.show', [$campaignId, $adGroupId, $ad['google_ad_id']]) }}" class="btn btn-image text-dark" title="View"><i class="fa fa-eye"></i></a>
-                            {!! Form::open(['method' => 'DELETE','route' => ['responsive-display-ad.deleteAd', $campaignId, $adGroupId,$ad['google_ad_id']], 'style'=>'display:inline']) !!}
-                                <button type="submit" class="btn btn-image" title="Delete"><img src="/images/delete.png"></button>
-                            {!! Form::close() !!}
+                            <a href="{{ route('app-ad.show', [$campaignId, $adGroupId, $ad['google_ad_id']]) }}" class="btn btn-image text-dark" title="View"><i class="fa fa-eye"></i></a>
                         </div>
                     </td>
                 </tr>
@@ -102,10 +93,8 @@
     $('.select-multiple').select2({width: '100%'});
 
     function submitSearch(){
-        src = '/google-campaigns/<?php echo $campaignId; ?>/adgroups/<?php echo $adGroupId; ?>/responsive-display-ad';
+        src = '/google-campaigns/<?php echo $campaignId; ?>/adgroups/<?php echo $adGroupId; ?>/app-ad';
         headline = $('#headline').val();
-        business_name = $('#business_name').val();
-        final_url = $('#final_url').val();
         ads_status = $('#ads_status').val();
 
         $.ajax({
@@ -113,8 +102,6 @@
             dataType: "json",
             data: {
                 headline : headline,
-                business_name :business_name,
-                final_url :final_url,
                 ads_status :ads_status,
             },
             beforeSend: function () {
@@ -138,7 +125,7 @@
     }
 
     function resetSearch(){
-        src = '/google-campaigns/<?php echo $campaignId; ?>/adgroups/<?php echo $adGroupId; ?>/responsive-display-ad';
+        src = '/google-campaigns/<?php echo $campaignId; ?>/adgroups/<?php echo $adGroupId; ?>/app-ad';
         blank = ''
         $.ajax({
             url: src,
@@ -155,8 +142,6 @@
         }).done(function (data) {
             $("#loading-image").hide();
             headline = $('#headline').val('');
-            business_name = $('#business_name').val('');
-            final_url = $('#final_url').val('');
             ads_status = $('#ads_status').val('');
 
             $("#ads-table tbody").empty().html(data.tbody);

@@ -334,11 +334,10 @@ use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
-
+use App\Http\Controllers\GoogleAppAdController;
 use App\Http\Controllers\UnknownAttributeProductController;
-
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppConnect\AppConnectController;
+use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
@@ -3866,6 +3865,15 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::post('/create', [GoogleResponsiveDisplayAdController::class, 'createAd'])->name('responsive-display-ad.craeteAd');
                     Route::delete('/delete/{adId}', [GoogleResponsiveDisplayAdController::class, 'deleteAd'])->name('responsive-display-ad.deleteAd');
                     Route::get('/{adId}', [GoogleResponsiveDisplayAdController::class, 'show'])->name('responsive-display-ad.show');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('app-ad')->group(function () {
+                    Route::get('/', [GoogleAppAdController::class, 'index'])->name('app-ad.index');
+                    Route::get('/create', [GoogleAppAdController::class, 'createPage'])->name('app-ad.createPage');
+                    Route::post('/create', [GoogleAppAdController::class, 'createAd'])->name('app-ad.craeteAd');
+                    Route::get('/{adId}', [GoogleAppAdController::class, 'show'])->name('app-ad.show');
                 });
             });
         });
