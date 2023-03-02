@@ -635,6 +635,7 @@ class Model
                             'message_application_id' => $message_application_id,
                             'chatbot_question' => $inputText,
                             'chatbot_params' => isset($result['medias']) ? $result['medias'] : [],
+                            'ticket_id' => !is_null($messageModel->ticket_id) ? $messageModel->ticket_id : null,
                         ];
 
                         switch ($result['action']) {
