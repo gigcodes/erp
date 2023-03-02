@@ -33,8 +33,17 @@ The ads group module has store group name, budget amount and status of ads group
 *API Reference:* https://developers.google.com/google-ads/api/docs/campaigns/create-ad-groups
 
 ## Ads
-The ads module has store ads details and create ads on Google Ads using its API.
- - **Create:** It can be created by adding data in the create form. User have to enter headline 1, headline 2, headline 3, description 1, description 2, final URL, path 1, path 2 and status.
- - **Delete** option will permanently delete ads from database as well as Google Ads account.
+1. **Responsive Search Ad** \
+    The responsive search ads module has store ads details and create ads on Google Ads using its API.
+    - **Create:** It can be created by adding data in the create form. User have to enter headline 1, headline 2, headline 3, description 1, description 2, final URL, path 1, path 2 and status.
+    - **Delete** option will permanently delete ads from database as well as Google Ads account.
 
-*API Reference:* https://developers.google.com/google-ads/api/docs/ads/overview
+    *API Reference:* https://developers.google.com/google-ads/api/docs/ads/overview
+
+2. **Responsive Display Ad** \
+    The responsive display ads module has store ads details and create responsive display ads on Google Ads using its API.
+    - **Create:** It can be created by adding data in the create form. User have to enter headline 1, headline 2, headline 3, description 1, description 2, final URL, long headline, business name, marketing images and square marketing images and status.
+     - **View:** A view option is available in this module to show details of the all data that we entered in the creation time.
+    - **Delete** option will permanently delete responsive display ads from database as well as Google Ads account.
+
+    *API Reference:* https://developers.google.com/google-ads/api/docs/responsive-display-ads/overview
