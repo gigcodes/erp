@@ -1,6 +1,10 @@
 @foreach ($posts as $post)
     <tr>
       <td>{{ \Carbon\Carbon::parse($post->created_at)->format('d-m-Y') }}</td>
+        <?php
+          $config_name = App\Social\SocialConfig::where('id',$post->config_id)->first();
+        ?>
+        <td>@if(isset($config_name->storeWebsite)) {{ $config_name->storeWebsite->title }} @endif</td>
         <td>{{ $post->caption }}</td>
         <td>{{ $post->post_body }}</td>
       
