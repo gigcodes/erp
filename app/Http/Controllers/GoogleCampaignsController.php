@@ -23,6 +23,8 @@ use Google\Ads\GoogleAds\V12\Enums\PositiveGeoTargetTypeEnum\PositiveGeoTargetTy
 use Google\Ads\GoogleAds\V12\Enums\NegativeGeoTargetTypeEnum\NegativeGeoTargetType;
 use Google\Ads\GoogleAds\V12\Enums\AdvertisingChannelTypeEnum\AdvertisingChannelType;
 use Google\Ads\GoogleAds\V12\Enums\AdvertisingChannelSubTypeEnum\AdvertisingChannelSubType;
+use Google\Ads\GoogleAds\V12\Enums\AppCampaignBiddingStrategyGoalTypeEnum\AppCampaignBiddingStrategyGoalType;
+use Google\Ads\GoogleAds\V12\Enums\OptimizationGoalTypeEnum\OptimizationGoalType;
 use Google\Ads\GoogleAds\V12\Enums\CampaignStatusEnum\CampaignStatus;
 use Google\Ads\GoogleAds\V12\Errors\GoogleAdsError;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
@@ -32,6 +34,9 @@ use Google\Ads\GoogleAds\V12\Resources\Campaign\NetworkSettings;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\GeoTargetTypeSetting;
 use Google\Ads\GoogleAds\V12\Resources\CampaignBudget;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\ShoppingSetting;
+use Google\Ads\GoogleAds\V12\Resources\Campaign\AppCampaignSetting;
+use Google\Ads\GoogleAds\V12\Resources\Campaign\OptimizationGoalSetting;
+use Google\Ads\GoogleAds\V12\Enums\AppCampaignAppStoreEnum\AppCampaignAppStore;
 use Google\Ads\GoogleAds\V12\Services\CampaignBudgetOperation;
 use Google\Ads\GoogleAds\V12\Services\CampaignOperation;
 use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
@@ -225,15 +230,9 @@ class GoogleCampaignsController extends Controller
         $account = \App\GoogleAdsAccount::findOrFail($account_id);
         $customerId = $account->google_customer_id;
 
-        /*  $this->validate($request, [
-            'campaignName' => 'required',
-            'budgetAmount' => 'required|integer',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'campaignStatus' => 'required',
-        ]); */
         $this->validate($request, [
             'campaignName' => 'required|max:55',
+            'channel_type' => 'required',
             'budgetAmount' => 'required|max:55',
             'start_date' => 'required|max:15',
             'end_date' => 'required|max:15',
@@ -365,6 +364,7 @@ class GoogleCampaignsController extends Controller
                                 'end_date' => $campaign_end_date,
                             );
             
+
             if($channel_type == "PERFORMANCE_MAX"){
                 $campaignArr['url_expansion_opt_out'] = false;
                 unset($campaignArr['advertising_channel_sub_type']);
@@ -372,9 +372,34 @@ class GoogleCampaignsController extends Controller
                 $campaignArr['advertising_channel_sub_type'] = self::getAdvertisingChannelSubType($channel_sub_type);
             }
 
+
             if(!empty($final_url_suffix)){
                 $campaignArr['final_url_suffix'] = $final_url_suffix;
             }
+
+
+            if($channel_type == "MULTI_CHANNEL"){
+                $campaignArray['app_id'] = $request->app_id;
+                $campaignArray['app_store'] = $request->app_store;
+                $campaignArr['app_campaign_setting'] = self::getAppCampaignSetting($campaignArray['app_id'], $campaignArray['app_store'], $channel_sub_type);
+                unset($campaignArr['bidding_strategy_type']);
+                unset($campaignArr['network_settings']);
+
+
+                if (in_array($bidding_strategy_type, ['TARGET_CPA']) && !$txt_target_cpa) {
+                   $txt_target_cpa = 1;
+                   $campaignArray['target_cpa_value'] = $txt_target_cpa;
+                }
+
+                if($channel_sub_type == "APP_CAMPAIGN_FOR_PRE_REGISTRATION"){
+                    $campaignArr['optimization_goal_setting'] = new OptimizationGoalSetting([
+                                                                        'optimization_goal_types' => [ 
+                                                                            OptimizationGoalType::APP_PRE_REGISTRATION 
+                                                                        ]
+                                                                    ]);
+                }
+            }
+
 
             if (in_array($bidding_strategy_type, ['TARGET_CPA']) && $txt_target_cpa) {
                 $campaignArr['target_cpa'] = new TargetCpa(['target_cpa_micros' => $txt_target_cpa * 1000000]);
@@ -384,9 +409,10 @@ class GoogleCampaignsController extends Controller
                 $campaignArr['target_roas'] = new TargetRoas(['target_roas' => $txt_target_roas]);
             }else if($channel_type == "PERFORMANCE_MAX"  && $txt_target_roas){
                 $campaignArr['maximize_conversion_value'] = new MaximizeConversionValue(['target_roas' => $txt_target_roas]);
-            }else {
+            }else if($channel_type != "MULTI_CHANNEL"){
                 $campaignArr['manual_cpc'] = new ManualCpc();
             }
+
 
             $campaign = new Campaign($campaignArr);
 
@@ -572,6 +598,15 @@ class GoogleCampaignsController extends Controller
                                 'end_date' => $campaign_end_date,
                             );
 
+            if($campaignDetail->channel_type == "MULTI_CHANNEL"){
+                if (!in_array($campaignDetail->bidding_strategy_type, ['TARGET_CPA']) || !$txt_target_cpa) {
+                   $txt_target_cpa = 1;
+                   $bidding_strategy_type = "TARGET_CPA";
+                   $campaignArray['target_cpa_value'] = $txt_target_cpa;
+                   $campaignArray['bidding_strategy_type'] = $bidding_strategy_type;
+                }
+            }
+
             if (in_array($bidding_strategy_type, ['TARGET_CPA', 'MAXIMIZE_CONVERSION_VALUE']) && $txt_target_cpa) {
                 $campaignArr['target_cpa'] = new TargetCpa(['target_cpa_micros' => $txt_target_cpa * 1000000]);
             }
@@ -584,7 +619,7 @@ class GoogleCampaignsController extends Controller
                 $campaignArr['target_roas'] = new TargetRoas(['target_roas' => $txt_target_roas]);
             }
 
-            if (in_array($bidding_strategy_type, [ 'MANUAL_CPC'])) {
+            if (in_array($bidding_strategy_type, ['MANUAL_CPC'])) {
                 $campaignArr['target_cpa'] = null;
                 $campaignArr['target_spend'] = null;
                 $campaignArr['target_roas'] = null;
@@ -709,7 +744,7 @@ class GoogleCampaignsController extends Controller
                 'amount_micros' => $amount * 1000000
             ];
 
-            if($channelType == "PERFORMANCE_MAX"){
+            if(in_array($channelType, ["PERFORMANCE_MAX", "MULTI_CHANNEL"])){
                 // A Performance Max campaign cannot use a shared campaign budget.
                 $budgetArr['explicitly_shared'] = false;
             }
@@ -847,14 +882,29 @@ class GoogleCampaignsController extends Controller
             case 'DISPLAY_EXPRESS':
                 return AdvertisingChannelSubType::DISPLAY_EXPRESS;
                 break;
+
             case 'DISPLAY_SMART_CAMPAIGN':
                 return AdvertisingChannelSubType::DISPLAY_SMART_CAMPAIGN;
                 break;
+
             case 'SHOPPING_GOAL_OPTIMIZED_ADS':
                 return AdvertisingChannelSubType::SHOPPING_GOAL_OPTIMIZED_ADS;
                 break;
+
             case 'DISPLAY_GMAIL_AD':
                 return AdvertisingChannelSubType::DISPLAY_GMAIL_AD;
+                break;
+
+            case 'APP_CAMPAIGN':
+                return AdvertisingChannelSubType::APP_CAMPAIGN;
+                break;
+
+            case 'APP_CAMPAIGN_FOR_ENGAGEMENT':
+                return AdvertisingChannelSubType::APP_CAMPAIGN_FOR_ENGAGEMENT;
+                break;
+
+            case 'APP_CAMPAIGN_FOR_PRE_REGISTRATION':
+                return AdvertisingChannelSubType::APP_CAMPAIGN_FOR_PRE_REGISTRATION;
                 break;
 
             default:
@@ -1028,4 +1078,23 @@ class GoogleCampaignsController extends Controller
                 return CampaignStatus::PAUSED;
         }
     }
+
+    //get app campaign setting
+    private function getAppCampaignSetting($appId, $appStore, $channel_sub_type){
+
+        $appStore = ($appStore == "GOOGLE_APP_STORE" ? AppCampaignAppStore::GOOGLE_APP_STORE : AppCampaignAppStore::APPLE_APP_STORE);
+
+        $bidding_strategy_type = AppCampaignBiddingStrategyGoalType::OPTIMIZE_INSTALLS_TARGET_INSTALL_COST;
+        if($channel_sub_type == "APP_CAMPAIGN_FOR_PRE_REGISTRATION"){
+            $bidding_strategy_type = AppCampaignBiddingStrategyGoalType::OPTIMIZE_PRE_REGISTRATION_CONVERSION_VOLUME;
+        }
+
+        $appCampaignSetting = new AppCampaignSetting([
+                'app_id' => $appId,
+                'app_store' => $appStore,
+                'bidding_strategy_goal_type' => $bidding_strategy_type
+            ]);
+
+        return $appCampaignSetting;
+    } 
 }
