@@ -9,13 +9,14 @@
         </div>
     </div>
     
-    <div class="row pl-5 pr-5">
+    <div class="row pl-5 pr-5 twilio-manage-tones">
         <div class="col-md-12">
             <div class="col-md-1 p-2  border-top border-bottom border-right border-left"><strong>#</strong></div>
-            <div class="col-md-1 p-2 border-top border-bottom border-right border-left"><strong>Store Website</strong></div>
-            <div class="col-md-3 p-2 border-top border-bottom border-right border-left"><strong>End work ring</strong></div>
-            <div class="col-md-3 p-2 border-top border-bottom border-right border-left"><strong>Intro ring</strong></div>
-            <div class="col-md-3 p-2  border-top border-bottom border-right border-left"><strong>Busy ring</strong></div>
+            <div class="col-md-2 p-2 border-top border-bottom border-right border-left"><strong>Store Website</strong></div>
+            <div class="col-md-2 p-2 border-top border-bottom border-right border-left"><strong>End work ring</strong></div>
+            <div class="col-md-2 p-2 border-top border-bottom border-right border-left"><strong>Intro ring</strong></div>
+            <div class="col-md-2 p-2  border-top border-bottom border-right border-left"><strong>Busy ring</strong></div>
+            <div class="col-md-2 p-2  border-top border-bottom border-right border-left"><strong>Wait URL ring</strong></div>
             <div class="col-md-1 p-2 border-top border-bottom border-right border-left"><strong>Action</strong></div>
         </div> 
            
@@ -25,9 +26,9 @@
 						{{ Form::open(array('url'=>url('twilio/save-message-tone'), 'files'=>true, 'class'=>'ajax-submit'))}}
 							<div class="col-md-1 p-2  border-top border-bottom border-right border-left" style="height: 46px !important;">{{ $i+1 }} {{Form::hidden('store_website_id', $twilioMessageTone['websiteId']) }}</div>
 
-							<div class="col-md-1 Website-task p-2  border-top border-bottom border-right border-left" style="height: 46px !important;">{{ $twilioMessageTone->website }}</div>
+							<div class="col-md-2 Website-task p-2  border-top border-bottom border-right border-left" style="height: 46px !important;">{{ $twilioMessageTone->website }}</div>
 
-							<div class="col-md-3 p-2  border-top border-bottom border-right border-left"><input type="file" name="end_work_ring">
+							<div class="col-md-2 p-2  border-top border-bottom border-right border-left"><input type="file" name="end_work_ring" class="w-100">
 								@if($twilioMessageTone->end_work_ring != null)
 									<div class="d-flex">
 										<audio src="{{url('twilio/'.$twilioMessageTone->end_work_ring)}}" controls="" preload="metadata">
@@ -35,7 +36,7 @@
 									</div>
 								@endif
 							</div>
-							<div class="col-md-3 p-2  border-top border-bottom border-right border-left"><input type="file" name="intro_ring">
+							<div class="col-md-2 p-2  border-top border-bottom border-right border-left"><input type="file" name="intro_ring" class="w-100">
 								@if($twilioMessageTone->intro_ring != null)
 									<div class="d-flex">
 										<audio src="{{url('twilio/'.$twilioMessageTone->intro_ring)}}" controls="" preload="metadata">
@@ -43,10 +44,18 @@
 									</div>
 								@endif
 							</div>
-							<div class="col-md-3 p-2  border-top border-bottom border-right border-left"><input type="file" name="busy_ring">
+							<div class="col-md-2 p-2  border-top border-bottom border-right border-left"><input type="file" name="busy_ring" class="w-100">
 								@if($twilioMessageTone->busy_ring != null)
 									<div class="d-flex ">
 										<audio src="{{url('twilio/'.$twilioMessageTone->busy_ring)}}" controls="" preload="metadata">
+										</audio>
+									</div>
+								@endif
+							</div>
+							<div class="col-md-2 p-2  border-top border-bottom border-right border-left"><input type="file" name="wait_url_ring" class="w-100">
+								@if($twilioMessageTone->wait_url_ring != null)
+									<div class="d-flex ">
+										<audio src="{{url('twilio/'.$twilioMessageTone->wait_url_ring)}}" controls="" preload="metadata">
 										</audio>
 									</div>
 								@endif
