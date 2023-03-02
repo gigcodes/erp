@@ -174,7 +174,7 @@ class ProceesPushFaq implements ShouldQueue
                                     $replyInfo->is_pushed   =   1;
                                     $replyInfo->save();
                                     
-                                    (new ReplyLog)->addToLog($replyInfo->id, 'System pushed FAQ on '.$url.' on store '.$storeValue.' ', 'Push' );
+                                    (new ReplyLog)->addToLog($replyInfo->id, 'System pushed FAQ on '.$url.' with ID '.$store_website_id.' on store '.$storeValue.' ', 'Push' );
 
 
                                     if(!empty($translateReplies->translate_text))

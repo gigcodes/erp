@@ -446,5 +446,13 @@ class ReplyController extends Controller
         return view('reply.translate-list', compact('replies'));
     }
 
+    function    show_logs(Request   $request,    \App\Models\ReplyLog  $ReplyLog){
+        
+        $data   =   $request->all();
+
+        $data   =   $ReplyLog->where('reply_id', $data['id'])->orderby('created_at','desc')->get();
+        return response()->json(['code' => 200, 'data' => $data, 'message' => 'Logs found']);
+
+    }
 
 }
