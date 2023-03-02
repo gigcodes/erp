@@ -63,17 +63,21 @@
                         data-ticketid="{{ $ticket->id }}">
                     <i class="fa fa-paper-plane"></i>
                 </button>
+                <!-- DEVTASK-22731 START -->
                 <?php
-$messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at', 'desc')->get();
-$table = " <table class='table table-bordered ticket-list' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
-foreach ($messages as $m) {
-    $table .= "<tr><td>" . $m->created_at . "</td>";
-    $table .= "<td>" . $m->message . "</td>";
-    $table .= "<td>" . $m->message_en . "</td></tr>";
-}
-$table .= "</tbody></table>";
+// $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at', 'desc')->get();
+// $table = " <table class='table table-bordered ticket-list' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td><td>Action</td></tr></thead><tbody>";
+// foreach ($messages as $m) {
+//     $table .= "<tr><td>" . $m->created_at . "</td>";
+//     $table .= "<td id='spanMsg_".$m->id."'>" . $m->message . "</td>";
+//     $table .= "<td id='inputMsg_".$m->id."' style='display:none'><input type='text' id='txtMsg_".$m->id."' value='".$m->message."'></td>";
+//     $table .= "<td>" . $m->message_en . "</td>";
+//     $table .= "<td><a href='javascript:void(0)' id='editTicket_".$m->id."' data-id='".$m->id."' class='btn btn-warning editTicket'>Edit</a><a href='javascript:void(0)' style='display:none' id='updateTicket_".$m->id."' data-id='".$m->id."' data-ticket-id='".$ticket->id."' class='btn btn-warning updateTicket'>Save</a><a href='javascript:void(0)' class='btn btn-success approveTicket' id='approveTicket_".$m->id."' data-id='".$m->id."' data-ticket-id='".$ticket->id."'>Approve</a><a href='#' class='btn btn-danger'>Reject</a></td></tr>";
+// }
+// $table .= "</tbody></table>";
 ?>
-                <a href="javascript:void(0)" class="row-ticket btn btn-xs" data-content="{{ $table }}">
+                <a href="javascript:void(0)" class="row-ticket btn btn-xs" data-ticket-id="{{ $ticket->id }}" >
+                    <!-- DEVTASK-22731 END -->
                     <i class="fa fa-comments-o"></i>
                 </a>
             </div>
