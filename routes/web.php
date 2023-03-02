@@ -4576,6 +4576,8 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
+    Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
+    Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
 });
 
 //Queue Management::
