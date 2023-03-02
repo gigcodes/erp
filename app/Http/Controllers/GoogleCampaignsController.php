@@ -9,17 +9,22 @@ use Google\Ads\GoogleAds\Lib\V12\GoogleAdsException;
 use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\V12\Common\ManualCpc;
 use Google\Ads\GoogleAds\V12\Common\FrequencyCapEntry;
-use Google\Ads\GoogleAds\V3\Common\FrequencyCapKey;
+use Google\Ads\GoogleAds\V12\Common\FrequencyCapKey;
 use Google\Ads\GoogleAds\V12\Common\TargetCpa;
+use Google\Ads\GoogleAds\V12\Common\TargetRoas;
 use Google\Ads\GoogleAds\V12\Common\TargetSpend;
-use Google\Ads\GoogleAds\V3\Enums\FrequencyCapLevelEnum\FrequencyCapLevel;
+use Google\Ads\GoogleAds\V12\Common\MaximizeConversionValue;
+use Google\Ads\GoogleAds\V12\Enums\FrequencyCapLevelEnum\FrequencyCapLevel;
 use Google\Ads\GoogleAds\V12\Enums\BiddingStrategyTypeEnum\BiddingStrategyType;
-use Google\Ads\GoogleAds\V3\Enums\FrequencyCapTimeUnitEnum\FrequencyCapTimeUnit;
+use Google\Ads\GoogleAds\V12\Enums\FrequencyCapTimeUnitEnum\FrequencyCapTimeUnit;
 use Google\Ads\GoogleAds\V12\Enums\BudgetDeliveryMethodEnum\BudgetDeliveryMethod;
-use Google\Ads\GoogleAds\V3\Enums\FrequencyCapEventTypeEnum\FrequencyCapEventType;
+use Google\Ads\GoogleAds\V12\Enums\FrequencyCapEventTypeEnum\FrequencyCapEventType;
 use Google\Ads\GoogleAds\V12\Enums\PositiveGeoTargetTypeEnum\PositiveGeoTargetType;
 use Google\Ads\GoogleAds\V12\Enums\NegativeGeoTargetTypeEnum\NegativeGeoTargetType;
 use Google\Ads\GoogleAds\V12\Enums\AdvertisingChannelTypeEnum\AdvertisingChannelType;
+use Google\Ads\GoogleAds\V12\Enums\AdvertisingChannelSubTypeEnum\AdvertisingChannelSubType;
+use Google\Ads\GoogleAds\V12\Enums\AppCampaignBiddingStrategyGoalTypeEnum\AppCampaignBiddingStrategyGoalType;
+use Google\Ads\GoogleAds\V12\Enums\OptimizationGoalTypeEnum\OptimizationGoalType;
 use Google\Ads\GoogleAds\V12\Enums\CampaignStatusEnum\CampaignStatus;
 use Google\Ads\GoogleAds\V12\Errors\GoogleAdsError;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
@@ -28,11 +33,15 @@ use Google\Ads\GoogleAds\Util\FieldMasks;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\NetworkSettings;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\GeoTargetTypeSetting;
 use Google\Ads\GoogleAds\V12\Resources\CampaignBudget;
-use Google\Ads\GoogleAds\V12\Resources\ShoppingSetting;
+use Google\Ads\GoogleAds\V12\Resources\Campaign\ShoppingSetting;
+use Google\Ads\GoogleAds\V12\Resources\Campaign\AppCampaignSetting;
+use Google\Ads\GoogleAds\V12\Resources\Campaign\OptimizationGoalSetting;
+use Google\Ads\GoogleAds\V12\Enums\AppCampaignAppStoreEnum\AppCampaignAppStore;
 use Google\Ads\GoogleAds\V12\Services\CampaignBudgetOperation;
 use Google\Ads\GoogleAds\V12\Services\CampaignOperation;
 use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
 use Illuminate\Http\Request;
+use Google\Protobuf\Int32Value;
 
 class GoogleCampaignsController extends Controller
 {
@@ -217,15 +226,13 @@ class GoogleCampaignsController extends Controller
     // create campaign
     public function createCampaign(Request $request)
     {
-        /*  $this->validate($request, [
-            'campaignName' => 'required',
-            'budgetAmount' => 'required|integer',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'campaignStatus' => 'required',
-        ]); */
+        $account_id = $request->account_id;
+        $account = \App\GoogleAdsAccount::findOrFail($account_id);
+        $customerId = $account->google_customer_id;
+
         $this->validate($request, [
             'campaignName' => 'required|max:55',
+            'channel_type' => 'required',
             'budgetAmount' => 'required|max:55',
             'start_date' => 'required|max:15',
             'end_date' => 'required|max:15',
@@ -233,15 +240,16 @@ class GoogleCampaignsController extends Controller
         try {
             $campaignArray = [];
             $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
-            $budgetAmount = $request->budgetAmount * 1000000;
+            $budgetAmount = $request->budgetAmount;
             $campaignName = $request->campaignName;
             $campaign_start_date = $request->start_date;
             $campaign_end_date = $request->end_date;
             $campaignStatus = $campaignStatusArr[$request->campaignStatus];
 
             //start creating array to store data into database
-            $account_id = $request->account_id;
             $campaignArray['account_id'] = $account_id;
+            $campaignArray['google_customer_id'] = $customerId;
+
             $storagepath = $this->getstoragepath($account_id);
             $campaignArray['campaign_name'] = $campaignName;
             $campaignArray['budget_amount'] = $request->budgetAmount;
@@ -336,9 +344,7 @@ class GoogleCampaignsController extends Controller
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
 
-            $customerId = $googleAdsClient->getLoginCustomerId();
-
-            $budget = self::addCampaignBudget($googleAdsClient, $customerId, $budgetAmount);
+            $budget = self::addCampaignBudget($googleAdsClient, $customerId, $budgetAmount, $channel_type);
             $campaignArray['budget_uniq_id'] = $budget['budget_uniq_id'] ?? null;
             $campaignArray['budget_id'] = $budget['budget_id'] ?? null;
             $budgetResourceName = $budget['budget_resource_name'] ?? null;
@@ -347,30 +353,66 @@ class GoogleCampaignsController extends Controller
             $campaignArr = array(
                                 'name' => $campaignName,
                                 'campaign_budget' => $budgetResourceName,
-                                'status' => CampaignStatus::PAUSED,
+                                'status' => self::getCampaignStatus($campaignStatus),
                                 'advertising_channel_type' => self::getAdvertisingChannelType($channel_type),
-                                'advertising_channel_sub_type' => self::getAdvertisingChannelSubType($channel_sub_type),
                                 'network_settings' => self::getNetworkSettings($channel_type, $channel_sub_type),
                                 'shopping_setting' => ($channel_type === 'SHOPPING') ? self::getShoppingSetting($merchant_id, $sales_country) : null,
-                                'frequency_caps' => self::getFrequencyCaps(),
+                                // 'frequency_caps' => self::getFrequencyCaps(),
                                 'geo_target_type_setting' => self::getGeoTargetTypeSetting(),
                                 'bidding_strategy_type' => self::getBiddingStrategyType($bidding_strategy_type),
                                 'start_date' => $campaign_start_date,
                                 'end_date' => $campaign_end_date,
-                                'final_url_suffix' => $final_url_suffix,
                             );
+            
 
-            if (in_array($bidding_strategy_type, ['TARGET_CPA', 'MAXIMIZE_CONVERSION_VALUE']) && $txt_target_cpa) {
+            if($channel_type == "PERFORMANCE_MAX"){
+                $campaignArr['url_expansion_opt_out'] = false;
+                unset($campaignArr['advertising_channel_sub_type']);
+            }else{
+                $campaignArr['advertising_channel_sub_type'] = self::getAdvertisingChannelSubType($channel_sub_type);
+            }
+
+
+            if(!empty($final_url_suffix)){
+                $campaignArr['final_url_suffix'] = $final_url_suffix;
+            }
+
+
+            if($channel_type == "MULTI_CHANNEL"){
+                $campaignArray['app_id'] = $request->app_id;
+                $campaignArray['app_store'] = $request->app_store;
+                $campaignArr['app_campaign_setting'] = self::getAppCampaignSetting($campaignArray['app_id'], $campaignArray['app_store'], $channel_sub_type);
+                unset($campaignArr['bidding_strategy_type']);
+                unset($campaignArr['network_settings']);
+
+
+                if (in_array($bidding_strategy_type, ['TARGET_CPA']) && !$txt_target_cpa) {
+                   $txt_target_cpa = 1;
+                   $campaignArray['target_cpa_value'] = $txt_target_cpa;
+                }
+
+                if($channel_sub_type == "APP_CAMPAIGN_FOR_PRE_REGISTRATION"){
+                    $campaignArr['optimization_goal_setting'] = new OptimizationGoalSetting([
+                                                                        'optimization_goal_types' => [ 
+                                                                            OptimizationGoalType::APP_PRE_REGISTRATION 
+                                                                        ]
+                                                                    ]);
+                }
+            }
+
+
+            if (in_array($bidding_strategy_type, ['TARGET_CPA']) && $txt_target_cpa) {
                 $campaignArr['target_cpa'] = new TargetCpa(['target_cpa_micros' => $txt_target_cpa * 1000000]);
-            }
-
-            if (in_array($bidding_strategy_type, ['TARGET_SPEND']) && $txt_maximize_clicks) {
+            }else if (in_array($bidding_strategy_type, ['TARGET_SPEND']) && $txt_maximize_clicks) {
                 $campaignArr['target_spend'] = new TargetSpend(['target_spend_micros' => $txt_maximize_clicks * 1000000]);
+            }else if (in_array($bidding_strategy_type, ['TARGET_ROAS']) && $txt_target_roas) {
+                $campaignArr['target_roas'] = new TargetRoas(['target_roas' => $txt_target_roas]);
+            }else if($channel_type == "PERFORMANCE_MAX"  && $txt_target_roas){
+                $campaignArr['maximize_conversion_value'] = new MaximizeConversionValue(['target_roas' => $txt_target_roas]);
+            }else if($channel_type != "MULTI_CHANNEL"){
+                $campaignArr['manual_cpc'] = new ManualCpc();
             }
 
-            if (in_array($bidding_strategy_type, ['TARGET_ROAS']) && $txt_target_roas) {
-                $campaignArr['target_roas'] = new TargetRoas(['target_roas' => $txt_target_roas]);
-            }
 
             $campaign = new Campaign($campaignArr);
 
@@ -383,9 +425,11 @@ class GoogleCampaignsController extends Controller
             $response = $campaignServiceClient->mutateCampaigns($customerId, [$campaignOperation]);
 
             $createdCampaign = $response->getResults()[0];
+            $campaignResourceName = $createdCampaign->getResourceName();
 
-            $campaignArray['google_campaign_id'] = $createdCampaign->getId();
+            $campaignArray['google_campaign_id'] = substr($campaignResourceName, strrpos($campaignResourceName, "/") + 1);
             $campaignArray['campaign_response'] = json_encode($createdCampaign);
+            \App\GoogleAdsCampaign::create($campaignArray);
             
             // Insert google ads log 
             $input = array(
@@ -405,8 +449,8 @@ class GoogleCampaignsController extends Controller
                         'message' => 'Create new campaign > '. $e->getMessage(),
                     );
             insertGoogleAdsLog($input);
-
-            return redirect()->to('google-campaigns/create?account_id='.$request->account_id)->with('actError', $e->getMessage());
+            return response()->json(['status'=> false, "message" => $e->getMessage()]);
+            // return redirect()->to('google-campaigns/create?account_id='.$request->account_id)->with('actError', $e->getMessage());
         }
     }
 
@@ -478,6 +522,7 @@ class GoogleCampaignsController extends Controller
         $campaignDetail = \App\GoogleAdsCampaign::where('google_campaign_id',
             $request->campaignId)->first();
         $account_id = $campaignDetail->account_id;
+        $customerId = $campaignDetail->google_customer_id;
         try {
             $storagepath = $this->getstoragepath($account_id);
             $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
@@ -486,7 +531,7 @@ class GoogleCampaignsController extends Controller
             $campaignStatus = $campaignStatusArr[$request->campaignStatus];
 
             $campaignArray = [];
-            $budgetAmount = $request->budgetAmount * 1000000;
+            $budgetAmount = $request->budgetAmount;
             $campaign_start_date = $request->start_date;
             $campaign_end_date = $request->end_date;
 
@@ -538,9 +583,7 @@ class GoogleCampaignsController extends Controller
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
 
-            $customerId = $googleAdsClient->getLoginCustomerId();
-
-            $budget = self::updateCampaignBudget($googleAdsClient, $customerId, $budgetAmount, $request->budget_id);
+            $budget = self::updateCampaignBudget($googleAdsClient, $customerId, $budgetAmount, $campaignDetail->budget_id);
             $budgetResourceName = $budget['budget_resource_name'] ?? null;
 
             // Creates a campaign.
@@ -549,11 +592,20 @@ class GoogleCampaignsController extends Controller
                                 
                                 'name' => $campaignName,
                                 'campaign_budget' => $budgetResourceName,
-                                'status' => CampaignStatus::PAUSED,
+                                'status' => self::getCampaignStatus($campaignStatus),
                                 'bidding_strategy_type' => self::getBiddingStrategyType($bidding_strategy_type),
                                 'start_date' => $campaign_start_date,
                                 'end_date' => $campaign_end_date,
                             );
+
+            if($campaignDetail->channel_type == "MULTI_CHANNEL"){
+                if (!in_array($campaignDetail->bidding_strategy_type, ['TARGET_CPA']) || !$txt_target_cpa) {
+                   $txt_target_cpa = 1;
+                   $bidding_strategy_type = "TARGET_CPA";
+                   $campaignArray['target_cpa_value'] = $txt_target_cpa;
+                   $campaignArray['bidding_strategy_type'] = $bidding_strategy_type;
+                }
+            }
 
             if (in_array($bidding_strategy_type, ['TARGET_CPA', 'MAXIMIZE_CONVERSION_VALUE']) && $txt_target_cpa) {
                 $campaignArr['target_cpa'] = new TargetCpa(['target_cpa_micros' => $txt_target_cpa * 1000000]);
@@ -567,7 +619,7 @@ class GoogleCampaignsController extends Controller
                 $campaignArr['target_roas'] = new TargetRoas(['target_roas' => $txt_target_roas]);
             }
 
-            if (in_array($bidding_strategy_type, [ 'MANUAL_CPC'])) {
+            if (in_array($bidding_strategy_type, ['MANUAL_CPC'])) {
                 $campaignArr['target_cpa'] = null;
                 $campaignArr['target_spend'] = null;
                 $campaignArr['target_roas'] = null;
@@ -591,8 +643,9 @@ class GoogleCampaignsController extends Controller
             );
 
             $updatedCampaign = $response->getResults()[0];
+            $campaignResourceName = $updatedCampaign->getResourceName();
 
-            $campaignArray['google_campaign_id'] = $updatedCampaign->getId();
+            $campaignArray['google_campaign_id'] = substr($campaignResourceName, strrpos($campaignResourceName, "/") + 1);
             $campaignArray['campaign_response'] = json_encode($updatedCampaign);
             \App\GoogleAdsCampaign::whereId($campaignDetail->id)->update($campaignArray);
 
@@ -606,7 +659,6 @@ class GoogleCampaignsController extends Controller
 
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign updated successfully');
         } catch (Exception $e) {
-
             // Insert google ads log 
             $input = array(
                         'type' => 'ERROR',
@@ -626,6 +678,7 @@ class GoogleCampaignsController extends Controller
             
             $account_id = $request->delete_account_id;
             $googleAdsCampaign = \App\GoogleAdsCampaign::where('account_id', $account_id)->where('google_campaign_id', $campaignId)->firstOrFail();
+            $customerId = $googleAdsCampaign->google_customer_id;
 
             $storagepath = $this->getstoragepath($account_id);
             
@@ -639,8 +692,6 @@ class GoogleCampaignsController extends Controller
                                 ->from($oAuth2Configuration)
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
-
-            $customerId = $googleAdsClient->getLoginCustomerId();
 
             // Creates the resource name of a campaign to remove.
             $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
@@ -680,18 +731,25 @@ class GoogleCampaignsController extends Controller
     }
 
     // create a campaign single shared budget
-    public function addCampaignBudget(GoogleAdsClient $googleAdsClient, int $customerId, $amount)
+    public function addCampaignBudget(GoogleAdsClient $googleAdsClient, int $customerId, $amount, $channelType)
     {
         $response = [];
         try {
             $uniqId = uniqid();
 
             // Creates a campaign budget.
-            $budget = new CampaignBudget([
+            $budgetArr = [
                 'name' => 'Interplanetary Cruise Budget #' . $uniqId,
                 'delivery_method' => BudgetDeliveryMethod::STANDARD,
                 'amount_micros' => $amount * 1000000
-            ]);
+            ];
+
+            if(in_array($channelType, ["PERFORMANCE_MAX", "MULTI_CHANNEL"])){
+                // A Performance Max campaign cannot use a shared campaign budget.
+                $budgetArr['explicitly_shared'] = false;
+            }
+
+            $budget = new CampaignBudget($budgetArr);
 
             // Creates a campaign budget operation.
             $campaignBudgetOperation = new CampaignBudgetOperation();
@@ -704,11 +762,12 @@ class GoogleCampaignsController extends Controller
                 [$campaignBudgetOperation]
             );
             $createdBudget = $response->getResults()[0];
+            $budgetResourceName = $createdBudget->getResourceName();
 
             $response = array(
                             'budget_uniq_id' => $uniqId,
-                            'budget_id' => $createdBudget->getBudgetId(),
-                            'budget_resource_name' => $createdBudget->getResourceName(),
+                            'budget_id' => substr($budgetResourceName, strrpos($budgetResourceName, "/") + 1),
+                            'budget_resource_name' => $budgetResourceName,
                         );
         } catch (Exception $e) {
             // Insert google ads log 
@@ -717,7 +776,7 @@ class GoogleCampaignsController extends Controller
                         'module' => 'Campaign',
                         'message' => 'Create campaign budget > '. $e->getMessage(),
                     );
-            insertGoogleAdsLog($input);           
+            insertGoogleAdsLog($input);        
         }
 
         return $response;
@@ -747,10 +806,11 @@ class GoogleCampaignsController extends Controller
                 [$campaignBudgetOperation]
             );
             $updatedBudget = $response->getResults()[0];
+            $budgetResourceName = $updatedBudget->getResourceName();
 
             $response = array(
-                            'budget_id' => $updatedBudget->getBudgetId(),
-                            'budget_resource_name' => $updatedBudget->getResourceName(),
+                            'budget_id' => substr($budgetResourceName, strrpos($budgetResourceName, "/") + 1),
+                            'budget_resource_name' => $budgetResourceName,
                         );
         } catch (Exception $e) {
             // Insert google ads log 
@@ -786,6 +846,10 @@ class GoogleCampaignsController extends Controller
                 return AdvertisingChannelType::MULTI_CHANNEL;
                 break;
 
+            case 'PERFORMANCE_MAX':
+                return AdvertisingChannelType::PERFORMANCE_MAX;
+                break;
+
             case 'UNKNOWN':
                 return AdvertisingChannelType::UNKNOWN;
                 break;
@@ -799,8 +863,8 @@ class GoogleCampaignsController extends Controller
     private function getAdvertisingChannelSubType($v)
     {
         switch ($v) {
-            case 'UNKNOWN':
-                return AdvertisingChannelSubType::UNKNOWN;
+            case 'UNSPECIFIED':
+                return AdvertisingChannelSubType::UNSPECIFIED;
                 break;
 
             case 'SEARCH_MOBILE_APP':
@@ -818,29 +882,55 @@ class GoogleCampaignsController extends Controller
             case 'DISPLAY_EXPRESS':
                 return AdvertisingChannelSubType::DISPLAY_EXPRESS;
                 break;
+
             case 'DISPLAY_SMART_CAMPAIGN':
                 return AdvertisingChannelSubType::DISPLAY_SMART_CAMPAIGN;
                 break;
+
             case 'SHOPPING_GOAL_OPTIMIZED_ADS':
                 return AdvertisingChannelSubType::SHOPPING_GOAL_OPTIMIZED_ADS;
                 break;
+
             case 'DISPLAY_GMAIL_AD':
                 return AdvertisingChannelSubType::DISPLAY_GMAIL_AD;
                 break;
 
+            case 'APP_CAMPAIGN':
+                return AdvertisingChannelSubType::APP_CAMPAIGN;
+                break;
+
+            case 'APP_CAMPAIGN_FOR_ENGAGEMENT':
+                return AdvertisingChannelSubType::APP_CAMPAIGN_FOR_ENGAGEMENT;
+                break;
+
+            case 'APP_CAMPAIGN_FOR_PRE_REGISTRATION':
+                return AdvertisingChannelSubType::APP_CAMPAIGN_FOR_PRE_REGISTRATION;
+                break;
+
             default:
-                return AdvertisingChannelSubType::UNKNOWN;
+                return AdvertisingChannelSubType::UNSPECIFIED;
         }
     }
 
     public function getBiddingStrategyTypeArray()
     {
-        return ['MANUAL_CPC' => 'Manually set bids', 'MANUAL_CPM' => 'Viewable CPM', 'PAGE_ONE_PROMOTED' => 'Page one promoted', 'TARGET_SPEND' => 'Maximize clicks', 'TARGET_CPA' => 'Target CPA', 'TARGET_ROAS' => 'Target Roas', 'MAXIMIZE_CONVERSIONS' => 'max conv', 'MAXIMIZE_CONVERSION_VALUE' => 'Automatically maximize conversions', 'TARGET_OUTRANK_SHARE' => 'Target outrank sharing', 'NONE' => 'None', 'UNKNOWN' => 'Unknown'];
+        // return ['MANUAL_CPC' => 'Manually set bids', 'MANUAL_CPM' => 'Viewable CPM', 'PAGE_ONE_PROMOTED' => 'Page one promoted', 'TARGET_SPEND' => 'Maximize clicks', 'TARGET_CPA' => 'Target CPA', 'TARGET_ROAS' => 'Target Roas', 'MAXIMIZE_CONVERSIONS' => 'max conv', 'MAXIMIZE_CONVERSION_VALUE' => 'Automatically maximize conversions', 'TARGET_OUTRANK_SHARE' => 'Target outrank sharing', 'NONE' => 'None', 'UNKNOWN' => 'Unknown'];
+        return [
+            'MANUAL_CPC' => 'Manually set bids', 
+            'MANUAL_CPM' => 'Viewable CPM', 
+            'TARGET_SPEND' => 'Maximize clicks', 
+            'TARGET_CPA' => 'Target CPA', 
+            'TARGET_ROAS' => 'Target Roas', 
+            'MAXIMIZE_CONVERSIONS' => 'Maximise conversions', 
+            'MAXIMIZE_CONVERSION_VALUE' => 'Automatically maximize conversions', 
+            'UNSPECIFIED' => 'Unspecified'
+        ];
     }
 
     // get network settings
     private function getNetworkSettings($channel_type, $channel_sub_type)
     {
+
         $networkSettingsArr = array(
                                 'target_google_search' => false,
                                 'target_search_network' => false,
@@ -858,9 +948,16 @@ class GoogleCampaignsController extends Controller
 
         }
 
-        if ($channel_type == 'MULTI_CHANNEL' || $channel_type == 'MULTI_CHANNEL' || ($channel_type == 'DISPLAY' && $channel_sub_type == 'DISPLAY_SMART_CAMPAIGN') || $channel_sub_type == 'SHOPPING_GOAL_OPTIMIZED_ADS') {
+        if ($channel_type == 'DISPLAY' || $channel_type == 'MULTI_CHANNEL' || ($channel_type == 'DISPLAY' && $channel_sub_type == 'DISPLAY_SMART_CAMPAIGN')) {
 
             $networkSettingsArr['target_content_network'] = true;
+
+        }
+
+        if ($channel_type == 'SHOPPING') {
+
+            $networkSettingsArr['target_google_search'] = true;
+            $networkSettingsArr['target_search_network'] = true;
 
         }
 
@@ -869,7 +966,6 @@ class GoogleCampaignsController extends Controller
             $networkSettingsArr['target_partner_search_network'] = true;
 
         }
-
         $networkSettings = new NetworkSettings($networkSettingsArr);
 
         return $networkSettings;
@@ -893,11 +989,11 @@ class GoogleCampaignsController extends Controller
     {
         $frequencyCaps = new FrequencyCapEntry([
             'key' => new FrequencyCapKey([
-                'level'=> FrequencyCapLevel::ADGROUP,
+                'level'=> FrequencyCapLevel::AD_GROUP,
                 'event_type'=> FrequencyCapEventType::IMPRESSION,
                 'time_unit'=> FrequencyCapTimeUnit::DAY,
             ]),
-            'cap' => new Int32Value(['value'=>5])
+            'cap' => intval(5), /*new Int32Value(['value'=> intval(5)])*/
         ]);
     }
 
@@ -906,8 +1002,8 @@ class GoogleCampaignsController extends Controller
     {
 
         $shoppingSetting = new GeoTargetTypeSetting([
-            'positive_geo_target_type' => PositiveGeoTargetType::DONT_CARE,
-            'negative_geo_target_type' => NegativeGeoTargetType::DONT_CARE,
+            'positive_geo_target_type' => PositiveGeoTargetType::UNSPECIFIED,
+            'negative_geo_target_type' => NegativeGeoTargetType::UNSPECIFIED,
         ]);
 
         return $shoppingSetting;
@@ -961,4 +1057,44 @@ class GoogleCampaignsController extends Controller
                 return BiddingStrategyType::UNKNOWN;
         }
     }
+
+    //get campaign status  
+    private function getCampaignStatus($v)
+    {
+        switch ($v) {
+            case 'ENABLED':
+                return CampaignStatus::ENABLED;
+                break;
+
+            case 'PAUSED':
+                return CampaignStatus::PAUSED;
+                break;
+
+            case 'REMOVED':
+                return CampaignStatus::REMOVED;
+                break;
+
+            default:
+                return CampaignStatus::PAUSED;
+        }
+    }
+
+    //get app campaign setting
+    private function getAppCampaignSetting($appId, $appStore, $channel_sub_type){
+
+        $appStore = ($appStore == "GOOGLE_APP_STORE" ? AppCampaignAppStore::GOOGLE_APP_STORE : AppCampaignAppStore::APPLE_APP_STORE);
+
+        $bidding_strategy_type = AppCampaignBiddingStrategyGoalType::OPTIMIZE_INSTALLS_TARGET_INSTALL_COST;
+        if($channel_sub_type == "APP_CAMPAIGN_FOR_PRE_REGISTRATION"){
+            $bidding_strategy_type = AppCampaignBiddingStrategyGoalType::OPTIMIZE_PRE_REGISTRATION_CONVERSION_VOLUME;
+        }
+
+        $appCampaignSetting = new AppCampaignSetting([
+                'app_id' => $appId,
+                'app_store' => $appStore,
+                'bidding_strategy_goal_type' => $bidding_strategy_type
+            ]);
+
+        return $appCampaignSetting;
+    } 
 }

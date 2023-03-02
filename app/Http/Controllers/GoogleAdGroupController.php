@@ -47,6 +47,7 @@ class GoogleAdGroupController extends Controller
             return [
                 'account_id' => $campaignDetail->account_id,
                 'campaign_name' => $campaignDetail->campaign_name,
+                'google_customer_id' => $campaignDetail->google_customer_id,
                 'campaign_channel_type' => $campaignDetail->channel_type,
             ];
         } else {
@@ -163,6 +164,7 @@ class GoogleAdGroupController extends Controller
         //
         $acDetail = $this->getAccountDetail($campaignId);
         $campaign_name = $acDetail['campaign_name'];
+        $campaign_channel_type = $acDetail['campaign_channel_type'];
 
         // Insert google ads log 
         $input = array(
@@ -172,17 +174,26 @@ class GoogleAdGroupController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googleadgroups.create', ['campaignId' => $campaignId, 'campaign_name' => $campaign_name]);
+        return view('googleadgroups.create', ['campaignId' => $campaignId, 'campaign_name' => $campaign_name, 'campaign_channel_type' => $campaign_channel_type]);
     }
 
     // create ad group
     public function createAdGroup(Request $request, $campaignId)
     {
+        $acDetail = $this->getAccountDetail($campaignId);
+        $account_id = $acDetail['account_id'];
+        $campaign_name = $acDetail['campaign_name'];
+        $customerId = $acDetail['google_customer_id'];
+        $campaign_channel_type = $acDetail['campaign_channel_type'];
+
         try {
-            $this->validate($request, [
-                'adGroupName' => 'required|max:55',
-                'microAmount' => 'required',
-            ]);
+
+            $rules = array('adGroupName' => 'required|max:55');
+            if($campaign_channel_type != 'MULTI_CHANNEL'){
+                $rules['microAmount'] = 'required';              
+            }
+
+            $this->validate($request, $rules);
 
             $adGroupStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
             // $criterionTypeGroups = ['KEYWORD', 'USER_INTEREST_AND_LIST', 'VERTICAL', 'GENDER', 'AGE_RANGE', 'PLACEMENT', 'PARENT', 'INCOME_RANGE', 'NONE', 'UNKNOWN'];
@@ -192,14 +203,11 @@ class GoogleAdGroupController extends Controller
             $microAmount = $request->microAmount * 1000000;
             $adGroupStatus = $adGroupStatusArr[$request->adGroupStatus];
 
-            $acDetail = $this->getAccountDetail($campaignId);
-            $account_id = $acDetail['account_id'];
-            $campaign_name = $acDetail['campaign_name'];
-
             $storagepath = $this->getstoragepath($account_id);
             $addgroupArray['adgroup_google_campaign_id'] = $campaignId;
+            $addgroupArray['google_customer_id'] = $customerId;
             $addgroupArray['ad_group_name'] = $adGroupName;
-            $addgroupArray['bid'] = $request->microAmount;
+            $addgroupArray['bid'] = $request->microAmount ?? null;
             $addgroupArray['status'] = $adGroupStatus;
             // $criterionTypeGroup = $criterionTypeGroups[$request->criterionTypeGroup];
             // $adRotationMode = $adRotationModes[$request->adRotationMode];
@@ -215,17 +223,20 @@ class GoogleAdGroupController extends Controller
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
 
-            $customerId = $googleAdsClient->getLoginCustomerId();
-
             $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
 
             // Constructs another ad group.
-            $adGroup = new AdGroup([
-                'name' => $adGroupName,
-                'campaign' => $campaignResourceName,
-                'status' => self::getAdGroupStatus($adGroupStatus),
-                'cpc_bid_micros' => $microAmount
-            ]);
+            $addgroupArr = array(
+                                'name' => $adGroupName,
+                                'campaign' => $campaignResourceName,
+                                'status' => self::getAdGroupStatus($adGroupStatus),
+                            );
+
+            if($campaign_channel_type != 'MULTI_CHANNEL'){
+                $addgroupArr['cpc_bid_micros'] = $microAmount;              
+            }
+
+            $adGroup = new AdGroup($addgroupArr);
 
             $adGroupOperation = new AdGroupOperation();
             $adGroupOperation->setCreate($adGroup);
@@ -238,8 +249,9 @@ class GoogleAdGroupController extends Controller
             );
 
             $addedAdGroup = $response->getResults()[0];
+            $adGroupResourceName = $addedAdGroup->getResourceName();
 
-            $addgroupArray['google_adgroup_id'] = $addedAdGroup->getId();
+            $addgroupArray['google_adgroup_id'] = substr($adGroupResourceName, strrpos($adGroupResourceName, "/") + 1);
             $addgroupArray['adgroup_response'] = json_encode($addedAdGroup);
             \App\GoogleAdsGroup::create($addgroupArray);
 
@@ -273,6 +285,7 @@ class GoogleAdGroupController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $campaign_name = $acDetail['campaign_name'];
+        $campaign_channel_type = $acDetail['campaign_channel_type'];
 
         $storagepath = $this->getstoragepath($account_id);
         // $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
@@ -317,21 +330,26 @@ class GoogleAdGroupController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googleadgroups.update', ['adGroup' => $adGroup, 'campaignId' => $campaignId]);
+        return view('googleadgroups.update', ['adGroup' => $adGroup, 'campaignId' => $campaignId , 'campaign_channel_type' => $campaign_channel_type]);
     }
 
     // update ad group
     public function updateAdGroup(Request $request, $campaignId)
     {
-        $this->validate($request, [
-            'adGroupName' => 'required|max:55',
-            'cpcBidMicroAmount' => 'required',
-        ]);
-        try {
-            $acDetail = $this->getAccountDetail($campaignId);
-            $account_id = $acDetail['account_id'];
-            $campaign_name = $acDetail['campaign_name'];
+        $acDetail = $this->getAccountDetail($campaignId);
+        $account_id = $acDetail['account_id'];
+        $campaign_name = $acDetail['campaign_name'];
+        $customerId = $acDetail['google_customer_id'];
+        $campaign_channel_type = $acDetail['campaign_channel_type'];
 
+        $rules = array('adGroupName' => 'required|max:55');
+        if($campaign_channel_type != 'MULTI_CHANNEL'){
+            $rules['cpcBidMicroAmount'] = 'required';              
+        }
+
+        $this->validate($request, $rules);
+
+        try {
             $storagepath = $this->getstoragepath($account_id);
             $addgroupArray = [];
             $adGroupStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
@@ -341,7 +359,7 @@ class GoogleAdGroupController extends Controller
             $adGroupStatus = $adGroupStatusArr[$request->adGroupStatus];
 
             $addgroupArray['ad_group_name'] = $adGroupName;
-            $addgroupArray['bid'] = $request->cpcBidMicroAmount;
+            $addgroupArray['bid'] = $request->cpcBidMicroAmount ?? null;
             $addgroupArray['status'] = $adGroupStatus;
 
             // Get OAuth2 configuration from file.
@@ -355,14 +373,17 @@ class GoogleAdGroupController extends Controller
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
 
-            $customerId = $googleAdsClient->getLoginCustomerId();
-
             // Creates an ad group object with the specified resource name and other changes.
-            $adGroup = new AdGroup([
-                'resource_name' => ResourceNames::forAdGroup($customerId, $adGroupId),
-                'cpc_bid_micros' => $cpcBidMicroAmount,
-                'status' => self::getAdGroupStatus($adGroupStatus)
-            ]);
+            $addgroupArr = array(
+                                'resource_name' => ResourceNames::forAdGroup($customerId, $adGroupId),
+                                'name' => $adGroupName,
+                                'status' => self::getAdGroupStatus($adGroupStatus),
+                            );
+            if($campaign_channel_type != 'MULTI_CHANNEL'){
+                $addgroupArr['cpc_bid_micros'] = $cpcBidMicroAmount;
+            }
+            
+            $adGroup = new AdGroup($addgroupArr);
 
             $adGroupOperation = new AdGroupOperation();
             $adGroupOperation->setUpdate($adGroup);
@@ -410,6 +431,7 @@ class GoogleAdGroupController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $campaign_name = $acDetail['campaign_name'];
+        $customerId = $acDetail['google_customer_id'];
 
         $storagepath = $this->getstoragepath($account_id);
 
@@ -426,8 +448,6 @@ class GoogleAdGroupController extends Controller
                                 ->from($oAuth2Configuration)
                                 ->withOAuth2Credential($oAuth2Credential)
                                 ->build();
-
-            $customerId = $googleAdsClient->getLoginCustomerId();
 
             // Creates ad group resource name.
             $adGroupResourceName = ResourceNames::forAdGroup($customerId, $adGroupId);
