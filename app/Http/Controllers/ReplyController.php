@@ -450,8 +450,9 @@ class ReplyController extends Controller
         
         $data   =   $request->all();
 
-        $data   =   $ReplyLog->where('reply_id', $data['id'])->orderby('created_at','desc')->get();
-        return response()->json(['code' => 200, 'data' => $data, 'message' => 'Logs found']);
+        $data   =   $ReplyLog->where('reply_id', $data['id'])->orderby('created_at','desc')->paginate(20);
+        $paginateHtml   =   $data->links()->render();
+        return response()->json(['code' => 200, 'paginate' =>$paginateHtml, 'data' => $data, 'message' => 'Logs found']);
 
     }
 

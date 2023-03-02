@@ -25,7 +25,7 @@ class FaqPushController extends Controller
 
 	    	ProceesPushFaq::dispatch($insertArray);
 
-			return response()->json(['code' => 200, 'data' => [], 'message' => 'Record Added']);
+			return response()->json(['code' => 200, 'data' => [], 'message' => 'FAQ added in queue']);
 
     	} catch (Exception $e) {
 	    		return response()->json(['code' => 400, 'data' => [], 'message' => $e->getMessage()]);    		   		

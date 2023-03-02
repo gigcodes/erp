@@ -240,6 +240,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12" id="reply_logs_data">
+                        <input type="hidden" class="reply_id">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -250,6 +251,8 @@
                             </thead>
                             <tbody>
                             </tbody>
+                            <tfoot>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -437,6 +440,57 @@ $(document).ready(function(){
           });
     });
     
+    //Paginate the logs as well
+    $(document).on("click","#reply_logs_data table tfoot a",function(e) {
+        e.preventDefault();
+        var id      =    $('#reply_logs_data .reply_id').val();
+        var url     =    $(this).attr('href');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+              _token:   "{{ csrf_token() }}",
+              id    :   id
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+          }).done( function(response) {
+                
+                $("#loading-image-preview").hide();
+
+                if(response.code == 200) {
+
+                    var html    =   '';
+                    console.log(response);
+                    $.each(response.data.data,function(idnex, val){
+                        
+                        var formattedDate = new Date(val.created_at);
+                        var d = formattedDate.getDate();
+                        var m =  formattedDate.getMonth();
+                        m += 1;  // JavaScript months are 0-11
+                        var y = formattedDate.getFullYear();
+
+                        html    += '<tr><td>'+val.message+'</td><td>'+val.type+'</td><td>'+y +'/'+ m+'/' + d+'</td></tr>';
+
+                    })
+
+                    $('#reply_logs_data table tbody').html('');
+                    $('#reply_logs_data table tbody').html(html);
+                    $('#reply_logs_data table tfoot').html('');
+                    $('#reply_logs_data table tfoot').html(response.paginate);
+                    $('#reply_logs').modal('show');
+                    $("#reply_logs").animate({ scrollTop: 0 }, "slow");
+
+                }else{
+                   toastr["error"]('Something went wrong!');
+                }
+          }).fail(function(errObj) {
+                $("#loading-image-preview").hide();
+          });
+
+    });
+
     // Show reply logs
     $(document).on("click",".show-reply-logs",function(e) {
         e.preventDefault();
@@ -457,7 +511,7 @@ $(document).ready(function(){
 
                     var html    =   '';
                     console.log(response);
-                    $.each(response.data,function(idnex, val){
+                    $.each(response.data.data,function(idnex, val){
                         
                         var formattedDate = new Date(val.created_at);
                         var d = formattedDate.getDate();
@@ -469,7 +523,12 @@ $(document).ready(function(){
 
                     })
 
-                    $('#reply_logs_data table tbody').append(html);
+                    $('#reply_logs_data .reply_id').val('');
+                    $('#reply_logs_data .reply_id').val($this.attr('data-id'));
+                    $('#reply_logs_data table tbody').html('');
+                    $('#reply_logs_data table tbody').html(html);
+                    $('#reply_logs_data table tfoot').html('');
+                    $('#reply_logs_data table tfoot').html(response.paginate);
                     $('#reply_logs').modal('show');
 
                 }else{
