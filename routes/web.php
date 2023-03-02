@@ -4600,3 +4600,50 @@ Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name
 
    
 
+Route::get('t', function(){
+// 	$ch = curl_init();
+
+// 	curl_setopt($ch, CURLOPT_URL, 'https://www.sololuxury.com/gb-en/rest/V1/faqcategory/list');
+// 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+// 	curl_setopt($ch, CURLOPT_POST, 0);
+// 	// curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"Question??\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
+
+
+// 	$headers = array();
+// 	$headers[] = 'Authorization: Bearer 2bzhm9xf9thennsyudcg45ceuhtngqfu';
+// 	$headers[] = 'Content-Type: application/json';
+// 	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+// 	$result = curl_exec($ch);
+// 	if (curl_errno($ch)) {
+// 	    echo 'Error:' . curl_error($ch);
+// 	}
+// 	curl_close($ch);
+
+// 	echo '<pre>';
+// 	print_r(json_decode($result));	
+// die;
+
+	$ch = curl_init();
+
+	curl_setopt($ch, CURLOPT_URL, 'https://www.sololuxury.com/gb-en/rest/V1/faqcategory');
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"Question??\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
+
+
+	$headers = array();
+	$headers[] = 'Authorization: Bearer 2bzhm9xf9thennsyudcg45ceuhtngqfu';
+	$headers[] = 'Content-Type: application/json';
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+	$result = curl_exec($ch);
+	if (curl_errno($ch)) {
+	    echo 'Error:' . curl_error($ch);
+	}
+	curl_close($ch);
+
+	echo '<pre>';
+	print_r(json_decode($result));
+	die;
+});
