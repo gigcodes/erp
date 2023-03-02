@@ -143,9 +143,12 @@ class ReplyController extends Controller
             'model' => 'required',
         ]);
 
-        $data = $request->except('_token', '_method');
+        $data               =   $request->except('_token', '_method');
 
+        $reply->is_pushed   =   0;
         $reply->update($data);
+
+        (new \App\Models\ReplyLog)->addToLog($reply->id, 'System updated FAQ', 'Updated' );
 
         return redirect()->route('reply.index')->with('success', 'Quick Reply updated successfully');
     }
@@ -398,7 +401,7 @@ class ReplyController extends Controller
             if ($record) {  
 
                 ProcessTranslateReply::dispatch($record, Auth::id());
-                
+
                 $record->is_flagged     =   1;
                 $record->save();
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'Replies Set For Translatation']);                              
