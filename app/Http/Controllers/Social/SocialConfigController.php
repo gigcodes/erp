@@ -111,7 +111,7 @@ class SocialConfigController extends Controller
       
 
             $code = $request['code'];
-            $redirect = 'https://56e3-110-227-254-30.ngrok.io/social/config/fbtokenback';
+            $redirect = 'https://erpstage.theluxuryunlimited.com/social/config/fbtokenback';
 
         
             $curl = curl_init();
