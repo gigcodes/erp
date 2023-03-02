@@ -942,6 +942,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
     Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
 
+    Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
+
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', [AutoReplyController::class, 'updateReply']);
 
@@ -2531,7 +2533,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 * This route will push the FAQ to series of website with help of API
 */
 Route::middleware('auth')->group(function () {
-	Route::post('push/faq', 		[FaqPushController::class, 'pushFaq']);
+	Route::post('push/faq', 			[FaqPushController::class, 'pushFaq']);
 	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
@@ -4599,51 +4601,3 @@ Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name
  });
 
    
-
-Route::get('t', function(){
-// 	$ch = curl_init();
-
-// 	curl_setopt($ch, CURLOPT_URL, 'https://www.sololuxury.com/gb-en/rest/V1/faqcategory/list');
-// 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-// 	curl_setopt($ch, CURLOPT_POST, 0);
-// 	// curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"Question??\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
-
-
-// 	$headers = array();
-// 	$headers[] = 'Authorization: Bearer 2bzhm9xf9thennsyudcg45ceuhtngqfu';
-// 	$headers[] = 'Content-Type: application/json';
-// 	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-// 	$result = curl_exec($ch);
-// 	if (curl_errno($ch)) {
-// 	    echo 'Error:' . curl_error($ch);
-// 	}
-// 	curl_close($ch);
-
-// 	echo '<pre>';
-// 	print_r(json_decode($result));	
-// die;
-
-	$ch = curl_init();
-
-	curl_setopt($ch, CURLOPT_URL, 'https://www.sololuxury.com/gb-en/rest/V1/faqcategory');
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n        \"faqCategoryName\": \"Question??\",\n        \"faqCategoryDescription\": \"Answer!!\"\n}");
-
-
-	$headers = array();
-	$headers[] = 'Authorization: Bearer 2bzhm9xf9thennsyudcg45ceuhtngqfu';
-	$headers[] = 'Content-Type: application/json';
-	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-	$result = curl_exec($ch);
-	if (curl_errno($ch)) {
-	    echo 'Error:' . curl_error($ch);
-	}
-	curl_close($ch);
-
-	echo '<pre>';
-	print_r(json_decode($result));
-	die;
-});
