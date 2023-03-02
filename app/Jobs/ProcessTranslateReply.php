@@ -13,6 +13,7 @@ use App\Language;
 use App\Translations;
 use App\GoogleTranslate;
 use App\TranslateReplies;
+use App\Models\ReplyLog;
 
 class ProcessTranslateReply implements ShouldQueue
 {
@@ -44,7 +45,7 @@ class ProcessTranslateReply implements ShouldQueue
 
         $replies    =   $record->reply;
 
-        if ($replies!='') {
+        if ($replies    !=  '') {
 
             $LanguageModel                  =   Language::all();
 
@@ -97,6 +98,8 @@ class ProcessTranslateReply implements ShouldQueue
                     
                     $record->is_flagged                =   1;
                     $record->save();
+
+                    (new ReplyLog)->addToLog($id, 'System has translate the reply to language ('. $language .')', 'Translate' );
 
                 }
                 else{
