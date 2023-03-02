@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Reply;
+use App\Models\ReplyLog;
 
 class ProceesPushFaq implements ShouldQueue
 {
@@ -108,7 +109,7 @@ class ProceesPushFaq implements ShouldQueue
                         $faqQuestion    =   $replyInfo->name;
                         
                         $faqCategoryId  =   $replyInfo->category_id;
-                        // $faqCategoryId  = 1;
+                        // $faqCategoryId  =   1;
 
                         if (!empty($url) && !empty($api_token)) {
                             foreach ($stores as $key => $storeValue) {
@@ -173,6 +174,9 @@ class ProceesPushFaq implements ShouldQueue
                                     $replyInfo->is_pushed   =   1;
                                     $replyInfo->save();
                                     
+                                    (new ReplyLog)->addToLog($replyInfo->id, 'System pushed FAQ on '.$url.' on store '.$storeValue.' ', 'Push' );
+
+
                                     if(!empty($translateReplies->translate_text))
                                     {
                                         //developer can add code to mark the translation pushed or not.
