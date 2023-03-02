@@ -164,7 +164,8 @@
   50% 50% no-repeat;display:none;">
 </div>
 @section("scripts")
-<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+<!-- <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script> -->
+<script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script type="text/javascript">
   $.ajaxSetup({
       headers: {
