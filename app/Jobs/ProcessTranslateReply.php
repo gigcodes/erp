@@ -69,8 +69,7 @@ class ProcessTranslateReply implements ShouldQueue
                     if($translationString   !=  '') {
                         Translations::addTranslation($replies, $translationString, 'en', $language);
                         $data               =   htmlspecialchars_decode($translationString, ENT_QUOTES);
-                    }    
-                   
+                    }                       
                 }
 
                 if($data    !=  '') {
@@ -96,14 +95,19 @@ class ProcessTranslateReply implements ShouldQueue
                     $translateReplies->save();
 
                     
-                    $record->is_flagged                =   1;
+                    $record->is_flagged                 =   1;
+                    $record->is_translate               =   1;
                     $record->save();
 
                     (new ReplyLog)->addToLog($id, 'System has translate the reply to language ('. $language .')', 'Translate' );
 
                 }
                 else{
-                    $record->is_flagged                =   0;
+
+                    (new ReplyLog)->addToLog($id, 'System unable to translate the FAQ', 'Translate' );
+
+                    $record->is_flagged                 =   0;
+                    $record->is_translate               =   0;
                     $record->save();
                 }
 
