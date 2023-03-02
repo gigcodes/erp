@@ -105,6 +105,7 @@
                         <tr>
                             <th style="width:5%">Date</th>
                             <th style="width:25%">Config Name</th>
+                            <th style="width:30%">Website</th>
                             <th style="width:30%">Campaign Name</th>
                             <!-- <th style="width:10%">Image</th> -->
                             <th style="width:10%">Objective</th>
