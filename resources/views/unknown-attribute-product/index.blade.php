@@ -7,6 +7,10 @@
         overflow-x: auto !important;
         padding: 0 20px 0;
     }
+    
+    input[type=checkbox] {
+        height: 12px;
+    }
 </style>
 @endsection
 
@@ -15,9 +19,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="text-center">
-                <h2 class="page-heading">
-                    <a class="text-dark">Unknown Attribute Products</a>
-                </h2>
+                <h2 class="page-heading">Incorrect Attributes (<span id="lbl_product_count">0</span>)</h2>
             </div>
             <div class="row pl-4 pr-4">
                 <div class="col-md-2">
@@ -32,7 +34,12 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4"></div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <input name="without_stock" id="without_stock" type="checkbox"> <label for="without_stock"> Filter by No Stock</label>
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
                 <div class="col-md-6 border">
                     <form id="attribute_form">
                         <div class="row p-2">
@@ -45,8 +52,87 @@
                                 </select>
                             </div>
                             <div class="form-group col-md-6">
-                                <br>
-                                <input type="text" name="attribute_value" class="form-control" placeholder="Attribute Value" required>
+                                <div class="row">
+                                    <div class="form-group col-md-6 attribute_category_box d-none">
+                                        <label>Category:</label><br>
+                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="find_category"  name="find_category">
+                                            @foreach($categories as $category_key => $category)
+                                                <option value="{{ $category->id }}">{{ $category->title}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_category_box d-none">
+                                        <label>Category:</label><br>
+                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_category"  name="replace_category">
+                                            @foreach($categories as $category_key => $category)
+                                                <option value="{{ $category->id }}">{{ $category->title}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_color_box d-none">
+                                        <label>Colors:</label><br>
+                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="find_color"  name="find_color">
+                                            @foreach($colors as $color_key => $color)
+                                                <option value="{{ $color }}">{{ $color}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group col-md-6 attribute_color_box d-none">
+                                        <label>Colors:</label><br>
+                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_color"  name="replace_color">
+                                            @foreach($colors as $color_key => $color)
+                                                <option value="{{ $color }}">{{ $color}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_size_box">
+                                        <label>Size:</label>
+                                        <select data-placeholder="Select Size"  class="form-control select-multiple2" id="find_size"  name="find_size">
+                                            @foreach($sizes as $size_key => $size)
+                                                <option value="{{ $size->id }}">{{ $size->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_size_box">
+                                        <label>Size:</label>
+                                        <select data-placeholder="Select Size"  class="form-control select-multiple2" id="replace_size"  name="replace_size">
+                                            @foreach($sizes as $size_key => $size)
+                                                <option value="{{ $size->id }}">{{ $size->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_measurement_box d-none">
+                                        <label>L measurement:</label>
+                                        <br>
+                                        <input type="text" id="find_lmeasurement" name="find_lmeasurement" class="form-control" placeholder="L measurement">
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_measurement_box d-none">
+                                        <label>L measurement:</label>
+                                        <br>
+                                        <input type="text" id="replace_lmeasurement" name="replace_lmeasurement" class="form-control" placeholder="L measurement">
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_measurement_box d-none">
+                                        <label>H measurement:</label>
+                                        <br>
+                                        <input type="text" id="find_hmeasurement" name="find_hmeasurement" class="form-control" placeholder="H measurement">
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_measurement_box d-none">
+                                        <label>H measurement:</label>
+                                        <br>
+                                        <input type="text" id="replace_hmeasurement" name="replace_hmeasurement" class="form-control" placeholder="H measurement">
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_measurement_box d-none">
+                                        <label>D measurement:</label>
+                                        <br>
+                                        <input type="text" id="find_dmeasurement" name="find_dmeasurement" class="form-control" placeholder="D measurement">
+                                    </div>
+                                    <div class="form-group col-md-6 attribute_measurement_box d-none">
+                                        <label>D measurement:</label>
+                                        <br>
+                                        <input type="text" id="replace_dmeasurement" name="replace_dmeasurement" class="form-control" placeholder="D measurement">
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group col-md-2">
                                 <br>
@@ -66,6 +152,8 @@
                             <th>SKU</th>
                             <th>Supplier</th>
                             <th>Attribute</th>
+                            <th>Original Value</th>
+                            <th>ERP Value</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -103,15 +191,92 @@
                                 <label>Attribute: </label> <span id="lbl_attribute_name"></span>
                             </div>
                             <div class="col-md-12">
-                                <div class="form-group">
-                                <label>Attribute Value: </label>
-                                    <input type="text" name="attribute_value" class="form-control" placeholder="Enter Attribute Value" required="">
+                                <label>Original Value: </label> <span id="lbl_original_value"></span>
+                            </div>
+                            <div class="col-md-12">
+                                <label>Erp Value: </label> <span id="lbl_erp_value"></span>
+                            </div>
+                            <div class="form-group col-md-12 mt-2">
+                                <label><u>Attribute Replacement</u></label>
+                                <div class="row">
+                                    <div class="form-group col-md-6 product_attribute_category_box d-none">
+                                        <label>Category:</label><br>
+                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_category"  name="replace_category">
+                                            @foreach($categories as $category_key => $category)
+                                                <option value="{{ $category->id }}">{{ $category->title}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 product_attribute_color_box d-none">
+                                        <label>Colors:</label><br>
+                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_color"  name="replace_color">
+                                            @foreach($colors as $color_key => $color)
+                                                <option value="{{ $color }}">{{ $color}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 product_attribute_size_box">
+                                        <label>Size:</label>
+                                        <select data-placeholder="Select Size"  class="form-control select-multiple2" id="replace_size"  name="replace_size">
+                                            @foreach($sizes as $size_key => $size)
+                                                <option value="{{ $size->id }}">{{ $size->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 product_attribute_measurement_box d-none">
+                                        <label>L measurement:</label>
+                                        <br>
+                                        <input type="text" id="replace_lmeasurement" name="replace_lmeasurement" class="form-control" placeholder="L measurement">
+                                    </div>
+                                    <div class="form-group col-md-6 product_attribute_measurement_box d-none">
+                                        <label>H measurement:</label>
+                                        <br>
+                                        <input type="text" id="replace_hmeasurement" name="replace_hmeasurement" class="form-control" placeholder="H measurement">
+                                    </div>
+                                    <div class="form-group col-md-6 product_attribute_measurement_box d-none">
+                                        <label>D measurement:</label>
+                                        <br>
+                                        <input type="text" id="replace_dmeasurement" name="replace_dmeasurement" class="form-control" placeholder="D measurement">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button id="update_attribute" type="submit" class="btn btn-success" >Update</button>
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="product-attribute-history" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="update_attribute_form">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Show Updated History</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-md-12">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Attribute Name</th>
+                                        <th>Old Value</th>
+                                        <th>New Value</th>
+                                        <th>Updated by</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="res_attribute_updated_history">
+                                   
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
                         <button type="reset" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </form>
@@ -132,31 +297,44 @@
     
     function getAttributes() {
         var status_id =  $("#filter_status").val();
+        var without_stock = '';
+        if ($("#without_stock").is(":checked")) {
+            without_stock = 'yes';
+        }
         var table = $('#unknown-attribute-products-table').DataTable({
             destroy:true,
             processing: true,
             serverSide: true,
             ajax: { 
-                url:"{{ route('unknown.attribute.products') }}",
-                data:{status_id:status_id}
+                url:"{{ route('incorrect-attributes') }}",
+                data:{status_id:status_id,without_stock:without_stock}
             },
             columns: [
                 {data: 'id', name: 'id'},
                 {data: 'name', name: 'name'},
                 {data: 'sku', name: 'sku'},
                 {data: 'supplier', name: 'supplier'},
-                {data: 'attribute_name', name: 'attribute_name',orderable: false, searchable: false},
+                {data: 'attribute_name', name: 'attribute_name',searchable: false},
+                {data: 'original_value', name: 'original_value',orderable: false, searchable: false},
+                {data: 'erp_value', name: 'erp_value',orderable: false, searchable: false},
                 {
                     data: 'action', 
                     name: 'action', 
                     orderable: false, 
                     searchable: false
                 },
-            ]
+            ],
+            drawCallback: function() {
+                var api = this.api();
+                var recordsTotal = api.page.info().recordsTotal;
+                var records_displayed = api.page.info().recordsDisplay;
+                $("#lbl_product_count").text(recordsTotal);
+                // now do something with those variables
+            }
         });
     }
     
-    $("#filter_status").on('change',function(){
+    $("#filter_status,#without_stock").on('change',function(){
         getAttributes();
     });
     
@@ -169,7 +347,7 @@
         
         $.ajax({
             type: 'POST',
-            url: "{{ route('unknown.attribute.products.attribute-assignment') }}",
+            url: "{{ route('incorrect-attributes.attribute-assignment') }}",
             beforeSend: function () {
                 $("#btn_assign").attr('disabled',true);
             },
@@ -204,7 +382,7 @@
         
         $.ajax({
             type: 'POST',
-            url: "{{ route('unknown.attribute.products.get_product_attribute_detail') }}",
+            url: "{{ route('incorrect-attributes.get_product_attribute_detail') }}",
             beforeSend: function () {
                 $this.attr('disabled',true);
             },
@@ -223,6 +401,31 @@
                 $("#lbl_sku").text(response.results.sku);
                 $("#lbl_supplier").text(response.results.supplier);
                 $("#lbl_attribute_name").text(response.results.attribute_name);
+                $("#lbl_original_value").text(response.results.original_value);
+                $("#lbl_erp_value").text(response.results.erp_value);
+                
+                var attribute_id = response.results.status_id;
+                if(attribute_id == 36) {
+                    $(".product_attribute_size_box").addClass('d-none');
+                    $(".product_attribute_color_box").addClass('d-none');
+                    $(".product_attribute_measurement_box").addClass('d-none');
+                    $(".product_attribute_category_box").removeClass('d-none');
+                } else if(attribute_id == 37) {
+                    $(".product_attribute_size_box").addClass('d-none');
+                    $(".product_attribute_color_box").removeClass('d-none');
+                    $(".product_attribute_measurement_box").addClass('d-none');
+                    $(".product_attribute_category_box").addClass('d-none');
+                } else if(attribute_id == 38) {
+                    $(".product_attribute_size_box").removeClass('d-none');
+                    $(".product_attribute_color_box").addClass('d-none');
+                    $(".product_attribute_measurement_box").addClass('d-none');
+                    $(".product_attribute_category_box").addClass('d-none');
+                } else if(attribute_id == 40) {
+                    $(".product_attribute_size_box").addClass('d-none');
+                    $(".product_attribute_color_box").addClass('d-none');
+                    $(".product_attribute_measurement_box").removeClass('d-none');
+                    $(".product_attribute_category_box").addClass('d-none');
+                }
             } else {
                 toastr['error'](response.message, 'error');
             }
@@ -231,6 +434,40 @@
             console.log("Sorry, something went wrong");
         });
        
+    });
+    
+    $(document).on('click','.get-product-attribute-history',function(e){
+
+        var product_id = $(this).data('id');
+        var $this = $(this);
+        var formData = new FormData();
+            formData.append('product_id',product_id);
+            formData.append('_token',"{{ csrf_token() }}");
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('incorrect-attributes.get_product_attribute_history') }}",
+            beforeSend: function () {
+                $this.attr('disabled',true);
+            },
+            data: formData,
+            dataType: "json",
+            contentType: false,
+            processData: false,
+        }).done(function (response) {
+            $this.removeAttr('disabled');
+            if (response.code == 200) {
+                $("#product-attribute-history").modal('show');
+                $("#res_attribute_updated_history").html(response.results);
+            } else {
+                toastr['error'](response.message, 'error');
+                $("#res_attribute_updated_history").html('');
+            }
+        }).fail(function (response) {
+            $this.removeAttr('disabled');
+            console.log("Sorry, something went wrong");
+        });
+
     });
     
     $("#update_attribute_form").on('submit',function(e){
@@ -242,7 +479,7 @@
         
         $.ajax({
             type: 'POST',
-            url: "{{ route('unknown.attribute.products.attribute-assignment') }}",
+            url: "{{ route('incorrect-attributes.update-attribute-assignment') }}",
             beforeSend: function () {
                 $("#update_attribute").attr('disabled',true);
             },
@@ -256,6 +493,7 @@
                 toastr['success'](response.message, 'success');
                 $this[0].reset();
                 $("#product-attribute-detail").modal('hide');
+                $('#unknown-attribute-products-table').DataTable().ajax.reload();
             } else {
                 toastr['error'](response.message, 'error');
             }
@@ -265,6 +503,31 @@
         });
         
        
+    });
+    
+    $("#attribute_id").on('change',function(e){
+        var attribute_id = $(this).val();
+        if(attribute_id == 36) {
+            $(".attribute_size_box").addClass('d-none');
+            $(".attribute_color_box").addClass('d-none');
+            $(".attribute_measurement_box").addClass('d-none');
+            $(".attribute_category_box").removeClass('d-none');
+        } else if(attribute_id == 37) {
+            $(".attribute_size_box").addClass('d-none');
+            $(".attribute_color_box").removeClass('d-none');
+            $(".attribute_measurement_box").addClass('d-none');
+            $(".attribute_category_box").addClass('d-none');
+        } else if(attribute_id == 38) {
+            $(".attribute_size_box").removeClass('d-none');
+            $(".attribute_color_box").addClass('d-none');
+            $(".attribute_measurement_box").addClass('d-none');
+            $(".attribute_category_box").addClass('d-none');
+        } else if(attribute_id == 40) {
+            $(".attribute_size_box").addClass('d-none');
+            $(".attribute_color_box").addClass('d-none');
+            $(".attribute_measurement_box").removeClass('d-none');
+            $(".attribute_category_box").addClass('d-none');
+        }
     });
     
   });
