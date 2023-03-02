@@ -2856,8 +2856,8 @@ class TaskModuleController extends Controller
             $newCreated = 1;
         }
 
-        if ($newCreated) {
-            if($data['task_for'] == 'time_doctor'){
+        if ($newCreated) {            
+            if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
                 $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assign_to']);
             } else {
                 $this->hubstaffActions('TASK', $task);
