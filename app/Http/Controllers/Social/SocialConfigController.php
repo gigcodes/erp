@@ -87,6 +87,77 @@ class SocialConfigController extends Controller
         //
     }
 
+    public function getfbToken(){
+            
+        return redirect('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
+            $curl = curl_init();
+
+            $url = sprintf('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ]);
+
+            $response = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+    }
+    public function getfbTokenBack(Request $request){
+      
+
+            $code = $request['code'];
+            $redirect = 'https://56e3-110-227-254-30.ngrok.io/social/config/fbtokenback';
+
+        
+            $curl = curl_init();
+
+            $url = sprintf('https://graph.facebook.com/v15.0/oauth/access_token?client_id=559475859451724&redirect_uri='.$redirect.'&client_secret=53ecd1fd8103c478830c8fef0673087e&code='.$code);
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ]);
+
+            $response = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            $curl = curl_init();
+
+            $url = sprintf('https://graph.facebook.com/v15.0//me/?access_token='.$response['access_token']); 
+
+           
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ]);
+
+            $responseMe = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            $data['account_id'] = $responseMe['id'];
+            $data['name'] = $responseMe['name'];
+            $data['token'] = $response['access_token'];
+            SocialConfig::create($data);
+            
+            return redirect()->route('social.config.index');
+            
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -176,7 +247,10 @@ class SocialConfigController extends Controller
         $pageId = $request->page_id;
         $config = SocialConfig::findorfail($request->id);
         $data = $request->except('_token', 'id');
-
+        if(isset($request->adsmanager)){
+            $data['ads_manager'] =  $request->adsmanager;
+        }
+        
         if ($request->platform == 'instagram') {
             $curl = curl_init();
 

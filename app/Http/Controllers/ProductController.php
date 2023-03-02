@@ -2685,7 +2685,7 @@ class ProductController extends Controller
         return view('partials.grid', compact('products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type', 'category_selection', 'attachImages', 'customer_id'));
     }
 
-    public function attachImages($model_type, $model_id, $status, $assigned_user, Request $request)
+    public function attachImages(Request $request, $model_type, $model_id = null, $status = null, $assigned_user = null)
     {
         // ->where('composition', 'LIKE', '%' . request('keyword') . '%')
         // dd($request->all());
