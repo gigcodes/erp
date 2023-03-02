@@ -341,6 +341,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 
+
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', [CustomerController::class, 'add_customer_address']);
