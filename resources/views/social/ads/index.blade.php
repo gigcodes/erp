@@ -90,6 +90,7 @@
                             <th style="width:5%">Date</th>
                             <th style="width:7%"> Name</th>
                             <th style="width:7%">Config Name</th>
+                            <th style="width:7%">Website</th>
 
                             <th style="width:7%">Adset Name</th>
                             <!-- <th style="width:10%">Image</th> -->
