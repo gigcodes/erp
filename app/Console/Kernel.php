@@ -723,7 +723,7 @@ class Kernel extends ConsoleKernel
 
         // Ads history Cron
         $schedule->command('social:ads-history')->dailyAt('0:00');
-        $schedule->command('save:zoom-meetings')->daily();
+        $schedule->command('save:zoom-meetings')->dailyAt('23:59');
     }
 
     /**`
