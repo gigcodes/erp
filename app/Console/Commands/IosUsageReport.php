@@ -9,7 +9,7 @@ use Google\Client;
 use Illuminate\Support\Facades\Auth;
 use App\AppUsageReport;
 
-session_start();  
+ 
 
 class IosUsageReport extends Command
 {
