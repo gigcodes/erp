@@ -45,15 +45,19 @@ class AttributeAssignment implements ShouldQueue
             if(isset($find_products) && !empty($find_products)) {
                 foreach ($find_products as $fp_key => $fp_value) {
                     
+                    $new_value = '';
                     $old_value = $fp_value->size;
-                    $fp_value->size = $this->data['replace_size'];
+                    if(isset($this->data['replace_size']) && is_array($this->data['replace_size'])) {
+                        $new_value = implode(',',$this->data['replace_size']);
+                    }
+                    $fp_value->size = $new_value;
                     $fp_value->updated_attribute_job_status = 1;
                     $fp_value->updated_attribute_job_attempt_count += 1;
                     $fp_value->save();
             
                     $attribute_arr[] = [
                         'old_value' => $old_value,
-                        'new_value' => $this->data['replace_size'],
+                        'new_value' => $new_value,
                         'attribute_name' => 'size',
                         'attribute_id' => $this->data['attribute_id'],
                         'product_id' => $fp_value->id,

@@ -19,6 +19,10 @@
     .failed-job {
         color:red;
     }
+    .select2-container--default .select2-search--inline .select2-search__field {
+        height:22px;
+        padding-left:5px !important;
+    }
 </style>
 @endsection
 
@@ -120,15 +124,12 @@
                                     </div>
                                     <div class="form-group col-md-6 attribute_size_box">
                                         <label>Original Size:</label>
-                                        <select data-placeholder="Select Size"  class="form-control select-multiple2" id="find_size"  name="find_size">
-                                            @foreach($sizes as $size_key => $size)
-                                                <option value="{{ $size->name }}">{{ $size->name}}</option>
-                                            @endforeach
-                                        </select>
+                                        <br>
+                                        <input type="text" id="find_size" name="find_size" class="form-control" placeholder="Find Size">
                                     </div>
                                     <div class="form-group col-md-6 attribute_size_box">
                                         <label>ERP Size:</label>
-                                        <select data-placeholder="Select Size"  class="form-control select-multiple2" id="replace_size"  name="replace_size">
+                                        <select data-placeholder="Select Size"  class="form-control select-multiple2" id="replace_size"  name="replace_size[]" multiple>
                                             @foreach($sizes as $size_key => $size)
                                                 <option value="{{ $size->name }}">{{ $size->name}}</option>
                                             @endforeach
@@ -232,43 +233,43 @@
                                 <label><u>Attribute Replacement</u></label>
                                 <div class="row">
                                     <div class="form-group col-md-6 product_attribute_category_box d-none">
-                                        <label>Category:</label><br>
-                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_category"  name="replace_category">
+                                        <label>Select Category:</label><br>
+                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="product_replace_category"  name="replace_category">
                                             @foreach($categories as $category_key => $category)
                                                 <option value="{{ $category->id }}">{{ $category->title}}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6 product_attribute_color_box d-none">
-                                        <label>Colors:</label><br>
-                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_color"  name="replace_color">
+                                        <label>Select Color:</label><br>
+                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="product_replace_color"  name="replace_color">
                                             @foreach($colors as $color_key => $color)
                                                 <option value="{{ $color }}">{{ $color}}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="form-group col-md-6 product_attribute_size_box">
-                                        <label>Size:</label>
-                                        <select data-placeholder="Select Size"  class="form-control select-multiple2" id="replace_size"  name="replace_size">
+                                    <div class="form-group col-md-12 product_attribute_size_box d-none">
+                                        <label>Select Size:</label>
+                                        <select class="form-control select-multiple2" id="product_replace_size"  name="replace_size[]" multiple>
                                             @foreach($sizes as $size_key => $size)
                                                 <option value="{{ $size->name }}">{{ $size->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="form-group col-md-6 product_attribute_measurement_box d-none">
+                                    <div class="form-group col-md-4 product_attribute_measurement_box d-none">
                                         <label>L measurement:</label>
                                         <br>
-                                        <input type="text" id="replace_lmeasurement" name="replace_lmeasurement" class="form-control" placeholder="L measurement">
+                                        <input type="text" id="product_replace_lmeasurement" name="replace_lmeasurement" class="form-control" placeholder="L measurement">
                                     </div>
-                                    <div class="form-group col-md-6 product_attribute_measurement_box d-none">
+                                    <div class="form-group col-md-4 product_attribute_measurement_box d-none">
                                         <label>H measurement:</label>
                                         <br>
-                                        <input type="text" id="replace_hmeasurement" name="replace_hmeasurement" class="form-control" placeholder="H measurement">
+                                        <input type="text" id="product_replace_hmeasurement" name="replace_hmeasurement" class="form-control" placeholder="H measurement">
                                     </div>
-                                    <div class="form-group col-md-6 product_attribute_measurement_box d-none">
+                                    <div class="form-group col-md-4 product_attribute_measurement_box d-none">
                                         <label>D measurement:</label>
                                         <br>
-                                        <input type="text" id="replace_dmeasurement" name="replace_dmeasurement" class="form-control" placeholder="D measurement">
+                                        <input type="text" id="product_replace_dmeasurement" name="replace_dmeasurement" class="form-control" placeholder="D measurement">
                                     </div>
                                 </div>
                             </div>
@@ -286,7 +287,7 @@
     <div id="product-attribute-history" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form id="update_attribute_form">
+                <form id="product_attribute_history_form">
                     <div class="modal-header">
                         <h4 class="modal-title">Show Updated History</h4>
                     </div>
@@ -324,7 +325,9 @@
 <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 <script type="text/javascript">
   $(function () {
-    $(".select-multiple2").select2();
+    $(".select-multiple2").select2({
+        width: '100%'
+    });
     getAttributes();
     
     function getAttributes() {
