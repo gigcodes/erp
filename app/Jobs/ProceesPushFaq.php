@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Reply;
+use App\Models\ReplyLog;
 
 class ProceesPushFaq implements ShouldQueue
 {
@@ -67,6 +68,7 @@ class ProceesPushFaq implements ShouldQueue
                     $storeWebsite   =   new \App\StoreWebsite();
                     $allWebsites    =   $storeWebsite->getAllTaggedWebsite( $replyInfo->tag_id );
                 } else {
+                    $storeWebsite   =   new \App\StoreWebsite();
                     $allWebsites    =   $storeWebsite->where("id",  $replyInfo->store_website_id)->get();
                 }
 
@@ -90,8 +92,8 @@ class ProceesPushFaq implements ShouldQueue
                                         ->select("website_store_views.website_store_id", "website_store_views.*","website_store_views.code") 
                                         ->get();
                         
+                        $stores = array();
                         if (!$fetchStores->isEmpty()) {
-                            $stores = array();
                             foreach ($fetchStores as $fetchStore) {
                                 $stores[] = $fetchStore->code;
                             }
@@ -108,9 +110,9 @@ class ProceesPushFaq implements ShouldQueue
                         $faqQuestion    =   $replyInfo->name;
                         
                         $faqCategoryId  =   $replyInfo->category_id;
-                        // $faqCategoryId  = 1;
+                        // $faqCategoryId  =   1;
 
-                        if (!empty($url) && !empty($api_token)) {
+                        if (!empty($url) && !empty($api_token) && !empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
 
                                 $language           =   isset(explode('-', $storeValue)[1]) && explode('-', $storeValue)[1] != "" ? explode('-', $storeValue)[1] : "";
@@ -168,21 +170,29 @@ class ProceesPushFaq implements ShouldQueue
                                     }
                                 }
 
+
                                 if (!empty($response->id)){ //This means latest is pushed to server
                                     
                                     $replyInfo->is_pushed   =   1;
                                     $replyInfo->save();
                                     
+                                    (new ReplyLog)->addToLog($replyInfo->id, 'System pushed FAQ on '.$url.' with ID '.$store_website_id.' on store '.$storeValue.' ', 'Push' );
+
+
                                     if(!empty($translateReplies->translate_text))
                                     {
                                         //developer can add code to mark the translation pushed or not.
                                     }
+                                }else{
+                                    (new ReplyLog)->addToLog($replyInfo->id, ' Error while pushing FAQ on Store '.$storeValue.' : '.json_encode($response), 'Push' );
                                 }
 
                                 \Log::info("Got response from API after pushing the FAQ to server"); \Log::info($postdata);
                                 \Log::info(json_encode($response));
                             }
                         } else {
+
+                            (new ReplyLog)->addToLog($replyInfo->id, ' URL or API token not found linked with this FAQ ', 'Push' );
                             \Log::info(
                                 "URL or API token not found linked with reply id " .
                                     json_encode($reply_id)
@@ -194,6 +204,7 @@ class ProceesPushFaq implements ShouldQueue
         } catch (\Exception $e) {
             \Log::info("Error while pushing faq");
             \Log::info($e->getMessage());
+            \Log::info($e->getLine());
         }
     
     }

@@ -80,15 +80,16 @@
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
                             <th width="3%">ID</th>
-                            <th width="10%">Store website</th>
-                            <th width="10%">Parent Category</th>
+                            <th width="8%">Store website</th>
+                            <th width="5%">Parent Category</th>
                             <th width="10%">Category </th>
                             <th width="10%">Sub Category</th>
                             <th width="10%">Reply</th>
                             <th width="7%">Model</th>
                             <th width="5%">Intent Id</th>
                             <th width="9%">Updated On</th>
-                            <th width="9%">Is Pushed To Watson</th>
+                            <th width="4%">Is Pushed</th>
+                            <th width="4%">Is Pushed To Watson</th>
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
@@ -102,6 +103,7 @@
                                 <td class="quick-website-task" id="reply_model">{{ $reply->model }}</td>
                                 <td class="quick-website-task">{{ $reply->intent_id }}</td>
                                 <td id="reply_model">{{ $reply->created_at }}</td>
+                                <td id="">@if($reply['is_pushed'] == 0) No @else Yes @endif</td>
                                 <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
                                 <td id="reply_action">
                                     <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}" style="color: #808080;"></i>
@@ -117,6 +119,10 @@
                                         <?php } else { ?>                                       
                                             <i class="fa fas fa-toggle-off"></i>
                                         <?php } ?>
+                                    </button>
+
+                                    <button type="button" class="btn btn-xs show-reply-logs" title="Log of reply" data-id="{{$reply->id}}" data-type="developer">
+                                        <i class="fa fa-info-circle" style="color: #808080;"></i>
                                     </button>
                                     
                                     
@@ -211,6 +217,42 @@
                             </thead>
                             <tbody>
                             </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="reply_logs">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reply Logs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="reply_logs_data">
+                        <input type="hidden" class="reply_id">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Message</th>
+                                    <th>Type</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -390,6 +432,105 @@ $(document).ready(function(){
                 if(response.code == 200) {
                     toastr["success"](response.message);
                     // location.reload();
+                }else{
+                   toastr["error"]('Something went wrong!');
+                }
+          }).fail(function(errObj) {
+                $("#loading-image-preview").hide();
+          });
+    });
+    
+    //Paginate the logs as well
+    $(document).on("click","#reply_logs_data table tfoot a",function(e) {
+        e.preventDefault();
+        var id      =    $('#reply_logs_data .reply_id').val();
+        var url     =    $(this).attr('href');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+              _token:   "{{ csrf_token() }}",
+              id    :   id
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+          }).done( function(response) {
+                
+                $("#loading-image-preview").hide();
+
+                if(response.code == 200) {
+
+                    var html    =   '';
+                    console.log(response);
+                    $.each(response.data.data,function(idnex, val){
+                        
+                        var formattedDate = new Date(val.created_at);
+                        var d = formattedDate.getDate();
+                        var m =  formattedDate.getMonth();
+                        m += 1;  // JavaScript months are 0-11
+                        var y = formattedDate.getFullYear();
+
+                        html    += '<tr><td>'+val.message+'</td><td>'+val.type+'</td><td>'+y +'/'+ m+'/' + d+'</td></tr>';
+
+                    })
+
+                    $('#reply_logs_data table tbody').html('');
+                    $('#reply_logs_data table tbody').html(html);
+                    $('#reply_logs_data table tfoot').html('');
+                    $('#reply_logs_data table tfoot').html(response.paginate);
+                    $('#reply_logs').modal('show');
+                    $("#reply_logs").animate({ scrollTop: 0 }, "slow");
+
+                }else{
+                   toastr["error"]('Something went wrong!');
+                }
+          }).fail(function(errObj) {
+                $("#loading-image-preview").hide();
+          });
+
+    });
+
+    // Show reply logs
+    $(document).on("click",".show-reply-logs",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            url: "{{ route('reply.show_logs') }}",
+            type: 'POST',
+            data: {
+              _token: "{{ csrf_token() }}",
+              id    :   $this.attr('data-id')
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+          }).done( function(response) {
+                $("#loading-image-preview").hide();
+                if(response.code == 200) {
+
+                    var html    =   '';
+                    console.log(response);
+                    $.each(response.data.data,function(idnex, val){
+                        
+                        var formattedDate = new Date(val.created_at);
+                        var d = formattedDate.getDate();
+                        var m =  formattedDate.getMonth();
+                        m += 1;  // JavaScript months are 0-11
+                        var y = formattedDate.getFullYear();
+
+                        html    += '<tr><td>'+val.message+'</td><td>'+val.type+'</td><td>'+y +'/'+ m+'/' + d+'</td></tr>';
+
+                    })
+
+                    $('#reply_logs_data .reply_id').val('');
+                    $('#reply_logs_data .reply_id').val($this.attr('data-id'));
+                    $('#reply_logs_data table tbody').html('');
+                    $('#reply_logs_data table tbody').html(html);
+                    $('#reply_logs_data table tfoot').html('');
+                    $('#reply_logs_data table tfoot').html(response.paginate);
+                    $('#reply_logs').modal('show');
+
                 }else{
                    toastr["error"]('Something went wrong!');
                 }
