@@ -1023,6 +1023,8 @@ class DevelopmentController extends Controller
             $userslist = User::whereIn('id', $request->get('assigned_to'))->get();
         }
 
+        $time_doctor_projects = \App\TimeDoctor\TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name')->get()->toArray();
+
         if (request()->ajax()) {
             return view('development.partials.summarydatas', [
                 'issues' => $issues,
@@ -1052,6 +1054,7 @@ class DevelopmentController extends Controller
             'countInProgress' => $countInProgress,
             'statusList' => $statusList,
             'userslist' => $userslist,
+            'time_doctor_projects' => $time_doctor_projects
             // 'languages' => $languages
         ]);
     }
@@ -1843,8 +1846,8 @@ class DevelopmentController extends Controller
         $check_entry = 0;
         $project_data = [];
         $project_data['time_doctor_project'] = $projectId;
-        $project_data['time_doctor_task_name'] = $task['task_subject'];
-        $project_data['time_doctor_task_description'] = $task['task_details'];
+        $project_data['time_doctor_task_name'] = $task['subject'];
+        $project_data['time_doctor_task_description'] = $task['task'];
 
         if ($type == 'DEVTASK') {
             $message = '#DEVTASK-'.$task->id.' => '.$task->subject;
@@ -1856,29 +1859,28 @@ class DevelopmentController extends Controller
             return false;
         }
 
-        $assignUsersData = TimeDoctorMember::where('user_id', $assignedToId)->get();
+        $assignUsersData = \App\TimeDoctor\TimeDoctorMember::where('user_id', $assignedToId)->get();
 
-        $timedoctor = Timedoctor::getInstance();
-        
+        $timedoctor = Timedoctor::getInstance();        
         
         foreach($assignUsersData as $assignedUser){
             $companyId = $assignedUser->account_detail->company_id;
             $accessToken = $assignedUser->account_detail->auth_token;
             $taskSummary = substr($message, 0, 200);            
-            if (env('PRODUCTION', true)) {
+            if (env('PRODUCTION', true)) {                
                 $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );
             } else {
                 $projectId = '#TASK-3';
                 $timeDoctorUserId = 406; //for local system
                 $timeDoctorTaskId = 34543; //for local system
             }
-            $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
+            //$timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
             if( $timeDoctorTaskId != ''){                
                 if ($timeDoctorTaskId) {
                     $task->time_doctor_task_id = $timeDoctorTaskId;
                     $task->save();
 
-                    $time_doctor_task = new TimeDoctorTask();
+                    $time_doctor_task = new \App\TimeDoctor\TimeDoctorTask();
                     $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
                     $time_doctor_task->project_id = $projectId;
                     $time_doctor_task->time_doctor_project_id = $projectId;
@@ -2191,8 +2193,8 @@ class DevelopmentController extends Controller
             $taskSummery = '#TASK-'.$task->id.' => '.$summary;
         }
 
-        if($data['task_for'] == 'time_doctor'){
-            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assign_to']);
+        if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
+            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assigned_to']);
         } else {
             $hubstaffTaskId = '';
             if (env('PRODUCTION', true)) {
