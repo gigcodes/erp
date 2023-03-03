@@ -7,8 +7,12 @@
             <td>{{$record->old_category->title}}</td>
             <td>{{$record->new_category->title}}</td>
         @elseif($record->attribute_name == 'size')
+            @if(isset($record->old_size))
+            <td>{{$record->old_size->name}}</td>
+            @else
             <td>{{$record->old_value}}</td>
-            <td>{{$record->new_category->name}}</td>
+            @endif
+            <td>{{$record->new_size->name}}</td>
         @else
             <td>{{$record->old_value}}</td>
             <td>{{$record->new_value}}</td>
