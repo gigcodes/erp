@@ -122,7 +122,7 @@
                                         <label>Original Size:</label>
                                         <select data-placeholder="Select Size"  class="form-control select-multiple2" id="find_size"  name="find_size">
                                             @foreach($sizes as $size_key => $size)
-                                                <option value="{{ $size->id }}">{{ $size->name}}</option>
+                                                <option value="{{ $size->name }}">{{ $size->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -130,7 +130,7 @@
                                         <label>ERP Size:</label>
                                         <select data-placeholder="Select Size"  class="form-control select-multiple2" id="replace_size"  name="replace_size">
                                             @foreach($sizes as $size_key => $size)
-                                                <option value="{{ $size->id }}">{{ $size->name}}</option>
+                                                <option value="{{ $size->name }}">{{ $size->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -251,7 +251,7 @@
                                         <label>Size:</label>
                                         <select data-placeholder="Select Size"  class="form-control select-multiple2" id="replace_size"  name="replace_size">
                                             @foreach($sizes as $size_key => $size)
-                                                <option value="{{ $size->id }}">{{ $size->name}}</option>
+                                                <option value="{{ $size->name }}">{{ $size->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>

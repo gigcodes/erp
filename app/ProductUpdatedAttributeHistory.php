@@ -32,16 +32,6 @@ class ProductUpdatedAttributeHistory extends Model
         return $this->belongsTo(Category::class, 'new_value');
     }
     
-    public function old_size()
-    {
-        return $this->belongsTo(Size::class, 'old_value');
-    }
-    
-    public function new_size()
-    {
-        return $this->belongsTo(Size::class, 'new_value');
-    }
-    
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
