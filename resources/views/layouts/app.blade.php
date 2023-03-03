@@ -342,8 +342,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="d-flex" id="search-bar">
-                                <input type="text" value="" name="search" class="form-control sop_search" placeholder="Search Here.." style="width: 30%;">
-{{--                                <button title="Sop Search" type="button" class="btn btn-xs search-button" style="padding: 0px 1px;"><span><i class="fa fa-search" aria-hidden="true"></i></span></button>--}}
+                                <input type="text" value="" name="search" id="menu_sop_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="Sop Search" type="button" class="sop_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
                             </div>
                         </div>
                         <div class="col-lg-12">
@@ -4732,11 +4733,11 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
-    $(document).on("keyup", ".sop_search", function(e) {
-        let $this = $(this);
-        var q = $this.val();
+    $(document).on("click", ".sop_search_menu", function(e) {
+        let $this = $('#menu_sop_search').val();
+        var q = $this;
         $.ajax({
-            url: '{{env('app_url')}}sop/search-ajax',
+            url: '{{route('menu.sop.search')}}',
             type: 'GET',
             data: {
                 search: q,
@@ -4752,6 +4753,7 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
+                toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
                 $("#loading-image").hide();
