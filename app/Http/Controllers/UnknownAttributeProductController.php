@@ -32,6 +32,8 @@ class UnknownAttributeProductController extends Controller
                 'status_id',
                 'categories.title as category_title',
                 'category',
+                'updated_attribute_job_status',
+                'updated_attribute_job_attempt_count',
                 \DB::raw('(CASE WHEN status_id = 36 THEN "Unknown Category" WHEN status_id = 37 THEN "Unknown Color"  WHEN status_id = 38 THEN "Unknown Size" WHEN status_id = 40 THEN "Unknown Measurement" ELSE "" END) AS attribute_name'),
                 \DB::raw('(CASE WHEN status_id = 36 THEN categories.title WHEN status_id = 37 THEN color WHEN status_id = 38 THEN size WHEN status_id = 40 THEN CONCAT(lmeasurement," * ",hmeasurement," * ",dmeasurement) ELSE "" END) AS erp_value')
             );
@@ -41,10 +43,17 @@ class UnknownAttributeProductController extends Controller
             } else {
                 $query->whereIn('status_id',[StatusHelper::$unknownSize,StatusHelper::$unknownMeasurement,StatusHelper::$unknownCategory,StatusHelper::$unknownColor]);
             }
-            if(isset($request->without_stock) && $request->without_stock == 'yes') {
+            if(isset($request->filter_stock) && $request->filter_stock == 'out_of_stock') {
                 $query->where('stock',0);
-            } else {
+            } else if(isset($request->filter_stock) && $request->filter_stock == 'in_stock') {
                 $query->where('stock','>=',1);
+            }
+            if(isset($request->filter_job_status) && $request->filter_job_status == 'pending') {
+                $query->where('updated_attribute_job_status',0);
+            } else if(isset($request->filter_job_status) && $request->filter_job_status == 'success') {
+                $query->where('updated_attribute_job_status',1);
+            } else if(isset($request->filter_job_status) && $request->filter_job_status == 'failed') {
+                $query->where('updated_attribute_job_status',2);
             }
             return Datatables::of($query)
                 ->addIndexColumn()
@@ -63,7 +72,7 @@ class UnknownAttributeProductController extends Controller
                             if($ah_value->attribute_name == 'category') {
                                 $old_category = $ah_value->old_category->title;
                             } else if($ah_value->attribute_name == 'size'){
-                                $old_size = $ah_value->old_category->name;
+                                $old_size = $ah_value->old_value;
                             } else if($ah_value->attribute_name == 'lmeasurement'){
                                 $old_lmeasurement = $ah_value->old_value;
                             } else if($ah_value->attribute_name == 'hmeasurement'){
@@ -317,7 +326,7 @@ class UnknownAttributeProductController extends Controller
                         if($ah_value->attribute_name == 'category') {
                             $old_category = $ah_value->old_category->title;
                         } else if($ah_value->attribute_name == 'size'){
-                            $old_size = $ah_value->old_category->name;
+                            $old_size = $ah_value->old_value;
                         } else if($ah_value->attribute_name == 'lmeasurement'){
                             $old_lmeasurement = $ah_value->old_value;
                         } else if($ah_value->attribute_name == 'hmeasurement'){

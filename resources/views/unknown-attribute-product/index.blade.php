@@ -11,6 +11,14 @@
     input[type=checkbox] {
         height: 12px;
     }
+    
+    .success-job {
+        color:green;
+    }
+    
+    .failed-job {
+        color:red;
+    }
 </style>
 @endsection
 
@@ -22,26 +30,50 @@
                 <h2 class="page-heading">Incorrect Attributes (<span id="lbl_product_count">0</span>)</h2>
             </div>
             <div class="row pl-4 pr-4">
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label>Filter by attributes</label>
-                        <br>
-                        <select data-placeholder="Select Attribute"  class="form-control select-multiple2" id="filter_status">
-                            <option value="0">Select All</option>
-                            @foreach($status_list as $status_id => $status_name)
-                                <option value="{{ $status_id }}">{{ $status_name}}</option>
-                            @endforeach
-                        </select>
+                <div class="col-md-6 border">
+                    <h3 class="text-center mt-3 mb-3">Filter</h3>
+                    <div class="row p-2">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>By Attributes</label>
+                                <br>
+                                <select data-placeholder="Select Attribute"  class="form-control select-multiple2" id="filter_status">
+                                    <option value="0">Select All</option>
+                                    @foreach($status_list as $status_id => $status_name)
+                                        <option value="{{ $status_id }}">{{ $status_name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>By Stock</label>
+                                <br>
+                                <select data-placeholder="Select Stock"  class="form-control select-multiple2" id="filter_stock">
+                                    <option value="0">Select All</option>
+                                    <option value="out_of_stock">Out Of Stock</option>
+                                    <option value="in_stock">In Stock</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>By Job Status</label>
+                                <br>
+                                <select data-placeholder="Select Job Status"  class="form-control select-multiple2" id="filter_job_status">
+                                    <option value="0">Select All</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="success">Success</option>
+                                    <option value="failed">Failed</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <input name="without_stock" id="without_stock" type="checkbox"> <label for="without_stock"> Filter by No Stock</label>
-                    </div>
-                </div>
-                <div class="col-md-2"></div>
+                
                 <div class="col-md-6 border">
                     <form id="attribute_form">
+                        <h3 class="text-center mt-3 mb-3">Attribute</h3>
                         <div class="row p-2">
                             <div class="form-group col-md-4">
                                 <label>Attribute assignment:</label>
@@ -54,7 +86,7 @@
                             <div class="form-group col-md-6">
                                 <div class="row">
                                     <div class="form-group col-md-6 attribute_category_box d-none">
-                                        <label>Category:</label><br>
+                                        <label>Original Category:</label><br>
                                         <select data-placeholder="Select Color"  class="form-control select-multiple2" id="find_category"  name="find_category">
                                             @foreach($categories as $category_key => $category)
                                                 <option value="{{ $category->id }}">{{ $category->title}}</option>
@@ -62,7 +94,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6 attribute_category_box d-none">
-                                        <label>Category:</label><br>
+                                        <label>ERP Category:</label><br>
                                         <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_category"  name="replace_category">
                                             @foreach($categories as $category_key => $category)
                                                 <option value="{{ $category->id }}">{{ $category->title}}</option>
@@ -70,7 +102,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6 attribute_color_box d-none">
-                                        <label>Colors:</label><br>
+                                        <label>Original Colors:</label><br>
                                         <select data-placeholder="Select Color"  class="form-control select-multiple2" id="find_color"  name="find_color">
                                             @foreach($colors as $color_key => $color)
                                                 <option value="{{ $color }}">{{ $color}}</option>
@@ -79,7 +111,7 @@
                                     </div>
                                     
                                     <div class="form-group col-md-6 attribute_color_box d-none">
-                                        <label>Colors:</label><br>
+                                        <label>ERP Colors:</label><br>
                                         <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_color"  name="replace_color">
                                             @foreach($colors as $color_key => $color)
                                                 <option value="{{ $color }}">{{ $color}}</option>
@@ -87,7 +119,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6 attribute_size_box">
-                                        <label>Size:</label>
+                                        <label>Original Size:</label>
                                         <select data-placeholder="Select Size"  class="form-control select-multiple2" id="find_size"  name="find_size">
                                             @foreach($sizes as $size_key => $size)
                                                 <option value="{{ $size->id }}">{{ $size->name}}</option>
@@ -95,7 +127,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6 attribute_size_box">
-                                        <label>Size:</label>
+                                        <label>ERP Size:</label>
                                         <select data-placeholder="Select Size"  class="form-control select-multiple2" id="replace_size"  name="replace_size">
                                             @foreach($sizes as $size_key => $size)
                                                 <option value="{{ $size->id }}">{{ $size->name}}</option>
@@ -103,32 +135,32 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6 attribute_measurement_box d-none">
-                                        <label>L measurement:</label>
+                                        <label>Original L measurement:</label>
                                         <br>
                                         <input type="text" id="find_lmeasurement" name="find_lmeasurement" class="form-control" placeholder="L measurement">
                                     </div>
                                     <div class="form-group col-md-6 attribute_measurement_box d-none">
-                                        <label>L measurement:</label>
+                                        <label>ERP L measurement:</label>
                                         <br>
                                         <input type="text" id="replace_lmeasurement" name="replace_lmeasurement" class="form-control" placeholder="L measurement">
                                     </div>
                                     <div class="form-group col-md-6 attribute_measurement_box d-none">
-                                        <label>H measurement:</label>
+                                        <label>Original H measurement:</label>
                                         <br>
                                         <input type="text" id="find_hmeasurement" name="find_hmeasurement" class="form-control" placeholder="H measurement">
                                     </div>
                                     <div class="form-group col-md-6 attribute_measurement_box d-none">
-                                        <label>H measurement:</label>
+                                        <label>ERP H measurement:</label>
                                         <br>
                                         <input type="text" id="replace_hmeasurement" name="replace_hmeasurement" class="form-control" placeholder="H measurement">
                                     </div>
                                     <div class="form-group col-md-6 attribute_measurement_box d-none">
-                                        <label>D measurement:</label>
+                                        <label>Original D measurement:</label>
                                         <br>
                                         <input type="text" id="find_dmeasurement" name="find_dmeasurement" class="form-control" placeholder="D measurement">
                                     </div>
                                     <div class="form-group col-md-6 attribute_measurement_box d-none">
-                                        <label>D measurement:</label>
+                                        <label>ERP D measurement:</label>
                                         <br>
                                         <input type="text" id="replace_dmeasurement" name="replace_dmeasurement" class="form-control" placeholder="D measurement">
                                     </div>
@@ -297,17 +329,15 @@
     
     function getAttributes() {
         var status_id =  $("#filter_status").val();
-        var without_stock = '';
-        if ($("#without_stock").is(":checked")) {
-            without_stock = 'yes';
-        }
+        var filter_job_status =  $("#filter_job_status").val();
+        var filter_stock =  $("#filter_stock").val();
         var table = $('#unknown-attribute-products-table').DataTable({
             destroy:true,
             processing: true,
             serverSide: true,
             ajax: { 
                 url:"{{ route('incorrect-attributes') }}",
-                data:{status_id:status_id,without_stock:without_stock}
+                data:{status_id:status_id,filter_stock:filter_stock,filter_job_status:filter_job_status}
             },
             columns: [
                 {data: 'id', name: 'id'},
@@ -330,11 +360,22 @@
                 var records_displayed = api.page.info().recordsDisplay;
                 $("#lbl_product_count").text(recordsTotal);
                 // now do something with those variables
+            },
+            createdRow: function( row, data, dataIndex ) {
+                var job_status_class = '';
+                if(data.updated_attribute_job_status == 0) {
+                    job_status_class = 'pending-job';
+                } else if (data.updated_attribute_job_status == 1){
+                    job_status_class = 'success-job';
+                } else if (data.updated_attribute_job_status == 2){
+                    job_status_class = 'failed-job';
+                }
+                $( row ).addClass(job_status_class);
             }
         });
     }
     
-    $("#filter_status,#without_stock").on('change',function(){
+    $("#filter_status,#filter_stock,#filter_job_status").on('change',function(){
         getAttributes();
     });
     
