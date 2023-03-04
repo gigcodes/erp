@@ -86,6 +86,7 @@ class IosUsageReport extends Command
         // print_r($res["apple:analytics"]);
         // print($res["apple:analytics"]["crashes"]);
         curl_close($curl);
+        // print_r($res);
 
         if($res)
         {
@@ -110,6 +111,11 @@ class IosUsageReport extends Command
             $r->storefront=$res["apple:analytics"]["storefront"];
             $r->store=$res["apple:analytics"]["store"];
             $r->save();
+            return $this->info("Usage Report added");
+
+        }
+        else{
+            return $this->info("Usage Report not generated");
         }
 
 
@@ -117,6 +123,6 @@ class IosUsageReport extends Command
 
 
         
-        return $this->info("Usage Report added");
+        
     }
 }
