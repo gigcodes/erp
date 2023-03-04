@@ -1,5 +1,9 @@
 @extends('layouts.app')
-
+<style>
+    .editbtn_model {
+        position: unset !important;
+    }
+</style>
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -27,6 +31,11 @@
                 </div>
             </div>
         </div>
+        <div class="float-right my-3 pr-5">
+            @if(auth()->user()->hasRole('Lead Translator'))
+                <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
+            @endif
+        </div>
     </div>
 </div>
 
@@ -48,32 +57,111 @@
                             <th width="10%">Store website</th>
                             <th width="10%">Category</th>
 							<th width="7%">Translate From</th>
-							<th width="7%">Translate To</th>
-                            <th width="10%">Original Reply</th>     
-							<th width="10%">Translated Reply</th>  	
-                            <th width="9%">Created On</th>  
-							<th width="9%">Updated On</th> 	
-                            
+                            <th width="10%">Original Reply</th>
+                            @foreach ($lang as $reply)
+                                <th width="9%">{{$reply}}</th>
+                            @endforeach
+                            <th width="9%">Created On</th>
+							<th width="9%">Updated On</th>
                         </tr>
-                        @foreach ($replies as $key => $reply)
-						
-						
+                        @foreach (json_decode($replies) as $key => $reply)
                             <tr>
                                 <td id="reply_id">{{ $reply->id }}</td>
-                                <td class="Website-task" id="reply-store-website">{{ $reply->website }}</td>
-                                <td class="Website-task" id="reply_category_name"> {{ $reply->category_name }}</td>                               
-                                <td class="Website-task" id="reply_model">{{ $reply->translate_from }}</td>
-                                <td class="Website-task">{{ $reply->translate_to }}</td>                               
-								<td style="cursor:pointer;" id="reply_text" class="change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->original_text }}">{{ $reply->original_text }}</td>
-								<td style="cursor:pointer;" id="reply_text_translate" class="change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->translate_text }}">{{ $reply->translate_text }}</td>
-                                <td id="">{{ $reply->created_at }}</td>
-								<td id=""><?php if($reply->updated_at!='' && $reply->updated_at!=null) { echo $reply->updated_at;} else { echo '-'; } ?></td>
-                               
+                                <td class="expand-row table-hover-cell" style="word-break: break-all;" id="reply-store-website">
+                                    <div class="td-mini-container">
+                                        {!! strlen($reply->website) > 10 ? substr($reply->website, 0, 10).'...' : $reply->website !!}
+                                    </div>
+                                    <div class="td-full-container hidden">
+                                        {{ $reply->website }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                        <div class="td-mini-container">
+                                            {!! strlen($reply->category_name) > 10 ? substr($reply->category_name, 0, 10).'...' : $reply->category_name !!}
+                                        </div>
+                                        <div class="td-full-container hidden">
+                                            {{ $reply->category_name }}
+                                        </div>
+                                    </div>
+                                </td>
+
+
+                                <td class="expand-row" id="reply_model">{{ $reply->translate_from }}</td>
+								<td style="cursor:pointer;" id="reply_text" class="expand-row change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->original_text }}">
+                                    <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                        <div class="td-mini-container">
+                                            {!! strlen($reply->original_text) > 20 ? substr($reply->original_text, 0, 20).'...' : $reply->original_text !!}
+                                        </div>
+                                        <div class="td-full-container hidden">
+                                            {{ $reply->original_text }}
+                                        </div>
+                                    </div>
+                                </td>
+
+                                @foreach($reply->translate_text as $key => $translate)
+                                    <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate }}">
+                                        <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                            <div class="td-mini-container">
+                                                {!! strlen($translate) > 10 ? substr($translate, 0, 10).'..' : $translate !!}
+                                            </div>
+                                            <div class="td-full-container hidden">
+                                                {{ $translate }}
+                                            </div>
+                                        </div>
+                                        @if(auth()->user()->hasRole('Lead Translator'))
+                                            <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                            @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                            <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                            <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                    <div>
+                                            @endif
+                                        @else
+                                            @php
+                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                            @endphp
+                                            @if(!empty($check_edit_permission))
+                                                <a href="#" class="editbtn_model" data-value="{{$translate}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                            @endif
+                                            @if(!empty($check_view_permission))
+                                                <a href="#" class="history_model" data-value="{{$translate}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                            @endif
+                                        @endif
+                                    </td>
+                                @endforeach
+                                <td>
+                                    <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                        <div class="td-mini-container">
+                                            {!! strlen($reply->created_at) > 10 ? substr($reply->created_at, 0, 10).'...' : $reply->created_at !!}
+                                        </div>
+                                        <div class="td-full-container hidden">
+                                            {{ date('Y-m-d H:i',strtotime($reply->created_at)) }}
+                                        </div>
+                                    </div>
+                                </td>
+								<td>
+                                    <?php if($reply->updated_at!='' && $reply->updated_at!=null) {
+								    ?>
+                                    <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                        <div class="td-mini-container">
+                                            {!! strlen($reply->updated_at) > 10 ? substr($reply->updated_at, 0, 10).'...' : $reply->updated_at !!}
+                                        </div>
+                                        <div class="td-full-container hidden">
+                                            {{ date('Y-m-d H:i',strtotime($reply->updated_at)) }}
+                                        </div>
+                                    </div>
+                                <?php
+								} else { echo '-'; } ?>
+                                </td>
                             </tr>
                         @endforeach
                     </table>
                 </div>
-                    {!! $replies->appends(request()->except('page'))->links() !!}
+{{--                    {!! $replies->appends(request()->except('page'))->links() !!}--}}
             </div>
         </div>
     </div>
@@ -169,7 +257,120 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="permissions_model" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">Edit Permission</h4>
+            </div>
+            <div class="modal-body">
+                <form class="permission_form">
+                    <div class="form-group">
+                        <label>Select User :</label>
+                        <select class="form-control" id="selectUserId" name="user">
+                            <option>Select</option>
+                            @foreach (App\User::where('is_active', '1')->get() as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Lanuage</label>
+                        <select class="form-control" name="lang" id="selectLangId">
+                            <option>Select</option>
+                            @foreach ($lang as $reply)
+                                <option value="{{$reply}}">{{$reply}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Action</label>
+                        <select class="form-control" name="action" id="actionId">
+                            <option>Select</option>
+                            <option value="view">view</option>
+                            <option value="edit">edit</option>
+                        </select>
+                    </div>
+                    <div class="d-none alert alert-class">
+
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-submit-form">Add
+                    Permission</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="history" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">History</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered text-wrap w-auto min-w-100">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Keyword</th>
+                        @foreach ($lang as $reply)
+                        <th width="5%">{{$reply}}</th>
+                        @endforeach
+                        <th>Updator</th>
+                        <th>Approver</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody class="data_history">
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="edit_model" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" class="form-update" action="{{route('reply.replyTranslateupdate')}}">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title position-absolute">Update Value</h4>
+                </div>
+                <div class="modal-body edit_model_body">
+                    @csrf
+                    <input type="text" name="update_record" class="form-control update_record" />
+                    <div class="d-none add_hidden_data"></div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" value="update" name="update" class="btn btn-secondary" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
+
+$(document).on('click', '.expand-row', function() {
+    var selection = window.getSelection();
+    if (selection.toString().length === 0) {
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+    }
+});
 
 $(document).on("click",".fa-trash-bin-record",function() {
     var $this = $(this);
@@ -229,8 +430,6 @@ $(document).on("click",".change-reply-text",function(e) {
     $("#reply-update-form-modal").modal("show");
 });
 
-
-
 $(document).on('click', '.show-reply-history', function() {
     var issueId = $(this).data('id');
     $('#reply_history_div table tbody').html('');
@@ -277,8 +476,101 @@ $(document).on('click', '.show_logs', function() {
     $('#reply_logs_modal').modal('show');
 });
 
+$(document).on('click', ".editbtn_model", function() {
+    setTimeout(function() {
+        $("#Show_message_display").modal('hide');
+    }, 1);
+    var id = $(this).data('id');
+    var formValue = $(this).data('value');
+    var userId = $(this).data('user');
+    var langId = $(this).data('lang');
+    $(".update_record").val(formValue);
+    let html = `<input type="hidden" name="update_by_user_id" value='`+userId+`'>
+        <input type="hidden" name="lang_id" value='`+langId+`'>
+        <input type="hidden" name="record_id" value='`+id+`'>`;
+    $(".add_hidden_data").html(html);
 
+});
 
+$(document).on('click','.history_model',function(){
+    setTimeout(function() {
+        $("#Show_message_display").modal('hide');
+    }, 0.1);
+    var id = $(this).data('id');
+    var key = $(this).data('key');
+    var language = $(this).data('lang');
+
+    $.ajax({
+        url:"{{ route('reply.replyTranslatehistory') }}",
+        method:'POST',
+        data:{'id':id,"key":key,"language":language,'_token':"{{csrf_token()}}"},
+        success:function(response){
+            $("#Show_message_display").modal('hide');
+            $(".data_history").html('');
+            if(response.data.length == 0){
+                $(".data_history").html('<tr colspan="12"><td class="text-center">No Data Found</td></tr>');
+            }else{
+                $(".data_history").html(response.data);
+            }
+        }
+    })
+});
+
+$(document).on('click', ".btn-submit-form", function() {
+    var userId = $("#selectUserId").val();
+    var langId = $("#selectLangId").val();
+    var actionId = $("#actionId").val();
+    $(".alert-class").text('');
+    $.ajax({
+        url:'{{route('reply.permissions')}}',
+        method:'POST',
+        data:{'user_id':userId,'lang_id':langId,'action':actionId,'_token':"{{csrf_token()}}"},
+        success:function(response){
+            if(response.status === 200){
+                $(".alert-class").text("Successfully added");
+                $(".alert-class").addClass("alert-success");
+                $(".alert-class").removeClass("alert-danger");
+                $(".alert-class").removeClass("d-none");
+                window.location.reload();
+            }else{
+                $("#selectUserId").val('');
+                $("#selectLangId").val('');
+                $("#actionId").val('');
+                $(".alert-class").removeClass("alert-success");
+                $(".alert-class").text("Permission already exist");
+                $(".alert-class").removeClass("d-none");
+                $(".alert-class").addClass("alert-danger");
+            }
+        }
+    })
+});
+
+$(document).on("change",'input:radio[name="radio1"]',function(){
+    var id,language,status;
+    if($(this).val() == 'checked'){
+        id = $(this).data('id');
+        language = $(this).data('lang');
+        status = "checked";
+    }else if($(this).val() == 'unchecked'){
+        id = $(this).data('id');
+        language = $(this).data('lang');
+        status = "unchecked";
+    }
+    $.ajax({
+        url:'{{route('reply.approved_by_admin')}}',
+        method:"POST",
+        data:{"id":id,"lang":language,"status":status,"_token":"{{csrf_token()}}"},
+        success:function(response){
+            if (response.status == 200)
+            {
+                toastr["success"]('Data Updated Successully');
+                location.reload();
+            }else {
+                toastr["error"]('Unable to update this record!');
+            }
+        }
+    })
+});
 
 function updateTranslateReply(ele) {
     let btn = jQuery(ele);
@@ -325,7 +617,5 @@ function updateTranslateReply(ele) {
         });
     }
 }
-
-
 </script>
 @endsection
