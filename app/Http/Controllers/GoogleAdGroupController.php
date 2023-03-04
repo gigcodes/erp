@@ -255,7 +255,7 @@ class GoogleAdGroupController extends Controller
             $addgroupArray['adgroup_response'] = json_encode($addedAdGroup);
             \App\GoogleAdsGroup::create($addgroupArray);
 
-            // Insert google ads log 
+            // Insert google ads lo g
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Ad Group',
@@ -275,7 +275,7 @@ class GoogleAdGroupController extends Controller
                     );
             insertGoogleAdsLog($input);
 
-            return redirect('google-campaigns/'.$campaignId.'/adgroups/create')->with('actError', $this->exceptionError);
+            return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actError', $this->exceptionError);
         }
     }
 

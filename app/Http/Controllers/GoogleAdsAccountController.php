@@ -140,7 +140,7 @@ class GoogleAdsAccountController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googleadsaccounts.update', ['account' => $googleAdsAc, 'store_website' => $store_website]);
+        return $googleAdsAc;
     }
 
     public function updateGoogleAdsAccount(Request $request)

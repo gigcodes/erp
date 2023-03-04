@@ -2994,6 +2994,7 @@ if (!empty($notifications)) {
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ url('sop') }}">SOP</a>
                                         </li>
+                                        <li>
                                         <a class="dropdown-item"
                                             href="{{ route('gtmetrix.error.index.list') }}">GTMetrix Error log</a>
                                 </li>
@@ -3016,6 +3017,21 @@ if (!empty($notifications)) {
                             @endif
                             <li  class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
+                            </li>
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
+                            </li>
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
+                            </li>
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('googleadsaccount.adsgroupslist')}}">Google Ads groups</a>
+                            </li>
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('googlecampaigns.adslist')}}">Google Ads</a>
+                            </li>
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('googlecampaigns.displayads')}}">Google Responsive Display Ads</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
