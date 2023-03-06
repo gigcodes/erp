@@ -444,6 +444,8 @@
             $this.removeAttr('disabled');
             if (response.code == 200) {
                 $("#product-attribute-detail").modal('show');
+                $("#update_attribute_form")[0].reset();
+                $('#update_attribute_form .select-multiple2').val('').trigger('change');
                 $("#update_attribute_id").val(response.results.status_id);
                 $("#product_id").val(response.results.id);
                 $("#lbl_product_id").text(response.results.id);
