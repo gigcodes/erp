@@ -25,6 +25,11 @@ use Google\Ads\GoogleAds\V12\Resources\AdGroupCriterion;
 use Google\Ads\GoogleAds\V12\Services\AdGroupCriterionOperation;
 use Illuminate\Http\Request;
 use App\Models\GoogleAdGroupKeyword;
+use App\Models\GoogleResponsiveDisplayAd;
+use App\Models\GoogleResponsiveDisplayAdMarketingImage;
+use App\Models\GoogleAppAd;
+use App\Models\GoogleAppAdImage;
+use App\GoogleAd;
 
 class GoogleAdGroupController extends Controller
 {
@@ -274,7 +279,6 @@ class GoogleAdGroupController extends Controller
                 ini_set('max_execution_time', -1);
 
                 $keywordArr = array_slice(explode(",", $keywords), 0, 80);
-                $inputKeyword = [];
 
                 foreach($keywordArr as $key => $keyword){
                     $keyword = substr($keyword, 0, 80);
@@ -306,7 +310,7 @@ class GoogleAdGroupController extends Controller
                     if(!empty($keywordResourceName)){
                         $keywordId = substr($keywordResourceName, strrpos($keywordResourceName, "~") + 1);
 
-                        $inputKeyword[$key] = array(
+                        $inputKeyword = array(
                                         'google_customer_id' => $customerId,
                                         'adgroup_google_campaign_id' => $campaignId,
                                         'google_adgroup_id' => $adGroupId,
@@ -315,10 +319,15 @@ class GoogleAdGroupController extends Controller
                                         'created_at'=> date("Y-m-d H:i:s"),
                                         'updated_at'=> date("Y-m-d H:i:s")
                                     );
+
+                        GoogleAdGroupKeyword::updateOrCreate(
+                                            [
+                                                'google_adgroup_id' => $adGroupId,
+                                                'keyword' => $keyword,
+                                            ],
+                                            $inputKeyword
+                                        );
                     }
-                }
-                if(!empty($inputKeyword)){
-                    GoogleAdGroupKeyword::insert($inputKeyword);
                 }
             }
             // End keyword
@@ -539,6 +548,14 @@ class GoogleAdGroupController extends Controller
                         'message' => "Deleted ad group for ". $campaign_name,
                         'response' => json_encode($adGroup)
                     );
+
+            // Delete other data
+            GoogleAdGroupKeyword::where('google_adgroup_id', $adGroupId)->delete();
+            GoogleResponsiveDisplayAd::where('google_adgroup_id', $adGroupId)->delete();
+            // GoogleResponsiveDisplayAdMarketingImage::where('google_adgroup_id', $adGroupId)->delete();
+            GoogleAppAd::where('google_adgroup_id', $adGroupId)->delete();
+            // GoogleAppAdImage::where('google_adgroup_id', $adGroupId)->delete();
+            GoogleAd::where('google_adgroup_id', $adGroupId)->delete();
 
             $adGroup->delete();
 

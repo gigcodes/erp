@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
 use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
 use Google\Ads\GoogleAds\V12\Resources\AdGroupCriterion;
 use Google\Ads\GoogleAds\V12\Services\AdGroupCriterionOperation;
+use Google\Ads\GoogleAds\V12\Common\KeywordInfo;
+use Google\Ads\GoogleAds\V12\Enums\KeywordMatchTypeEnum\KeywordMatchType;
+use Google\Ads\GoogleAds\V12\Enums\AdGroupCriterionStatusEnum\AdGroupCriterionStatus;
 
 use Illuminate\Http\Request;
 use App\Models\GoogleAdGroupKeyword;
@@ -38,7 +42,7 @@ class GoogleAdGroupKeywordController extends Controller
 
     public function getAccountDetail($campaignId)
     {
-        $campaignDetail = GoogleAdsCampaign::where('google_campaign_id', $campaignId)->first();
+        $campaignDetail = GoogleAdsCampaign::where('google_campaign_id', $campaignId)->where('channel_type','SEARCH')->first();
         if ($campaignDetail->exists() > 0) {
             return [
                 'account_id' => $campaignDetail->account_id,
@@ -90,6 +94,143 @@ class GoogleAdGroupKeywordController extends Controller
         insertGoogleAdsLog($input);
 
         return view('google_ad_group_keyword.index', ['keywords' => $keywords, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'ad_group_name' => $ad_group_name, 'campaign_account_id' => $campaign_account_id, 'adGroupId' => $adGroupId]);
+    }
+
+    // create page
+    public function createPage($campaignId, $adGroupId)
+    {
+        $acDetail = $this->getAccountDetail($campaignId);
+
+        $where = array(
+                    'google_adgroup_id' => $adGroupId,
+                    'adgroup_google_campaign_id' => $campaignId,
+                );
+
+        $adGroup = GoogleAdsGroup::where($where)->firstOrFail();
+        $ad_group_name = $adGroup->ad_group_name;
+
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Ad Group keyword',
+                    'message' => "Viewed create ad group keyword for ". $ad_group_name
+                );
+        insertGoogleAdsLog($input);
+
+        return view('google_ad_group_keyword.create', ['campaignId' => $campaignId, 'ad_group_name' => $ad_group_name, 'adGroupId' => $adGroupId]);
+    }
+
+    // create ad group
+    public function createKeyword(Request $request, $campaignId, $adGroupId)
+    {
+        $rules = array('suggested_keywords' => 'required');
+        $this->validate($request, $rules);
+
+        $acDetail = $this->getAccountDetail($campaignId);
+        $account_id = $acDetail['account_id'];
+        $campaign_name = $acDetail['campaign_name'];
+        $customerId = $acDetail['google_customer_id'];
+
+        $where = array(
+                    'google_adgroup_id' => $adGroupId,
+                    'adgroup_google_campaign_id' => $campaignId,
+                );
+
+        $adGroup = GoogleAdsGroup::where($where)->firstOrFail();
+        $ad_group_name = $adGroup->ad_group_name;
+
+        try {
+
+            $storagepath = $this->getstoragepath($account_id);
+
+            // Get OAuth2 configuration from file.
+            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
+
+            // Generate a refreshable OAuth2 credential for authentication.
+            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
+
+            $googleAdsClient = (new GoogleAdsClientBuilder())
+                                ->from($oAuth2Configuration)
+                                ->withOAuth2Credential($oAuth2Credential)
+                                ->build();
+
+            // Start keyword
+            ini_set('max_execution_time', -1);
+
+            $keywordArr = array_slice(explode(",", $request->suggested_keywords), 0, 80);
+
+            foreach($keywordArr as $key => $keyword){
+                $keyword = substr($keyword, 0, 80);
+
+                $keywordInfo = new KeywordInfo([
+                    'text' => $keyword,
+                    'match_type' => KeywordMatchType::EXACT
+                ]);  
+
+                // Constructs an ad group criterion using the keyword text info above.
+                $adGroupCriterion = new AdGroupCriterion([
+                    'ad_group' => ResourceNames::forAdGroup($customerId, $adGroupId),
+                    'status' => AdGroupCriterionStatus::ENABLED,
+                    'keyword' => $keywordInfo
+                ]);
+
+                $adGroupCriterionOperation = new AdGroupCriterionOperation();
+                $adGroupCriterionOperation->setCreate($adGroupCriterion);
+
+                // Issues a mutate request to add the ad group criterion.
+                $adGroupCriterionServiceClient = $googleAdsClient->getAdGroupCriterionServiceClient();
+                $response = $adGroupCriterionServiceClient->mutateAdGroupCriteria(
+                    $customerId,
+                    [$adGroupCriterionOperation]
+                );
+
+                $addedKeyword = $response->getResults()[0];
+                $keywordResourceName = $addedKeyword->getResourceName();
+                if(!empty($keywordResourceName)){
+                    $keywordId = substr($keywordResourceName, strrpos($keywordResourceName, "~") + 1);
+
+                    $inputKeyword = array(
+                                    'google_customer_id' => $customerId,
+                                    'adgroup_google_campaign_id' => $campaignId,
+                                    'google_adgroup_id' => $adGroupId,
+                                    'google_keyword_id' => $keywordId,
+                                    'keyword' => $keyword,
+                                    'created_at'=> date("Y-m-d H:i:s"),
+                                    'updated_at'=> date("Y-m-d H:i:s")
+                                );
+                    
+                    GoogleAdGroupKeyword::updateOrCreate(
+                                            [
+                                                'google_adgroup_id' => $adGroupId,
+                                                'keyword' => $keyword,
+                                            ],
+                                            $inputKeyword
+                                        );
+                }
+            }
+            // End keyword
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Ad Group keyword',
+                        'message' => "Created ad group keyword for ". $ad_group_name,
+                        'response' => json_encode($inputKeyword)
+                    );
+            insertGoogleAdsLog($input);
+
+            return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ad-group-keyword')->with('actSuccess', 'Ad group keywords added successfully');
+        } catch (Exception $e) {
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Ad Group keyword',
+                        'message' => "Create ad group keyword > ". $e->getMessage()
+                    );
+            insertGoogleAdsLog($input);
+            return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ad-group-keyword/create')->with('actError', $this->exceptionError);
+        }
     }
 
     // delete keyword

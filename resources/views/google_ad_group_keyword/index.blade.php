@@ -26,9 +26,9 @@
 
 
     <button class="btn-image" onclick="window.location.href='/google-campaigns/{{$campaignId}}/adgroups'">Back to ad groups</button></h4>
-        {{-- <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/create">
-            <button type="submit" class="btn-sm float-right mb-3">New Ad Group</button>
-        </form> --}}
+        <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ad-group-keyword/create">
+            <button type="submit" class="btn-sm float-right mb-3">New Keyword</button>
+        </form>
    
         <table class="table table-bordered" id="adsgroup-table">
             <thead>
