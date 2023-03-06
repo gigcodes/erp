@@ -5051,7 +5051,7 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        /*try {
+                        try {
                             PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
                         } catch (\Exception $e) {
                             $error_msg = 'First Job failed: '.$e->getMessage();
@@ -5059,7 +5059,7 @@ class ProductController extends Controller
                             $log->message = $error_msg;
                             $log->save();
                             ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $log->id, null);
-                        }*/
+                        }
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
@@ -5167,7 +5167,7 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        // PushToMagentoJob::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
+                        PushToMagentoJob::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
