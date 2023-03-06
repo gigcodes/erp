@@ -91,7 +91,11 @@ class UnknownAttributeProductController extends Controller
                         } else if($status_id == StatusHelper::$unknownSize) {
                             $original_value = $old_size;
                         } else if($status_id == StatusHelper::$unknownMeasurement) {
-                            $original_value = $old_lmeasurement.' * '.$old_hmeasurement.' * '.$old_dmeasurement;
+                            if($old_lmeasurement=='' && $old_hmeasurement=='' && $old_dmeasurement=='') {
+                                $original_value = '';
+                            } else {
+                                $original_value = $old_lmeasurement.' * '.$old_hmeasurement.' * '.$old_dmeasurement;    
+                            }
                         }
                         
                     } else if($status_id == StatusHelper::$unknownCategory) {
@@ -351,7 +355,11 @@ class UnknownAttributeProductController extends Controller
                     } else if($status_id == StatusHelper::$unknownSize) {
                         $product->original_value = $old_size;
                     } else if($status_id == StatusHelper::$unknownMeasurement) {
-                        $product->original_value = $old_lmeasurement.' * '.$old_hmeasurement.' * '.$old_dmeasurement;
+                        if($old_lmeasurement=='' && $old_hmeasurement=='' && $old_dmeasurement=='') {
+                            $original_value = '';
+                        } else {
+                            $product->original_value = $old_lmeasurement.' * '.$old_hmeasurement.' * '.$old_dmeasurement;
+                        }
                     }
                     
                 } else if($status_id == StatusHelper::$unknownCategory) {
