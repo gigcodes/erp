@@ -70,7 +70,10 @@ class UnknownAttributeProductController extends Controller
                         foreach ($attribute_histories as $ah_key => $ah_value) {
                             
                             if($ah_value->attribute_name == 'category') {
-                                $old_category = $ah_value->old_category->title;
+                                $old_category = $ah_value->old_value;
+                                if(isset($ah_value->old_category) && !empty($ah_value->old_category)) {
+                                    $old_category = $ah_value->old_category->title;
+                                }
                             } else if($ah_value->attribute_name == 'size'){
                                 $old_size = $ah_value->old_value;
                             } else if($ah_value->attribute_name == 'lmeasurement'){
@@ -196,13 +199,16 @@ class UnknownAttributeProductController extends Controller
                 
                 if($request->attribute_id == StatusHelper::$unknownSize) {
                     $old_value_size =  $find_product->size;
-                    
-                    $find_product->size = $request->replace_size;
+                    $new_value_size = '';
+                    if(isset($request->replace_size) && is_array($request->replace_size)) {
+                        $new_value_size = implode(',',$request->replace_size);
+                    }
+                    $find_product->size = $new_value_size;
                     $find_product->save();
                     
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
                         'old_value' => $old_value_size,
-                        'new_value' => $request->replace_size,
+                        'new_value' => $new_value_size,
                         'attribute_name' => 'size',
                         'attribute_id' => $request->attribute_id,
                         'product_id' => $request->product_id,
@@ -266,13 +272,13 @@ class UnknownAttributeProductController extends Controller
                     
                 } else if($request->attribute_id == StatusHelper::$unknownColor) {
                     $old_value_color =  $find_product->color;
-                    
-                    $find_product->color = $request->replace_color;
+                    $new_value_color = ($request->replace_color!= 'NULL')?$request->replace_color:null;
+                    $find_product->color = $new_value_color;
                     $find_product->save();
                     
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
                         'old_value' => $old_value_color,
-                        'new_value' => $request->replace_color,
+                        'new_value' => $new_value_color,
                         'attribute_name' => 'color',
                         'attribute_id' => $request->attribute_id,
                         'product_id' => $request->product_id,
@@ -324,7 +330,10 @@ class UnknownAttributeProductController extends Controller
                     foreach ($attribute_histories as $ah_key => $ah_value) {
                         
                         if($ah_value->attribute_name == 'category') {
-                            $old_category = $ah_value->old_category->title;
+                            $old_category = $ah_value->old_value;
+                            if(isset($ah_value->old_category) && !empty($ah_value->old_category)) {
+                                $old_category = $ah_value->old_category->title;
+                            }
                         } else if($ah_value->attribute_name == 'size'){
                             $old_size = $ah_value->old_value;
                         } else if($ah_value->attribute_name == 'lmeasurement'){
