@@ -118,6 +118,9 @@
 				@endforeach
 			</tbody>
 		</table>
+		<div class="d-flex justify-content-center">
+			{!! $databaseLogs->links() !!}
+		</div>
 	</div>
 
 	<div id="chat-list-history" class="modal fade" role="dialog">
