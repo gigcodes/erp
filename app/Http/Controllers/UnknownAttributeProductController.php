@@ -196,13 +196,16 @@ class UnknownAttributeProductController extends Controller
                 
                 if($request->attribute_id == StatusHelper::$unknownSize) {
                     $old_value_size =  $find_product->size;
-                    
-                    $find_product->size = $request->replace_size;
+                    $new_value_size = '';
+                    if(isset($request->replace_size) && is_array($request->replace_size)) {
+                        $new_value_size = implode(',',$request->replace_size);
+                    }
+                    $find_product->size = $new_value_size;
                     $find_product->save();
                     
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
                         'old_value' => $old_value_size,
-                        'new_value' => $request->replace_size,
+                        'new_value' => $new_value_size,
                         'attribute_name' => 'size',
                         'attribute_id' => $request->attribute_id,
                         'product_id' => $request->product_id,
