@@ -91,7 +91,8 @@
                                 <div class="row">
                                     <div class="form-group col-md-6 attribute_category_box d-none">
                                         <label>Original Category:</label><br>
-                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="find_category"  name="find_category">
+                                        <select data-placeholder="Select Category"  class="form-control select-multiple2" id="find_category"  name="find_category">
+                                            <option value="0">0</option>
                                             @foreach($categories as $category_key => $category)
                                                 <option value="{{ $category->id }}">{{ $category->title}}</option>
                                             @endforeach
@@ -99,7 +100,8 @@
                                     </div>
                                     <div class="form-group col-md-6 attribute_category_box d-none">
                                         <label>ERP Category:</label><br>
-                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_category"  name="replace_category">
+                                        <select data-placeholder="Select Category"  class="form-control select-multiple2" id="replace_category"  name="replace_category">
+                                            <option value="0">0</option>
                                             @foreach($categories as $category_key => $category)
                                                 <option value="{{ $category->id }}">{{ $category->title}}</option>
                                             @endforeach
@@ -108,6 +110,7 @@
                                     <div class="form-group col-md-6 attribute_color_box d-none">
                                         <label>Original Colors:</label><br>
                                         <select data-placeholder="Select Color"  class="form-control select-multiple2" id="find_color"  name="find_color">
+                                            <option value="NULL">NULL</option>
                                             @foreach($colors as $color_key => $color)
                                                 <option value="{{ $color }}">{{ $color}}</option>
                                             @endforeach
@@ -117,6 +120,7 @@
                                     <div class="form-group col-md-6 attribute_color_box d-none">
                                         <label>ERP Colors:</label><br>
                                         <select data-placeholder="Select Color"  class="form-control select-multiple2" id="replace_color"  name="replace_color">
+                                            <option value="NULL">NULL</option>
                                             @foreach($colors as $color_key => $color)
                                                 <option value="{{ $color }}">{{ $color}}</option>
                                             @endforeach
@@ -234,7 +238,8 @@
                                 <div class="row">
                                     <div class="form-group col-md-6 product_attribute_category_box d-none">
                                         <label>Select Category:</label><br>
-                                        <select data-placeholder="Select Color"  class="form-control select-multiple2" id="product_replace_category"  name="replace_category">
+                                        <select data-placeholder="Select Category"  class="form-control select-multiple2" id="product_replace_category"  name="replace_category">
+                                            <option value="0">0</option>
                                             @foreach($categories as $category_key => $category)
                                                 <option value="{{ $category->id }}">{{ $category->title}}</option>
                                             @endforeach
@@ -243,6 +248,7 @@
                                     <div class="form-group col-md-6 product_attribute_color_box d-none">
                                         <label>Select Color:</label><br>
                                         <select data-placeholder="Select Color"  class="form-control select-multiple2" id="product_replace_color"  name="replace_color">
+                                            <option value="NULL">NULL</option>
                                             @foreach($colors as $color_key => $color)
                                                 <option value="{{ $color }}">{{ $color}}</option>
                                             @endforeach

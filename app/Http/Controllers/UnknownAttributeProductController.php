@@ -272,13 +272,13 @@ class UnknownAttributeProductController extends Controller
                     
                 } else if($request->attribute_id == StatusHelper::$unknownColor) {
                     $old_value_color =  $find_product->color;
-                    
-                    $find_product->color = $request->replace_color;
+                    $new_value_color = ($request->replace_color!= 'NULL')?$request->replace_color:null;
+                    $find_product->color = $new_value_color;
                     $find_product->save();
                     
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
                         'old_value' => $old_value_color,
-                        'new_value' => $request->replace_color,
+                        'new_value' => $new_value_color,
                         'attribute_name' => 'color',
                         'attribute_id' => $request->attribute_id,
                         'product_id' => $request->product_id,
