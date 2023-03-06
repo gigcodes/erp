@@ -4,7 +4,15 @@
         <td>{{$record->created_at}}</td>
         <td>{{$record->attribute_name}}</td>
         @if($record->attribute_name == 'category')
-            <td>{{$record->old_category->title}}</td>
+            <td>
+                @php
+                $old_category = $record->old_value;
+                if(isset($record->old_category) && !empty($record->old_category)){
+                    $old_category = $record->old_category->title;
+                }
+                echo $old_category;
+                @endphp
+            </td>
             <td>{{$record->new_category->title}}</td>
         @else
             <td>{{$record->old_value}}</td>
