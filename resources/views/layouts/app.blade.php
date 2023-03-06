@@ -3079,7 +3079,7 @@ if (!empty($notifications)) {
                                             States</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
+                                        <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage
