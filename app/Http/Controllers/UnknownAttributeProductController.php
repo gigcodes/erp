@@ -70,7 +70,10 @@ class UnknownAttributeProductController extends Controller
                         foreach ($attribute_histories as $ah_key => $ah_value) {
                             
                             if($ah_value->attribute_name == 'category') {
-                                $old_category = $ah_value->old_category->title;
+                                $old_category = $ah_value->old_value;
+                                if(isset($ah_value->old_category) && !empty($ah_value->old_category)) {
+                                    $old_category = $ah_value->old_category->title;
+                                }
                             } else if($ah_value->attribute_name == 'size'){
                                 $old_size = $ah_value->old_value;
                             } else if($ah_value->attribute_name == 'lmeasurement'){
@@ -327,7 +330,10 @@ class UnknownAttributeProductController extends Controller
                     foreach ($attribute_histories as $ah_key => $ah_value) {
                         
                         if($ah_value->attribute_name == 'category') {
-                            $old_category = $ah_value->old_category->title;
+                            $old_category = $ah_value->old_value;
+                            if(isset($ah_value->old_category) && !empty($ah_value->old_category)) {
+                                $old_category = $ah_value->old_category->title;
+                            }
                         } else if($ah_value->attribute_name == 'size'){
                             $old_size = $ah_value->old_value;
                         } else if($ah_value->attribute_name == 'lmeasurement'){
