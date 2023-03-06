@@ -140,10 +140,12 @@ class ProceesPushFaq implements ShouldQueue
 
                                 if(!empty($translateReplies->translate_text))
                                 {
-                                    $platform_id    =   $translateReplies->platform_id;
+                                    $platform_id    =   (new \App\Models\FaqPlatformDetails)->getFaqPlatformId($translateReplies->id, $store_website_id,  $storeValue,   'translate');
+                                    // $platform_id    =   $translateReplies->platform_id;
                                 }
-                                else if($replyInfo->platform_id && !empty($replyInfo->platform_id)){
-                                    $platform_id    =   $replyInfo->platform_id;
+                                else{
+                                    $platform_id    =   (new \App\Models\FaqPlatformDetails)->getFaqPlatformId($replyInfo->id, $store_website_id,  $storeValue,     'reply');
+                                    // $platform_id    =   $replyInfo->platform_id;
                                 }
 
                                 if (!empty($platform_id)) {
@@ -175,12 +177,23 @@ class ProceesPushFaq implements ShouldQueue
                                     
                                     if(!empty($translateReplies->translate_text))
                                     {
-                                        $translateReplies->platform_id     =   $response->id;
-                                        $translateReplies->save();
+                                        $platformDetails                    =    new \App\Models\FaqPlatformDetails;
+                                        $platformDetails->reply_id          =   $replyInfo->id;
+                                        $platformDetails->store_website_id  =   $store_website_id;
+                                        $platformDetails->store_code        =   $storeValue;
+                                        $platformDetails->type              =   'translate';
+                                        $platformDetails->save();
+
+                                        // $translateReplies->platform_id     =   $response->id;
+                                        // $translateReplies->save();
                                     }
                                     else if($replyInfo->platform_id && !empty($replyInfo->platform_id)){
-                                        $replyInfo->platform_id     =   $response->id;
-                                        $replyInfo->save();
+                                        $platformDetails                    =    new \App\Models\FaqPlatformDetails;
+                                        $platformDetails->reply_id          =   $replyInfo->id;
+                                        $platformDetails->store_website_id  =   $store_website_id;
+                                        $platformDetails->store_code        =   $storeValue;
+                                        $platformDetails->type              =   'reply';
+                                        $platformDetails->save();
                                     }
                                 }
 
