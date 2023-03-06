@@ -77,7 +77,7 @@
                 
                 <div class="col-md-6 border">
                     <form id="attribute_form">
-                        <h3 class="text-center mt-3 mb-3">Attribute</h3>
+                        <h3 class="text-center mt-3 mb-3">Bulk Update</h3>
                         <div class="row p-2">
                             <div class="form-group col-md-4">
                                 <label>Attribute assignment:</label>

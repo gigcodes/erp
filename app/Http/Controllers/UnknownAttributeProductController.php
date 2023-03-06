@@ -140,12 +140,22 @@ class UnknownAttributeProductController extends Controller
         if( $request->attribute_id == StatusHelper::$unknownCategory) {
             $validateArr['find_category'] = 'nullable';
             $validateArr['replace_category'] = 'nullable';
+            if($request->find_category == $request->replace_category) {
+                return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
+            }
         } else if( $request->attribute_id ==  StatusHelper::$unknownColor) {
             $validateArr['find_color'] = 'nullable';
             $validateArr['replace_color'] = 'nullable';
+            
+            if($request->find_color == $request->replace_color) {
+                return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
+            }
         } else if( $request->attribute_id ==  StatusHelper::$unknownSize) {
             $validateArr['find_size'] = 'nullable';
             $validateArr['replace_size'] = 'nullable';
+            if($request->find_size == $request->replace_size) {
+                return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
+            }
         } else if( $request->attribute_id == StatusHelper::$unknownMeasurement) {
             $validateArr['find_lmeasurement'] = 'nullable';
             $validateArr['replace_lmeasurement'] = 'nullable';
@@ -155,6 +165,10 @@ class UnknownAttributeProductController extends Controller
            
             $validateArr['find_dmeasurement'] = 'nullable';
             $validateArr['replace_dmeasurement'] = 'nullable';
+            
+            if($request->find_lmeasurement == $request->replace_lmeasurement || $request->find_hmeasurement == $request->replace_hmeasurement || $request->find_dmeasurement == $request->replace_dmeasurement) {
+                return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
+            }
         }
         $validator = Validator::make($request->all(), $validateArr);
 
@@ -207,6 +221,10 @@ class UnknownAttributeProductController extends Controller
                     if(isset($request->replace_size) && is_array($request->replace_size)) {
                         $new_value_size = implode(',',$request->replace_size);
                     }
+                    if($find_product->size == $new_value_size) {
+                        return response()->json(['code' => 500, 'message' => 'Same size are not allowed!']);
+                    }
+                    
                     $find_product->size = $new_value_size;
                     $find_product->save();
                     
@@ -225,6 +243,10 @@ class UnknownAttributeProductController extends Controller
                     $old_value_lmeasurement =  $find_product->lmeasurement;
                     $old_value_hmeasurement =  $find_product->hmeasurement;
                     $old_value_dmeasurement =  $find_product->dmeasurement;
+                    
+                    if($old_value_lmeasurement == $request->replace_lmeasurement || $old_value_hmeasurement == $request->replace_hmeasurement || $old_value_dmeasurement == $request->replace_dmeasurement) {
+                        return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
+                    }
                     
                     $find_product->lmeasurement = $request->replace_lmeasurement;
                     $find_product->hmeasurement = $request->replace_hmeasurement;
@@ -260,6 +282,9 @@ class UnknownAttributeProductController extends Controller
                     ]);
                     
                 } else if($request->attribute_id == StatusHelper::$unknownCategory) {
+                    if($find_product->category == $request->replace_category) {
+                        return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
+                    }
                     $old_value_category =  $find_product->category;
                     
                     $find_product->category = $request->replace_category;
@@ -277,6 +302,11 @@ class UnknownAttributeProductController extends Controller
                 } else if($request->attribute_id == StatusHelper::$unknownColor) {
                     $old_value_color =  $find_product->color;
                     $new_value_color = ($request->replace_color!= 'NULL')?$request->replace_color:null;
+                    
+                    if($old_value_color == $new_value_color) {
+                        return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
+                    }
+                    
                     $find_product->color = $new_value_color;
                     $find_product->save();
                     
