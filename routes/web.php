@@ -119,6 +119,7 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
 use App\Http\Controllers\GoogleSearchController;
@@ -329,9 +330,13 @@ use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+use App\Http\Controllers\GoogleAppAdController;
+use App\Http\Controllers\UnknownAttributeProductController;
+use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -637,6 +642,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
+    Route::get('incorrect-attributes', [UnknownAttributeProductController::class,'index'])->name('incorrect-attributes');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
+    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
+    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -667,6 +677,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('roles/update/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::resource('permissions', PermissionController::class);
     Route::get('permissions/grandaccess/users', [PermissionController::class, 'users'])->name('permissions.users');
+    Route::get('permissions/grandaccess/delete', [PermissionController::class, 'delete_record'])->name('permissions.delete');
     Route::get('unauthorized', [RoleController::class, 'unAuthorized']);
     Route::get('search_role', [RoleController::class, 'search_role'])->name('search_role');
     Route::get('users/logins', [UserController::class, 'login'])->name('users.login.index');
@@ -872,7 +883,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
     Route::get('sop/search', [SopController::class, 'search']);
-    Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch']);
+    Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch'])->name('menu.sop.search');
     Route::get('soplogs', [SopController::class, 'sopnamedata_logs'])->name('sopname.logs');
     Route::get('sop/DownloadData/{id}', [SopController::class, 'downloaddata'])->name('sop.download');
     // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
@@ -931,6 +942,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('reply-logs', [ChatbotMessageLogsController::class, 'replyLogs'])->name('reply.replylogs');
     Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
     Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
+
+    Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', [AutoReplyController::class, 'updateReply']);
@@ -2191,6 +2204,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::delete('vendors/{vendor}/payments/{vendor_payment}', [VendorPaymentController::class, 'destroy'])->name('vendors.payments.destroy');
     Route::resource('vendors', VendorController::class);
     Route::post('vendors/update-status', [VendorController::class, 'updateStatus'])->name('vendor.status.update');
+    Route::get('vendors/meetings/list', [VendorController::class, 'zoomMeetingList'])->name('vendor.meeting.list');
+    Route::post('vendors/update-meeting-description', [VendorController::class, 'updateMeetingDescription'])->name('vendor.meeting.update');
+    Route::post('vendors/refresh-meetings-recordings', [VendorController::class, 'refreshMeetingList'])->name('vendor.meeting.refresh');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');
@@ -2307,6 +2323,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('merge-category', [VendorCategoryController::class, 'mergeCategory'])->name('vendor-category.merge-category');
         Route::get('/permission', [VendorCategoryController::class, 'usersPermission'])->name('vendor-category.permission');
         Route::post('/update/permission', [VendorCategoryController::class, 'updatePermission'])->name('vendor-category.update.permission');
+        Route::get('/', [VendorCategoryController::class, 'index'])->name('vendor-category.index');
 
         Route::prefix('{id}')->group(function () {
             Route::get('edit', [VendorCategoryController::class, 'edit'])->name('vendor-category.edit');
@@ -2518,7 +2535,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 * This route will push the FAQ to series of website with help of API
 */
 Route::middleware('auth')->group(function () {
-	Route::post('push/faq', 		[FaqPushController::class, 'pushFaq']);
+	Route::post('push/faq', 			[FaqPushController::class, 'pushFaq']);
 	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
@@ -2560,12 +2577,14 @@ Route::any('twilio/saverecording', [TwilioController::class, 'saveRecording'])->
 Route::post('twilio/update-reservation-status', [TwilioController::class, 'updateReservationStatus'])->name('update_reservation_status');
 
 Route::get('twilio/reject-call-twiml', [TwilioController::class, 'rejectIncomingCallTwiml'])->name('twilio.reject_call_twiml');
-Route::post('twilio/cancel-task-record', [TwilioController::class, 'canceldTaskRecord'])->name('twilio.cancel_task_record');
-Route::post('twilio/store-cancel-task-record', [TwilioController::class, 'storeCanceldTaskRecord'])->name('twilio.store_cancel_task_record');
-Route::post('twilio/store-complete-task-record', [TwilioController::class, 'storeCompleteTaskRecord'])->name('twilio.store_complete_task_record');
+Route::any('twilio/cancel-task-record', [TwilioController::class, 'canceldTaskRecord'])->name('twilio.cancel_task_record');
+Route::any('twilio/store-cancel-task-record', [TwilioController::class, 'storeCanceldTaskRecord'])->name('twilio.store_cancel_task_record');
+Route::any('twilio/store-complete-task-record', [TwilioController::class, 'storeCompleteTaskRecord'])->name('twilio.store_complete_task_record');
 
 Route::get(
     '/twilio/hangup', [TwilioController::class, 'showHangup'])->name('hangup');
+
+Route::post('twilio/handleIncomingCall', [TwilioController::class, 'handleIncomingCall'])->name('handleIncomingCall');;
 
 Route::get('exotel/outgoing', [ExotelController::class, 'call'])->name('exotel.call');
 Route::get('exotel/checkNumber', [ExotelController::class, 'checkNumber']);
@@ -2852,6 +2871,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('list-message', [SocialAccountController::class, 'listMessage'])->name('social.message.list');
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
+    Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
@@ -3683,6 +3703,13 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/flag', [GoogleAffiliateController::class, 'flag'])->name('affiliate.flag');
     Route::post('affiliate/email/send', [GoogleAffiliateController::class, 'emailSend'])->name('affiliate.email.send');
     Route::get('/affiliate/scrap', [GoogleAffiliateController::class, 'callScraper'])->name('google.affiliate.keyword.scrap');
+    //Google Developer API
+// Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
+
+Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+// Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
+Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -3843,6 +3870,15 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::post('/create', [GoogleResponsiveDisplayAdController::class, 'createAd'])->name('responsive-display-ad.craeteAd');
                     Route::delete('/delete/{adId}', [GoogleResponsiveDisplayAdController::class, 'deleteAd'])->name('responsive-display-ad.deleteAd');
                     Route::get('/{adId}', [GoogleResponsiveDisplayAdController::class, 'show'])->name('responsive-display-ad.show');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('app-ad')->group(function () {
+                    Route::get('/', [GoogleAppAdController::class, 'index'])->name('app-ad.index');
+                    Route::get('/create', [GoogleAppAdController::class, 'createPage'])->name('app-ad.createPage');
+                    Route::post('/create', [GoogleAppAdController::class, 'createAd'])->name('app-ad.craeteAd');
+                    Route::get('/{adId}', [GoogleAppAdController::class, 'show'])->name('app-ad.show');
                 });
             });
         });
@@ -4251,7 +4287,14 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 // DEV MANISH
 //System size
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
+    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');    
+});
+
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+    Route::any('/sentry-log', [SentryLogController::class, 'index'])->name('sentry-log');
+    Route::post('sentry-log/display-user-account', [SentryLogController::class, 'displayUserAccountList'])->name('sentry.display-user');
+    Route::post('sentry-log/saveuseraccount', [SentryLogController::class, 'saveUserAccount'])->name('sentry.adduser');
+    Route::post('sentry-log/refresh_logs', [SentryLogController::class, 'refreshLogs'])->name('sentry.refresh-logs');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
@@ -4425,6 +4468,9 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('config/store', [Social\SocialConfigController::class, 'store'])->name('social.config.store');
     Route::post('config/edit', [Social\SocialConfigController::class, 'edit'])->name('social.config.edit');
     Route::post('config/delete', [Social\SocialConfigController::class, 'destroy'])->name('social.config.delete');
+    Route::get('config/adsmanager', [Social\SocialConfigController::class, 'getadsAccountManager'])->name('social.config.adsmanager');
+    Route::get('config/fbtoken', [Social\SocialConfigController::class, 'getfbToken'])->name('social.config.fbtoken');
+    Route::get('config/fbtokenback', [Social\SocialConfigController::class, 'getfbTokenBack'])->name('social.config.fbtokenback');
 
     Route::get('posts/{id}', [Social\SocialPostController::class, 'index'])->name('social.post.index');
     Route::post('post/store', [Social\SocialPostController::class, 'store'])->name('social.post.store');
@@ -4553,3 +4599,16 @@ Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('tasksS
 Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList');
 Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList');
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
+
+
+
+Route::prefix('appconnect')->middleware('auth')->group(function () {
+Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
+Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
+Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
+Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
+Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+ });
+
+   

@@ -74,7 +74,7 @@ class MissingBrandController extends Controller
         }
 
         $scrapers = MissingBrand::select('supplier')->groupBy('supplier')->get();
-        $missingBrands = $missingBrands->paginate(20);
+        $missingBrands = $missingBrands->orderBy('name','Asc')->paginate(20);
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('missingbrand.partial.data', compact('missingBrands', 'scrapers'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),

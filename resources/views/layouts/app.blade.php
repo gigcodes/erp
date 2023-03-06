@@ -53,7 +53,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
    <style type="text/css">
         .select2-container--open{
             z-index:9999999
@@ -342,8 +342,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="d-flex" id="search-bar">
-                                <input type="text" value="" name="search" class="form-control sop_search" placeholder="Search Here.." style="width: 30%;">
-{{--                                <button title="Sop Search" type="button" class="btn btn-xs search-button" style="padding: 0px 1px;"><span><i class="fa fa-search" aria-hidden="true"></i></span></button>--}}
+                                <input type="text" value="" name="search" id="menu_sop_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="Sop Search" type="button" class="sop_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
                             </div>
                         </div>
                         <div class="col-lg-12">
@@ -720,6 +721,8 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ action('\App\Http\Controllers\AttributeReplacementController@index') }}">Attribute
                                                     Replacement</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\UnknownAttributeProductController@index') }}">Incorrect Attributes</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1512,6 +1515,10 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
+                                        Meeting List</a>
+                                </li>                                
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -2034,6 +2041,31 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+
+                                @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-users')}}">Usage</a>
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sales')}}">Sales</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sub')}}">Subscription</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-ads')}}">Ads</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-rate')}}">Ratings</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-pay')}}">Payments</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                @endif
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>Google<span
@@ -2053,6 +2085,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.search.results')}}">Search Results</a>
                                                 </li>
+                                               
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2073,6 +2106,22 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.affiliate.results')}}">Search Results</a>
                                                 </li>
+                                            </ul>
+                                        </li>
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                v-pre>Developer API<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.developer-api.crash')}}">Crash Report</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.anr')}}">ANR Report</a>
+                                                </li>
+                                            
                                             </ul>
                                         </li>
                                     </ul>
@@ -2119,6 +2168,9 @@ if (!empty($notifications)) {
                                 aria-haspopup="true" aria-expanded="false">Social <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2136,11 +2188,14 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
                                 </li>
-                                    <li class="nav-item dropdown">
+                                <li class="nav-item dropdown">
                                     <a href="{{route('social.config.index')}}">Social Config</a>
                                 </li>
                                 <li class="nav-item dropdown">
-                                    <a href="{{route('social.adset.index')}}">Social Adset</a>
+                                    <a href="{{route('social.adcreative.index')}}">Social Ad Creative</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.ad.index')}}">Social Ads</a>
                                 </li>
                                 @endif
                             </ul>
@@ -3024,7 +3079,7 @@ if (!empty($notifications)) {
                                             States</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
+                                        <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage
@@ -3048,6 +3103,7 @@ if (!empty($notifications)) {
                                             Directory manager</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
                                         <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
                                     </li>
                                 </ul>
@@ -4677,11 +4733,11 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
-    $(document).on("keyup", ".sop_search", function(e) {
-        let $this = $(this);
-        var q = $this.val();
+    $(document).on("click", ".sop_search_menu", function(e) {
+        let $this = $('#menu_sop_search').val();
+        var q = $this;
         $.ajax({
-            url: '{{env('app_url')}}sop/search-ajax',
+            url: '{{route('menu.sop.search')}}',
             type: 'GET',
             data: {
                 search: q,
@@ -4697,6 +4753,7 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
+                toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
                 $("#loading-image").hide();
@@ -4864,7 +4921,7 @@ if (!empty($notifications)) {
         $(mini).toggleClass('hidden');
     });
 
-    $(document).on('click', '.send-message-open-menu', function (event) {
+    $(document).on('click', '.send-message-open-quick-menu', function (event) {
         var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
         var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
         let issueId = textBox.attr('data-id');
@@ -5019,6 +5076,7 @@ if (!empty($notifications)) {
                     $(thiss).siblings('input').val('');
                     $('#getMsg' + task_id).val('');
                     $('#menu_confirmMessageModal').modal('hide');
+                    toastr["success"]("Message sent successfully!", "Message");
                     if (cached_suggestions) {
                         suggestions = JSON.parse(cached_suggestions);
                         if (suggestions.length == 10) {

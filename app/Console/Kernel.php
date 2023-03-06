@@ -57,6 +57,14 @@ use App\Console\Commands\IncrementFrequencyWhatsappConfig;
 use App\Console\Commands\InfluencerDescription;
 //use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\InsertPleskEmail;
+
+use App\Console\Commands\IosUsageReport;
+use App\Console\Commands\IosAdsReport;
+use App\Console\Commands\IosSalesReport;
+use App\Console\Commands\IosSubscriptionReport;
+use App\Console\Commands\IosPaymentsReport;
+use App\Console\Commands\IosRatingsReport;
+
 use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\MagentoReportLog;
 use App\Console\Commands\MagentoSettingAddUpdate;
@@ -152,6 +160,8 @@ use App\Console\Commands\ZabbixProblemImport;
 use App\Console\Commands\ZabbixStore;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\ZoomMeetingRecordings;
+use App\Console\Commands\SaveZoomMeetingRecordings;
+use App\Console\Commands\DevAPIReport;
 use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -223,6 +233,7 @@ class Kernel extends ConsoleKernel
         TwilioCallLogs::class,
         ZoomMeetingRecordings::class,
         ZoomMeetingDeleteRecordings::class,
+        SaveZoomMeetingRecordings::class,
         FlagCustomersIfTheyHaveAComplaint::class,
         MakeKeywordAndCustomersIndex::class,
         GetMostUsedWordsInCustomerMessages::class,
@@ -321,6 +332,7 @@ class Kernel extends ConsoleKernel
         SendQueuedMessages::class,
         DatabaseLogCron::class,
         TwillioMessagesCommand::class,
+        DevAPIReport::class,
     ];
 
     /**
@@ -654,6 +666,15 @@ class Kernel extends ConsoleKernel
         //daily cron for checking due date and add to cashflow
         $schedule->command('assetsmanagerduedate:pay')->daily();
 
+         //daily cron for checking Ios Report
+        $schedule->command('IosUsageReport:check')->daily();
+        $schedule->command('IosSalesReport:check')->daily();
+        $schedule->command('IosRatingsReport:check')->daily();
+        $schedule->command('IosAdsReport:check')->daily();
+        $schedule->command('IosPaymentsReport:check')->daily();
+        $schedule->command('IosSubscriptionReport:check')->daily();
+
+
         //for adding due date in asset manager
         $schedule->command('assetsmanagerpayment:cron Daily')->daily();
         $schedule->command('assetsmanagerpayment:cron Weekly')->weekly();
@@ -696,8 +717,13 @@ class Kernel extends ConsoleKernel
         // Database log Cron
         $schedule->command('databaselog:cron')->dailyAt('0:00');
 
+
+        //Developer Reporting API Cron
+        $schedule->command('DevAPIReport:check')->hourly();
+
         // Ads history Cron
         $schedule->command('social:ads-history')->dailyAt('0:00');
+        $schedule->command('save:zoom-meetings')->dailyAt('23:59');
     }
 
     /**`

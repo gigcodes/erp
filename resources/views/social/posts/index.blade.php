@@ -44,6 +44,7 @@
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
                             <th style="width:5%">Date</th>
+                            <th style="width:5%">Website</th>
                             <th style="width:25%">Caption</th>
                             <th style="width:30%">Post</th>
                             <!-- <th style="width:10%">Image</th> -->
@@ -112,6 +113,30 @@
                 }
             });
        });
+        
+       $(document).on("click",".post-delete",function(e) {
+        e.preventDefault();
+            var post_id = $(this).data("id");
+            if (confirm("Are you sure?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('social.post.postdelete') }}",
+                    data: {"_token": "{{ csrf_token() }}", "post_id": post_id},
+                    dataType: "json",
+                    success: function (message) {
+                        alert('Deleted Post');
+                    location.reload(true);
+                    }, error: function () {
+                        alert('Something went wrong');
+                    }
+
+                });
+            }
+            return false;
+
+           
+        });
+        
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
             

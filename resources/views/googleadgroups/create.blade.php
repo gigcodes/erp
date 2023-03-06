@@ -16,15 +16,17 @@
                 @endif
             </div>
         </div>
+        @if($campaign_channel_type != "MULTI_CHANNEL")
         <div class="form-group row">
-            <label for="bid-amount" class="col-sm-2 col-form-label">Bid ($)</label>
+            <label for="bid-amount" class="col-sm-2 col-form-label">Bid amount</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="bid-amount" name="microAmount" placeholder="Bid ($)">
+                <input type="text" class="form-control" id="bid-amount" name="microAmount" placeholder="Bid amount">
                 @if ($errors->has('microAmount'))
                 <span class="text-danger">{{$errors->first('microAmount')}}</span>
                 @endif
             </div>
         </div>
+        @endif
         <div class="form-group row">
             <label for="ad-group-status" class="col-sm-2 col-form-label">Ad group status</label>
             <div class="col-sm-10">

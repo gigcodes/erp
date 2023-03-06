@@ -9,19 +9,60 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    @include("social.ads.history")
-   
+
     <div class="row" id="common-page-layout">
        
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Social  Ads ({{ $ads->total() }})<span class="count-text"></span></h2>
-            <div class="pull-right">
+            <div class="pull-right mr-4">
                 <a class="btn btn-secondary create-post">+</a>
+            </div>
+
+            <div class="pull-left ml-2 mb-3">
+                <form class="form-inline" action="" method="GET">
+                    <div class="form-group mr-2">
+                        <input type="date" name="date" id="date" class="form-control" style="width:250px !important" value="{{$_GET['date'] ?? '' }}">
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control" name="name" id="name" style="width:250px !important">
+                            <option value="">Ads Name</option>.
+                            @foreach($ads_data as $ads_val)
+                                <option value="{{$ads_val->name}}" {{ isset($_GET['name']) && !empty($ads_val->name == $_GET['name']) ? 'selected' : '' }}>{{$ads_val->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="config_name[]" data-placeholder="Config Name" id="" style="width:250px !important" multiple>
+                            @foreach($ads_data as $ads_config)
+                                @php
+                                    $config_name = App\Social\SocialConfig::where('id',$ads_config->config_id)->first();
+                                @endphp
+                                <option value="{{$ads_config->id}}" {{ isset($_GET['config_name']) && in_array($ads_config->id,$_GET['config_name']) ? 'selected' : '' }}>{{$ads_config->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="adset_name[]" data-placeholder="Adset Name.." id="" style="width:250px !important" multiple>
+                            @foreach($ads_data as $ads_name)
+                                <option value="{{$ads_name->ad_set_name}}" {{ isset($_GET['adset_name']) && in_array($ads_name->ad_set_name,$_GET['adset_name']) ? 'selected' : '' }}>{{$ads_name->ad_set_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <button type="submit" class="btn btn-image3 btn-sm text-dark">
+                            <i class="fa fa-filter"></i>
+                        </button>
+                        <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
+                    </div>
+                </form>
             </div>
         </div>
 
         <br>
-        @include("social.header_menu")
+
+        <div class="row ml-4 mb-2">
+            @include("social.header_menu")
+        </div>
             
         @if ($message = Session::get('success'))
             <div class="alert alert-success">
@@ -39,6 +80,7 @@
                 </ul>
             </div>
         @endif
+
         <div class="col-lg-12 margin-tb">
 
             <div class="col-md-12 margin-tb">
@@ -48,7 +90,8 @@
                             <th style="width:5%">Date</th>
                             <th style="width:7%"> Name</th>
                             <th style="width:7%">Config Name</th>
-                           
+                            <th style="width:7%">Website</th>
+
                             <th style="width:7%">Adset Name</th>
                             <!-- <th style="width:10%">Image</th> -->
                             <th style="width:17%">Creation Name</th>
@@ -68,6 +111,7 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
+    @include("social.ads.history")
     <div id="create-modal" class="modal" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="record-content">
