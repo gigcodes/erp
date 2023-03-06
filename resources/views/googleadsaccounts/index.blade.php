@@ -129,7 +129,7 @@
                 <div class="page-header" style="width: 69%">
                     <h4>Create Account</h4>
                 </div>
-                <form action="{{ url('googleadsaccount.createAdsAccount') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('googleadsaccount.createAdsAccount') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group row">
                         <label for="account_name" class="col-sm-2 col-form-label">Account name</label>
@@ -152,7 +152,7 @@
                     </div>
 
                     <div class="form-group row">
-                        <label for="store_websites" class="col-sm-2 col-form-label">Status</label>
+                        <label for="store_websites" class="col-sm-2 col-form-label">Store Websites</label>
                         <div class="col-sm-6">
                             <select class="browser-default custom-select" id="store_websites" name="store_websites" style="height: auto">
                                 <option value="" selected>---Selecty store websites---</option>
@@ -201,6 +201,7 @@
 
                     <div class="form-group row">
                         <div class="col-sm-8">
+                            <button type="button" class="float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
                             <button type="submit" class="mb-2 float-right">Create</button>
                         </div>
                     </div>
@@ -225,7 +226,7 @@
                     <div class="form-group row">
                         <label for="account_name" class="col-sm-2 col-form-label">Account name</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="account_name_edit" name="account_name" placeholder="Account Name" value="">
+                            <input type="text" class="form-control" id="edit_account_name" name="account_name" placeholder="Account Name" value="">
                             @if ($errors->has('account_name'))
                                 <span class="text-danger">{{$errors->first('account_name')}}</span>
                             @endif
@@ -235,7 +236,7 @@
                     <div class="form-group row">
                         <label for="google_customer_id" class="col-sm-2 col-form-label">Google Customer Id</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="google_customer_id" name="google_customer_id" placeholder="Google Customer Id" value="">
+                            <input type="text" class="form-control" id="edit_google_customer_id" name="google_customer_id" placeholder="Google Customer Id" value="">
                             @if ($errors->has('google_customer_id'))
                                 <span class="text-danger">{{$errors->first('google_customer_id')}}</span>
                             @endif
@@ -243,19 +244,9 @@
                     </div>
 
                     <div class="form-group row">
-                        <label for="store_websites1" class="col-sm-2 col-form-label">Store Website</label>
+                        <label for="store_websites" class="col-sm-2 col-form-label">Store Website</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="store_websites1" name="store_websites1" placeholder="Store Website" value="">
-                            @if ($errors->has('store_websites'))
-                                <span class="text-danger">{{$errors->first('store_websites')}}</span>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label for="store_websites" class="col-sm-2 col-form-label">Status</label>
-                        <div class="col-sm-10">
-                            <select class="browser-default custom-select" id="store_websites" name="store_websites" style="height: auto">
+                            <select class="browser-default custom-select" id="edit_store_websites" name="store_websites" style="height: auto">
                                 <option value="" selected>---Selecty store websites---</option>
                                 @foreach($store_website as $sw)
                                     <option value="{{$sw->website}}" >{{$sw->website}}</option>
@@ -270,7 +261,7 @@
                     <div class="form-group row">
                         <label for="notes" class="col-sm-2 col-form-label">Notes</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" id="notes" name="notes" placeholder="Notes"></textarea>
+                            <textarea class="form-control" id="edit_notes" name="notes" placeholder="Notes"></textarea>
                             @if ($errors->has('notes'))
                                 <span class="text-danger">{{$errors->first('notes')}}</span>
                             @endif
@@ -280,7 +271,7 @@
                     <div class="form-group row">
                         <label for="config_file_path" class="col-sm-2 col-form-label">Config File</label>
                         <div class="col-sm-10">
-                            <input type="file" class="form-control" id="config_file_path" name="config_file_path">
+                            <input type="file" class="form-control" id="edit_config_file_path" name="config_file_path">
                             @if ($errors->has('config_file_path'))
                                 <span class="text-danger">{{$errors->first('config_file_path')}}</span>
                             @endif
@@ -290,7 +281,7 @@
                     <div class="form-group row">
                         <label for="status" class="col-sm-2 col-form-label">Status</label>
                         <div class="col-sm-10">
-                            <select class="browser-default custom-select" id="status" name="status" style="height: auto">
+                            <select class="browser-default custom-select" id="edit_status" name="status" style="height: auto">
                                 <option value="ENABLED">ENABLED</option>
                                 <option value="DISABLED">DISABLED</option>
                             </select>
@@ -299,6 +290,7 @@
                             @endif
                         </div>
                     </div>
+                    <button type="button" class="float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
                     <button type="submit" class="mb-2 float-right">Update</button>
                 </form>
             </div>
@@ -391,13 +383,13 @@
             success: function (data) {
                 $('#EditModal').show();
                 $("#account_id").val(data.id);
-                $("#account_name_edit").val(data.account_name);
-                $('#google_customer_id').val(data.google_customer_id);
-                $('#store_websites1').val(data.store_websites);
-                $('#store_websites').val(data.store_websites);
-                $('#notes').val(data.notes);
-                $('#config_file_path').val(data.config_file_path);
-                $('#status').val(data.status);            }
+                $("#edit_account_name").val(data.account_name);
+                $('#edit_google_customer_id').val(data.google_customer_id);
+                $('#edit_store_websites').val(data.store_websites);
+                $('#edit_notes').val(data.notes);
+                $('#edit_config_file_path').val(data.config_file_path);
+                $('#edit_status').val(data.status);
+            }
         });
     }
 </script>

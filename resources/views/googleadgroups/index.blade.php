@@ -3,7 +3,7 @@
 
 @section('content')
     <div class="col-md-12">
-        <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name</h2>
+        <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <button class="btn-image float-right custom-button" onclick="window.location.href='/google-campaigns/ads-account';">Back to Campaign</button></h2>
 
     <div class="pull-left p-0">
         <div class="form-group">
@@ -71,25 +71,23 @@
                     <td>{{$adGroup->created_at}}</td>
                     <td>
                     <div class="d-flex">
-                        @if(in_array(@$campaign_channel_type, ["DISPLAY"]))
-                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/responsive-display-ad">
-                                <button type="submit" class="btn-image">Display Ads</button>
-                            </form>
-                        @elseif(in_array(@$campaign_channel_type, ["SEARCH"]))
+{{--                        @if(in_array(@$campaign_channel_type, ["DISPLAY"]))--}}
+{{--                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/responsive-display-ad">--}}
+{{--                                <button type="submit" class="btn-image">Display Ads</button>--}}
+{{--                            </form>--}}
+{{--                        @elseif(in_array(@$campaign_channel_type, ["SEARCH"]))--}}
                             <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
                                 <button type="submit" class="btn-image">Ads</button>
                             </form>
-                        @elseif(in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))
-                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/app-ad">
-                                <button type="submit" class="btn-image">App Ads</button>
-                            </form>
-                        @endif
+{{--                        @elseif(in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))--}}
+{{--                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/app-ad">--}}
+{{--                                <button type="submit" class="btn-image">App Ads</button>--}}
+{{--                            </form>--}}
+{{--                        @endif--}}
                         {!! Form::open(['method' => 'DELETE','route' => ['adgroup.deleteAdGroup',$campaignId,$adGroup['google_adgroup_id']],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn-image"><img src="{{asset('/images/delete.png')}}"></button>
+                        <button type="submit" class="btn-image ml-2"><img src="{{asset('/images/delete.png')}}"></button>
                         {!! Form::close() !!}
-                        {!! Form::open(['method' => 'GET','route' => ['adgroup.updatePage',$campaignId,$adGroup['google_adgroup_id']],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn-image ml-2"><img src="{{asset('/images/edit.png')}}"></button>
-                        {!! Form::close() !!}
+                        <button type="button" class="btn-image ml-2" data-toggle="modal" data-target="#updateadgroupmodal"><img src="{{asset('/images/edit.png')}}"></button>
                     </div>
                     </td>
                 </tr>
@@ -139,6 +137,7 @@
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-8">
+                                <button type="button" class="float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
                                 <button type="submit" class="mb-2 float-right">Create</button>
                             </div>
                         </div>
@@ -147,6 +146,58 @@
                 </div>
             </div>
         </div>
+
+    <div class="modal fade" id="updateadgroupmodal" role="dialog" style="z-index: 3000;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="container">
+                    <div class="page-header" style="width: 69%">
+                        <h2>Update Ad Group</h2>
+                    </div>
+{{--                    <form action="{{route('adgroup.updatePage',['id'=> $campaignId])}}" method="POST">--}}
+                    <form method="POST" action="http://localhost/erp/public/index.php/google-campaigns/{{$campaignId}}/adgroups/update" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="adGroupId" value="{{$adGroup['google_adgroup_id']}}">
+                        <div class="form-group row">
+                            <label for="ad-group-name" class="col-sm-2 col-form-label">Ad group name</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="ad-group-name" name="adGroupName" placeholder="Ad group name" value="{{$adGroup['ad_group_name']}}">
+                                @if ($errors->has('adGroupName'))
+                                    <span class="text-danger">{{$errors->first('adGroupName')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                        @if($campaign_channel_type != "MULTI_CHANNEL")
+                            <div class="form-group row">
+                                <label for="cpc-bid-micro-amount" class="col-sm-2 col-form-label">Bid ($)</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="cpc-bid-micro-amount" name="cpcBidMicroAmount" placeholder="Bid ($)" value="{{$adGroup['bid']}}">
+                                    @if ($errors->has('cpcBidMicroAmount'))
+                                        <span class="text-danger">{{$errors->first('cpcBidMicroAmount')}}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                        <div class="form-group row">
+                            <label for="ad-group-status" class="col-sm-2 col-form-label">Ad group status</label>
+                            <div class="col-sm-6">
+                                <select class="browser-default custom-select" id="ad-group-status" name="adGroupStatus" style="height: auto">
+                                    <option value="1" {{$adGroup['status'] == 'ENABLED' ? 'selected' : ''}}>Enabled</option>
+                                    <option value="2" {{$adGroup['status'] == 'PAUSED' ? 'selected' : ''}}>Paused</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-8">
+                                <button type="button" class="float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
+                                <button type="submit" class="float-right">Update</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')

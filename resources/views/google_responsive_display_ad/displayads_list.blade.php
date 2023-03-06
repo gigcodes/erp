@@ -28,7 +28,7 @@
     </style>
 @endsection
 @section('content')
-    <h2 class="page-heading">Google AdWords - Campaigns ( <span id="ads_campaign_count">{{$totalNumEntries}} </span>)</h2>
+    <h2 class="page-heading">Google Responsive Display Ads List - Campaigns ( <span id="ads_campaign_count">{{$totalNumEntries}} </span>)</h2>
     <div class="container-fluid p-0" style="margin-top: 10px">
 
         <div class="pl-3 pr-3">
@@ -40,44 +40,32 @@
                         <th>#ID</th>
                         <th>Account Name</th>
                         <th>Campaign Name</th>
-                        <th>Campaign Google Id</th>
-                        <th>Account Customer Id</th>
-                        <th>Channel Type</th>
-                        <th>Channel Subtype</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Budget</th>
-                        <th>Status</th>
+                        <th>Ads Group Name</th>
+                        <th>Google Ad Id</th>
                         <th>Created At</th>
-{{--                        <th>Actions</th>--}}
                     </tr>
                     </thead>
 
                     <tbody>
-                    @foreach($campaignslist as $campaign)
+                    @foreach($display_ads as $campaign)
                         @php
-                            $account_name = \App\GoogleAdsAccount::where('id',$campaign->account_id)->first();
+                            $adgroup_name = \App\GoogleAdsGroup::where('id',$campaign->google_adgroup_id)->first();
+                            $campaign_name = \App\GoogleAdsCampaign::where('id',$campaign->adgroup_google_campaign_id)->first();
+                            $account_name = \App\GoogleAdsAccount::where('id',$campaign_name->account_id)->first();
                         @endphp
                         <tr>
-                        <td>{{$campaign->id}}</td>
-                        <td>{{$account_name->account_name}}</td>
-                        <td>{{$campaign->campaign_name}}</td>
-                        <td>{{$campaign->google_campaign_id}}</td>
-                        <td>{{$account_name->id}}</td>
-                        <td>{{$campaign->channel_type}}</td>
-                        <td>{{$campaign->channel_sub_type}}</td>
-                        <td>{{$campaign->start_date}}</td>
-                        <td>{{$campaign->end_date}}</td>
-                        <td>{{$campaign->budget_amount}}</td>
-                        <td>{{$campaign->status}}</td>
-                        <td>{{$campaign->created_at}}</td>
-{{--                        <td>{{$campaign->id}}</td>--}}
+                            <td>{{$campaign->id}}</td>
+                            <td>{{$account_name->account_name}}</td>
+                            <td>{{$campaign_name->campaign_name}}</td>
+                            <td>{{$adgroup_name->ad_group_name}}</td>
+                            <td>{{$campaign->google_ad_id}}</td>
+                            <td>{{$campaign->created_at}}</td>
                         </tr>
                     @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
-{{--        {{ $campaignslist->links() }}--}}
+        {{--        {{ $campaignslist->links() }}--}}
     </div>
 @endsection

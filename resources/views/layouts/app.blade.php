@@ -2138,8 +2138,24 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google
-                                        AdWords</a>
+                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.adsgroupslist')}}">Google Ads groups</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.adslist')}}">Google Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.displayads')}}">Google Responsive Display Ads</a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social
@@ -3017,21 +3033,6 @@ if (!empty($notifications)) {
                             @endif
                             <li  class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
-                            </li>
-                            <li  class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
-                            </li>
-                            <li  class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
-                            </li>
-                            <li  class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{route('googleadsaccount.adsgroupslist')}}">Google Ads groups</a>
-                            </li>
-                            <li  class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{route('googlecampaigns.adslist')}}">Google Ads</a>
-                            </li>
-                            <li  class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{route('googlecampaigns.displayads')}}">Google Responsive Display Ads</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>

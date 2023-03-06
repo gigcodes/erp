@@ -60,7 +60,7 @@
 {{--    <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ads/create">--}}
 {{--        <button type="submit" class="float-right mb-3">New Ads</button>--}}
 {{--    </form>    --}}
-        <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#adsmodal">New Ad Group</button>
+        <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#adsmodal">New Ads</button>
 
         <table class="table table-bordered" id="ads-table">
             <thead>
