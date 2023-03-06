@@ -1,6 +1,6 @@
 # Inventory out of stock List
 
-The Inventory out of stock page is listing product's inventory. Data listed from `inventoryListNew` function in the `ProductInvenotryController` controller.
+The Inventory out of stock page is listing product's inventory. Data listed from `inventoryListNew` function in the `ProductInventoryController` controller.
 
 1. ### Fetch Inventory from DB:
    Inventory will fetch from the `products` table with the following conditions:
