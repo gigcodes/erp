@@ -16,4 +16,8 @@ class GoogleAdGroupKeyword extends Model
         'google_keyword_id',
         'keyword',
     ];
+
+    public function ad_group(){
+        return $this->belongsTo(\App\GoogleAdsGroup::class, 'google_adgroup_id', 'google_adgroup_id');
+    }
 }

@@ -54,7 +54,7 @@
             <div class="col-sm-10">
                 <textarea class="form-control" id="suggested_keywords" name="suggested_keywords" rows="10" placeholder="Enter or paste keywords. You can separate each keyword by commas."></textarea>
 
-                <span class="text-muted">Note: You can add up to 80 keyword and each keyword character must be less than 80.</span>
+                <span class="text-muted">Note: You can add up to 80 keyword and each keyword character must be less than 80 character.</span>
             </div>
         </div>
         @endif

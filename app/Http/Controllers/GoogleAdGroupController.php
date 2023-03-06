@@ -270,6 +270,9 @@ class GoogleAdGroupController extends Controller
             $keywords = $request->suggested_keywords;
 
             if(!empty($keywords)){
+                
+                ini_set('max_execution_time', -1);
+
                 $keywordArr = array_slice(explode(",", $keywords), 0, 80);
                 $inputKeyword = [];
 
@@ -303,19 +306,19 @@ class GoogleAdGroupController extends Controller
                     if(!empty($keywordResourceName)){
                         $keywordId = substr($keywordResourceName, strrpos($keywordResourceName, "~") + 1);
 
-                        $inputKeyword[] = array(
+                        $inputKeyword[$key] = array(
                                         'google_customer_id' => $customerId,
                                         'adgroup_google_campaign_id' => $campaignId,
                                         'google_adgroup_id' => $adGroupId,
                                         'google_keyword_id' => $keywordId,
                                         'keyword' => $keyword,
+                                        'created_at'=> date("Y-m-d H:i:s"),
+                                        'updated_at'=> date("Y-m-d H:i:s")
                                     );
-
                     }
-
-                    if(!empty($inputKeyword)){
-                        GoogleAdGroupKeyword::create($inputKeyword);
-                    }
+                }
+                if(!empty($inputKeyword)){
+                    GoogleAdGroupKeyword::insert($inputKeyword);
                 }
             }
             // End keyword
