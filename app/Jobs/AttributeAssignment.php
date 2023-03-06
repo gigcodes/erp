@@ -172,22 +172,29 @@ class AttributeAssignment implements ShouldQueue
         } else if($this->data['attribute_id'] == StatusHelper::$unknownColor) {
                                 
             $find_products = Product::where('status_id',$this->data['attribute_id']);
-                                $find_products->where('color',$this->data['find_color']);
+                                if($this->data['find_color'] == 'NULL') {
+                                    $find_products->where(function ($query) {
+                                        $query->where('color', null)
+                                              ->orWhere('color', '');
+                                    });
+                                } else {
+                                    $find_products->where('color',$this->data['find_color']);
+                                }
                                 $find_products = $find_products->get();
-        
             $attribute_arr = [];
             if(isset($find_products) && !empty($find_products)) {
                 foreach ($find_products as $fp_key => $fp_value) {
                     
                     $old_value = $fp_value->color;
-                    $fp_value->color = $this->data['replace_color'];
+                    $new_value = ($this->data['replace_color']!= 'NULL')?$this->data['replace_color']:null;
+                    $fp_value->color = $new_value;
                     $fp_value->updated_attribute_job_status = 1;
                     $fp_value->updated_attribute_job_attempt_count += 1;
                     $fp_value->save();
             
                     $attribute_arr[] = [
                         'old_value' => $old_value,
-                        'new_value' => $this->data['replace_color'],
+                        'new_value' => $new_value,
                         'attribute_name' => 'color',
                         'attribute_id' => $this->data['attribute_id'],
                         'product_id' => $fp_value->id,

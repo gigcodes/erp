@@ -13,7 +13,15 @@
                 echo $old_category;
                 @endphp
             </td>
-            <td>{{$record->new_category->title}}</td>
+            <td>
+                @php
+                $new_category = $record->new_value;
+                if(isset($record->new_category) && !empty($record->new_category)){
+                    $new_category = $record->new_category->title;
+                }
+                echo $new_category;
+                @endphp
+            </td>
         @else
             <td>{{$record->old_value}}</td>
             <td>{{$record->new_value}}</td>
