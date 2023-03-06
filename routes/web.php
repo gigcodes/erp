@@ -642,9 +642,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
-    Route::get('unknown-attribute-products', [UnknownAttributeProductController::class,'index'])->name('unknown.attribute.products');
-    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('unknown.attribute.products.attribute-assignment');
-    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('unknown.attribute.products.get_product_attribute_detail');
+    Route::get('incorrect-attributes', [UnknownAttributeProductController::class,'index'])->name('incorrect-attributes');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
+    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
+    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -881,7 +883,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
     Route::get('sop/search', [SopController::class, 'search']);
-    Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch']);
+    Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch'])->name('menu.sop.search');
     Route::get('soplogs', [SopController::class, 'sopnamedata_logs'])->name('sopname.logs');
     Route::get('sop/DownloadData/{id}', [SopController::class, 'downloaddata'])->name('sop.download');
     // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
@@ -940,6 +942,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('reply-logs', [ChatbotMessageLogsController::class, 'replyLogs'])->name('reply.replylogs');
     Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
     Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
+
+    Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', [AutoReplyController::class, 'updateReply']);
@@ -2531,7 +2535,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 * This route will push the FAQ to series of website with help of API
 */
 Route::middleware('auth')->group(function () {
-	Route::post('push/faq', 		[FaqPushController::class, 'pushFaq']);
+	Route::post('push/faq', 			[FaqPushController::class, 'pushFaq']);
 	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
@@ -4608,4 +4612,3 @@ Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name
  });
 
    
-

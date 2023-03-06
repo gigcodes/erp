@@ -335,8 +335,9 @@ class SocialPostController extends Controller
                         if (isset($responseData->error->message)) {
                             Session::flash('message', $responseData->error->message);
                         } else {
-                            $post->status = 1;
+                            
                             if (isset($responseData['id'])) {
+                                $post->status = 1;
                                 $post->ref_post_id = $responseData['id'];
                             }
 
