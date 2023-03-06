@@ -3845,6 +3845,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
             Route::get('/', [GoogleAdGroupController::class, 'index'])->name('adgroup.index');
             Route::get('/create', [GoogleAdGroupController::class, 'createPage'])->name('adgroup.createPage');
             Route::post('/create', [GoogleAdGroupController::class, 'createAdGroup'])->name('adgroup.createAdGroup');
+            Route::post('/generate-keywords', [GoogleAdGroupController::class, 'generateKeywords'])->name('adgroup.generateKeywords');
             Route::get('/update/{adGroupId}', [GoogleAdGroupController::class, 'updatePage'])->name('adgroup.updatePage');
             Route::post('/update', [GoogleAdGroupController::class, 'updateAdGroup'])->name('adgroup.updateAdGroup');
             Route::delete('/delete/{adGroupId}', [GoogleAdGroupController::class, 'deleteAdGroup'])->name('adgroup.deleteAdGroup');
