@@ -109,11 +109,25 @@ class ProceesPushFaq implements ShouldQueue
                         //create a payload for API
                         $faqQuestion    =   $replyInfo->name;
                         
-                        $faqCategoryId  =   $replyInfo->category_id;
+                        $categoryId     =   $replyInfo->category_id;
+                        
+
                         // $faqCategoryId  =   1;
 
                         if (!empty($url) && !empty($api_token) && !empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
+
+                                //get platform id of category
+                                $faqCategoryId      =   (new \App\StoreWebsiteCategory)->getPlatformId($store_website_id, $categoryId, $storeValue);
+
+                                if(empty($faqCategoryId)){
+                                    \Log::info('Category d not available');
+                                    $faqCategoryId  =   (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token);
+                                }
+
+                                if(empty($faqCategoryId)){
+                                    (new ReplyLog)->addToLog($replyInfo->id, 'System unable to generate  FAQ category ID on '.$url.' with ID '.$store_website_id.' on store '.$storeValue.' ', 'Push' );
+                                }
 
                                 $language           =   isset(explode('-', $storeValue)[1]) && explode('-', $storeValue)[1] != "" ? explode('-', $storeValue)[1] : "";
                                 //if reply is already pushed to store then get the information
@@ -187,7 +201,8 @@ class ProceesPushFaq implements ShouldQueue
                                     (new ReplyLog)->addToLog($replyInfo->id, ' Error while pushing FAQ on Store '.$storeValue.' : '.json_encode($response), 'Push' );
                                 }
 
-                                \Log::info("Got response from API after pushing the FAQ to server"); \Log::info($postdata);
+                                \Log::info("Got response from API after pushing the FAQ to server"); 
+                                \Log::info($postdata);
                                 \Log::info(json_encode($response));
                             }
                         } else {
