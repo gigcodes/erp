@@ -620,7 +620,7 @@ class Product extends Model
 
     public function attribute_histories()
     {
-        return $this->hasMany(\App\ProductUpdatedAttributeHistory::class,'product_id','id');
+        return $this->hasMany(\App\ProductUpdatedAttributeHistory::class,'product_id','id')->groupBy('attribute_name');
     }
 
     public function private_views()

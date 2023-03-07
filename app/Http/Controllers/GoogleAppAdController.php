@@ -242,6 +242,9 @@ class GoogleAppAdController extends Controller
             // Store marketing images records into database
             if($obj->id){
                 foreach($imagesArr as $value){
+                    $value['adgroup_google_campaign_id'] = $campaignId;
+                    $value['google_adgroup_id'] = $adGroupId;
+                    $value['google_customer_id'] = $customerId;
                     $value['google_app_ad_id'] = $obj->id;
                     unset($value['google_asset_resource_name']);
                     GoogleAppAdImage::create($value);

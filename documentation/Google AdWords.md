@@ -29,6 +29,12 @@ The ads group module has store group name, budget amount and status of ads group
  - **Edit:** An edit option is available in this module to edit the all data that we entered in the creation time of the ads group.
  - **Delete** option will permanently delete ads group from database as well as Google Ads account.
  - **Ads** option will allow to manage ads group's ads thing.
+ - **Keyword** 
+    This keyword module is used for a `SEARCH` type campaign ad groups. 
+     - **Create:** It can be created by adding data in the create form. Users have to enter the keyword manual else they can generate keywords by category and URL.
+     - **Delete** option will permanently delete keyword from database as well as Google Ads account.
+
+    *API Reference:* https://developers.google.com/google-ads/api/samples/add-keywords
 
 *API Reference:* https://developers.google.com/google-ads/api/docs/campaigns/create-ad-groups
 
