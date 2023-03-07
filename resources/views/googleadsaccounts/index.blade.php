@@ -78,6 +78,12 @@
                     <td>{{$googleadsac->created_at}}</td>
                     <td>
                         <a href="/google-campaigns/ads-account/update/{{$googleadsac->id}}" class="btn-image"><img src="/images/edit.png"></a>
+
+                        @if(Auth::user()->hasRole('Admin'))
+                        {!! Form::open(['method' => 'DELETE','route' => ['googleadsaccount.deleteGoogleAdsAccount', $googleadsac->id],'style'=>'display:inline']) !!}
+                            <button type="submit" class="btn-image"><img src="/images/delete.png"></button>
+                        {!! Form::close() !!}
+                        @endif
                         <a href="/google-campaigns?account_id={{$googleadsac->id}}" class="btn btn-sm">create campaign</a>
                     </td>
                 </tr>

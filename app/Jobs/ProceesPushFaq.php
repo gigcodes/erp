@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Reply;
+use App\Models\ReplyLog;
 
 class ProceesPushFaq implements ShouldQueue
 {
@@ -67,6 +68,7 @@ class ProceesPushFaq implements ShouldQueue
                     $storeWebsite   =   new \App\StoreWebsite();
                     $allWebsites    =   $storeWebsite->getAllTaggedWebsite( $replyInfo->tag_id );
                 } else {
+                    $storeWebsite   =   new \App\StoreWebsite();
                     $allWebsites    =   $storeWebsite->where("id",  $replyInfo->store_website_id)->get();
                 }
 
@@ -90,8 +92,8 @@ class ProceesPushFaq implements ShouldQueue
                                         ->select("website_store_views.website_store_id", "website_store_views.*","website_store_views.code") 
                                         ->get();
                         
+                        $stores = array();
                         if (!$fetchStores->isEmpty()) {
-                            $stores = array();
                             foreach ($fetchStores as $fetchStore) {
                                 $stores[] = $fetchStore->code;
                             }
@@ -107,11 +109,25 @@ class ProceesPushFaq implements ShouldQueue
                         //create a payload for API
                         $faqQuestion    =   $replyInfo->name;
                         
-                        $faqCategoryId  =   $replyInfo->category_id;
-                        // $faqCategoryId  = 1;
+                        $categoryId     =   $replyInfo->category_id;
+                        
 
-                        if (!empty($url) && !empty($api_token)) {
+                        // $faqCategoryId  =   1;
+
+                        if (!empty($url) && !empty($api_token) && !empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
+
+                                //get platform id of category
+                                $faqCategoryId      =   (new \App\StoreWebsiteCategory)->getPlatformId($store_website_id, $categoryId, $storeValue);
+
+                                if(empty($faqCategoryId)){
+                                    \Log::info('Category d not available');
+                                    $faqCategoryId  =   (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token);
+                                }
+
+                                if(empty($faqCategoryId)){
+                                    (new ReplyLog)->addToLog($replyInfo->id, 'System unable to generate  FAQ category ID on '.$url.' with ID '.$store_website_id.' on store '.$storeValue.' ', 'Push' );
+                                }
 
                                 $language           =   isset(explode('-', $storeValue)[1]) && explode('-', $storeValue)[1] != "" ? explode('-', $storeValue)[1] : "";
                                 //if reply is already pushed to store then get the information
@@ -124,10 +140,12 @@ class ProceesPushFaq implements ShouldQueue
 
                                 if(!empty($translateReplies->translate_text))
                                 {
-                                    $platform_id    =   $translateReplies->platform_id;
+                                    $platform_id    =   (new \App\Models\FaqPlatformDetails)->getFaqPlatformId($translateReplies->id, $store_website_id,  $storeValue,   'translate');
+                                    // $platform_id    =   $translateReplies->platform_id;
                                 }
-                                else if($replyInfo->platform_id && !empty($replyInfo->platform_id)){
-                                    $platform_id    =   $replyInfo->platform_id;
+                                else{
+                                    $platform_id    =   (new \App\Models\FaqPlatformDetails)->getFaqPlatformId($replyInfo->id, $store_website_id,  $storeValue,     'reply');
+                                    // $platform_id    =   $replyInfo->platform_id;
                                 }
 
                                 if (!empty($platform_id)) {
@@ -159,30 +177,50 @@ class ProceesPushFaq implements ShouldQueue
                                     
                                     if(!empty($translateReplies->translate_text))
                                     {
-                                        $translateReplies->platform_id     =   $response->id;
-                                        $translateReplies->save();
+                                        $platformDetails                    =    new \App\Models\FaqPlatformDetails;
+                                        $platformDetails->reply_id          =   $replyInfo->id;
+                                        $platformDetails->store_website_id  =   $store_website_id;
+                                        $platformDetails->store_code        =   $storeValue;
+                                        $platformDetails->type              =   'translate';
+                                        $platformDetails->save();
+
+                                        // $translateReplies->platform_id     =   $response->id;
+                                        // $translateReplies->save();
                                     }
                                     else if($replyInfo->platform_id && !empty($replyInfo->platform_id)){
-                                        $replyInfo->platform_id     =   $response->id;
-                                        $replyInfo->save();
+                                        $platformDetails                    =    new \App\Models\FaqPlatformDetails;
+                                        $platformDetails->reply_id          =   $replyInfo->id;
+                                        $platformDetails->store_website_id  =   $store_website_id;
+                                        $platformDetails->store_code        =   $storeValue;
+                                        $platformDetails->type              =   'reply';
+                                        $platformDetails->save();
                                     }
                                 }
+
 
                                 if (!empty($response->id)){ //This means latest is pushed to server
                                     
                                     $replyInfo->is_pushed   =   1;
                                     $replyInfo->save();
                                     
+                                    (new ReplyLog)->addToLog($replyInfo->id, 'System pushed FAQ on '.$url.' with ID '.$store_website_id.' on store '.$storeValue.' ', 'Push' );
+
+
                                     if(!empty($translateReplies->translate_text))
                                     {
                                         //developer can add code to mark the translation pushed or not.
                                     }
+                                }else{
+                                    (new ReplyLog)->addToLog($replyInfo->id, ' Error while pushing FAQ on Store '.$storeValue.' : '.json_encode($response), 'Push' );
                                 }
 
-                                \Log::info("Got response from API after pushing the FAQ to server"); \Log::info($postdata);
+                                \Log::info("Got response from API after pushing the FAQ to server"); 
+                                \Log::info($postdata);
                                 \Log::info(json_encode($response));
                             }
                         } else {
+
+                            (new ReplyLog)->addToLog($replyInfo->id, ' URL or API token not found linked with this FAQ ', 'Push' );
                             \Log::info(
                                 "URL or API token not found linked with reply id " .
                                     json_encode($reply_id)
@@ -194,6 +232,7 @@ class ProceesPushFaq implements ShouldQueue
         } catch (\Exception $e) {
             \Log::info("Error while pushing faq");
             \Log::info($e->getMessage());
+            \Log::info($e->getLine());
         }
     
     }

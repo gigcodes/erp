@@ -618,6 +618,11 @@ class Product extends Model
         return $this->hasMany(\App\ProductSupplier::class);
     }
 
+    public function attribute_histories()
+    {
+        return $this->hasMany(\App\ProductUpdatedAttributeHistory::class,'product_id','id')->groupBy('attribute_name');
+    }
+
     public function private_views()
     {
         return $this->belongsToMany(\App\PrivateView::class, 'private_view_products', 'product_id', 'private_view_id');
