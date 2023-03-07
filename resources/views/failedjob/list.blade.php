@@ -104,9 +104,9 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
+                    <h4 class="modal-title">Job Detail</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Job Detail</h4>
                 </div>
                 <div class="modal-body">
                     <div class="col-md-12" id="payload-detail">
@@ -185,7 +185,7 @@
                 if (type == "object")
                 
                 {
-                    var html="<b> Display Name </b>"+json['displayName']+"<br><b>Job</b> "+json['job']+"<br><b>maxTries</b> "+json['maxTries']+"<br><b>timeout</b> "+json['timeout']+"<br><b>timeoutAt</b> "+json['timeoutAt']+"<br><b>Data</b> "+JSON.stringify(json['data']);
+                    var html="<b> Display Name </b>"+json['displayName']+"<br><b>Job</b> "+json['job']+"<br><b>maxTries</b> "+json['maxTries']+"<br><b>timeout</b> "+json['timeout']+"<br><b>timeoutAt</b> "+json['timeoutAt']+"<br><b>Data</b><div style='word-break: break-all'>"+JSON.stringify(json['data'])+"<div>";
                     $("#payload-detail").html( html);
                 }
             }catch(err) {
