@@ -339,6 +339,9 @@ use App\Http\Controllers\GoogleAdGroupKeywordController;
 use App\Http\Controllers\UnknownAttributeProductController;
 use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TimeDoctorController;
+use App\Http\Controllers\TimeDoctorActivitiesController;
+
 
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
@@ -2697,6 +2700,63 @@ Route::middleware('auth')->group(function () {
     Route::get('hubstaff/payments', [UserController::class, 'payments']);
     Route::post('hubstaff/makePayment', [UserController::class, 'makePayment']);
     Route::get('hubstaff/userlist', [HubstaffController::class, 'userList'])->name('hubstaff.userList');
+
+
+    Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects']);
+    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks']);    
+    Route::get('time-doctor/members', [TimeDoctorController::class, 'userList'])->name('time-doctor.members');
+    Route::post('time-doctor/link_time_doctor_user', [TimeDoctorController::class, 'linkUser']);
+    Route::post('time-doctor/saveuseraccount', [TimeDoctorController::class, 'saveUserAccount'])->name('time-doctor.adduser');
+    Route::post('time-doctor/get_auth_token', [TimeDoctorController::class, 'getAuthTokens'])->name('time-doctor.getToken');
+    Route::post('time-doctor/display-user-account', [TimeDoctorController::class, 'displayUserAccountList'])->name('time-doctor.display-user');
+    Route::post('time-doctor/refresh_users_by_id', [TimeDoctorController::class, 'refreshUsersById'])->name('time-doctor.refresh-user-by-id');
+    Route::post('time-doctor/refresh_project_by_id', [TimeDoctorController::class, 'refreshProjectsById'])->name('time-doctor.refresh-project-by-id');
+    Route::post('time-doctor/saveproject', [TimeDoctorController::class, 'saveProject'])->name('time-doctor.addproject');
+    Route::post('time-doctor/get_project_by_id', [TimeDoctorController::class, 'getProjectsById'])->name('time-doctor.get-project-detail');
+    Route::post('time-doctor/update_project_by_id', [TimeDoctorController::class, 'updateProjectById'])->name('time-doctor.update-program-by-id');
+    Route::post('time-doctor/savetask', [TimeDoctorController::class, 'saveTask'])->name('time-doctor.addtask');
+    Route::post('time-doctor/refresh_task_by_id', [TimeDoctorController::class, 'refreshTasksById'])->name('time-doctor.refresh-task-by-id');
+    Route::post('time-doctor/get_task_by_id', [TimeDoctorController::class, 'getTasksById'])->name('time-doctor.get-task-detail');
+    Route::post('time-doctor/update_task_by_id', [TimeDoctorController::class, 'updateTasksById'])->name('time-doctor.update-task-by-id');
+
+    Route::prefix('time-doctor-activities')->group(function () {
+        Route::get('/report', [TimeDoctorActivitiesController::class, 'activityReport'])->name('time-doctor-activtity.report');
+        Route::get('/report-download', [TimeDoctorActivitiesController::class, 'activityReportDownload'])->name('time-doctor-activity-report.download');
+        Route::get('/payment_data', [TimeDoctorActivitiesController::class, 'activityPaymentData'])->name('time-doctor-activity.payment_data');
+        Route::post('/command_execution_manually', [TimeDoctorActivitiesController::class, 'timeDoctorActivityCommandExecution'])->name('time-doctor-activity.command_execution_manually');
+        Route::get('/time-doctor-payment-download', [TimeDoctorActivitiesController::class, 'timeDoctorPaymentReportDownload'])->name('time-doctor-payment-report.download');
+        Route::get('/addtocashflow', [TimeDoctorActivitiesController::class, 'addtocashflow']);
+
+        Route::prefix('notification')->group(function () {
+            Route::get('/', [TimeDoctorActivitiesController::class, 'notification'])->name('time-doctor-acitivties.notification.index');
+            Route::post('/download', [TimeDoctorActivitiesController::class, 'downloadNotification'])->name('time-doctor-acitivties.notification.download');
+            Route::get('/records', [TimeDoctorActivitiesController::class, 'notificationRecords'])->name('time-doctor-acitivties.notification.records');
+            Route::post('/save', [TimeDoctorActivitiesController::class, 'notificationReasonSave'])->name('time-doctor-acitivties.notification.save-reason');
+            Route::post('/change-status', [TimeDoctorActivitiesController::class, 'changeStatus'])->name('time-doctor-acitivties.notification.change-status');
+        });
+
+        Route::prefix('activities')->group(function () {
+            Route::get('/', [TimeDoctorActivitiesController::class, 'getActivityUsers'])->name('time-doctor-acitivties.activities');
+            Route::get('/details', [TimeDoctorActivitiesController::class, 'getActivityDetails'])->name('time-doctor-acitivties.activity-details');
+            Route::post('/details', [TimeDoctorActivitiesController::class, 'approveActivity'])->name('time-doctor-acitivties.approve-activity');
+            Route::post('/final-submit', [TimeDoctorActivitiesController::class, 'finalSubmit'])->name('time-doctor-acitivties/activities/final-submit');
+            Route::post('/task-notes', [TimeDoctorActivitiesController::class, 'NotesHistory'])->name('time-doctor-acitivties.task.notes');
+            Route::get('/save-notes', [TimeDoctorActivitiesController::class, 'saveNotes'])->name('time-doctor-acitivties.task.save.notes');
+            Route::get('/approve-all-time', [TimeDoctorActivitiesController::class, 'approveTime'])->name('time-doctor-acitivties.approve.time');
+            Route::post('/fetch', [TimeDoctorActivitiesController::class, 'fetchActivitiesFromTimeDoctor'])->name('time-doctor-acitivties/activities/fetch');
+            Route::post('/manual-record', [TimeDoctorActivitiesController::class, 'submitManualRecords'])->name('time-doctor-acitivties.manual-record');
+            Route::get('/records', [TimeDoctorActivitiesController::class, 'notificationRecords'])->name('time-doctor-acitivties.notification.records');
+            Route::post('/save', [TimeDoctorActivitiesController::class, 'notificationReasonSave'])->name('time-doctor-acitivties.notification.save-reason');
+            Route::post('/change-status', [TimeDoctorActivitiesController::class, 'changeStatus'])->name('time-doctor-acitivties.notification.change-status');
+            Route::get('/approved/pending-payments', [TimeDoctorActivitiesController::class, 'approvedPendingPayments'])->name('time-doctor-acitivties.pending-payments');
+            Route::post('/approved/payment', [TimeDoctorActivitiesController::class, 'submitPaymentRequest'])->name('time-doctor-acitivties.payment-request.submit');
+            Route::post('/add-efficiency', [TimeDoctorActivitiesController::class, 'AddEfficiency'])->name('time-doctor-acitivties.efficiency.save');
+            Route::get('/task-activity', [TimeDoctorActivitiesController::class, 'taskActivity'])->name('time-doctor-acitivties.acitivties.task-activity');
+            Route::get('/userTreckTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
+        });
+    });
+    
+
     /***
      * use for Postman
      * Created By Nikunj
@@ -4421,6 +4481,9 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('categories', [Select2Controller::class, 'allCategory'])->name('select2.categories');
     Route::get('websites', [Select2Controller::class, 'allWebsites'])->name('select2.websites');
     Route::get('tasks', [Select2Controller::class, 'allTasks'])->name('select2.tasks');
+
+    Route::get('time-doctor-accounts', [Select2Controller::class, 'timeDoctorAccounts'])->name('select2.time_doctor_accounts');
+    Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');
 });
 Route::get('whatsapp-log', [Logging\WhatsappLogsController::class, 'getWhatsappLog'])->name('whatsapp.log');
 Route::get('chatbot-message-log', [ChatbotMessageLogsController::class, 'index'])->name('chatbot.messages.logs');
