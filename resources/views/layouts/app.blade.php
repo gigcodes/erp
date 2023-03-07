@@ -2139,7 +2139,7 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="width: fit-content !important;">
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
                                         </li>
@@ -2154,6 +2154,9 @@ if (!empty($notifications)) {
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googlecampaigns.displayads')}}">Google Responsive Display Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.appadlist')}}">Google App Ads</a>
                                         </li>
                                     </ul>
                                 </li>

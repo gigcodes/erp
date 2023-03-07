@@ -83,6 +83,13 @@ class GoogleCampaignsController extends Controller
         return view('googleads.ads_list', compact('adslist','totalNumEntries'));
     }
 
+    public function appadlist(Request $request)
+    {
+        $googleappadd = \App\Models\GoogleAppAd::all();
+        $totalentries = $googleappadd->count();
+        return view('google_app_ad.appaddlist' , compact('googleappadd' , 'totalentries'));
+    }
+
     public function display_ads(Request $request)
     {
         $display_ads = GoogleResponsiveDisplayAd::get();

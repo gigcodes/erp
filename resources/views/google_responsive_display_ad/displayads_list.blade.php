@@ -47,21 +47,23 @@
                     </thead>
 
                     <tbody>
-                    @foreach($display_ads as $campaign)
-                        @php
-                            $adgroup_name = \App\GoogleAdsGroup::where('id',$campaign->google_adgroup_id)->first();
-                            $campaign_name = \App\GoogleAdsCampaign::where('id',$campaign->adgroup_google_campaign_id)->first();
-                            $account_name = \App\GoogleAdsAccount::where('id',$campaign_name->account_id)->first();
-                        @endphp
-                        <tr>
-                            <td>{{$campaign->id}}</td>
-                            <td>{{$account_name->account_name}}</td>
-                            <td>{{$campaign_name->campaign_name}}</td>
-                            <td>{{$adgroup_name->ad_group_name}}</td>
-                            <td>{{$campaign->google_ad_id}}</td>
-                            <td>{{$campaign->created_at}}</td>
-                        </tr>
-                    @endforeach
+                    @if(!empty($display_ads))
+                        @foreach($display_ads as $campaign)
+                            @php
+                                $adgroup_name = \App\GoogleAdsGroup::where('google_adgroup_id',$campaign->google_adgroup_id)->first();
+                                $campaign_name = \App\GoogleAdsCampaign::where('google_campaign_id',$campaign->adgroup_google_campaign_id)->first();
+                                $account_name = \App\GoogleAdsAccount::where('id',$campaign_name->account_id)->first();
+                            @endphp
+                            <tr>
+                                <td>{{$campaign->id}}</td>
+                                <td>{{!empty($account_name) ? $account_name->account_name : ''}}</td>
+                                <td>{{!empty($campaign_name) ? $campaign_name->campaign_name : ''}}</td>
+                                <td>{{!empty($adgroup_name) ? $adgroup_name->ad_group_name : ''}}</td>
+                                <td>{{$campaign->google_ad_id}}</td>
+                                <td>{{$campaign->created_at}}</td>
+                            </tr>
+                        @endforeach
+                    @endif
                     </tbody>
                 </table>
             </div>
