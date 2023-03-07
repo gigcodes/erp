@@ -84,6 +84,11 @@
                             <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
                                 <button type="submit" class="btn-image">Ads</button>
                             </form>
+
+                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ad-group-keyword">
+                                <button type="submit" class="btn-image">Keywords</button>
+                            </form>
+
                         @elseif(in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))
                             <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/app-ad">
                                 <button type="submit" class="btn-image">App Ads</button>

@@ -335,6 +335,7 @@ use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\GoogleAppAdController;
+use App\Http\Controllers\GoogleAdGroupKeywordController;
 use App\Http\Controllers\UnknownAttributeProductController;
 use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
@@ -3850,6 +3851,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
             Route::get('/', [GoogleAdGroupController::class, 'index'])->name('adgroup.index');
             Route::get('/create', [GoogleAdGroupController::class, 'createPage'])->name('adgroup.createPage');
             Route::post('/create', [GoogleAdGroupController::class, 'createAdGroup'])->name('adgroup.createAdGroup');
+            Route::post('/generate-keywords', [GoogleAdGroupController::class, 'generateKeywords'])->name('adgroup.generateKeywords');
             Route::get('/update/{adGroupId}', [GoogleAdGroupController::class, 'updatePage'])->name('adgroup.updatePage');
             Route::post('/update', [GoogleAdGroupController::class, 'updateAdGroup'])->name('adgroup.updateAdGroup');
             Route::delete('/delete/{adGroupId}', [GoogleAdGroupController::class, 'deleteAdGroup'])->name('adgroup.deleteAdGroup');
@@ -3881,6 +3883,16 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::get('/{adId}', [GoogleAppAdController::class, 'show'])->name('app-ad.show');
                 });
             });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('ad-group-keyword')->group(function () {
+                    Route::get('/', [GoogleAdGroupKeywordController::class, 'index'])->name('ad-group-keyword.index');
+                    Route::get('/create', [GoogleAdGroupKeywordController::class, 'createPage'])->name('ad-group-keyword.createPage');
+                    Route::post('/create', [GoogleAdGroupKeywordController::class, 'createKeyword'])->name('ad-group-keyword.craeteKeyword');
+                    Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
+                });
+            });
+
         });
     });
 
