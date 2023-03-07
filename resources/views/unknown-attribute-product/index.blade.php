@@ -77,7 +77,7 @@
                 
                 <div class="col-md-6 border">
                     <form id="attribute_form">
-                        <h3 class="text-center mt-3 mb-3">Attribute</h3>
+                        <h3 class="text-center mt-3 mb-3">Bulk Update</h3>
                         <div class="row p-2">
                             <div class="form-group col-md-4">
                                 <label>Attribute assignment:</label>
@@ -444,6 +444,8 @@
             $this.removeAttr('disabled');
             if (response.code == 200) {
                 $("#product-attribute-detail").modal('show');
+                $("#update_attribute_form")[0].reset();
+                $('#update_attribute_form .select-multiple2').val('').trigger('change');
                 $("#update_attribute_id").val(response.results.status_id);
                 $("#product_id").val(response.results.id);
                 $("#lbl_product_id").text(response.results.id);
