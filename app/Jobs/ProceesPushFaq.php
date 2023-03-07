@@ -109,11 +109,25 @@ class ProceesPushFaq implements ShouldQueue
                         //create a payload for API
                         $faqQuestion    =   $replyInfo->name;
                         
-                        $faqCategoryId  =   $replyInfo->category_id;
+                        $categoryId     =   $replyInfo->category_id;
+                        
+
                         // $faqCategoryId  =   1;
 
                         if (!empty($url) && !empty($api_token) && !empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
+
+                                //get platform id of category
+                                $faqCategoryId      =   (new \App\StoreWebsiteCategory)->getPlatformId($store_website_id, $categoryId, $storeValue);
+
+                                if(empty($faqCategoryId)){
+                                    \Log::info('Category d not available');
+                                    $faqCategoryId  =   (new \App\StoreWebsiteCategory)->storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token);
+                                }
+
+                                if(empty($faqCategoryId)){
+                                    (new ReplyLog)->addToLog($replyInfo->id, 'System unable to generate  FAQ category ID on '.$url.' with ID '.$store_website_id.' on store '.$storeValue.' ', 'Push' );
+                                }
 
                                 $language           =   isset(explode('-', $storeValue)[1]) && explode('-', $storeValue)[1] != "" ? explode('-', $storeValue)[1] : "";
                                 //if reply is already pushed to store then get the information
@@ -126,10 +140,12 @@ class ProceesPushFaq implements ShouldQueue
 
                                 if(!empty($translateReplies->translate_text))
                                 {
-                                    $platform_id    =   $translateReplies->platform_id;
+                                    $platform_id    =   (new \App\Models\FaqPlatformDetails)->getFaqPlatformId($translateReplies->id, $store_website_id,  $storeValue,   'translate');
+                                    // $platform_id    =   $translateReplies->platform_id;
                                 }
-                                else if($replyInfo->platform_id && !empty($replyInfo->platform_id)){
-                                    $platform_id    =   $replyInfo->platform_id;
+                                else{
+                                    $platform_id    =   (new \App\Models\FaqPlatformDetails)->getFaqPlatformId($replyInfo->id, $store_website_id,  $storeValue,     'reply');
+                                    // $platform_id    =   $replyInfo->platform_id;
                                 }
 
                                 if (!empty($platform_id)) {
@@ -161,12 +177,23 @@ class ProceesPushFaq implements ShouldQueue
                                     
                                     if(!empty($translateReplies->translate_text))
                                     {
-                                        $translateReplies->platform_id     =   $response->id;
-                                        $translateReplies->save();
+                                        $platformDetails                    =    new \App\Models\FaqPlatformDetails;
+                                        $platformDetails->reply_id          =   $replyInfo->id;
+                                        $platformDetails->store_website_id  =   $store_website_id;
+                                        $platformDetails->store_code        =   $storeValue;
+                                        $platformDetails->type              =   'translate';
+                                        $platformDetails->save();
+
+                                        // $translateReplies->platform_id     =   $response->id;
+                                        // $translateReplies->save();
                                     }
                                     else if($replyInfo->platform_id && !empty($replyInfo->platform_id)){
-                                        $replyInfo->platform_id     =   $response->id;
-                                        $replyInfo->save();
+                                        $platformDetails                    =    new \App\Models\FaqPlatformDetails;
+                                        $platformDetails->reply_id          =   $replyInfo->id;
+                                        $platformDetails->store_website_id  =   $store_website_id;
+                                        $platformDetails->store_code        =   $storeValue;
+                                        $platformDetails->type              =   'reply';
+                                        $platformDetails->save();
                                     }
                                 }
 
@@ -187,7 +214,8 @@ class ProceesPushFaq implements ShouldQueue
                                     (new ReplyLog)->addToLog($replyInfo->id, ' Error while pushing FAQ on Store '.$storeValue.' : '.json_encode($response), 'Push' );
                                 }
 
-                                \Log::info("Got response from API after pushing the FAQ to server"); \Log::info($postdata);
+                                \Log::info("Got response from API after pushing the FAQ to server"); 
+                                \Log::info($postdata);
                                 \Log::info(json_encode($response));
                             }
                         } else {

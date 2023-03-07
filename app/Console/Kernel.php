@@ -23,6 +23,7 @@ use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\CreateScrapedProducts;
 use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\DailyHubstaffActivityLevel;
+use App\Console\Commands\DailyTimeDoctorActivityLevel;
 use App\Console\Commands\DatabaseLogCron;
 use App\Console\Commands\DeleteChatMessages;
 use App\Console\Commands\DeleteGnbProducts;
@@ -278,6 +279,7 @@ class Kernel extends ConsoleKernel
         //SendEventNotificationBefore30min::class,
         AccountHubstaffActivities::class,
         DailyHubstaffActivityLevel::class,
+        DailyTimeDoctorActivityLevel::class,
         EmailExcelImporter::class,
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
@@ -723,7 +725,7 @@ class Kernel extends ConsoleKernel
 
         // Ads history Cron
         $schedule->command('social:ads-history')->dailyAt('0:00');
-        $schedule->command('save:zoom-meetings')->daily();
+        $schedule->command('save:zoom-meetings')->dailyAt('23:59');
     }
 
     /**`
