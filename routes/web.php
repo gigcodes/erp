@@ -3844,6 +3844,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::post('/ads-account/create', [GoogleAdsAccountController::class, 'createGoogleAdsAccount'])->name('googleadsaccount.createAdsAccount');
     Route::get('/ads-account/update/{id}', [GoogleAdsAccountController::class, 'editeGoogleAdsAccountPage'])->name('googleadsaccount.updatePage');
     Route::post('/ads-account/update', [GoogleAdsAccountController::class, 'updateGoogleAdsAccount'])->name('googleadsaccount.updateAdsAccount');
+    Route::delete('/ads-account/delete/{id}', [GoogleAdsAccountController::class, 'deleteGoogleAdsAccount'])->name('googleadsaccount.deleteGoogleAdsAccount');
     Route::post('/refresh-token', [GoogleAdsAccountController::class, 'refreshToken'])->name('googleadsaccount.refresh_token');
     Route::get('/get-refresh-token', [GoogleAdsAccountController::class, 'getRefreshToken'])->name('googleadsaccount.get-refresh-token');
     Route::prefix('{id}')->group(function () {
