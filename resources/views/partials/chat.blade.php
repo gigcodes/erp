@@ -669,7 +669,7 @@ const createTable = (head,body,bodyElements)=>{
 			string += '<tr>'
 			for (let j in bodyElements){
 				string += '<td>'
-				string += body[i][bodyElements[j]] ? body[i][bodyElements[j]] : 'N/A'
+				string += body[i][bodyElements[j]] ? (typeof body[i][bodyElements[j]] == 'object' ? body[i][bodyElements[j]].website : body[i][bodyElements[j]]) : 'N/A'
 				string += '</td>';
 			}
 			string += '</tr>'

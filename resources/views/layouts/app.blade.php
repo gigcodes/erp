@@ -320,6 +320,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         /*padding-right: 30px;*/
     }
 
+    .time_doctor_project_section{
+        display: none;
+    }
+
     /*.navbar-brand{*/
     /*    margin-right: 20px;*/
     /*}*/
@@ -2895,6 +2899,44 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+
+                                        <!-- time doctor -->
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" v-pre>Time Doctor<span
+                                                    class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor.members') }}">Members</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/projects') }}">Projects</a>
+                                                </li>
+
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/tasks') }}">Tasks</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/notification') }}">Activity
+                                                        Notofication</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/activities') }}">Activities</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">User
+                                                        Track Time</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -3080,7 +3122,7 @@ if (!empty($notifications)) {
                                             States</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
+                                        <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage
@@ -6148,6 +6190,15 @@ if (!\Auth::guest()) {
             toastr['error'](response.responseJSON.message);
 
         });
+    });
+
+    $(document).on('change', '.task_for', function(e) {
+        var getTask = $(this).val();
+        if(getTask == 'time_doctor'){
+            $('.time_doctor_project_section').show();
+        } else {
+            $('.time_doctor_project_section').hide();
+        }
     });
 
     $(document).on("click", ".save-task-window", function(e) {
