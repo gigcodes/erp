@@ -49,23 +49,23 @@ class DevAPIReport extends Command
         $log->api='crash/anr';
 
         $client = new Client();
-        $client->setApplicationName(env("GOOGLE_APP_ID"));
-        $client->setDeveloperKey(env("GOOGLE_DEV_KEY"));
-        $client->setClientId(env("GOOGLE_CLIENT_ID"));
-        $client->setClientSecret(env("GOOGLE_CLIENT_SECRET"));
-        $SERVICE_ACCOUNT_NAME = env("GOOGLE_SERVICE_ACCOUNT"); 
-        $KEY_FILE = storage_path().env("GOOGLE_SERVICE_CREDENTIALS");
+        $client->setApplicationName(env("GOOGLE_PLAY_STORE_APP_ID"));
+        $client->setDeveloperKey(env("GOOGLE_PLAY_STORE_DEV_KEY"));
+        $client->setClientId(env("GOOGLE_PLAY_STORE_CLIENT_ID"));
+        $client->setClientSecret(env("GOOGLE_PLAY_STORE_CLIENT_SECRET"));
+        $SERVICE_ACCOUNT_NAME = env("GOOGLE_PLAY_STORE_SERVICE_ACCOUNT"); 
+        $KEY_FILE = storage_path().env("GOOGLE_PLAY_STORE_SERVICE_CREDENTIALS");
         $log->log_name='key_file_path';
         $log->result=$KEY_FILE;
         $log->save();
         $client->setAuthConfig($KEY_FILE);
-        $user_to_impersonate= env("GOOGLE_SERVICE_ACCOUNT");
+        $user_to_impersonate= env("GOOGLE_PLAY_STORE_SERVICE_ACCOUNT");
         $client->setSubject($user_to_impersonate);
-        $client->setScopes(array(env("GOOGLE_SCOPES")));
+        $client->setScopes(array(env("GOOGLE_PLAY_STORE_SCOPES")));
 
         $token=null;
         if ($client->isAccessTokenExpired()) 
-        {
+        {   
             $token = $client->fetchAccessTokenWithAssertion();
              $log = new GoogleDeveloperLogs();    
         $log->api='crash/anr';
@@ -109,7 +109,7 @@ class DevAPIReport extends Command
             $at=$_SESSION['token']["access_token"];
             //crash report
 
-            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_APP").'/crashRateMetricSet?access_token='.$at);
+            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_PLAY_STORE_APP").'/crashRateMetricSet?access_token='.$at);
 
              $log = new GoogleDeveloperLogs();    
             $log->api='crash/anr';   
@@ -175,7 +175,7 @@ class DevAPIReport extends Command
 
             //ANR Report
 
-            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_APP").'/anrRateMetricSet?access_token='.$at);
+            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_PLAY_STORE_APP").'/anrRateMetricSet?access_token='.$at);
             $log = new GoogleDeveloperLogs();    
             
                     $log->api='anr';
