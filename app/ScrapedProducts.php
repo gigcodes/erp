@@ -143,7 +143,7 @@ class ScrapedProducts extends Model
                     $scrapedProduct->brand_id = $json->brand_id;
                     $scrapedProduct->sku = $ourSku;
                     $scrapedProduct->original_sku = $json->sku;
-                    $scrapedProduct->website = $json->website;
+                    $scrapedProduct->website = $json->website ?? 'N/A';
                     $scrapedProduct->title = $json->title;
                     $scrapedProduct->description = $json->description;
                     $scrapedProduct->images = $json->images;
@@ -181,7 +181,7 @@ class ScrapedProducts extends Model
                 // Product created successfully
                 if ($productsCreatorResult) {
                     // Add or update supplier / inventory
-                    SupplierInventory::firstOrCreate(['supplier' => $json->website, 'sku' => $ourSku, 'inventory' => $json->stock]);
+                    SupplierInventory::firstOrCreate(['supplier' => $json->website ?? 'N/A', 'sku' => $ourSku, 'inventory' => $json->stock]);
 
                     // Update count
                     $count++;
