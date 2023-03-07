@@ -2,13 +2,13 @@
 @section('favicon' , 'task.png')
 
 @section('content')
-    <div class="container" style="margin-top: 10px">
-    <h4>Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name
+    <div class="col-md-12">
+    <h4 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name<button class="btn-image" onclick="window.location.href='/google-campaigns?account_id={{$campaign_account_id}}'">Back to campaigns</button></h4>
 
     <div class="pull-left">
         <div class="form-group">
             <div class="row">
-                
+
                 <div class="col-md-3">
                     <input name="googlegroup_name" type="text" class="form-control" value="{{ isset($googlegroup_name) ? $googlegroup_name : '' }}" placeholder="Group Name" id="googlegroup_name">
                 </div>
@@ -40,12 +40,10 @@
         </div>
     </div>
 
+        <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#adgroupmodal">New Ad Group</button>
 
-    <button class="btn-image" onclick="window.location.href='/google-campaigns?account_id={{$campaign_account_id}}'">Back to campaigns</button></h4>
-        <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/create">
-            <button type="submit" class="btn-sm float-right mb-3">New Ad Group</button>
-        </form>
-   
+
+
         <table class="table table-bordered" id="adsgroup-table">
             <thead>
             <tr>
@@ -107,6 +105,87 @@
             </tbody>
         </table>
     {{ $adGroups->links() }}
+    </div>
+    <div class="modal fade" id="adgroupmodal" role="dialog" style="z-index: 3000;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="container">
+                    <div class="page-header" style="width: 69%">
+                        <h2>Create Ad group for {{$campaign_name}}</h2>
+                    </div>
+                    <form method="POST" action="/google-campaigns/{{$campaignId}}/adgroups/create" enctype="multipart/form-data" method="POST">
+                        @csrf
+                        <div class="form-group row">
+                            <label for="ad-group-name" class="col-sm-2 col-form-label">Ad group name</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="ad-group-name" name="adGroupName" placeholder="Ad group name">
+                                @if ($errors->has('adGroupName'))
+                                    <span class="text-danger">{{$errors->first('adGroupName')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                        @if($campaign_channel_type != "MULTI_CHANNEL")
+                            <div class="form-group row">
+                                <label for="bid-amount" class="col-sm-2 col-form-label">Bid amount</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="bid-amount" name="microAmount" placeholder="Bid amount">
+                                    @if ($errors->has('microAmount'))
+                                        <span class="text-danger">{{$errors->first('microAmount')}}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($campaign_channel_type == "SEARCH")
+                            <input type="hidden" name="campaignId" id="campaignId" value="{{$campaignId}}">
+                            <div class="form-group row">
+                                <label for="scanurl" class="col-sm-2 col-form-label">Url</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control google_ads_keywords" id="scanurl" name="scanurl" placeholder="Enter a URL to scan for keywords">
+                                    <span id="scanurl-error"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="scan_keywords" class="col-sm-2 col-form-label">Keyword</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control google_ads_keywords" id="scan_keywords" name="scan_keywords" placeholder="Enter products or services to advertise">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="" class="col-sm-2 col-form-label">&nbsp;</label>
+                                <div class="col-sm-6">
+                                    <button type="button" class="btn btn-default" id="btnGetKeywords">Get keyword suggestions</button>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="suggested_keywords" class="col-sm-2 col-form-label">Suggested Keywords</label>
+                                <div class="col-sm-6">
+                                    <textarea class="form-control" id="suggested_keywords" name="suggested_keywords" rows="10" placeholder="Enter or paste keywords. You can separate each keyword by commas."></textarea>
+
+                                    <span class="text-muted">Note: You can add up to 80 keyword and each keyword character must be less than 80 character.</span>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="form-group row">
+                            <label for="ad-group-status" class="col-sm-2 col-form-label">Ad group status</label>
+                            <div class="col-sm-6">
+                                <select class="browser-default custom-select" id="ad-group-status" name="adGroupStatus" style="height: auto">
+                                    <option value="1" selected>Enabled</option>
+                                    <option value="2">Paused</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-8">
+                                <button type="button" class="float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
+                                <button type="submit" class="mb-2 float-right">Create</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
