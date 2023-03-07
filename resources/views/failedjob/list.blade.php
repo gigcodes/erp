@@ -12,45 +12,38 @@
         <div class="panel panel-default">
 
             <div class="panel-body p-0">
-               
-                    <div class="row p-3">
-                    <div class ="col-md-10">
-                    <form action="{{ route('failedjobs.list') }}" method="GET">
-                        <div class="col-md-3">
-                            <label for="start_date">Queue Type</label>
-                            <input type="text" class="form-control" id="queue" name="queue" value="{{ old('queue') }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="start_date">Payload</label>
-                            <input type="text" class="form-control" id="payload" name="payload" value="{{ old('payload') }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="end_date">Failed Date</label>
-                            <input type="date" class="form-control" id="available_date" name="failed_at" value="{{ old('available_date') ? date('m/d/Y',strtotime(old('available_date'))) : null }}">
-                        </div>
-                        <button class="btn btn-light" id="submit">
-                            <span class="fa fa-filter"></span> Filter Results
-                        </button>
-                        </form>  
+
+                <div class="row p-3">
+                    <div class ="col-md-12 pl-2">
+                        <form action="{{ route('failedjobs.list') }}" method="GET">
+                            <div class="col-md-2">
+                                <label for="start_date">Payload</label>
+                                <input type="text" class="form-control" id="payload" name="payload" value="{{ request('payload') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="start_date">Exception</label>
+                                <input type="text" class="form-control" id="exception" name="exception" value="{{ request('exception') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="end_date">Failed Date</label>
+                                <input type="date" class="form-control" id="available_date" name="failed_at" value="{{ request('available_date') ? date('m/d/Y',strtotime(request('available_date'))) : null }}">
+                            </div>
+                            <button class="btn btn-light" id="submit" style="margin-top: 22px;">
+                                <span class="fa fa-filter"></span> Filter Results
+                            </button>
+                            <div class="col-md-2 pull-right">
+                                @csrf
+                                <button  style="background-color: #ffc9c9;" class="btn btn-light" id="checkboxsubmit">
+                                    <span class="fa fa-trash"></span> Delete All
+                                </button>
+                                <div class="col-md-2">
+                                    <button class="btn btn-secondary" id="delete-selected">
+                                        <span class="fa fa-trash"></span> Delete Selected
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                    <div class="col-md-2">
-                    <form action="" method="Post">
-                    @csrf
-                        <button  style="margin: 14px;background-color: #ffc9c9;" class="btn btn-light" id="checkboxsubmit">
-                            <span class="fa fa-trash"></span> Delete All 
-                        </button>
-                       </form> 
-                    </div>
-                    </div>
-                
-                
-                <div class="row">
-                    <div class="col-md-2">
-                        <button class="btn btn-secondary" id="delete-selected">
-                            <span class="fa fa-trash"></span> Delete Selected
-                        </button>
-                    </div>
-                   
                 </div>
 
                 <div class="table-responsive">
@@ -63,6 +56,7 @@
                             <th>Action</th>
                         </thead>
                         <tbody>
+
                             @foreach($jobs as $item)
                                 <tr>
                                     <td><input class="check-jobs" type="checkbox" name="ids[]" value="{{ $item->id }}"></td>
