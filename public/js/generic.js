@@ -386,11 +386,11 @@ $(document).on('click', '.load-communication-modal', function () {
         load_type = $(this).data('load-type');
     var is_admin = $(this).data('is_admin');
     var is_hod_crm = $(this).data('is_hod_crm');
-    var limit = 1000;
+    var limit = 20;
     if(typeof $(this).data('limit') != "undefined") {
         limit = $(this).data('limit');
     }
-    var base_url ="http://localhost/erp_local/public";
+    var base_url ="http://localhost:8000";
     thiss.parent().find('.td-full-container').toggleClass('hidden');
 	currentChatParams.url =  base_url+"/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
     currentChatParams.data = {
