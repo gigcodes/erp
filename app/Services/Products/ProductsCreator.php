@@ -277,6 +277,15 @@ class ProductsCreator
                 $product->save();
             }
 
+            // Initially save status scrape in Product_status_history
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
             // check that if the product color is white then we need to remove that
             $product->isNeedToIgnore();
 
@@ -459,6 +468,14 @@ class ProductsCreator
 
         try {
             $product->save();
+            // Initially save status scrape in Product_status_history when validator failed
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
             //$setProductDescAndNameLanguages = new ProductController();
             //$setProductDescAndNameLanguages->listMagento(request() ,$product->id);
             $image->product_id = $product->id;
