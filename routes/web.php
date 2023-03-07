@@ -590,7 +590,8 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 Route::middleware('auth', 'optimizeImages')->group(function () {
     //Crop Reference
     Route::get('crop-references', [CroppedImageReferenceController::class, 'index']);
-    Route::get('crop-references-grid', [CroppedImageReferenceController::class, 'grid']);
+    Route::get('crop-references-grid', [CroppedImageReferenceController::class, 'grid'])->name('grid.reference');
+    Route::get('crop-references-grid/cropStats', [CroppedImageReferenceController::class, 'cropStats']);
     Route::get('crop-references-grid/manage-instances', [CroppedImageReferenceController::class, 'manageInstance']);
     Route::post('crop-references-grid/add-instance', [CroppedImageReferenceController::class, 'addInstance']);
     Route::get('crop-references-grid/delete-instance', [CroppedImageReferenceController::class, 'deleteInstance']);
