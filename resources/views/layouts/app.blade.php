@@ -3067,6 +3067,9 @@ if (!empty($notifications)) {
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                             </li>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
+                            </li>
                             <li class="nav-item dropdown dropdown-submenu">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
                                     aria-haspopup="true" aria-expanded="false">Development <span
