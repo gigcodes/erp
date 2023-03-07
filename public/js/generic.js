@@ -390,7 +390,8 @@ $(document).on('click', '.load-communication-modal', function () {
     if(typeof $(this).data('limit') != "undefined") {
         limit = $(this).data('limit');
     }
-    var base_url ="http://localhost:8000";
+    var base_url = BASE_URL;
+    // var base_url ="http://localhost:8000";
     thiss.parent().find('.td-full-container').toggleClass('hidden');
 	currentChatParams.url =  base_url+"/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
     currentChatParams.data = {
