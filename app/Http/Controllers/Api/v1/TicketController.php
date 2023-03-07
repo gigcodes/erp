@@ -256,11 +256,6 @@ class TicketController extends Controller
         if(!empty($get_ticket_data)){
             $customer = \App\Customer::where('email', $get_ticket_data->email)->first();
 
-            // $emailClass = (new TicketCreate($get_ticket_data))->build();
-            // $message = trim($emailClass->render());
-            // $reply = (new EmailParser())->parse($message);
-            // $fragment = current($reply->getFragments());
-
             $params = [
                 'number' => $customer->phone,
                 'message' => $get_ticket_data->message,
@@ -279,123 +274,6 @@ class TicketController extends Controller
             $messageModel = \App\ChatMessage::create($params);
 
             \App\Helpers\MessageHelper::sendwatson($customer, $get_ticket_data->message, null, $messageModel, $params);
-
-            /*$params1 = [
-                'number' => $customer->phone,
-                'message' => $get_ticket_data->message,
-                'media_url' => null,
-                'approved' => 0,
-                'status' => 0,
-                'contact_id' => null,
-                'erp_user' => null,
-                'supplier_id' => null,
-                'task_id' => null,
-                'dubizzle_id' => null,
-                'vendor_id' => null,
-                'customer_id' => $customer->id,
-                'is_email' => 1,
-            ];
-            $messageModel1 = \App\ChatMessage::create($params1);
-            $list_messages = \App\ChatbotQuestion::where(['keyword_or_question'=>'intent'])->where('value', 'like', '%'.$get_ticket_data->message.'%')->get();
-            if(count($list_messages)>0){
-                foreach ($list_messages as $key => $message) {
-                    
-                    $params = [
-                        'number' => $customer->phone,
-                        'message' => $message->suggested_reply,
-                        'message_en' => $message->suggested_reply,
-                        'media_url' => null,
-                        'status' => 0,
-                        'contact_id' => null,
-                        'erp_user' => null,
-                        'supplier_id' => null,
-                        'task_id' => null,
-                        'dubizzle_id' => null,
-                        'vendor_id' => null,
-                        'customer_id' => $customer->id,
-                        'approved' => 0,
-                        'ticket_id' => $ticker_id,
-                    ];
-
-                    $chat_message = \App\ChatMessage::create($params);
-
-                    if($message->auto_approve==1){
-
-                        $chat_message->approved = 1;
-                        $chat_message->status = 2;
-                        $chat_message->send_to_tickets = 1;
-                        $chat_message->save();
-                    }
-
-                    $res = array(
-                        'output' => array(
-                            'database' => array(array(
-                                'response_type' => 'text',
-                                'text' => $message->suggested_reply
-                            ))
-                        )
-                    );
-
-                    $reply_msg = [
-                        'question' => $get_ticket_data->message,
-                        'answer' => $message->suggested_reply,
-                        'reply' => $res,
-                        'chat_id' => $chat_message->id,
-                        'replied_chat_id' => $messageModel1->id,
-                        'reply_from' => 'erp',
-                        'is_read' => 1,
-                    ];
-                    \App\ChatbotReply::create($reply_msg);
-                }
-            } else {
-
-               
-                $emailClass = (new TicketCreate($get_ticket_data))->build();
-                $message = trim($emailClass->render());
-                $reply = (new EmailParser())->parse($message);
-                $fragment = current($reply->getFragments());
-
-                $params = [
-                    'number' => $customer->phone,
-                    'message' => $fragment->getContent(),
-                    'media_url' => null,
-                    'approved' => 0,
-                    'status' => 0,
-                    'contact_id' => null,
-                    'erp_user' => null,
-                    'supplier_id' => null,
-                    'task_id' => null,
-                    'dubizzle_id' => null,
-                    'vendor_id' => null,
-                    'customer_id' => $customer->id,
-                ];
-                $messageModel = \App\ChatMessage::create($params);
-
-                \App\Helpers\MessageHelper::sendwatson($customer, $fragment->getContent(), null, $messageModel, $params, $isEmail = true);
-
-                $check_replies = \App\ChatbotReply::where(['replied_chat_id'=>$messageModel->id,'reply_from'=>'watson'])->first();
-                if(!empty($check_replies)) {
-
-                    $params = [
-                        'number' => $customer->phone,
-                        'message' => $check_replies->answer,
-                        'message_en' => $check_replies->answer,
-                        'media_url' => null,
-                        'status' => 0,
-                        'contact_id' => null,
-                        'erp_user' => 0,
-                        'supplier_id' => null,
-                        'task_id' => null,
-                        'dubizzle_id' => null,
-                        'vendor_id' => null,
-                        'customer_id' => $customer->id,
-                        'is_email' => 1,
-                        'approved' => 0,
-                        'ticket_id' => $ticker_id,
-                    ];
-                    \App\ChatMessage::create($params);
-                }
-            }*/
         }
         return true;
     }

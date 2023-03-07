@@ -576,7 +576,6 @@ function opnMsg(email) {
     $(document).on('click', '.row-ticket', function () {
         /*DEVTASK-22731-START*/
         ticket_id = $(this).data('ticket-id');
-        // $('#viewmore #contentview').html($(this).data('content'));
         getTicketData(ticket_id);
         $('#viewmorechatmessages').modal("show");
         /*DEVTASK-22731-END*/
@@ -1177,6 +1176,11 @@ function opnMsg(email) {
             $('.sop_description').val(message);
         });
     /*DEVTASK-22731-START*/
+
+    // It is used to collapse action menu on right side of table
+    function Ticketsbtn(id){
+        $(".action-ticketsbtn-tr-"+id).toggleClass('d-none')
+    }
 </script>
 @endsection
 

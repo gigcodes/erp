@@ -127,24 +127,7 @@
                     </tbody>
                   </table>
                </div>
-            <!-- <div id="contentview" class="modal-body" style="padding:30px;background-color: #999999;">
-            <table class='table table-bordered ticket-list' >
-                    <thead>
-                      <tr>
-                          <td>Date</td>
-                          <td>orignal</td>
-                          <td>Message</td>
-                          <td>Action</td>
-                        </tr>
-                    </thead>
-                    <tbody id="ticketData">
-
-                    </tbody>
-                </table>
-            </div> -->
-              
           </div>
-
      </div>
 </div>
 <!-- DEVTASK-22731 - END -->
