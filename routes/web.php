@@ -3902,6 +3902,11 @@ Route::prefix('ads')->middleware('auth')->group(function () {
 
 Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::get('/', [GoogleCampaignsController::class, 'index'])->name('googlecampaigns.index');
+    Route::get('/list', [GoogleCampaignsController::class, 'campaignslist'])->name('googlecampaigns.campaignslist');
+    Route::get('/ads/list', [GoogleCampaignsController::class, 'adslist'])->name('googlecampaigns.adslist');
+    Route::get('/responsive-display-ads/list', [GoogleCampaignsController::class, 'display_ads'])->name('googlecampaigns.displayads');
+    Route::get('/ads-group-list', [GoogleCampaignsController::class, 'adsgroupslist'])->name('googleadsaccount.adsgroupslist');
+    Route::get('/appad-list', [GoogleCampaignsController::class, 'appadlist'])->name('googleadsaccount.appadlist');
     Route::get('/create', [GoogleCampaignsController::class, 'createPage'])->name('googlecampaigns.createPage');
     Route::post('/create', [GoogleCampaignsController::class, 'createCampaign'])->name('googlecampaigns.createCampaign');
     Route::get('/update/{id}', [GoogleCampaignsController::class, 'updatePage'])->name('googlecampaigns.updatePage');

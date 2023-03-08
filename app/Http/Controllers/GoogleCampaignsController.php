@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GoogleResponsiveDisplayAd;
 use Exception;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
@@ -70,6 +71,46 @@ class GoogleCampaignsController extends Controller
         } else {
             return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
         }
+    }
+
+
+    public function campaignslist(Request $request)
+    {
+        $campaignslist = \App\GoogleAdsCampaign::get();
+
+        $totalNumEntries = count($campaignslist);
+
+        return view('googlecampaigns.google_campaignslist', compact('campaignslist','totalNumEntries'));
+    }
+
+    public function adslist(Request $request)
+    {
+        $adslist = \App\GoogleAd::get();
+        $totalNumEntries = count($adslist);
+
+        return view('googleads.ads_list', compact('adslist','totalNumEntries'));
+    }
+
+    public function appadlist(Request $request)
+    {
+        $googleappadd = \App\Models\GoogleAppAd::all();
+        $totalentries = $googleappadd->count();
+        return view('google_app_ad.appaddlist' , compact('googleappadd' , 'totalentries'));
+    }
+
+    public function display_ads(Request $request)
+    {
+        $display_ads = GoogleResponsiveDisplayAd::get();
+        $totalNumEntries = count($display_ads);
+
+        return view('google_responsive_display_ad.displayads_list', compact('display_ads','totalNumEntries'));
+    }
+
+    public function adsgroupslist(Request $request)
+    {
+        $adsgroups = \App\AdGroup::all();
+        $totalentries = $adsgroups->count();
+        return view('googleadgroups.grouplist' , compact('adsgroups' , 'totalentries'));
     }
 
     public function index(Request $request)
