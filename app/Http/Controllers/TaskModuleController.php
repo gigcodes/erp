@@ -1954,22 +1954,29 @@ class TaskModuleController extends Controller
             $completed_tasks = $completed_tasks->whereIn('assign_to', $request->user);
         }
 
+        if ($request->task_subject && $request->task_subject != null) {
+            $pending_tasks = $pending_tasks->where('task_subject', $request->task_subject);
+            $completed_tasks = $completed_tasks->where('task_subject', $request->task_subject);
+        }
+
         if ($request->date != null) {
             $pending_tasks = $pending_tasks->where('created_at', 'LIKE', "%$request->date%");
             $completed_tasks = $completed_tasks->where('created_at', 'LIKE', "%$request->date%");
         }
 
-        $pending_tasks = $pending_tasks->oldest()->paginate(Setting::get('pagination'));
-        $completed_tasks = $completed_tasks->orderBy('is_completed', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+        $pending_tasks = $pending_tasks->latest()->paginate(Setting::get('pagination'));
+        $completed_tasks = $completed_tasks->orderBy('is_completed', 'DESC')->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
         $users = Helpers::getUserArray(User::all());
         $user = $request->user ?? [];
         $date = $request->date ?? '';
+        $taskstatus = TaskStatus::get();
 
         return view(
             'task-module.list', [
                 'pending_tasks' => $pending_tasks,
                 'completed_tasks' => $completed_tasks,
+                'taskstatus' => $taskstatus,
                 'users' => $users,
                 'user' => $user,
                 'date' => $date,
