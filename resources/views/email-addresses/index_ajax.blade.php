@@ -6,14 +6,14 @@
               <td class="expand-row-msg" data-name="username" data-id="{{$server->id}}">
                   <span class="show-short-username-{{$server->id}}">{{ Str::limit($server->username, 12, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-username-{{$server->id}} hidden">{{$server->username}}</span>
-                  <button type="button"  class="btn btn-copy-username btn-sm" data-id="{{$server->username}}" style="border:1px solid">
+                  <button type="button"  class="btn btn-copy-username btn-sm float-right" data-id="{{$server->username}}">
                       <i class="fa fa-clone" aria-hidden="true"></i>
                   </button>
               </td>
               <td class="expand-row-msg" data-name="password" data-id="{{$server->id}}">
                     <span class="show-short-password-{{$server->id}}">{{ Str::limit($server->password, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$server->id}} hidden">{{$server->password}}</span>
-                  <button type="button"  class="btn btn-copy-password btn-sm" data-id="{{$server->password}}" style="border:1px solid">
+                  <button type="button"  class="btn btn-copy-password btn-sm float-right" data-id="{{$server->password}}">
                       <i class="fa fa-clone" aria-hidden="true"></i>
                   </button>
               </td>
@@ -35,7 +35,7 @@
               </td>
               <td>
                     {{ $server->send_grid_token??'N/A' }}
-                    <button type="button"  class="btn btn-copy-token btn-sm" data-id="{{$server->send_grid_token}}" style="border:1px solid">
+                    <button type="button"  class="btn btn-copy-token btn-sm float-right" data-id="{{$server->send_grid_token}}">
                         <i class="fa fa-clone" aria-hidden="true"></i>
                     </button>
                 </td>
