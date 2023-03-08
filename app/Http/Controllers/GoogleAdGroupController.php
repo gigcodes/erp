@@ -351,6 +351,7 @@ class GoogleAdGroupController extends Controller
                         'message' => "Create ad group > ". $e->getMessage()
                     );
             insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups/create')->with('actError', $this->exceptionError);
         }
     }
