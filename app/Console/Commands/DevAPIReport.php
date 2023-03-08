@@ -47,7 +47,9 @@ class DevAPIReport extends Command
     {    
         $log = new GoogleDeveloperLogs();    
         $log->api='crash/anr';
+        $redirect_uri = 'https://erpstage.theluxuryunlimited.com/google/developer-api/crash';
 
+        // print($redirect_uri);
         $client = new Client();
         $client->setApplicationName(env("GOOGLE_PLAY_STORE_APP_ID"));
         $client->setDeveloperKey(env("GOOGLE_PLAY_STORE_DEV_KEY"));
@@ -55,9 +57,10 @@ class DevAPIReport extends Command
         $client->setClientSecret(env("GOOGLE_PLAY_STORE_CLIENT_SECRET"));
         $SERVICE_ACCOUNT_NAME = env("GOOGLE_PLAY_STORE_SERVICE_ACCOUNT"); 
         $KEY_FILE = storage_path().env("GOOGLE_PLAY_STORE_SERVICE_CREDENTIALS");
-        $log->log_name='key_file_path';
-        $log->result=$KEY_FILE;
-        $log->save();
+        $client->setRedirectUri($redirect_uri);
+        // $log->log_name='key_file_path';
+        // $log->result=$KEY_FILE;
+        // $log->save();
         $client->setAuthConfig($KEY_FILE);
         $user_to_impersonate= env("GOOGLE_PLAY_STORE_SERVICE_ACCOUNT");
         $client->setSubject($user_to_impersonate);
@@ -67,55 +70,33 @@ class DevAPIReport extends Command
         if ($client->isAccessTokenExpired()) 
         {   
             $token = $client->fetchAccessTokenWithAssertion();
-             $log = new GoogleDeveloperLogs();    
-        $log->api='crash/anr';
-            $log->log_name='fetchAccessTokenWithAssertion';
-            $log->result=json_encode($token);
-            $log->save();
+             
         }
         else 
         {
             $token = $client->getAccessToken();
-             $log = new GoogleDeveloperLogs();    
-        $log->api='crash/anr';
-            $log->log_name='getAccessToken';
-            $log->result=json_encode($token);
-            $log->save();
+             
         }
         $_SESSION['token']=$token;
-        // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-        // $client->setRedirectUri($redirect_uri);
-        
-        // if (isset($_GET['code'])) 
-        // {
-        //     $client->authenticate($_GET['code']);  
-        //     $redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-        //     header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
-        // }
+     
         if (!$token && !isset($_SESSION['token'])) 
         {
             $authUrl = $client->createAuthUrl();
-             $log = new GoogleDeveloperLogs();    
-            $log->api='crash/anr';
-            $log->log_name='createAuthUrl';
-            $log->result=$authUrl;
-            $log->save();    
+              
             $output="connect";
             $output2=$authUrl;
         } 
         else
         {
-
+            $array_app=explode(",",env("GOOGLE_PLAY_STORE_APP"));
+            foreach ($array_app as $app_value) {
+               
             $at=$_SESSION['token']["access_token"];
             //crash report
 
-            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_PLAY_STORE_APP").'/crashRateMetricSet?access_token='.$at);
+            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/crashRateMetricSet?access_token='.$at);
 
-             $log = new GoogleDeveloperLogs();    
-            $log->api='crash/anr';   
-            $log->log_name='result';
-            $log->result=$res;
-            $log->save();
+   
 
             if(gettype($res)!="string")
             {
@@ -125,15 +106,16 @@ class DevAPIReport extends Command
 
                     if($res["error"]["code"]==401)
                     {
-                    session_unset();
-                    $log = new GoogleDeveloperLogs();    
-            $log->api='crash'; 
-                    $log->log_name='error_code';
-                    $log->result="401 error";
-                    $log->save();
-                    echo "401 error";
-                    // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-                    // $client->setRedirectUri($redirect_uri);
+                        session_unset();
+                        $log = new GoogleDeveloperLogs();    
+                        // $log->api='crash'; 
+                        //         $log->log_name='error_code';
+                        //         $log->result="401 error";
+                        //         $log->save();
+                        echo "401 error";
+                        // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+                        // $client->setRedirectUri($redirect_uri);
+
                     }
                 }
                 if(isset($res["name"]))
@@ -155,33 +137,67 @@ class DevAPIReport extends Command
                     $r->report ="crash";
                     $r->save();
 
-                    $log = new GoogleDeveloperLogs();    
+                    // $log = new GoogleDeveloperLogs();    
             
-                    $log->api='crash';
+                    // $log->api='crash';
+                    // $log->log_name='result';
+                    // $log->result="success";
+                    // $log->save();
+                    $postData = array(
+                    'timeline_spec' => array('aggregation_period' => "DAILY","start_time"=>array("year"=>$year,"month"=>$month,"day"=>$day-2),"end_time"=>array("year"=>$year,"month"=>$month,"day"=>$day-1)),
+
+                    'dimensions' => array('apiLevel'),
+                    'metrics' => array('crashRate','distinctUsers','crashRate28dUserWeighted')
+                    );
+
+                    // Setup cURL
+
+                    $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/crashRateMetricSet:query');
+                    curl_setopt_array($ch, array(
+                    CURLOPT_POST => TRUE,
+                    CURLOPT_RETURNTRANSFER => TRUE,
+                    CURLOPT_HTTPHEADER => array(
+                    'Authorization: OAuth '.$at,
+
+                    'Content-Type: application/json'
+                    ),
+                    CURLOPT_POSTFIELDS => json_encode($postData)
+                    ));
+
+                    // Send the request
+                    $response = curl_exec($ch);
+                    print($response);
+
+                    $log = new GoogleDeveloperLogs();    
+                    $log->api='crash report';   
                     $log->log_name='result';
-                    $log->result="success";
+                    $log->result=$response;
                     $log->save();
+                    echo "crash report of ".$app_value." added";
                 }
 
             }
             else{
-                $log = new GoogleDeveloperLogs();    
-            
-                    $log->api='crash';
-                $log->log_name='result';
+                    $log = new GoogleDeveloperLogs();    
+
+                    $log->api='crash report';
+                    $log->log_name='result';
                     $log->result=$res;
                     $log->save();
+                    echo "crash report of ".$app_value." failed";
             }
 
             //ANR Report
 
-            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_PLAY_STORE_APP").'/anrRateMetricSet?access_token='.$at);
+
+
+            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/anrRateMetricSet?access_token='.$at);
             $log = new GoogleDeveloperLogs();    
             
-                    $log->api='anr';
-             $log->log_name='result';
-            $log->result=$res;
-            $log->save();
+            //         $log->api='anr';
+            //  $log->log_name='result';
+            // $log->result=$res;
+            // $log->save();
 
             if(gettype($res)!="string")
             {
@@ -192,12 +208,12 @@ class DevAPIReport extends Command
                     if($res["error"]["code"]==401)
                     {
                     session_unset();
-                    $log = new GoogleDeveloperLogs();    
+                    // $log = new GoogleDeveloperLogs();    
             
-                    $log->api='anr';
-                    $log->log_name='error_code';
-                    $log->result="401 error";
-                    $log->save();
+                    // $log->api='anr';
+                    // $log->log_name='error_code';
+                    // $log->result="401 error";
+                    // $log->save();
                     echo "401 error";
                     // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
                     // $client->setRedirectUri($redirect_uri);
@@ -221,27 +237,60 @@ class DevAPIReport extends Command
                     $r->timezone = $res["freshnessInfo"]["freshnesses"][0]["latestEndTime"]["timeZone"]["id"];
                     $r->report ="anr";
                     $r->save();
-                     $log = new GoogleDeveloperLogs();    
+                     // $log = new GoogleDeveloperLogs();    
             
-                    $log->api='anr';
+                    // $log->api='anr';
                  
+                    // $log->log_name='result';
+                    // $log->result="success";
+                    // $log->save();
+                    $postData = array(
+                    'timeline_spec' => array('aggregation_period' => "DAILY","start_time"=>array("year"=>$year,"month"=>$month,"day"=>$day-2),"end_time"=>array("year"=>$year,"month"=>$month,"day"=>$day-1)),
+
+                    'dimensions' => array('apiLevel'),
+                    'metrics' => array('distinctUsers')
+                    );
+
+                    // Setup cURL
+
+                    $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/crashRateMetricSet:query');
+                    curl_setopt_array($ch, array(
+                    CURLOPT_POST => TRUE,
+                    CURLOPT_RETURNTRANSFER => TRUE,
+                    CURLOPT_HTTPHEADER => array(
+                    'Authorization: OAuth '.$at,
+
+                    'Content-Type: application/json'
+                    ),
+                    CURLOPT_POSTFIELDS => json_encode($postData)
+                    ));
+
+                    // Send the request
+                    $response = curl_exec($ch);
+                    // print($response);
+
+                    $log = new GoogleDeveloperLogs();    
+                    $log->api='anr report';   
                     $log->log_name='result';
-                    $log->result="success";
+                    $log->result=$response;
                     $log->save();
+                    echo "anr report of ".$app_value." added";
                 }
 
             }
             else{
-                 $log = new GoogleDeveloperLogs();    
-            
+                    $log = new GoogleDeveloperLogs();    
+
                     $log->api='anr';
-                $log->log_name='result';
+                    $log->log_name='result';
                     $log->result=$res;
                     $log->save();
+                    echo "anr report of ".$app_value." failed";
             }
 
 
         }
-      echo "Crash and ANR report added";
+    }
+       
     }
 }
