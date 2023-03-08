@@ -233,12 +233,18 @@ class GoogleResponsiveDisplayAdController extends Controller
             // Store marketing images records into database
             if($obj->id){
                 foreach($marketingImagesArr as $value){
+                    $value['adgroup_google_campaign_id'] = $campaignId;
+                    $value['google_adgroup_id'] = $adGroupId;
+                    $value['google_customer_id'] = $customerId;
                     $value['google_responsive_display_ad_id'] = $obj->id;
                     $value['type'] = "NORMAL";
                     unset($value['google_asset_resource_name']);
                     GoogleResponsiveDisplayAdMarketingImage::create($value);
                 }   
                 foreach($squareMarketingImagesArr as $value){
+                    $value['adgroup_google_campaign_id'] = $campaignId;
+                    $value['google_adgroup_id'] = $adGroupId;
+                    $value['google_customer_id'] = $customerId;
                     $value['google_responsive_display_ad_id'] = $obj->id;
                     $value['type'] = "SQUARE";
                     unset($value['google_asset_resource_name']);

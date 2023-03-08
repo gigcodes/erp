@@ -120,6 +120,8 @@ use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
 use App\Http\Controllers\GoogleDeveloperController;
+use App\Http\Controllers\GoogleDeveloperLogsController;
+
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
 use App\Http\Controllers\GoogleSearchController;
@@ -601,7 +603,8 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 Route::middleware('auth', 'optimizeImages')->group(function () {
     //Crop Reference
     Route::get('crop-references', [CroppedImageReferenceController::class, 'index']);
-    Route::get('crop-references-grid', [CroppedImageReferenceController::class, 'grid']);
+    Route::get('crop-references-grid', [CroppedImageReferenceController::class, 'grid'])->name('grid.reference');
+    Route::get('crop-references-grid/cropStats', [CroppedImageReferenceController::class, 'cropStats']);
     Route::get('crop-references-grid/manage-instances', [CroppedImageReferenceController::class, 'manageInstance']);
     Route::post('crop-references-grid/add-instance', [CroppedImageReferenceController::class, 'addInstance']);
     Route::get('crop-references-grid/delete-instance', [CroppedImageReferenceController::class, 'deleteInstance']);
@@ -2637,6 +2640,11 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+/*#DEVTASK-22731 - START*/
+Route::post('livechat/tickets/update-ticket', [LiveChatController::class, 'updateTicket'])->name('livechat.tickets.update-ticket');
+Route::post('livechat/tickets/approve-ticket', [LiveChatController::class, 'approveTicket'])->name('livechat.tickets.approve-ticket');
+Route::post('livechat/tickets/ticket-data', [LiveChatController::class, 'ticketData'])->name('livechat.tickets.ticket-data');
+/*#DEVTASK-22731 - END*/
 Route::post('livechat/statuscolor', [LiveChatController::class, 'statuscolor'])->name('livechat.statuscolor');
 Route::post('tickets/email-send', [LiveChatController::class, 'sendEmail'])->name('tickets.email.send');
 Route::post('tickets/assign-ticket', [LiveChatController::class, 'AssignTicket'])->name('tickets.assign');
@@ -3771,6 +3779,7 @@ Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDevelop
 // Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
 Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
+Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -3904,6 +3913,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::post('/ads-account/create', [GoogleAdsAccountController::class, 'createGoogleAdsAccount'])->name('googleadsaccount.createAdsAccount');
     Route::get('/ads-account/update/{id}', [GoogleAdsAccountController::class, 'editeGoogleAdsAccountPage'])->name('googleadsaccount.updatePage');
     Route::post('/ads-account/update', [GoogleAdsAccountController::class, 'updateGoogleAdsAccount'])->name('googleadsaccount.updateAdsAccount');
+    Route::delete('/ads-account/delete/{id}', [GoogleAdsAccountController::class, 'deleteGoogleAdsAccount'])->name('googleadsaccount.deleteGoogleAdsAccount');
     Route::post('/refresh-token', [GoogleAdsAccountController::class, 'refreshToken'])->name('googleadsaccount.refresh_token');
     Route::get('/get-refresh-token', [GoogleAdsAccountController::class, 'getRefreshToken'])->name('googleadsaccount.get-refresh-token');
     Route::prefix('{id}')->group(function () {

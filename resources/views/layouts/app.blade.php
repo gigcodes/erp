@@ -2047,7 +2047,7 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
 
-                                @if(auth()->user()->isAdmin())
+                               
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
@@ -2069,7 +2069,7 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
-                                @endif
+                              
 
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2125,6 +2125,10 @@ if (!empty($notifications)) {
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
                                                         href="{{route('google.developer-api.anr')}}">ANR Report</a>
+                                                </li>
+                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.logs')}}">Logs</a>
                                                 </li>
                                             
                                             </ul>
@@ -3063,6 +3067,9 @@ if (!empty($notifications)) {
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
                             </li>
                             <li class="nav-item dropdown dropdown-submenu">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"

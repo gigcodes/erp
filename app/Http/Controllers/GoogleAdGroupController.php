@@ -552,9 +552,9 @@ class GoogleAdGroupController extends Controller
             // Delete other data
             GoogleAdGroupKeyword::where('google_adgroup_id', $adGroupId)->delete();
             GoogleResponsiveDisplayAd::where('google_adgroup_id', $adGroupId)->delete();
-            // GoogleResponsiveDisplayAdMarketingImage::where('google_adgroup_id', $adGroupId)->delete();
+            GoogleResponsiveDisplayAdMarketingImage::where('google_adgroup_id', $adGroupId)->delete();
             GoogleAppAd::where('google_adgroup_id', $adGroupId)->delete();
-            // GoogleAppAdImage::where('google_adgroup_id', $adGroupId)->delete();
+            GoogleAppAdImage::where('google_adgroup_id', $adGroupId)->delete();
             GoogleAd::where('google_adgroup_id', $adGroupId)->delete();
 
             $adGroup->delete();
