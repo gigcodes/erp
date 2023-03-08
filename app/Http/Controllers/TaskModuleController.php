@@ -1946,17 +1946,26 @@ class TaskModuleController extends Controller
 
     public function list(Request $request)
     {
-        $pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed')->where('assign_from', Auth::id());
+        $pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed');
         $completed_tasks = Task::where('is_statutory', 0)->whereNotNull('is_completed')->where('assign_from', Auth::id());
+
+        if(!Auth::user()->hasRole('Admin'))
+        {
+            $pending_tasks = $pending_tasks->where('assign_to', Auth::id());
+        }
+        if ($request->term && $request->term != null) {
+            $pending_tasks = $pending_tasks->where('id', 'LIKE', "%$request->term%");
+            $completed_tasks = $completed_tasks->where('id', 'LIKE', "%$request->term%");
+        }
+
+        if ($request->task_subject && $request->task_subject != null) {
+            $pending_tasks = $pending_tasks->where('task_subject', 'LIKE',  "%$request->task_subject%");
+            $completed_tasks = $completed_tasks->where('task_subject', 'LIKE',  "%$request->task_subject%");
+        }
 
         if (is_array($request->user) && $request->user[0] != null) {
             $pending_tasks = $pending_tasks->whereIn('assign_to', $request->user);
             $completed_tasks = $completed_tasks->whereIn('assign_to', $request->user);
-        }
-
-        if ($request->task_subject && $request->task_subject != null) {
-            $pending_tasks = $pending_tasks->where('task_subject', $request->task_subject);
-            $completed_tasks = $completed_tasks->where('task_subject', $request->task_subject);
         }
 
         if ($request->date != null) {
@@ -1971,12 +1980,14 @@ class TaskModuleController extends Controller
         $user = $request->user ?? [];
         $date = $request->date ?? '';
         $taskstatus = TaskStatus::get();
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
 
         return view(
             'task-module.list', [
                 'pending_tasks' => $pending_tasks,
                 'completed_tasks' => $completed_tasks,
                 'taskstatus' => $taskstatus,
+                'isTeamLeader' => $isTeamLeader,
                 'users' => $users,
                 'user' => $user,
                 'date' => $date,

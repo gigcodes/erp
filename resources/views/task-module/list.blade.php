@@ -5,6 +5,11 @@
 @section('title', 'Tasks List')
 
 @section("styles")
+  <style>
+    #coupon_rules_table_length select, input{
+      height: 14px;
+    }
+  </style>
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
@@ -27,10 +32,14 @@
       <div class="col-md-10 col-sm-12">
         <form action="{{ route('task.list') }}" method="GET" class="form-inline align-items-start" id="searchForm">
           <div class="row full-width" style="width: 100%;">
-            <div class="col-md-3 col-sm-12 pd-2">
+            <div class="col-md-2 col-sm-12 pd-2">
               <div class="form-group cls_task_subject">
-
-                <input type="text" class="form-control input-sm" name="task_subject" placeholder="Task Subject" id="task_subject" value="{{ !empty($_GET['task_subject'])? $_GET['task_subject'] : '' }}" required />
+                <input type="text" name="term" placeholder="Search Task Id" id="task_search" class="form-control input-sm" value="{{ !empty($_GET['term'])? $_GET['term'] : '' }}">
+              </div>
+            </div>
+            <div class="col-md-2 col-sm-12 pd-2">
+              <div class="form-group cls_task_subject">
+                <input type="text" class="form-control input-sm" name="task_subject" placeholder="Task Subject" id="task_subject" value="{{ !empty($_GET['task_subject'])? $_GET['task_subject'] : '' }}" />
                 @if ($errors->has('task_subject'))
                   <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
                 @endif
@@ -54,7 +63,7 @@
                 </span>
               </div>
             </div>
-            <div class="col-md-2 pl-0 pt-2"><button type="submit" class="btn btn-image"><img src="{{asset('/images/search.png')}}" /></button></div>
+            <div class="pl-0 pt-2"><button type="submit" class="btn btn-image"><img src="{{asset('/images/search.png')}}" /></button></div>
           </div>
         </form>
       </div>
@@ -66,29 +75,18 @@
       $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
     @endphp
 
-    <div id="exTab3" class="container">
-      <ul class="nav nav-tabs">
-        <li class="active">
-          <a href="#pending-tasks" data-toggle="tab">Pending Tasks</a>
-        </li>
-        <li>
-          <a href="#completed-tasks" data-toggle="tab">Completed</a>
-        </li>
-        @if (Auth::user()->isAdmin())
-          <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button></li>&nbsp;
-        @endif
-      </ul>
-    </div>
-
     <div class="tab-content ">
       <div class="tab-pane active mt-3" id="pending-tasks">
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
             <tr>
+              <th width="5%">ID</th>
               <th width="10%">Date</th>
               <th width="10%">Category</th>
-              <th width="50%">Task</th>
+              <th width="25%">Task</th>
               <th width="10%">Assigned To</th>
+              <th width="10%">Lead</th>
+              <th width="10%">Lead 2</th>
               <th width="10%">Status</th>
               <th width="10%">Action</th>
             </tr>
@@ -97,6 +95,7 @@
               $status_color = \App\TaskStatus::where('id',$task->status)->first();
               @endphp
               <tr style="background-color: {{$status_color->task_color}}!important;">
+                <td>{{ $task->id }}</td>
                 <td>{{ \Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                 <td>{{ $categories[$task->category] ?? '' }}</td>
                 <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">
@@ -122,6 +121,53 @@
                     @endforeach
                   </select>
                 {{--{{ $users[$task->assign_to] ?? 'Unknown User' }}--}}
+                </td>
+                <td>
+                  @if(auth()->user()->isAdmin()  || $isTeamLeader)
+                    <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
+                      <option value="">Select...</option>
+                      <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
+                      @foreach($users as $id=>$name)
+                        @if( $masterUser == $id )
+                          <option value="{{$id}}" selected>{{ $name }}</option>
+                        @else
+                          <option value="{{$id}}">{{ $name }}</option>
+                        @endif
+                      @endforeach
+                    </select>
+                  @else
+                    @if($task->master_user_id)
+                      @if(isset($users[$task->master_user_id]))
+                        <p>{{$users[$task->master_user_id]}}</p>
+                      @else
+                        <p>-</p>
+                      @endif
+                    @endif
+                  @endif
+                </td>
+
+                <td>
+                  @if(auth()->user()->isAdmin()  || $isTeamLeader)
+                    <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="2" name="master_user_id" id="user_{{$task->id}}">
+                      <option value="">Select...</option>
+                      <?php $masterUser = isset($task->second_master_user_id) ? $task->second_master_user_id : 0; ?>
+                      @foreach($users as $id=>$name)
+                        @if( $masterUser == $id )
+                          <option value="{{$id}}" selected>{{ $name }}</option>
+                        @else
+                          <option value="{{$id}}">{{ $name }}</option>
+                        @endif
+                      @endforeach
+                    </select>
+                  @else
+                    @if($task->second_master_user_id)
+                      @if(isset($users[$task->second_master_user_id]))
+                        <p>{{$users[$task->second_master_user_id]}}</p>
+                      @else
+                        <p>-</p>
+                      @endif
+                    @endif
+                  @endif
                 </td>
                 <td>
                   <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
@@ -307,6 +353,29 @@
         },
         success: function(response) {
           toastr["success"](response.message, "Message")
+        },
+        error: function(error) {
+          toastr["error"](error.responseJSON.message, "Message")
+        }
+      });
+    });
+
+    $(document).on('change', '.assign-master-user', function() {
+      let id = $(this).attr('data-id');
+      let lead = $(this).attr('data-lead');
+      let userId = $(this).val();
+      if (userId == '') {
+        return;
+      }
+      $.ajax({
+        url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'assignMasterUser'])}}",
+        data: {
+          master_user_id: userId,
+          issue_id: id,
+          lead: lead
+        },
+        success: function() {
+          toastr["success"]("Master User assigned successfully!", "Message")
         },
         error: function(error) {
           toastr["error"](error.responseJSON.message, "Message")
