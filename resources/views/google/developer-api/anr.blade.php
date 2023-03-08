@@ -91,7 +91,43 @@ input:checked + .slider:before {
         <h2 class="page-heading">ANR Report </h2>
             </div>
           
-            
+           <br>
+        <div class="col-lg-12 margin-tb">
+            <div class="row">
+                <div class="col">
+                    <form class="form-inline anr-search-handler" action="/google/developer-api/anrfilter" method="get">
+                       
+                         <div class="col-lg-2">
+                            <label for="amount">App name:</label>
+                            <input class="form-control" type="text" name="app_name" placeholder="Enter App Name">
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="date">Date:</label>
+                            <input class="form-control" type="date" name="date">
+                        </div>
+                      
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label for="button">&nbsp;</label>
+                                <button type="submit" style="display: inline-block;width: 10%"
+                                    class="btn btn-sm btn-image">
+                                    <img src="/images/search.png" style="cursor: default;">
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-success" id="alert-msg" style="display: none;">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 margin-tb" id="page-view-result">
+            </div>
+        </div>  
            
         
         <div class="col-md-12">
