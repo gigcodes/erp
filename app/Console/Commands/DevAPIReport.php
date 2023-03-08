@@ -88,11 +88,13 @@ class DevAPIReport extends Command
         } 
         else
         {
-
+            $array_app=explode(",",env("GOOGLE_PLAY_STORE_APP"));
+            foreach ($array_app as $app_value) {
+               
             $at=$_SESSION['token']["access_token"];
             //crash report
 
-            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_PLAY_STORE_APP").'/crashRateMetricSet?access_token='.$at);
+            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/crashRateMetricSet?access_token='.$at);
 
    
 
@@ -150,7 +152,7 @@ class DevAPIReport extends Command
 
                     // Setup cURL
 
-                    $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_PLAY_STORE_APP").'/crashRateMetricSet:query');
+                    $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/crashRateMetricSet:query');
                     curl_setopt_array($ch, array(
                     CURLOPT_POST => TRUE,
                     CURLOPT_RETURNTRANSFER => TRUE,
@@ -171,7 +173,7 @@ class DevAPIReport extends Command
                     $log->log_name='result';
                     $log->result=$response;
                     $log->save();
-
+                    echo "crash report of ".$app_value." added";
                 }
 
             }
@@ -182,13 +184,14 @@ class DevAPIReport extends Command
                     $log->log_name='result';
                     $log->result=$res;
                     $log->save();
+                    echo "crash report of ".$app_value." failed";
             }
 
             //ANR Report
 
 
 
-            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_PLAY_STORE_APP").'/anrRateMetricSet?access_token='.$at);
+            $res =  Http::get('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/anrRateMetricSet?access_token='.$at);
             $log = new GoogleDeveloperLogs();    
             
             //         $log->api='anr';
@@ -205,7 +208,7 @@ class DevAPIReport extends Command
                     if($res["error"]["code"]==401)
                     {
                     session_unset();
-                    $log = new GoogleDeveloperLogs();    
+                    // $log = new GoogleDeveloperLogs();    
             
                     // $log->api='anr';
                     // $log->log_name='error_code';
@@ -250,7 +253,7 @@ class DevAPIReport extends Command
 
                     // Setup cURL
 
-                    $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.env("GOOGLE_PLAY_STORE_APP").'/crashRateMetricSet:query');
+                    $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/'.$app_value.'/crashRateMetricSet:query');
                     curl_setopt_array($ch, array(
                     CURLOPT_POST => TRUE,
                     CURLOPT_RETURNTRANSFER => TRUE,
@@ -271,7 +274,7 @@ class DevAPIReport extends Command
                     $log->log_name='result';
                     $log->result=$response;
                     $log->save();
-                    echo "Crash and ANR report added";
+                    echo "anr report of ".$app_value." added";
                 }
 
             }
@@ -282,10 +285,12 @@ class DevAPIReport extends Command
                     $log->log_name='result';
                     $log->result=$res;
                     $log->save();
+                    echo "anr report of ".$app_value." failed";
             }
 
 
         }
+    }
        
     }
 }
