@@ -44,6 +44,14 @@ use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
 use Illuminate\Http\Request;
 use Google\Protobuf\Int32Value;
 
+use App\Models\GoogleAdGroupKeyword;
+use App\Models\GoogleResponsiveDisplayAd;
+use App\Models\GoogleResponsiveDisplayAdMarketingImage;
+use App\Models\GoogleAppAd;
+use App\Models\GoogleAppAdImage;
+use App\GoogleAd;
+use App\GoogleAdsGroup;
+
 class GoogleCampaignsController extends Controller
 {
     // show campaigns in main page
@@ -752,6 +760,15 @@ class GoogleCampaignsController extends Controller
                         'message' => 'Deleted campaign',
                         'response' => json_encode($googleAdsCampaign)
                     );
+
+            // Delete other data
+            GoogleAdGroupKeyword::where('adgroup_google_campaign_id', $campaignId)->delete();
+            GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->delete();
+            GoogleResponsiveDisplayAdMarketingImage::where('adgroup_google_campaign_id', $campaignId)->delete();
+            GoogleAppAd::where('adgroup_google_campaign_id', $campaignId)->delete();
+            GoogleAppAdImage::where('adgroup_google_campaign_id', $campaignId)->delete();
+            GoogleAd::where('adgroup_google_campaign_id', $campaignId)->delete();
+            GoogleAdsGroup::where('adgroup_google_campaign_id', $campaignId)->delete();
 
             $googleAdsCampaign->delete();
 

@@ -3,12 +3,10 @@
 
 @section('content')
     <div class="col-md-12">
-        <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <button class="btn-image float-right custom-button" onclick="window.location.href='/google-campaigns/ads-account';">Back to Campaign</button></h2>
-
+      <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <button class="btn-image float-right custom-button" onclick="window.location.href='/google-campaigns/ads-account';">Back to Campaign</button></h2>
     <div class="pull-left p-0">
         <div class="form-group">
-            <div class="row">
-                
+            <div class="row">      
                 <div class="col-md-3 pr-2">
                     <input name="googlegroup_name" type="text" class="form-control" value="{{ isset($googlegroup_name) ? $googlegroup_name : '' }}" placeholder="Group Name" id="googlegroup_name">
                 </div>
@@ -38,9 +36,8 @@
         </div>
     </div>
 
-
         <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#adgroupmodal">New Ad Group</button>
-   
+
         <table class="table table-bordered" id="adsgroup-table">
             <thead>
             <tr>
@@ -76,14 +73,20 @@
 {{--                                <button type="submit" class="btn-image">Display Ads</button>--}}
 {{--                            </form>--}}
 {{--                        @elseif(in_array(@$campaign_channel_type, ["SEARCH"]))--}}
-                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
-                                <button type="submit" class="btn-image">Ads</button>
+                        <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
+                            <button type="submit" class="btn-image">Ads</button>
+                        </form>
+
+                        <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ad-group-keyword">
+                            <button type="submit" class="btn-image">Keywords</button>
+                        </form>
+
+                        @elseif(in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))
+                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/app-ad">
+                                <button type="submit" class="btn-image">App Ads</button>
                             </form>
-{{--                        @elseif(in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))--}}
-{{--                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/app-ad">--}}
-{{--                                <button type="submit" class="btn-image">App Ads</button>--}}
-{{--                            </form>--}}
-{{--                        @endif--}}
+                        @endif
+                        
                         {!! Form::open(['method' => 'DELETE','route' => ['adgroup.deleteAdGroup',$campaignId,$adGroup['google_adgroup_id']],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn-image ml-2"><img src="{{asset('/images/delete.png')}}"></button>
                         {!! Form::close() !!}
@@ -96,7 +99,7 @@
         </table>
     {{ $adGroups->links() }}
     </div>
-
+    
         <div class="modal fade" id="adgroupmodal" role="dialog" style="z-index: 3000;">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -178,6 +181,7 @@
                                 </div>
                             </div>
                         @endif
+
                         <div class="form-group row">
                             <label for="ad-group-status" class="col-sm-2 col-form-label">Ad group status</label>
                             <div class="col-sm-6">

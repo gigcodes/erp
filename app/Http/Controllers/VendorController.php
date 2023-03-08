@@ -1488,4 +1488,10 @@ class VendorController extends Controller
         $meetingdata->save();
         return response()->json(['code' => 200, 'message' => 'Successful'], 200);
     }
+
+    public function refreshMeetingList(Request $request){
+        \Artisan::call('save:zoom-meetings');
+        return redirect()->back();
+    }
+    
 }

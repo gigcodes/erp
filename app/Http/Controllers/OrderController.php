@@ -4818,11 +4818,17 @@ class OrderController extends Controller
 
             if (! empty($customer) && ! empty($customer->email) && ! empty($addRequestData['message'])) {
                 // dump('send customer email final');
+                $from = 'customercare@sololuxury.co.in';
+                // Check from address exist for customer's store website
+                $emailAddress = EmailAddress::where('store_website_id', $customer->store_website_id)->first();
+                if ($emailAddress) {
+                    $from = $emailAddress->from_address;
+                }
 
                 $email = Email::create([
                     'model_id' => $customer->id,
                     'model_type' => Customer::class,
-                    'from' => $emailClass->fromMailer,
+                    'from' => $from,
                     'to' => $customer->email,
                     'subject' => $subject,
                     'message' => $addRequestData['message'],
@@ -4849,7 +4855,7 @@ class OrderController extends Controller
                 'number' => $customer->phone,
                 'message' => $addRequestData['message'],
                 'user_id' => Auth::id(),
-                'approve' => 0,
+                'approved' => 0,
                 'status' => 1,
             ];
 

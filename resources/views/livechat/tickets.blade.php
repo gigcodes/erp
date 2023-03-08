@@ -358,7 +358,7 @@
               50% 50% no-repeat;display:none;">
     </div>
 
-	 <div id="ticketsEmails" class="modal fade" role="dialog">
+     <div id="ticketsEmails" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
 
@@ -366,27 +366,27 @@
                         <h4 class="modal-title">Emails sent</h4>
                     </div>
                     <div class="modal-body" >
-						<div class="table-responsive" style="margin-top:20px;">
-							<table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
-								<thead>
-								  <tr>
-									<th>Bulk <br> Action</th>
-									<th>Date</th>
-									<th>Sender</th>
-									<th>Receiver</th>
-									<th>Mail <br> Type</th>
-									<th>Subject</th>
-									<th>Body</th>
-									<th>Status</th>
-									<th>Draft</th>
-									<th>Action</th>
-								  </tr>
-								</thead>
-								<tbody id="ticketEmailData">
+                        <div class="table-responsive" style="margin-top:20px;">
+                            <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+                                <thead>
+                                  <tr>
+                                    <th>Bulk <br> Action</th>
+                                    <th>Date</th>
+                                    <th>Sender</th>
+                                    <th>Receiver</th>
+                                    <th>Mail <br> Type</th>
+                                    <th>Subject</th>
+                                    <th>Body</th>
+                                    <th>Status</th>
+                                    <th>Draft</th>
+                                    <th>Action</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="ticketEmailData">
 
-								</tbody>
-							  </table>
-						</div>
+                                </tbody>
+                              </table>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -512,39 +512,39 @@ function opnMsg(email) {
             );
         };
 
-		function showEmails(ticketId) {
-			$('#ticketEmailData').html('');
-		    $.get(window.location.origin+"/tickets/emails/"+ticketId, function(data, status){
-				$('#ticketEmailData').html(data);
-				$('#ticketsEmails').modal('show');
-		    });
-		}
-		function opnModal(message){
-		  $(document).find('#more-content').html(message);
-		}
-		$(document).on('click', '.resend-email-btn', function(e) {
-		    e.preventDefault();
-		    var $this = $(this);
-		    var type = $(this).data('type');
-			$.ajax({
-			  headers: {
-				  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			  },
-			  url: '/email/resendMail/'+$this.data("id"),
-			  type: 'post',
-			  data: {
-				type:type
-			  },
-				beforeSend: function () {
-					$("#loading-image").show();
-				},
-			}).done( function(response) {
-			  toastr['success'](response.message);
-			  $("#loading-image").hide();
-			}).fail(function(errObj) {
-			  $("#loading-image").hide();
-			});
-		});
+        function showEmails(ticketId) {
+            $('#ticketEmailData').html('');
+            $.get(window.location.origin+"/tickets/emails/"+ticketId, function(data, status){
+                $('#ticketEmailData').html(data);
+                $('#ticketsEmails').modal('show');
+            });
+        }
+        function opnModal(message){
+          $(document).find('#more-content').html(message);
+        }
+        $(document).on('click', '.resend-email-btn', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            var type = $(this).data('type');
+            $.ajax({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              url: '/email/resendMail/'+$this.data("id"),
+              type: 'post',
+              data: {
+                type:type
+              },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done( function(response) {
+              toastr['success'](response.message);
+              $("#loading-image").hide();
+            }).fail(function(errObj) {
+              $("#loading-image").hide();
+            });
+        });
         function loadMore(page) {
 
             var url = "/livechat/tickets?page="+page;
@@ -574,8 +574,11 @@ function opnMsg(email) {
         }
 
     $(document).on('click', '.row-ticket', function () {
-        $('#viewmore #contentview').html($(this).data('content'));
-        $('#viewmore').modal("show");
+        /*DEVTASK-22731-START*/
+        ticket_id = $(this).data('ticket-id');
+        getTicketData(ticket_id);
+        $('#viewmorechatmessages').modal("show");
+        /*DEVTASK-22731-END*/
     });
 
 
@@ -594,10 +597,161 @@ function opnMsg(email) {
 
     });
 
+    /*DEVTASK-22731-START*/
+    $(document).on('click', '.editTicket', function () {
+        id = $(this).data('id');
+        $("#spanMsg_"+id).css('display','none');
+        $("#inputMsg_"+id).css('display','inline-block');
+        $("#txtMsg_"+id).css('display','inline-block');
+
+        $('#editTicket_'+id).css('display','none');
+        $("#updateTicket_"+id).css('display','inline-block');
+    });
+
+    
+    $(document).on('click', '.approveTicket', function () {
+        ticket_id = $(this).data('ticket-id');
+        id = $(this).data('id');
+        src = "{{url('livechat/tickets/approve-ticket')}}";
+        Swal.fire({
+            title: 'Do you want to send message to ticket?',
+                showDenyButton: true,
+                showCancelButton: false,
+                confirmButtonText: 'Yes',
+                denyButtonText: 'No',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        method : "POST",
+                        url : src,
+                        data : {"id":id,"ticket_id":ticket_id},
+                        dataType : "json",
+                        success : function(response){
+                            getTicketData(ticket_id);
+                        },error : function(error){
+                            console.log(error);
+                        }
+                    });
+                } else if (result.isDenied) {
+                    
+                }
+            });
+    });
+
+    $(document).on('click', '.updateTicket', function () {
+        ticket_id = $(this).data('ticket-id');
+        message = $("#txtMsg_"+id).val();
+        id = $(this).data('id');
+        src = "{{url('livechat/tickets/update-ticket')}}";
+        $.ajax({
+            method : "POST",
+            url : src,
+            data : {"id":id,"ticket_id":ticket_id,"message":message},
+            dataType : "json",
+            success : function(response){
+                getTicketData(ticket_id);
+                $("#spanMsg_"+id).css('display','table-cell');
+                $("#inputMsg_"+id).css('display','none');
+                $('#editTicket_'+id).css('display','inline-block');
+                $("#updateTicket_"+id).css('display','none');
+            },error : function(error){
+                console.log(error);
+            }
+        });
+    });
+    /*DEVTASK-22731-END*/
 
    $('#filter_date').datetimepicker({
         format: 'YYYY-MM-DD'
     });
+
+   /*DEVTASK-22731-START*/
+    function getTicketData(ticket_id){
+        html = '';
+        button = '';
+        src = "{{url('livechat/tickets/ticket-data')}}";
+        $.ajax({
+            method : "POST",
+            url : src,
+            data : {"ticket_id":ticket_id},
+            dataType : "json",
+            success : function(response){
+                if(response.count > 0) {
+                    $("#viewmorechatmessages").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
+                    $("#viewmorechatmessages").find(".modal-body").css({"background-color":"white"});
+                    $.each(response.data, function(k, v) {
+                        button = '';
+
+                        if(v['out'] == true) {
+                            html += '<tr style="background-color:grey !important">';
+                        } else {
+                            html += '<tr style="background-color:#999999 !important">';
+                        }
+                        html += '<td style="width:50%"><span class="copy_message'+v['id']+'"" id="spanMsg_'+v['id']+'">'+v['message']+'</span> <p id="inputMsg_'+v['id']+'"><input type="text" style="display:none" id="txtMsg_'+v['id']+'" value="'+v['message']+'"></p></td>';
+
+                        if (!v['approved'] && v['out'] == true) {
+
+                            button += "<a href='javascript:void(0)' title='Edit Message' id='editTicket_"+v['id']+"' data-id='"+v['id']+"' class='btn btn-xs btn-secondary editTicket'><i class='fa fa-edit' aria-hidden='true'></i></a> ";
+
+                            button += "<a href='javascript:void(0)' title='Update Message' style='display:none' id='updateTicket_"+v['id']+"' data-id='"+v['id']+"' data-ticket-id='"+ticket_id+"' class='btn btn-xs btn-secondary updateTicket'><i class='fa fa-save' aria-hidden='true'></i></a>";
+
+                            button += "<a href='javascript:void(0)' id='approveTicket_"+v['id']+"' title='Send Message To Ticket' data-id='"+v['id']+"' data-ticket-id='"+ticket_id+"' class='btn btn-xs btn-secondary approveTicket'><i class='fa fa-check' aria-hidden='true'></i></a>";
+
+                            button += "<button title='Approve' class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + v['id'] + "'><i class='fa fa-thumbs-up' aria-hidden='true'></i></button>";
+                        }
+
+                        if (v['status'] == 0 || v['status'] == 5 || v['status'] == 6) {
+
+                            if (v['status'] == 0) {
+                                button += "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + v['id'] + "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
+                            }
+
+                            if (v['status'] == 0 || v['status'] == 5) {
+                                button += '<a href="javascript:;" style="padding:4px!important;" title="Mark as Replied" data-url="/whatsapp/updatestatus?status=6&id=' + v['id'] + '" class="btn btn-xs btn-secondary ml-1 change_message_status"> <img src="/images/2.png" /> </a>';
+                            }
+
+                            button += '&nbsp;<button title="forward"  class="btn btn-secondary btn-xs forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + v['id'] + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+v['id']+'" class="btn btn-xs btn-secondary resend-message-js"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+
+                        } else {
+                            if (v['error_status'] == 1) {
+                                button +="<a href='javascript:;' class='btn btn-xs btn-image fix-message-error' data-id='" + v['id'] + "'><img src='/images/flagged.png' /></a><a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + v['id'] + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
+                            } else if (v['error_status'] == 2) {
+                                button += "<a href='javascript:;' class='btn btn-xs btn-secondary btn-image fix-message-error' data-id='" + v['id'] + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a title='Resend' href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + v['id'] + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
+                            }
+
+                            button += '&nbsp;<button title="Forward" class="btn btn-xs btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + v['id'] + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+v['id']+'" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+                        }
+
+                        button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
+
+                        if(v['is_reviewed'] != 1) {
+                            button += '&nbsp;<button title="Mark as reviewed" class="btn btn-xs btn-secondary review-btn" data-id="' + v['id'] + '"><i class="fa fa-check" aria-hidden="true"></i></button>&nbsp;';
+                        }
+
+                        button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="'+v['sop_category']+'" data-name="'+v['sop_name']+'" data-message="'+v['sop_content']+'" data-id="' + v['id'] + '" data-msg="'+v['message']+'"><i class="fa fa-asterisk" data-message="'+v['message']+'" aria-hidden="true"></i></a>';
+
+                        button += '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' + v['id'] + '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+
+                        button += '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard('+v['id']+')" data-message="'+v['message']+'" data-id="' + v['id'] + '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
+
+                        html += '<td style="width:30%">'+button+'</td>';
+
+                        html += '<td style="width:40%">'+v['datetime']+'</td>';
+                        html += '</tr>';
+
+                    });
+                } else {
+                    html += '<tr>';
+                    html += '<td colspan="4">No Records Found</td>';
+                    html += '</tr>';
+                }
+                $("#ticketData").html(html);
+            },error : function(error){
+                console.log(error);
+            }
+        });
+    }
+    /*DEVTASK-22731-END*/
 
     function submitSearch(){
                 //src = "{{url('whatsapp/pollTicketsCustomer')}}";
@@ -1014,6 +1168,19 @@ function opnMsg(email) {
           $("#loading-image").hide();
         });
     });
+    /*DEVTASK-22731-START*/
+    $(document).on('click', '.create_short_cut',function () {
+            $('.sop_description').val("");
+            let message = '';
+            message = $(this).attr('data-msg');
+            $('.sop_description').val(message);
+        });
+    /*DEVTASK-22731-START*/
+
+    // It is used to collapse action menu on right side of table
+    function Ticketsbtn(id){
+        $(".action-ticketsbtn-tr-"+id).toggleClass('d-none')
+    }
 </script>
 @endsection
 
