@@ -109,6 +109,7 @@
                             <th style="width:5%">Date</th>
                             <th style="width:10%">Config Name</th>
                             <th style="width:10%">Campaign Name</th>
+                            <th style="width:10%">Website</th>
                             <th style="width:30%"> Name</th>
                             <th style="width:10%">Billing Event</th>
                             <th style="width:10%">Daily Budget</th>

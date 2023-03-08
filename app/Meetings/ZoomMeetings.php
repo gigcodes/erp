@@ -310,7 +310,7 @@ class ZoomMeetings extends Model
     public function saveRecordings($zoomKey, $zoomSecret, $date, $zoommeetingid, $zoomuserid)
     {
         \Log::info('Get recording getRecordings ');
-        $allMeetingRecords = ZoomMeetings::WhereNull('zoom_recording')->whereNotNull('meeting_id')->whereDate('start_date_time', '<', $date)->get();
+        $allMeetingRecords = ZoomMeetings::WhereNull('zoom_recording')->whereNotNull('meeting_id')->whereDate('start_date_time', '<', $date)->get();        
 
         $zoom = new LaravelZoom($zoomKey, $zoomSecret);
         $token = $zoom->getJWTToken(time() + 36000);        
@@ -319,9 +319,9 @@ class ZoomMeetings extends Model
         \Log::info('Get meetingId '.$meetingId);                
         $recordingAll = $zoom->getRecordings($zoomuserid, 10);
         /*$recordingAll = $zoom->getMeetingRecordings($meetingId);*/
-        \Log::info(json_encode($recordingAll));                                
+        \Log::info(json_encode($recordingAll));                                        
         if ($recordingAll) {
-            if ('200' == $recordingAll['status']) {                                    
+            if ('200' == $recordingAll['status']) {                                                                
                 /*$recordingFiles = $recordingAll['body']['recording_files'];*/
                 /*if ($recordingFiles) {*/
                 if ($recordingAll) {
@@ -331,7 +331,7 @@ class ZoomMeetings extends Model
                     foreach( $recordingAll['body']['meetings'] as $meetings){
                         if($meetings['id'] == $meetingId){
                             $recordingFiles = $meetings['recording_files'];
-                            \Log::info('recordingFiles -->'.json_encode($recordingFiles));
+                            \Log::info('recordingFiles -->'.json_encode($recordingFiles));                            
                             foreach ($meetings['recording_files'] as $recordings) {
                                 $checkfile = ZoomMeetingDetails::where('download_url_id', $recordings['id'])->first();
                                 if(!$checkfile){
