@@ -126,6 +126,9 @@ class ChatMessagesController extends Controller
                 $object = TestSuites::find($request->object_id);
                 //dd($object);
                 break;
+            case 'timedoctor':
+                $object = User::find($request->object_id);
+                break;
             default:
                 $object = Customer::find($request->object);
         }
@@ -180,6 +183,10 @@ class ChatMessagesController extends Controller
 
         if ($request->keyword != null) {
             $chatMessages = $chatMessages->where('message', 'like', '%'.$request->keyword.'%'); //Purpose - solve issue for search message , Replace form whereDate to where - DEVTASK-4020
+        }
+
+        if ($request->object == 'timedoctor') {
+            $chatMessages = ChatMessage::where('time_doctor_activity_user_id', $object->id);
         }
 
         $chatMessages = $chatMessages->skip($skip)->take($limit);
