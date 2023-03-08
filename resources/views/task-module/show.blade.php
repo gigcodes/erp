@@ -491,6 +491,19 @@
                                 <label><input type="checkbox" name="need_review_task" value="1" /> Create Review Task?</label>
                             </div>
                         </div>
+                        <div class="col-xs-12 col-md-1 pd-2">
+                            <div class="form-group ml-3">
+                                <select name="task_for" class="form-control task_for" style="width:100%;">
+                                    <option value="hubstaff" selected>Hubstaff</option>
+                                    <option value="time_doctor">Time Doctor</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12  col-md-1 pd-2 time_doctor_project_section">
+                            <div class="form-group ml-3">
+                                <?php echo Form::select("time_doctor_project",['' => ''],null,["class" => "form-control time_doctor_project globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.time_doctor_projects'), 'data-placeholder' => 'Project']); ?>
+                            </div>
+                        </div>
                         <div class="col-xs-12 col-md-2 pd-2">
                             <div class="form-group">
                                 <button type="submit" class="btn btn-secondary cls_comm_btn" id="taskCreateButton">Create</button>

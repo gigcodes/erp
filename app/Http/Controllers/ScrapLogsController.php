@@ -302,12 +302,12 @@ class ScrapLogsController extends Controller
     public function databaseLog(Request $request)
     {
         $search = '';
-        $databaseLogs = DatabaseLog::orderBy('created_at', 'asc');
+        $databaseLogs = DatabaseLog::orderBy('created_at', 'desc');
         $logBtn = SlowLogsEnableDisable::orderBy('id', 'desc')->first();
         if ($request->search) {
-            $databaseLogs = $databaseLogs->where('log_message', 'Like', '%'.$search.'%')->get();
+            $databaseLogs = $databaseLogs->where('log_message', 'Like', '%'.$search.'%')->paginate(25);
         } else {
-            $databaseLogs = $databaseLogs->get();
+            $databaseLogs = $databaseLogs->paginate(25);
         }
 
         return view('scrap-logs.database-log', compact('databaseLogs', 'search', 'logBtn'));

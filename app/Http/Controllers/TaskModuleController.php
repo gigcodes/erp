@@ -48,6 +48,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
+use App\TimeDoctor\TimeDoctorMember;
+use App\TimeDoctor\TimeDoctorTask;
+use App\Library\TimeDoctor\Src\Timedoctor;
 
 class TaskModuleController extends Controller
 {
@@ -1943,8 +1946,22 @@ class TaskModuleController extends Controller
 
     public function list(Request $request)
     {
-        $pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed')->where('assign_from', Auth::id());
+        $pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed');
         $completed_tasks = Task::where('is_statutory', 0)->whereNotNull('is_completed')->where('assign_from', Auth::id());
+
+        if(!Auth::user()->hasRole('Admin'))
+        {
+            $pending_tasks = $pending_tasks->where('assign_to', Auth::id());
+        }
+        if ($request->term && $request->term != null) {
+            $pending_tasks = $pending_tasks->where('id', 'LIKE', "%$request->term%");
+            $completed_tasks = $completed_tasks->where('id', 'LIKE', "%$request->term%");
+        }
+
+        if ($request->task_subject && $request->task_subject != null) {
+            $pending_tasks = $pending_tasks->where('task_subject', 'LIKE',  "%$request->task_subject%");
+            $completed_tasks = $completed_tasks->where('task_subject', 'LIKE',  "%$request->task_subject%");
+        }
 
         if (is_array($request->user) && $request->user[0] != null) {
             $pending_tasks = $pending_tasks->whereIn('assign_to', $request->user);
@@ -1956,17 +1973,21 @@ class TaskModuleController extends Controller
             $completed_tasks = $completed_tasks->where('created_at', 'LIKE', "%$request->date%");
         }
 
-        $pending_tasks = $pending_tasks->oldest()->paginate(Setting::get('pagination'));
-        $completed_tasks = $completed_tasks->orderBy('is_completed', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+        $pending_tasks = $pending_tasks->latest()->paginate(Setting::get('pagination'));
+        $completed_tasks = $completed_tasks->orderBy('is_completed', 'DESC')->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
         $users = Helpers::getUserArray(User::all());
         $user = $request->user ?? [];
         $date = $request->date ?? '';
+        $taskstatus = TaskStatus::get();
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
 
         return view(
             'task-module.list', [
                 'pending_tasks' => $pending_tasks,
                 'completed_tasks' => $completed_tasks,
+                'taskstatus' => $taskstatus,
+                'isTeamLeader' => $isTeamLeader,
                 'users' => $users,
                 'user' => $user,
                 'date' => $date,
@@ -2853,8 +2874,12 @@ class TaskModuleController extends Controller
             $newCreated = 1;
         }
 
-        if ($newCreated) {
-            $this->hubstaffActions('TASK', $task);
+        if ($newCreated) {            
+            if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
+                $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assign_to']);
+            } else {
+                $this->hubstaffActions('TASK', $task);
+            }
         }
 
         if ($task->is_statutory != 1) {
@@ -2982,6 +3007,56 @@ class TaskModuleController extends Controller
             }
         }
 
+        return false;
+    }
+
+    public function timeDoctorActions($type, $task, $projectId, $assignTo)
+    {
+        $check_entry = 0;
+        $project_data = [];
+        $project_data['time_doctor_project'] = $projectId;
+        $project_data['time_doctor_task_name'] = $task['task_subject'];
+        $project_data['time_doctor_task_description'] = $task['task_details'];
+
+        if ($type == 'DEVTASK') {
+            $message = '#DEVTASK-'.$task->id.' => '.$task->subject;
+            $assignedToId = $assignTo;
+        } elseif ($type == 'TASK') {
+            $message = '#TASK-'.$task->id.' => '.$task->task_subject.'. '.$task->task_details;
+            $assignedToId = $assignTo;
+        } else {
+            return false;
+        }
+
+        $assignUsersData = TimeDoctorMember::where('user_id', $assignedToId)->get();        
+
+        $timedoctor = Timedoctor::getInstance();
+        
+        
+        foreach($assignUsersData as $assignedUser){
+            $companyId = $assignedUser->account_detail->company_id;
+            $accessToken = $assignedUser->account_detail->auth_token;
+            $taskSummary = substr($message, 0, 200);                        
+            $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
+            if( $timeDoctorTaskId != ''){                   
+                if ($timeDoctorTaskId) {
+                    $task->time_doctor_task_id = $timeDoctorTaskId;
+                    $task->save();
+
+                    $time_doctor_task = new TimeDoctorTask();
+                    $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
+                    $time_doctor_task->project_id = $projectId;
+                    $time_doctor_task->time_doctor_project_id = $projectId;
+                    $time_doctor_task->summery = $message;
+                    $time_doctor_task->save();
+                    $check_entry = 1;
+                }
+            }
+        }        
+        
+        if($check_entry == 1){
+            return true;
+        }
         return false;
     }
 
