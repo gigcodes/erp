@@ -84,14 +84,14 @@
 
 
     <div class="col-md-12">
-        <div class="table-responsive">
+        <div class="table-responsive missed-call-table">
             <table class="table table-bordered" style="table-layout:fixed;">
                 <tr>
                     <th style="width:9%">Mobile Number</th>
                     <th style="width:7%">Message</th>
                     <th style="width:9%">Website name</th>
                     <th style="width:10%">From</th>
-                    <th style="width:8%">To</th>
+                    <th style="width:10%">To</th>
                     <th style="width:10%">Agent</th>
                     <th style="width:18%">Call Recording</th>
                     <th style="width:10%">Call Time</th>
@@ -288,7 +288,7 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body add-status-body">
+            <div class="modal-body add-status-body reserved-calls-table">
                 <table id="show-ordres-table" class="table table-bordered table-hover" style="table-layout:fixed;">
                     <thead class="reserved-calls">
                         <tr>

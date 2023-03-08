@@ -120,6 +120,8 @@ use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
 use App\Http\Controllers\GoogleDeveloperController;
+use App\Http\Controllers\GoogleDeveloperLogsController;
+
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
 use App\Http\Controllers\GoogleSearchController;
@@ -334,11 +336,14 @@ use App\Http\Controllers\SentryLogController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
-
+use App\Http\Controllers\GoogleAppAdController;
+use App\Http\Controllers\GoogleAdGroupKeywordController;
 use App\Http\Controllers\UnknownAttributeProductController;
-
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppConnect\AppConnectController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TimeDoctorController;
+use App\Http\Controllers\TimeDoctorActivitiesController;
+
 
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
@@ -598,7 +603,8 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 Route::middleware('auth', 'optimizeImages')->group(function () {
     //Crop Reference
     Route::get('crop-references', [CroppedImageReferenceController::class, 'index']);
-    Route::get('crop-references-grid', [CroppedImageReferenceController::class, 'grid']);
+    Route::get('crop-references-grid', [CroppedImageReferenceController::class, 'grid'])->name('grid.reference');
+    Route::get('crop-references-grid/cropStats', [CroppedImageReferenceController::class, 'cropStats']);
     Route::get('crop-references-grid/manage-instances', [CroppedImageReferenceController::class, 'manageInstance']);
     Route::post('crop-references-grid/add-instance', [CroppedImageReferenceController::class, 'addInstance']);
     Route::get('crop-references-grid/delete-instance', [CroppedImageReferenceController::class, 'deleteInstance']);
@@ -643,9 +649,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
-    Route::get('unknown-attribute-products', [UnknownAttributeProductController::class,'index'])->name('unknown.attribute.products');
-    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('unknown.attribute.products.attribute-assignment');
-    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('unknown.attribute.products.get_product_attribute_detail');
+    Route::get('incorrect-attributes', [UnknownAttributeProductController::class,'index'])->name('incorrect-attributes');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
+    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
+    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -882,7 +890,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sop/edit', [SopController::class, 'edit'])->name('editName');
     Route::post('update', [SopController::class, 'update'])->name('updateName');
     Route::get('sop/search', [SopController::class, 'search']);
-    Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch']);
+    Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch'])->name('menu.sop.search');
     Route::get('soplogs', [SopController::class, 'sopnamedata_logs'])->name('sopname.logs');
     Route::get('sop/DownloadData/{id}', [SopController::class, 'downloaddata'])->name('sop.download');
     // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
@@ -941,6 +949,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('reply-logs', [ChatbotMessageLogsController::class, 'replyLogs'])->name('reply.replylogs');
     Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
     Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
+
+    Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', [AutoReplyController::class, 'updateReply']);
@@ -2203,6 +2213,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendors/update-status', [VendorController::class, 'updateStatus'])->name('vendor.status.update');
     Route::get('vendors/meetings/list', [VendorController::class, 'zoomMeetingList'])->name('vendor.meeting.list');
     Route::post('vendors/update-meeting-description', [VendorController::class, 'updateMeetingDescription'])->name('vendor.meeting.update');
+    Route::post('vendors/refresh-meetings-recordings', [VendorController::class, 'refreshMeetingList'])->name('vendor.meeting.refresh');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');
@@ -2531,7 +2542,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 * This route will push the FAQ to series of website with help of API
 */
 Route::middleware('auth')->group(function () {
-	Route::post('push/faq', 		[FaqPushController::class, 'pushFaq']);
+	Route::post('push/faq', 			[FaqPushController::class, 'pushFaq']);
 	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
@@ -2629,6 +2640,11 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+/*#DEVTASK-22731 - START*/
+Route::post('livechat/tickets/update-ticket', [LiveChatController::class, 'updateTicket'])->name('livechat.tickets.update-ticket');
+Route::post('livechat/tickets/approve-ticket', [LiveChatController::class, 'approveTicket'])->name('livechat.tickets.approve-ticket');
+Route::post('livechat/tickets/ticket-data', [LiveChatController::class, 'ticketData'])->name('livechat.tickets.ticket-data');
+/*#DEVTASK-22731 - END*/
 Route::post('livechat/statuscolor', [LiveChatController::class, 'statuscolor'])->name('livechat.statuscolor');
 Route::post('tickets/email-send', [LiveChatController::class, 'sendEmail'])->name('tickets.email.send');
 Route::post('tickets/assign-ticket', [LiveChatController::class, 'AssignTicket'])->name('tickets.assign');
@@ -2692,6 +2708,63 @@ Route::middleware('auth')->group(function () {
     Route::get('hubstaff/payments', [UserController::class, 'payments']);
     Route::post('hubstaff/makePayment', [UserController::class, 'makePayment']);
     Route::get('hubstaff/userlist', [HubstaffController::class, 'userList'])->name('hubstaff.userList');
+
+
+    Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects']);
+    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks']);    
+    Route::get('time-doctor/members', [TimeDoctorController::class, 'userList'])->name('time-doctor.members');
+    Route::post('time-doctor/link_time_doctor_user', [TimeDoctorController::class, 'linkUser']);
+    Route::post('time-doctor/saveuseraccount', [TimeDoctorController::class, 'saveUserAccount'])->name('time-doctor.adduser');
+    Route::post('time-doctor/get_auth_token', [TimeDoctorController::class, 'getAuthTokens'])->name('time-doctor.getToken');
+    Route::post('time-doctor/display-user-account', [TimeDoctorController::class, 'displayUserAccountList'])->name('time-doctor.display-user');
+    Route::post('time-doctor/refresh_users_by_id', [TimeDoctorController::class, 'refreshUsersById'])->name('time-doctor.refresh-user-by-id');
+    Route::post('time-doctor/refresh_project_by_id', [TimeDoctorController::class, 'refreshProjectsById'])->name('time-doctor.refresh-project-by-id');
+    Route::post('time-doctor/saveproject', [TimeDoctorController::class, 'saveProject'])->name('time-doctor.addproject');
+    Route::post('time-doctor/get_project_by_id', [TimeDoctorController::class, 'getProjectsById'])->name('time-doctor.get-project-detail');
+    Route::post('time-doctor/update_project_by_id', [TimeDoctorController::class, 'updateProjectById'])->name('time-doctor.update-program-by-id');
+    Route::post('time-doctor/savetask', [TimeDoctorController::class, 'saveTask'])->name('time-doctor.addtask');
+    Route::post('time-doctor/refresh_task_by_id', [TimeDoctorController::class, 'refreshTasksById'])->name('time-doctor.refresh-task-by-id');
+    Route::post('time-doctor/get_task_by_id', [TimeDoctorController::class, 'getTasksById'])->name('time-doctor.get-task-detail');
+    Route::post('time-doctor/update_task_by_id', [TimeDoctorController::class, 'updateTasksById'])->name('time-doctor.update-task-by-id');
+
+    Route::prefix('time-doctor-activities')->group(function () {
+        Route::get('/report', [TimeDoctorActivitiesController::class, 'activityReport'])->name('time-doctor-activtity.report');
+        Route::get('/report-download', [TimeDoctorActivitiesController::class, 'activityReportDownload'])->name('time-doctor-activity-report.download');
+        Route::get('/payment_data', [TimeDoctorActivitiesController::class, 'activityPaymentData'])->name('time-doctor-activity.payment_data');
+        Route::post('/command_execution_manually', [TimeDoctorActivitiesController::class, 'timeDoctorActivityCommandExecution'])->name('time-doctor-activity.command_execution_manually');
+        Route::get('/time-doctor-payment-download', [TimeDoctorActivitiesController::class, 'timeDoctorPaymentReportDownload'])->name('time-doctor-payment-report.download');
+        Route::get('/addtocashflow', [TimeDoctorActivitiesController::class, 'addtocashflow']);
+
+        Route::prefix('notification')->group(function () {
+            Route::get('/', [TimeDoctorActivitiesController::class, 'notification'])->name('time-doctor-acitivties.notification.index');
+            Route::post('/download', [TimeDoctorActivitiesController::class, 'downloadNotification'])->name('time-doctor-acitivties.notification.download');
+            Route::get('/records', [TimeDoctorActivitiesController::class, 'notificationRecords'])->name('time-doctor-acitivties.notification.records');
+            Route::post('/save', [TimeDoctorActivitiesController::class, 'notificationReasonSave'])->name('time-doctor-acitivties.notification.save-reason');
+            Route::post('/change-status', [TimeDoctorActivitiesController::class, 'changeStatus'])->name('time-doctor-acitivties.notification.change-status');
+        });
+
+        Route::prefix('activities')->group(function () {
+            Route::get('/', [TimeDoctorActivitiesController::class, 'getActivityUsers'])->name('time-doctor-acitivties.activities');
+            Route::get('/details', [TimeDoctorActivitiesController::class, 'getActivityDetails'])->name('time-doctor-acitivties.activity-details');
+            Route::post('/details', [TimeDoctorActivitiesController::class, 'approveActivity'])->name('time-doctor-acitivties.approve-activity');
+            Route::post('/final-submit', [TimeDoctorActivitiesController::class, 'finalSubmit'])->name('time-doctor-acitivties/activities/final-submit');
+            Route::post('/task-notes', [TimeDoctorActivitiesController::class, 'NotesHistory'])->name('time-doctor-acitivties.task.notes');
+            Route::get('/save-notes', [TimeDoctorActivitiesController::class, 'saveNotes'])->name('time-doctor-acitivties.task.save.notes');
+            Route::get('/approve-all-time', [TimeDoctorActivitiesController::class, 'approveTime'])->name('time-doctor-acitivties.approve.time');
+            Route::post('/fetch', [TimeDoctorActivitiesController::class, 'fetchActivitiesFromTimeDoctor'])->name('time-doctor-acitivties/activities/fetch');
+            Route::post('/manual-record', [TimeDoctorActivitiesController::class, 'submitManualRecords'])->name('time-doctor-acitivties.manual-record');
+            Route::get('/records', [TimeDoctorActivitiesController::class, 'notificationRecords'])->name('time-doctor-acitivties.notification.records');
+            Route::post('/save', [TimeDoctorActivitiesController::class, 'notificationReasonSave'])->name('time-doctor-acitivties.notification.save-reason');
+            Route::post('/change-status', [TimeDoctorActivitiesController::class, 'changeStatus'])->name('time-doctor-acitivties.notification.change-status');
+            Route::get('/approved/pending-payments', [TimeDoctorActivitiesController::class, 'approvedPendingPayments'])->name('time-doctor-acitivties.pending-payments');
+            Route::post('/approved/payment', [TimeDoctorActivitiesController::class, 'submitPaymentRequest'])->name('time-doctor-acitivties.payment-request.submit');
+            Route::post('/add-efficiency', [TimeDoctorActivitiesController::class, 'AddEfficiency'])->name('time-doctor-acitivties.efficiency.save');
+            Route::get('/task-activity', [TimeDoctorActivitiesController::class, 'taskActivity'])->name('time-doctor-acitivties.acitivties.task-activity');
+            Route::get('/userTreckTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
+        });
+    });
+    
+
     /***
      * use for Postman
      * Created By Nikunj
@@ -3706,6 +3779,7 @@ Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDevelop
 // Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
 Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
+Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -3828,6 +3902,11 @@ Route::prefix('ads')->middleware('auth')->group(function () {
 
 Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::get('/', [GoogleCampaignsController::class, 'index'])->name('googlecampaigns.index');
+    Route::get('/list', [GoogleCampaignsController::class, 'campaignslist'])->name('googlecampaigns.campaignslist');
+    Route::get('/ads/list', [GoogleCampaignsController::class, 'adslist'])->name('googlecampaigns.adslist');
+    Route::get('/responsive-display-ads/list', [GoogleCampaignsController::class, 'display_ads'])->name('googlecampaigns.displayads');
+    Route::get('/ads-group-list', [GoogleCampaignsController::class, 'adsgroupslist'])->name('googleadsaccount.adsgroupslist');
+    Route::get('/appad-list', [GoogleCampaignsController::class, 'appadlist'])->name('googleadsaccount.appadlist');
     Route::get('/create', [GoogleCampaignsController::class, 'createPage'])->name('googlecampaigns.createPage');
     Route::post('/create', [GoogleCampaignsController::class, 'createCampaign'])->name('googlecampaigns.createCampaign');
     Route::get('/update/{id}', [GoogleCampaignsController::class, 'updatePage'])->name('googlecampaigns.updatePage');
@@ -3839,6 +3918,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::post('/ads-account/create', [GoogleAdsAccountController::class, 'createGoogleAdsAccount'])->name('googleadsaccount.createAdsAccount');
     Route::get('/ads-account/update/{id}', [GoogleAdsAccountController::class, 'editeGoogleAdsAccountPage'])->name('googleadsaccount.updatePage');
     Route::post('/ads-account/update', [GoogleAdsAccountController::class, 'updateGoogleAdsAccount'])->name('googleadsaccount.updateAdsAccount');
+    Route::delete('/ads-account/delete/{id}', [GoogleAdsAccountController::class, 'deleteGoogleAdsAccount'])->name('googleadsaccount.deleteGoogleAdsAccount');
     Route::post('/refresh-token', [GoogleAdsAccountController::class, 'refreshToken'])->name('googleadsaccount.refresh_token');
     Route::get('/get-refresh-token', [GoogleAdsAccountController::class, 'getRefreshToken'])->name('googleadsaccount.get-refresh-token');
     Route::prefix('{id}')->group(function () {
@@ -3846,6 +3926,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
             Route::get('/', [GoogleAdGroupController::class, 'index'])->name('adgroup.index');
             Route::get('/create', [GoogleAdGroupController::class, 'createPage'])->name('adgroup.createPage');
             Route::post('/create', [GoogleAdGroupController::class, 'createAdGroup'])->name('adgroup.createAdGroup');
+            Route::post('/generate-keywords', [GoogleAdGroupController::class, 'generateKeywords'])->name('adgroup.generateKeywords');
             Route::get('/update/{adGroupId}', [GoogleAdGroupController::class, 'updatePage'])->name('adgroup.updatePage');
             Route::post('/update', [GoogleAdGroupController::class, 'updateAdGroup'])->name('adgroup.updateAdGroup');
             Route::delete('/delete/{adGroupId}', [GoogleAdGroupController::class, 'deleteAdGroup'])->name('adgroup.deleteAdGroup');
@@ -3868,6 +3949,25 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::get('/{adId}', [GoogleResponsiveDisplayAdController::class, 'show'])->name('responsive-display-ad.show');
                 });
             });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('app-ad')->group(function () {
+                    Route::get('/', [GoogleAppAdController::class, 'index'])->name('app-ad.index');
+                    Route::get('/create', [GoogleAppAdController::class, 'createPage'])->name('app-ad.createPage');
+                    Route::post('/create', [GoogleAppAdController::class, 'createAd'])->name('app-ad.craeteAd');
+                    Route::get('/{adId}', [GoogleAppAdController::class, 'show'])->name('app-ad.show');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('ad-group-keyword')->group(function () {
+                    Route::get('/', [GoogleAdGroupKeywordController::class, 'index'])->name('ad-group-keyword.index');
+                    Route::get('/create', [GoogleAdGroupKeywordController::class, 'createPage'])->name('ad-group-keyword.createPage');
+                    Route::post('/create', [GoogleAdGroupKeywordController::class, 'createKeyword'])->name('ad-group-keyword.craeteKeyword');
+                    Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
+                });
+            });
+
         });
     });
 
@@ -4396,6 +4496,9 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('categories', [Select2Controller::class, 'allCategory'])->name('select2.categories');
     Route::get('websites', [Select2Controller::class, 'allWebsites'])->name('select2.websites');
     Route::get('tasks', [Select2Controller::class, 'allTasks'])->name('select2.tasks');
+
+    Route::get('time-doctor-accounts', [Select2Controller::class, 'timeDoctorAccounts'])->name('select2.time_doctor_accounts');
+    Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');
 });
 Route::get('whatsapp-log', [Logging\WhatsappLogsController::class, 'getWhatsappLog'])->name('whatsapp.log');
 Route::get('chatbot-message-log', [ChatbotMessageLogsController::class, 'index'])->name('chatbot.messages.logs');
@@ -4599,4 +4702,3 @@ Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name
  });
 
    
-

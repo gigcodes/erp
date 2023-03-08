@@ -2758,6 +2758,16 @@ button.show-task-history{
   margin-left: 10px
 }
 
+.twilio-manage-tones audio {
+  height: 30px;
+  margin: 10px 0;
+}
+
+.reserved-calls-table table tbody tr td,
+.missed-call-table table tbody tr td {
+  word-break: break-all;
+}
+
 @media (min-width: 992px){
   #addPostman .modal-lg {
       width: 1180px !important;
