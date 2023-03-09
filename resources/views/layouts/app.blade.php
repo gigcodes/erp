@@ -319,6 +319,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         /*padding-right: 30px;*/
     }
 
+    .time_doctor_project_section{
+        display: none;
+    }
+
     /*.navbar-brand{*/
     /*    margin-right: 20px;*/
     /*}*/
@@ -342,8 +346,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="d-flex" id="search-bar">
-                                <input type="text" value="" name="search" class="form-control sop_search" placeholder="Search Here.." style="width: 30%;">
-{{--                                <button title="Sop Search" type="button" class="btn btn-xs search-button" style="padding: 0px 1px;"><span><i class="fa fa-search" aria-hidden="true"></i></span></button>--}}
+                                <input type="text" value="" name="search" id="menu_sop_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="Sop Search" type="button" class="sop_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
                             </div>
                         </div>
                         <div class="col-lg-12">
@@ -2041,7 +2046,7 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
 
-                                @if(auth()->user()->isAdmin())
+                               
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
@@ -2063,7 +2068,7 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
-                                @endif
+                              
 
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2120,6 +2125,10 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.developer-api.anr')}}">ANR Report</a>
                                                 </li>
+                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.logs')}}">Logs</a>
+                                                </li>
                                             
                                             </ul>
                                         </li>
@@ -2138,8 +2147,27 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google
-                                        AdWords</a>
+                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="width: fit-content !important;">
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.adsgroupslist')}}">Google Ads groups</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.adslist')}}">Google Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.displayads')}}">Google Responsive Display Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.appadlist')}}">Google App Ads</a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social
@@ -2167,6 +2195,9 @@ if (!empty($notifications)) {
                                 aria-haspopup="true" aria-expanded="false">Social <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2890,6 +2921,44 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+
+                                        <!-- time doctor -->
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" v-pre>Time Doctor<span
+                                                    class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor.members') }}">Members</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/projects') }}">Projects</a>
+                                                </li>
+
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/tasks') }}">Tasks</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/notification') }}">Activity
+                                                        Notofication</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/activities') }}">Activities</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">User
+                                                        Track Time</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -2991,6 +3060,7 @@ if (!empty($notifications)) {
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ url('sop') }}">SOP</a>
                                         </li>
+                                        <li>
                                         <a class="dropdown-item"
                                             href="{{ route('gtmetrix.error.index.list') }}">GTMetrix Error log</a>
                                 </li>
@@ -3016,6 +3086,9 @@ if (!empty($notifications)) {
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
                             </li>
                             <li class="nav-item dropdown dropdown-submenu">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
@@ -3075,7 +3148,7 @@ if (!empty($notifications)) {
                                             States</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
+                                        <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage
@@ -4732,11 +4805,11 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
-    $(document).on("keyup", ".sop_search", function(e) {
-        let $this = $(this);
-        var q = $this.val();
+    $(document).on("click", ".sop_search_menu", function(e) {
+        let $this = $('#menu_sop_search').val();
+        var q = $this;
         $.ajax({
-            url: '{{env('app_url')}}sop/search-ajax',
+            url: '{{route('menu.sop.search')}}',
             type: 'GET',
             data: {
                 search: q,
@@ -4752,6 +4825,7 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
+                toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
                 $("#loading-image").hide();
@@ -6145,6 +6219,15 @@ if (!\Auth::guest()) {
             toastr['error'](response.responseJSON.message);
 
         });
+    });
+
+    $(document).on('change', '.task_for', function(e) {
+        var getTask = $(this).val();
+        if(getTask == 'time_doctor'){
+            $('.time_doctor_project_section').show();
+        } else {
+            $('.time_doctor_project_section').hide();
+        }
     });
 
     $(document).on("click", ".save-task-window", function(e) {

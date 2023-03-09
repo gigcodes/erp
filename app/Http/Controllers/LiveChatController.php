@@ -696,9 +696,11 @@ class LiveChatController extends Controller
 
             if (empty($source[$key]->media_url) && $value->product_id) {
                 $product = \App\Product::find($value->product_id);
-                $media = $product->getMedia(config('constants.media_tags'))->first();
-                if ($media) {
-                    $source[$key]->media_url = $media->getUrl();
+                if($product) {
+                    $media = $product->getMedia(config('constants.media_tags'))->first();
+                    if ($media) {
+                        $source[$key]->media_url = $media->getUrl();
+                    }
                 }
             }
         }
@@ -1733,12 +1735,12 @@ class LiveChatController extends Controller
         $creditLogs = '';
         foreach ($logs as $log) {
             $creditLogs .= "<tr>
-			<td width='25%'>".$log['created_at']."</td>
-			<td width='25%'>".$log['request']."</td>
-			<td width='25%'>".$log['response']."</td>
-			<td width='25%'>".$log['status']."</td>
+            <td width='25%'>".$log['created_at']."</td>
+            <td width='25%'>".$log['request']."</td>
+            <td width='25%'>".$log['response']."</td>
+            <td width='25%'>".$log['status']."</td>
             <td width='25%'><a class='repush-credit-balance' href='/customer/credit-repush/".$log['id']."'>Repush</td>
-			</tr>";
+            </tr>";
         }
 
         return response()->json(['data' => $creditLogs, 'code' => 200, 'status' => 'success']);
@@ -1750,12 +1752,12 @@ class LiveChatController extends Controller
         $creditHistories = '';
         foreach ($histories as $history) {
             $creditHistories .= "<tr>
-			<td width='25%'>".$history['id']."</td>
-			<td width='25%'>".$history['used_credit']."</td>
-			<td width='25%'>".$history['used_in']."</td>
-			<td width='25%'>".$history['type']."</td>
-			<td width='25%'>".$history['created_at'].'</td>
-			</tr>';
+            <td width='25%'>".$history['id']."</td>
+            <td width='25%'>".$history['used_credit']."</td>
+            <td width='25%'>".$history['used_in']."</td>
+            <td width='25%'>".$history['type']."</td>
+            <td width='25%'>".$history['created_at'].'</td>
+            </tr>';
         }
 
         return response()->json(['data' => $creditHistories, 'code' => 200, 'status' => 'success']);
@@ -2312,4 +2314,50 @@ class LiveChatController extends Controller
             'count' => $watsonJourney->total(),
         ], 200);
     }
+
+    #DEVTASK-22731 - START
+    public function updateTicket(Request $request){
+        \App\ChatMessage::where(['id'=>$request->id])->update(['message'=>$request->message,'message_en'=>$request->message]);
+        return response()->json(['status'=>true,'message'=>'Data updated successfully']);
+    }
+
+    public function approveTicket(Request $request){
+        \App\ChatMessage::where(['id'=>$request->id])->update(['send_to_tickets'=>1]);
+        return response()->json(['status'=>true,'message'=>'Data updated successfully']);
+    }
+
+    public function ticketData(Request $request){
+        $replies = array();
+        $result = \App\ChatMessage::where('ticket_id', $request->ticket_id)->orderBy('id', 'desc')->get();
+        if(count($result)>0){
+            foreach ($result as $key => $value) {
+                $sendTo = '-';
+                $customer = \App\Customer::where('id', $value->customer_id)->first();
+                if(!empty($customer)) {
+                    $sendTo = $customer->name; 
+                }
+                $sopdata = \App\Sop::where(['chat_message_id' => $value->id])->first();
+                if(!empty($sopdata)) {
+                    $result[$key]['sop_name'] = $sopdata->name;
+                    $result[$key]['sop_category'] = $sopdata->category;
+                    $result[$key]['sop_content'] = $sopdata->content;
+                } else {
+                    $result[$key]['sop_name'] = null;
+                    $result[$key]['sop_category'] = null;
+                    $result[$key]['sop_content'] = null;
+                }
+                
+                $check_replies = \App\ChatbotReply::where(['chat_id'=>$value->id])->first();
+                if(!empty($check_replies)) {
+                    $result[$key]['out'] = true;
+                    $result[$key]['datetime'] = "From ".$check_replies->reply_from." To ".$sendTo." On ".Carbon::parse($value->created_at)->format('Y-m-d H:i A');
+                } else {
+                    $result[$key]['out'] = false;
+                    $result[$key]['datetime'] = "From ERP"." To ".$sendTo." On ".Carbon::parse($value->created_at)->format('Y-m-d H:i A');
+                }
+            }
+        }
+        return response()->json(['data'=>$result,'count'=>$result->count()]);
+    }
+    #DEVTASK-22731 - END
 }

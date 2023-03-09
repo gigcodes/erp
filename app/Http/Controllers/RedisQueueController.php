@@ -20,7 +20,21 @@ class RedisQueueController extends Controller
      */
     public function index(Request $request)
     {
-        $queues = RedisQueue::paginate(Setting::get('pagination'));
+        $queues = RedisQueue::orderBy('name','desc');
+
+        if(!empty($request->name))
+        {
+            $queues->where('name', 'LIKE', '%'.$request->name.'%');
+        }
+
+        if(!empty($request->type))
+        {
+            $queues->where('type', 'LIKE', '%'.$request->type.'%');
+        }
+
+        $queues = $queues->paginate(Setting::get('pagination'));
+        $types = RedisQueue::select('type')->distinct()->get();
+
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('redis_queue.data', compact('queues'))->render(),
@@ -28,7 +42,7 @@ class RedisQueueController extends Controller
             ], 200);
         }
 
-        return view('redis_queue.index', compact('queues'));
+        return view('redis_queue.index', compact('queues','types'));
     }
 
     /**

@@ -24,8 +24,8 @@ class FailedJobController extends Controller
         $jobs = \App\FailedJob::whereNotNull('id')->orderBy('id', 'desc');
 
         $filters = $request->except('page');
-        if ($request->queue != '') {
-            $jobs->where('queue', '=', $request->queue);
+        if ($request->exception != '') {
+            $jobs->where('exception', '=', $request->exception);
         }
         if ($request->payload != '') {
             $jobs->Where('payload', 'LIKE', '%'.$request->payload.'%');

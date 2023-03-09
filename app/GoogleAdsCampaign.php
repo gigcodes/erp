@@ -59,6 +59,8 @@ class GoogleAdsCampaign extends Model
         'ad_rotation',
         'campaign_response',
         'status',
+        'app_id',
+        'app_store',
     ];
 
     const CAHANNEL_TYPE = [
