@@ -50,14 +50,14 @@
     <div class="row m-2">
         <div class="col-lg-12">
             <div class="cls_filter_box mt-5 mb-2">
-
-                <div class="row">
-                    <div class="col-md-3">
+                <form class="form-inline" action="{{ route('logging.flow.log') }}" method="GET">
+                    <div class="row">
+                    <div class="col">
                         <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}"
                             placeholder="search" id="term">
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col">
                         <div class='input-group' id='log-created-date1'>
                             <input type='text' class="form-control " name="created_at" value="" placeholder="Date"
                                 id="created-date" />
@@ -67,14 +67,66 @@
                         </div>
                     </div>
 
-                    <div class="col-md-3">
-                        <button type="button" class="btn btn-image" onclick="submitSearch()"><img
-                                src="/images/filter.png" /></button>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class='input-group'>
+                                <select class="form-control flow_name" name="flow_name[]" multiple>
+                                    @foreach($flow_logs->unique() as $flow_log)
+                                        @php
+                                            $sel='';
+                                            if(isset($_GET['flow_name']) && in_array($flow_log,$_GET['flow_name']))
+                                                $sel="selected='selected'";
+                                        @endphp
+                                        <option {{ $sel}} value="{{$flow_log}}">{{$flow_log}} </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="form-group">
+                            <div class='input-group'>
+                                <select class="form-control website" name="website[]" multiple>
+                                    @foreach($websites as $website)
+                                        @php
+                                            $sel='';
+                                            if(isset($_GET['website']) && in_array($website,$_GET['website']))
+                                                $sel="selected='selected'";
+                                        @endphp
+                                        <option {{ $sel}} value="{{$website}}">{{$website}} </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="form-group">
+                            <div class='input-group'>
+                                <select class="form-control leads" name="leads[]" multiple>
+                                    @foreach($leads as $lead)
+                                        @php
+                                            $sel='';
+                                            if(isset($_GET['leads']) && in_array($lead,$_GET['leads']))
+                                                $sel="selected='selected'";
+                                        @endphp
+                                        <option {{ $sel}} value="{{$lead}}">{{$lead}} </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <button type="submit" class="btn btn-image"><img
+                                src="{{asset('/images/filter.png')}}" /></button>
 
                         <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img
-                                src="/images/resend2.png" /></button>
+                                src="{{asset('/images/resend2.png')}}" /></button>
                     </div>
                 </div>
+                </form>
             </div>
         </div>
 
@@ -151,7 +203,15 @@
     <script type="text/javascript">
         //Ajax Request For Search
         $(document).ready(function() {
-
+            $('.flow_name').select2({
+                placeholder:'Select Flow Name',
+            });
+            $('.website').select2({
+                placeholder:'Select Website',
+            });
+            $('.leads').select2({
+                placeholder:'Select Leads',
+            });
             $(document).on("click", ".show_error_logs", function() {
                 var id = $(this).data('id');
                 $.ajax({
@@ -196,14 +256,20 @@
                 var src = "{{ route('logging.flow.log') }}?ajax=1&page=" + page;
                 var term = $('#term').val()
                 var created_at = $('#created-date').val()
-
-
+                var flow_name = $('.flow_name').val()
+                var website = $('.website').val()
+                var leads = $('.leads').val()
+                
                 $.ajax({
                     url: src,
                     type: 'GET',
                     data: {
                         term: term,
-                        created_at: created_at
+                        created_at: created_at,
+                        flow_name: flow_name,
+                        website: website,
+                        leads: leads,
+
                     },
                     beforeSend: function() {
                         $loader.show();
@@ -233,6 +299,9 @@
             var src = "{{ route('logging.flow.log') }}"
             var term = $('#term').val()
             var created_at = $('#created-date').val()
+            var flow_name = $('.flow_name').val()
+            var website = $('.website').val()
+            var leads = $('.leads').val()
 
 
             $.ajax({
@@ -240,7 +309,10 @@
                 dataType: "json",
                 data: {
                     term: term,
-                    created_at: created_at
+                    created_at: created_at,
+                    flow_name: flow_name,
+                    website: website,
+                    leads: leads,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();

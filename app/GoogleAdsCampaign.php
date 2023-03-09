@@ -39,6 +39,7 @@ class GoogleAdsCampaign extends Model
     protected $table = 'googlecampaigns';
 
     protected $fillable = [
+        'google_customer_id',
         'account_id',
         'google_campaign_id',
         'campaign_name',
@@ -58,6 +59,8 @@ class GoogleAdsCampaign extends Model
         'ad_rotation',
         'campaign_response',
         'status',
+        'app_id',
+        'app_store',
     ];
 
     const CAHANNEL_TYPE = [

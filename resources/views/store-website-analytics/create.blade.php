@@ -55,7 +55,7 @@
               <div class="form-group row">
                 <label for="view_id" class="col-4 col-form-label">{{ __('View Id') }}</label>
                 <div class="col-8">
-                  <input id="view_id" name="view_id" placeholder="View Id" type="text" class="form-control {{ $errors->has('view_id') ? ' is-invalid' : '' }}" value="{{old('view_id')}}" required="required" autofocus>
+                  <input id="view_id" name="view_id" placeholder="View Id" type="text" class="form-control {{ $errors->has('view_id') ? ' is-invalid' : '' }}" value="{{old('view_id')}}" autofocus>
                   @if ($errors->has('view_id'))
                     <span class="invalid-feedback">
                       <strong>{{ $errors->first('view_id') }}</strong>

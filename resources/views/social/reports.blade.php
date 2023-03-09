@@ -51,6 +51,7 @@
 								<th>#</th>
 								<th>Thumbnail</th>
 								<th>ad id</th>
+								<th>Website</th>
 								<th>Ad Name</th>
 								<th>Delivery</th>
 								<th>ACC ID</th>
@@ -78,6 +79,10 @@
 									<img class="img-responsive " width="80" height="80" src="{{isset($ads->adcreatives->data[0]->thumbnail_url)?$ads->adcreatives->data[0]->thumbnail_url:''}}" alt="Not found...">
 								</td>
 								<td>{{isset($ads->id)?$ads->id:''}}</td>
+								<?php
+									$config_name = App\Social\SocialConfig::where('id',$resp->token)->first();
+								?>
+								 <td>@if(isset($config_name->storeWebsite)) {{ $config_name->storeWebsite->title }} @endif</td>
 								<td>{{isset($ads->name)?$ads->name:''}}</td>
 								<td>{{isset($ads->status)?$ads->status:''}}</td>
 								<td>{{isset($ads->insights->data[0]->account_id)?$ads->insights->data[0]->account_id:''}}</td>

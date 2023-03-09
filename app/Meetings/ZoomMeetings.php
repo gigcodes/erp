@@ -18,6 +18,7 @@ use App\Customer;
 use App\Supplier;
 use App\Vendor;
 use Dotenv\Dotenv;
+use App\Meetings\ZoomMeetingDetails;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use seo2websites\LaravelZoom\LaravelZoom;
@@ -46,20 +47,19 @@ class ZoomMeetings extends Model
      */
     public function createMeeting($zoomKey, $zoomSecret, $data)
     {
-        $zoom = new LaravelZoom($zoomKey, $zoomSecret);
+        $zoom = new LaravelZoom($zoomKey, $zoomSecret);        
         $time = time() + 7200;
-        $token = $zoom->getJWTToken($time);
+        $token = $zoom->getJWTToken($time);        
         if ($token) {
-            try {
-                $dotEnv = new Dotenv(app()->environmentPath(), app()->environmentFile());
+        /*    try {                
+                $dotEnv = new Dotenv(app()->environmentPath(), app()->environmentFile());                                
                 $dotEnv->load();
             } catch (InvalidArgumentException $e) {
                 //
-            }
-
-            //$meeting = $zoom->createInstantMeeting($data['user_id'],$data['topic'], '', $data['agenda'], '',$data['settings']);
+            }*/            
+            //$meeting = $zoom->createInstantMeeting($data['user_id'],$data['topic'], '', $data['agenda'], '',$data['settings']);            
             $meeting = $zoom->createScheduledMeeting($data['user_id'], $data['topic'], $data['startTime'], $data['duration'], $data['timezone'], '', '', $data['agenda'], [], $data['settings']);
-
+            dd( $meeting );
             return $meeting;
         } else {
             return false;
@@ -203,8 +203,8 @@ class ZoomMeetings extends Model
                 $meetingId = $meetings->meeting_id;
                 \Log::info('Get Recording '.json_encode($meetings));
                 \Log::info('Get meetingId '.$meetingId);
-                //$recordingAll = $zoom->getRecordings('-ISK-roPRUyC3-3N5-AT_g', 10);
-                $recordingAll = $zoom->getMeetingRecordings($meetingId);
+                //$recordingAll = $zoom->getRecordings('-ISK-roPRUyC3-3N5-AT_g', 10);                
+                $recordingAll = $zoom->getMeetingRecordings($meetingId);                
                 \Log::info(json_encode($recordingAll));
                 if ($recordingAll) {
                     if ('200' == $recordingAll['status']) {
@@ -305,5 +305,96 @@ class ZoomMeetings extends Model
             default:
                 break;
         }
+    }
+
+    public function saveRecordings($zoomKey, $zoomSecret, $date, $zoommeetingid, $zoomuserid)
+    {
+        \Log::info('Get recording getRecordings ');
+        $allMeetingRecords = ZoomMeetings::WhereNull('zoom_recording')->whereNotNull('meeting_id')->whereDate('start_date_time', '<', $date)->get();        
+
+        $zoom = new LaravelZoom($zoomKey, $zoomSecret);
+        $token = $zoom->getJWTToken(time() + 36000);        
+        \Log::info('Find recording-->'.count($allMeetingRecords));
+        $meetingId = $zoommeetingid;
+        \Log::info('Get meetingId '.$meetingId);                
+        $recordingAll = $zoom->getRecordings($zoomuserid, 10);
+        /*$recordingAll = $zoom->getMeetingRecordings($meetingId);*/
+        \Log::info(json_encode($recordingAll));                                        
+        if ($recordingAll) {
+            if ('200' == $recordingAll['status']) {                                                                
+                /*$recordingFiles = $recordingAll['body']['recording_files'];*/
+                /*if ($recordingFiles) {*/
+                if ($recordingAll) {
+                    $folderPath = public_path().'/zoom/0/'.$meetingId;
+                    $databsePath = '/zoom/0/'.$meetingId;
+                    \Log::info('folderPath -->'.$folderPath);
+                    foreach( $recordingAll['body']['meetings'] as $meetings){
+                        if($meetings['id'] == $meetingId){
+                            $recordingFiles = $meetings['recording_files'];
+                            \Log::info('recordingFiles -->'.json_encode($recordingFiles));                            
+                            foreach ($meetings['recording_files'] as $recordings) {
+                                $checkfile = ZoomMeetingDetails::where('download_url_id', $recordings['id'])->first();
+                                if(!$checkfile){
+                                    if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
+                                        \Log::info('shared_screen_with_speaker_view');
+                                        $fileName = $meetingId.'_'.time().'.mp4';
+                                        $urlOfFile = $recordings['download_url'];
+                                        $filePath = $folderPath.'/'.$fileName;
+                                        if (! file_exists($filePath) && !is_dir( $folderPath )) {
+                                            mkdir($folderPath, 0777, true);
+                                        }
+                                        $ch = curl_init($urlOfFile);
+                                        curl_exec($ch);
+                                        if (!curl_errno($ch)) {
+                                            $info = curl_getinfo($ch);
+                                            $downloadLink = $info['redirect_url'];
+                                        }
+                                        curl_close($ch);
+
+                                        if($downloadLink) {
+                                            copy($downloadLink, $filePath);
+                                        }
+
+                                        $zoom_meeting_details = new ZoomMeetingDetails();
+                                        $zoom_meeting_details->file_path = $databsePath.'/'.$fileName;
+                                        $zoom_meeting_details->file_name = $fileName;
+                                        $zoom_meeting_details->download_url_id = $recordings['id'];
+                                        $zoom_meeting_details->save();
+                                    } else {
+                                        if ('audio_only' == $recordings['recording_type']) {
+                                            $fileNameAudio = $meetingId.'_'.time().'-audio.mp4';
+                                            if (! isset($filePath) || empty($filePath)) {
+                                                $filePath = $folderPath.'/'.$fileNameAudio;
+                                            }
+                                            $filePathAudio = $folderPath.'/'.$fileNameAudio;
+                                            $urlOfAudioFile = $recordings['download_url'];
+                                            if (! file_exists($filePath)  && !is_dir( $folderPath )) {
+                                                mkdir($folderPath, 0777, true);
+                                            }
+                                            $ch = curl_init($urlOfAudioFile);
+                                            curl_exec($ch);
+                                            if (!curl_errno($ch)) {
+                                                $info = curl_getinfo($ch);
+                                                $downloadLink = $info['redirect_url'];
+                                            }
+                                            curl_close($ch);
+
+                                            if($downloadLink) {
+                                                copy($downloadLink, $filePathAudio);
+                                            }
+                                            /*copy($urlOfAudioFile, $filePathAudio);*/
+                                        } else {
+                                            // Not saving any other files currently
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        }
+        return true;
     }
 }

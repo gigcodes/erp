@@ -35,12 +35,10 @@ class ZoomMeetingController extends Controller
      */
     public function __construct()
     {
-        // $this->zoomkey = env('ZOOM_API_KEY');
-        // $this->zoomsecret = env('ZOOM_API_SECRET');
-        // $this->zoomuser = env('ZOOM_USER');
-        $this->zoomkey = config('env.ZOOM_API_KEY');
-        $this->zoomsecret = config('env.ZOOM_API_SECRET');
-        $this->zoomuser = config('env.ZOOM_USER');
+        $this->zoomkey = env('ZOOM_API_KEY');
+        $this->zoomsecret = env('ZOOM_API_SECRET');
+        $this->zoomuser = env('ZOOM_USER');
+        
     }
 
    /**
@@ -106,15 +104,16 @@ class ZoomMeetingController extends Controller
            'timezone' => $input['timezone'],
        ];
        // Calling model calss
-       $meetings = new ZoomMeetings();
+       $meetings = new ZoomMeetings();       
        $zoomKey = $this->zoomkey;
-       $zoomSecret = $this->zoomsecret;
-
+       $zoomSecret = $this->zoomsecret;              
+       
        $createMeeting = $meetings->createMeeting($zoomKey, $zoomSecret, $data);
        // dd($createMeeting);
        if ($createMeeting) {
            $input['meeting_id'] = empty($createMeeting['body']['id']) ? '' : $createMeeting['body']['id'];
-           $input['host_zoom_id'] = $this->zoomuser;
+           //$input['host_zoom_id'] = $this->zoomuser;
+           $input['host_zoom_id'] = $userId;
            $input['meeting_type'] = 'scheduled';
            $input['join_meeting_url'] = empty($createMeeting['body']['join_url']) ? '' : $createMeeting['body']['join_url'];
            $input['start_meeting_url'] = empty($createMeeting['body']['start_url']) ? '' : $createMeeting['body']['start_url'];
