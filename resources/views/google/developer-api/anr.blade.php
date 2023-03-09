@@ -95,7 +95,7 @@ input:checked + .slider:before {
         <div class="col-lg-12 margin-tb">
             <div class="row">
                 <div class="col">
-                    <form class="form-inline anr-search-handler" action="/google/developer-api/anrfilter" method="get">
+                    <form class="form-inline anr-search-handler" action="/google/developer-api/logfilter" method="get">
                        
                          <div class="col-lg-2">
                             <label for="amount">App name:</label>
