@@ -54,7 +54,7 @@
                     </div>
 
 
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    <button type="submit" class="btn btn-image m-0"><img src="{{asset('/images/filter.png')}}" /></button>
                 </form>
             </div>
             <div class="pull-right">
@@ -100,6 +100,7 @@
             <th width="10%">Registered With</th>
             <th width="15%">Remark</th>
             <th width="8%">Actions</th>
+
           </tr>
 
           <tr>
@@ -109,6 +110,7 @@
             <th><input type="text" id="username" class="search form-control"></th>
             <th></th>
             <th><input type="text" id="registered_with" class="search form-control"></th>
+            <th></th>
             <th></th>
           </tr>
         </thead>
