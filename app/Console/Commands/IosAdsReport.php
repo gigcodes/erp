@@ -59,12 +59,15 @@ class IosAdsReport extends Command
         $end_date=date('Y-m-d');
         $product_id=env("APPFIGURE_PRODUCT_ID");
         $ckey=env("APPFIGURE_CLIENT_KEY");
-
-
+ $array_app_name=explode(",",env("APPFIGURE_APP_NAME"));
+        $i=0;
+$array_app=explode(",",env("APPFIGURE_PRODUCT_ID"));
+            foreach ($array_app as $app_value) {
+ 
         //Usage Report
         $curl = curl_init();
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://api.appfigures.com/v2/reports/ads?networks='.$group_by.'&start_date='.$start_date.'&end_date='.$end_date.'&products='.$product_id,
+        CURLOPT_URL => 'https://api.appfigures.com/v2/reports/ads?networks='.$group_by.'&start_date='.$start_date.'&end_date='.$end_date.'&products='.$app_value,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -84,13 +87,13 @@ class IosAdsReport extends Command
         $res=json_decode($result, true);
         
         curl_close($curl);
-
+        print_r($res);
         if($res)
         {
 
 
             $r=new AppAdsReport();
-            $r->product_id=$product_id;
+             $r->product_id=$array_app_name[$i]." [".$product_id."]";
             $r->networks=$group_by;
             $r->start_date=$start_date;
             $r->end_date=$end_date;
@@ -108,9 +111,9 @@ class IosAdsReport extends Command
             $r->save();
         }
 
-
+$i+=1;
             
-
+}
 
         
         return $this->info("Ads Report added");
