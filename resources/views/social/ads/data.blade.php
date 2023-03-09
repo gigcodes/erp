@@ -1,9 +1,13 @@
 @foreach ($ads as $ad)
+<?php
+    $config_name = App\Social\SocialConfig::where('id',$ad->config_id)->first();
+  ?>
     <tr>
       <td>{{ \Carbon\Carbon::parse($ad->created_at)->format('d-m-Y') }}</td>
        
         <td>{{ $ad->name }}</td>
         <td>{{ isset($configs[$ad->config_id])?$configs[$ad->config_id]:'' }}</td>
+        <td>@if(isset($config_name->storeWebsite)) {{ $config_name->storeWebsite->title }} @endif</td>
         <td>{{ $ad->ad_set_name }}</td>
         <td>{{ $ad->ad_creative_name }}</td>
       

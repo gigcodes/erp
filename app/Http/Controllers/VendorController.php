@@ -20,6 +20,7 @@ use App\VendorProduct;
 use App\VendorStatus;
 use App\VendorStatusDetail;
 use App\VendorStatusDetailHistory;
+use App\Meetings\ZoomMeetingDetails;
 use App\VendorStatusHistory as VSHM;
 use Auth;
 use Carbon\Carbon;
@@ -114,7 +115,7 @@ class VendorController extends Controller
                 } else {
                     $query = Vendor::query();
                 }
-            }
+            }            
 
             if (request('term') != null) {
                 $query->where('name', 'LIKE', "%{$request->term}%");
@@ -196,7 +197,7 @@ class VendorController extends Controller
                 }
                 $totalVendor = $query->orderby('name', 'asc')->count();
                 $vendors = $query->orderby('name', 'asc')->paginate($pagination);
-            }
+            }            
         } else {
             if ($isAdmin) {
                 $permittedCategories = '';
@@ -210,7 +211,7 @@ class VendorController extends Controller
                 } else {
                     $permittedCategories = 'and vendors.category_id in ('.implode(',', $permittedCategories).')';
                 }
-            }
+            }                       
             $vendors = DB::select('
                   SELECT *,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
@@ -245,9 +246,7 @@ class VendorController extends Controller
                   category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%'.$term.'%") OR
                    id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%'.$term.'%" OR phone LIKE "%'.$term.'%" OR email LIKE "%'.$term.'%"))) '.$permittedCategories.'
                   ORDER BY '.$sortByClause.' message_created_at DESC;
-              ');
-
-            //dd($vendors);
+              ');            
 
             $totalVendor = count($vendors);
 
@@ -269,11 +268,11 @@ class VendorController extends Controller
             ]);
         }
 
-        $vendor_categories = VendorCategory::all();
+        $vendor_categories = VendorCategory::all();            
 
         $users = User::all();
 
-        $replies = \App\Reply::where('model', 'Vendor')->whereNull('deleted_at')->pluck('reply', 'id')->toArray();
+        $replies = \App\Reply::where('model', 'Vendor')->whereNull('deleted_at')->pluck('reply', 'id')->toArray();        
 
         /* if ($request->ajax()) {
         return response()->json([
@@ -281,7 +280,7 @@ class VendorController extends Controller
         'links' => (string) $vendors->render()
         ], 200);
         } */
-        $statusList = \DB::table('vendor_status')->select('name')->pluck('name', 'name')->toArray();
+        $statusList = \DB::table('vendor_status')->select('name')->pluck('name', 'name')->toArray();        
 
         $updatedProducts = \App\Vendor::join('users as u', 'u.id', 'vendors.updated_by')
             ->groupBy('vendors.updated_by')
@@ -1474,4 +1473,25 @@ class VendorController extends Controller
 
         return response()->json(['code' => 200, 'data' => $data, 'message' => 'Message sent successfully']);
     }
+
+    public function zoomMeetingList(Request $request)
+    {
+        $meetings = ZoomMeetingDetails::get();
+        return view('vendors.list-zoom-meetings', [
+            'meetings' => $meetings,
+        ]);
+    }
+
+    public function updateMeetingDescription(Request $request){
+        $meetingdata = ZoomMeetingDetails::find($request->id);
+        $meetingdata->description = $request->description;
+        $meetingdata->save();
+        return response()->json(['code' => 200, 'message' => 'Successful'], 200);
+    }
+
+    public function refreshMeetingList(Request $request){
+        \Artisan::call('save:zoom-meetings');
+        return redirect()->back();
+    }
+    
 }

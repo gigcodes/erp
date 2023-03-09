@@ -2151,6 +2151,10 @@ class WhatsAppController extends FindByNumberController
             $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
             $module_id = $request->hubstuff_id;
             $this->logchatmessage('#7', $request->task_id, $request->message, 'if the hubstuff message is going to send');
+        } elseif($context == 'timedoctor') {
+            $data['time_doctor_activity_user_id'] = $request->time_doctor_id;
+            $module_id = $request->time_doctor_id;
+            $this->logchatmessage('#7', $request->task_id, $request->message, 'if the time doctor message is going to send');
         } else {
             if ($context == 'vendor') {
                 $data['vendor_id'] = $request->vendor_id;
@@ -4309,7 +4313,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
 
         if ($message->message != '') {
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'user-feedback-hrTicket' || $context == 'SOP-Data') {
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'user-feedback-hrTicket' || $context == 'SOP-Data' || $context == 'timedoctor') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4398,6 +4402,15 @@ class WhatsAppController extends FindByNumberController
                 }
                 if ($context == 'hubstuff') {
                     $user = User::find($message->hubstuff_activity_user_id);
+                    $phone = $user->phone;
+                    $toemail = $user->email;
+                    $whatsapp_number = Auth::user()->whatsapp_number;
+                    $model_id = $message->user_id;
+                    $model_class = \App\User::class;
+                }
+
+                if ($context == 'timedoctor') {
+                    $user = User::find($message->time_doctor_activity_user_id);                    
                     $phone = $user->phone;
                     $toemail = $user->email;
                     $whatsapp_number = Auth::user()->whatsapp_number;
