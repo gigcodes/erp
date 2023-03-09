@@ -28,6 +28,12 @@ class SentryLogController extends Controller
             $res['issue_category'] = $error_log->issue_category;
             $res['is_unhandled'] = $error_log->is_unhandled;
             $res['project'] = $error_log->sentry_project->sentry_project;
+            $res['total_events'] = $error_log->total_events;
+            $res['total_user'] = $error_log->total_user;
+            $res['device_name'] = $error_log->device_name;
+            $res['os'] = $error_log->os;
+            $res['os_name'] = $error_log->os_name;
+            $res['release_version'] = $error_log->release_version;
             $res['first_seen'] = $error_log->first_seen;
             $res['last_seen'] = $error_log->last_seen;
             $sentryLogsData[] = $res;
