@@ -49,10 +49,7 @@ class SocialCampaignController extends Controller
         $websites = \App\StoreWebsite::select('id', 'title')->get();
 
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
-
-
-
-
+        
         if(!empty($request->date))
         {
             $campaigns->where('created_at', 'LIKE', '%'.$request->date.'%');
@@ -170,14 +167,14 @@ class SocialCampaignController extends Controller
         
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-        $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
-        //$this->ad_acc_id = 'act_723851186073937';
+        //$this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
+        $this->ad_acc_id = $config->ads_manager;
         
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
                       //      dd($data);
-                    $this->ad_acc_id = $config->ads_manager; 
+                    //$this->ad_acc_id = $config->ads_manager; 
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
                     $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/campaigns';

@@ -38,8 +38,10 @@
                                 @php
                                     $campaign = \App\Social\SocialCampaign::where('id',$adset->campaign_id)->first();
                                 @endphp
+                                @if($campaign)
                                 <option value="{{$campaign->id}}" {{ isset($_GET['campaign_name']) && in_array($campaign->id,$_GET['campaign_name']) ? 'selected' : '' }}>{{$campaign->name}}</option>
-                            @endforeach
+                                @endif
+                                @endforeach
                         </select>
                     </div>
                     <div class="form-group mr-2">
@@ -107,6 +109,7 @@
                             <th style="width:5%">Date</th>
                             <th style="width:10%">Config Name</th>
                             <th style="width:10%">Campaign Name</th>
+                            <th style="width:10%">Website</th>
                             <th style="width:30%"> Name</th>
                             <th style="width:10%">Billing Event</th>
                             <th style="width:10%">Daily Budget</th>

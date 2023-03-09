@@ -37,7 +37,7 @@
                         <option value="">--Status--</option>
                         <option value="ENABLED">Enabled</option>
                         <option value="PAUSED">Paused</option>
-                        <option value="DISABLED">Disabled</option>
+                        {{-- <option value="DISABLED">Disabled</option> --}}
                     </select>
 
                     </div>

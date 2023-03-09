@@ -491,6 +491,19 @@
                                 <label><input type="checkbox" name="need_review_task" value="1" /> Create Review Task?</label>
                             </div>
                         </div>
+                        <div class="col-xs-12 col-md-1 pd-2">
+                            <div class="form-group ml-3">
+                                <select name="task_for" class="form-control task_for" style="width:100%;">
+                                    <option value="hubstaff" selected>Hubstaff</option>
+                                    <option value="time_doctor">Time Doctor</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12  col-md-1 pd-2 time_doctor_project_section">
+                            <div class="form-group ml-3">
+                                <?php echo Form::select("time_doctor_project",['' => ''],null,["class" => "form-control time_doctor_project globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.time_doctor_projects'), 'data-placeholder' => 'Project']); ?>
+                            </div>
+                        </div>
                         <div class="col-xs-12 col-md-2 pd-2">
                             <div class="form-group">
                                 <button type="submit" class="btn btn-secondary cls_comm_btn" id="taskCreateButton">Create</button>
@@ -646,6 +659,9 @@
             <div class="tab-pane active" id="1">
                 <div class="row" style="margin:0px;">
                     <!-- <h4>List Of Pending Tasks</h4> -->
+                    <div class="col-12">
+                        <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+                    </div>
                     <div class="col-12">
                         <table class="table table-sm table-bordered">
                             <thead>
@@ -1107,7 +1123,7 @@
                     </table>
                 </div>
             </div>
-            <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
+{{--            <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />--}}
 
             <div class="tab-pane" id="unassigned-tab">
                 <div class="row">
@@ -1640,7 +1656,7 @@
                     page = page + 1;
                     $.ajax({
 
-                        url: "/task?page=" + page,
+                        url: "http://localhost/erp/public/index.php/task?page=" + page,
                         type: 'GET',
                         data: $('.form-search-data').serialize(),
                         beforeSend: function() {
@@ -1721,15 +1737,21 @@
                 if (type && type != "") {
                     type = $("#tasktype").val(type);
                 }
+
+                isLoading = true;
                 type = $("#tasktype").val();
-                $('.infinite-scroll-products-loader').hide();
-                isLoading = false;
+                var $loader = $('.infinite-scroll-products-loader');
+
                 page = 1;
                 $.ajax({
                     url: "{{url('task')}}",
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
                     success: function(response) {
+                        $loader.hide();
                         if (type == 'pending') {
                             $('.pending-row-render-view').html(response);
                         }
@@ -1739,8 +1761,12 @@
                         if (type == 'completed') {
                             $('.completed-row-render-view').html(response);
                         }
+                        isLoading = false;
                     },
-                    error: function() {}
+                    error: function() {
+                        $loader.hide();
+                        isLoading = false;
+                    }
                 });
             });
             function getPriorityTaskList(id) {

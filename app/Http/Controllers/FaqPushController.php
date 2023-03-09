@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Jobs\ProceesPushFaq;
+use App\Jobs\ProcessTranslateReply;
+use App\Jobs\ProcessAllFAQ;
 use App\Reply;
 
 class FaqPushController extends Controller
@@ -22,10 +24,19 @@ class FaqPushController extends Controller
             //Add the data for queue
             $insertArray        =   [];
             $insertArray[]      =   $data['id'];
+    
+            $replyInfo          =   Reply::find($data['id']);
 
-	    	ProceesPushFaq::dispatch($insertArray);
+            if(!empty($replyInfo->is_translate)){   //if FAQ translate is  available then send for FAQ
+	    	  ProceesPushFaq::dispatch($insertArray);
+            }
+            else{   //If FAQ transation is not available then first set for translation
+                ProcessTranslateReply::dispatch($replyInfo, \Auth::id());   //set for translation
 
-			return response()->json(['code' => 200, 'data' => [], 'message' => 'Record Added']);
+                ProceesPushFaq::dispatch($insertArray);
+            }
+
+			return response()->json(['code' => 200, 'data' => [], 'message' => 'FAQ added in queue']);
 
     	} catch (Exception $e) {
 	    		return response()->json(['code' => 400, 'data' => [], 'message' => $e->getMessage()]);    		   		
@@ -35,35 +46,50 @@ class FaqPushController extends Controller
 
     function    pushFaqAll(Request  $request,   Reply   $Reply){
 
-        
-        $replyInfo      =   $Reply->select('replies.id','magento_url','api_token')
+
+        //get all reply without translate
+
+        $replyInfo      =   $Reply->select('replies.id','magento_url','api_token','replies.is_translate')
                                 ->join('store_websites','store_websites.id','=','replies.store_website_id')
                                 ->join('reply_categories as rep_cat','rep_cat.id','=','replies.category_id')
                                 ->whereNotNull('store_websites.magento_url')
                                 ->whereNotNull('store_websites.api_token')
-                                ->get()
-                                ->chunk(100);
+                                ->where('replies.is_translate' ,'!=', 1)
+                                ->get();
 
 
         if(empty($replyInfo)) {
             return response()->json(['code' => 400, 'data' => [], 'message' => 'No Record Found']);         
         }
 
-        try {
+        ProcessAllFAQ::dispatch($replyInfo, \Auth::id());
 
-            //Add the data for queue
+
+        //get all reply with translate and set in chunks
+        $replyInfo      =   $Reply->select('replies.id','magento_url','api_token','replies.is_translate')
+                                ->join('store_websites','store_websites.id','=','replies.store_website_id')
+                                ->join('reply_categories as rep_cat','rep_cat.id','=','replies.category_id')
+                                ->whereNotNull('store_websites.magento_url')
+                                ->whereNotNull('store_websites.api_token')
+                                ->where('replies.is_translate' ,'=', 1)
+                                ->get()
+                                ->chunk(50);
+
+        if(!empty($replyInfo)){
             foreach ($replyInfo as $key => $value) {
-
-                //Pluck only ID from array 
+                    
                 $insertArray    =   $value->pluck('id');
-                ProceesPushFaq::dispatch($insertArray->toArray());     //insert a Array and create a job of 100 at a time.
+                $reqType        =   "pushFaqAll";
+                ProceesPushFaq::dispatch($insertArray->toArray(),$reqType);
+
+
             }
+        }        
 
-            return response()->json(['code' => 200, 'data' => [], 'message' => 'Record Added']);
 
-        } catch (Exception $e) {
-                return response()->json(['code' => 400, 'data' => [], 'message' => $e->getMessage()]);                  
-        }  
+        return response()->json(['code' => 200, 'data' => [], 'message' => 'All FAQ pushed in queue']);
+
+         
 
     }
 }
