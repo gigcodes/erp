@@ -1860,7 +1860,7 @@ class TaskModuleController extends Controller
             );
         }
 
-        if ($request->module_type == 'task-discussion') {
+//        if ($request->module_type == 'task-discussion') {
             // NotificationQueueController::createNewNotification([
             // 	'message' => 'Remark for Developer Task',
             // 	'timestamps' => ['+0 minutes'],
@@ -1880,7 +1880,7 @@ class TaskModuleController extends Controller
             // 	'sent_to' => 56,
             // 	'role' => '',
             // ]);
-        }
+//        }
 
         // if ($request->module_type == 'developer') {
         // 	$task = DeveloperTask::find($id);
@@ -1947,50 +1947,54 @@ class TaskModuleController extends Controller
     public function list(Request $request)
     {
         $pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed');
-        $completed_tasks = Task::where('is_statutory', 0)->whereNotNull('is_completed')->where('assign_from', Auth::id());
+        $developer_tasks = DeveloperTask::orderBy('id', 'DESC');
 
         if(!Auth::user()->hasRole('Admin'))
         {
             $pending_tasks = $pending_tasks->where('assign_to', Auth::id());
+            $developer_tasks = $developer_tasks->where('assigned_to', Auth::id());
         }
         if ($request->term && $request->term != null) {
             $pending_tasks = $pending_tasks->where('id', 'LIKE', "%$request->term%");
-            $completed_tasks = $completed_tasks->where('id', 'LIKE', "%$request->term%");
+            $developer_tasks = $developer_tasks->where('id', 'LIKE', "%$request->term%");
         }
 
         if ($request->task_subject && $request->task_subject != null) {
             $pending_tasks = $pending_tasks->where('task_subject', 'LIKE',  "%$request->task_subject%");
-            $completed_tasks = $completed_tasks->where('task_subject', 'LIKE',  "%$request->task_subject%");
+            $developer_tasks = $developer_tasks->where('subject', 'LIKE',  "%$request->task_subject%");
         }
 
         if (is_array($request->user) && $request->user[0] != null) {
             $pending_tasks = $pending_tasks->whereIn('assign_to', $request->user);
-            $completed_tasks = $completed_tasks->whereIn('assign_to', $request->user);
+            $developer_tasks = $developer_tasks->whereIn('assigned_to', $request->user);
         }
 
         if ($request->date != null) {
             $pending_tasks = $pending_tasks->where('created_at', 'LIKE', "%$request->date%");
-            $completed_tasks = $completed_tasks->where('created_at', 'LIKE', "%$request->date%");
+            $developer_tasks = $developer_tasks->where('created_at', 'LIKE', "%$request->date%");
         }
 
         $pending_tasks = $pending_tasks->latest()->paginate(Setting::get('pagination'));
-        $completed_tasks = $completed_tasks->orderBy('is_completed', 'DESC')->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+        $developer_tasks = $developer_tasks->latest()->paginate(Setting::get('pagination'));
 
         $users = Helpers::getUserArray(User::all());
         $user = $request->user ?? [];
         $date = $request->date ?? '';
         $taskstatus = TaskStatus::get();
         $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
+        //$developer_tasks = DeveloperTask::all(['task']);
+
+
 
         return view(
             'task-module.list', [
                 'pending_tasks' => $pending_tasks,
-                'completed_tasks' => $completed_tasks,
                 'taskstatus' => $taskstatus,
                 'isTeamLeader' => $isTeamLeader,
                 'users' => $users,
                 'user' => $user,
                 'date' => $date,
+                'developer_tasks' => $developer_tasks,
             ]
         );
     }
@@ -3705,6 +3709,26 @@ class TaskModuleController extends Controller
                 ]
             );
         }
+    }
+
+    public function devgetTaskRemark(Request $request){
+        if($request->status != 'view')
+        {
+            if ($request->remark != '') {
+                $remark = TaskRemark::create(
+                    [
+                        'task_id' => $request->task_id,
+                        'task_type' => $request->type,
+                        'updated_by' => Auth::id(),
+                        'remark' => $request->remark,
+                    ]
+                );
+            }
+        }else{
+            $remark = TaskRemark::where([['task_id','=',$request->task_id,],['task_type','=',$request->type,],])->get();
+        }
+
+        return response()->json(['remark' => $remark], 200);
     }
 
     public function createHubstaffManualTask(Request $request)
