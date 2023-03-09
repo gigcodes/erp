@@ -45,6 +45,11 @@ class DevAPIReport extends Command
      */
     public function handle()
     {    
+     if(env("GOOGLE_PLAY_STORE_DELETE_LOGS")=="1"){
+        GoogleDeveloperLogs::truncate();
+     }
+     
+
         $log = new GoogleDeveloperLogs();    
         $log->api='crash/anr';
         $redirect_uri = 'https://erpstage.theluxuryunlimited.com/google/developer-api/crash';
@@ -107,7 +112,7 @@ class DevAPIReport extends Command
                     if($res["error"]["code"]==401)
                     {
                         session_unset();
-                        $log = new GoogleDeveloperLogs();    
+                        // $log = new GoogleDeveloperLogs();    
                         // $log->api='crash'; 
                         //         $log->log_name='error_code';
                         //         $log->result="401 error";
@@ -166,11 +171,11 @@ class DevAPIReport extends Command
 
                     // Send the request
                     $response = curl_exec($ch);
-                    print($response);
+                    // print($response);
 
                     $log = new GoogleDeveloperLogs();    
                     $log->api='crash report';   
-                    $log->log_name='result';
+                    $log->log_name='CRASH REPORT';
                     $log->result=$response;
                     $log->save();
                     echo "crash report of ".$app_value." added";
@@ -180,8 +185,8 @@ class DevAPIReport extends Command
             else{
                     $log = new GoogleDeveloperLogs();    
 
-                    $log->api='crash report';
-                    $log->log_name='result';
+                    $log->api='crash error';
+                    $log->log_name='ERROR';
                     $log->result=$res;
                     $log->save();
                     echo "crash report of ".$app_value." failed";
@@ -271,7 +276,7 @@ class DevAPIReport extends Command
 
                     $log = new GoogleDeveloperLogs();    
                     $log->api='anr report';   
-                    $log->log_name='result';
+                    $log->log_name='ANR REPORT';
                     $log->result=$response;
                     $log->save();
                     echo "anr report of ".$app_value." added";
@@ -281,8 +286,8 @@ class DevAPIReport extends Command
             else{
                     $log = new GoogleDeveloperLogs();    
 
-                    $log->api='anr';
-                    $log->log_name='result';
+                    $log->api='anr error';
+                    $log->log_name='ANR ERROR';
                     $log->result=$res;
                     $log->save();
                     echo "anr report of ".$app_value." failed";

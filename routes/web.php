@@ -3757,6 +3757,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
+     Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
+     Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
     Route::resource('/search/keyword', GoogleSearchController::class);
     Route::get('/search/keyword-priority', [GoogleSearchController::class, 'markPriority'])->name('google.search.keyword.priority');
     Route::get('/search/keyword', [GoogleSearchController::class, 'index'])->name('google.search.keyword');
@@ -3780,8 +3782,8 @@ Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDevelop
 Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
 Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
-	 Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
-     Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
+	
+     Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -4701,6 +4703,12 @@ Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport
 Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
 Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
 Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
+Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
+Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
+Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
+Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
+Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
  });
 
    
