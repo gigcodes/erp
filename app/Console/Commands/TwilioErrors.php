@@ -52,13 +52,15 @@ class TwilioErrors extends Command
                         $result = json_decode($result);
                         if ($result) {
                             if (isset($result->notifications) && count($result->notifications)) {
-                                $input['sid'] = $result->notifications->sid;
-                                $input['account_sid'] = $result->notifications->account_sid;
-                                $input['call_sid'] = $result->notifications->call_sid;
-                                $input['error_code'] = $result->notifications->error_code;
-                                $input['message_text'] = $result->notifications->message_text;
-                                $input['message_date'] = $result->notifications->message_date;
-                                $error = \App\TwilioError::create($input);
+                                foreach($result->notifications as $notification) {
+                                    $input['sid'] = $notification->sid;
+                                    $input['account_sid'] = $notification->account_sid;
+                                    $input['call_sid'] = $notification->call_sid;
+                                    $input['error_code'] = $notification->error_code;
+                                    $input['message_text'] = $notification->message_text;
+                                    $input['message_date'] = $notification->message_date;
+                                    $error = \App\TwilioError::create($input);
+                                }
                             }
                         }
                     }

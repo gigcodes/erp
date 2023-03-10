@@ -2550,7 +2550,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
 Route::post('twilio/ivr', [TwilioController::class, 'ivr'])->name('ivr')->middleware('twilio.voice.validate');
-Route::get('twilio/webhook-error', [TwilioController::class, 'webhookError']);
+Route::any('twilio/webhook-error', [TwilioController::class, 'webhookError']);
 Route::post('twilio/workspace/assignment', [TwilioController::class, 'workspaceEvent']);
 Route::post('twilio/assignment-task', [TwilioController::class, 'assignmentTask']);
 Route::post('twilio/call-status', [TwilioController::class, 'callStatus']);
