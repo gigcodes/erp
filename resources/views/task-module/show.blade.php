@@ -499,7 +499,12 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-xs-12  col-md-1 pd-2 time_doctor_project_section">
+                        <div class="col-xs-12 col-md-1 pd-2 time_doctor_account_section">
+                            <div class="form-group ml-3">
+                                <?php echo Form::select("time_doctor_account",['' => ''],null,["class" => "form-control time_doctor_account globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.time_doctor_accounts_for_task'), 'data-placeholder' => 'Account']); ?>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-1 pd-2 time_doctor_project_section">
                             <div class="form-group ml-3">
                                 <?php echo Form::select("time_doctor_project",['' => ''],null,["class" => "form-control time_doctor_project globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.time_doctor_projects'), 'data-placeholder' => 'Project']); ?>
                             </div>

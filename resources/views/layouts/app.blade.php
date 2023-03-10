@@ -319,7 +319,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         /*padding-right: 30px;*/
     }
 
-    .time_doctor_project_section{
+    .time_doctor_project_section,
+    .time_doctor_account_section{
         display: none;
     }
 
@@ -6222,8 +6223,10 @@ if (!\Auth::guest()) {
         var getTask = $(this).val();
         if(getTask == 'time_doctor'){
             $('.time_doctor_project_section').show();
+            $('.time_doctor_account_section').show();
         } else {
             $('.time_doctor_project_section').hide();
+            $('.time_doctor_account_section').hide();
         }
     });
 

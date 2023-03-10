@@ -61,6 +61,7 @@ function initialize_select2(initial_skip = false) {
                     data: function (params) {
                         return {
                             q: params.term,
+                            account_id:$('.time_doctor_account').val(),
                             page: params.page
                         };
                     },

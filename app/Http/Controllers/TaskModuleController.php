@@ -2880,7 +2880,7 @@ class TaskModuleController extends Controller
 
         if ($newCreated) {            
             if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
-                $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assign_to']);
+                $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['time_doctor_account'], $data['assign_to']);
             } else {
                 $this->hubstaffActions('TASK', $task);
             }
@@ -3014,7 +3014,7 @@ class TaskModuleController extends Controller
         return false;
     }
 
-    public function timeDoctorActions($type, $task, $projectId, $assignTo)
+    public function timeDoctorActions($type, $task, $projectId, $accountId, $assignTo)
     {
         $check_entry = 0;
         $project_data = [];
@@ -3032,12 +3032,33 @@ class TaskModuleController extends Controller
             return false;
         }
 
-        $assignUsersData = TimeDoctorMember::where('user_id', $assignedToId)->get();        
+        /*$assignUsersData = TimeDoctorMember::where('user_id', $assignedToId)->get();        */
+        $assignUsersData = \App\TimeDoctor\TimeDoctorAccount::find( $accountId );
 
         $timedoctor = Timedoctor::getInstance();
+        $companyId = $assignUsersData->company_id;
+        $accessToken = $assignUsersData->auth_token;
+
+        $taskSummary = substr($message, 0, 200);                        
+        $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
+        if( $timeDoctorTaskId != ''){                   
+            if ($timeDoctorTaskId) {
+                $task->time_doctor_task_id = $timeDoctorTaskId;
+                $task->save();
+
+                $time_doctor_task = new TimeDoctorTask();
+                $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
+                $time_doctor_task->project_id = $projectId;
+                $time_doctor_task->time_doctor_project_id = $projectId;
+                $time_doctor_task->summery = $message;
+                $time_doctor_task->save();
+                return true;
+            }
+        }
+
+        return false;
         
-        
-        foreach($assignUsersData as $assignedUser){
+        /*foreach($assignUsersData as $assignedUser){
             $companyId = $assignedUser->account_detail->company_id;
             $accessToken = $assignedUser->account_detail->auth_token;
             $taskSummary = substr($message, 0, 200);                        
@@ -3061,7 +3082,7 @@ class TaskModuleController extends Controller
         if($check_entry == 1){
             return true;
         }
-        return false;
+        return false;*/
     }
 
     //START - Purpose : Set Remined , Revise - DEVTASK-4354
