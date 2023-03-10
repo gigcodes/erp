@@ -79,14 +79,11 @@ class SocialPostController extends Controller
                     }
                   
                 }
-           //     die(var_dump($collection));
-                
             }else{
                 foreach($querys as $key=> $query){
                 
                     $url = sprintf('https://graph.facebook.com/v15.0/'.$query["ref_post_id"].'?fields=attachments&access_token='.$config["page_token"]);
                     $response = SocialHelper::curlGetRequest($url);
-                 //   die(var_dump($response));
                     if(isset($response->attachments)){
                         $collection[$key]['text'] = $response->attachments->data[0]->description; 
                         $collection[$key]['url'] = $response->attachments->data[0]->media->image->src;
@@ -101,9 +98,7 @@ class SocialPostController extends Controller
                     
                 }
             }
-           
             
-          
             return view('social.posts.viewpost', compact('collection'));
 
         }catch(\Exception $e){
@@ -436,17 +431,17 @@ class SocialPostController extends Controller
                         }*/
                         
     
-                        // if ($request->hasfile('source')) {
-                        //     ini_set('memory_limit','-1');   // Added memory limit allowing maximum memory
-                        //     ini_set('max_execution_time','-1'); 
-                        //     $this->socialPostLog($config->id, $post->id, $config->platform, 'come to image', 'source');
-                        //     foreach ($request->file('source') as $image) {
-                        //         $media = MediaUploader::fromSource($image)
-                        //             ->toDirectory('social_images/'.floor($post->id / config('constants.image_per_folder')))
-                        //             ->upload();
-                        //         $post->attachMedia($media, config('constants.media_tags'));
-                        //     }
-                        // }
+                        if ($request->hasfile('source')) {
+                            ini_set('memory_limit','-1');   // Added memory limit allowing maximum memory
+                            ini_set('max_execution_time','-1'); 
+                            $this->socialPostLog($config->id, $post->id, $config->platform, 'come to image', 'source');
+                            foreach ($request->file('source') as $image) {
+                                $media = MediaUploader::fromSource($image)
+                                    ->toDirectory('social_images/'.floor($post->id / config('constants.image_per_folder')))
+                                    ->upload();
+                                $post->attachMedia($media, config('constants.media_tags'));
+                            }
+                        }
                         if ($request->hasfile('video1')) {
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'come to video', 'video');
                             $media = MediaUploader::fromSource($request->file('video1'))
