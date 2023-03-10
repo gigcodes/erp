@@ -87,49 +87,59 @@
         <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">{{(isset($title)) ? ucfirst($title) : "Live Chat"}}
         </h2>
     </div>
+
     <div class="col-lg-12 margin-tb pl-3">
-        <div class="form-group mb-3">
+        <form class="" action="{{ route('livechat.get.chats') }}" method="GET">
             <div class="row custome-row">
                 <div class="col-md-2  pr-0">
-                    <input name="term" type="text" class="form-control"
-                           value=""
-                           placeholder="Search by customer name" id="term">
+                    <select class="form-control globalSelect2" name="term[]" data-placeholder="Search by customer name.." multiple>
+                        @php
+                            $customers = \App\Customer::all();
+                        @endphp
+                        @foreach($customers as $customer_name)
+                            <option value="{{$customer_name->name}}" {{ Request::get('term') && in_array($customer_name->name, Request::get('term')) ? 'selected' : '' }}>{{$customer_name->name}}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-md-2 pl-3  pr-0">
-                    <input name="website_name" type="text" class="form-control"
-                           value=""
-                           placeholder="Search by website" id="website_name">
+                    <select class="form-control globalSelect2" name="website_name[]" data-placeholder="Search by website" multiple>
+                        @foreach($store_websites as $website)
+                            <option value="{{$website->website}}" {{ Request::get('website_name') && in_array($website->website, Request::get('website_name')) ? 'selected' : '' }}>{{$website->website}}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-md-2 pl-3 pr-0">
                     <div class='input-group date' id='filter_date'>
-                        <input type='text' class="form-control" id="date" name="date" value="" />
+                        <input type='text' class="form-control" id="date" name="date" value="{{ Request::get('date')}}" />
 
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                             </span>
                     </div>
+
                 </div>
                 <div class="col-md-2 pl-3 pr-0">
                     <input name="phone_no" type="text" class="form-control"
-                           value=""
-                           placeholder="Search by phone no." id="phone_no">
+                           value="{{ Request::get('search_email')}}"
+                           placeholder="Search by phone no.." id="phone_no">
                 </div>
                 <div class="col-md-2 pl-3 pr-0">
                     <input name="search_email" type="text" class="form-control"
-                           value=""
-                           placeholder="Search by email" id="search_email">
+                           value="{{ Request::get('search_email')}}"
+                           placeholder="Search by email.." id="search_email">
                 </div>
                 <div class="col-md-2 pl-3 pr-0">
-                    <input name="search_keyword" type="text" class="form-control"
-                           value=""
+                    <input name="search_keyword" type="text" class="form-control mt-2"
+                           value="{{ Request::get('search_keyword')}}"
                            placeholder="Keyword Search.." id="search_keyword">
                 </div>
-
                 <div>
-                    <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
+{{--                    <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>--}}
+                    <button type="submit"  class="btn btn-image mt-2"><img src="{{ asset('images/filter.png')}}"/></button>
                 </div>
+
                 <div >
-                    <button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
+                    <button type="button" class="btn btn-image pl-0 mt-2" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
                 </div>
 
                 <div class="p-3 pl-4 pr-0 pull-right">
@@ -141,13 +151,9 @@
                         <span>&nbsp;</span>
                     </div>
                 </div>
-
             </div>
-
-
-
-        </div>
-
+        </form>
+{{--        </div>--}}
     </div>
 
 </div>
@@ -540,7 +546,7 @@
               50% 50% no-repeat;display:none;">
 </div>
 @endsection
-@section('scripts')
+@section('models')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -549,12 +555,17 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"></script>
     <!-- New Coupon -->
     <script>
+
+        $('#filter_date').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
         $('.select-multiple').select2();
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
+
         function openChatLogs(chatId)
         {
             $('#chat_body').html("");
@@ -614,7 +625,6 @@
             $('#chat_event_logs').modal('show');
         }
 
-        
 
         $(document).ready(function() {
             $('#start').datetimepicker({
@@ -1051,11 +1061,9 @@
                 alert('No response from server');
             });
         }
+
         function resetSearch(){
             location.reload();
         }
-        $('#filter_date').datetimepicker({
-            format: 'YYYY-MM-DD'
-        });
     </script>
 @endsection

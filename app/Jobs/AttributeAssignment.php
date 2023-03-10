@@ -34,7 +34,7 @@ class AttributeAssignment implements ShouldQueue
     public function handle()
     {
         // dd($this->data);
-        $userId = \Auth::user()->id;
+        $userId = $this->data['user_id'];
         if($this->data['attribute_id'] == StatusHelper::$unknownSize) {
             
             $find_products = Product::where('status_id',$this->data['attribute_id']);
@@ -214,7 +214,7 @@ class AttributeAssignment implements ShouldQueue
     
     public function failed()
     {
-        $userId = \Auth::user()->id;
+        $userId = $this->data['user_id'];
         if($this->data['attribute_id'] == StatusHelper::$unknownSize) {
             
             $find_products = Product::where('status_id',$this->data['attribute_id']);

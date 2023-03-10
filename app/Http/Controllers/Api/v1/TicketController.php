@@ -71,7 +71,7 @@ class TicketController extends Controller
             //'country' => 'required',
             'subject' => 'required|max:80',
             'message' => 'required',
-            //'source_of_ticket' => 'in:live_chat,customer',
+            'source_of_ticket' => 'required',
         ]);
 
         if ($validator->fails()) {

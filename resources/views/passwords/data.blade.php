@@ -1,7 +1,7 @@
  @if($passwords->isEmpty())
 
             <tr>
-                <td>
+                <td colspan="7" class="text-center">
                     No Result Found
                 </td>
             </tr>
