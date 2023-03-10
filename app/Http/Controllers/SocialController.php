@@ -554,34 +554,38 @@ class SocialController extends Controller
        
       
         foreach ($socialConfigs as $config) {
-            
-            $query = 'https://graph.facebook.com/v15.0/'.$config->ads_manager.'/campaigns?fields=ads{id,name,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend}}&limit=3000&access_token='.$config->token.'';
+           
+            if(isset($config->ads_manager)){
+                $query = 'https://graph.facebook.com/v16.0/'.$config->ads_manager.'/campaigns?fields=ads{id,name,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend}}&limit=3000&access_token='.$config->token.'';
 
-            // Call to Graph api here
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $query);
-            curl_setopt($ch, CURLOPT_VERBOSE, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_POST, 0);
+                // Call to Graph api here
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $query);
+                curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_POST, 0);
+    
+                $resp = curl_exec($ch);
+                $resp = json_decode($resp);
 
-            $resp = curl_exec($ch);
-            $resp = json_decode($resp);
-            curl_close($ch);
-            
-            $resp->token = $config->id;
-
-            if($resp->data){
+                curl_close($ch);
                 
-                if (isset($resp->error->error_user_msg)) {
-                    Session::flash('message', $resp->error->error_user_msg);
-                } elseif (isset($resp->error->message)) {
-                    Session::flash('message', $resp->error->message);
+                $resp->token = $config->id;
+    
+                if(isset($resp->data)){
+                    
+                    if (isset($resp->error->error_user_msg)) {
+                        Session::flash('message', $resp->error->error_user_msg);
+                    } elseif (isset($resp->error->message)) {
+                        Session::flash('message', $resp->error->message);
+                    }
+                    return view('social.reports', ['resp' => $resp]);
                 }
-                return view('social.reports', ['resp' => $resp]);
             }
+           
         }
         
         
