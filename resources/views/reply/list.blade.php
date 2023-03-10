@@ -166,8 +166,7 @@
                                     @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
                                     <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
                                     <!-- To push the FAQ Over every website using the API -->
-                                    <i class="fa fa-upload  upload_faq" data-id="{{ $reply->id }}" alt="Push To FAQ" style="color: #808080;"></i>
-
+                                    
                                     <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
                                     <button type="button" title="Flagged for Translate" data-reply_id="{{ $reply->id }}" data-is_flagged="<?php if($reply->is_flagged=='1') { echo '1'; } else { echo '0'; } ?>" onclick="updateTranslateReply(this)" class="btn" style="padding: 0px 1px;">
                                         <?php if($reply->is_flagged == '1') { ?>
@@ -176,6 +175,13 @@
                                         <i class="fa fas fa-toggle-off"></i>
                                         <?php } ?>
                                     </button>
+
+                                    <button type="button" class="btn btn-xs show-reply-logs" title="Log of reply" data-id="{{$reply->id}}" data-type="developer">
+                                        <i class="fa fa-info-circle" style="color: #808080;"></i>
+                                    </button>
+                                    <i class="fa fa-upload  upload_faq" data-id="{{ $reply->id }}" title="Push To FAQ" style="color: #808080;"></i>
+
+
                                 </td>
                             </tr>
                         @endforeach
