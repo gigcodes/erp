@@ -136,31 +136,31 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@github.com:ludxb/erp-excel-importer"
+            "url": "git@github.com:MMMagento/erp-excel-importer"
         },
         {
             "type": "vcs",
-            "url": "git@github.com:ludxb/google-vision"
+            "url": "git@github.com:MMMagento/google-vision"
         },
         {
             "type": "vcs",
-            "url": "git@github.com:ludxb/price-comparison-scraper"
+            "url": "git@github.com:MMMagento/price-comparison-scraper"
         },
         {
             "type": "vcs",
-            "url": "git@github.com:ludxb/erp-customer"
+            "url": "git@github.com:MMMagento/erp-customer"
         },
         {
             "type": "vcs",
-            "url": "git@github.com:ludxb/laravel-zoom"
+            "url": "git@github.com:MMMagento/laravel-zoom"
         },
         {
             "type": "vcs",
-            "url": "git@github.com:ludxb/magento-helper"
+            "url": "git@github.com:MMMagento/magento-helper"
         },
         {
             "type": "vcs",
-            "url": "git@github.com:ludxb/laravel-mail-editor.git"
+            "url": "git@github.com:MMMagento/laravel-mail-editor.git"
         }
     ],
     "scripts": {
