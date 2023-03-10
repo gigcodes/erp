@@ -1368,6 +1368,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');
     Route::get('task/categories', [TaskModuleController::class, 'getTaskCategories'])->name('task.categories');
     Route::get('task/list', [TaskModuleController::class, 'list'])->name('task.list');
+    Route::get('tasks/devgettaskremark', [TaskModuleController::class, 'devgetTaskRemark'])->name('task.devgettaskremark');
     Route::get('task/get-discussion-subjects', [TaskModuleController::class, 'getDiscussionSubjects'])->name('task.discussion-subjects');
     // Route::get('task/create-task', 'TaskModuleController@createTask')->name('task.create-task');
     Route::post('task/flag', [TaskModuleController::class, 'flag'])->name('task.flag');
