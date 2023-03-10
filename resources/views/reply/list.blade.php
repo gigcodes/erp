@@ -76,14 +76,15 @@
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
                             <th width="5%">ID</th>
-                            <th width="12%">Store website</th>
+                            <th width="10%">Store website</th>
                             <th width="9%">Parent Category</th>
                             <th width="8%">Category </th>
                             <th width="10%">Sub Category</th>
                             <th width="10%">Reply</th>
                             <th width="7%">Model</th>
                             <th width="5%">Intent Id</th>
-                            <th width="10%">Updated On</th>
+                            <th width="7%">Updated On</th>
+                            <th width="9%">Is Pushed</th>
                             <th width="9%">Is Pushed To Watson</th>
                             <th width="5%">Action</th>
                         </tr>
@@ -154,11 +155,15 @@
                                         {{$reply->created_at }}
                                     </span>
                                 </td>
+                                <td>
+                                    {{ $reply->is_pushed ? 'True' : 'False' }}
+                                </td>
                                 <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
                                 <td class="Website-task"title="">
                                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$reply->id}}')"><i class="fa fa-arrow-down"></i></button>
                                 </td>
                             </tr>
+                            
                             <tr class="action-btn-tr-{{$reply->id}} d-none">
                                 <td>Action</td>
                                 <td id="reply_action"  colspan="10" >
