@@ -20,5 +20,5 @@ class PushFcmNotification extends Model
      * @SWG\Property(property="sent_on",type="string")
      * @SWG\Property(property="created_by",type="interger")
      */
-    protected $fillable = ['title', 'token', 'body', 'url', 'store_website_id', 'sent_at', 'sent_on', 'created_by', 'status'];
+    protected $fillable = ['title', 'token', 'body', 'url', 'store_website_id', 'sent_at', 'sent_on', 'created_by', 'status', 'expired_day'];
 }

@@ -33,7 +33,8 @@ class PushFcmNotificationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'token' => 'required',
-            'website' => 'exists:store_websites,website',
+            'website' => 'required|exists:store_websites,website',
+            'device_id' => 'required',
         ]);
         if ($validator->fails()) {
             $message = $this->generate_erp_response('notification.failed.validation', 0, $default = 'Please check validation errors !', request('lang_code'));
@@ -42,11 +43,16 @@ class PushFcmNotificationController extends Controller
         }
         $storeweb = StoreWebsite::where('website', $request->website)->first();
         $token_data = [
-
             'token' => $request->token,
             'store_website_id' => $storeweb->id,
         ];
-        $insert = FcmToken::create($token_data);
+        $insert = FcmToken::updateOrCreate(
+                                [
+                                    'store_website_id' => $storeweb->id,
+                                    'device_id' => $request->device_id,
+                                ],
+                                $token_data
+                            );
         if (! $insert) {
             $message = $this->generate_erp_response('notification.failed', $storeweb->id, $default = 'Unable to create notification !', request('lang_code'));
 
