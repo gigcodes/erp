@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-       DB::statement('ALTER TABLE `store_websites` ADD `tag_id` INT NULL AFTER `store_code_id`;');
+       DB::statement('ALTER TABLE `store_websites` ADD `tag_id` INT NULL;');
     }
 
     /**
