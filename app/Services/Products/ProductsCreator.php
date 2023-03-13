@@ -282,6 +282,15 @@ class ProductsCreator
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
 
+             // If status is scrape then change status to isBeingScrape in Product_status_history
+             $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => StatusHelper::$scrape,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
             // check that if the product color is white then we need to remove that
             $product->isNeedToIgnore();
 
@@ -469,6 +478,15 @@ class ProductsCreator
                 'product_id' => $product->id,
                 'old_status' => $product->status_id,
                 'new_status' => StatusHelper::$scrape,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
+              // If status is scrape then change status to isBeingScrape in Product_status_history
+              $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => StatusHelper::$scrape,
+                'new_status' => StatusHelper::$isBeingScraped,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
