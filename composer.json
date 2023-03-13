@@ -10,12 +10,10 @@
     "require": {
         "php": "^7.3|^8.0",
         "ext-json": "*",
-        "ext-protobuf": "*",
         "barryvdh/laravel-ide-helper": "^2.8",
         "barryvdh/laravel-snappy": "*",
         "becker/laravel-zabbix-api": "^0.3.0",
         "brotzka/laravel-dotenv-editor": "2.1.0",
-        "brozot/laravel-fcm": "*",
         "bugsnag/bugsnag-laravel": "^2.20",
         "commerceguys/guzzle-oauth2-plugin": "*",
         "doctrine/dbal": "^2.13",
@@ -67,7 +65,6 @@
         "seo2websites/erp-customer": "dev-master",
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/google-vision": "dev-master",
-        "seo2websites/laravel-zoom": "dev-master",
         "seo2websites/magento-helper": "dev-master",
         "shweshi/laravel-unsplash-wrapper": "*",
         "spatie/laravel-activitylog": "^4.1",
@@ -145,10 +142,6 @@
         {
             "type": "vcs",
             "url": "git@github.com:MMMagento/erp-customer"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:MMMagento/laravel-zoom"
         },
         {
             "type": "vcs",
