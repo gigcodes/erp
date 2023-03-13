@@ -253,9 +253,7 @@ class SocialConfigController extends Controller
         
         if ($request->platform == 'instagram') {
             $curl = curl_init();
-
-            $url = sprintf('https://graph.facebook.com/v12.0/me?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->page_token);
-
+            $url = sprintf('https://graph.facebook.com/v16.0/'.$request->page_id.'?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->token);
             curl_setopt_array($curl, [
                 CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
@@ -268,7 +266,8 @@ class SocialConfigController extends Controller
             ]);
 
             $response = json_decode(curl_exec($curl), true);
-            curl_close($curl);
+
+           curl_close($curl);
 
             if ($id = $response['instagram_business_account']['id']) {
                 $data['account_id'] = $id;
