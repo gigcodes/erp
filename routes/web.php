@@ -603,7 +603,8 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 Route::middleware('auth', 'optimizeImages')->group(function () {
     //Crop Reference
     Route::get('crop-references', [CroppedImageReferenceController::class, 'index']);
-    Route::get('crop-references-grid', [CroppedImageReferenceController::class, 'grid']);
+    Route::get('crop-references-grid', [CroppedImageReferenceController::class, 'grid'])->name('grid.reference');
+    Route::get('crop-references-grid/cropStats', [CroppedImageReferenceController::class, 'cropStats']);
     Route::get('crop-references-grid/manage-instances', [CroppedImageReferenceController::class, 'manageInstance']);
     Route::post('crop-references-grid/add-instance', [CroppedImageReferenceController::class, 'addInstance']);
     Route::get('crop-references-grid/delete-instance', [CroppedImageReferenceController::class, 'deleteInstance']);
@@ -1367,6 +1368,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');
     Route::get('task/categories', [TaskModuleController::class, 'getTaskCategories'])->name('task.categories');
     Route::get('task/list', [TaskModuleController::class, 'list'])->name('task.list');
+    Route::get('tasks/devgettaskremark', [TaskModuleController::class, 'devgetTaskRemark'])->name('task.devgettaskremark');
     Route::get('task/get-discussion-subjects', [TaskModuleController::class, 'getDiscussionSubjects'])->name('task.discussion-subjects');
     // Route::get('task/create-task', 'TaskModuleController@createTask')->name('task.create-task');
     Route::post('task/flag', [TaskModuleController::class, 'flag'])->name('task.flag');
@@ -2548,7 +2550,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
 Route::post('twilio/ivr', [TwilioController::class, 'ivr'])->name('ivr')->middleware('twilio.voice.validate');
-Route::get('twilio/webhook-error', [TwilioController::class, 'webhookError']);
+Route::any('twilio/webhook-error', [TwilioController::class, 'webhookError']);
 Route::post('twilio/workspace/assignment', [TwilioController::class, 'workspaceEvent']);
 Route::post('twilio/assignment-task', [TwilioController::class, 'assignmentTask']);
 Route::post('twilio/call-status', [TwilioController::class, 'callStatus']);
@@ -2940,6 +2942,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
     Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
+    Route::get('view-posts/{id}', [Social\SocialPostController::class, 'viewPost'])->name('social.post.viewpost');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
@@ -3756,6 +3759,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
+     Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
+     Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
     Route::resource('/search/keyword', GoogleSearchController::class);
     Route::get('/search/keyword-priority', [GoogleSearchController::class, 'markPriority'])->name('google.search.keyword.priority');
     Route::get('/search/keyword', [GoogleSearchController::class, 'index'])->name('google.search.keyword');
@@ -3779,6 +3784,8 @@ Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDevelop
 Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
 Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
+	
+     Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -3901,6 +3908,11 @@ Route::prefix('ads')->middleware('auth')->group(function () {
 
 Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::get('/', [GoogleCampaignsController::class, 'index'])->name('googlecampaigns.index');
+    Route::get('/list', [GoogleCampaignsController::class, 'campaignslist'])->name('googlecampaigns.campaignslist');
+    Route::get('/ads/list', [GoogleCampaignsController::class, 'adslist'])->name('googlecampaigns.adslist');
+    Route::get('/responsive-display-ads/list', [GoogleCampaignsController::class, 'display_ads'])->name('googlecampaigns.displayads');
+    Route::get('/ads-group-list', [GoogleCampaignsController::class, 'adsgroupslist'])->name('googleadsaccount.adsgroupslist');
+    Route::get('/appad-list', [GoogleCampaignsController::class, 'appadlist'])->name('googleadsaccount.appadlist');
     Route::get('/create', [GoogleCampaignsController::class, 'createPage'])->name('googlecampaigns.createPage');
     Route::post('/create', [GoogleCampaignsController::class, 'createCampaign'])->name('googlecampaigns.createCampaign');
     Route::get('/update/{id}', [GoogleCampaignsController::class, 'updatePage'])->name('googlecampaigns.updatePage');
@@ -4693,6 +4705,12 @@ Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport
 Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
 Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
 Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
+Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
+Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
+Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
+Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
+Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
  });
 
    

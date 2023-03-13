@@ -7,7 +7,8 @@
         color: grey;
     }
 </style>
-<table class="table table-bordered table-striped" style="table-layout:fixed;">
+<div style="overflow-x:auto;">
+<table class="table table-bordered table-striped">
     <tr>
         <th style="width:12%;">ID</th>
         <th style="width:5%;">Module</th>
@@ -38,3 +39,4 @@
         <?php } ?>
     <?php } ?>
 </table>
+</div>

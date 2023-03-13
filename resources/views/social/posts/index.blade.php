@@ -2,7 +2,15 @@
 
 
 @section('title', 'Social Posts')
-
+<style>
+     #loading-image {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin: -50px 0px 0px -50px;
+        z-index: 60;
+    }
+</style>
 @section('content')
     <link rel="stylesheet" type="text/css"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -47,6 +55,7 @@
                             <th style="width:5%">Website</th>
                             <th style="width:25%">Caption</th>
                             <th style="width:30%">Post</th>
+                            <th style="width:30%">Hashtags</th>
                             <!-- <th style="width:10%">Image</th> -->
                             <th style="width:10%">Posted on</th>
                             <th style="width:5%">Status</th>
@@ -81,6 +90,7 @@
     </script>
 
     <script type="text/javascript">
+  
         $(document).on("click",".account-history",function(e) {
         e.preventDefault();
             var post_id = $(this).data("id");
@@ -113,7 +123,9 @@
                 }
             });
        });
-        
+    
+      
+
        $(document).on("click",".post-delete",function(e) {
         e.preventDefault();
             var post_id = $(this).data("id");

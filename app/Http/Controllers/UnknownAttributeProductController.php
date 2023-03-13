@@ -176,6 +176,7 @@ class UnknownAttributeProductController extends Controller
             $return = ['code' => 500, 'message' => $validator->errors()->first()];
         } else {
             $data['data'] = $request->all();
+            $data['data']['user_id'] = \Auth::user()->id;
             \App\Jobs\AttributeAssignment::dispatch($data)->onQueue('attribute_assignment');
             
             $return = ['code' => 200, 'message' => 'Attribute assignment request is submitted'];
