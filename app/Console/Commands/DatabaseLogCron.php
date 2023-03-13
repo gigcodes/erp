@@ -39,7 +39,7 @@ class DatabaseLogCron extends Command
      */
     public function handle()
     {
-        $namefile = storage_path('logs/mysql/server_audit.log');
+        $namefile = env('SLOW_QUERY_LOG_FILE', '/var/log/mysql/mariadb-slow.log');
         if (file_exists($namefile)) {
             $lines = @file($namefile);
             if ($lines) {
