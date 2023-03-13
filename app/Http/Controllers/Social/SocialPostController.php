@@ -9,6 +9,7 @@ use App\Social\SocialPost;
 use App\Social\SocialPostLog;
 use Auth;
 use Crypt;
+use App\StoreWebsite;
 use Facebook\Facebook;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -166,6 +167,25 @@ class SocialPostController extends Controller
     {
         return view('social.posts.create', compact('id'));
     }
+    public function getImage($id)
+    {
+        try{
+            $config = SocialConfig::find($id);
+
+            $website = StoreWebsite::where('id', $config->store_website_id)->first();
+            $media = $website->getMedia('website-image-attach');
+        
+        }catch(\Exception $e){
+            
+            Session::flash('message', $e);
+
+            \Log::error($e);
+        }
+        
+        return view('social.posts.attach-images', compact('media'));
+       
+    }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -367,6 +387,41 @@ class SocialPostController extends Controller
                             }
                         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
+                        }
+                    }
+                    elseif(isset($request->image)){
+                        $access_token = $config->page_token;
+                        $page_id = $config->page_id;
+
+                        
+                        
+                        $image_upload_url = 'https://graph.facebook.com/'.$page_id.'/photos';
+
+
+                        foreach ($request->image as $key => $source) {
+
+                            $fbImage = [
+                                'access_token' =>$access_token, 
+                               // 'url' => 'https://i.pinimg.com/736x/0f/36/31/0f3631cab4db579656cfa612cce7dca0.jpg', 
+                                'url' => $source, 
+                                'caption' => $message, 
+                            ];
+
+                            $response = SocialHelper::curlPostRequest($image_upload_url,$fbImage);
+                            $response = json_decode($response);
+
+                            if (isset($response->error->message)) {
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
+                            }else{
+                                
+                                $post->posted_on = $request->input('date');
+                                $post->status = 1;
+                                if (isset($response->post_id)) {
+                                    $post->ref_post_id = $response->post_id;
+                                }
+                                $post->save();
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
+                            }
                         }
                     }
                     // Simple Post Case

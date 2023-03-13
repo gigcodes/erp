@@ -191,6 +191,17 @@
         </div>
     </div>
 
+    <div id="socialPageModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content" id="social-page-modal">
+
+            </div>
+
+        </div>
+    </div>
+
 
     <div id="preview-website-image" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
@@ -223,6 +234,26 @@
         </div>
     </form>
     <script type="text/javascript">
+        function post(url) {
+            
+            var webid= document.getElementById("fbpost").value; 
+            $.ajax({
+                url: "{{ route('content-management.social.pagepost') }}",
+                type: 'GET',
+                data: {
+                    websiteId: webid,
+                    imageurl: url
+                },
+                success: function(response) {
+                    $("#socialPageModal").modal("show");
+                    $("#social-page-modal").html(response);
+                },
+                error: function() {}
+            });
+
+        }
+        
+        
         $(document).on("click", ".post-to-instagram", function(event) {
 
             var website = $(this).data("id");

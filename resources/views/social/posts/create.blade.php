@@ -1,11 +1,28 @@
+@extends('layouts.app')
+
+@section('title', __('Posts'))
+<style>
+    .carousel-inner.maincarousel img {
+        margin-top: 20px;
+    }
+</style>
+@section('content')
     <form  id="create-form" action="{{ route('social.post.store') }}" method="post" enctype="multipart/form-data">
         @csrf
-        <input type="hidden" name="config_id" value="{{$id}}"/>
+        <input type="hidden" id="configid" name="config_id" value="{{$id}}"/>
         <div class="modal-header">
             <h4 class="modal-title">Page Posting</h4>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
+            <label>Picture from content management</label>
+            <div class="form-group">
+                <a class="btn btn-secondary btn-sm mr-3 openmodalphoto" title="attach media from all content"><i class="fa fa-paperclip"></i></a>
+
+            </div>
+            <div id="chirag" class="form-group">
+                
+            </div>
             <div class="form-group">
                 <label>Picture <small class="text-danger">* You can select multiple images only </small></label>
                 <input type="file"  multiple="multiple"  name="source[]" class="form-control-file">
@@ -60,62 +77,34 @@
             <button type="submit" class="btn btn-secondary">Post</button>
         </div>
     </form>
-
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
-    </script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
-    </script>
+ 
     <script type="text/javascript">
-         function hashsuggetion(val){
-           document.getElementById("show_hashtag_field").value += " #"+val;
-        }
-     $(document).ready(function(){
-       
-        $("#show_hashtag_field").on("keyup", function() {
-            $("#loading-image").show();
-            var text = $(this).val();
+        
+        $(document).on('click', '.openmodalphoto', function(e) {
+            
+            e.preventDefault();
+            let ccid = $('#configid').val();
+            
+            var $action_url = "{{ route('social.post.getimage',$id) }}";
 
-            var n = text.split(" ");
-            var lastWord = n[n.length - 1];
+            jQuery.ajax({
 
-            var startWith = lastWord.charAt(0);
-            if(startWith=="#")
-            {
-                console.log("last word: "+lastWord);
-                var wordToSearch = lastWord.substring(1);
-                if(wordToSearch)
-                {
-                    $.ajax({
-                        type: "get",
-                        url: "/instagram/get/hashtag/"+wordToSearch,
-                        async: true,
-                        dataType: 'json',
-                        beforeSend: function () {
-                           // $("#show_hashtag_field").attr('contenteditable','false');
-                           $("#loading-image").show();
-                        },
-                        success: function(data){
-                            $("#loading-image").hide();
-                            const myArray = data.post.split(" ");
-                            console.log(myArray);
-                            $('#update_hashtag_auto').html('');
-                            myArray.forEach(element => {
-                                const valwithouthash = element.split("#");
-                                $('#update_hashtag_auto').append("<div class='chip light-blue lighten-2 white-text waves-effect'><a href='#' onclick=hashsuggetion('"+valwithouthash[1]+"') data-hashtag='"+element+"' data-caption ='"+element+"' >"+element+"</a></div>"); //Fills the #auto div with the options
+                type: "GET",
+                url: $action_url,
+                dataType: 'html',
+                success: function(data) {
+                  
+                    var div = document.getElementById('chirag');
+                    div.innerHTML = data;
 
-                            });
-                        }
-                    });
-                }else{
-                    console.log("No Hashtag word entered");
-                }
-            }else{
-                console.log("Typing normal caption");
-            }
-          
 
+                },
+                error: function(error) {},
+
+            });
         });
-    });   
+
     </script>
+
+
+    @endsection
