@@ -45,7 +45,7 @@ class SendFcmNotification extends Command
         $fromdate = date('Y-m-d H:i');
         $newtimestamp = strtotime($fromdate.' + 4 minute');
         $todate = date('Y-m-d H:i', $newtimestamp);
-        echo $fromdate.'#'.$todate;
+        echo $fromdate.' # '.$todate;
         echo PHP_EOL;
         \Log::info('fcm:send was started to run');
         $Notifications = PushFcmNotification::select('sw.push_web_key', 'sw.push_web_id', 'ft.token', 'push_fcm_notifications.*')
@@ -75,7 +75,11 @@ class SendFcmNotification extends Command
                         ->setSound('default');
 
                     $dataBuilder = new PayloadDataBuilder();
-                    $dataBuilder->addData(['icon' => $Notification->icon, 'url', $Notification->url]);
+                    $dataBuilder->addData([
+                                    'icon' => $Notification->icon, 
+                                    // 'url' => $Notification->url, 
+                                    'expired_day' => $Notification->expired_day
+                                ]);
 
                     $option = $optionBuilder->build();
                     $notification = $notificationBuilder->build();

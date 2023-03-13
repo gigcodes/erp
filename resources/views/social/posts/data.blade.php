@@ -7,6 +7,7 @@
         <td>@if(isset($config_name->storeWebsite)) {{ $config_name->storeWebsite->title }} @endif</td>
         <td>{{ $post->caption }}</td>
         <td>{{ $post->post_body }}</td>
+        <td>{{ $post->image_path }}</td>
       
         <td>{{ \Carbon\Carbon::parse($post->posted_on)->format('d-m-y h:m') }}</td>
         <td>{{ $post->status ? 'Posted' : '' }}</td>

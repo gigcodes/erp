@@ -1368,6 +1368,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');
     Route::get('task/categories', [TaskModuleController::class, 'getTaskCategories'])->name('task.categories');
     Route::get('task/list', [TaskModuleController::class, 'list'])->name('task.list');
+    Route::get('tasks/devgettaskremark', [TaskModuleController::class, 'devgetTaskRemark'])->name('task.devgettaskremark');
     Route::get('task/get-discussion-subjects', [TaskModuleController::class, 'getDiscussionSubjects'])->name('task.discussion-subjects');
     // Route::get('task/create-task', 'TaskModuleController@createTask')->name('task.create-task');
     Route::post('task/flag', [TaskModuleController::class, 'flag'])->name('task.flag');
@@ -2549,7 +2550,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
 Route::post('twilio/ivr', [TwilioController::class, 'ivr'])->name('ivr')->middleware('twilio.voice.validate');
-Route::get('twilio/webhook-error', [TwilioController::class, 'webhookError']);
+Route::any('twilio/webhook-error', [TwilioController::class, 'webhookError']);
 Route::post('twilio/workspace/assignment', [TwilioController::class, 'workspaceEvent']);
 Route::post('twilio/assignment-task', [TwilioController::class, 'assignmentTask']);
 Route::post('twilio/call-status', [TwilioController::class, 'callStatus']);
@@ -2941,6 +2942,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
     Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
+    Route::get('view-posts/{id}', [Social\SocialPostController::class, 'viewPost'])->name('social.post.viewpost');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });

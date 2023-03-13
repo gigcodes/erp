@@ -943,28 +943,15 @@ class LiveChatController extends Controller
         $website_stores = WebsiteStore::with('storeView')->get();
         $chatIds = CustomerLiveChat::query();
 
-        if ($request->search_keyword != '') {
-            $q = $request->search_keyword;
-            $chatIds->whereHas('customer', function ($query) use ($q) {
-                $query->where('name', 'LIKE', '%'.$q.'%');
-            })
-                ->orWhere('website', 'LIKE', '%'.$q.'%')
-                ->orWhereHas('customer', function ($query) use ($q) {
-                    $query->where('phone', 'LIKE', '%'.$q.'%');
-                })->orWhereHas('customer', function ($query) use ($q) {
-                    $query->where('email', 'LIKE', '%'.$q.'%');
-                });
-        }
         if ($request->term != '') {
-            $q = $request->term;
+            $q = !empty($request->term)?$request->term:"";
             $chatIds->whereHas('customer', function ($query) use ($q) {
-                $query->where('name', 'LIKE', '%'.$q.'%');
+                $query->whereIn('name', $q);
             });
         }
         if ($request->website_name != '') {
-            $q = $request->website_name;
-
-            $chatIds->where('website', 'LIKE', '%'.$q.'%');
+            $q = !empty($request->website_name) ? $request->website_name : "";
+            $chatIds->whereIn('website', $q);
         }
         if ($request->date != '') {
             $q = $request->date;
@@ -982,11 +969,24 @@ class LiveChatController extends Controller
                 $query->where('phone', 'LIKE', '%'.$q.'%');
             });
         }
+        if ($request->search_keyword != '') {
+            $q = $request->search_keyword;
+            $chatIds->whereHas('customer', function ($query) use ($q) {
+                $query->where('name', 'LIKE', '%'.$q.'%');
+            })
+                    ->orWhere('website', 'LIKE', '%'.$q.'%')
+                    ->orWhereHas('customer', function ($query) use ($q) {
+                        $query->where('phone', 'LIKE', '%'.$q.'%');
+                    })->orWhereHas('customer', function ($query) use ($q) {
+                    $query->where('email', 'LIKE', '%'.$q.'%');
+                });
+        }
+
         $chatIds = $chatIds->latest()->orderBy('seen', 'asc')->orderBy('status', 'desc')->get();
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('livechat.partials.chat-list', compact('chatIds'))->with('i', ($request->input('page', 1) - 1) * 1)->render(),
+                'tbody' => view('livechat.partials.chat-list', compact('chatIds','store_websites'))->with('i', ($request->input('page', 1) - 1) * 1)->render(),
             ], 200);
         }
 
@@ -1025,7 +1025,6 @@ class LiveChatController extends Controller
             $message = '';
             $customerInital = '';
             $name = '';
-
             return view('livechat.chatMessages', compact('chatIds', 'message', 'name', 'customerInital', 'store_websites', 'website_stores'));
         }
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class AddUserIdFieldInFcmTokensTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-       DB::statement('ALTER TABLE `store_websites` ADD `tag_id` INT NULL;');
+        Schema::table('fcm_tokens', function (Blueprint $table) {
+            $table->unsignedBigInteger('device_id')->nullable()->after('store_website_id');
+        });
     }
 
     /**
@@ -23,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            $table->dropColumn('tag_id');
+        Schema::table('fcm_tokens', function (Blueprint $table) {
+            //
         });
     }
-};
+}
