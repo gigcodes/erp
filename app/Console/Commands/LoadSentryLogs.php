@@ -51,7 +51,8 @@ class LoadSentryLogs extends Command
             $accounts = SentryAccount::get();
             if($accounts){
                 SentryErrorLog::truncate();
-            }            
+            }       
+            ini_set('max_execution_time', 0);     
             $sentryLogsData = [];
             foreach($accounts as $account){
                 $url = 'https://sentry.io/api/0/projects/'.$account->sentry_organization.'/'.$account->sentry_project.'/issues/';        
@@ -68,6 +69,34 @@ class LoadSentryLogs extends Command
                 $responseJson = json_decode($response->getBody()->getContents());
 
                 foreach( $responseJson as $error_log){
+                    $eventurl = 'https://sentry.io/api/0/projects/'.$account->sentry_organization.'/'.$account->sentry_project.'/events/';
+                    $httpClient = new Client();
+                    $response1 = $httpClient->get(
+                        $eventurl,
+                        [
+                            RequestOptions::HEADERS => [
+                                'Authorization' => 'Bearer '.$account->sentry_token,
+                            ],
+                        ]
+                    );
+                    $eventResponseJson = json_decode($response1->getBody()->getContents());
+                    
+                    if(isset( $eventResponseJson[0])){
+                        $eventData = $eventResponseJson[0]->tags;
+                        $device = $eventData[0]->value;
+                        $os = $eventData[9]->value;
+                        $os_name = $eventData[10]->value;
+                        $release = explode("@", $eventData[13]->value );
+                        $release = $release[1];
+                    } else {
+                        $eventData = "";
+                        $device = "";
+                        $os = "";
+                        $os_name = "";
+                        $release = "";
+                    }
+
+
                     SentryErrorLog::create([
                         'error_id'=>$error_log->id,
                         'error_title'=>$error_log->title,
@@ -77,11 +106,18 @@ class LoadSentryLogs extends Command
                         'first_seen'=>date("d-m-y H:i:s", strtotime($error_log->firstSeen)),
                         'last_seen'=>date("d-m-y H:i:s", strtotime($error_log->lastSeen)),
                         'project_id'=> $account->id,
+                        'total_events'=> $error_log->count,
+                        'total_user'=> $error_log->userCount,
+                        'device_name'=> $device,
+                        'os'=> $os,
+                        'os_name'=> $os_name,
+                        'release_version'=> $release,
                     ]);
                 }
             }
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {      
+        } catch (\Exception $e) {    
+            dd( $e );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
             return false;
         }
