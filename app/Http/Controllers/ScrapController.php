@@ -1948,6 +1948,13 @@ class ScrapController extends Controller
             ->toArray();
         foreach ($products as $value) {
             Product::where('id', $value['id'])->update(['status_id' => StatusHelper::$sendtoExternalScraper]);
+            $scrap_status_data = [
+                'product_id' => $value['id'],
+                'old_status' => StatusHelper::$requestForExternalScraper,
+                'new_status' => StatusHelper::$sendtoExternalScraper,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
         }
 
         return response()->json($products);
