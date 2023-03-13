@@ -128,6 +128,12 @@
         <th style="width: 5%">Issue Category</th>
         <th style="width: 5%">Is Unhandled</th>
         <th style="width: 10%">Project</th>
+        <th style="width: 5%">Total Event</th>
+        <th style="width: 5%">Total User</th>
+        <th style="width: 10%">Device Name</th>
+        <th style="width: 10%">Os</th>
+        <th style="width: 10%">Os Name</th>
+        <th style="width: 10%">Release</th>
         <th style="width: 10%">First Seen</th>
         <th style="width: 10%">Last Seen</th>
       </tr>
@@ -141,12 +147,21 @@
       <td>{{ $row['issue_category'] }}</td>
       <td>{{ ($row['is_unhandled']) ? "true":"false" }}</td>
       <td>{{ $row['project'] }}</td>
+      <td>{{ $row['total_events'] }}</td>
+      <td>{{ $row['total_user'] }}</td>
+      <td>{{ $row['device_name'] }}</td>
+      <td>{{ $row['os'] }}</td>
+      <td>{{ $row['os_name'] }}</td>
+      <td>{{ $row['release_version'] }}</td>
       <td>{{ date("d-m-y H:i:s", strtotime($row['first_seen'])) }}</td>
       <td>{{ date("d-m-y H:i:s", strtotime($row['last_seen'])) }}</td>
     </tr>
     @endforeach
   </table>
 </div>
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+               50% 50% no-repeat;display:none;">
+    </div>
 @endsection
 @section("scripts")
 <!-- <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script> -->
@@ -212,13 +227,22 @@
     });
 
     $(document).on('click', '#refresh_logs', function(e){
-        $.ajax({
-            type: "POST",
-            url: "{{ route('sentry.refresh-logs') }}",          
-            success: function(response) {
-              toastr['success'](response.message, 'success');
-              $("#load_page").trigger('click');
+       $.ajax({
+            type: 'POST',
+            url: "{{ route('sentry.refresh-logs') }}",
+            beforeSend: function () {
+                $("#loading-image").show();                
+            },
+            data: {
+                _token: "{{ csrf_token() }}",                
             }
+        }).done(function (response) {      
+            $("#loading-image").hide();
+            toastr['success'](response.message, 'success');
+            $("#load_page").trigger('click');
+        }).fail(function (response) {
+            $("#loading-image").hide();
+            console.log("Sorry, something went wrong");
         });
     });
 
