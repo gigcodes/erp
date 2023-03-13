@@ -31,7 +31,7 @@
         </div>
 
     </div>
-    <input id="config-id" class="config-id" type="hidden" value="{{ $post->social_config_id }}">
+    <input id="config-id" class="config-id" type="hidden" value="{{ $post->social_config_id ?? '' }}">
     <div class="mt-3">
         <table class="table table-bordered">
             <thead>
