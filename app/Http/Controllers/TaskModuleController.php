@@ -3755,55 +3755,65 @@ class TaskModuleController extends Controller
     public function createHubstaffManualTask(Request $request)
     {
         $task = Task::find($request->id);
+
         if ($task) {
-            if ($request->type == 'developer') {
-                $user_id = $task->assign_to;
-            } else {
-                $user_id = $task->master_user_id;
-            }
-            // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-            $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-
-            $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
-
-            $hubstaffUserId = null;
-            if ($assignedUser) {
-                $hubstaffUserId = $assignedUser->hubstaff_user_id;
-            }
-            $taskSummery = '#'.$task->id.'. '.$task->task_subject;
-            // $hubstaffUserId = 901839;
-            if ($hubstaffUserId) {
-                $hubstaffTaskId = $this->createHubstaffTask(
-                    $taskSummery, $hubstaffUserId, $hubstaff_project_id
-                );
-            } else {
-                return response()->json(
-                    [
-                        'message' => 'Hubstaff member not found',
-                    ], 500
-                );
-            }
-            if ($hubstaffTaskId) {
+            if($request->task_for_modal == "hubstaff"){
                 if ($request->type == 'developer') {
-                    $task->hubstaff_task_id = $hubstaffTaskId;
+                    $user_id = $task->assign_to;
                 } else {
-                    $task->lead_hubstaff_task_id = $hubstaffTaskId;
+                    $user_id = $task->master_user_id;
                 }
-                $task->save();
+                // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+                $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+                $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
+
+                $hubstaffUserId = null;
+                if ($assignedUser) {
+                    $hubstaffUserId = $assignedUser->hubstaff_user_id;
+                }
+                $taskSummery = '#'.$task->id.'. '.$task->task_subject;
+                // $hubstaffUserId = 901839;
+                if ($hubstaffUserId) {
+                    $hubstaffTaskId = $this->createHubstaffTask(
+                        $taskSummery, $hubstaffUserId, $hubstaff_project_id
+                    );
+                } else {
+                    return response()->json(
+                        [
+                            'message' => 'Hubstaff member not found',
+                        ], 500
+                    );
+                }
+                if ($hubstaffTaskId) {
+                    if ($request->type == 'developer') {
+                        $task->hubstaff_task_id = $hubstaffTaskId;
+                    } else {
+                        $task->lead_hubstaff_task_id = $hubstaffTaskId;
+                    }
+                    $task->save();
+                } else {
+                    return response()->json(
+                        [
+                            'message' => 'Hubstaff task not created',
+                        ], 500
+                    );
+                }
+                if ($hubstaffTaskId) {
+                    $task = new HubstaffTask();
+                    $task->hubstaff_task_id = $hubstaffTaskId;
+                    $task->project_id = $hubstaff_project_id;
+                    $task->hubstaff_project_id = $hubstaff_project_id;
+                    $task->summary = $taskSummery;
+                    $task->save();
+                }
             } else {
-                return response()->json(
-                    [
-                        'message' => 'Hubstaff task not created',
-                    ], 500
-                );
-            }
-            if ($hubstaffTaskId) {
-                $task = new HubstaffTask();
-                $task->hubstaff_task_id = $hubstaffTaskId;
-                $task->project_id = $hubstaff_project_id;
-                $task->hubstaff_project_id = $hubstaff_project_id;
-                $task->summary = $taskSummery;
-                $task->save();
+                $timeDoctorTaskId = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                if (!$timeDoctorTaskId) {
+                    return response()->json([
+                        'message' => 'Time Doctor task not created',
+                    ], 500);
+                } 
             }
 
             return response()->json(

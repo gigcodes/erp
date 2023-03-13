@@ -223,7 +223,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     </div>
                     <div class="form-group time_doctor_account_section">
                         <label for="time_doctor_account">Task Account</label>
-                        <?php echo Form::select("time_doctor_account",['' => ''],null,["class" => "form-control time_doctor_account globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.time_doctor_accounts_for_task'), 'data-placeholder' => 'Account']); ?>
+                        <?php echo Form::select("time_doctor_account",['' => ''],null,["class" => "form-control time_doctor_account_modal globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.time_doctor_accounts_for_task'), 'data-placeholder' => 'Account']); ?>
                     </div>
                     <div class="form-group time_doctor_project_section">
                         <label for="time_doctor_project">Time Doctor Project</label>
