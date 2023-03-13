@@ -119,6 +119,7 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleScreencastController;
 use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleDeveloperLogsController;
 
@@ -4679,6 +4680,12 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
+});
+
+Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
+    Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
+    Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
+    Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
 });
 
 //Queue Management::
