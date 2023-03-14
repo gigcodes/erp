@@ -12,6 +12,7 @@ else
 	git clean -fd
 	git pull origin
 	git checkout $BRANCH_NAME
+	git pull origin $BRANCH_NAME
 	git pull --rebase
 	./artisan migrate
 	echo $BRANCH_NAME;

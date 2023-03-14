@@ -61,7 +61,7 @@ class ProductsCreator
             $description_details = splitTextIntoSentences($image->description);
             $image->description = \App\Http\Controllers\GoogleTranslateController::translateProducts($tr, 'en', $description_details);
         }
-
+      
         // Get formatted data
         $formattedPrices = $this->formatPrices($image);
         $formattedDetails = $this->getGeneralDetails($image->properties, $image);
@@ -115,7 +115,6 @@ class ProductsCreator
             } else {
                 $product = Product::where('sku', $data['sku'])->first();
             }
-
             // Does the product exist? This should not fail, since the validator told us it's there
             if (! $product) {
                 // Debug
@@ -247,14 +246,12 @@ class ProductsCreator
             if ($product->category <= 1) {
                 $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
             }
-
             $product->save();
             $product->attachImagesToProduct();
             $image->product_id = $product->id;
             $image->save();
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
-
             \Log::channel('productUpdates')->info('Saved product id :'.$product->id);
 
             // check for the auto crop
@@ -270,12 +267,29 @@ class ProductsCreator
             if (! in_array($product->status_id, $needToCheckStatus)) {
                 $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
             }
-
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
 
                 $product->save();
             }
+
+            // Initially save status scrape in Product_status_history
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
+             // If status is scrape then change status to isBeingScrape in Product_status_history
+             $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => StatusHelper::$scrape,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
 
             // check that if the product color is white then we need to remove that
             $product->isNeedToIgnore();
@@ -459,6 +473,23 @@ class ProductsCreator
 
         try {
             $product->save();
+            // Initially save status scrape in Product_status_history when validator failed
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
+              // If status is scrape then change status to isBeingScrape in Product_status_history
+              $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => StatusHelper::$scrape,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
             //$setProductDescAndNameLanguages = new ProductController();
             //$setProductDescAndNameLanguages->listMagento(request() ,$product->id);
             $image->product_id = $product->id;

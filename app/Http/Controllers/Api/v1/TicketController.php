@@ -71,7 +71,7 @@ class TicketController extends Controller
             //'country' => 'required',
             'subject' => 'required|max:80',
             'message' => 'required',
-            //'source_of_ticket' => 'in:live_chat,customer',
+            'source_of_ticket' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -100,7 +100,7 @@ class TicketController extends Controller
 
         $email = \App\Email::create([
             'model_id' => $ticket->id,
-            'model_type' => Ticket::class,
+            'model_type' => Tickets::class,
             'from' => $emailClass->fromMailer,
             'to' => @$ticket->email,
             'subject' => $emailClass->subject,

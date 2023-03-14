@@ -91,7 +91,37 @@ input:checked + .slider:before {
         <h2 class="page-heading">IOS App Usage Report </h2>
             </div>
           
-            
+             <br>
+        <div class="col-lg-12 margin-tb">
+            <div class="row">
+                <div class="col">
+                    <form class="form-inline anr-search-handler" action="/appconnect/usagefilter" method="get">
+                       
+                       <div class="col-lg-2">
+                            <label for="amount">App name:</label>
+                            <input class="form-control" type="text" name="app_name" placeholder="Enter App Name">
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="date">From Date:</label>
+                            <input class="form-control" type="date" name="fdate">
+                        </div>
+                      <div class="col-lg-2">
+                            <label for="date">To Date:</label>
+                            <input class="form-control" type="date" name="edate">
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label for="button">&nbsp;</label>
+                                <button type="submit" style="display: inline-block;width: 10%"
+                                    class="btn btn-sm btn-image">
+                                    <img src="/images/search.png" style="cursor: default;">
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+      
            
       
         <div class="col-md-12">
@@ -129,7 +159,7 @@ input:checked + .slider:before {
  
 <tr>
 <td>{{ $id+=1 }}</td>
-<td>{{ env('APPFIGURE_APP_NAME') }}</td>
+<td>{{ $report->product_id }}</td>
 <td>{{ $report->start_date }}</td>
 <td>{{ $report->end_date }}</td>
 

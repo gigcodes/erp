@@ -90,7 +90,7 @@
                         <div class="form-group">
                             <label for="">Choose Ads Manager Account</label>
                                 <input type="hidden" id="ads_manager_id" name="ads_manager_id" value="{{$socialConfig->ads_manager}}">
-                                <select class="form-control adsmanager" name="adsmanager"  id="adsmanager" required>
+                                <select class="form-control adsmanager" name="adsmanager"  id="adsmanager">
                                 <option value="">Select Ads Manager</option>
                                 </select>
                             

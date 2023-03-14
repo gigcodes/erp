@@ -405,7 +405,7 @@ class ReplyController extends Controller
             $record     =   \App\Reply::find($id);           
             if ($record) {  
 
-                ProcessTranslateReply::dispatch($record, Auth::id());
+                ProcessTranslateReply::dispatch($record, \Auth::id())->onQueue('reply_translation');
 
                 $record->is_flagged     =   1;
                 $record->save();

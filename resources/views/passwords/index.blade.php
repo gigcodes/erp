@@ -35,26 +35,23 @@
     <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Passwords Manager</h2>
+            <h2 class="page-heading">Passwords Manager ({{$passwords->count()}})</h2>
             <div class="pull-left p-0">
                 <form action="{{ route('password.index') }}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control global" id="term"
-                               value="{{ isset($term) ? $term : '' }}"
+                               value="{{ isset($_GET['term'])?$_GET['term']:'' }}"
                                placeholder="website , username, password">
                     </div>
                     <div class="form-group ml-3">
                         <div class='input-group date' id='filter-date'>
-                            <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
-
+                            <input type='text' class="form-control global" name="date" value="{{ isset($_GET['date'])?$_GET['date']:'' }}"  placeholder="Date" id="date" />
                             <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                   </span>
                         </div>
                     </div>
-
-
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    <button type="submit" class="btn btn-image m-0"><img src="{{asset('/images/filter.png')}}" /></button>
                 </form>
             </div>
             <div class="pull-right">
@@ -100,6 +97,7 @@
             <th width="10%">Registered With</th>
             <th width="15%">Remark</th>
             <th width="8%">Actions</th>
+
           </tr>
 
           <tr>
@@ -109,6 +107,7 @@
             <th><input type="text" id="username" class="search form-control"></th>
             <th></th>
             <th><input type="text" id="registered_with" class="search form-control"></th>
+            <th></th>
             <th></th>
           </tr>
         </thead>
