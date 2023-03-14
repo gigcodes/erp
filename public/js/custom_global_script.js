@@ -53,14 +53,18 @@ function initialize_select2(initial_skip = false) {
             var multiple = typeof $(elem).attr('multiple') !== 'undefined' ? true : false;
     
             if (typeof ajax_url !== 'undefined') {
-    
                 options['ajax'] = {
                     url: ajax_url,
                     dataType: 'json',
                     delay: 100,
                     data: function (params) {
+                        var account_id = $('.time_doctor_account').val(); 
+                        if( $('#create-d-task-modal').is(':visible') ){
+                            account_id = $('.time_doctor_account_modal').val();
+                        }
                         return {
                             q: params.term,
+                            account_id:account_id,
                             page: params.page
                         };
                     },
