@@ -1111,6 +1111,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/social/account/create', [ContentManagementController::class, 'viewAddSocialAccount'])->name('content-management.social.create');
         Route::post('/social/account/create', [ContentManagementController::class, 'addSocialAccount'])->name('content-management.social.submit');
         Route::get('/manage/{id}', [ContentManagementController::class, 'manageContent'])->name('content-management.manage');
+        Route::post('/social/account/post', [ContentManagementController::class, 'postSocialAccount'])->name('content-management.social.post');
+        Route::get('/social/account/pagepost', [ContentManagementController::class, 'pagePost'])->name('content-management.social.pagepost');
+
         Route::get('/manage/task-list/{id}', [ContentManagementController::class, 'getTaskList'])->name('content-management.manage.task-list');
         Route::get('/manage/preview-img/{id}', [ContentManagementController::class, 'previewCategoryImage'])->name('content-management.manage.preview-img');
         Route::get('/manage/milestone-task/{id}', [ContentManagementController::class, 'getTaskMilestones'])->name('content-management.manage.milestone-task');
@@ -4573,6 +4576,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('post/edit', [Social\SocialPostController::class, 'edit'])->name('social.post.edit');
     Route::post('post/delete', [Social\SocialPostController::class, 'destroy'])->name('social.post.delete');
     Route::get('post/create/{id}', [Social\SocialPostController::class, 'create'])->name('social.post.create');
+    Route::get('post/getimage/{id}', [Social\SocialPostController::class, 'getImage'])->name('social.post.getimage');
     Route::post('post/history', [Social\SocialPostController::class, 'history'])->name('social.post.history');
 
     Route::get('campaigns', [Social\SocialCampaignController::class, 'index'])->name('social.campaign.index');
