@@ -319,7 +319,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         /*padding-right: 30px;*/
     }
 
-    .time_doctor_project_section{
+    .time_doctor_project_section,
+    .time_doctor_account_section{
         display: none;
     }
 
@@ -2198,6 +2199,9 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a href="{{route('social.config.index')}}">Social Config</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.post.grid')}}">Social Posts Grid</a>
+                                </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -3386,6 +3390,9 @@ if (!empty($notifications)) {
                                                     Query</a>
                                             </li>
                                         </ul>
+                                    </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a class="dropdown-item" href="{{ url('learning') }}">Learning Menu</a>
                                     </li>
                                 </ul>
                             </li>
@@ -6222,8 +6229,10 @@ if (!\Auth::guest()) {
         var getTask = $(this).val();
         if(getTask == 'time_doctor'){
             $('.time_doctor_project_section').show();
+            $('.time_doctor_account_section').show();
         } else {
             $('.time_doctor_project_section').hide();
+            $('.time_doctor_account_section').hide();
         }
     });
 

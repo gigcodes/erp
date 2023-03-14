@@ -90,7 +90,7 @@
 
                         <div class="form-group">
                             <label for="">Choose Ads Manager Account</label>
-                                <select class="form-control" name="ads_manager"  id="adset_id" required>
+                                <select class="form-control" name="ads_manager"  id="adset_id">
                                 <option value="">Select Ads Manager</option>
                                 </select>
                             <!-- <input type="hidden" name="ad_set_name" id="ad_set_name" /> -->

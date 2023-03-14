@@ -60,11 +60,15 @@ class IosSalesReport extends Command
         $product_id=env("APPFIGURE_PRODUCT_ID");
         $ckey=env("APPFIGURE_CLIENT_KEY");
 
-
+ $array_app_name=explode(",",env("APPFIGURE_APP_NAME"));
+        $i=0;
+$array_app=explode(",",env("APPFIGURE_PRODUCT_ID"));
+            foreach ($array_app as $app_value) {
+ 
         //Usage Report
         $curl = curl_init();
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://api.appfigures.com/v2/reports/sales?group_by='.$group_by.'&start_date='.$start_date.'&end_date='.$end_date.'&products='.$product_id,
+        CURLOPT_URL => 'https://api.appfigures.com/v2/reports/sales?group_by='.$group_by.'&start_date='.$start_date.'&end_date='.$end_date.'&products='.$app_value,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -92,7 +96,7 @@ class IosSalesReport extends Command
 
 
             $r=new AppSalesReport();
-            $r->product_id=$product_id;
+            $r->product_id=$array_app_name[$i]." [".$product_id."]";
             $r->group_by=$group_by;
             $r->start_date=$start_date;
             $r->end_date=$end_date;
@@ -143,8 +147,8 @@ class IosSalesReport extends Command
             $r->save();
         }
 
-
-            
+$i+=1;
+          }  
 
 
         

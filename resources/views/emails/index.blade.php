@@ -128,15 +128,14 @@
             </span>
           </div>
         </div-->
-		
-		<div class="form-group px-2">
+    <div class="form-group px-2">
             <select class="form-control sender_select" name="sender" id="sender" style="width: 208px !important;" multiple>
                 <option value="">Select Sender</option>
                 @foreach($sender_drpdwn as $sender)
                     <option value="{{ $sender['from'] }}" {{ (Request::get('sender') && strcmp(Request::get('sender'),$sender['from']) == 0) ? "selected" : ""}}>{{ $sender['from'] }}</option>
                 @endforeach
             </select>
-        </div>
+    </div>
 		<div class="form-group px-2">
             <select class="form-control receiver_select" name="receiver" id="receiver" style="width: 208px !important;" multiple>
                 <option value="">Select Receiver</option>
@@ -169,7 +168,7 @@
 			</select>
         </div>
 		<div class="form-group px-2">
-			<select class="form-control select_category" name="category" id="category" style="width: 208px !important;" multiple>
+			<select class="form-control select_category" name="category" id="category" multiple>
 				<option value="">Select Category</option>
 				<?php
 				foreach ($email_categories as $category) { ?>
@@ -178,6 +177,15 @@
 				?>
 			</select>
         </div>
+        <div class="form-group px-2">
+            <select class="form-control model_type_select" name="email_model_type" id="email_model_type" multiple>
+                
+                @foreach($emailModelTypes as $m => $module)
+                <option value="{{$m}}">{{$module}}</option>
+                    
+                @endforeach
+            </select>
+    </div>
         <input type='hidden' class="form-control" id="type" name="type" value="" />
         <input type='hidden' class="form-control" id="seen" name="seen" value="1" />
 
@@ -194,6 +202,7 @@
             <th width="5%">Date</th>
             <th width="5%">Sender</th>
             <th width="5%">Receiver</th>
+            <th width="4%">Model <br> Type</th>
             <th width="4%">Mail <br> Type</th>
             <th width="5%">Subject</th>
             <th width="14%">Body</th>
@@ -613,6 +622,9 @@
           $(".pagination-custom").find(".pagination").find(".active").next().find("a").click();
         }
     });
+    $('.model_type_select').select2({
+        placeholder:"Select Model Type",
+    });
     $('.sender_select').select2({
         placeholder:"Select sender",
     });
@@ -743,6 +755,7 @@
       var category = category_name.toString();
       var mail_box_name = $("#mail_box").val();
       var mail_box = mail_box_name.toString();
+      var email_model_type = $('#email_model_type').val().toString();
 
      console.log(window.url);
         $.ajax({
@@ -757,7 +770,8 @@
 				receiver:receiver,
 				status:status,
 				category:category,
-                mail_box : mail_box
+                mail_box : mail_box,
+                email_model_type : email_model_type
             },
             beforeSend: function () {
                 $("#loading-image").show();

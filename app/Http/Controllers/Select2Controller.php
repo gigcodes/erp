@@ -373,15 +373,46 @@ class Select2Controller extends Controller
         return response()->json($result);
     }
 
+    public function timeDoctorAccountsForTask(Request $request)
+    {
+        $time_doctor_accounts = TimeDoctorAccount::select('id', 'time_doctor_email');
+
+        if (! empty($request->q)) {
+            $time_doctor_accounts->where(function ($q) use ($request) {
+                $q->where('time_doctor_email', 'LIKE', '%'.$request->q.'%');
+            });
+        }
+
+        $time_doctor_accounts = $time_doctor_accounts->where('auth_token','!=','');
+
+        $time_doctor_accounts = $time_doctor_accounts->orderBy('time_doctor_email', 'asc')->paginate(30);
+
+        $result['total_count'] = $time_doctor_accounts->total();
+        $result['incomplete_results'] = $time_doctor_accounts->nextPageUrl() !== null;
+
+        foreach ($time_doctor_accounts as $account) {
+            $text = $account->time_doctor_email;
+
+            $result['items'][] = [
+                'id' => $account->id,
+                'text' => $text,
+            ];
+        }
+        return response()->json($result);
+    }
+
     public function timeDoctorProjects(Request $request)
     {
         $time_doctor_projects = TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name');
 
-        if (! empty($request->q)) {
+        if (! empty($request->q)) {            
             $time_doctor_projects->where(function ($q) use ($request) {
                 $q->where('time_doctor_project_name', 'LIKE', '%'.$request->q.'%');
             });
         }
+        if(! empty($request->account_id)){
+            $time_doctor_projects->where('time_doctor_account_id',$request->account_id);
+        }   
 
         $time_doctor_projects = $time_doctor_projects->orderBy('time_doctor_project_id', 'asc')->paginate(30);
 
@@ -397,5 +428,40 @@ class Select2Controller extends Controller
             ];
         }
         return response()->json($result);
+    }
+
+    public function timeDoctorProjectsAjax(Request $request)
+    {
+        $time_doctor_projects = TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name');
+
+        if (! empty($request->q)) {            
+            $time_doctor_projects->where(function ($q) use ($request) {
+                $q->where('time_doctor_project_name', 'LIKE', '%'.$request->q.'%');
+            });
+        }
+        if(! empty($request->account_id)){
+            $time_doctor_projects->where('time_doctor_account_id',$request->account_id);
+        }   
+
+        $time_doctor_projects = $time_doctor_projects->orderBy('time_doctor_project_id', 'asc')->get();
+        $response_str = "<option value=''>Select Project</option>";
+        foreach($time_doctor_projects as $project){
+            $response_str .= "<option value='".$project->time_doctor_project_id."'>".$project->time_doctor_project_name."</option>";
+        }
+
+        return $response_str;
+
+        /*$result['total_count'] = $time_doctor_projects->total();
+        $result['incomplete_results'] = $time_doctor_projects->nextPageUrl() !== null;
+
+        foreach ($time_doctor_projects as $project) {
+            $text = $project->time_doctor_project_name;
+
+            $result['items'][] = [
+                'id' => $project->time_doctor_project_id,
+                'text' => $text,
+            ];
+        }
+        return response()->json($result);*/
     }
 }

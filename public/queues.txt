@@ -1,1 +1,4 @@
-sololuxury,fetch_email,lussolicious,suvnat,veralusso,avoirchic,farfetch,brandslabels,luxuryspace,shadesshop,upeau,thefitedit,perfumeedit,luxuryunlimited,italybrandoutlets,demostore,magentoconditionscheckqueue,product,magento,mageone,magetwo,magethree,supplier_products,customer_message,watson_push,email,high,image_search,command_execution,failed_magento_job,send_email
+sololuxury,fetch_email,lussolicious,suvnat,veralusso,avoirchic,farfetch,brandslabels,luxuryspace,shadesshop,upeau,thefitedit,perfumeedit,luxuryunlimited,italybrandoutlets,demostore,magentoconditionscheckqueue,product,magento,mageone,magetwo,magethree,supplier_products,customer_message,watson_push,email,high,image_search,command_execution,failed_magento_job,send_email,reply_translation,faq_push
+
+
+
