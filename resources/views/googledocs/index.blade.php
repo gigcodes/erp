@@ -82,4 +82,33 @@
     </div>
 
     @include('googledocs.partials.create-doc')
+    @include('googledocs.partials.update-doc-permissions')
+@endsection
+@section('scripts')
+<script type="text/javascript">
+$(document).on('click', '.permissionupdate', function (e) {
+		
+		$("#updateGoogleDocPermissionModal #id_label_permission_read").val("").trigger('change');
+		$("#updateGoogleDocPermissionModal #id_label_permission_write").val("").trigger('change');
+		
+        let data_read = $(this).data('readpermission');
+        let data_write = $(this).data('writepermission');
+		var file_id = $(this).data('docid');
+        var id = $(this).data('id');
+		var permission_read = data_read.split(',')
+		var permission_write = data_write.split(',');
+		if(permission_read)
+		{
+			$("#updateGoogleDocPermissionModal #id_label_permission_read").val(permission_read).trigger('change');
+		}
+		if(permission_write)
+		{
+			$("#updateGoogleDocPermissionModal #id_label_permission_write").val(permission_write).trigger('change');
+		}
+		
+		$('#file_id').val(file_id);
+        $('#id').val(id);
+	
+	});
+    </script>
 @endsection
