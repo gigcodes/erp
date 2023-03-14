@@ -2647,6 +2647,7 @@ class TaskModuleController extends Controller
                             $data['created_by'] = Auth::id();
 
                             //echo $data["site_developement_id"]; die;
+                            $task = $this->developerTaskCreate($data);
 
                             if (request('need_review_task')) {
                                 $data['parent_review_task_id'] = $task->id;
@@ -2730,13 +2731,14 @@ class TaskModuleController extends Controller
             $data['subject'] = $request->get('task_subject');
             $data['task'] = $request->get('task_detail');
             $data['task_type_id'] = 1;
-            $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id');
+            $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id') ?? 0;
             $data['site_developement_id'] = $request->get('site_id');
             $data['cost'] = $request->get('cost', 0);
             $data['status'] = 'In Progress';
             $data['created_by'] = Auth::id();
 
             //echo $data["site_developement_id"]; die;
+            $task = $this->developerTaskCreate($data);
 
             if (request('need_review_task')) {
                 $data['parent_review_task_id'] = $task->id;
@@ -2842,7 +2844,7 @@ class TaskModuleController extends Controller
 
         // Discussion task
         if ($data['task_type'] == 3) {
-            $task = Task::find($request->get('task_subject'));
+            $task = Task::find($data['task_subject']);
             if (! $task) {
                 $task = Task::create($data);
                 $newCreated = 1;
@@ -2972,6 +2974,115 @@ class TaskModuleController extends Controller
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
         app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
+
+        return $task;
+    }
+
+    public function developerTaskCreate($data)
+    {
+        $loggedUser = request()->user();
+
+        $data['created_by'] = loginId();
+
+        if ($data['parent_review_task_id'] ?? 0) {
+            $data['subject'] = $data['subject'].' - #REVIEW_TASK';
+            $data['task'] = $data['task'].' - #REVIEW_TASK';
+        }
+        $task = DeveloperTask::create($data);
+
+        // Check the assinged user in any team ?
+        if ($task->assigned_to > 0 && empty($task->team_lead_id)) {
+            $teamUser = \App\TeamUser::where('user_id', $task->assigned_to)->first();
+            if ($teamUser) {
+                $team = $teamUser->team;
+                if ($team) {
+                    $task->team_lead_id = $team->user_id;
+                    $task->save();
+                }
+            } else {
+                $isTeamLeader = \App\Team::where('user_id', $task->assigned_to)->first();
+                if ($isTeamLeader) {
+                    $task->team_lead_id = $task->assigned_to;
+                    $task->save();
+                }
+            }
+        }
+
+        // CREATE GITHUB REPOSITORY BRANCH
+        $newBranchName = $this->createBranchOnGithub(
+            $task->repository_id,
+            $task->id,
+            $task->subject
+        );
+
+        // UPDATE TASK WITH BRANCH NAME
+        if ($newBranchName) {
+            $task->github_branch_name = $newBranchName;
+            $task->save();
+        }
+
+        // SEND MESSAGE
+        if (is_string($newBranchName)) {
+            $message = $task->task.PHP_EOL.'A new branch '.$newBranchName." has been created. Please pull the current code and run 'git checkout ".$newBranchName."' to work in that branch.";
+        } else {
+            $message = $task->task;
+        }
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+        $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
+
+        MessageHelper::sendEmailOrWebhookNotification([
+                                                          $task->user_id,
+                                                          $task->assigned_to,
+                                                          $task->master_user_id,
+                                                          $task->responsible_user_id,
+                                                          $task->team_lead_id,
+                                                          $task->tester_id,
+                                                      ], ' [ '.$loggedUser->name.' ] - '.$message);
+
+        $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') ?: 0;
+
+        $hubstaffUserId = null;
+        if ($assignedUser = HubstaffMember::where('user_id', $task->assigned_to)->first()) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        }
+
+        $summary = substr($task->task, 0, 200);
+        if ($data['task_type_id'] == 1) {
+            $taskSummery = '#DEVTASK-'.$task->id.' => '.$summary;
+        } else {
+            $taskSummery = '#TASK-'.$task->id.' => '.$summary;
+        }
+
+        if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
+            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assigned_to']);
+        } else {
+            $hubstaffTaskId = '';
+            if (env('PRODUCTION', true)) {
+                $hubstaffTaskId = $this->createHubstaffTask(
+                    $taskSummery,
+                    $hubstaffUserId,
+                    $hubstaff_project_id
+                );
+            } else {
+                $hubstaff_project_id = '#TASK-3';
+                $hubstaffUserId = 406; //for local system
+                $hubstaffTaskId = 34543; //for local system
+            }
+
+            if ($hubstaffTaskId) {
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->save();
+
+                $task = new HubstaffTask();
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->project_id = $hubstaff_project_id;
+                $task->hubstaff_project_id = $hubstaff_project_id;
+                $task->summary = $task->task;
+                $task->save();
+            }
+        }
 
         return $task;
     }
