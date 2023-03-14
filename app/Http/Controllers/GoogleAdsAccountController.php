@@ -110,6 +110,9 @@ class GoogleAdsAccountController extends Controller
             $googleadsAc = \App\GoogleAdsAccount::create($accountArray);
             $account_id = $googleadsAc->id;
             if ($request->file('config_file_path')) {
+
+                ini_set('max_execution_time', -1);
+
                 $uploadfile = MediaUploader::fromSource($request->file('config_file_path'))
                     ->toDestination('adsapi', $account_id)
                     ->upload();
@@ -180,6 +183,9 @@ class GoogleAdsAccountController extends Controller
             $googleadsAcQuery = new \App\GoogleAdsAccount;
             $googleadsAc = $googleadsAcQuery->find($account_id);
             if ($request->file('config_file_path')) {
+
+                ini_set('max_execution_time', -1);
+                
                 //find old one
                 if (isset($googleadsAc->config_file_path) && $googleadsAc->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id.'/'.$googleadsAc->config_file_path)) {
                     \Storage::disk('adsapi')->delete($account_id.'/'.$googleadsAc->config_file_path);
@@ -325,32 +331,38 @@ class GoogleAdsAccountController extends Controller
             $customerId = $googleAdsAc->google_customer_id;
             $storagepath = $this->getstoragepath($account_id);
 
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
-            // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
-
             $googleAdsCampaigns = GoogleAdsCampaign::where('account_id', $account_id)->get();
 
             foreach($googleAdsCampaigns as $campaign){
                 $campaignId = $campaign->google_campaign_id;
 
-                // Creates the resource name of a campaign to remove.
-                $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
 
-                // Creates a campaign operation.
-                $campaignOperation = new CampaignOperation();
-                $campaignOperation->setRemove($campaignResourceName);
+                try {
+                    // Get OAuth2 configuration from file.
+                    $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
 
-                // Issues a mutate request to remove the campaign.
-                $campaignServiceClient = $googleAdsClient->getCampaignServiceClient();
-                $response = $campaignServiceClient->mutateCampaigns($customerId, [$campaignOperation]);
+                    // Generate a refreshable OAuth2 credential for authentication.
+                    $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
+
+                    $googleAdsClient = (new GoogleAdsClientBuilder())
+                                        ->from($oAuth2Configuration)
+                                        ->withOAuth2Credential($oAuth2Credential)
+                                        ->build();
+
+                    // Creates the resource name of a campaign to remove.
+                    $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
+
+                    // Creates a campaign operation.
+                    $campaignOperation = new CampaignOperation();
+                    $campaignOperation->setRemove($campaignResourceName);
+
+                    // Issues a mutate request to remove the campaign.
+                    $campaignServiceClient = $googleAdsClient->getCampaignServiceClient();
+                    $response = $campaignServiceClient->mutateCampaigns($customerId, [$campaignOperation]);
+                    
+                } catch (Exception $e) {
+                    
+                }
                 
                 // Delete other data
                 GoogleAdGroupKeyword::where('adgroup_google_campaign_id', $campaignId)->delete();
@@ -378,6 +390,7 @@ class GoogleAdsAccountController extends Controller
             return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account deleted successfully');
 
         } catch (Exception $e) {
+            dd($e->getMessage());
             // Insert google ads log 
             $input = array(
                         'type' => 'ERROR',

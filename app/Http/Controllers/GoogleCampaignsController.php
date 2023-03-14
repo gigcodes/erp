@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GoogleResponsiveDisplayAd;
 use Exception;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
@@ -490,6 +489,7 @@ class GoogleCampaignsController extends Controller
 
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign created successfully');
         } catch (Exception $e) {
+            dd($e);
             // Insert google ads log 
             $input = array(
                         'type' => 'ERROR',
