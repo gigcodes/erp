@@ -68,6 +68,7 @@ class FcmNotificationController extends Controller
             'url' => 'required|exists:store_websites,website',
             'sent_at' => 'required',
             'body' => 'required|string',
+            'expired_day' => 'required|integer',
         ]);
         $StoreWebsiteId = StoreWebsite::where('website', $request->input('url'))->first()->id;
         $input = $request->all();
@@ -119,6 +120,7 @@ class FcmNotificationController extends Controller
             'url' => 'required|exists:store_websites,website',
             'sent_at' => 'required',
             'body' => 'required|string',
+            'expired_day' => 'required|integer',
         ]);
         $StoreWebsiteId = StoreWebsite::where('website', $request->input('url'))->first()->id;
         $input = $request->except(['_token']);

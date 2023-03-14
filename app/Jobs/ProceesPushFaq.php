@@ -36,6 +36,7 @@ class ProceesPushFaq implements ShouldQueue
      */
     public function handle()
     {
+        \Log::info('ProceesPushFaq Handle function');
         $reply_id = $this->data;
         $reqType  = $this->reqType;
 
@@ -60,6 +61,8 @@ class ProceesPushFaq implements ShouldQueue
                 \Log::info("Reply ID not found in table" . json_encode($reply_id) );
                 return false;
             }
+
+            \Log::info('Reply Found');
 
 
             foreach ($replyInfoArray as $key => $replyInfo) {

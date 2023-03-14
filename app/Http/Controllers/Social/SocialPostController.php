@@ -9,6 +9,7 @@ use App\Social\SocialPost;
 use App\Social\SocialPostLog;
 use Auth;
 use Crypt;
+use App\StoreWebsite;
 use Facebook\Facebook;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -83,6 +84,61 @@ class SocialPostController extends Controller
 
         return view('social.posts.grid', compact('posts', 'websites','socialconfigs'));
     }
+    
+    public function viewPost(Request $request, $id)
+    {
+           
+       try{
+
+            $querys = SocialPost::where('config_id',$id)->where('ref_post_id','!=','')->get();
+            $config = SocialConfig::find($id);
+            $collection = [];
+            if($config["platform"] == 'instagram'){
+                
+                $querys = SocialPostLog::where('config_id',$id)->where('log_description','!=','')->where('log_title','=','publishMedia')->get();
+             
+                foreach($querys as $key=> $query){
+                    
+                    $url = sprintf('https://graph.facebook.com/v15.0/'.$query["log_description"].'?fields=caption,media_type,media_url,thumbnail_url,permalink,timestamp,username&access_token='.$config["token"]);
+                    $response = SocialHelper::curlGetRequest($url);
+                    if(isset($response->caption)){
+                        $collection[$key]['text'] = $response->caption; 
+                        $collection[$key]['url'] = $response->media_url;
+                        $collection[$key]['message'] = '';
+                    }
+                  
+                }
+            }else{
+                foreach($querys as $key=> $query){
+                
+                    $url = sprintf('https://graph.facebook.com/v15.0/'.$query["ref_post_id"].'?fields=attachments&access_token='.$config["page_token"]);
+                    $response = SocialHelper::curlGetRequest($url);
+                    if(isset($response->attachments)){
+                        $collection[$key]['text'] = $response->attachments->data[0]->description; 
+                        $collection[$key]['url'] = $response->attachments->data[0]->media->image->src;
+                        $collection[$key]['message'] = '';
+                    }else{
+                        $url = sprintf('https://graph.facebook.com/v15.0/'.$query["ref_post_id"].'?access_token='.$config["page_token"]);
+                        $response = SocialHelper::curlGetRequest($url);
+                        $collection[$key]['text'] = ''; 
+                        $collection[$key]['url'] = ''; 
+                        $collection[$key]['message'] = $response->message;
+                    }
+                    
+                }
+            }
+            
+            return view('social.posts.viewpost', compact('collection'));
+
+        }catch(\Exception $e){
+            
+            $this->socialPostLog($config->id, $config->id, $config->platform, 'error', $e);
+            Session::flash('message', $e);
+            \Log::error($e);
+            
+        }
+        
+    }
 
     public function deletePost(Request $request)
     {
@@ -139,6 +195,25 @@ class SocialPostController extends Controller
     {
         return view('social.posts.create', compact('id'));
     }
+    public function getImage($id)
+    {
+        try{
+            $config = SocialConfig::find($id);
+
+            $website = StoreWebsite::where('id', $config->store_website_id)->first();
+            $media = $website->getMedia('website-image-attach');
+        
+        }catch(\Exception $e){
+            
+            Session::flash('message', $e);
+
+            \Log::error($e);
+        }
+        
+        return view('social.posts.attach-images', compact('media'));
+       
+    }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -213,6 +288,7 @@ class SocialPostController extends Controller
             $post->caption = $request->message;
             $post->post_body = $request->description;
             $post->post_by = Auth::user()->id;
+            $post->image_path = $request->hashtags;
             $post->save();
 
             $config = SocialConfig::find($post->config_id);
@@ -223,8 +299,9 @@ class SocialPostController extends Controller
                 'default_graph_version' => 'v15.0',
             ]);
 
-            $this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
-
+            
+            //$this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
+            $this->page_access_token = $config->page_token;
             $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
             // $request->validate([
             // 	'message' => 'required',
@@ -237,6 +314,8 @@ class SocialPostController extends Controller
 
 
             $message = $request->input('message');
+            $message = $message . ' ' . $request->input('hashtags');
+
             if ($this->page_access_token != '') {
                 if ($config->platform == 'facebook') {
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to facebook condition');
@@ -256,9 +335,9 @@ class SocialPostController extends Controller
                             foreach ($request->file('source') as $key => $source) {
 
                                 $fbImage = [
-                                   'access_token' =>$access_token,
-                                   'source' =>new CURLFile($source),
-                                   'message' => $message,
+                                   'access_token' =>$access_token, 
+                                   'source' => new CURLFile($source), 
+                                   'message' => $message, 
                                ];
 
                                 $response = SocialHelper::curlPostRequest($image_upload_url,$fbImage);
@@ -339,6 +418,41 @@ class SocialPostController extends Controller
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
                         }
                     }
+                    elseif(isset($request->image)){
+                        $access_token = $config->page_token;
+                        $page_id = $config->page_id;
+
+                        
+                        
+                        $image_upload_url = 'https://graph.facebook.com/'.$page_id.'/photos';
+
+
+                        foreach ($request->image as $key => $source) {
+
+                            $fbImage = [
+                                'access_token' =>$access_token, 
+                               // 'url' => 'https://i.pinimg.com/736x/0f/36/31/0f3631cab4db579656cfa612cce7dca0.jpg', 
+                                'url' => $source, 
+                                'caption' => $message, 
+                            ];
+
+                            $response = SocialHelper::curlPostRequest($image_upload_url,$fbImage);
+                            $response = json_decode($response);
+
+                            if (isset($response->error->message)) {
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
+                            }else{
+                                
+                                $post->posted_on = $request->input('date');
+                                $post->status = 1;
+                                if (isset($response->post_id)) {
+                                    $post->ref_post_id = $response->post_id;
+                                }
+                                $post->save();
+                                $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
+                            }
+                        }
+                    }
                     // Simple Post Case
                     else {
 
@@ -380,7 +494,6 @@ class SocialPostController extends Controller
                 } else {
                      $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to insta condition');
                     $insta_id = $this->getInstaID($config, $this->fb, $post->id);
-
 
                     if ($insta_id != '') {
                         $this->socialPostLog($config->id, $post->id, $config->platform, 'get-insta-id', $insta_id);
@@ -429,7 +542,8 @@ class SocialPostController extends Controller
                             foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
                                 $mediaurl = $file->getUrl();
 
-                                $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id);
+                               // $mediaurl="https://thumbs.dreamstime.com/b/red-rose-4590099.jpg";
+                                $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id,$message);
                                 if (! empty($media_id)) {
                                     $res = $this->publishMedia($config, $post, $media_id, $insta_id);
                                 }
@@ -589,7 +703,7 @@ class SocialPostController extends Controller
     {
         $token = $config->token;
         $page_id = $config->page_id;
-        $url = "https://graph.facebook.com/v12.0/$page_id?fields=instagram_business_account&access_token=$token";
+        $url = "https://graph.facebook.com/v15.0/$page_id?fields=instagram_business_account&access_token=$token";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -608,28 +722,45 @@ class SocialPostController extends Controller
         return '';
     }
 
-    private function addMedia($config, $post, $mediaurl, $insta_id)
+    private function addMedia($config, $post, $mediaurl, $insta_id,$message)
     {
+        
         //$mediaurl = 'https://t3.gstatic.com/licensed-image?q=tbn:ANd9GcSJ8o7X29SK1xD2JsVcP2_A0E8ZDGWV3ib5es32LHnzHQ3gu5_p9bReGNF9nxf39k-4Lumy6iEFjkQbgJg';
         $token = $config->token;
         $page_id = $config->page_id;
         $post_id = $post->id;
-        $caption = $post->post_body;
+        $caption = $message;
         $postfields = "image_url=$mediaurl&caption=$caption&access_token=$token";
-        $url = "https://graph.facebook.com/v12.0/$insta_id/media";
+        $url = "https://graph.facebook.com/v15.0/$insta_id/media";
+        
+        $request_params = array(
+            'access_token' => $token,
+            'image_url' => $mediaurl,
+            'caption' => $caption,
+        );
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $request_params);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         $resp = curl_exec($ch);
+        curl_close($ch);
+
+        
+        // $ch = curl_init();
+        // curl_setopt($ch, CURLOPT_URL, $url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        // curl_setopt($ch, CURLOPT_POST, 1);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+        // $resp = curl_exec($ch);
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-addMedia', $resp);
         $resp = json_decode($resp, true);
-
+       // die(var_dump($resp));
         if (isset($resp['id'])) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'addMedia', $resp['id']);
 

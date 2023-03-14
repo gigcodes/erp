@@ -14,7 +14,13 @@ class SentryErrorLog extends Model
         'is_unhandled',
         'first_seen',
         'last_seen',
-        'project_id'
+        'project_id',
+        'total_events',
+        'total_user',
+        'device_name',
+        'os',
+        'os_name',
+        'release_version'
     ];
 
     public function sentry_project(){
