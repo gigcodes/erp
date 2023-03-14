@@ -15,7 +15,13 @@
             <td  data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->to}}')">
                 {{ substr($email->to, 0,  15) }} {{strlen($email->to) > 10 ? '...' : '' }}
             </td>
-            
+            <td>
+                @if(array_key_exists($email->model_type, $emailModelTypes))
+                    {{$email->model_type?$emailModelTypes[$email->model_type]:'N/A' }}
+                @else
+                    {{$email->model_type}}
+                @endif
+            </td>
             <td>{{ $email->type }}</td>
 			
             <td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
