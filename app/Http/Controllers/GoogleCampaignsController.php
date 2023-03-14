@@ -489,7 +489,6 @@ class GoogleCampaignsController extends Controller
 
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign created successfully');
         } catch (Exception $e) {
-            dd($e);
             // Insert google ads log 
             $input = array(
                         'type' => 'ERROR',

@@ -390,7 +390,6 @@ class GoogleAdsAccountController extends Controller
             return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account deleted successfully');
 
         } catch (Exception $e) {
-            dd($e->getMessage());
             // Insert google ads log 
             $input = array(
                         'type' => 'ERROR',
