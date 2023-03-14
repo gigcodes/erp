@@ -5,8 +5,8 @@
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Quick Replies List ({{ $replies->total() }})</h2>
         <div class="pull">
-            <div class="row">
-                <div class="col-md-12 ml-sm-4">            
+            <div class="row" style="margin:10px;">
+                <div class="col-12">
                     <form action="{{ route('reply.replyList') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-2 pd-sm">
@@ -43,16 +43,12 @@
                                 </select>
                             </div>
                             <div class="col-md-2 pd-sm">
-                                <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
+                                <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
                             </div>
-                            
-
-                            <div class="col-md-1 pd-sm">
+                            <div class="col-md-2 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
-                            </div>
-                            <div class="col-md-1 pd-sm">
                                  <button type="submit" class="btn btn-primary search push_all_faq">
                                     Push FAQ
                                 </button>
@@ -74,58 +70,123 @@
 <div class="tab-content ">
     <!-- Pending task div start -->
     <div class="tab-pane active" id="1">
-        <div class="row" style="margin:10px;"> 
+        <div class="row" style="margin:10px;">
             <div class="col-12">
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
-                            <th width="3%">ID</th>
-                            <th width="8%">Store website</th>
-                            <th width="5%">Parent Category</th>
-                            <th width="10%">Category </th>
+                            <th width="5%">ID</th>
+                            <th width="10%">Store website</th>
+                            <th width="9%">Parent Category</th>
+                            <th width="8%">Category </th>
                             <th width="10%">Sub Category</th>
                             <th width="10%">Reply</th>
                             <th width="7%">Model</th>
                             <th width="5%">Intent Id</th>
-                            <th width="9%">Updated On</th>
-                            <th width="4%">Is Pushed</th>
-                            <th width="4%">Is Pushed To Watson</th>
+                            <th width="7%">Updated On</th>
+                            <th width="9%">Is Pushed</th>
+                            <th width="9%">Is Pushed To Watson</th>
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
                             <tr class="quick-website-task-{{ $reply->id }}" data-id="{{ $reply->id }}">
                                 <td id="reply_id">{{ $reply->id }}</td>
-                                <td class="quick-website-task" id="reply-store-website">{{ $reply->website }}</td>
-                                <td class="quick-website-task" id="reply_category_parent_first">{{ $reply->parent_first }}</td>
-                                <td class="quick-website-task" id="reply_category_parent_secound">{{ $reply->parent_secound }}</td>
-                                <td class="quick-website-task" id="reply_category_name">{{ $reply->category_name }}</td>
-                                <td style="cursor:pointer;" id="reply_text" class="change-reply-text quick-website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
-                                <td class="quick-website-task" id="reply_model">{{ $reply->model }}</td>
-                                <td class="quick-website-task">{{ $reply->intent_id }}</td>
-                                <td id="reply_model">{{ $reply->created_at }}</td>
-                                <td id="">@if($reply['is_pushed'] == 0) No @else Yes @endif</td>
+                                <td class="expand-row" id="reply-store-website" style="word-break: break-all;">
+                                    <span class="td-mini-container">
+                                        {{ strlen($reply->website) > 10 ? substr($reply->website, 0, 10).'...' : $reply->website }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->website}}
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_category_parent_first" style="word-break: break-all;">
+                                     <span class="td-mini-container">
+                                        {{ strlen($reply->parent_first) > 10 ? substr($reply->parent_first, 0, 8).'...' : $reply->parent_first }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->parent_first}}
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_category_parent_secound" style="word-break: break-all;">
+                                    <span class="td-mini-container">
+                                        {{ strlen($reply->parent_secound) > 10 ? substr($reply->parent_secound, 0, 8).'...' : $reply->parent_secound }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->parent_secound}}
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_category_name" style="word-break: break-all;">
+                                     <span class="td-mini-container">
+                                        {{ strlen($reply->category_name) > 10 ? substr($reply->category_name, 0, 10).'...' : $reply->category_name }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->category_name}}
+                                    </span>
+                                </td>
+                                <td style="cursor:pointer; word-break: break-all;" id="reply_text" class="change-reply-text expand-row" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">
+                                     <span class="td-mini-container">
+                                        {{ strlen($reply->reply) > 10 ? substr($reply->reply, 0, 10).'...' : $reply->reply }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->reply}}
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_model" style="word-break: break-all;">
+                                   <span class="td-mini-container">
+                                    {{ strlen($reply->model) > 10 ? substr($reply->model, 0, 6).'...' : $reply->model }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->model}}
+                                    </span>
+                                </td>
+                                <td class="expand-row" style="word-break: break-all;">
+                                    <span class="td-mini-container">
+                                    {{ strlen($reply->intent_id ) > 10 ? substr($reply->intent_id , 0, 10).'...' : $reply->intent_id  }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->intent_id }}
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_model" style="word-break: break-all;">
+                                    <span class="td-mini-container">
+                                    {{ strlen($reply->created_at ) > 10 ? substr($reply->created_at , 0, 10).'...' : $reply->created_at  }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->created_at }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {{ $reply->is_pushed ? 'True' : 'False' }}
+                                </td>
                                 <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
-                                <td id="reply_action">
+                                <td class="Website-task"title="">
+                                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$reply->id}}')"><i class="fa fa-arrow-down"></i></button>
+                                </td>
+                            </tr>
+                            
+                            <tr class="action-btn-tr-{{$reply->id}} d-none">
+                                <td>Action</td>
+                                <td id="reply_action"  colspan="10" >
                                     <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}" style="color: #808080;"></i>
-                                  @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
+                                    @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
                                     <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
                                     <!-- To push the FAQ Over every website using the API -->
-                                    <i class="fa fa-upload  upload_faq" data-id="{{ $reply->id }}" alt="Push To FAQ" style="color: #808080;"></i>
-
+                                    
                                     <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
-                                     <button type="button" title="Flagged for Translate" data-reply_id="{{ $reply->id }}" data-is_flagged="<?php if($reply->is_flagged=='1') { echo '1'; } else { echo '0'; } ?>" onclick="updateTranslateReply(this)" class="btn" style="padding: 0px 1px;">
+                                    <button type="button" title="Flagged for Translate" data-reply_id="{{ $reply->id }}" data-is_flagged="<?php if($reply->is_flagged=='1') { echo '1'; } else { echo '0'; } ?>" onclick="updateTranslateReply(this)" class="btn" style="padding: 0px 1px;">
                                         <?php if($reply->is_flagged == '1') { ?>
-                                            <i class="fa fas fa-toggle-on"></i>
-                                        <?php } else { ?>                                       
-                                            <i class="fa fas fa-toggle-off"></i>
+                                        <i class="fa fas fa-toggle-on"></i>
+                                        <?php } else { ?>
+                                        <i class="fa fas fa-toggle-off"></i>
                                         <?php } ?>
                                     </button>
 
                                     <button type="button" class="btn btn-xs show-reply-logs" title="Log of reply" data-id="{{$reply->id}}" data-type="developer">
                                         <i class="fa fa-info-circle" style="color: #808080;"></i>
                                     </button>
-                                    
-                                    
+                                    <i class="fa fa-upload  upload_faq" data-id="{{ $reply->id }}" title="Push To FAQ" style="color: #808080;"></i>
+
+
                                 </td>
                             </tr>
                         @endforeach
@@ -600,6 +661,16 @@ $(document).on('click', '#quick-reply-list .quick-website-task', function() {
     var trclass = $(this).parent()[0].className;
     $("."+trclass+" .quick-website-task").addClass("content-open-on-click");
 });
+function Showactionbtn(id) {
+    $(".action-btn-tr-" + id).toggleClass('d-none')
+}
 
+$(document).on('click', '.expand-row', function () {
+    var selection = window.getSelection();
+    if (selection.toString().length === 0) {
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+    }
+});
 </script>
 @endsection

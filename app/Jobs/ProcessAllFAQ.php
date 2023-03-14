@@ -52,7 +52,7 @@ class ProcessAllFAQ implements ShouldQueue
                     $insertArray        =   [];
                     $insertArray[]      =   $value->id;
 
-                    ProceesPushFaq::dispatch($insertArray);
+                    ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
                 }
                 else{   //If FAQ transation is not available then first set for translation
 
@@ -61,9 +61,9 @@ class ProcessAllFAQ implements ShouldQueue
 
                     $replyInformation   =   \App\Reply::find($value->id);
 
-                    ProcessTranslateReply::dispatch($replyInformation, $user_id);   //set for translation
+                    ProcessTranslateReply::dispatch($replyInformation, $user_id)->onQueue('reply_translation');   //set for translation
 
-                    ProceesPushFaq::dispatch($insertArray);
+                    ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
                 }
 
             }

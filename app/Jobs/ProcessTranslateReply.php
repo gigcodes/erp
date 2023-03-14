@@ -39,79 +39,90 @@ class ProcessTranslateReply implements ShouldQueue
      */
     public function handle()
     {
-        $record     =   $this->record;
-        $id         =   $this->record->id;
-        $user_id    =   $this->user_id;
+        try{
+            $record     =   $this->record;
+            $id         =   $this->record->id;
+            $user_id    =   $this->user_id;
 
-        $replies    =   $record->reply;
+            $replies    =   $record->reply;
 
-        if ($replies    !=  '') {
+            if ($replies    !=  '') {
 
-            $LanguageModel                  =   Language::all();
+                $LanguageModel                  =   Language::all();
 
-            for($i=0;   $i<count($LanguageModel);   $i++) {
+                for($i=0;   $i<count($LanguageModel);   $i++) {
 
-                $language                   =   $LanguageModel[$i]->locale;
+                    $language                   =   $LanguageModel[$i]->locale;
 
-                 // Check translation SEPARATE LINE exists or not
-                $checkTranslationTable      =   Translations::select('text')
-                                                        ->where('from', 'en')
-                                                        ->where('to', $language)
-                                                        ->where('text_original', $replies)
-                                                        ->first();
+                     // Check translation SEPARATE LINE exists or not
+                    $checkTranslationTable      =   Translations::select('text')
+                                                            ->where('from', 'en')
+                                                            ->where('to', $language)
+                                                            ->where('text_original', $replies)
+                                                            ->first();
 
-                if ($checkTranslationTable) {
-                    $data   =   htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
-                } else {   
-                    $data                   =   '';      
-                    $googleTranslate        =   new GoogleTranslate();
-                    $translationString      =   $googleTranslate->translate($language, $replies);                           
-                    if($translationString   !=  '') {
-                        Translations::addTranslation($replies, $translationString, 'en', $language);
-                        $data               =   htmlspecialchars_decode($translationString, ENT_QUOTES);
-                    }                       
-                }
-
-                if($data    !=  '') {
-
-                    $translateReplies       =   TranslateReplies::where('translate_from', 'en')
-                                                                ->where('translate_to', $language)
-                                                                ->where('replies_id', $id)
-                                                                ->first();
-
-                    if(count((array)$translateReplies)==0) {
-                        $translateReplies = new TranslateReplies();
-                        $translateReplies->created_by   =    $user_id;
-                        $translateReplies->created_at   =    date('Y-m-d H:i:s');
-                    } else {
-                        $translateReplies->updated_by   =    $user_id;
-                        $translateReplies->updated_at   =    date('Y-m-d H:i:s');
+                    if ($checkTranslationTable) {
+                        $data   =   htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
+                    } else {   
+                        $data                   =   '';      
+                        $googleTranslate        =   new GoogleTranslate();
+                        $translationString      =   $googleTranslate->translate($language, $replies);                           
+                        if($translationString   !=  '') {
+                            Translations::addTranslation($replies, $translationString, 'en', $language);
+                            $data               =   htmlspecialchars_decode($translationString, ENT_QUOTES);
+                        }                       
                     }
-                
-                    $translateReplies->replies_id       =   $id;
-                    $translateReplies->translate_from   =   'en';
-                    $translateReplies->translate_to     =   $language;
-                    $translateReplies->translate_text   =   $data;                        
-                    $translateReplies->save();
 
+                    if($data    !=  '') {
+
+                        $translateReplies       =   TranslateReplies::where('translate_from', 'en')
+                                                                    ->where('translate_to', $language)
+                                                                    ->where('replies_id', $id)
+                                                                    ->first();
+
+                        if(count((array)$translateReplies)==0) {
+                            $translateReplies = new TranslateReplies();
+                            $translateReplies->created_by   =    $user_id;
+                            $translateReplies->created_at   =    date('Y-m-d H:i:s');
+                        } else {
+                            $translateReplies->updated_by   =    $user_id;
+                            $translateReplies->updated_at   =    date('Y-m-d H:i:s');
+                        }
                     
-                    $record->is_flagged                 =   1;
-                    $record->is_translate               =   1;
-                    $record->save();
+                        $translateReplies->replies_id       =   $id;
+                        $translateReplies->translate_from   =   'en';
+                        $translateReplies->translate_to     =   $language;
+                        $translateReplies->translate_text   =   $data;                        
+                        $translateReplies->save();
 
-                    (new ReplyLog)->addToLog($id, 'System has translate the reply to language ('. $language .')', 'Translate' );
+                        
+                        $record->is_flagged                 =   1;
+                        $record->is_translate               =   1;
+                        $record->save();
 
-                }
-                else{
+                        (new ReplyLog)->addToLog($id, 'System has translate the reply to language ('. $language .')', 'Translate' );
 
-                    (new ReplyLog)->addToLog($id, 'System unable to translate the FAQ', 'Translate' );
+                    }
+                    else{
 
-                    $record->is_flagged                 =   0;
-                    $record->is_translate               =   0;
-                    $record->save();
-                }
+                        (new ReplyLog)->addToLog($id, 'System unable to translate the FAQ', 'Translate' );
 
-            }                   
-        } 
+                        $record->is_flagged                 =   0;
+                        $record->is_translate               =   0;
+                        $record->save();
+                    }
+
+                }                   
+            } 
+        }
+        catch(\Exception $e){
+            if(!empty($id)){
+                 (new ReplyLog)->addToLog($id, $e->getMessage(), 'Translate' );
+            }
+
+            \Log::info('Translation error');
+            \Log::info($e->getMessage());
+        }
+        
     }
 }
