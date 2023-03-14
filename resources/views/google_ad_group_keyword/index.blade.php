@@ -76,7 +76,7 @@
                         <div class="form-group row">
                             <label for="scan_keywords" class="col-sm-2 col-form-label">Keyword</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control google_ads_keywords" id="scan_keywords" name="scan_keywords" placeholder="Enter products or services to advertise">
+                                <input type="text" class="form-control google_ads_keywords" id="scan_keywords" name="scan_keywords" placeholder="Enter products or services to advertise Ex : test,test2">
                             </div>
                         </div>
                         <div class="form-group row">
