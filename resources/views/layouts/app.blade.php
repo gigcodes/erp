@@ -2198,6 +2198,9 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a href="{{route('social.config.index')}}">Social Config</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.post.grid')}}">Social Posts Grid</a>
+                                </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"

@@ -4579,6 +4579,8 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('post/getimage/{id}', [Social\SocialPostController::class, 'getImage'])->name('social.post.getimage');
     Route::post('post/history', [Social\SocialPostController::class, 'history'])->name('social.post.history');
 
+    Route::get('post/grid', [Social\SocialPostController::class, 'grid'])->name('social.post.grid');
+
     Route::get('campaigns', [Social\SocialCampaignController::class, 'index'])->name('social.campaign.index');
     Route::post('campaign/store', [Social\SocialCampaignController::class, 'store'])->name('social.campaign.store');
     Route::post('campaign/edit', [Social\SocialCampaignController::class, 'edit'])->name('social.campaign.edit');
