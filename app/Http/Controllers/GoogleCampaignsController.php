@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GoogleResponsiveDisplayAd;
 use Exception;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
