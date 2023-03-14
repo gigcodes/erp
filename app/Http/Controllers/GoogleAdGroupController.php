@@ -585,9 +585,9 @@ class GoogleAdGroupController extends Controller
 
         $keywords = [];
         if(!empty($request->scan_keywords)){
-            $scan_keywords = json_decode($request->scan_keywords, TRUE);
+            $scan_keywords = explode(',',$request->scan_keywords);
             foreach ($scan_keywords as $key => $v) {
-                $keywords[] = $v['value'];
+                $keywords[] = $v;
             }
         }
 

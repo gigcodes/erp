@@ -45,7 +45,6 @@ use Illuminate\Http\Request;
 use Google\Protobuf\Int32Value;
 
 use App\Models\GoogleAdGroupKeyword;
-use App\Models\GoogleResponsiveDisplayAd;
 use App\Models\GoogleResponsiveDisplayAdMarketingImage;
 use App\Models\GoogleAppAd;
 use App\Models\GoogleAppAdImage;
@@ -763,7 +762,7 @@ class GoogleCampaignsController extends Controller
 
             // Delete other data
             GoogleAdGroupKeyword::where('adgroup_google_campaign_id', $campaignId)->delete();
-            GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->delete();
+            \GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleResponsiveDisplayAdMarketingImage::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleAppAd::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleAppAdImage::where('adgroup_google_campaign_id', $campaignId)->delete();

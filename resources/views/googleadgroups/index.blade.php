@@ -58,39 +58,41 @@
             @foreach($adGroups as $adGroup)
                 <tr>
                     <td>{{$adGroup->id}}</td>
-                    <td>{{$adGroup->ad_group_name}}</td>
-                    <td>{{$adGroup->adgroup_google_campaign_id}}</td>
-                    <td>{{$adGroup->google_adgroup_id}}</td>
+                    <td>{{$adGroup->ad_group_name ?? '' }}</td>
+                    <td>{{$adGroup->adgroup_google_campaign_id ?? '' }}</td>
+                    <td>{{$adGroup->google_adgroup_id ?? '' }}</td>
                     @if(!in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))
-                    <td>{{$adGroup->bid}}</td>
+                    <td>{{$adGroup->bid ?? '' }}</td>
                     @endif
-                    <td>{{$adGroup->status}}</td>
-                    <td>{{$adGroup->created_at}}</td>
+                    <td>{{$adGroup->status ?? '' }}</td>
+                    <td>{{$adGroup->created_at ?? '' }}</td>
                     <td>
                     <div class="d-flex">
-{{--                        @if(in_array(@$campaign_channel_type, ["DISPLAY"]))--}}
-{{--                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/responsive-display-ad">--}}
-{{--                                <button type="submit" class="btn-image">Display Ads</button>--}}
-{{--                            </form>--}}
-{{--                        @elseif(in_array(@$campaign_channel_type, ["SEARCH"]))--}}
-                        <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
-                            <button type="submit" class="btn-image">Ads</button>
-                        </form>
+                        @if(in_array(@$campaign_channel_type, ["DISPLAY"]))
+                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/responsive-display-ad">
+                                <button type="submit" class="btn-image">Display Ads</button>
+                            </form>
+                        @elseif(in_array(@$campaign_channel_type, ["SEARCH"]))
+                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
+                                <button type="submit" class="btn btn-image">Ads</button>
+                            </form>
 
-                        <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ad-group-keyword">
-                            <button type="submit" class="btn-image">Keywords</button>
-                        </form>
-
+                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ad-group-keyword">
+                                <button type="submit" class="btn btn-image">Keywords</button>
+                            </form>
                         @elseif(in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))
                             <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/app-ad">
-                                <button type="submit" class="btn-image">App Ads</button>
+                                <button type="submit" class="btn btn-image">App Ads</button>
                             </form>
                         @endif
-                        
-                        {!! Form::open(['method' => 'DELETE','route' => ['adgroup.deleteAdGroup',$campaignId,$adGroup['google_adgroup_id']],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn-image ml-2"><img src="{{asset('/images/delete.png')}}"></button>
-                        {!! Form::close() !!}
-                        <button type="button" class="btn-image ml-2" data-toggle="modal" data-target="#updateadgroupmodal"><img src="{{asset('/images/edit.png')}}"></button>
+                        @if($adGroup->google_adgroup_id)
+                            {!! Form::open(['method' => 'DELETE','route' => ['adgroup.deleteAdGroup',$campaignId,$adGroup->google_adgroup_id],'style'=>'display:inline']) !!}
+                                <button type="submit" class="btn btn-image"><img src="{{asset('/images/delete.png')}}"></button>
+                            {!! Form::close() !!}
+                            {!! Form::open(['method' => 'GET','route' => ['adgroup.updatePage',$campaignId,$adGroup->google_adgroup_id],'style'=>'display:inline']) !!}
+                                <button type="submit" class="btn btn-image"><img src="{{asset('/images/edit.png')}}"></button>
+                            {!! Form::close() !!}
+                        @endif
                     </div>
                     </td>
                 </tr>
@@ -157,8 +159,7 @@
                     <div class="page-header" style="width: 69%">
                         <h2>Update Ad Group</h2>
                     </div>
-{{--                    <form action="{{route('adgroup.updatePage',['id'=> $campaignId])}}" method="POST">--}}
-                    <form method="POST" action="http://localhost/erp/public/index.php/google-campaigns/{{$campaignId}}/adgroups/update" enctype="multipart/form-data">
+                    <form method="POST" action="/google-campaigns/{{$campaignId}}/adgroups/update" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="adGroupId" value="{{$adGroup['google_adgroup_id']}}">
                         <div class="form-group row">
@@ -209,6 +210,37 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 <script type="text/javascript">
     $('.select-multiple').select2({width: '100%'});
+
+    $('#btnGetKeywords').on('click', function(e) {
+        kw = $("#scan_keywords")[0].value;
+        // console.log({"scanurl":$("#scanurl").val(),"scan_keywords":kw,"campaignId":$("#campaignId").val()});
+        key_words='';
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            type: "POST",
+            url: "/google-campaigns/"+$("#campaignId").val()+"/adgroups/generate-keywords",
+            data: {"scanurl":$("#scanurl").val(),"scan_keywords":kw,"campaignId":$("#campaignId").val()},
+            dataType : "json",
+            // beforeSend: function () {
+            //   $(this).attr('disabled', true);
+            //   $(this).text('Adding...');
+            // }
+        }).done(function(res) {
+            // console.log(res);
+            if(res['count'] > 0) {
+                key_words = res['result'].join(",");
+                // console.log(key_words);
+                // $.each(res['result'], function(k,v) {
+                //     key_words += v + ",";
+                // });
+            }
+            $("#suggested_keywords").html(key_words);
+        }).fail(function(response) {
+            // console.log(response);
+        });
+    });
 
     function submitSearch(){
         src = '/google-campaigns/<?php echo $campaignId;  ?>/adgroups';
