@@ -1,44 +1,43 @@
 @extends('layouts.app')
-
-
 @section('title', 'Social Posts')
-<style>
-     #loading-image {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        margin: -50px 0px 0px -50px;
-        z-index: 60;
-    }
-    .carousel-inner.maincarousel img {
-        margin-top: 20px;
-    }
-  
-</style>
 @section('content')
     <link rel="stylesheet" type="text/css"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     @include("social.posts.history")
-   
-    <div class="row" id="common-page-layout">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Social Posts ({{ $posts->total() }})<span class="count-text"></span></h2>
-            <div class="pull-right">
-                <!-- <a class="btn btn-secondary create-post">+</a> -->
-                <a class="btn btn-secondary btn-sm" href="{{ route('social.post.create',$id) }} ">+</a>
-            </div>
+
+    <div class="col-md-12">
+        <h2 class="page-heading">Social Posts Grid ({{ $posts->total() }})<span class="count-text"></span></h2>
+        <div class="col-lg-12">
+            <form action="" method="GET" class="form-inline align-items-start">
+                <div class="row mr-3 mb-3">
+                    <div class="form-group">
+                        <select id="social_config" class="form-control social_config" name="social_config[]" multiple>
+                            @foreach ($socialconfigs->unique('platform') as $socialconfig)
+                                <option value="{{ $socialconfig->platform }}" {{ in_array($socialconfig->platform,$_GET['social_config']?? []) ? 'selected' : '' }}>{{ $socialconfig->platform }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group ml-3">
+                        <select id="store_website_id" class="form-control store_website_id" name="store_website_id[]" multiple>
+                            @foreach ($websites as $id => $website)
+                                <option value="{{ $website->id }}" {{ in_array($website->id,$_GET['store_website_id']?? []) ? 'selected' : '' }}>{{ $website->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-image"><img src="{{asset('images/filter.png')}}"/></button>
+                </div>
+            </form>
         </div>
-        @include("social.header_menu")
-            
+        <div class="row" id="common-page-layout">
             @if ($message = Session::get('success'))
                 <div class="alert alert-success">
                     <p>{{ $message }}</p>
                 </div>
             @endif
-    
+
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <strong>Whoops!</strong> There were some problems with your input.<br><br>
@@ -49,25 +48,24 @@
                     </ul>
                 </div>
             @endif
-        <br>
-        <div class="col-lg-12 margin-tb">
+            <br>
 
             <div class="col-md-12 margin-tb">
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
+                            <th style="width:5%">Image</th>
                             <th style="width:5%">Date</th>
                             <th style="width:5%">Website</th>
+                            <th style="width:5%">Platform</th>
                             <th style="width:25%">Caption</th>
                             <th style="width:30%">Post</th>
-                            <th style="width:30%">Hashtags</th>
-                            <!-- <th style="width:10%">Image</th> -->
                             <th style="width:10%">Posted on</th>
                             <th style="width:5%">Status</th>
                             <th style="width:5%">Action</th>
                         </tr>
                         <tbody class="infinite-scroll-data">
-                            @include("social.posts.data")
+                        @include("social.posts.data")
                         </tbody>
                     </table>
                 </div>
@@ -81,68 +79,59 @@
     <div id="create-modal" class="modal" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="record-content">
-                    
+
             </div>
         </div>
     </div>
-
-    <div id="show-image-modal" class="modal" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content" id="show-image-modal-data">
-                    
-            </div>
-        </div>
-    </div>
-
-
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
-    </script>
+@endsection
+@section('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
     <script type="text/javascript">
-        
-      
+        $('#social_config').select2({
+            placeholder: 'Select Platform',
+        });
+        $('#store_website_id').select2({
+            placeholder: 'Select Website',
+        });
 
-        $(document).on("click",".account-history",function(e) {
-        e.preventDefault();
+        $(document).on("click", ".account-history", function (e) {
+            e.preventDefault();
             var post_id = $(this).data("id");
             $.ajax({
                 url: "{{ route('social.post.history') }}",
                 type: 'POST',
-                data : { "_token": "{{ csrf_token() }}", post_id : post_id },
+                data: {"_token": "{{ csrf_token() }}", post_id: post_id},
                 dataType: 'json',
                 beforeSend: function () {
-                  $("#loading-image").show();
+                    $("#loading-image").show();
                 },
-                success: function(result){
+                success: function (result) {
                     $("#loading-image").hide();
 
-                    if(result.code == 200) {
-                       var t = '';
-                       $.each(result.data,function(k,v) {
-                          t += `<tr><td>`+v.post_id+`</td>`;
-                          t += `<td>`+v.log_title+`</td>`;
-                          t += `<td>`+v.log_description+`</td>`;
-                          t += `<td>`+v.created_at+`</td>`;
-                          t += `<td>`+v.updated_at+`</td></tr>`;
-                       });
+                    if (result.code == 200) {
+                        var t = '';
+                        $.each(result.data, function (k, v) {
+                            t += `<tr><td>` + v.post_id + `</td>`;
+                            t += `<td>` + v.log_title + `</td>`;
+                            t += `<td>` + v.log_description + `</td>`;
+                            t += `<td>` + v.created_at + `</td>`;
+                            t += `<td>` + v.updated_at + `</td></tr>`;
+                        });
                     }
                     $("#log-history-modal").find(".show-list-records").html(t);
                     $("#log-history-modal").modal("show");
                 },
-                error: function (){
+                error: function () {
                     $("#loading-image").hide();
                 }
             });
-       });
-    
-      
+        });
 
-       $(document).on("click",".post-delete",function(e) {
-        e.preventDefault();
+        $(document).on("click", ".post-delete", function (e) {
+            e.preventDefault();
             var post_id = $(this).data("id");
             if (confirm("Are you sure?")) {
                 $.ajax({
@@ -152,7 +141,7 @@
                     dataType: "json",
                     success: function (message) {
                         alert('Deleted Post');
-                    location.reload(true);
+                        location.reload(true);
                     }, error: function () {
                         alert('Something went wrong');
                     }
@@ -161,31 +150,32 @@
             }
             return false;
 
-           
+
         });
-        
-        $(document).on('click', '.create-post', function(e) {
-             e.preventDefault();
-            
-            var $action_url = "{{ route('social.post.create',$id) }}";
+
+        $(document).on('click', '.create-post', function (e) {
+            e.preventDefault();
+
+            {{--var $action_url = "{{ route('social.post.create',$id) }}";--}}
             jQuery.ajax({
 
                 type: "GET",
                 url: $action_url,
                 dataType: 'html',
-                success: function(data) {
-                    // $("#create-modal").modal('show');
-                    // $("#record-content").html(data);
+                success: function (data) {
+                    $("#create-modal").modal('show');
+                    $("#record-content").html(data);
 
                 },
-                error: function(error) {},
+                error: function (error) {
+                },
 
             });
             return false;
 
         });
 
-        $(document).on('submit', '#create-form1', function(e) {
+        $(document).on('submit', '#create-form1', function (e) {
             e.preventDefault();
 
             var form = $(this);
@@ -193,16 +183,16 @@
 
 
             $.ajax({
-                url:  "{{ route('social.post.store') }}",
+                url: "{{ route('social.post.store') }}",
                 type: 'POST',
                 data: postData,
                 processData: false,
                 contentType: false,
                 dataType: 'json',
-                beforeSend: function() {
+                beforeSend: function () {
                     $("#loading-image").show();
                 }
-            }).done(function(response) {
+            }).done(function (response) {
 
                 if (response.code == 200) {
                     $("#loading-image").hide();
@@ -211,20 +201,18 @@
                     location.reload();
                 } else {
                     $("#loading-image").hide();
-                  //  toastr['error'](response.message, 'error');
+                    //  toastr['error'](response.message, 'error');
                     location.reload();
                 }
 
-            }).fail(function(errObj) {
+            }).fail(function (errObj) {
                 //toastr['error'](errObj.responseJSON.message, 'error');
                 $("#loading-image").hide();
                 location.reload();
             });
         });
 
-
-
-        $(window).scroll(function() {
+        $(window).scroll(function () {
             if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
                 loadMore();
             }
@@ -241,14 +229,14 @@
 
             var $loader = $('.infinite-scroll-products-loader');
             $.ajax({
-                    url: $('.pagination li.active + li a').attr('href'),
-                    type: 'GET',
-                    beforeSend: function() {
-                        $loader.show();
-                        $('ul.pagination').remove();
-                    }
-                })
-                .done(function(data) {
+                url: $('.pagination li.active + li a').attr('href'),
+                type: 'GET',
+                beforeSend: function () {
+                    $loader.show();
+                    $('ul.pagination').remove();
+                }
+            })
+                .done(function (data) {
                     if ('' === data.trim())
                         return;
 
@@ -258,7 +246,7 @@
 
                     isLoadingProducts = false;
                 })
-                .fail(function(jqXHR, ajaxOptions, thrownError) {
+                .fail(function (jqXHR, ajaxOptions, thrownError) {
                     console.error('something went wrong');
 
                     isLoadingProducts = false;

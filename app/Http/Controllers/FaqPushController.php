@@ -28,12 +28,12 @@ class FaqPushController extends Controller
             $replyInfo          =   Reply::find($data['id']);
 
             if(!empty($replyInfo->is_translate)){   //if FAQ translate is  available then send for FAQ
-	    	  ProceesPushFaq::dispatch($insertArray);
+	    	  ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
             }
             else{   //If FAQ transation is not available then first set for translation
-                ProcessTranslateReply::dispatch($replyInfo, \Auth::id());   //set for translation
+                ProcessTranslateReply::dispatch($replyInfo, \Auth::id())->onQueue('reply_translation');   //set for translation
 
-                ProceesPushFaq::dispatch($insertArray);
+                ProceesPushFaq::dispatch($insertArray)->onQueue('faq_push');
             }
 
 			return response()->json(['code' => 200, 'data' => [], 'message' => 'FAQ added in queue']);
@@ -62,7 +62,7 @@ class FaqPushController extends Controller
             return response()->json(['code' => 400, 'data' => [], 'message' => 'No Record Found']);         
         }
 
-        ProcessAllFAQ::dispatch($replyInfo, \Auth::id());
+        ProcessAllFAQ::dispatch($replyInfo, \Auth::id())->onQueue('faq_push');
 
 
         //get all reply with translate and set in chunks
@@ -80,7 +80,7 @@ class FaqPushController extends Controller
                     
                 $insertArray    =   $value->pluck('id');
                 $reqType        =   "pushFaqAll";
-                ProceesPushFaq::dispatch($insertArray->toArray(),$reqType);
+                ProceesPushFaq::dispatch($insertArray->toArray(),$reqType)->onQueue('faq_push');;
 
 
             }

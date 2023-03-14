@@ -23,13 +23,10 @@
             </div>
         </div>
     </div>
-{{--        <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ad-group-keyword/create">--}}
-{{--            <button type="submit" class="btn-sm float-right mb-3">New Keyword</button>--}}
-{{--        </form>--}}
 
-        <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#new_keyword">New Keyword</button>
+    <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#new_keyword">New Keyword</button>
 
-        <table class="table table-bordered" id="adsgroup-table">
+    <table class="table table-bordered" id="adsgroup-table">
             <thead>
             <tr>
                 <th>#ID</th>
@@ -79,7 +76,7 @@
                         <div class="form-group row">
                             <label for="scan_keywords" class="col-sm-2 col-form-label">Keyword</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control google_ads_keywords" id="scan_keywords" name="scan_keywords" placeholder="Enter products or services to advertise">
+                                <input type="text" class="form-control google_ads_keywords" id="scan_keywords" name="scan_keywords" placeholder="Enter products or services to advertise Ex : test,test2">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -118,6 +115,37 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 <script type="text/javascript">
     $('.select-multiple').select2({width: '100%'});
+
+    $('#btnGetKeywords').on('click', function(e) {
+        kw = $("#scan_keywords")[0].value;
+        // console.log({"scanurl":$("#scanurl").val(),"scan_keywords":kw,"campaignId":$("#campaignId").val()});
+        key_words='';
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            type: "POST",
+            url: "/google-campaigns/"+$("#campaignId").val()+"/adgroups/generate-keywords",
+            data: {"scanurl":$("#scanurl").val(),"scan_keywords":kw,"campaignId":$("#campaignId").val()},
+            dataType : "json",
+            // beforeSend: function () {
+            //   $(this).attr('disabled', true);
+            //   $(this).text('Adding...');
+            // }
+        }).done(function(res) {
+            // console.log(res);
+            if(res['count'] > 0) {
+                key_words = res['result'].join(",");
+                // console.log(key_words);
+                // $.each(res['result'], function(k,v) {
+                //     key_words += v + ",";
+                // });
+            }
+            $("#suggested_keywords").html(key_words);
+        }).fail(function(response) {
+            // console.log(response);
+        });
+    });
 
     function submitSearch(){
         src = '/google-campaigns/{{ $campaignId }}/adgroups/{{$adGroupId}}/ad-group-keyword';

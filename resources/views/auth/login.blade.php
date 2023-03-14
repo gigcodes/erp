@@ -53,7 +53,7 @@
                         <div class="form-group row">
                             <div class="col-md-6 offset-md-4">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                    <input class="form-check-input" style="height: 13px !important;" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
 
                                     <label class="form-check-label" for="remember">
                                         {{ __('Remember Me') }}
@@ -64,7 +64,7 @@
 
                         <div class="form-group row mb-0">
                             <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary main-btn-login">
                                     {{ __('Login') }}
                                 </button>
 
@@ -79,4 +79,16 @@
         </div>
     </div>
 </div>
+<script>
+    $('form').submit(function (event) {
+        if ($(this).hasClass('submitted')) {
+            event.preventDefault();
+        }
+        else {
+            $(this).find(':submit').html('<i class="fa fa-spinner fa-spin"></i>');
+            $(this).addClass('submitted');
+        }
+    });
+</script>
 @endsection
+

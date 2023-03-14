@@ -1111,6 +1111,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/social/account/create', [ContentManagementController::class, 'viewAddSocialAccount'])->name('content-management.social.create');
         Route::post('/social/account/create', [ContentManagementController::class, 'addSocialAccount'])->name('content-management.social.submit');
         Route::get('/manage/{id}', [ContentManagementController::class, 'manageContent'])->name('content-management.manage');
+        Route::post('/social/account/post', [ContentManagementController::class, 'postSocialAccount'])->name('content-management.social.post');
+        Route::get('/social/account/pagepost', [ContentManagementController::class, 'pagePost'])->name('content-management.social.pagepost');
+
         Route::get('/manage/task-list/{id}', [ContentManagementController::class, 'getTaskList'])->name('content-management.manage.task-list');
         Route::get('/manage/preview-img/{id}', [ContentManagementController::class, 'previewCategoryImage'])->name('content-management.manage.preview-img');
         Route::get('/manage/milestone-task/{id}', [ContentManagementController::class, 'getTaskMilestones'])->name('content-management.manage.milestone-task');
@@ -1368,6 +1371,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');
     Route::get('task/categories', [TaskModuleController::class, 'getTaskCategories'])->name('task.categories');
     Route::get('task/list', [TaskModuleController::class, 'list'])->name('task.list');
+    Route::get('tasks/devgettaskremark', [TaskModuleController::class, 'devgetTaskRemark'])->name('task.devgettaskremark');
     Route::get('task/get-discussion-subjects', [TaskModuleController::class, 'getDiscussionSubjects'])->name('task.discussion-subjects');
     // Route::get('task/create-task', 'TaskModuleController@createTask')->name('task.create-task');
     Route::post('task/flag', [TaskModuleController::class, 'flag'])->name('task.flag');
@@ -2549,7 +2553,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
 Route::post('twilio/ivr', [TwilioController::class, 'ivr'])->name('ivr')->middleware('twilio.voice.validate');
-Route::get('twilio/webhook-error', [TwilioController::class, 'webhookError']);
+Route::any('twilio/webhook-error', [TwilioController::class, 'webhookError']);
 Route::post('twilio/workspace/assignment', [TwilioController::class, 'workspaceEvent']);
 Route::post('twilio/assignment-task', [TwilioController::class, 'assignmentTask']);
 Route::post('twilio/call-status', [TwilioController::class, 'callStatus']);
@@ -2941,6 +2945,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
     Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
+    Route::get('view-posts/{id}', [Social\SocialPostController::class, 'viewPost'])->name('social.post.viewpost');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
@@ -4571,7 +4576,10 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('post/edit', [Social\SocialPostController::class, 'edit'])->name('social.post.edit');
     Route::post('post/delete', [Social\SocialPostController::class, 'destroy'])->name('social.post.delete');
     Route::get('post/create/{id}', [Social\SocialPostController::class, 'create'])->name('social.post.create');
+    Route::get('post/getimage/{id}', [Social\SocialPostController::class, 'getImage'])->name('social.post.getimage');
     Route::post('post/history', [Social\SocialPostController::class, 'history'])->name('social.post.history');
+
+    Route::get('post/grid', [Social\SocialPostController::class, 'grid'])->name('social.post.grid');
 
     Route::get('campaigns', [Social\SocialCampaignController::class, 'index'])->name('social.campaign.index');
     Route::post('campaign/store', [Social\SocialCampaignController::class, 'store'])->name('social.campaign.store');
