@@ -108,7 +108,7 @@
                             {{isset($product->alllog_status[38][0]["created_at"]) ? $product->alllog_status[38][0]["created_at"] : "NA"}}
                         </td>
                         <td>
-                            {{isset($product->alllog_status[39][0]["created_at"]) ? $product->alllog_status[39][0]["created_at"] : "NA"}}
+                            {{ (isset($product->sub_status_id) && $product->sub_status_id == 39 && $product->alllog_status[35][0]['created_at']) ? $product->alllog_status[35][0]['created_at'] : 'NA' }}
                         </td>
                         <td>
                             {{isset($product->alllog_status[40][0]["created_at"]) ? $product->alllog_status[40][0]["created_at"] : "NA"}}
