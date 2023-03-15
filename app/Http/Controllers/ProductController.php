@@ -20,7 +20,8 @@ use App\HsCodeGroupsCategoriesComposition;
 use App\HsCodeSetting;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
-use App\Jobs\PushToMagentoJob;
+use App\Jobs\ConditionCheckFirstJob;
+use App\Jobs\ProductPushFlow2Job;
 use App\Language;
 use App\ListingHistory;
 use App\Loggers\LogListMagento;
@@ -5110,7 +5111,7 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
+                        ConditionCheckFirstJob::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', null, null, null, null, null);
@@ -5165,7 +5166,7 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        PushToMagentoJob::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
+                        ProductPushFlow2Job::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
