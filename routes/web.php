@@ -119,8 +119,10 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleScreencastController;
 use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleDeveloperLogsController;
+use \App\Http\Controllers\GoogleDriveController;
 
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
@@ -857,6 +859,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::prefix('{id}')->group(function () {
             Route::get('push-in-shopify', [NewProductInventoryController::class, 'pushInShopify'])->name('product-inventory.push-in-shopify');
         });
+    });
+
+    Route::prefix('google-drive')->group(function () {
+        Route::get('/', [GoogleDriveController::class, 'index'])->name('google-drive.new');
+        Route::post('/create', [GoogleDriveController::class, 'create'])->name('google-drive.create');
     });
 
     Route::get('log_history/discount/', [ProductInventoryController::class, 'discountlogHistory'])->name('log-history/discount/brand');
@@ -4685,6 +4692,12 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
+});
+
+Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
+    Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
+    Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
+    Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
 });
 
 //Queue Management::
