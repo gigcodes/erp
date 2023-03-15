@@ -54,7 +54,7 @@
                 <div class="pull-right">
                 
                   <!-- <button type="button" class="btn btn-secondary" id="fb_redirect">Login Facebook</button> -->
-                  <a href="https://www.facebook.com/dialog/oauth?client_id=559475859451724&redirect_uri=https://erpstage.theluxuryunlimited.com/social/config/fbtokenback&scope=manage_pages,pages_manage_posts" style="
+                  <a href="https://www.facebook.com/dialog/oauth?client_id=559475859451724&redirect_uri=https://erpstage.theluxuryunlimited.com/social/config/fbtokenback&scope=instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,instagram_manage_messages,manage_pages,pages_manage_posts" style="
     padding: 7px;
     background-color: #6c757d;
     color: #fff;
@@ -62,7 +62,7 @@
     margin-left: 5px;
     display: inline-block;
     vertical-align: middle;
-">Login Facebook</a>
+">Login Facebook/Insta</a>
                 </div>
                 <div class="pull-right">
                   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</button>

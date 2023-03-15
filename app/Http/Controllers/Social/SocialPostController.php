@@ -534,6 +534,23 @@ class SocialPostController extends Controller
                             $post->attachMedia($media, config('constants.media_tags'));
                         }
 
+                        if(isset($request["image"])){
+                            foreach($request["image"] as $key => $value){
+                                $mediaurl= $value;
+                                //$mediaurl="https://th-thumbnailer.cdn-si-edu.com/i_y5C_IJJg3PLZUKzJ15hJt-C1E=/1072x720/filters:no_upscale()/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer/a9/ff/a9ff31d0-aecd-464e-80c7-873e4651cd2b/mufasa.jpeg";
+                                $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id,$message);
+
+                                if (! empty($media_id)) {
+                                    $res = $this->publishMedia($config, $post, $media_id, $insta_id);
+                                }
+                                if (! empty($res)) {
+                                    $post->status = 1;
+                                    $post->save();
+                                }
+
+                            } 
+                        }
+                        
                         if ($post->getMedia(config('constants.media_tags'))->first()) {
                             ini_set('memory_limit','-1');   // Added memory limit allowing maximum memory
                             ini_set('max_execution_time','-1');
