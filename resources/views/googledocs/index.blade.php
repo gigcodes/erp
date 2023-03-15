@@ -42,6 +42,14 @@
                                             @endforeach
                                         </datalist>
                                     </div>
+                                    <div class="form-group m-1">
+                                        <select name="user_gmail" class="form-control" placeholder="Search User">
+                                        <option value="">Search User</option>
+                                            @foreach ($users as $key => $val )
+                                                <option value="{{$val->gmail}}" @if(request()->get('user_gmail')==$val->gmail) selected @endif>{{$val->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
                                     <div class="form-group">
                                         <label for="button">&nbsp;</label>
@@ -95,7 +103,7 @@ $(document).on('click', '.permissionupdate', function (e) {
         let data_write = $(this).data('writepermission');
 		var file_id = $(this).data('docid');
         var id = $(this).data('id');
-		var permission_read = data_read.split(',')
+		var permission_read = data_read.split(',');
 		var permission_write = data_write.split(',');
 		if(permission_read)
 		{
