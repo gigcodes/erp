@@ -5106,7 +5106,7 @@ class ProductController extends Controller
                     $website = $websiteArray;
                     if ($website) {
                         \Log::info('Product conditions check started website found For website '.$website->website);
-                        $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
+                        $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
@@ -5161,7 +5161,7 @@ class ProductController extends Controller
                     $website = $websiteArray;
                     if ($website) {
                         \Log::info('Product push started For the website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
+                        $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
