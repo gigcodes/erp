@@ -122,6 +122,7 @@ use App\Http\Controllers\GoogleDocController;
 use App\Http\Controllers\GoogleScreencastController;
 use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleDeveloperLogsController;
+use \App\Http\Controllers\GoogleDriveController;
 
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
@@ -858,6 +859,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::prefix('{id}')->group(function () {
             Route::get('push-in-shopify', [NewProductInventoryController::class, 'pushInShopify'])->name('product-inventory.push-in-shopify');
         });
+    });
+
+    Route::prefix('google-drive')->group(function () {
+        Route::get('/', [GoogleDriveController::class, 'index'])->name('google-drive.new');
+        Route::post('/create', [GoogleDriveController::class, 'create'])->name('google-drive.create');
     });
 
     Route::get('log_history/discount/', [ProductInventoryController::class, 'discountlogHistory'])->name('log-history/discount/brand');
