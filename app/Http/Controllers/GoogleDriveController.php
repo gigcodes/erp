@@ -41,10 +41,10 @@ class GoogleDriveController extends Controller
             $filename = pathinfo($name, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $full_name = $filename.'.'.$extension;
+            $full_name = 'googledrive/'.$filename.'/'.$filename.'.'.$extension;
 
-            $file->move(storage_path('/app/GoogleDrive/'. $filename),$name);
-            $image[] = $name;
+            $file->move(public_path('/googledrive/'. $filename),$name);
+            $image[] = $full_name;
         }
         $string = implode(",",$image);
         $drive_data->upload_file = $string;

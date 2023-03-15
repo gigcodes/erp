@@ -63,7 +63,7 @@
                         @php
                                    $filename = pathinfo($image, PATHINFO_FILENAME);
                                    $extension = pathinfo( $image, PATHINFO_EXTENSION );
-                                   $new_image = str_replace('public/','',asset(\Illuminate\Support\Facades\Storage::url('app/GoogleDrive/'.$filename.'/'.$image)));
+                                   $new_image = asset($image);
                         @endphp
                         @if(!empty($extension == 'mp4'))
                             <img src="{{asset('images/playvideo.png')}}" height="100" width="100" onclick="Videoplay('{{$new_image}}')">
