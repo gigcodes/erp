@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\GoogleDoc;
 use App\User;
+use Auth;
 use App\Jobs\CreateGoogleDoc;
 use App\Jobs\CreateGoogleSpreadsheet;
 use Google\Client;
@@ -38,6 +39,10 @@ class GoogleDocController extends Controller
             $data = $data->where(function ($q) use ($keyword) {
                 $q->whereRaw("find_in_set('".$keyword."',google_docs.read)")->orWhereRaw("find_in_set('".$keyword."',google_docs.write)");
             });
+        }
+        if(!Auth::user()->isAdmin())
+        {
+            $data->whereRaw("find_in_set('".Auth::user()->gmail."',google_docs.read)")->orWhereRaw("find_in_set('".Auth::user()->gmail."',google_docs.write)");
         }
         $data = $data->get();
         $users = User::select('id','name','email','gmail')->whereNotNull('gmail')->get();
