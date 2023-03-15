@@ -39,13 +39,17 @@ class SocialPostController extends Controller
     public function index(Request $request, $id)
     {
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
+            
             $query = SocialPost::where('config_id', $id);
 
-            $posts = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
+            $posts = $query->orderby('id', 'desc');
         } else {
+           
             $posts = SocialPost::where('config_id', $id)->latest()->paginate(Setting::get('pagination'));
         }
         $websites = \App\StoreWebsite::select('id', 'title')->get();
+        
+        $posts = $posts->paginate(Setting::get('pagination'));
 
         if ($request->ajax()) {
             return response()->json([
