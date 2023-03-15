@@ -5038,12 +5038,11 @@ class ProductController extends Controller
         \Log::info('Product push star time: '.date('Y-m-d H:i:s'));
         foreach ($products as $key => $product) {
             // Setting is_conditions_checked flag as 1
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-
+            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
             if (! empty($websiteArrays)) {
                 $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
-                    $website = StoreWebsite::find($websiteArray);
+                    $website =  $websiteArray;
                     if ($website) {
                         \Log::info('Product started website found For website'.$website->website);
                         $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
@@ -5099,12 +5098,12 @@ class ProductController extends Controller
             $productRow->save();
             \Log::info('Product conditions check started and is_conditions_checked set as 1!');
 
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
             \Log::info('Gets all websites to process the condition check of a product!');
             if (! empty($websiteArrays)) {
                 $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
-                    $website = StoreWebsite::find($websiteArray);
+                    $website = $websiteArray;
                     if ($website) {
                         \Log::info('Product conditions check started website found For website '.$website->website);
                         $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
@@ -5156,11 +5155,11 @@ class ProductController extends Controller
             $productRow->save();
 
             $category = $product->categories;
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
             if (! empty($websiteArrays)) {
                 $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
-                    $website = StoreWebsite::find($websiteArray);
+                    $website = $websiteArray;
                     if ($website) {
                         \Log::info('Product push started For the website'.$website->website);
                         $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
