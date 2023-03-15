@@ -9,14 +9,14 @@ The product push journey starts from `pushProduct` function in the `ProductContr
     - `status_id` is `9`: *(9 represents the final approval status of a product)*
     - Grouped by `brand` and `category`
     - Default data fetching `limit` has set to `100`, this will be replaced if the `no_of_product` parameter has value
-2. ### Get store websites:
-   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteName` which returns the and array with list of store website ids which has these products. The flow to get the store website ids as follows:
+2. ### Get store websites by tag:
+   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteNameByTag` which returns the and array with list of store websites which has these products. The flow to get the store website ids as follows:
 
     - **Get store website category:** Selected products will be looped to fetch all store categories from the `store_website_categories` which has a valid `remote_id` and which matches to the each product's `category_id`.
         - **Get store website ids from store website brands:** Fetched store website categories will be looped to get all the store website brands from the `store_website_brands` table. This will returns all the brands which matches the `store_website_id` of the each category and matches `brand_id` of each product get looped and which has a valid `magento_value`. The brands get from this steps will again loop to make an array (`$websiteArray`) of store websites ids.
         - **Get store website ids from the products which are landing page products:**  if a product has an entry in `landing_page_products` table, that will be checked here as first step. Then get all store websites which has `o-labels` string in the `title` and `cropper_color` is not `null`. This store websites will be looped and will be pushed to `$websiteArray` if it is not already exists.
 
-   After these steps `$websiteArray` with all store websites of each products will be returned.
+   After these steps it will return store websites from `store_websites` table with checking specified store website ids(`$websiteArray`) and groupping data by `tag_id` column.
 3. ### Start push to magento:
     - Loops the store websites and checks each website are exists. If the website doesn't exist, the error will be logged to `product_push_error_logs`.
     - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **waiting**.
@@ -136,14 +136,14 @@ The product push condition check starts from `processProductsConditionsCheck` fu
     - Default data fetching `limit` has set to `100`, this will be replaced if the `no_of_product` parameter has value
 2. **Setting `is_conditions_checked` flag as 1**
    - Product conditions check started and is_conditions_checked set as 1
-3. ### Get store websites:
-   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteName` which returns the and array with list of store website ids which has these products. The flow to get the store website ids as follows:
+3. ### Get store websites by tag:
+   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteNameByTag` which returns the and array with list of store websites which has these products. The flow to get the store website ids as follows:
 
     - **Get store website category:** Selected products will be looped to fetch all store categories from the `store_website_categories` which has a valid `remote_id` and which matches to the each product's `category_id`.
         - **Get store website ids from store website brands:** Fetched store website categories will be looped to get all the store website brands from the `store_website_brands` table. This will returns all the brands which matches the `store_website_id` of the each category and matches `brand_id` of each product get looped and which has a valid `magento_value`. The brands get from this steps will again loop to make an array (`$websiteArray`) of store websites ids.
         - **Get store website ids from the products which are landing page products:**  if a product has an entry in `landing_page_products` table, that will be checked here as first step. Then get all store websites which has `o-labels` string in the `title` and `cropper_color` is not `null`. This store websites will be looped and will be pushed to `$websiteArray` if it is not already exists.
 
-   After these steps `$websiteArray` with all store websites of each products will be returned.
+   After these steps it will return store websites from `store_websites` table with checking specified store website ids(`$websiteArray`) and groupping data by `tag_id` column.
 4. ### Start push to magento:
     - Loops the store websites and checks each website are exists. If the website doesn't exist, the error will be logged to `product_push_error_logs`.
     - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **waiting**.
@@ -236,14 +236,14 @@ The product push conditions checked starts from `pushProductsToMagento` function
     - Default data fetching `limit` has set to `100`, this will be replaced if the `no_of_product` parameter has value
 2. **Setting `is_push_attempted` flag as 1**
    - Product push attempted started and is_push_attempted set as 1
-3. ### Get store websites:
-   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteName` which returns the and array with list of store website ids which has these products. The flow to get the store website ids as follows:
+3. ### Get store websites by tag:
+   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteNameByTag` which returns the and array with list of store websites which has these products. The flow to get the store website ids as follows:
 
     - **Get store website category:** Selected products will be looped to fetch all store categories from the `store_website_categories` which has a valid `remote_id` and which matches to the each product's `category_id`.
         - **Get store website ids from store website brands:** Fetched store website categories will be looped to get all the store website brands from the `store_website_brands` table. This will returns all the brands which matches the `store_website_id` of the each category and matches `brand_id` of each product get looped and which has a valid `magento_value`. The brands get from this steps will again loop to make an array (`$websiteArray`) of store websites ids.
         - **Get store website ids from the products which are landing page products:**  if a product has an entry in `landing_page_products` table, that will be checked here as first step. Then get all store websites which has `o-labels` string in the `title` and `cropper_color` is not `null`. This store websites will be looped and will be pushed to `$websiteArray` if it is not already exists.
 
-   After these steps `$websiteArray` with all store websites of each products will be returned.
+   After these steps it will return store websites from `store_websites` table with checking specified store website ids(`$websiteArray`) and groupping data by `tag_id` column.
 4. ### Start push to magento:
     - Loops the store websites and checks each website are exists. If the website doesn't exist, the error will be logged to `product_push_error_logs`.
     - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **waiting**.
