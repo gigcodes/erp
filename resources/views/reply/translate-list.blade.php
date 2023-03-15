@@ -33,6 +33,12 @@
         </div>
         <div class="float-right my-3 pr-5">
             @if(auth()->user()->hasRole('Lead Translator'))
+                <a class="btn btn-secondary text-white btn_history_permissions" data-toggle="modal" data-target="#history_permissions_model">Permission History</a>
+            @endif
+                @if(auth()->user()->hasRole('Lead Translator'))
+                <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#remove_permissions_model">Remove Permission</a>
+            @endif
+            @if(auth()->user()->hasRole('Lead Translator'))
                 <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
             @endif
         </div>
@@ -97,48 +103,528 @@
                                     </div>
                                 </td>
                                 @foreach($reply->translate_text as $key => $translate)
-                                    <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate }}">
-                                        <div class="expand-row table-hover-cell" style="word-break: break-all;">
-                                            <div class="td-mini-container">
-                                                {!! strlen($translate) > 10 ? substr($translate, 0, 10).'..' : $translate !!}
+                                    @php
+                                      $translate = json_decode(json_encode($translate), true)
+                                    @endphp
+                                    @if(isset($translate['ar']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['ar'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['ar']) > 10 ? substr($translate['ar'], 0, 10).'..' : $translate['ar'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['ar'] }}
+                                                </div>
                                             </div>
-                                            <div class="td-full-container hidden">
-                                                {{ $translate }}
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                        <div>
+                                                            <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                                <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                            <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                                <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                @endif
+                                                @php
+                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                @endphp
+                                                @if(isset($check_edit_permission))
+                                                    <a href="#" class="editbtn_model" data-value="{{$translate['ar']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                @endif
+                                                @if(isset($check_view_permission))
+                                                    <a href="#" class="history_model" data-value="{{$translate['ar']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
+                                            @else
+                                                    @php
+                                                        $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                        $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                    @endphp
+                                                    @if(isset($check_edit_permission))
+                                                        <a href="#" class="editbtn_model" data-value="{{$translate['ar']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                    @endif
+                                                    @if(isset($check_view_permission))
+                                                        <a href="#" class="history_model" data-value="{{$translate['ar']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                    @endif
+                                            @endif
+                                        </td>
+                                    @elseif(isset($translate['en']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['en'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['en']) > 10 ? substr($translate['en'], 0, 10).'..' : $translate['en'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['en'] }}
+                                                </div>
                                             </div>
-                                        </div>
-                                        @if(auth()->user()->hasRole('Lead Translator'))
-                                            <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
-                                            @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
                                                     <div>
                                                         <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
-                                                            <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
                                                         <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
-                                                            <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['en']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['en']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['en']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['en']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
+                                            @endif
+                                        </td>
+                                    @elseif(isset($translate['zh-CN']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['zh-CN'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['zh-CN']) > 10 ? substr($translate['zh-CN'], 0, 10).'..' : $translate['zh-CN'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['zh-CN'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
                                                     <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['zh-CN']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['zh-CN']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['zh-CN']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['zh-CN']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
                                             @endif
-                                            @php
-                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
-                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
-                                            @endphp
-                                            @if(!empty($check_edit_permission))
-                                                <a href="#" class="editbtn_model" data-value="{{$translate}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                        </td>
+                                    @elseif(isset($translate['ja']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['ja'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['ja']) > 10 ? substr($translate['ja'], 0, 10).'..' : $translate['ja'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['ja'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['ja']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['ja']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['ja']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['ja']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
                                             @endif
-                                            @if(!empty($check_view_permission))
-                                                <a href="#" class="history_model" data-value="{{$translate}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                        </td>
+                                    @elseif(isset($translate['ko']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['ko'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['ko']) > 10 ? substr($translate['ko'], 0, 10).'..' : $translate['ko'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['ko'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['ko']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['ko']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['ko']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['ko']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
                                             @endif
-                                        @else
-                                            @php
-                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
-                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
-                                            @endphp
-                                            @if(!empty($check_edit_permission))
-                                                <a href="#" class="editbtn_model" data-value="{{$translate}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                        </td>
+                                    @elseif(isset($translate['ur']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['ur'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['ur']) > 10 ? substr($translate['ur'], 0, 10).'..' : $translate['ur'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['ur'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['ur']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['ur']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['ur']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['ur']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
                                             @endif
-                                            @if(!empty($check_view_permission))
-                                                <a href="#" class="history_model" data-value="{{$translate}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                        </td>
+                                    @elseif(isset($translate['ru']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['ru'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['ru']) > 10 ? substr($translate['ru'], 0, 10).'..' : $translate['ru'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['ru'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['ru']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['ru']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['ru']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['ru']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
                                             @endif
-                                        @endif
-                                    </td>
+                                        </td>
+                                    @elseif(isset($translate['it']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['it'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['it']) > 10 ? substr($translate['it'], 0, 10).'..' : $translate['it'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['it'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['it']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['it']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['it']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['it']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
+                                            @endif
+                                        </td>
+                                    @elseif(isset($translate['fr']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['fr'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['fr']) > 10 ? substr($translate['fr'], 0, 10).'..' : $translate['fr'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['fr'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['fr']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['fr']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['fr']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['fr']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
+                                            @endif
+                                        </td>
+                                    @elseif(isset($translate['es']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['es'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['es']) > 10 ? substr($translate['es'], 0, 10).'..' : $translate['es'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['es'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['es']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['es']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['es']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['es']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
+                                            @endif
+                                        </td>
+                                    @elseif(isset($translate['nl']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['nl'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['nl']) > 10 ? substr($translate['nl'], 0, 10).'..' : $translate['nl'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['nl'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['nl']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['nl']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['nl']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['nl']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
+                                            @endif
+                                        </td>
+                                    @elseif(isset($translate['de']))
+                                        <td style="cursor:pointer;" id="reply_text_translate" data-id="{{$reply->translate_id[$key]}}" data-message="{{ $translate['de'] }}">
+                                            <div class="expand-row table-hover-cell" style="word-break: break-all;">
+                                                <div class="td-mini-container">
+                                                    {!! strlen($translate['de']) > 10 ? substr($translate['de'], 0, 10).'..' : $translate['de'] !!}
+                                                </div>
+                                                <div class="td-full-container hidden">
+                                                    {{ $translate['de'] }}
+                                                </div>
+                                            </div>
+                                            @if(auth()->user()->hasRole('Lead Translator'))
+                                                <a href="#" class="history_model float-right" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>
+                                                @if(!empty($reply->translate_status[$key]) && $reply->translate_status[$key] == "new")
+                                                    <div>
+                                                        <input type="radio" class="float-left mt-4" data-id="{{$reply->translate_id[$key]}}" id="radio1" data-lang="{{$reply->translate_lang[$key]}}" name="radio1" value="checked">
+                                                        <label style="margin-top: 6px; margin-left: 5px;">Accept</label>
+                                                        <input type="radio" class="float-left mt-2" data-id="{{$reply->translate_id[$key]}}" data-lang="{{$reply->translate_lang[$key]}}" id="radio2" name="radio1" value="unchecked">
+                                                        <label style="margin-top: 12px; margin-left: 5px;">Reject</label>
+                                                        <div>
+                                                            @endif
+                                                            @php
+                                                                $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                            @endphp
+                                                            @if(isset($check_edit_permission))
+                                                                <a href="#" class="editbtn_model" data-value="{{$translate['de']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if(isset($check_view_permission))
+                                                                <a href="#" class="history_model" data-value="{{$translate['de']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @else
+                                                                @php
+                                                                    $check_edit_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'edit')->first();
+                                                                    $check_view_permission = \App\Models\QuickRepliesPermissions::where('user_id', auth()->user()->id)->where('lang_id', $reply->translate_lang[$key])->where('action', 'view')->first();
+                                                                @endphp
+                                                                @if(isset($check_edit_permission))
+                                                                    <a href="#" class="editbtn_model" data-value="{{$translate['de']}}" data-lang="{{$reply->translate_lang[$key]}}" data-user="{{auth()->user()->id}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal" data-target="#edit_model"><i class="fa fa-pencil"></i> </a>
+                                                                @endif
+                                                                @if(isset($check_view_permission))
+                                                                    <a href="#" class="history_model" data-value="{{$translate['de']}}" data-lang="{{$reply->translate_lang[$key]}}" data-id="{{$reply->translate_id[$key]}}" data-toggle="modal"  data-target="#history"> <i class="fa fa-eye"></i> </a>
+                                                @endif
+                                            @endif
+                                        </td>
+                                    @else
+                                        <td></td>
+                                    @endif
                                 @endforeach
                                 <td>
                                     <div class="expand-row table-hover-cell" style="word-break: break-all;">
@@ -261,6 +747,97 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="remove_permissions_model" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">Edit Permission</h4>
+            </div>
+            <div class="modal-body">
+                <form action="{{route('remove.permissions')}}" class="permission_form" method="post">
+                    @csrf
+                    <input type="hidden" class="form-control" name="type" value="remove_permission">
+                    <input type="hidden" class="form-control" name="user_permission_id" id="user_permission_id" value="">
+                    <div class="form-group">
+                        <label>Select User :</label>
+                        <select class="form-control" id="selectuserid" name="selectusername">
+                            <option>Select</option>
+                            @foreach (App\User::where('is_active', '1')->get() as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label>View Permission</label>
+                        <div class="row">
+                            <div class="col-12 d-flex">
+                            @foreach ($lang as $reply)
+                                <div class="form-group p-3">
+                                    <label for="lang_name">{{$reply}}</label>
+                                    <input type="checkbox" name="view_lang_name[]" id="view_lang_name_{{$reply}}" value="{{$reply}}" style="height: 13px">
+                                </div>
+                            @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label>Edit Permission</label>
+                        <div class="row">
+                            <div class="col-12 d-flex">
+                                @foreach ($lang as $reply)
+                                    <div class="form-group p-3">
+                                        <label for="lang_name">{{$reply}}</label>
+                                        <input type="checkbox" name="edit_lang_name[]" id="edit_lang_name_{{$reply}}" value="{{$reply}}" style="height: 13px">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-none alert alert-class">
+
+                    </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-secondary">Remove
+                        Permission</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="history_permissions_model" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">History</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered text-wrap w-auto min-w-100" style="overflow-x:auto; display: block">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Keyword</th>
+                        @foreach ($lang as $reply)
+                            <th width="5%">{{$reply}}</th>
+                        @endforeach
+                        <th>Updator</th>
+                        <th>Approver</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody class="all_data_history">
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 </div>
@@ -523,6 +1100,30 @@ $(document).on('click','.history_model',function(){
     })
 });
 
+$(document).on('click','.btn_history_permissions',function(){
+    setTimeout(function() {
+        $("#Show_message_display").modal('hide');
+    }, 0.1);
+    var id = $(this).data('id');
+    var key = $(this).data('key');
+    var language = $(this).data('lang');
+
+    $.ajax({
+        url:"{{ route('reply.replyTranslatehistory') }}",
+        method:'POST',
+        data:{'type':'all_view','_token':"{{csrf_token()}}"},
+        success:function(response){
+            $("#Show_message_display").modal('hide');
+            $(".all_data_history").html('');
+            if(response.data.length == 0){
+                $(".all_data_history").html('<tr colspan="12"><td class="text-center">No Data Found</td></tr>');
+            }else{
+                $(".all_data_history").html(response.data);
+            }
+        }
+    })
+});
+
 $(document).on('click', ".btn-submit-form", function() {
     var userId = $("#selectUserId").val();
     var langId = $("#selectLangId").val();
@@ -579,6 +1180,33 @@ $(document).on("change",'input:radio[name="radio1"]',function(){
     })
 });
 
+$('#selectuserid').on("change", function(){
+    var user_id = $('#selectuserid').val();
+    $('#user_permission_id').val(user_id);
+
+    $.ajax({
+        url:'{{route('remove.permissions')}}',
+        method:"POST",
+        data:{"id":user_id,"_token":"{{csrf_token()}}"},
+        success:function(response){
+            if (response.status == 200)
+            {
+                $.each(response.edit_lang, function( index, value ) {
+                    $('#edit_lang_name_'+value).attr('checked', true);
+                });
+
+                $.each(response.view_lang, function( index, value ) {
+                    $('#view_lang_name_'+value).attr('checked', true);
+                });
+                toastr["success"]('Data Updated Successully');
+            }else {
+                toastr["error"]('Unable to update this record!');
+            }
+        }
+    })
+});
+
+
 function updateTranslateReply(ele) {
     let btn = jQuery(ele);
     let reply_id = btn.data('reply_id');
@@ -626,3 +1254,4 @@ function updateTranslateReply(ele) {
 }
 </script>
 @endsection
+

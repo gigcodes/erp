@@ -954,6 +954,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('/reply-translate-list/history', [ReplyController::class, 'replyTranslatehistory'])->name('reply.replyTranslatehistory');
     Route::post('/reply-translate-list/approvedByAdmin', [ReplyController::class, 'approvedByAdmin'])->name('reply.approved_by_admin');
     Route::post('/reply-translate-list/permissions', [ReplyController::class, 'quickRepliesPermissions'])->name('reply.permissions');
+
+    Route::post('/reply-translate-list/removepermissions', [ReplyController::class, 'removepermissions'])->name('remove.permissions');
+
     Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
 
     // Auto Replies

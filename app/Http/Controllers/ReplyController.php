@@ -174,6 +174,49 @@ class ReplyController extends Controller
         return redirect()->route('reply.index')->with('success', 'Quick Reply Deleted successfully');
     }
 
+    public function removepermissions(Request $request){
+        if($request->type == 'remove_permission')
+        {
+            $edit_data = QuickRepliesPermissions::where('user_id', $request->user_permission_id)->whereNotIn('lang_id',$request->edit_lang_name)->where('action','edit')->get();
+            $view_data = QuickRepliesPermissions::where('user_id', $request->user_permission_id)->whereNotIn('lang_id',$request->view_lang_name)->where('action','view')->get();
+
+            foreach($edit_data as $edit_lang)
+            {
+                $edit_lang->delete();
+            }
+
+            foreach($view_data as $view_lang)
+            {
+                $view_lang->delete();
+            }
+
+            return redirect()->back()->with('success', 'Remove Permission successfully');
+
+        }else{
+            $checkExists = QuickRepliesPermissions::where('user_id', $request->id)->get();
+            $edit_lang = [];
+            $view_lang = [];
+            foreach($checkExists as $checkExist)
+            {
+                if($checkExist->action == 'edit')
+                {
+                    $edit_lang[] = $checkExist->lang_id;
+                }
+                if($checkExist->action == 'view')
+                {
+                    $view_lang[] = $checkExist->lang_id;
+                }
+            }
+
+            $data = [
+                'edit_lang' => $edit_lang ,
+                'view_lang' => $view_lang,
+                'status' => '200',
+            ];
+            return $data;
+        }
+    }
+
     public function chatBotQuestion(Request $request)
     {
         $this->validate($request, [
@@ -461,7 +504,7 @@ class ReplyController extends Controller
                     'category_name' => $replie->category_name,
                     'translate_from' => $replie->translate_from,
                     'original_text' => $replie->original_text,
-                    'translate_text' => [$replie->translate_text],
+                    'translate_text' => [[$replie->translate_to => $replie->translate_text]],
                     'translate_lang' => [$replie->translate_to],
                     'translate_id' => [$replie->id],
                     'translate_status' => [$replie->status],
@@ -469,7 +512,7 @@ class ReplyController extends Controller
                     'updated_at' => $replie->updated_at,
                 ];
             }else{
-                array_push($translate_text[$replie->replies_id]['translate_text'], $replie->translate_text);
+                array_push($translate_text[$replie->replies_id]['translate_text'],[$replie->translate_to => $replie->translate_text]);
                 array_push($translate_text[$replie->replies_id]['translate_lang'], $replie->translate_to);
                 array_push($translate_text[$replie->replies_id]['translate_id'], $replie->id);
                 array_push($translate_text[$replie->replies_id]['translate_status'], $replie->status);
@@ -528,10 +571,15 @@ class ReplyController extends Controller
     {
         $key = $request->key;
         $language = $request->language;
-        $history = RepliesTranslatorHistory::where([
+        if($request->type == 'all_view')
+        {
+            $history = RepliesTranslatorHistory::whereRaw('status is not null')->get();
+        }else{
+            $history = RepliesTranslatorHistory::where([
                                                    'translate_replies_id' => $request->id,
                                                    'lang' => $language,
                                                ])->whereRaw('status is not null')->get();
+        }
         if (count($history) > 0) {
             foreach ($history as $key => $historyData) {
                 $history[$key]['updater'] = User::where('id', $historyData['updated_by_user_id'])->pluck('name')->first();
