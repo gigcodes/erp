@@ -42,6 +42,7 @@
                                             @endforeach
                                         </datalist>
                                     </div>
+				    @if(Auth::user()->isAdmin())
                                     <div class="form-group m-1">
                                         <select name="user_gmail" class="form-control" placeholder="Search User">
                                         <option value="">Search User</option>
@@ -50,7 +51,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-
+				    @endif
                                     <div class="form-group">
                                         <label for="button">&nbsp;</label>
                                         <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
@@ -62,11 +63,13 @@
                     </div>
                 </div>
             </div>
+	    @if(Auth::user()->isAdmin())
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createGoogleDocModal">
                     + Create Doc
                 </button>
             </div>
+	    @endif
         </div>
     </div>
 
