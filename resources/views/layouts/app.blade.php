@@ -46,6 +46,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
     <script src="{{siteJs('site.js')}}" defer></script>
+    <script>var BASE_URL = "{{config('app.url')}}";</script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
@@ -319,7 +320,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         /*padding-right: 30px;*/
     }
 
-    .time_doctor_project_section{
+    .time_doctor_project_section,
+    .time_doctor_account_section{
         display: none;
     }
 
@@ -2200,6 +2202,9 @@ if (!empty($notifications)) {
                                 {{-- Sub Menu Product --}}
                                 <li class="nav-item dropdown">
                                     <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.post.grid')}}">Social Posts Grid</a>
                                 </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -6228,8 +6233,10 @@ if (!\Auth::guest()) {
         var getTask = $(this).val();
         if(getTask == 'time_doctor'){
             $('.time_doctor_project_section').show();
+            $('.time_doctor_account_section').show();
         } else {
             $('.time_doctor_project_section').hide();
+            $('.time_doctor_account_section').hide();
         }
     });
 

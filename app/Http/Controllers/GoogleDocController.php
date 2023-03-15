@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\GoogleDoc;
 use App\Jobs\CreateGoogleDoc;
 use App\Jobs\CreateGoogleSpreadsheet;
+use Google\Client;
+use Google\Service\Drive;
+use Google\Service\Drive\DriveFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -44,15 +47,24 @@ class GoogleDocController extends Controller
     public function create(Request $request)
     {
         $data = $this->validate($request, [
-            'type' => ['required', Rule::in('spreadsheet', 'doc')],
+            'type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
             'doc_name' => ['required', 'max:800'],
             'existing_doc_id' => ['sometimes', 'nullable', 'string', 'max:800'],
+            'read' => ['sometimes'],
+            'write' => ['sometimes'],
         ]);
 
         DB::transaction(function () use ($data) {
             $googleDoc = new GoogleDoc();
             $googleDoc->type = $data['type'];
             $googleDoc->name = $data['doc_name'];
+            if (isset($data['read'])) {
+                $googleDoc->read = implode(',', $data['read']);
+            }
+            
+            if (isset($data['write'])) {
+                $googleDoc->write = implode(',', $data['write']);
+            }
             $googleDoc->save();
 
             if (! empty($data['existing_doc_id'])) {
@@ -63,7 +75,7 @@ class GoogleDocController extends Controller
                     CreateGoogleSpreadsheet::dispatchNow($googleDoc);
                 }
 
-                if ($googleDoc->type === 'doc') {
+                if ($googleDoc->type === 'doc' || $googleDoc->type === 'ppt' || $googleDoc->type === 'txt' || $googleDoc->type === 'xps') {
                     CreateGoogleDoc::dispatchNow($googleDoc);
                 }
             }
@@ -125,6 +137,81 @@ class GoogleDocController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $client = new Client();
+        $client->useApplicationDefaultCredentials();
+        $client->addScope(Drive::DRIVE);
+        $driveService = new Drive($client);
+        try {
+            $driveService->files->delete($id);
+        } catch (Exception $e) {
+            print "An error occurred: " . $e->getMessage();
+        }
+        GoogleDoc::where('docId', $id)->delete();
+        return redirect()->back()->with('success', 'Your File has been deleted successfuly!');
+    }
+    public function permissionUpdate(Request $request)
+    {
+        $fileId = request('file_id');
+        $fileData = GoogleDoc::find(request('id'));
+        $readData = request('read');
+        $writeData = request('write');
+        $permissionEmails=[];
+        $client = new Client();
+        $client->useApplicationDefaultCredentials();
+        $client->addScope(Drive::DRIVE);
+        $driveService = new Drive($client);
+        // Build a parameters array
+        $parameters = array();
+        // Specify what fields you want 
+        $parameters['fields'] = "permissions(*)";
+        // Call the endpoint to fetch the permissions of the file
+        $permissions = $driveService->permissions->listPermissions($fileId, $parameters);
+        foreach ($permissions->getPermissions() as $permission){
+            $permissionEmails[] = $permission['emailAddress'];
+            //Remove Permission
+            if($permission['role']!='owner')
+            {
+                $driveService->permissions->delete($fileId, $permission['id']);
+            }
+        }
+        //assign permission based on requested data
+        $index = 1;
+        $driveService->getClient()->setUseBatch(true);
+        if(!empty($readData))
+        {
+            $batch = $driveService->createBatch();
+            foreach ($readData as $email) {
+                $userPermission = new Drive\Permission([
+                    'type' => 'user',
+                    'role' => 'reader',
+                    'emailAddress' => $email,
+                ]);
+
+                $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
+                $batch->add($request, 'user'.$index);
+                $index++;
+            }
+            $results = $batch->execute();
+        }
+        if(!empty($writeData))
+        {
+            $batch = $driveService->createBatch();
+            foreach ($writeData as $email) {
+                $userPermission = new Drive\Permission([
+                    'type' => 'user',
+                    'role' => 'writer',
+                    'emailAddress' => $email,
+                ]);
+
+                $request = $driveService->permissions->create($fileId, $userPermission, ['fields' => 'id']);
+                $batch->add($request, 'user'.$index);
+                $index++;
+            }
+            $results = $batch->execute();
+        }
+        $fileData->read = !empty($readData)?implode(',',$readData):NULL;
+        $fileData->write = !empty($writeData)?implode(',',$writeData):NULL;
+        $fileData->save();
+        return back()->with('success', "Permission successfully updated.");
     }
 }

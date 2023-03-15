@@ -100,7 +100,7 @@ class TicketController extends Controller
 
         $email = \App\Email::create([
             'model_id' => $ticket->id,
-            'model_type' => Ticket::class,
+            'model_type' => Tickets::class,
             'from' => $emailClass->fromMailer,
             'to' => @$ticket->email,
             'subject' => $emailClass->subject,

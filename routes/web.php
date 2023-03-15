@@ -4515,6 +4515,8 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 
     Route::get('time-doctor-accounts', [Select2Controller::class, 'timeDoctorAccounts'])->name('select2.time_doctor_accounts');
     Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');
+    Route::get('time-doctor-projects-ajax', [Select2Controller::class, 'timeDoctorProjectsAjax'])->name('select2.time_doctor_projects_ajax');
+    Route::get('time-doctor-accounts-for-task', [Select2Controller::class, 'timeDoctorAccountsForTask'])->name('select2.time_doctor_accounts_for_task');
 });
 Route::get('whatsapp-log', [Logging\WhatsappLogsController::class, 'getWhatsappLog'])->name('whatsapp.log');
 Route::get('chatbot-message-log', [ChatbotMessageLogsController::class, 'index'])->name('chatbot.messages.logs');
@@ -4585,6 +4587,8 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('post/create/{id}', [Social\SocialPostController::class, 'create'])->name('social.post.create');
     Route::get('post/getimage/{id}', [Social\SocialPostController::class, 'getImage'])->name('social.post.getimage');
     Route::post('post/history', [Social\SocialPostController::class, 'history'])->name('social.post.history');
+
+    Route::get('post/grid', [Social\SocialPostController::class, 'grid'])->name('social.post.grid');
 
     Route::get('campaigns', [Social\SocialCampaignController::class, 'index'])->name('social.campaign.index');
     Route::post('campaign/store', [Social\SocialCampaignController::class, 'store'])->name('social.campaign.store');
@@ -4686,6 +4690,8 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
+    Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
+    Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
