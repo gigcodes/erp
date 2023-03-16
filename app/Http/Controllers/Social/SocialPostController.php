@@ -353,7 +353,7 @@ class SocialPostController extends Controller
 
                                     $post->posted_on = $request->input('date');
                                     $post->status = 1;
-                                    if (isset($response->post_id)) {
+                                    if(isset($response->post_id)) {
                                         $post->ref_post_id = $response->post_id;
                                     }
                                     $post->save();
@@ -547,7 +547,8 @@ class SocialPostController extends Controller
                                 if (! empty($media_id)) {
                                     $res = $this->publishMedia($config, $post, $media_id, $insta_id);
                                 }
-                                if (! empty($res)) {
+                                if (!empty($res)) {
+                                    $post->ref_post_id = $res;
                                     $post->status = 1;
                                     $post->save();
                                 }
@@ -569,6 +570,7 @@ class SocialPostController extends Controller
                                     $res = $this->publishMedia($config, $post, $media_id, $insta_id);
                                 }
                                 if (! empty($res)) {
+                                    $post->ref_post_id = $res;
                                     $post->status = 1;
                                     $post->save();
                                 }
