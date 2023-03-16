@@ -44,6 +44,7 @@ use Illuminate\Http\Request;
 use Google\Protobuf\Int32Value;
 
 use App\Models\GoogleAdGroupKeyword;
+use App\Models\GoogleResponsiveDisplayAd;
 use App\Models\GoogleResponsiveDisplayAdMarketingImage;
 use App\Models\GoogleAppAd;
 use App\Models\GoogleAppAdImage;
@@ -74,7 +75,7 @@ class GoogleCampaignsController extends Controller
 
     public function campaignslist(Request $request)
     {
-        $campaignslist = \App\GoogleAdsCampaign::get();
+        $campaignslist = \App\GoogleAdsCampaign::has('account')->with('account')->latest()->get();
 
         $totalNumEntries = count($campaignslist);
 
@@ -83,7 +84,7 @@ class GoogleCampaignsController extends Controller
 
     public function adslist(Request $request)
     {
-        $adslist = \App\GoogleAd::get();
+        $adslist = \App\GoogleAd::has('adgroup')->with('adgroup', 'campaign', 'campaign.account')->latest()->get();
         $totalNumEntries = count($adslist);
 
         return view('googleads.ads_list', compact('adslist','totalNumEntries'));
@@ -91,14 +92,14 @@ class GoogleCampaignsController extends Controller
 
     public function appadlist(Request $request)
     {
-        $googleappadd = \App\Models\GoogleAppAd::all();
+        $googleappadd = \App\Models\GoogleAppAd::has('adgroup')->with('adgroup', 'campaign', 'campaign.account')->latest()->get();
         $totalentries = $googleappadd->count();
         return view('google_app_ad.appaddlist' , compact('googleappadd' , 'totalentries'));
     }
 
     public function display_ads(Request $request)
     {
-        $display_ads = GoogleResponsiveDisplayAd::get();
+        $display_ads = GoogleResponsiveDisplayAd::has('adgroup')->with('adgroup', 'campaign', 'campaign.account')->latest()->get();
         $totalNumEntries = count($display_ads);
 
         return view('google_responsive_display_ad.displayads_list', compact('display_ads','totalNumEntries'));
@@ -106,7 +107,7 @@ class GoogleCampaignsController extends Controller
 
     public function adsgroupslist(Request $request)
     {
-        $adsgroups = \App\AdGroup::all();
+        $adsgroups = \App\GoogleAdsGroup::has('campaign')->with('campaign', 'campaign.account')->latest()->get();
         $totalentries = $adsgroups->count();
         return view('googleadgroups.grouplist' , compact('adsgroups' , 'totalentries'));
     }
@@ -761,7 +762,7 @@ class GoogleCampaignsController extends Controller
 
             // Delete other data
             GoogleAdGroupKeyword::where('adgroup_google_campaign_id', $campaignId)->delete();
-            \GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->delete();
+            GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleResponsiveDisplayAdMarketingImage::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleAppAd::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleAppAdImage::where('adgroup_google_campaign_id', $campaignId)->delete();
