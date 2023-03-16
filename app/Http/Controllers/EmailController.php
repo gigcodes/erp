@@ -961,7 +961,7 @@ class EmailController extends Controller
                         $emails = ($inbox) ? $inbox->messages() : '';
                     }
                     if($emails){
-                        $emails = $emails->get();
+                        $emails = $emails->all()->get();
                         foreach ($emails as $email) {
                             $reference_id = $email->references;
                             //                        dump($reference_id);
