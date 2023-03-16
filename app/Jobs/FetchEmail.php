@@ -103,7 +103,7 @@ class FetchEmail implements ShouldQueue
                     $emails = ($inbox) ? $inbox->messages() : '';
                 }
 
-                $emails = $emails->get();
+                $emails = $emails->all()->get();
 
                 //
                 // dump($inbox->messages()->where([
