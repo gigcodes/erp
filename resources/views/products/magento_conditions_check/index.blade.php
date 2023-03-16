@@ -4,7 +4,7 @@
     @include('partials.flash_messages')
     <div class="row">
         <div class="col-md-12 margin-tb">
-            <h2 class="page-heading">Conditions checked Products </h2>
+            <h2 class="page-heading">Conditions checked Products(<span id="lbl_product_count">0</span>) </h2>
             <form method="get" id="checkconditionForm">
                 <div class="row">
                     <div class="col-md-2 mt-3">
@@ -91,11 +91,16 @@
     <script>
         $(document).ready(function() {
             var formData = new FormData($("#checkconditionForm")[0]);
+            var current_page = {{ (request('page'))?request('page'):1 }};
             $.ajax({
-                url: "{{ route('products.magentoConditionsCheck') }}",
+                url: "{{ route('products.magentoConditionsCheck') }}?page="+current_page,
                 type: 'GET',
+                dataType:'json',
                 success: function(response) {
-                    $(".appendData").append(response);
+                    if(response.status == 200) {
+                        $(".appendData").append(response.data.view);
+                        $("#lbl_product_count").html(response.data.productsCount);
+                    }
                 }
             })
         })

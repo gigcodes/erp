@@ -1516,7 +1516,10 @@ class ProductController extends Controller
             }
             $users = User::all();
 
-            return view('products.magento_conditions_check.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+            $view = (string)view('products.magento_conditions_check.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+            $return['view'] = $view;
+            $return['productsCount'] = $productsCount;
+            return response()->json(['status' => 200, 'data' =>$return]);
         } else {
             return view('products.magento_conditions_check.index');
         }
