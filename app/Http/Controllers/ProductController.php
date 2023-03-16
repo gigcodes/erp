@@ -20,7 +20,8 @@ use App\HsCodeGroupsCategoriesComposition;
 use App\HsCodeSetting;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
-use App\Jobs\PushToMagentoJob;
+use App\Jobs\ConditionCheckFirstJob;
+use App\Jobs\ProductPushFlow2Job;
 use App\Language;
 use App\ListingHistory;
 use App\Loggers\LogListMagento;
@@ -5106,12 +5107,11 @@ class ProductController extends Controller
                     $website = $websiteArray;
                     if ($website) {
                         \Log::info('Product conditions check started website found For website '.$website->website);
-                        $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
-                        //currently we have 3 queues assigned for this task.
-                        $log->queue = \App\Helpers::createQueueName('default');
+                        $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
+                        $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        PushToMagento::dispatch($product, $website, $log, $mode);
+                        ConditionCheckFirstJob::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', null, null, null, null, null);
@@ -5162,11 +5162,11 @@ class ProductController extends Controller
                     $website = $websiteArray;
                     if ($website) {
                         \Log::info('Product push started For the website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
+                        $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        PushToMagentoJob::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
+                        ProductPushFlow2Job::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
