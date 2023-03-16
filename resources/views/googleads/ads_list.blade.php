@@ -28,7 +28,7 @@
     </style>
 @endsection
 @section('content')
-    <h2 class="page-heading">Google Ad List - Campaigns ( <span id="ads_campaign_count">{{$totalNumEntries}} </span>)</h2>
+    <h2 class="page-heading">Google Ads List(<span id="ads_campaign_count">{{$totalNumEntries}}</span>)</h2>
     <div class="container-fluid p-0" style="margin-top: 10px">
 
         <div class="pl-3 pr-3">
@@ -42,33 +42,22 @@
                         <th>Campaign Name</th>
                         <th>Ads Group Name</th>
                         <th>Google Ad Id</th>
+                        <th>Headline 1</th>
                         <th>Created At</th>
                     </tr>
                     </thead>
 
                     <tbody>
                     @if(!empty($adslist))
-                        @foreach($adslist as $campaign)
-                            @php
-                                $adgroup_name = \App\GoogleAdsGroup::where('google_adgroup_id',$campaign->google_adgroup_id)->first();
-                                $campaign_name = '';
-                                $account_name = '';
-                                if($campaign->adgroup_google_campaign_id)
-                                {
-                                    $campaign_name = \App\GoogleAdsCampaign::where('google_campaign_id',$campaign->adgroup_google_campaign_id)->first();
-                                }
-                                if(!empty($campaign_name->account_id))
-                                {
-                                    $account_name = \App\GoogleAdsAccount::where('id',$campaign_name->account_id)->first();
-                                }
-                            @endphp
+                        @foreach($adslist as $ad)
                             <tr>
-                                <td>{{$campaign->id}}</td>
-                                <td>{{!empty($account_name)?$account_name->account_name:'' }}</td>
-                                <td>{{!empty($campaign_name)?$campaign_name->campaign_name:''}}</td>
-                                <td>{{!empty($adgroup_name)?$adgroup_name->ad_group_name:''}}</td>
-                                <td>{{$campaign->google_ad_id}}</td>
-                                <td>{{$campaign->created_at}}</td>
+                                <td>{{$ad->id}}</td>
+                                <td>{{$ad->campaign->account->account_name ?? "N/A"}}</td>
+                                <td>{{$ad->campaign->campaign_name ?? "N/A"}}</td>
+                                <td>{{$ad->adgroup->ad_group_name ?? "N/A"}}</td>
+                                <td>{{$ad->google_ad_id}}</td>
+                                <td>{{$ad->headline1}}</td>
+                                <td>{{$ad->created_at}}</td>
                             </tr>
                         @endforeach
                     @endif
