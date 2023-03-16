@@ -19,8 +19,8 @@
                         </label>
                         <select class="w-100 js-example-basic-multiple js-states"
                                 id="id_label_permission_read" multiple="multiple" name="read[]">
-                                @foreach(App\User::all() as $val)
-                                <option value="{{$val->email}}" class="form-control">{{$val->name}}</option>
+                                @foreach($users as $val)
+                                <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
                                 @endforeach
                             </select>
                     </div>
@@ -29,8 +29,8 @@
                         </label>
                         <select class="w-100 js-example-basic-multiple js-states"
                                 id="id_label_permission_write" multiple="multiple" name="write[]">
-                                @foreach(App\User::all() as $val)
-                                <option value="{{$val->email}}" class="form-control">{{$val->name}}</option>
+                                @foreach($users as $val)
+                                <option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
                                 @endforeach
                             </select>
                     </div>
