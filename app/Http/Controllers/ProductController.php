@@ -1442,13 +1442,16 @@ class ProductController extends Controller
         if ($request->ajax()) {
             $query = $request->get('fieldname');
             $fieldName = $request->get('filedname');
-            $value = $request->get('value');
+            $value = $request->get('value');            
+            
+            $products = Product::query();
 
-            if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            /*if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
                 $products = Product::query();
             } else {
                 $products = Product::query()->where('assigned_to', auth()->user()->id);
-            }
+            }*/
+            
             $products = $products->where(function ($query) {
                 $query->where('status_id', StatusHelper::$productConditionsChecked);
             });
@@ -1516,7 +1519,10 @@ class ProductController extends Controller
             }
             $users = User::all();
 
-            return view('products.magento_conditions_check.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+            $view = (string)view('products.magento_conditions_check.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+            $return['view'] = $view;
+            $return['productsCount'] = $productsCount;
+            return response()->json(['status' => 200, 'data' =>$return]);
         } else {
             return view('products.magento_conditions_check.index');
         }
@@ -1713,6 +1719,17 @@ class ProductController extends Controller
         $logs = ProductPushErrorLog::where('product_id', '=', $pId)->where('store_website_id', '=', $swId)->orderBy('id', 'desc')->get();
 
         return response()->json(['code' => 200, 'data' => $logs]);
+    }
+    
+    public function getLogListMagentoDetail($llm_id)
+    {
+        $logs = LogListMagento::where('id', $llm_id)->first();
+        if(isset($logs) && !empty($logs)) {
+            return response()->json(['code' => 200, 'data' => $logs]);    
+        } else {
+            return response()->json(['code' => 500, 'data' => [],'msg'=>'Log details not found.']);
+        }
+        
     }
 
     /**
