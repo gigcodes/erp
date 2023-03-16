@@ -1442,13 +1442,16 @@ class ProductController extends Controller
         if ($request->ajax()) {
             $query = $request->get('fieldname');
             $fieldName = $request->get('filedname');
-            $value = $request->get('value');
+            $value = $request->get('value');            
+            
+            $products = Product::query();
 
-            if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            /*if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
                 $products = Product::query();
             } else {
                 $products = Product::query()->where('assigned_to', auth()->user()->id);
-            }
+            }*/
+            
             $products = $products->where(function ($query) {
                 $query->where('status_id', StatusHelper::$productConditionsChecked);
             });
@@ -1716,6 +1719,17 @@ class ProductController extends Controller
         $logs = ProductPushErrorLog::where('product_id', '=', $pId)->where('store_website_id', '=', $swId)->orderBy('id', 'desc')->get();
 
         return response()->json(['code' => 200, 'data' => $logs]);
+    }
+    
+    public function getLogListMagentoDetail($llm_id)
+    {
+        $logs = LogListMagento::where('id', $llm_id)->first();
+        if(isset($logs) && !empty($logs)) {
+            return response()->json(['code' => 200, 'data' => $logs]);    
+        } else {
+            return response()->json(['code' => 500, 'data' => [],'msg'=>'Log details not found.']);
+        }
+        
     }
 
     /**

@@ -1,5 +1,12 @@
 @extends('layouts.app')
 @section('title', 'Conditions checked Products')
+@section('styles')
+    <style>
+        .btn-link {
+            color: #337ab7 !important;
+        }
+    </style>
+@endsection
 @section('large_content')
     @include('partials.flash_messages')
     <div class="row">
@@ -85,6 +92,24 @@
             </div>
         </div>
     </div>
+    
+    <div id="logListMagentoDetailModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h3 class="modal-title">Log message</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="loglist_message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @endsection
 @section('scripts')
@@ -98,7 +123,7 @@
                 dataType:'json',
                 success: function(response) {
                     if(response.status == 200) {
-                        $(".appendData").append(response.data.view);
+                        $(".appendData").html(response.data.view);
                         $("#lbl_product_count").html(response.data.productsCount);
                     }
                 }
@@ -185,8 +210,12 @@
             $.ajax({
                 url: url,
                 type: 'GET',
+                dataType:'json',
                 success: function(response) {
-                    $(".appendData").html(response);
+                    if(response.status == 200) {
+                        $(".appendData").html(response.data.view);
+                        $("#lbl_product_count").html(response.data.productsCount);
+                    }
                 }
             })
         });
@@ -244,6 +273,26 @@
             }).fail(function(errObj) {
                 $('#loading-image').hide();
                 $("#todolistUpdateModal").hide();
+                toastr['error'](errObj.message, 'error');
+            });
+        }
+        
+        function getLogListMagentoDetail(llm_id) {
+            var request_url = "{{ route('products.getLogListMagentoDetail', ':llm_id') }}";
+            request_url = request_url.replace(':llm_id', llm_id);
+            $.ajax({
+                url: request_url,
+                type: "get"
+            }).done(function(response) {
+                if (response.code == '200') {
+                    $('#logListMagentoDetailModal').modal('show');
+                    $("#loglist_message").text(response.data.message);
+                }
+                if (response.code == '500') {
+                    toastr['error'](response.msg, 'error');
+                } 
+                
+            }).fail(function(errObj) {
                 toastr['error'](errObj.message, 'error');
             });
         }
