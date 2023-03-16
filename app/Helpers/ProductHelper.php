@@ -918,10 +918,15 @@ class ProductHelper extends Model
                 }
             }
         }
+
+        $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->where('tag_id',null)->get();
+
+        $not_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->whereNotNull('tag_id')->groupBy('tag_id')->get()->pluck('tag_id');
+        $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id',$not_null_tags)->get();
         
-        $store_websites = \App\StoreWebsite::whereIn('id',$websiteArray)->groupBy('tag_id')->get();
+        $finalResult = $store_websites_of_null_tags->merge($store_websites_of_not_null_tags);
         
-        return $store_websites;
+        return $finalResult;
     }
 
     public static function getStoreWebsiteNameFromPushed($id, $product = null)
