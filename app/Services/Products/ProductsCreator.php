@@ -125,6 +125,24 @@ class ProductsCreator
                 // Return false
                 return false;
             }
+            // sets initial status pending for scrape
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            // sets initial status pending for isBeingScrape
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
 
             // Is the product not approved yet?
             if (! StatusHelper::isApproved($image->status_id)) {
@@ -266,13 +284,32 @@ class ProductsCreator
 
             if (! in_array($product->status_id, $needToCheckStatus)) {
                 $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
-            }
+            } 
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
 
                 $product->save();
             }
 
+            // sets initial status pending for scrape
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            // sets initial status pending for isBeingScrape
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            
             // Initially save status scrape in Product_status_history
             $scrap_status_data = [
                 'product_id' => $product->id,
@@ -281,15 +318,15 @@ class ProductsCreator
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
-
+            
              // If status is scrape then change status to isBeingScrape in Product_status_history
-             $scrap_status_data = [
-                'product_id' => $product->id,
-                'old_status' => StatusHelper::$scrape,
-                'new_status' => StatusHelper::$isBeingScraped,
-                'created_at' => date('Y-m-d H:i:s'),
-            ];
-            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+                $scrap_status_data = [
+                    'product_id' => $product->id,
+                    'old_status' => StatusHelper::$scrape,
+                    'new_status' => StatusHelper::$isBeingScraped,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ];
+                \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
 
             // check that if the product color is white then we need to remove that
             $product->isNeedToIgnore();
@@ -473,6 +510,25 @@ class ProductsCreator
 
         try {
             $product->save();
+             // sets initial status pending for scrape
+             $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            // sets initial status pending for isBeingScrape
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            
             // Initially save status scrape in Product_status_history when validator failed
             $scrap_status_data = [
                 'product_id' => $product->id,
