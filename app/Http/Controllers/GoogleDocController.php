@@ -214,4 +214,18 @@ class GoogleDocController extends Controller
         $fileData->save();
         return back()->with('success', "Permission successfully updated.");
     }
+
+    /**
+     * Search data of google docs.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $subject
+     * @return \Illuminate\Http\Response
+     */
+    public function googledocSearch(Request $request)
+    {
+        $subject = $request->subject;
+        $data = GoogleDoc::where('name', 'LIKE', '%'.$subject.'%')->orderBy('created_at', 'desc')->get();
+        return view('googledocs.partials.list-files', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5);
+    }
 }
