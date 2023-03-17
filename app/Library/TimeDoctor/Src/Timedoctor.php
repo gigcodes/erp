@@ -301,4 +301,33 @@ class Timedoctor
         }
         return $activities;
     }
+
+    public function getActivityListCommand($company_id, $access_token, $user_id){        
+        $members = TimeDoctorMember::where('user_id', $user_id)->get();        
+        /*$start = date('Y-m-d', strtotime('-7 days'));*/
+        $start = date('Y-m-d');
+        $end = date('Y-m-d', strtotime(date('Y-m-d') . ' +1 day'));
+        $activities = [];
+        foreach($members as $member){            
+            $url = 'https://api2.timedoctor.com/api/1.0/activity/worklog?company='.$member->account_detail->company_id.'&user='.$member->time_doctor_user_id.'&from='.$start.'&to='.$end.'&token='.$member->account_detail->auth_token;        
+            $httpClient = new Client();
+            $response = $httpClient->get( $url );        
+
+            $parsedResponse = json_decode($response->getBody()->getContents());            
+
+            foreach ($parsedResponse->data as $activity_data) {
+                foreach($activity_data as $activity){
+                    $res = [
+                        'user_id' => $activity->userId,
+                        'task_id' => $activity->taskId,
+                        'starts_at' => $activity->start,
+                        'tracked' => $activity->time,
+                        'project'  => $activity->projectId,
+                    ];
+                    $activities[] = $res;
+                }
+            }        
+        }
+        return $activities;
+    }
 }
