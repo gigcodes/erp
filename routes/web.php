@@ -2116,6 +2116,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
     Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
+    Route::post('password/send/email', [PasswordController::class, 'passwordSendEmail'])->name('password.send.email');
+    Route::get('password/email/history', [PasswordController::class, 'passwordSendEmailHistory'])->name('password.email.history');
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
