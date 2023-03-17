@@ -38,10 +38,11 @@
                     <thead>
                     <tr>
                         <th>#ID</th>
+                        <th>Account Id</th>
+                        <th>Google Customer Id</th>
                         <th>Account Name</th>
                         <th>Campaign Name</th>
                         <th>Campaign Google Id</th>
-                        <th>Account Customer Id</th>
                         <th>Channel Type</th>
                         <th>Channel Subtype</th>
                         <th>Start Date</th>
@@ -49,29 +50,25 @@
                         <th>Budget</th>
                         <th>Status</th>
                         <th>Created At</th>
-{{--                        <th>Actions</th>--}}
                     </tr>
                     </thead>
 
                     <tbody>
                     @foreach($campaignslist as $campaign)
-                        @php
-                            $account_name = \App\GoogleAdsAccount::where('id',$campaign->account_id)->first();
-                        @endphp
                         <tr>
-                        <td>{{$campaign->id}}</td>
-                        <td>{{$account_name->account_name}}</td>
-                        <td>{{$campaign->campaign_name}}</td>
-                        <td>{{$campaign->google_campaign_id}}</td>
-                        <td>{{$account_name->id}}</td>
-                        <td>{{$campaign->channel_type}}</td>
-                        <td>{{$campaign->channel_sub_type}}</td>
-                        <td>{{$campaign->start_date}}</td>
-                        <td>{{$campaign->end_date}}</td>
-                        <td>{{$campaign->budget_amount}}</td>
-                        <td>{{$campaign->status}}</td>
-                        <td>{{$campaign->created_at}}</td>
-{{--                        <td>{{$campaign->id}}</td>--}}
+                            <td>{{$campaign->id}}</td>
+                            <td>{{$campaign->account_id}}</td>
+                            <td>{{$campaign->account->google_customer_id}}</td>
+                            <td>{{$campaign->account->account_name}}</td>
+                            <td>{{$campaign->campaign_name}}</td>
+                            <td>{{$campaign->google_campaign_id}}</td>
+                            <td>{{$campaign->channel_type}}</td>
+                            <td>{{$campaign->channel_sub_type}}</td>
+                            <td>{{$campaign->start_date}}</td>
+                            <td>{{$campaign->end_date}}</td>
+                            <td>{{$campaign->budget_amount}}</td>
+                            <td>{{$campaign->status}}</td>
+                            <td>{{$campaign->created_at}}</td>
                         </tr>
                     @endforeach
                     </tbody>

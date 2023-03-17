@@ -9,27 +9,23 @@
             <tr>
                 <th>#ID</th>
                 <th>Account name</th>
-                <th>Ads Group Name</th>
                 <th>Google Campaign Id</th>
                 <th>Google Campaign name</th>
                 <th>Google Adgroupd Id</th>
+                <th>Ads Group Name</th>
                 <th>Created At</th>
             </tr>
             </thead>
 
             <tbody>
             @foreach($adsgroups as $adsGroup)
-                @php
-                    $campaign_name = \App\GoogleAdsCampaign::where('google_campaign_id',$adsGroup->google_campaign_id)->first();
-                    $account_name = \App\GoogleAdsAccount::where('id',$campaign_name->account_id)->first();
-                @endphp
                 <tr>
                     <td>{{$adsGroup->id}}</td>
-                    <td>{{$account_name->account_name}}</td>
-                    <td>{{$adsGroup->group_name}}</td>
-                    <td>{{$adsGroup->campaign_id}}</td>
-                    <td>{{$campaign_name->campaign_name}}</td>
-                    <td>{{$adsGroup->google_ad_group_id}}</td>
+                    <td>{{$adsGroup->campaign->account->account_name}}</td>
+                    <td>{{$adsGroup->campaign->campaign_name}}</td>
+                    <td>{{$adsGroup->adgroup_google_campaign_id}}</td>
+                    <td>{{$adsGroup->google_adgroup_id}}</td>
+                    <td>{{$adsGroup->ad_group_name}}</td>
                     <td>{{$adsGroup->created_at}}</td>
                 </tr>
             @endforeach

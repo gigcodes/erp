@@ -20,7 +20,8 @@ use App\HsCodeGroupsCategoriesComposition;
 use App\HsCodeSetting;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
-use App\Jobs\PushToMagentoJob;
+use App\Jobs\ConditionCheckFirstJob;
+use App\Jobs\ProductPushFlow2Job;
 use App\Language;
 use App\ListingHistory;
 use App\Loggers\LogListMagento;
@@ -1441,13 +1442,16 @@ class ProductController extends Controller
         if ($request->ajax()) {
             $query = $request->get('fieldname');
             $fieldName = $request->get('filedname');
-            $value = $request->get('value');
+            $value = $request->get('value');            
+            
+            $products = Product::query();
 
-            if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            /*if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
                 $products = Product::query();
             } else {
                 $products = Product::query()->where('assigned_to', auth()->user()->id);
-            }
+            }*/
+            
             $products = $products->where(function ($query) {
                 $query->where('status_id', StatusHelper::$productConditionsChecked);
             });
@@ -1515,7 +1519,10 @@ class ProductController extends Controller
             }
             $users = User::all();
 
-            return view('products.magento_conditions_check.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+            $view = (string)view('products.magento_conditions_check.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+            $return['view'] = $view;
+            $return['productsCount'] = $productsCount;
+            return response()->json(['status' => 200, 'data' =>$return]);
         } else {
             return view('products.magento_conditions_check.index');
         }
@@ -1712,6 +1719,17 @@ class ProductController extends Controller
         $logs = ProductPushErrorLog::where('product_id', '=', $pId)->where('store_website_id', '=', $swId)->orderBy('id', 'desc')->get();
 
         return response()->json(['code' => 200, 'data' => $logs]);
+    }
+    
+    public function getLogListMagentoDetail($llm_id)
+    {
+        $logs = LogListMagento::where('id', $llm_id)->first();
+        if(isset($logs) && !empty($logs)) {
+            return response()->json(['code' => 200, 'data' => $logs]);    
+        } else {
+            return response()->json(['code' => 500, 'data' => [],'msg'=>'Log details not found.']);
+        }
+        
     }
 
     /**
@@ -5038,12 +5056,11 @@ class ProductController extends Controller
         \Log::info('Product push star time: '.date('Y-m-d H:i:s'));
         foreach ($products as $key => $product) {
             // Setting is_conditions_checked flag as 1
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-
+            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
             if (! empty($websiteArrays)) {
                 $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
-                    $website = StoreWebsite::find($websiteArray);
+                    $website =  $websiteArray;
                     if ($website) {
                         \Log::info('Product started website found For website'.$website->website);
                         $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
@@ -5099,20 +5116,19 @@ class ProductController extends Controller
             $productRow->save();
             \Log::info('Product conditions check started and is_conditions_checked set as 1!');
 
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
             \Log::info('Gets all websites to process the condition check of a product!');
             if (! empty($websiteArrays)) {
                 $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
-                    $website = StoreWebsite::find($websiteArray);
+                    $website = $websiteArray;
                     if ($website) {
                         \Log::info('Product conditions check started website found For website '.$website->website);
-                        $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
-                        //currently we have 3 queues assigned for this task.
-                        $log->queue = \App\Helpers::createQueueName('default');
+                        $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
+                        $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        PushToMagento::dispatch($product, $website, $log, $mode);
+                        ConditionCheckFirstJob::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', null, null, null, null, null);
@@ -5156,18 +5172,18 @@ class ProductController extends Controller
             $productRow->save();
 
             $category = $product->categories;
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
             if (! empty($websiteArrays)) {
                 $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
-                    $website = StoreWebsite::find($websiteArray);
+                    $website = $websiteArray;
                     if ($website) {
                         \Log::info('Product push started For the website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
+                        $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        PushToMagentoJob::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
+                        ProductPushFlow2Job::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
