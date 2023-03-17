@@ -9,6 +9,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FacebookController;
 use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleSearchController;
+use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\HashtagController;
 use App\Http\Controllers\InfluencersController;
 use App\Http\Controllers\InstagramController;
@@ -179,6 +180,9 @@ Route::post('scraper/endtime', [ScrapController::class, 'recieveScrapDetails']);
 
 Route::get('search/{type}', [SearchQueueController::class, 'index']);
 Route::post('search/{type}', [SearchQueueController::class, 'upload_content']);
+//Google Developer API
+// Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
+// Route::get('google/developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr']);
 
 //Magneto Customer Reference Store
 Route::post('magento/customer-reference', [MagentoCustomerReferenceController::class, 'store']);
@@ -302,7 +306,9 @@ Route::post('customer/add_cart_data', [Api\v1\CustomerController::class, 'add_ca
 
 // Social Webhook
 Route::get('social/webhook', [SocialWebhookController::class, 'verifyWebhook']);
+Route::get('social/webhookfbtoken', [SocialWebhookController::class, 'webhookfbtoken']);
 Route::post('social/webhook', [SocialWebhookController::class, 'webhook']);
+Route::post('social/fbtoken', [SocialWebhookController::class, 'fbtoken']);
 
 //Sync Transaction with order
 Route::post('order/sync-transaction', [OrderController::class, 'syncTransaction']);
@@ -315,3 +321,4 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
     Route::post('refresh', [Api\v1\Auth\LoginController::class, 'refresh']);
     Route::post('me', [Api\v1\Auth\LoginController::class, 'me']);
 });
+// Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);

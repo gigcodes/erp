@@ -26,16 +26,27 @@ class SocialWebhookController extends Controller
         $verifyToken = $hub['hub_verify_token'];
         $challange = $hub['hub_challenge'];
 
+        SocialWebhookLog::log(SocialWebhookLog::INFO, 'request params', ['token' => $hub]);
+
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Verify Webhook => Webhook Verifying.....', ['token' => $verifyToken, 'challange' => $challange]);
 
         $countAccount = SocialConfig::where('webhook_token', $verifyToken)->count();
 
         if ($countAccount == 1) {
             SocialWebhookLog::log(SocialWebhookLog::SUCCESS, 'Verify Webhook => Webhook Verified', ['token' => $verifyToken, 'challange' => $challange]);
-            echo $challange;
+            //return $challange;
+            SocialWebhookLog::log(SocialWebhookLog::INFO, 'ans.....', ['token' => $challange]);
+            echo $hub['hub_challenge'];
         } else {
             SocialWebhookLog::log(SocialWebhookLog::ERROR, 'Verify Webhook => Webhook not Verified', ['token' => $verifyToken, 'challange' => $challange]);
         }
+    }
+
+    public function webhookfbtoken(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook => FB Token', ['data' => $data]);
+        return true;
     }
 
     /**
@@ -47,6 +58,7 @@ class SocialWebhookController extends Controller
      */
     public function webhook(Request $request)
     {
+        SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook => Request Body', ['data' => 'comming']);
         $data = json_decode($request->getContent(), true);
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook => Request Body', ['data' => $data]);
 
@@ -197,6 +209,7 @@ class SocialWebhookController extends Controller
             );
 
             SocialWebhookLog::log(SocialWebhookLog::SUCCESS, 'Webhook (Status Upload) => Status upload Successfully', ['data' => $data, 'post' => $post->toArray()]);
+            
         } catch (\Exception $e) {
             SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (Status Upload) => {$e->getMessage()}", ['data' => $data]);
         }

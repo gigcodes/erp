@@ -172,7 +172,6 @@
             <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('development.summarylist') }}" method="GET">
 
-
                     <div class="col-md-2 pd-sm pd-rt">
                         <input type="text" style="width:100%;" name="subject" id="subject_query"
                                placeholder="Issue Id / Subject" class="form-control"
@@ -183,18 +182,20 @@
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
                                 <option {{ $request->get('module') == $module->id ? 'selected' : '' }}
-                                        value="{{ $module->id }}">{{ $module->name }}</option>
+                                        value="{{ $module->id }}" {{ !empty(app('request')->input('module_id')) ? app('request')->input('module_id') ==  $module->id ? 'selected' : '' : '' }}>{{ $module->name }}</option>
                             @endforeach
                         </select>
                     </div>
+
                     @if (auth()->user()->isReviwerLikeAdmin())
                         <div class="col-md-2 pd-sm">
-                            <select class="form-control" name="assigned_to" id="assigned_to">
+                            <select class="form-control globalSelect2" data-ajax="{{ route('development.userslist') }}" multiple name="assigned_to[]" id="assigned_to" data-placeholder="Search Users By Name">
                                 <option value="">Assigned To</option>
-                                @foreach ($users as $id => $user)
-                                    <option {{ $request->get('assigned_to') == $id ? 'selected' : '' }}
-                                            value="{{ $id }}">{{ $user }}</option>
-                                @endforeach
+                                @if($userslist)
+                                    @foreach ($userslist as $id => $user)
+                                        <option value="{{ $user['id'] }}" selected>{{ $user['name'] }}</option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                         <div class="col-md-2 pd-sm">
@@ -257,14 +258,36 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                 <tr>
-                    <th width="8%">ID</th>
-                    <th width="12%">MODULE</th>
-                    <th width="13%">Assigned To</th>
-                    <th width="13%">Lead</th>
-                    <th width="15%">Communication</th>
-                    <th width="10%">Send To</th>
-                    <th width="10%">Status</th>
-                    <th width="10%">Actions</th>
+                    @if (Auth::user()->isAdmin())
+                        <th width="8%">ID</th>
+                        <th width="12%">MODULE</th>
+                        <th width="13%">Assigned To</th>
+                        <th width="13%">Lead</th>
+                        <th width="15%">Communication</th>
+                        <th width="10%">Send To</th>
+                        <th width="10%">Status</th>
+                        <th style="width:10%">Estimated Time</th>
+                        <th style="width:10%">Estimated Start Datetime</th>
+                        <th style="width:10%">Estimated End Datetime</th>
+                        <th width="10%">Actions</th>
+                    @else
+                        <th style="width:12%;">ID</th>
+                        <th style="width:5%;">Module</th>
+                        <th style="width:5%;">Date</th>
+                        <th style="width:8%;">Subject</th>
+                        <th style="width:20%;">Communication</th>
+                        <th style="width:10%;">Est Completion Time</th>
+                        <th style="width:10%;">Est Completion Date</th>
+                        <th style="width:9%;">Tracked Time</th>
+                        <th style="width:13%;">Developers</th>
+                        <th style="width:10%;">Status</th>
+                        <th style="width:5%;">Cost</th>
+                        <th style="width:7%;">Milestone</th>
+                        <th style="width:10%">Estimated Time</th>
+                        <th style="width:10%">Estimated Start Datetime</th>
+                        <th style="width:10%">Estimated End Datetime</th>
+                        <th style="width:7%;">Actions</th>
+                    @endif
                 </tr>
                 </thead>
 
@@ -392,13 +415,146 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
-    <script src="/js/bootstrap-multiselect.min.js"></script>
+    <script src="{{asset('/js/bootstrap-multiselect.min.js')}}"></script>
     <script type="text/javascript">
+        jQuery(document).ready(function() {
+            applyDateTimePicker(jQuery('.cls-start-due-date'));
+        });
+        function applyDateTimePicker(eles) {
+            if (eles.length) {
+                eles.datetimepicker({
+                    format: 'YYYY-MM-DD HH:mm:ss',
+                    sideBySide: true,
+                });
+            }
+        }
+
         $(document).ready(function () {
             $(".multiselect").multiselect({
                 nonSelectedText: 'Please Select'
             });
         });
+
+        function funGetTaskInformationModal() {
+            return jQuery('#modalTaskInformationUpdates');
+        }
+
+        function funDevTaskInformationUpdatesTime(type,id) {
+            if (type == 'start_date') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    // siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('development.update.start-date') }}",
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            value: $('input[name="start_dates'+id+'"]').val(),
+                        }
+                    }).done(function(res) {
+                        // siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        // siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'estimate_date') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    // siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('development.update.estimate-date') }}",
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            value: $('input[name="estimate_date'+id+'"]').val(),
+                            remark: mdl.find('input[name="remark"]').val(),
+                        }
+                    }).done(function(res) {
+                        // siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        // siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'cost') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    // siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('development.update.cost') }}",
+                        type: 'POST',
+                        data: {
+                            id: currTaskInformationTaskId,
+                            value: mdl.find('input[name="cost"]').val(),
+                        }
+                    }).done(function(res) {
+                        // siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        // siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'estimate_minutes') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    // siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('development.update.estimate-minutes') }}",
+                        type: 'POST',
+                        data: {
+                            issue_id: id,
+                            estimate_minutes: $('input[name="estimate_minutes'+id+'"]').val(),
+                            remark: mdl.find('textarea[name="remark"]').val(),
+                        }
+                    }).done(function(res) {
+                        // siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        // siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            } else if (type == 'lead_estimate_time') {
+                if (confirm('Are you sure, do you want to update?')) {
+                    // siteLoader(1);
+                    let mdl = funGetTaskInformationModal();
+                    jQuery.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{ route('development.update.lead-estimate-minutes') }}",
+                        type: 'POST',
+                        data: {
+                            issue_id: currTaskInformationTaskId,
+                            lead_estimate_time: mdl.find('input[name="lead_estimate_time"]').val(),
+                            remark: mdl.find('input[name="lead_remark"]').val(),
+                        }
+                    }).done(function(res) {
+                        // siteLoader(0);
+                        siteSuccessAlert(res);
+                    }).fail(function(err) {
+                        // siteLoader(0);
+                        siteErrorAlert(err);
+                    });
+                }
+            }
+        }
 
 
         $(document).on('click', '.expand-row-msg', function () {
@@ -562,6 +718,18 @@
                 }
             });
 
+        });
+
+        $(document).on('change', '#time_doctor_account', function(){
+            var account_id = $(this).val();
+            var url = "{{ route('select2.time_doctor_projects_ajax') }}"+"?account_id="+account_id;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response) {
+                    $("#time_doctor_project").html(response);
+                }
+            });
         });
     </script>
 

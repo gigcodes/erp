@@ -103,7 +103,7 @@ class ProductHelper extends Model
     {
         // Get all replacements
         if (count(self::$_attributeReplacements) == 0) {
-            self::$_attributeReplacements = AttributeReplacement::orderByRaw('CHAR_LENGTH(first_term)', 'DESC')->get();
+            self::$_attributeReplacements = AttributeReplacement::orderBy(\DB::raw('CHAR_LENGTH(first_term)'), 'DESC')->get();
         }
 
         // Loop over all replacements
@@ -888,6 +888,45 @@ class ProductHelper extends Model
         }
 
         return $websiteArray;
+    }
+    
+    public static function getStoreWebsiteNameByTag($id, $product = null)
+    {
+        $product = ($product) ? $product : Product::find($id);
+
+        $brand = $product->brand;
+ 
+        $category = $product->category;
+        
+        $storeCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->get();
+        $websiteArray = [];
+        foreach ($storeCategories as $storeCategory) {
+            $storeBrands = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->where('store_website_id', $storeCategory->store_website_id)->get();
+            if (! empty($storeBrands)) {
+                foreach ($storeBrands as $storeBrand) {
+                    $websiteArray[] = $storeBrand->store_website_id;
+                }
+            }
+        }
+        
+        //Exception for o-labels
+        if ($product->landingPageProduct) {
+            $websiteForLandingPage = \App\StoreWebsite::whereNotNull('cropper_color')->where('title', 'LIKE', '%o-labels%')->first();
+            if ($websiteForLandingPage) {
+                if (! in_array($websiteForLandingPage->id, $websiteArray)) {
+                    $websiteArray[] = $websiteForLandingPage->id;
+                }
+            }
+        }
+
+        $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->where('tag_id',null)->get();
+
+        $not_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->whereNotNull('tag_id')->groupBy('tag_id')->get()->pluck('tag_id');
+        $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id',$not_null_tags)->get();
+        
+        $finalResult = $store_websites_of_null_tags->merge($store_websites_of_not_null_tags);
+        
+        return $finalResult;
     }
 
     public static function getStoreWebsiteNameFromPushed($id, $product = null)

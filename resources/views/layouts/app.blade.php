@@ -46,6 +46,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
     <script src="{{siteJs('site.js')}}" defer></script>
+    <script>var BASE_URL = "{{config('app.url')}}";</script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
@@ -53,6 +54,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
    <style type="text/css">
         .select2-container--open{
             z-index:9999999
@@ -122,6 +124,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
     @stack('link-css')
     @yield('link-css')
+{{--    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />--}}
     <script>
     let Laravel = {};
     Laravel.csrfToken = "{{csrf_token()}}";
@@ -317,6 +320,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         /*padding-right: 30px;*/
     }
 
+    .time_doctor_project_section,
+    .time_doctor_account_section{
+        display: none;
+    }
+
     /*.navbar-brand{*/
     /*    margin-right: 20px;*/
     /*}*/
@@ -340,8 +348,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="d-flex" id="search-bar">
-                                <input type="text" value="" name="search" class="form-control sop_search" placeholder="Search Here.." style="width: 30%;">
-{{--                                <button title="Sop Search" type="button" class="btn btn-xs search-button" style="padding: 0px 1px;"><span><i class="fa fa-search" aria-hidden="true"></i></span></button>--}}
+                                <input type="text" value="" name="search" id="menu_sop_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="Sop Search" type="button" class="sop_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
                             </div>
                         </div>
                         <div class="col-lg-12">
@@ -482,9 +491,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
 
-    {{-- <div id="fb-root"></div> --}}
-
-
     <div class="notifications-container">
 
         <div class="stack-container stacked" id="leads-notification"></div>
@@ -496,7 +502,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         <div class="stack-container stacked" id="tasks-notification"></div>
 
     </div>
-
 
     <div id="app">
 
@@ -722,6 +727,8 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ action('\App\Http\Controllers\AttributeReplacementController@index') }}">Attribute
                                                     Replacement</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\UnknownAttributeProductController@index') }}">Incorrect Attributes</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1514,6 +1521,10 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
+                                        Meeting List</a>
+                                </li>                                
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1640,8 +1651,7 @@ if (!empty($notifications)) {
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span
-                                            class="caret"></span></a>
+                                        aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item"
@@ -2037,6 +2047,31 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+
+                               
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-users')}}">Usage</a>
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sales')}}">Sales</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sub')}}">Subscription</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-ads')}}">Ads</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-rate')}}">Ratings</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-pay')}}">Payments</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                              
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>Google<span
@@ -2056,6 +2091,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.search.results')}}">Search Results</a>
                                                 </li>
+                                               
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2078,7 +2114,30 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                v-pre>Developer API<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.developer-api.crash')}}">Crash Report</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.anr')}}">ANR Report</a>
+                                                </li>
+                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.logs')}}">Logs</a>
+                                                </li>
+                                            
+                                            </ul>
+                                        </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('google-drive.new') }}">Google Drive</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2093,8 +2152,27 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google
-                                        AdWords</a>
+                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="width: fit-content !important;">
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.adsgroupslist')}}">Google Ads groups</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.adslist')}}">Google Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.displayads')}}">Google Responsive Display Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.appadlist')}}">Google App Ads</a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social
@@ -2122,6 +2200,12 @@ if (!empty($notifications)) {
                                 aria-haspopup="true" aria-expanded="false">Social <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.post.grid')}}">Social Posts Grid</a>
+                                </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2138,6 +2222,15 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.adcreative.index')}}">Social Ad Creative</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.ad.index')}}">Social Ads</a>
                                 </li>
                                 @endif
                             </ul>
@@ -2381,6 +2474,10 @@ if (!empty($notifications)) {
                                                         Errors</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('twilio.webhook.error.logs') }}">Twilio
+                                                        Webhook Error Logs</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
                                                     <a href="{{ route('twilio-manage-accounts') }}">Twilio Account
                                                         Management</a>
                                                 </li>
@@ -2619,6 +2716,10 @@ if (!empty($notifications)) {
                                                         href="{{route('twilio.call.statistic')}}">Twilio Call
                                                         Statistic</a>
                                                 </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('twilio.conditions')}}">Twilio Conditions</a>
+                                                </li>
                                             </ul>
                                         </li>
 
@@ -2828,6 +2929,44 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+
+                                        <!-- time doctor -->
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" v-pre>Time Doctor<span
+                                                    class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor.members') }}">Members</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/projects') }}">Projects</a>
+                                                </li>
+
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/tasks') }}">Tasks</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/notification') }}">Activity
+                                                        Notofication</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/activities') }}">Activities</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">User
+                                                        Track Time</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -2929,6 +3068,7 @@ if (!empty($notifications)) {
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ url('sop') }}">SOP</a>
                                         </li>
+                                        <li>
                                         <a class="dropdown-item"
                                             href="{{ route('gtmetrix.error.index.list') }}">GTMetrix Error log</a>
                                 </li>
@@ -2954,6 +3094,9 @@ if (!empty($notifications)) {
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
                             </li>
                             <li class="nav-item dropdown dropdown-submenu">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
@@ -3013,7 +3156,7 @@ if (!empty($notifications)) {
                                             States</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
+                                        <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage
@@ -3035,6 +3178,10 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project
                                             Directory manager</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
+                                        <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
                                     </li>
                                 </ul>
                             </li>
@@ -3248,6 +3395,9 @@ if (!empty($notifications)) {
                                             </li>
                                         </ul>
                                     </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a class="dropdown-item" href="{{ url('learning') }}">Learning Menu</a>
+                                    </li>
                                 </ul>
                             </li>
                             </ul>
@@ -3267,7 +3417,15 @@ if (!empty($notifications)) {
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
                             <li>
-                                <a title="Create database" type="button" class="quick-icon menu-create-database" data-id="10410" style="padding: 0px 1px;"><span><i
+                                <a title="Quick Dev Task" type="button" class="quick-icon menu-show-dev-task" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Task & Activity" type="button" class="quick-icon menu-show-task" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Create database" type="button" class="quick-icon menu-create-database" style="padding: 0px 1px;"><span><i
                                             class="fa fa-database fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
@@ -3572,7 +3730,292 @@ if (!empty($notifications)) {
             </div>
         </div>
 
-        @if (Auth::check())
+        <div id="menu-show-task-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Task & Activity</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form id="database-form">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="row">
+                                        <div class="col-12 pb-3">
+                                            <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            <button type="button" class="btn btn-secondary btn-task-search-menu" ><i class="fa fa-search"></i></button>
+                                        </div>
+                                        <div class="col-12">
+                                            <table class="table table-sm table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th width="5%">ID</th>
+                                                    <th width="10%">Assign To</th>
+                                                    <th width="10%">Communication</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="show-search-task-list">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-show-dev-task-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Quick Dev Task</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form id="database-form">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="row">
+                                        <div class="col-12 pb-3">
+                                            <input type="text" name="task_search" class="dev-task-search-table" class="form-control" placeholder="Enter Dev Task Id">
+                                            <button type="button" class="btn btn-secondary btn-dev-task-search-menu" ><i class="fa fa-search"></i></button>
+                                        </div>
+                                        <div class="col-12">
+                                            <table class="table table-sm table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th width="5%">ID</th>
+                                                    <th width="10%">Assign To</th>
+                                                    <th width="10%">Communication</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="show-search-dev-task-list">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu_user_history_modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">User history</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+
+                            <div class="col-md-12" id="user_history_div">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>User type</th>
+                                        <th>Previous user</th>
+                                        <th>New User</th>
+                                        <th>Updated by</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu_confirmMessageModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Confirm Message</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <form action="{{ route('task_category.store') }}" method="POST" onsubmit="return false;">
+                        @csrf
+
+                        <div class="modal-body">
+
+
+                            <div class="form-group">
+                                <div id="message_confirm_text"></div>
+                                <input name="task_id" id="confirm_task_id" type="hidden" />
+                                <input name="message" id="confirm_message" type="hidden" />
+                                <input name="status" id="confirm_status" type="hidden" />
+                            </div>
+                            <div class="form-group">
+                                <p>Send to Following</p>
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="assign_by">Assign By
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="assigned_to">Assign To
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="master_user_id">Lead 1
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="second_master_user_id">Lead 2
+                                <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="contacts">Contacts
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-secondary menu-confirm-messge-button">Send</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="menu-upload-document-modal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Upload Document</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <form id="menu-upload-task-documents">
+                        <div class="modal-body">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" id="hidden-identifier" name="developer_task_id" value="">
+                            <div class="row">
+                                <div class="col-md-10 col-md-offset-1">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Subject</label>
+                                                <?php echo Form::text("subject",null, ["class" => "form-control", "placeholder" => "Enter subject"]); ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Description</label>
+                                                <?php echo Form::textarea("description",null, ["class" => "form-control", "placeholder" => "Enter Description"]); ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Documents</label>
+                                                <input type="file" name="files[]" id="filecount" multiple="multiple">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-default">Save</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="menu-blank-modal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ route('task.save-documents') }}" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="task_id" id="hidden-task-id" value="">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Upload File(s)</h4>
+                        </div>
+                        <div class="modal-body" style="background-color: #999999;">
+                            @csrf
+                            <div class="form-group">
+                                <label for="document">Documents</label>
+                                <input type="file" name="document" class="needsclick" id="document-dropzone" multiple>
+{{--                                <div class="needsclick dropzone" id="document-dropzone">--}}
+
+{{--                                </div>--}}
+                            </div>
+                            <div class="form-group add-task-list">
+
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default menu-btn-save-documents">Save</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-preview-task-image" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="col-md-12">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th style="width:1%;">No</th>
+                                    <th style=" width: 30%">Files</th>
+                                    <th style="word-break: break-all; width:12%">Send to</th>
+                                    <th style="width: 1%;">User</th>
+                                    <th style="width: 11%">Created at</th>
+                                    <th style="width: 6%">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody class="menu-task-image-list-view">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    @if (Auth::check())
 
 		<div id="todolist-get-model" class="modal fade" role="dialog">
              <div class="modal-content modal-dialog modal-lg">
@@ -4163,7 +4606,6 @@ if (!empty($notifications)) {
 
 
     <!-- Like page plugin script  -->
-
     @yield('models')
 
     {{-- <script>(function(d, s, id) {
@@ -4181,7 +4623,7 @@ if (!empty($notifications)) {
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
     @yield('scripts')
-
+{{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>--}}
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
@@ -4195,6 +4637,7 @@ if (!empty($notifications)) {
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
+
     
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
@@ -4370,11 +4813,11 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
-    $(document).on("keyup", ".sop_search", function(e) {
-        let $this = $(this);
-        var q = $this.val();
+    $(document).on("click", ".sop_search_menu", function(e) {
+        let $this = $('#menu_sop_search').val();
+        var q = $this;
         $.ajax({
-            url: '{{env('app_url')}}sop/search-ajax',
+            url: '{{route('menu.sop.search')}}',
             type: 'GET',
             data: {
                 search: q,
@@ -4390,6 +4833,7 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
+                toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
                 $("#loading-image").hide();
@@ -4466,6 +4910,355 @@ if (!empty($notifications)) {
                 }
             }
         }
+    });
+
+    $(document).on("click", ".btn-task-search-menu", function (e) {
+        var keyword = $('.task-search-table').val();
+        var selectedValues = [];
+
+        $.ajax({
+            url: '{{route('task.module.search')}}',
+            type: 'GET',
+            data: {
+                term: keyword,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                $('.show-search-task-list').html(response);
+            },
+            error: function () {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on("click", ".btn-dev-task-search-menu", function (e) {
+        var keyword = $('.dev-task-search-table').val();
+        var selectedValues = [];
+
+        $.ajax({
+            url: '{{route('devtask.module.search')}}',
+            type: 'GET',
+            data: {
+                subject: keyword,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                $('.show-search-dev-task-list').html(response);
+            },
+            error: function () {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on('change', '.assign-user-menu', function () {
+        let id = $(this).attr('data-id');
+        let userId = $(this).val();
+
+        if (userId == '') {
+            return;
+        }
+
+        $.ajax({
+            url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'assignUser']) }}",
+            data: {
+                assigned_to: userId,
+                issue_id: id
+            },
+            success: function () {
+                toastr["success"]("User assigned successfully!", "Message")
+            },
+            error: function (error) {
+                toastr["error"](error.responseJSON.message, "Message")
+
+            }
+        });
+
+    });
+
+    $(document).on('click', '.expand-row-msg-menu', function () {
+        var id = $(this).data('id');
+        var full = '.expand-row-msg-menu .td-full-container-' + id;
+        var mini = '.expand-row-msg-menu .td-mini-container-' + id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
+
+    $(document).on('click', '.send-message-open-quick-menu', function (event) {
+        var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
+        var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
+        let issueId = textBox.attr('data-id');
+        let message = textBox.val();
+        if (message == '') {
+            return;
+        }
+
+        let self = textBox;
+
+        $.ajax({
+            url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue') }}",
+            type: 'POST',
+            data: {
+                "issue_id": issueId,
+                "message": message,
+                "sendTo": sendToStr,
+                "_token": "{{ csrf_token() }}",
+                "status": 2
+            },
+            dataType: "json",
+            success: function (response) {
+                toastr["success"]("Message sent successfully!", "Message");
+                $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " +
+                    response.message.message + '</li>');
+                $(self).removeAttr('disabled');
+                $(self).val('');
+            },
+            beforeSend: function () {
+                $(self).attr('disabled', true);
+            },
+            error: function () {
+                alert('There was an error sending the message...');
+                $(self).removeAttr('disabled', true);
+            }
+        });
+    });
+
+    $(document).on("click", ".btn-file-upload-menu", function() {
+        var $this = $(this);
+        var task_id = $this.data("id");
+        $("#menu-file-upload-area-section").modal("show");
+        $("#hidden-task-id").val(task_id);
+        $("#loading-image").hide();
+    });
+
+    $(document).on('change', '.menu-task-assign-user', function() {
+        let id = $(this).attr('data-id');
+        let userId = $(this).val();
+        if (userId == '') {
+            return;
+        }
+        $.ajax({
+            url: "{{route('task.AssignTaskToUser')}}",
+            data: {
+                user_id: userId,
+                issue_id: id
+            },
+            success: function() {
+                toastr["success"]("User assigned successfully!", "Message")
+            },
+            error: function(error) {
+                toastr["error"](error.responseJSON.message, "Message")
+            }
+        });
+    });
+
+    $(document).on("click", ".menu-upload-document-btn", function () {
+        var id = $(this).data("id");
+        $("#menu-upload-document-modal").find("#hidden-identifier").val(id);
+        $("#menu-upload-document-modal").modal("show");
+    });
+
+    $(document).on('click', '.menu-show-user-history', function() {
+        var issueId = $(this).data('id');
+        $('#user_history_div table tbody').html('');
+        $.ajax({
+            url: "{{ route('task/user/history') }}",
+            data: {
+                id: issueId
+            },
+            success: function(data) {
+                $.each(data.users, function(i, item) {
+                    $('#user_history_div table tbody').append(
+                        '<tr>\
+                                <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
+                                    <td>' + ((item['user_type'] != null) ? item['user_type'] : '-') + '</td>\
+                                    <td>' + ((item['old_name'] != null) ? item['old_name'] : '-') + '</td>\
+                                    <td>' + ((item['new_name'] != null) ? item['new_name'] : '-') + '</td>\
+                                    <td>' + item['updated_by'] + '</td>\
+                                </tr>'
+                    );
+                    $("#menu_user_history_modal").css('z-index','-1');
+                });
+            }
+        });
+        $('#menu_user_history_modal').modal('show');
+    });
+
+    $(document).on('click', '.menu-send-message', function() {
+        var thiss = $(this);
+        var data = new FormData();
+        var task_id = $(this).data('taskid');
+        // var message = $(this).siblings('input').val();
+        if ($(this).hasClass("onpriority")) {
+            var message = $('#getMsgPopup' + task_id).val();
+        } else {
+            var message = $('#getMsg' + task_id).val();
+        }
+        if (message != "") {
+            $("#message_confirm_text").html(message);
+            $("#confirm_task_id").val(task_id);
+            $("#confirm_message").val(message);
+            $("#confirm_status").val(1);
+            $("#menu_confirmMessageModal").modal();
+        }
+    });
+
+    $(document).on('click', '.menu-confirm-messge-button', function() {
+        var thiss = $(this);
+        var data = new FormData();
+        var task_id = $("#confirm_task_id").val();
+        var message = $("#confirm_message").val();
+        var status = $("#confirm_status").val();
+        //    alert(message)
+        data.append("task_id", task_id);
+        data.append("message", message);
+        data.append("status", status);
+        // var checkedValue = $('.send_message_recepients:checked').val();
+        var checkedValue = [];
+        var i = 0;
+        $('.send_message_recepients:checked').each(function() {
+            checkedValue[i++] = $(this).val();
+        });
+        data.append("send_message_recepients", checkedValue);
+        //  console.log(checkedValue);
+        if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+                $.ajax({
+                    //  url: '/whatsapp/sendMessage/task',
+                    url: "{{ route('whatsapp.send','task')}}",
+                    type: 'POST',
+                    "dataType": 'json', // what to expect back from the PHP script, if anything
+                    "cache": false,
+                    "contentType": false,
+                    "processData": false,
+                    "data": data,
+                    beforeSend: function() {
+                        $(thiss).attr('disabled', true);
+                    }
+                }).done(function(response) {
+                    $(thiss).siblings('input').val('');
+                    $('#getMsg' + task_id).val('');
+                    $('#menu_confirmMessageModal').modal('hide');
+                    toastr["success"]("Message sent successfully!", "Message");
+                    if (cached_suggestions) {
+                        suggestions = JSON.parse(cached_suggestions);
+                        if (suggestions.length == 10) {
+                            suggestions.push(message);
+                            suggestions.splice(0, 1);
+                        } else {
+                            suggestions.push(message);
+                        }
+                        localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                        cached_suggestions = localStorage['message_suggestions'];
+                    } else {
+                        suggestions.push(message);
+                        localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                        cached_suggestions = localStorage['message_suggestions'];
+                    }
+                    $(thiss).attr('disabled', false);
+                }).fail(function(errObj) {
+                    $('#menu_confirmMessageModal').modal('hide');
+                    $(thiss).attr('disabled', false);
+                    alert("Could not send message");
+                });
+            }
+        } else {
+            alert('Please enter a message first');
+        }
+    });
+
+    $(document).on("submit", "#menu-upload-task-documents", function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var postData = new FormData(form[0]);
+        $.ajax({
+            method: "post",
+            url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'uploadDocument']) }}",
+            data: postData,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function (response) {
+                if (response.code == 200) {
+                    toastr["success"]("Status updated!", "Message")
+                    $("#menu-upload-document-modal").modal("hide");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on("click", ".menu-list-document-btn", function () {
+        var id = $(this).data("id");
+        $.ajax({
+            method: "GET",
+            url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'getDocument']) }}",
+            data: {
+                id: id
+            },
+            dataType: "json",
+            success: function (response) {
+                if (response.code == 200) {
+                    $("#menu-blank-modal").find(".modal-title").html("Document List");
+                    $("#menu-blank-modal").find(".modal-body").html(response.data);
+                    $("#menu-blank-modal").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on("click", ".menu-btn-save-documents", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var formData = new FormData($this.closest("form")[0]);
+        $.ajax({
+            url: '/task/save-documents',
+            type: 'POST',
+            enctype: 'multipart/form-data',
+            // contentType: 'multipart/form-data',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: formData,
+            dataType: "json",
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        }).done(function(data) {
+            $("#loading-image").hide();
+            if (data.code == 500) {
+                toastr["error"](data.message);
+            } else {
+                toastr["success"]("Document uploaded successfully");
+                //location.reload();
+            }
+        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+            toastr["error"](jqXHR.responseJSON.message);
+            $("#loading-image").hide();
+        });
     });
 
     $(document).on('change', '.choose-username', function() {
@@ -5352,7 +6145,7 @@ if (!\Auth::guest()) {
 
     $(document).on('change', '#autoTranslate', function(e) {
         e.preventDefault();
-        var customerId = $("input[name='message-id'").val();
+        var customerId = $("input[name='message-id']").val();
         var language = $(".auto-translate").val();
         let self = $(this);
         $.ajax({
@@ -5436,6 +6229,17 @@ if (!\Auth::guest()) {
         });
     });
 
+    $(document).on('change', '.task_for', function(e) {
+        var getTask = $(this).val();
+        if(getTask == 'time_doctor'){
+            $('.time_doctor_project_section').show();
+            $('.time_doctor_account_section').show();
+        } else {
+            $('.time_doctor_project_section').hide();
+            $('.time_doctor_account_section').hide();
+        }
+    });
+
     $(document).on("click", ".save-task-window", function(e) {
         e.preventDefault();
         var form = $(this).closest("form");
@@ -5462,9 +6266,11 @@ if (!\Auth::guest()) {
             toastr['error'](response.responseJSON.message);
         });
     });
+
     $('select.select2-discussion').select2({
         tags: true
     });
+
     $(document).on("change", ".type-on-change", function(e) {
         e.preventDefault();
         var task_type = $(this).val();
@@ -5564,7 +6370,6 @@ if (!\Auth::guest()) {
         $('.type_msg').text($(this).val());
     });
 
-
     $(document).on('click', '.show_sku_long', function() {
         $(this).hide();
         var id = $(this).attr('data-id');
@@ -5573,6 +6378,7 @@ if (!\Auth::guest()) {
             'display': 'block'
         });
     });
+
     $(document).on('click', '.show_prod_long', function() {
         $(this).hide();
         var id = $(this).attr('data-id');
@@ -5685,19 +6491,23 @@ if (!\Auth::guest()) {
             }
         });
     });
+
     $('.add_todo_title').change(function() {
         if ($('.add_todo_subject').val() == "") {
             $('.add_todo_subject').val("");
             $('.add_todo_subject').val($('.add_todo_title').val());
         }
     })
+
     $('#todo-date').datetimepicker({
         format: 'YYYY-MM-DD',
     });
+
     $(document).on("click", ".todolist-request", function(e) {
         e.preventDefault();
         $("#todolist-request-model").modal("show");
     });
+
 	$(document).on("click", ".todolist-get", function(e) {
 			e.preventDefault();
 			$("#todolist-get-model").modal("show");
@@ -5707,6 +6517,36 @@ if (!\Auth::guest()) {
         e.preventDefault();
         $("#menu-create-database-model").modal("show");
     });
+
+    $(document).on("click", ".menu-show-task", function(e) {
+        e.preventDefault();
+        $("#menu-show-task-model").modal("show");
+    });
+
+    $(document).on("click", ".menu-show-dev-task", function(e) {
+        e.preventDefault();
+        $("#menu-show-dev-task-model").modal("show");
+    });
+
+    $(document).on('click', '.menu-preview-img-btn', function(e) {
+        e.preventDefault();
+        id = $(this).data('id');
+        if (!id) {
+            alert("No data found");
+            return;
+        }
+        $.ajax({
+            url: "/task/preview-img/" + id,
+            type: 'GET',
+            success: function(response) {
+                $("#menu-preview-task-image").modal("show");
+                $(".menu-task-image-list-view").html(response);
+                initialize_select2()
+            },
+            error: function() {}
+        });
+    });
+
     $(document).on("click", ".permission-grant", function(e) {
         e.preventDefault();
         var permission = $(this).data('id');

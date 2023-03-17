@@ -39,6 +39,7 @@ class GoogleAdsCampaign extends Model
     protected $table = 'googlecampaigns';
 
     protected $fillable = [
+        'google_customer_id',
         'account_id',
         'google_campaign_id',
         'campaign_name',
@@ -58,6 +59,8 @@ class GoogleAdsCampaign extends Model
         'ad_rotation',
         'campaign_response',
         'status',
+        'app_id',
+        'app_store',
     ];
 
     const CAHANNEL_TYPE = [
@@ -78,4 +81,9 @@ class GoogleAdsCampaign extends Model
         'DISPLAY_SMART_CAMPAIGN' => 'Display smart campaign',
         'DISPLAY_GMAIL_AD' => 'Display gmail ad',
     ];
+
+    public function account()
+    {
+        return $this->hasOne(\App\GoogleAdsAccount::class, 'id', 'account_id');
+    }
 }

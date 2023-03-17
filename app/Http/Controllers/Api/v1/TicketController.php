@@ -38,9 +38,11 @@ class TicketController extends Controller
      *   tags={"Ticket"},
      *   summary="create ticket",
      *   operationId="create-ticket",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -69,7 +71,7 @@ class TicketController extends Controller
             //'country' => 'required',
             'subject' => 'required|max:80',
             'message' => 'required',
-            //'source_of_ticket' => 'in:live_chat,customer',
+            'source_of_ticket' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -98,7 +100,7 @@ class TicketController extends Controller
 
         $email = \App\Email::create([
             'model_id' => $ticket->id,
-            'model_type' => Ticket::class,
+            'model_type' => Tickets::class,
             'from' => $emailClass->fromMailer,
             'to' => @$ticket->email,
             'subject' => $emailClass->subject,
@@ -116,6 +118,7 @@ class TicketController extends Controller
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
         if (! is_null($success)) {
+            $this->checkMessageAndSendReply($ticket->id);
             $message = $this->generate_erp_response('ticket.success', 0, $default = 'Ticket #'.$data['ticket_id'].' created successfully', request('lang_code'));
 
             return response()->json(['status' => 'success', 'data' => ['id' => $data['ticket_id']], 'message' => $message], 200);
@@ -176,9 +179,11 @@ class TicketController extends Controller
      *   tags={"Ticket"},
      *   summary="Send ticket to customers",
      *   operationId="send-ticket-to-customer",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -243,5 +248,33 @@ class TicketController extends Controller
         }
 
         return response()->json(['status' => 'success', 'tickets' => $tickets], 200);
+    }
+
+    /*Get message reply for ticket from database of Watson */
+    public function checkMessageAndSendReply($ticker_id) {
+        $get_ticket_data = Tickets::where(['id'=>$ticker_id])->first();
+        if(!empty($get_ticket_data)){
+            $customer = \App\Customer::where('email', $get_ticket_data->email)->first();
+
+            $params = [
+                'number' => $customer->phone,
+                'message' => $get_ticket_data->message,
+                'media_url' => null,
+                'approved' => 0,
+                'status' => 0,
+                'contact_id' => null,
+                'erp_user' => null,
+                'supplier_id' => null,
+                'task_id' => null,
+                'dubizzle_id' => null,
+                'vendor_id' => null,
+                'customer_id' => $customer->id,
+                'ticket_id' => $ticker_id,
+            ];
+            $messageModel = \App\ChatMessage::create($params);
+
+            \App\Helpers\MessageHelper::sendwatson($customer, $get_ticket_data->message, null, $messageModel, $params);
+        }
+        return true;
     }
 }

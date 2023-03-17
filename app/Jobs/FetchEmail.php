@@ -13,7 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class FetchEmail implements ShouldQueue
 {
@@ -46,7 +46,8 @@ class FetchEmail implements ShouldQueue
         //
         $emailAddress = $this->emailAddress;
         try {
-            $imap = new Client([
+            $cm = new ClientManager();
+            $imap = $cm->make([
                 'host' => $emailAddress->host,
                 'port' => 993,
                 'encryption' => 'ssl',
@@ -99,16 +100,13 @@ class FetchEmail implements ShouldQueue
                 if ($latest_email_date) {
                     $emails = $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y'));
                 } else {
-                    $emails = $inbox->messages();
+                    $emails = ($inbox) ? $inbox->messages() : '';
                 }
-
-                $emails = $emails->get();
-
-                //
-                // dump($inbox->messages()->where([
-                //     ['SINCE', $latest_email_date->subDays(1)->format('d-M-Y')],
-                //     ])->get());
+                if($emails){
+                $emails = $emails->all()->get();
                 foreach ($emails as $email) {
+                    try
+                    {
                     $reference_id = $email->references;
                     //                        dump($reference_id);
                     $origin_id = $email->message_id;
@@ -153,7 +151,7 @@ class FetchEmail implements ShouldQueue
                     });
 
                     $from = $email->getFrom()[0]->mail;
-                    $to = array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                    $to = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
 
                     // Model is sender if its incoming else its receiver if outgoing
                     if ($type['type'] == 'incoming') {
@@ -186,7 +184,7 @@ class FetchEmail implements ShouldQueue
                         'type' => $type['type'],
                         'seen' => $email->getFlags()['seen'],
                         'from' => $email->getFrom()[0]->mail,
-                        'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                        'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
                         'subject' => $email->getSubject(),
                         'message' => $content,
                         'template' => 'customer-simple',
@@ -290,8 +288,12 @@ class FetchEmail implements ShouldQueue
                         }
                     }
 
-                    //}
+                } catch (\Exception $e) {
+                    \Log::error('error while fetching some emails for '.$emailAddress->username.' Error Message: '.$e->getMessage());
                 }
+                }
+
+            }
             }
 
             $historyParam = [
@@ -361,7 +363,7 @@ class FetchEmail implements ShouldQueue
             exit; */
             if ($rowincrement > $skiprowupto) {
                 //echo '<pre>'.print_r($data = fgetcsv($file, 4000, ","),true).'</pre>';
-                if (isset($data[0]) && ! empty($data[0])) {
+                if (isset($data[0]) && !empty($data[0])) {
                     try {
                         $due_date = date('Y-m-d', strtotime($data[9]));
                         $attachedFileDataArray = [

@@ -22,9 +22,11 @@ class ProductController extends Controller
      *   tags={"Product"},
      *   summary="Get product price through sku",
      *   operationId="get-product-price-through-sku",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -156,7 +158,9 @@ class ProductController extends Controller
                     ->where('op.sku', $sku[0])
                     ->first();
                 $productCanDays = ProductCancellationPolicie::select('days_refund')->where('store_website_id', $storeWebsite->id)->first();
-                $category = Product::select('id', 'category')->withTrashed()->where('sku', $sku[0])->first();
+                $categoriesRef = null;
+                $productRef = null;
+                /*$category = Product::select('id', 'category')->withTrashed()->where('sku', $sku[0])->first();
                 if ($category) {
                     $categories = Category::select('days_refund')->where('id', '=', $category->category)->first();
                     if ($categories) {
@@ -166,7 +170,7 @@ class ProductController extends Controller
                         $categoriesRef = null;
                         $productRef = null;
                     }
-                }
+                }*/
 
                 $order = Order::select('created_at', 'order_return_request')->withTrashed()->where('id', $request->order_id)->first();
                 if ($order) {

@@ -21,7 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Mail;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class EmailController extends Controller
 {
@@ -56,6 +56,7 @@ class EmailController extends Controller
         $status = $request->status ?? '';
         $category = $request->category ?? '';
         $mailbox = $request->mail_box ?? '';
+        $email_model_type = $request->email_model_type?? '';
 
         $date = $request->date ?? '';
         $type = $request->type ?? $type;
@@ -96,10 +97,16 @@ class EmailController extends Controller
             $query = $query->where('status', 'pre-send');
         } else {
             $query = $query->where(function ($query) use ($type) {
-                $query->where('type', $type)->orWhere('type', 'outgoing')->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
+                $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
             });
         }
-
+        if ($email_model_type)
+        {
+            $model_type = explode(',', $email_model_type);
+                $query = $query->where(function ($query) use ($model_type) {
+                    $query->whereIn('model_type', $model_type);
+                });
+        }
         if ($date) {
             $query = $query->whereDate('created_at', $date);
         }
@@ -154,8 +161,9 @@ class EmailController extends Controller
 
         // If it isn't trash query remove email with status trashed
         if (! $trash_query) {
-            $query = $query->where(function ($query) {
-                return $query->where('status', '<>', 'bin')->orWhereNull('status');
+            $query = $query->where(function ($query) use ($type) {
+                $isDraft = ($type == 'draft') ? 1 : 0;
+                return $query->where('status', '<>', 'bin')->orWhereNull('status')->where('is_draft', $isDraft);
             });
         }
 
@@ -191,6 +199,9 @@ class EmailController extends Controller
         //Get All Status
         $email_categories = DB::table('email_category')->get();
 
+        //Get List of model types
+        $emailModelTypes = Email::emailModelTypeList();
+
         //Get Cron Email Histroy
         $reports = CronJobReport::where('cron_job_reports.signature', 'fetch:all_emails')
             ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
@@ -199,7 +210,7 @@ class EmailController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status', 'emailModelTypes'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string) $emails->links(),
                 'count' => $emails->total(),
                 'emails' => $emails,
@@ -256,6 +267,7 @@ class EmailController extends Controller
 
         $mailboxdropdown = \App\EmailAddress::pluck('from_address', 'from_name', 'username');
 
+
         /*if (count($usernames) > 0) {
         $mailboxdropdown = $mailboxdropdown->where(function ($mailboxdropdown) use ($usernames) {
         foreach ($usernames as $_uname) {
@@ -271,9 +283,9 @@ class EmailController extends Controller
         }*/
 
         $mailboxdropdown = $mailboxdropdown->toArray();
-        $totalEmail = count(Email::all());
+        $totalEmail = Email::count();
 
-        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown, 'totalEmail' => $totalEmail])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown,'emailModelTypes'=> $emailModelTypes, 'totalEmail' => $totalEmail])->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function platformUpdate(Request $request)
@@ -372,7 +384,8 @@ class EmailController extends Controller
     {
         $email = Email::find($id);
         $attachment = [];
-        $imap = new Client([
+        $cm = new ClientManager();
+        $imap = $cm->make([
             'host' => env('IMAP_HOST_PURCHASE'),
             'port' => env('IMAP_PORT_PURCHASE'),
             'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
@@ -403,6 +416,7 @@ class EmailController extends Controller
         $emailsLog = \App\Email::create([
             'model_id' => $email->id,
             'model_type' => \App\Email::class,
+            'type' => $email->type,
             'from' => $email->from,
             'to' => $email->to,
             'subject' => $email->subject,
@@ -891,12 +905,13 @@ class EmailController extends Controller
             'signature' => 'fetch:all_emails',
             'start_time' => \Carbon\Carbon::now(),
         ]);
-
+        $failedEmailAddresses = [];
         $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
             try {
-                $imap = new Client([
+                $cm = new ClientManager();
+                $imap = $cm->make([
                     'host' => $emailAddress->host,
                     'port' => 993,
                     'encryption' => 'ssl',
@@ -941,130 +956,210 @@ class EmailController extends Controller
 
                     $latest_email_date = $latest_email ? Carbon::parse($latest_email->created_at) : false;
                     if ($latest_email_date) {
-                        $emails = $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y'));
+                        $emails = ($inbox) ? $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y')) : '';
                     } else {
-                        $emails = $inbox->messages();
+                        $emails = ($inbox) ? $inbox->messages() : '';
                     }
+                    if($emails){
+                        $emails = $emails->all()->get();
+                        foreach ($emails as $email) {
+                            $reference_id = $email->references;
+                            //                        dump($reference_id);
+                            $origin_id = $email->message_id;
 
-                    $emails = $emails->get();
-                    foreach ($emails as $email) {
-                        $reference_id = $email->references;
-                        //                        dump($reference_id);
-                        $origin_id = $email->message_id;
-
-                        // Skip if message is already stored
-                        if (Email::where('origin_id', $origin_id)->count() > 0) {
-                            continue;
-                        }
-
-                        // check if email has already been received
-
-                        if ($email->hasHTMLBody()) {
-                            $content = $email->getHTMLBody();
-                        } else {
-                            $content = $email->getTextBody();
-                        }
-
-                        $email_subject = $email->getSubject();
-                        \Log::channel('customer')->info('Subject  => '.$email_subject);
-
-                        //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
-                        $attachments_array = [];
-                        $attachments = $email->getAttachments();
-                        $fromThis = $email->getFrom()[0]->mail;
-                        $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
-                            $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                            file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                            $path = 'email-attachments/'.$attachment->name;
-
-                            $attachments_array[] = $path;
-
-                            /*start 3215 attachment fetch from DHL mail */
-                            \Log::channel('customer')->info('Match Start  => '.$email_subject);
-
-                            $findFromEmail = explode('@', $fromThis);
-                            if (strpos(strtolower($email_subject), 'your copy invoice') !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
-                                \Log::channel('customer')->info('Match Found  => '.$email_subject);
-                                $this->getEmailAttachedFileData($attachment->name);
+                            // Skip if message is already stored
+                            if (Email::where('origin_id', $origin_id)->count() > 0) {
+                                continue;
                             }
-                            /*end 3215 attachment fetch from DHL mail */
-                        });
 
-                        $from = $email->getFrom()[0]->mail;
-                        $to = array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                            // check if email has already been received
 
-                        // Model is sender if its incoming else its receiver if outgoing
-                        if ($type['type'] == 'incoming') {
-                            $model_email = $from;
-                        } else {
-                            $model_email = $to;
-                        }
-
-                        // Get model id and model type
-
-                        extract($this->getModel($model_email, $email_list));
-                        /**
-                         * @var $model_id
-                         * @var $model_type
-                         */
-                        $subject = explode('#', $email_subject);
-                        if (isset($subject[1]) && ! empty($subject[1])) {
-                            $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
-                            if ($findTicket) {
-                                $model_id = $findTicket->id;
-                                $model_type = \App\Tickets::class;
+                            if ($email->hasHTMLBody()) {
+                                $content = $email->getHTMLBody();
+                            } else {
+                                $content = $email->getTextBody();
                             }
-                        }
 
-                        $params = [
-                            'model_id' => $model_id,
-                            'model_type' => $model_type,
-                            'origin_id' => $origin_id,
-                            'reference_id' => $reference_id,
-                            'type' => $type['type'],
-                            'seen' => $email->getFlags()['seen'],
-                            'from' => $email->getFrom()[0]->mail,
-                            'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                            'subject' => $email->getSubject(),
-                            'message' => $content,
-                            'template' => 'customer-simple',
-                            'additional_data' => json_encode(['attachment' => $attachments_array]),
-                            'created_at' => $email->getDate(),
-                        ];
+                            $email_subject = $email->getSubject();
+                            \Log::channel('customer')->info('Subject  => '.$email_subject);
 
-                        Email::create($params);
+                            //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
+                            $attachments_array = [];
+                            $attachments = $email->getAttachments();
+                            $fromThis = $email->getFrom()[0]->mail;
+                            $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
+                                $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
+                                file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
+                                $path = 'email-attachments/'.$attachment->name;
 
-                        if ($type['type'] == 'incoming') {
-                            $message = trim($content);
-                            $reply = (new EmailParser())->parse($message);
-                            $fragment = current($reply->getFragments());
-                            if ($reply) {
-                                $customer = \App\Customer::where('email', $from)->first();
-                                if (! empty($customer)) {
-                                    // store the main message
-                                    $params = [
-                                        'number' => $customer->phone,
-                                        'message' => $fragment->getContent(),
-                                        'media_url' => null,
-                                        'approved' => 0,
-                                        'status' => 0,
-                                        'contact_id' => null,
-                                        'erp_user' => null,
-                                        'supplier_id' => null,
-                                        'task_id' => null,
-                                        'dubizzle_id' => null,
-                                        'vendor_id' => null,
-                                        'customer_id' => $customer->id,
-                                        'is_email' => 1,
-                                    ];
-                                    $messageModel = \App\ChatMessage::create($params);
-                                    \App\Helpers\MessageHelper::whatsAppSend($customer, $fragment->getContent(), null, null, $isEmail = true);
-                                    \App\Helpers\MessageHelper::sendwatson($customer, $fragment->getContent(), null, $messageModel, $params, $isEmail = true);
+                                $attachments_array[] = $path;
+
+                                /*start 3215 attachment fetch from DHL mail */
+                                \Log::channel('customer')->info('Match Start  => '.$email_subject);
+
+                                $findFromEmail = explode('@', $fromThis);
+                                if (strpos(strtolower($email_subject), 'your copy invoice') !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
+                                    \Log::channel('customer')->info('Match Found  => '.$email_subject);
+                                    $this->getEmailAttachedFileData($attachment->name);
+                                }
+                                /*end 3215 attachment fetch from DHL mail */
+                            });
+
+                            $from = $email->getFrom()[0]->mail;
+                            $to = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+
+                            // Model is sender if its incoming else its receiver if outgoing
+                            if ($type['type'] == 'incoming') {
+                                $model_email = $from;
+                            } else {
+                                $model_email = $to;
+                            }
+
+                            // Get model id and model type
+
+                            extract($this->getModel($model_email, $email_list));
+                            /**
+                             * @var $model_id
+                             * @var $model_type
+                             */
+                            $subject = explode('#', $email_subject);
+                            if (isset($subject[1]) && ! empty($subject[1])) {
+                                $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
+                                if ($findTicket) {
+                                    $model_id = $findTicket->id;
+                                    $model_type = \App\Tickets::class;
                                 }
                             }
-                        }
 
-                        //}
+                            $params = [
+                                'model_id' => $model_id,
+                                'model_type' => $model_type,
+                                'origin_id' => $origin_id,
+                                'reference_id' => $reference_id,
+                                'type' => $type['type'],
+                                'seen' => count($email->getFlags()) > 0 ? $email->getFlags()['seen'] : 0,
+                                'from' => $email->getFrom()[0]->mail,
+                                'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                'subject' => $email->getSubject(),
+                                'message' => $content,
+                                'template' => 'customer-simple',
+                                'additional_data' => json_encode(['attachment' => $attachments_array]),
+                                'created_at' => $email->getDate(),
+                            ];
+
+                            $emailData = Email::create($params);
+
+                            if ($type['type'] == 'incoming') {
+                                $message = trim($content);
+                                $reply = (new EmailParser())->parse($message);
+                                $fragment = current($reply->getFragments());
+                                if ($reply) {
+                                    $customer = \App\Customer::where('email', $from)->first();
+                                    if (! empty($customer)) {
+                                        // store the main message
+                                        $params = [
+                                            'number' => $customer->phone,
+                                            'message' => $fragment->getContent(),
+                                            'media_url' => null,
+                                            'approved' => 0,
+                                            'status' => 0,
+                                            'contact_id' => null,
+                                            'erp_user' => null,
+                                            'supplier_id' => null,
+                                            'task_id' => null,
+                                            'dubizzle_id' => null,
+                                            'vendor_id' => null,
+                                            'customer_id' => $customer->id,
+                                            'is_email' => 1,
+                                            'from_email' => $email->getFrom()[0]->mail,
+                                            'to_email' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                            'email_id' => $emailData->id,
+                                        ];
+                                        $messageModel = \App\ChatMessage::create($params);
+                                        \App\Helpers\MessageHelper::whatsAppSend($customer, $fragment->getContent(), null, null, $isEmail = true);
+                                        \App\Helpers\MessageHelper::sendwatson($customer, $fragment->getContent(), null, $messageModel, $params, $isEmail = true);
+
+                                        // Code for if auto approve flag is YES then send Bot replay to customer email address account, If No then save email in draft tab.
+                                        $replies = \App\ChatbotQuestion::join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
+                                        ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
+                                        ->where('chatbot_questions_reply.store_website_id', ($customer->store_website_id) ? $customer->store_website_id : 1)
+                                        ->select('chatbot_questions.value', 'chatbot_questions.keyword_or_question', 'chatbot_questions.erp_or_watson', 'chatbot_questions.auto_approve', 'chatbot_question_examples.question', 'chatbot_questions_reply.suggested_reply')
+                                        ->where('chatbot_questions.erp_or_watson', 'erp')
+                                        ->get();
+
+                                        $messages = $fragment->getContent();
+
+                                        foreach ($replies as $reply) {
+                                            if ($messages != '' && $customer) {
+                                                $keyword = $reply->question;
+                                                if (($keyword == $messages || strpos(strtolower(trim($messages)), strtolower(trim($keyword))) !== false) && $reply->suggested_reply) {
+
+                                                    $lastInsertedEmail = Email::where('id', $emailData->id)->first();
+                                                    if($reply->auto_approve == 0)
+                                                    {
+                                                        $lastInsertedEmail->is_draft = 1;
+                                                        $lastInsertedEmail->save();
+                                                    } else {
+                                                        $emaildetails = [];
+
+                                                        $emaildetails['id'] = $lastInsertedEmail->id;
+                                                        $emaildetails['to'] = $customer->email;
+                                                        $emaildetails['subject'] = $lastInsertedEmail->subject;
+                                                        $emaildetails['message'] = $reply->suggested_reply;
+                                                        $from_address = "";
+                                                        $from_address = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                                                        if(empty($from_address))
+                                                        {
+                                                            $from_address = config('env.MAIL_FROM_ADDRESS');
+                                                        }
+                                                        $emaildetails['from'] = $from_address;
+
+                                                        \App\Jobs\SendEmail::dispatch($lastInsertedEmail, $emaildetails)->onQueue('send_email');
+
+                                                        $createEmail = \App\Email::create([
+                                                            'model_id' => $model_id,
+                                                            'model_type' => $model_type,
+                                                            'from' => $emaildetails['from'],
+                                                            'to' => $emaildetails['to'],
+                                                            'subject' => $emaildetails['subject'],
+                                                            'message' => $reply->suggested_reply,
+                                                            'template' => 'customer-simple',
+                                                            'additional_data' => $model_id,
+                                                            'status' => 'send',
+                                                            'store_website_id' => null,
+                                                            'is_draft' => 0,
+                                                            'type' => 'outgoing',
+                                                        ]);
+
+                                                        $chatMessage = [
+                                                            'number' => $customer->phone,
+                                                            'message' => $reply->suggested_reply,
+                                                            'media_url' => null,
+                                                            'approved' => 0,
+                                                            'status' => 0,
+                                                            'contact_id' => null,
+                                                            'erp_user' => null,
+                                                            'supplier_id' => null,
+                                                            'task_id' => null,
+                                                            'dubizzle_id' => null,
+                                                            'vendor_id' => null,
+                                                            'customer_id' => $customer->id,
+                                                            'is_email' => 1,
+                                                            'from_email' => $emaildetails['from'],
+                                                            'to_email' => $emaildetails['to'],
+                                                            'email_id' => $createEmail->id,
+                                                        ];
+                                                        \App\ChatMessage::create($chatMessage);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //}
+                        }
                     }
                 }
 
@@ -1075,9 +1170,7 @@ class EmailController extends Controller
 
                 EmailRunHistories::create($historyParam);
                 $report->update(['end_time' => Carbon::now()]);
-                session()->flash('success', 'Emails added successfully');
-
-                return redirect('/email');
+                
             } catch (\Exception $e) {
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
@@ -1087,10 +1180,20 @@ class EmailController extends Controller
                 ];
                 EmailRunHistories::create($historyParam);
                 \App\CronJob::insertLastError('fetch:all_emails', $e->getMessage());
-                session()->flash('danger', $e->getMessage());
+                $failedEmailAddresses[] = $emailAddress->username;
+            }
+        }
+        if(!empty($failedEmailAddresses))
+        {
+            session()->flash('danger', "Some address failed to synchronize.For more details: please check Email Run History for following Email Addresses: ".implode(", ",$failedEmailAddresses));
+
+            return redirect('/email');   
+        }
+        else
+        {
+            session()->flash('success', 'Emails added successfully');
 
                 return redirect('/email');
-            }
         }
     }
 

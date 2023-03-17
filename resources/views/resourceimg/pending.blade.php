@@ -11,7 +11,7 @@
 @endsection
 @section('content')
 <link href="{{ asset('css/treeview.css') }}" rel="stylesheet">
-	<div class="container">
+	<div class="col-md-12">
 		<div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">List Resources Center</h2>
@@ -50,7 +50,7 @@
                     </div>
                 </form> -->
             </div>
-            <div class="pull-right">
+            <div class="pull-right mb-2">
                 <a href="{{ route('resourceimg.index') }}"><button type="button" class="btn btn-secondary">Active</button></a>
                 <button type="button" class="btn btn-secondary" id="ckbCheck">Activate Selected</button>
                 <button type="button" class="btn btn-secondary" id="ckbCheckAll">Select All</button>
@@ -93,8 +93,8 @@
 				                <tr>
 				                	<td>{{($key+1)}}</td>
                                     <td><input type="checkbox" value="{{ $resources->id }}" name="id" class="checkBoxClass">
-					                <td>@if($resources->category->title) {{ $resources->category->title }} @endif</td>
-					                <td>@if(isset($resources->category->childs->title)) {{ $resources->category->childs->title }} @endif</td>
+					                <td>{{!empty($resources->category->title)?$resources->category->title:""}}</td>
+					                <td>{{!empty($resources->category->childs->title)?$resources->category->childs->title:""}}</td>
 					                <td><a href="{{$resources['url']}}" title="View Url" target="_blank">Click Here</a></td>
 					                <td><a href="{{ action([\App\Http\Controllers\ResourceImgController::class, 'imagesResource'], $resources['id']) }}" title="View Images">View</a></td>
 		    		                <td>{{date("l, d/m/Y",strtotime($resources['updated_at']))}}</td>

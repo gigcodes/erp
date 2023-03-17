@@ -132,9 +132,11 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Add Product from scraper to erp",
      *   operationId="scrape​r-post-product",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="sku",
      *          in="formData",
@@ -152,19 +154,23 @@ class ScrapController extends Controller
      *          in="formData",
      *          required=true,
      *          type="array",
+     *
      *           @SWG\Items(
      *              type="string",
      *           ),
      *      ),
+     *
      *      @SWG\Parameter(
      *          name="properties",
      *          in="formData",
      *          required=true,
      *          type="array",
+     *
      *          @SWG\Items(
      *             type="string",
      *           ),
      *      ),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",
@@ -359,7 +365,7 @@ class ScrapController extends Controller
             $scrapedProduct->color = $colorForScrapedProducts;
             $scrapedProduct->composition = $compositionForScrapedProducts;
             $scrapedProduct->material_used = $compositionForScrapedProducts;
-            $scrapedProduct->supplier = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
+            $scrapedProduct->supplier_id = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
             $scrapedProduct->country = isset($requestedProperties['country']) ? $requestedProperties['country'] : null;
             $scrapedProduct->size = (isset($requestedProperties['sizes']) && is_array($requestedProperties['sizes'])) ? implode(',', $requestedProperties['sizes']) : null;
             if ($request->get('size_system') != '') {
@@ -407,13 +413,13 @@ class ScrapController extends Controller
             $scrapedProduct->color = $colorForScrapedProducts;
             $scrapedProduct->composition = $compositionForScrapedProducts;
             $scrapedProduct->material_used = $compositionForScrapedProducts;
-            $scrapedProduct->supplier = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
+            $scrapedProduct->supplier_id = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
             $scrapedProduct->country = isset($requestedProperties['country']) ? $requestedProperties['country'] : null;
             $scrapedProduct->size = (isset($requestedProperties['sizes']) && is_array($requestedProperties['sizes'])) ? implode(',', $requestedProperties['sizes']) : null;
             if ($request->get('size_system') != '') {
                 $scrapedProduct->size_system = $request->get('size_system');
             }
-            $scrapedProduct->save();
+            $scrapedProduct->save();    
         }
 
         //Saving to Log Scrapper
@@ -689,9 +695,11 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="Create supplier",
      *   operationId="scraper-product-save-supplier",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="supplier",
      *          in="formData",
@@ -776,6 +784,7 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="Update/Add product from external scraper",
      *   operationId="scraper-add-procuct-supplier",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -853,8 +862,6 @@ class ScrapController extends Controller
             $scrapedProduct->validated = 1;
             $scrapedProduct->save();
         }
-
-        //dd($scrapedProduct);
 
         // Return false if no product is found
         if ($product == null) {
@@ -1071,9 +1078,11 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="Process product links for scraper to check which links are available to scrap",
      *   operationId="scraper-process-product-links",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="links[]",
      *          in="formData",
@@ -1175,9 +1184,11 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="Process product links for scraper to check which links are available to scrap and will store the entry brand wise",
      *   operationId="scraper-process-product-links-by-brand",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="links[]",
      *          in="formData",
@@ -1480,6 +1491,7 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="List of product which is in queue where done = 0 in scrap_queues",
      *   operationId="scraper-products-auto-rejected",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -1492,6 +1504,7 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="List of product which is in queue where done = 0 in scrap_queues",
      *   operationId="scraper-products-get-products-to-scrape",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -1504,6 +1517,7 @@ class ScrapController extends Controller
      *   tags={"Scraper"},
      *   summary="List of product which is in queue where done = 0 in scrap_queues",
      *   operationId="scraper-products-new-supplier",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -1711,6 +1725,7 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Send the next scraper",
      *   operationId="scraper-next",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=400, description="No Scraper Present"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -1759,9 +1774,11 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Update scraper end time",
      *   operationId="scraper-endtime",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=400, description="No Scraper Present"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="id",
      *          in="path",
@@ -1809,7 +1826,9 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Update scraper last started at time",
      *   operationId="scrapper-ready",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
+     *
      *      @SWG\Parameter(
      *          name="scraper_name",
      *          in="path",
@@ -1838,7 +1857,9 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Update scraper last completed at",
      *   operationId="scrapper-completed",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
+     *
      *      @SWG\Parameter(
      *          name="scraper_name",
      *          in="path",
@@ -1867,8 +1888,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="List of scraper which need to start",
      *   operationId="scraper-need-start",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="server_id",
      *          in="path",
@@ -1902,6 +1925,7 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"},
      *   summary="Send product which is on request from external scraper",
      *   operationId="scraper-needed-product",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      * )
      */
@@ -1922,8 +1946,27 @@ class ScrapController extends Controller
 
             ->get()
             ->toArray();
+        if($products){
+            foreach ($products as $value) {
+                $scrap_status_data = [
+                    'product_id' => $value['id'],
+                    'old_status' => StatusHelper::$requestForExternalScraper,
+                    'new_status' => StatusHelper::$sendtoExternalScraper,
+                    'pending_status' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ];
+                \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            }
+        }
         foreach ($products as $value) {
             Product::where('id', $value['id'])->update(['status_id' => StatusHelper::$sendtoExternalScraper]);
+            $scrap_status_data = [
+                'product_id' => $value['id'],
+                'old_status' => StatusHelper::$requestForExternalScraper,
+                'new_status' => StatusHelper::$sendtoExternalScraper,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
         }
 
         return response()->json($products);
@@ -1935,9 +1978,11 @@ class ScrapController extends Controller
      *   tags={"Node"},
      *   summary="Product restart node",
      *   operationId="procuct-restart-node",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -1981,9 +2026,11 @@ class ScrapController extends Controller
      *   tags={"Node"},
      *   summary="procuct get status",
      *   operationId="procuct-get-status",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -2141,8 +2188,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"} ,
      *   summary="Store scraper screenshot into database",
      *   operationId="scrape-send-screenshot",
+     *
      *   @SWG\Response(response=200, description="Screenshot saved successfully"),
      *   @SWG\Response(response=500, description="Required field is missing"),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",
@@ -2198,8 +2247,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"} ,
      *   summary="Store scraper posiotion periodically",
      *   operationId="scrape-send-position",
+     *
      *   @SWG\Response(response=200, description="History saved successfully"),
      *   @SWG\Response(response=500, description="Required field is missing"),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",
@@ -2301,8 +2352,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"} ,
      *   summary="Check scraper is auto restart ?",
      *   operationId="scrape-auto-restart",
+     *
      *   @SWG\Response(response=200, description="Success"),
      *   @SWG\Response(response=500, description="Required field is missing"),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",
@@ -2332,8 +2385,10 @@ class ScrapController extends Controller
      *   tags={"Scrape​r"} ,
      *   summary="Update scraper restart time",
      *   operationId="scrape-update-restart-time",
+     *
      *   @SWG\Response(response=200, description="History saved successfully"),
      *   @SWG\Response(response=500, description="Required field is missing"),
+     *
      *      @SWG\Parameter(
      *          name="website",
      *          in="formData",

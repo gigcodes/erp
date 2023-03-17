@@ -12,9 +12,11 @@ class ScrapeController extends Controller
      *   tags={"Scrape"} ,
      *   summary="Scrape Queue list",
      *   operationId="scrape-queue",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="email",
      *          in="path",
@@ -123,9 +125,11 @@ class ScrapeController extends Controller
      *   tags={"Scrape"} ,
      *   summary="Scrape process",
      *   operationId="scrape-process",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="email",
      *          in="path",

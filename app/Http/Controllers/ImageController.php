@@ -41,14 +41,13 @@ class ImageController extends Controller
         $brand = '';
         $category = '';
         $price = null;
-
-        if ($request->brand[0] != null) {
+        if (isset($request->brand) && $request->brand[0] != null) {
             $images = $images->whereIn('brand', $request->brand);
 
             $brand = $request->brand[0];
         }
 
-        if ($request->category[0] != null && $request->category[0] != 1) {
+        if (isset($request->category) && $request->category[0] != null && $request->category[0] != 1) {
             $is_parent = Category::isParent($request->category[0]);
             $category_children = [];
 
@@ -77,19 +76,24 @@ class ImageController extends Controller
             $category = $request->category[0];
         }
 
-        // dd($images->get());
-
         if ($request->price != null) {
             $exploded = explode(',', $request->price);
             $min = $exploded[0];
-            $max = $exploded[1];
+            $max = 0;
+            if(count($exploded) > 1)
+            {
+                $max = $exploded[1];
+            }
 
             if ($min != '0' || $max != '10000000') {
-                $images = $images->whereBetween('price_inr_special', [$min, $max]);
+                $images = $images->whereBetween('price', [$min, $max]);
             }
 
             $price[0] = $min;
-            $price[1] = $max;
+            if(count($exploded) > 1)
+            {
+                $price[1] = $max;
+            }
         }
 
         $brands = Brand::getAll();
@@ -164,14 +168,21 @@ class ImageController extends Controller
         if ($request->price != null) {
             $exploded = explode(',', $request->price);
             $min = $exploded[0];
-            $max = $exploded[1];
+            $max = 0;
+            if(count($exploded) > 1)
+            {
+                $max = $exploded[1];
+            }
 
             if ($min != '0' || $max != '10000000') {
-                $images = $images->whereBetween('price_inr_special', [$min, $max]);
+                $images = $images->whereBetween('price', [$min, $max]);
             }
 
             $price[0] = $min;
-            $price[1] = $max;
+            if(count($exploded) > 1)
+            {
+                $price[1] = $max;
+            }
         }
 
         $brands = Brand::getAll();
@@ -506,6 +517,10 @@ class ImageController extends Controller
             Storage::disk('uploads')->delete("social-media/$image->filename");
 
             $filename = time().'.'.$request->file('image')->getClientOriginalExtension();
+            if(!is_dir(public_path('uploads/social-media/'))) {
+
+                mkdir(public_path('uploads/social-media/'), 0755, true);
+            }
             $location = public_path('uploads/social-media/').$filename;
 
             Image::make($request->file('image'))->encode('jpg', 65)->save($location);

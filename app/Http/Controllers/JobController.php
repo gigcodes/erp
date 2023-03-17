@@ -44,8 +44,10 @@ class JobController extends Controller
         if ($request->available_date != '') {
             $available_start = \Carbon\Carbon::Parse($request->available_date)->startOfDay()->getTimeStamp();
             $available_end = \Carbon\Carbon::Parse($request->available_date)->endOfDay()->getTimeStamp();
-            $jobs->where('available_at', '>=', $request->available_start);
-            $jobs->where('available_at', '<=', $request->available_end);
+
+            $jobs->where('available_at', '>=', $available_start)
+                 ->where('available_at', '<', $available_end);
+
         }
 
         $checkbox = $jobs->pluck('id');

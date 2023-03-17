@@ -126,6 +126,9 @@ class ChatMessagesController extends Controller
                 $object = TestSuites::find($request->object_id);
                 //dd($object);
                 break;
+            case 'timedoctor':
+                $object = User::find($request->object_id);
+                break;
             default:
                 $object = Customer::find($request->object);
         }
@@ -180,6 +183,10 @@ class ChatMessagesController extends Controller
 
         if ($request->keyword != null) {
             $chatMessages = $chatMessages->where('message', 'like', '%'.$request->keyword.'%'); //Purpose - solve issue for search message , Replace form whereDate to where - DEVTASK-4020
+        }
+
+        if ($request->object == 'timedoctor') {
+            $chatMessages = ChatMessage::where('time_doctor_activity_user_id', $object->id);
         }
 
         $chatMessages = $chatMessages->skip($skip)->take($limit);
@@ -646,6 +653,7 @@ class ChatMessagesController extends Controller
 
     public function customChatRecords(Request $request)
     {
+//        dd($request->get('keyword'));
         if ($request->get('keyword') != null) {
             $delimiters = ['/', ','];
             $str = $request->get('keyword');
@@ -662,38 +670,31 @@ class ChatMessagesController extends Controller
         } else {
             $keywords = [];
         }
-        $records = ChatMessage::with('user', 'vendor', 'customer')
-            ->where(function ($query) {
+        $records = ChatMessage::with('user', 'vendor', 'customer')->where(function ($query) {
                 $query->whereNotNull('vendor_id');
                 $query->orWhereNotNull('user_id');
                 $query->orWhereNotNull('customer_id');
             });
-        if (! empty($keywords)) {
-            $records = $records->where(function ($query) use ($keywords) {
-                foreach ($keywords as $keyword) {
-                    $query->orWhere('message', 'like', '%'.$keyword.'%');
-                    $query->orWhere('created_at', 'like', '%'.$keyword.'%');
-                }
-            })->orWhereHas('user', function ($query) use ($keywords) {
-                foreach ($keywords as $keyword) {
-                    $query->where('name', 'like', '%'.$keyword.'%');
-                }
-            });
+
+        if($request->get('keyword') != null)
+        {
+            $records->where('message', 'like', '%'.$request->keyword.'%');
         }
+
         if (! empty($request->user_id)) {
-            $records = $records->where('user_id', $request->user_id);
+            $records->where('user_id', $request->user_id);
         }
 
         if (! empty($request->vendor_id)) {
-            $records = $records->where('vendor_id', $request->vendor_id);
+            $records->where('vendor_id', $request->vendor_id);
         }
 
         if (! empty($request->customer_id)) {
-            $records = $records->where('customer_id', $request->customer_id);
+            $records->where('customer_id', $request->customer_id);
         }
 
         if (! empty($request->created_at)) {
-            $records = $records->whereDate('created_at', date('Y-m-d', strtotime($request->created_at)));
+            $records->whereDate('created_at', date('Y-m-d', strtotime($request->created_at)));
         }
 
         $records = $records->latest()->paginate(20);

@@ -1,10 +1,17 @@
 @extends('layouts.app')
 @section('title', 'Conditions checked Products')
+@section('styles')
+    <style>
+        .btn-link {
+            color: #337ab7 !important;
+        }
+    </style>
+@endsection
 @section('large_content')
     @include('partials.flash_messages')
     <div class="row">
         <div class="col-md-12 margin-tb">
-            <h2 class="page-heading">Conditions checked Products </h2>
+            <h2 class="page-heading">Conditions checked Products(<span id="lbl_product_count">0</span>) </h2>
             <form method="get" id="checkconditionForm">
                 <div class="row">
                     <div class="col-md-2 mt-3">
@@ -85,17 +92,40 @@
             </div>
         </div>
     </div>
+    
+    <div id="logListMagentoDetailModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h3 class="modal-title">Log message</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="loglist_message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @endsection
 @section('scripts')
     <script>
         $(document).ready(function() {
             var formData = new FormData($("#checkconditionForm")[0]);
+            var current_page = {{ (request('page'))?request('page'):1 }};
             $.ajax({
-                url: "{{ route('products.magentoConditionsCheck') }}",
+                url: "{{ route('products.magentoConditionsCheck') }}?page="+current_page,
                 type: 'GET',
+                dataType:'json',
                 success: function(response) {
-                    $(".appendData").append(response);
+                    if(response.status == 200) {
+                        $(".appendData").html(response.data.view);
+                        $("#lbl_product_count").html(response.data.productsCount);
+                    }
                 }
             })
         })
@@ -180,8 +210,12 @@
             $.ajax({
                 url: url,
                 type: 'GET',
+                dataType:'json',
                 success: function(response) {
-                    $(".appendData").html(response);
+                    if(response.status == 200) {
+                        $(".appendData").html(response.data.view);
+                        $("#lbl_product_count").html(response.data.productsCount);
+                    }
                 }
             })
         });
@@ -239,6 +273,26 @@
             }).fail(function(errObj) {
                 $('#loading-image').hide();
                 $("#todolistUpdateModal").hide();
+                toastr['error'](errObj.message, 'error');
+            });
+        }
+        
+        function getLogListMagentoDetail(llm_id) {
+            var request_url = "{{ route('products.getLogListMagentoDetail', ':llm_id') }}";
+            request_url = request_url.replace(':llm_id', llm_id);
+            $.ajax({
+                url: request_url,
+                type: "get"
+            }).done(function(response) {
+                if (response.code == '200') {
+                    $('#logListMagentoDetailModal').modal('show');
+                    $("#loglist_message").text(response.data.message);
+                }
+                if (response.code == '500') {
+                    toastr['error'](response.msg, 'error');
+                } 
+                
+            }).fail(function(errObj) {
                 toastr['error'](errObj.message, 'error');
             });
         }

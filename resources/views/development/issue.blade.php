@@ -201,6 +201,44 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     </div>
 </div>
 
+<div id="create-d-task-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Task</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form action="<?php echo route('development/create/hubstaff_task'); ?>" method="post" id="assign_task_form">
+                    <?php echo csrf_field(); ?>
+                    <div class="form-group">
+                        <input type="hidden" name="id" id="issueId"/>
+                        <input type="hidden" name="type" id="type"/>
+                        <label for="task_for">Task For</label>
+                        <select name="task_for" class="form-control task_for" style="width:100%;">
+                            <option value="">Select</option>
+                            <option value="hubstaff">Hubstaff</option>
+                            <option value="time_doctor">Time Doctor</option>
+                        </select>
+                    </div>
+                    <div class="form-group time_doctor_account_section">
+                        <label for="time_doctor_account">Task Account</label>
+                        <?php echo Form::select("time_doctor_account",['' => ''],null,["class" => "form-control time_doctor_account_modal globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.time_doctor_accounts_for_task'), 'data-placeholder' => 'Account']); ?>
+                    </div>
+                    <div class="form-group time_doctor_project_section">
+                        <label for="time_doctor_project">Time Doctor Project</label>
+                        <?php echo Form::select("time_doctor_project",['' => ''],null,["class" => "form-control time_doctor_project globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.time_doctor_projects'), 'data-placeholder' => 'Project']); ?>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-default" data-task_id="">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @include("development.actions-update-modal")
 @include("development.partials.time-history-modal")
 
@@ -214,6 +252,139 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <script src="{{env('APP_URL')}}/js/bootstrap-filestyle.min.js"></script>
 
 <script>
+    jQuery(document).ready(function() {
+        applyDateTimePicker(jQuery('.cls-start-due-date'));
+    });
+    function applyDateTimePicker(eles) {
+        if (eles.length) {
+            eles.datetimepicker({
+                format: 'YYYY-MM-DD HH:mm:ss',
+                sideBySide: true,
+            });
+        }
+    }
+
+    function funGetTaskInformationModal() {
+        return jQuery('#modalTaskInformationUpdates');
+    }
+
+    function funDevTaskInformationUpdatesTime(type,id) {
+        if (type == 'start_date') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.start-date') }}",
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        value: $('input[name="start_dates'+id+'"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'estimate_date') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.estimate-date') }}",
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        value: $('input[name="estimate_date'+id+'"]').val(),
+                        remark: mdl.find('input[name="remark"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'cost') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.cost') }}",
+                    type: 'POST',
+                    data: {
+                        id: currTaskInformationTaskId,
+                        value: mdl.find('input[name="cost"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'estimate_minutes') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.estimate-minutes') }}",
+                    type: 'POST',
+                    data: {
+                        issue_id: id,
+                        estimate_minutes: $('input[name="estimate_minutes'+id+'"]').val(),
+                        remark: mdl.find('textarea[name="remark"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        } else if (type == 'lead_estimate_time') {
+            if (confirm('Are you sure, do you want to update?')) {
+                // siteLoader(1);
+                let mdl = funGetTaskInformationModal();
+                jQuery.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('development.update.lead-estimate-minutes') }}",
+                    type: 'POST',
+                    data: {
+                        issue_id: currTaskInformationTaskId,
+                        lead_estimate_time: mdl.find('input[name="lead_estimate_time"]').val(),
+                        remark: mdl.find('input[name="lead_remark"]').val(),
+                    }
+                }).done(function(res) {
+                    // siteLoader(0);
+                    siteSuccessAlert(res);
+                }).fail(function(err) {
+                    // siteLoader(0);
+                    siteErrorAlert(err);
+                });
+            }
+        }
+    }
+
     $(document).on("click", ".set-remark", function(e) {
         $('.remark_pop').val("");
         var task_id = $(this).data('task_id');
@@ -912,8 +1083,12 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     $(document).on('click', '.create-hubstaff-task', function() {
         var issueId = $(this).data('id');
         var type = $(this).data('type');
+        $("#issueId").val( issueId );
+        $("#type").val( type );
+        $('#create-d-task-modal').modal('show');
+
         $(this).css('display', 'none');
-        $.ajax({
+        /*$.ajax({
             url: "{{ route('development/create/hubstaff_task') }}",
             type: 'POST',
             data: {
@@ -933,7 +1108,28 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 $("#loading-image").hide();
                 toastr["error"](error.responseJSON.message);
             }
+        });*/
+    });
+
+    $(document).on('submit', '#assign_task_form', function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: "{{route('development/create/hubstaff_task')}}",
+            type: 'POST',
+            data: $(this).serialize(),
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                toastr['success']('created successfully!');
+                $('#create-d-task-modal').modal('hide');
+                $("#loading-image").hide();
+            },
+            error: function(error) {
+                toastr["error"](error.responseJSON.message);
+            }
         });
+
     });
 
     $(document).on('change', '.change-task-status', function() {

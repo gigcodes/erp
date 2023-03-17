@@ -120,7 +120,7 @@
                 </tr>
 
                 {{-- <tr>
-		  
+
             <th></th>
             <th><input type="text" id="website" class="search form-control"></th>
             <th><input type="text" id="username" class="search form-control"></th>
@@ -295,7 +295,7 @@
                             <div class='input-group date' id='todo-update-date'>
                                 <input type="text" class="form-control global" name="todo_date" placeholder="Date"
                                     value="{{ old('todo_date') }}">
-                                    
+
                                 <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </span>
@@ -324,7 +324,7 @@
 
         </div>
     </div>
-    
+
     <div id="getRemarkHistory" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
@@ -630,7 +630,7 @@
             $('#userIds').val(values);
         });
 
-        
+
 
         function statusChange(id, xvla) {
             $.ajax({

@@ -81,7 +81,8 @@
       <form method="POST" id="CreateCompaign" class="create-compaign-form" enctype="multipart/form-data">
           {{csrf_field()}}
           <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
-         <div class="row m-0">
+         
+         <div class="row m-0 mb-3">
              <div class="col-md-4 pl-0 pr-2">
                  <div class="form-group m-0 top">
                      <label for="campaign-name" class="col-form-label">Campaign name</label><br>
@@ -93,7 +94,7 @@
                      </div>
                  </div>
              </div>
-             <div class="col-md-4 pl-2 pr-2">
+             <div class="col-md-3 pl-2 pr-2">
                  <div class="form-group m-0 top">
                      <label for="campaign-status" class="  col-form-label">Channel Type</label><br>
                      <div class="form-input">
@@ -102,25 +103,29 @@
                              <option value="DISPLAY">Display</option>
                              <option value="SHOPPING">Shopping</option>
                              <option value="MULTI_CHANNEL">Multi Channel</option>
+                             {{-- <option value="PERFORMANCE_MAX">Performance Max</option> --}}
                          </select>
                      </div>
                  </div>
              </div>
-             <div class="col-md-4 pl-2 pr-0">
+             <div class="col-md-5 pl-2 pr-0">
                  <div class="form-group m-0 top">
                      <label for="campaign-status" class="col-form-label">ChannelSub Type</label>
                      <div class="form-input">
-                         <select class="browser-default custom-select globalSelect2" id="channel_sub_type" name="channel_sub_type" style="height: auto">
-                             <option value="">---select subtype---</option>
-                             <!-- <option value="UNKNOWN" selected>Unknown</option> -->
-                             <option value="SEARCH_MOBILE_APP">Mobile App Campaigns for Search</option>
-                             <option value="DISPLAY_MOBILE_APP">Mobile App Campaigns for Display</option>
+                         <select class="browser-default custom-select" id="channel_sub_type" name="channel_sub_type" style="height: auto">
+                             {{-- <option value="">---select subtype---</option> --}}
+                             <option value="UNSPECIFIED" selected>Unspecified</option>
+                             <option value="SEARCH_MOBILE_APP">Mobile App Campaigns for search</option>
+                             <option value="DISPLAY_MOBILE_APP">Mobile App Campaigns for display</option>
                              <option value="SEARCH_EXPRESS">AdWords Express campaigns for search</option>
-                             <option value="DISPLAY_EXPRESS">AdWords Express campaigns for display.</option>
-                             <option value="UNIVERSAL_APP_CAMPAIGN">Google manages the keywords and ads for these campaigns</option>
+                             <option value="DISPLAY_EXPRESS">AdWords Express campaigns for display</option>
+                             {{-- <option value="UNIVERSAL_APP_CAMPAIGN">Google manages the keywords and ads for these campaigns</option> --}}
                              <option value="DISPLAY_SMART_CAMPAIGN">Smart display campaign</option>
                              <option value="SHOPPING_GOAL_OPTIMIZED_ADS">Optimize automatically towards the retailer's business objectives</option>
                              <option value="DISPLAY_GMAIL_AD">Gmail Ad Campaigns</option>
+                             <option value="APP_CAMPAIGN">App Campaign</option>
+                             {{-- <option value="APP_CAMPAIGN_FOR_ENGAGEMENT">App Campaign for engagement</option> --}}
+                             <option value="APP_CAMPAIGN_FOR_PRE_REGISTRATION">App Campaign for pre-registration (Android only)</option>
                          </select>
                      </div>
                  </div>
@@ -128,11 +133,10 @@
          </div>
 
 
-
-        <div class="mt-3 mb-3">
+        <div class="mb-3" id="div_shipping_setting" style="display:none;">
             <fieldset>
                 <legend class="lagend">Settings</legend>
-                <div class="form-group m-0 row" id="div_shipping_setting" style="display:none;">
+                <div class="form-group m-0 row">
                     <div class="col-md-6 pl-0 pr-3">
                         <label for="campaign-status" class=" col-form-label">Merchant Id</label><br>
                             <input type="text" id="merchant_id" name="merchant_id" value="">
@@ -142,8 +146,27 @@
                             <input type="text" id="sales_country" name="sales_country" value="">
                             <br><span>E.g IN </span>
                     </div>
+                </div>
+            </fieldset>
+        </div>
 
-
+        <div class="mb-3" id="div_app_setting" style="display:none;">
+            <fieldset>
+                <legend class="lagend">App Settings</legend>
+                <div class="form-group m-0 row">
+                    <div class="col-md-6 pl-0 pr-3">
+                        <label for="campaign-status" class=" col-form-label">App Id</label><br>
+                            <input type="text" id="app_id" name="app_id" value="">
+                    </div>
+                    <div class="col-md-6 pl-0 pr-0">
+                        <label for="campaign-status" class="col-sm- col-form-label">App Store</label>
+                        <div>
+                            <select class="browser-default custom-select globalSelect2" id="app_store" name="app_store" style="height: auto">
+                                <option value="GOOGLE_APP_STORE" selected>Google App Store</option>
+                                <option value="APPLE_APP_STORE">Apple App Store</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </fieldset>
         </div>
@@ -168,7 +191,7 @@
                     <div class="form-group m-0">
                         <label for="campaign-status" class="col-form-label">Bidding Strategy</label>
                         <div id="biddingStrategyType_second_div">
-                            <select class="browser-default custom-select globalSelect2" id="biddingStrategyType" name="biddingStrategyType" style="height: auto">
+                            <select class="browser-default custom-select" id="biddingStrategyType" name="biddingStrategyType" style="height: auto">
                                 @foreach($biddingStrategyTypes as $bskey=>$bs)
                                     <option value="{{$bskey}}">{{$bs}}</option>
                                 @endforeach
@@ -305,9 +328,19 @@
                 processData: false,
                 contentType: false,
                 success:function(response){
-                    console.log(response);
-                    console.log('done')
-                    $('#create-compaign').modal('hide');
+                    if(response.status !== undefined && response.status == false){
+                        toastr.error("Someting went to wrong! Please check logs.");
+                        location.reload();
+                    }else{
+                        $('#create-compaign').modal('hide');
+                        location.reload();
+                    }
+                },
+
+                error: function(jqXHR){
+                    if(jqXHR.responseJSON.message !== undefined){
+                        toastr.error(jqXHR.responseJSON.message);
+                    }
                 },
             });
         });
@@ -334,8 +367,13 @@
         //end re-arranging everything
 
         if(bidding_focus_on_val=="conversions"){
-                biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+            biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
         }
+        
+        if(channel_type.val()=="MULTI_CHANNEL"){
+            biddingStrategyArray=['TARGET_CPA'];
+        }
+
         if(biddingStrategyArray.length>0){
             $(biddingStrategyArray).each(function(i,v){
                 $("#biddingStrategyType option[value=" + v + "]").show();
@@ -352,7 +390,7 @@
         $("#target_cost_per_action").prop('checked',false);
         $("#div_roas").hide();
         $("#div_targetspend").hide();
-        if(biddingStrategyTypeVal=="MAXIMIZE_CONVERSION_VALUE" || biddingStrategyTypeVal=="TARGET_CPA"){
+        if(biddingStrategyTypeVal=="TARGET_CPA"){
             //append HTML into form
             /* var html='<div id="maindiv_for_target"><input type="checkbox" name="target_cost_per_action" id="target_cost_per_action" value="1"> Set a target cost per action\n\
             <div id="div_html_append_1" style="display:none;">\n\
@@ -367,7 +405,7 @@
             $("#biddingStrategyType_second_div").append(html); */
             $("#maindiv_for_target").css('display','block');
         }
-        if(biddingStrategyTypeVal=="TARGET_ROAS"){
+        if(biddingStrategyTypeVal=="TARGET_ROAS" /*|| biddingStrategyTypeVal=="MAXIMIZE_CONVERSIONS"*/){
             $("#div_roas").show();
         }
 
@@ -379,11 +417,10 @@
     
     //$(document).on("click", '#target_cost_per_action', function() {
     $("#target_cost_per_action").click(function(){
-         if($("#target_cost_per_action").is( 
-                      ":checked")){
-                $("#div_html_append_1").show();
+        if($("#target_cost_per_action").is(":checked")){
+            $("#div_html_append_1").show();
         }else{
-                $("#div_html_append_1").hide();
+            $("#div_html_append_1").hide();
         } 
 
     });
@@ -395,10 +432,16 @@
         
         $("#div_roas").hide();
         $("#div_targetspend").hide();
+       
         var bidding_focus_on_val=bidding_focus_on.val();
         if(bidding_focus_on_val=="conversions"){
-                biddingStrategyArray=['TARGET_CPA','TARGET_ROAS','TARGET_SPEND','MAXIMIZE_CONVERSION','MANUAL_CPM','MANUAL_CPC'];
+            biddingStrategyArray=['TARGET_CPA','TARGET_ROAS','TARGET_SPEND','MAXIMIZE_CONVERSIONS','MANUAL_CPM','MANUAL_CPC','UNSPECIFIED'];
         }
+
+        if(channel_type.val()=="MULTI_CHANNEL"){
+            biddingStrategyArray=['TARGET_CPA'];
+        }
+
         if(biddingStrategyArray.length>0){
             $(biddingStrategyArray).each(function(i,v){
                 $("#biddingStrategyType option[value=" + v + "]").show();
@@ -410,8 +453,11 @@
         $("#biddingStrategyType").removeAttr('selected');
         $("#biddingStrategyType option").hide();
         
-       
-                biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+        biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+
+        if(channel_type.val()=="MULTI_CHANNEL"){
+            biddingStrategyArray=['TARGET_CPA'];
+        }
        
         if(biddingStrategyArray.length>0){
             $(biddingStrategyArray).each(function(i,v){
@@ -423,28 +469,39 @@
 
     $("#channel_type").on('change',function(){
         channelTypeChangeFunc();
+        biddingFocusBaseStrategy();
     });
 
     function channelTypeChangeFunc(){
-        var channelSubTypeyArray=['UNIVERSAL_APP_CAMPAIGN','SHOPPING_GOAL_OPTIMIZED_ADS'];
+
+        console.log("channelTypeChangeFunc called");
+        var channelSubTypeyArray=["UNSPECIFIED"];
         //start re-arranging everything
         var channel_type_val=channel_type.val();
         $("#channel_sub_type").removeAttr('selected');
         $("#channel_sub_type option").hide();
         $("#div_shipping_setting").hide();
+        $("#div_app_setting").hide();
         //end re-arranging everything
         resetAdOptimization();
         if(channel_type_val=="SEARCH"){
-            channelSubTypeyArray.push('SEARCH_MOBILE_APP','SEARCH_EXPRESS');
+            // channelSubTypeyArray.push('SEARCH_MOBILE_APP','SEARCH_EXPRESS');
         }
         if(channel_type_val=="DISPLAY"){
-            channelSubTypeyArray.push('DISPLAY_MOBILE_APP','DISPLAY_EXPRESS','DISPLAY_SMART_CAMPAIGN','DISPLAY_GMAIL_AD');
+            // channelSubTypeyArray.push('DISPLAY_MOBILE_APP','DISPLAY_EXPRESS','DISPLAY_SMART_CAMPAIGN','DISPLAY_GMAIL_AD');
         }
-
+        if(channel_type_val=="MULTI_CHANNEL"){
+            channelSubTypeyArray = [];
+            channelSubTypeyArray.push('APP_CAMPAIGN','APP_CAMPAIGN_FOR_ENGAGEMENT','APP_CAMPAIGN_FOR_PRE_REGISTRATION');
+        }
         
 
         if(channel_type_val=="SHOPPING"){
             $("#div_shipping_setting").show();
+        }
+
+        if(channel_type_val=="MULTI_CHANNEL"){
+            $("#div_app_setting").show();
         }
 
         if(channelSubTypeyArray.length>0){
@@ -452,6 +509,9 @@
                 $("#channel_sub_type option[value=" + v + "]").show();
             });
         }
+
+        // $("#channel_sub_type").select2("destroy");
+        // $("#channel_sub_type").select2();
     }
 
     function resetAdOptimization(){

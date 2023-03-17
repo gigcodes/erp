@@ -11,9 +11,15 @@ use App\ReplyUpdateHistory;
 use App\Setting;
 use App\StoreWebsitePage;
 use App\WatsonAccount;
+use App\GoogleFiletranslatorFile;
+use App\GoogleTranslate;
+use App\Language;
+use App\Translations;
+use App\TranslateReplies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\ProcessTranslateReply;
 
 class ReplyController extends Controller
 {
@@ -24,6 +30,7 @@ class ReplyController extends Controller
 
     public function index(Request $request)
     {
+
         $reply_categories = ReplyCategory::all();
 
         $replies = Reply::oldest();
@@ -136,9 +143,12 @@ class ReplyController extends Controller
             'model' => 'required',
         ]);
 
-        $data = $request->except('_token', '_method');
+        $data               =   $request->except('_token', '_method');
 
+        $reply->is_pushed   =   0;
         $reply->update($data);
+
+        (new \App\Models\ReplyLog)->addToLog($reply->id, 'System updated FAQ', 'Updated' );
 
         return redirect()->route('reply.index')->with('success', 'Quick Reply updated successfully');
     }
@@ -217,12 +227,15 @@ class ReplyController extends Controller
     {
         $storeWebsite = $request->get('store_website_id');
         $keyword = $request->get('keyword');
-        $category = $request->get('category_id');
+        $parent_category = $request->get('parent_category_ids') ? $request->get('parent_category_ids') : [];
+        $category_ids = $request->get('category_ids') ? $request->get('category_ids') : [];
+        $sub_category_ids = $request->get('sub_category_ids') ? $request->get('sub_category_ids') : [];
+
         $categoryChildNode = [];
-        if ($category) {
-            $parentNode = ReplyCategory::where('id', '=', $category)->where('parent_id', '=', 0)->first();
+        if ($parent_category) {
+            $parentNode = ReplyCategory::select(\DB::raw('group_concat(id) as ids'))->whereIn('id', $parent_category)->where('parent_id', '=', 0)->first();
             if ($parentNode) {
-                $subCatChild = ReplyCategory::where('parent_id', $parentNode->id)->get()->pluck('id')->toArray();
+                $subCatChild = ReplyCategory::whereIn('parent_id', explode(',', $parentNode->ids))->get()->pluck('id')->toArray();
                 $categoryChildNode = ReplyCategory::whereIn('parent_id', $subCatChild)->get()->pluck('id')->toArray();
             }
         }
@@ -241,17 +254,30 @@ class ReplyController extends Controller
                 $q->orWhere('reply_categories.name', 'LIKE', '%'.$keyword.'%')->orWhere('replies.reply', 'LIKE', '%'.$keyword.'%');
             });
         }
-        if (! empty($category)) {
+        if (! empty($parent_category)) {
             if ($categoryChildNode) {
                 $replies = $replies->where(function ($q) use ($categoryChildNode) {
                     $q->orWhereIn('reply_categories.id', $categoryChildNode);
                 });
             } else {
-                $replies = $replies->where(function ($q) use ($category) {
-                    $q->orWhere('reply_categories.id', '=', $category)->orWhere('reply_categories.parent_id', '=', $category);
+                $replies = $replies->where(function ($q) use ($parent_category) {
+                    $q->orWhereIn('reply_categories.id', $parent_category)->where('reply_categories.parent_id', '=', 0);
                 });
             }
         }
+
+        if (! empty($category_ids)) {
+            $replies = $replies->where(function ($q) use ($category_ids) {
+                $q->orWhereIn('reply_categories.parent_id', $category_ids)->where('reply_categories.parent_id', '!=', 0);
+            });
+        }
+
+        if (! empty($sub_category_ids)) {
+            $replies = $replies->where(function ($q) use ($sub_category_ids) {
+                $q->orWhereIn('reply_categories.id', $sub_category_ids)->where('reply_categories.parent_id', '!=', 0);
+            });
+        }
+
         $replies = $replies->paginate(25);
         foreach ($replies as $key => $value) {
             $subCat = explode('>', $value->parentList());
@@ -259,7 +285,20 @@ class ReplyController extends Controller
             $replies[$key]['parent_secound'] = isset($subCat[1]) ? $subCat[1] : '';
         }
 
-        return view('reply.list', compact('replies'));
+        $parentCategory = $allSubCategory = [];
+        $parentCategory = ReplyCategory::where('parent_id', 0)->get();
+        $allSubCategory = ReplyCategory::where('parent_id', '!=', 0)->get();
+        $category = $subCategory = [];
+        foreach ($allSubCategory as $key => $value) {
+            $categoryList = ReplyCategory::where('id', $value->parent_id)->first();
+            if ($categoryList->parent_id == 0) {
+                $category[$value->id] = $value->name;
+            } else {
+                $subCategory[$value->id] = $value->name;
+            }
+        }
+
+        return view('reply.list', compact('replies', 'parentCategory', 'category', 'subCategory', 'parent_category', 'category_ids', 'sub_category_ids'));
     }
 
     public function replyListDelete(Request $request)
@@ -344,4 +383,77 @@ class ReplyController extends Controller
 
         return response()->json(['histories' => $reply_histories]);
     }
+
+    public function replyTranslate(Request $request)
+    {
+
+        $id = $request->reply_id;
+        $is_flagged_request = $request->is_flagged;
+
+        if($is_flagged_request == '1'){
+            $is_flagged = 0;
+        } else {
+            $is_flagged = 1;
+        }
+       
+        if($is_flagged == '1') {  
+            $record     =   \App\Reply::find($id);           
+            if ($record) {  
+
+                ProcessTranslateReply::dispatch($record, \Auth::id())->onQueue('reply_translation');
+
+                $record->is_flagged     =   1;
+                $record->save();
+                return response()->json(['code' => 200, 'data' => [], 'message' => 'Replies Set For Translatation']);                              
+            }    
+
+            return response()->json(['code' => 400, 'data' => [], 'message' => 'There is a problem while translating']);
+           
+        } else {
+            $res_rec = \App\Reply::find($id);  
+            $res_rec->is_flagged = 0;
+            $res_rec->save();
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Translation off successfully']);
+
+        }
+
+    }
+
+
+    public function replyTranslateList(Request $request)
+    {
+        $storeWebsite = $request->get('store_website_id');
+        $keyword = $request->get('keyword');
+
+        $replies = \App\TranslateReplies::join('replies', 'translate_replies.replies_id', 'replies.id')
+        ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
+        ->leftJoin('reply_categories', 'reply_categories.id', 'replies.category_id')
+        ->where('model', 'Store Website')->where('replies.is_flagged', '1')
+        ->select(['replies.*','replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id','translate_replies.id as id','translate_replies.translate_from','translate_replies.translate_to','translate_replies.translate_text','translate_replies.created_at','translate_replies.updated_at']);
+
+        if ($storeWebsite > 0) {
+            $replies = $replies->where('replies.store_website_id', $storeWebsite);
+        }
+
+        if (! empty($keyword)) {
+            $replies = $replies->where(function ($q) use ($keyword) {
+                $q->orWhere('reply_categories.name', 'LIKE', '%'.$keyword.'%')->orWhere('replies.reply', 'LIKE', '%'.$keyword.'%');
+            });
+        }
+
+        $replies = $replies->paginate(25);
+
+        return view('reply.translate-list', compact('replies'));
+    }
+
+    function    show_logs(Request   $request,    \App\Models\ReplyLog  $ReplyLog){
+        
+        $data   =   $request->all();
+
+        $data   =   $ReplyLog->where('reply_id', $data['id'])->orderby('created_at','desc')->paginate(20);
+        $paginateHtml   =   $data->links()->render();
+        return response()->json(['code' => 200, 'paginate' =>$paginateHtml, 'data' => $data, 'message' => 'Logs found']);
+
+    }
+
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\ChatMessage;
 use App\HashTag;
+use App\InstagramPosts;
+use App\Jobs\InstaSchedulePost;
 //use App\InstagramPosts;
 use App\Post;
 //use App\InstagramPostsComments;
@@ -24,6 +26,7 @@ use Plank\Mediable\Media;
 //use App\InstagramLog;
 //use App\InstagramUserLog;
 use UnsplashSearch;
+use App\Helpers\SocialHelper;
 
 //use App\Jobs\InstaSchedulePost;
 //\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
@@ -48,189 +51,189 @@ class InstagramPostsController extends Controller
 
     public function post(Request $request)
     {
-//       $images = $request->get('images', false);
-//       $mediaIds = $request->get('media_ids', false);
-//
-//        $productArr = null;
-//        if ($images) {
-//            $productIdsArr = \DB::table('mediables')
-//                                ->whereIn('media_id', json_decode($images))
-//                                ->where('mediable_type', 'App\Product')
-//                                ->pluck('mediable_id')
-//                                ->toArray();
-//
-//            if (!empty($productIdsArr)) {
-//                $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();
-//            }
-//        }
-//
-//        $mediaIdsArr = null;
-//        if( $mediaIds ){
-//            $mediaIdsArr = \DB::table('mediables')
-//                        ->whereIn('media_id', explode(',',$mediaIds))
-//                        ->where('mediable_type', 'App\StoreWebsite')
-//                        ->get();
-//        }
-//        //$accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
-//        $accounts = \App\Account::where('platform','instagram')->where('status',1)->get();
-//
-//        //$posts = Post::where('status', 1)->get();
-//
-//        $query = Post::query();
-//
-//        if($request->acc){
-//            $query = $query->where('id', $request->acc);
-//        }
-//        if($request->comm){
-//            $query = $query->where('comment', 'LIKE','%'.$request->comm.'%');
-//        }
-//        if($request->tags){
-//            $query = $query->where('hashtags', 'LIKE','%'.$request->tags.'%');
-//        }
-//        if($request->loc){
-//            $query = $query->where('location', 'LIKE','%'.$request->loc.'%');
-//        }
-//        if($request->select_date){
-//            $query = $query->whereDate('created_at',$request->select_date);
-//        }
-//        $posts = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
-//
-//
-//        $used_space = 0;
-//        $storage_limit = 0;
-//        $contents = StoreSocialContent::query();
-//        $contents = $contents->get();
-//        $records = [];
-//        foreach($contents as $site) {
-//            if ($site) {
-//                    if ($site->hasMedia(config('constants.media_tags'))) {
-//                        foreach ($site->getMedia(config('constants.media_tags')) as $media) {
-//                            $records[] = [
-//                                "id"        => $media->id,
-//                                'extension' => strtolower($media->extension),
-//                                'file_name' => $media->filename,
-//                                'mime_type' => $media->mime_type,
-//                                'size' => $media->size ,
-//                                'thumb' => $media->getUrl() ,
-//                                'original' => $media->getUrl()
-//                            ];
-//                        }
-//                    }
-//            }
-//        }
-//
-//        $imagesHtml='';
-//        if(isset($productArr) && count($productArr)):
-//            foreach($productArr as $product):
-//                foreach($product->media as $media):
-//                    $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media->id.'" data-original="'.$media->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media->getUrl().'" alt="'.$product->name.'" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
-//                endforeach;
-//            endforeach;
-//        endif;
-//
-//        if(isset($mediaIdsArr) && !empty($mediaIdsArr)):
-//            foreach($mediaIdsArr as $image):
-//                $media = Media::where('id',$image->media_id)->get();
-//                if(!empty($media)):
-//                    $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media[0]->getkey().'" data-original="'.$media[0]->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media[0]->getUrl().'" alt="Images" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
-//                endif;
-//            endforeach;
-//        endif;
-//
-//        return view('instagram.post.create' , compact('accounts','records','used_space','storage_limit', 'posts','imagesHtml'))->with('i', ($request->input('page', 1) - 1) * 5);;
+      $images = $request->get('images', false);
+      $mediaIds = $request->get('media_ids', false);
+
+       $productArr = null;
+       if ($images) {
+           $productIdsArr = \DB::table('mediables')
+                               ->whereIn('media_id', json_decode($images))
+                               ->where('mediable_type', 'App\Product')
+                               ->pluck('mediable_id')
+                               ->toArray();
+
+           if (!empty($productIdsArr)) {
+               $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();
+           }
+       }
+
+       $mediaIdsArr = null;
+       if( $mediaIds ){
+           $mediaIdsArr = \DB::table('mediables')
+                       ->whereIn('media_id', explode(',',$mediaIds))
+                       ->where('mediable_type', 'App\StoreWebsite')
+                       ->get();
+       }
+       //$accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
+       $accounts = \App\Account::where('platform','instagram')->where('status',1)->get();
+
+       //$posts = Post::where('status', 1)->get();
+
+       $query = Post::query();
+
+       if($request->acc){
+           $query = $query->where('id', $request->acc);
+       }
+       if($request->comm){
+           $query = $query->where('comment', 'LIKE','%'.$request->comm.'%');
+       }
+       if($request->tags){
+           $query = $query->where('hashtags', 'LIKE','%'.$request->tags.'%');
+       }
+       if($request->loc){
+           $query = $query->where('location', 'LIKE','%'.$request->loc.'%');
+       }
+       if($request->select_date){
+           $query = $query->whereDate('created_at',$request->select_date);
+       }
+       $posts = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
+
+
+       $used_space = 0;
+       $storage_limit = 0;
+       $contents = StoreSocialContent::query();
+       $contents = $contents->get();
+       $records = [];
+       foreach($contents as $site) {
+           if ($site) {
+                   if ($site->hasMedia(config('constants.media_tags'))) {
+                       foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                           $records[] = [
+                               "id"        => $media->id,
+                               'extension' => strtolower($media->extension),
+                               'file_name' => $media->filename,
+                               'mime_type' => $media->mime_type,
+                               'size' => $media->size ,
+                               'thumb' => $media->getUrl() ,
+                               'original' => $media->getUrl()
+                           ];
+                       }
+                   }
+           }
+       }
+
+       $imagesHtml='';
+       if(isset($productArr) && count($productArr)):
+           foreach($productArr as $product):
+               foreach($product->media as $media):
+                   $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media->id.'" data-original="'.$media->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media->getUrl().'" alt="'.$product->name.'" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+               endforeach;
+           endforeach;
+       endif;
+
+       if(isset($mediaIdsArr) && !empty($mediaIdsArr)):
+           foreach($mediaIdsArr as $image):
+               $media = Media::where('id',$image->media_id)->get();
+               if(!empty($media)):
+                   $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media[0]->getkey().'" data-original="'.$media[0]->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media[0]->getUrl().'" alt="Images" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+               endif;
+           endforeach;
+       endif;
+
+       return view('instagram.post.create' , compact('accounts','records','used_space','storage_limit', 'posts','imagesHtml'))->with('i', ($request->input('page', 1) - 1) * 5);;
     }
 
     public function createPost(Request $request)
     {
         //resizing media
-//        $all = $request->all();
-//
-//        if($request->media)
-//        {
-//            foreach ($request->media as $media) {
-//
-//                $mediaFile = Media::where('id',$media)->first();
-//                $image = self::resize_image_crop($mediaFile,640,640);
-//            }
-//        }
-//
-//        if($request->postId){
-//            $userPost = InstagramPosts::find($request->postId);
-//            foreach($userPost->getMedia('instagram') as $media){
-//                $image = self::resize_image_crop($media,640,640);
-//                $mediaPost = $media->id;
-//                break;
-//            }
-//        }
-//
-//        if(!isset($mediaPost)){
-//            $mediaPost = $request->media;
-//        }
-//
-//        if(empty($request->location)){
-//            $location = '';
-//        }else{
-//            $location = $request->location;
-//        }
-//
-//        if(empty($request->hashtags)){
-//            $hashtag = '';
-//        }else{
-//            $hashtag = $request->hashtags;
-//        }
-//
-//        $post = new Post();
-//        $post->account_id = $request->account;
-//        $post->type       = $request->type;
-//        $post->caption    = $request->caption.' '.$hashtag;
-//        $ig         = [
-//            'media'    => $mediaPost,
-//            'location' => $location,
-//        ];
-//        $post->ig       = json_encode($ig);
-//        $post->location = $location;
-//        $post->hashtags = $hashtag;
-//        $post->scheduled_at = $request->scheduled_at;
-//        $post->save();
-//        $newPost = Post::find($post->id);
-//
-//        $media = json_decode($newPost->ig,true);
-//
-//        $ig         = [
-//            'media'    => $media['media'],
-//            'location' => $location,
-//            'hashtag'  => $hashtag,
-//        ];
-//        $newPost->ig = $ig;
-//
-//        if( $request->scheduled === "1" ){
-//
-//            $diff = strtotime($request->scheduled_at) - strtotime( now() );
-//            InstaSchedulePost::dispatch( $newPost )->onQueue('InstaSchedulePost')->delay( $diff );
-//            return redirect()->back()->with('message', __('Your post schedule has been saved'));
-//        }
-//
-//        // Publish Post on instagram
-//        if (new PublishPost($newPost)) {
-//            $this->createPostLog($newPost->id,"success",'Your post has been published');
-//
-//            if($request->ajax()){
-//                return response()->json('Your post has been published', 200);
-//            }else{
-//                return redirect()->route('post.index')
-//                ->with('success', __('Your post has been published'));
-//            }
-//
-//        } else {
-//            $this->createPostLog($newPost->id,"error",'Post failed to published');
-//            if($request->ajax()){
-//                return response()->json('Post failed to published', 200);
-//            }else{
-//                return redirect()->route('post.index')
-//                ->with('error', __('Post failed to published'));
-//            }
-//
-//        }
+       $all = $request->all();
+
+       if($request->media)
+       {
+           foreach ($request->media as $media) {
+
+               $mediaFile = Media::where('id',$media)->first();
+               $image = self::resize_image_crop($mediaFile,640,640);
+           }
+       }
+
+       if($request->postId){
+           $userPost = InstagramPosts::find($request->postId);
+           foreach($userPost->getMedia('instagram') as $media){
+               $image = self::resize_image_crop($media,640,640);
+               $mediaPost = $media->id;
+               break;
+           }
+       }
+
+       if(!isset($mediaPost)){
+           $mediaPost = $request->media;
+       }
+
+       if(empty($request->location)){
+           $location = '';
+       }else{
+           $location = $request->location;
+       }
+
+       if(empty($request->hashtags)){
+           $hashtag = '';
+       }else{
+           $hashtag = $request->hashtags;
+       }
+
+       $post = new Post();
+       $post->account_id = $request->account;
+       $post->type       = $request->type;
+       $post->caption    = $request->caption.' '.$hashtag;
+       $ig         = [
+           'media'    => $mediaPost,
+           'location' => $location,
+       ];
+       $post->ig       = json_encode($ig);
+       $post->location = $location;
+       $post->hashtags = $hashtag;
+       $post->scheduled_at = $request->scheduled_at;
+       $post->save();
+       $newPost = Post::find($post->id);
+
+       $media = json_decode($newPost->ig,true);
+
+       $ig         = [
+           'media'    => $media['media'],
+           'location' => $location,
+           'hashtag'  => $hashtag,
+       ];
+       $newPost->ig = $ig;
+
+       if( $request->scheduled === "1" ){
+
+           $diff = strtotime($request->scheduled_at) - strtotime( now() );
+           InstaSchedulePost::dispatch( $newPost )->onQueue('InstaSchedulePost')->delay( $diff );
+           return redirect()->back()->with('message', __('Your post schedule has been saved'));
+       }
+
+       // Publish Post on instagram
+       if (new PublishPost($newPost)) {
+           $this->createPostLog($newPost->id,"success",'Your post has been published');
+
+           if($request->ajax()){
+               return response()->json('Your post has been published', 200);
+           }else{
+               return redirect()->route('post.index')
+               ->with('success', __('Your post has been published'));
+           }
+
+       } else {
+           $this->createPostLog($newPost->id,"error",'Post failed to published');
+           if($request->ajax()){
+               return response()->json('Post failed to published', 200);
+           }else{
+               return redirect()->route('post.index')
+               ->with('error', __('Post failed to published'));
+           }
+
+       }
     }
 
     public function publishPost(Request $request, $id)
@@ -308,9 +311,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="post instagram",
      *   operationId="post-instagram",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -457,9 +462,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="get instagram account details",
      *   operationId="get-instagram-account-details",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -484,9 +491,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="get instagram comments list",
      *   operationId="get-instagram-comment-list",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -517,9 +526,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="send instagram comments",
      *   operationId="send-instagram-comment",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -542,9 +553,11 @@ class InstagramPostsController extends Controller
      *   tags={"Instagram"},
      *   summary="Get instagram hashtag list",
      *   operationId="get-instagram-hashtag-list",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -574,9 +587,11 @@ class InstagramPostsController extends Controller
      *   tags={"Local"},
      *   summary="Save Local instagram post",
      *   operationId="save-local-instagram-post",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -673,14 +688,14 @@ class InstagramPostsController extends Controller
 
     public function viewPost(Request $request)
     {
-//        $accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
-//
-//        $data = Post::whereNotNull('id')->paginate(10);
-//
-//        return view('instagram.post.index', compact(
-//            'accounts',
-//            'data'
-//        ));
+       $accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
+
+       $data = Post::whereNotNull('id')->paginate(10);
+
+       return view('instagram.post.index', compact(
+           'accounts',
+           'data'
+       ));
     }
 
     public function users(Request $request)
@@ -695,9 +710,11 @@ class InstagramPostsController extends Controller
      *   tags={"Local"},
      *   summary="Get Local instagram user post",
      *   operationId="get-local-instagram-user-post",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
@@ -931,119 +948,111 @@ class InstagramPostsController extends Controller
 
     public function hashtag(Request $request, $word)
     {
-//        if($word)
-//        {
-//            $response = $this->getHastagifyApiToken();
-//
-//
-//
-//            if($response)
-//            {
-//                $json = $this->getHashTashSuggestions($response, $word);
-//
-//                $arr = json_decode($json, true);
-//
-//                $instaTags = [];
-//                if(isset($arr['code']) && $arr['code']=='404')
-//                {
-//                    //handle for error
-//                }else{
-//                    foreach ($arr as $tag) {
-//                       $instaTagData['name'] = $tag['name'];
-//                       $instaTagData['variants'] = [];
-//                       foreach ($tag['variants'] as $variant) {
-//                            $instaTagData['variants'][] = $variant[0];
-//                       }
-//
-//                       $instaTagData['influencers'] = [];
-//
-//                       foreach ($tag['top_influencers'] as $influencer) {
-//                            $instaTagData['influencers'][] = $influencer[0];
-//                       }
-//
-//                       $instaTagData['popular'] = $tag['popularity'];
-//
-//                       $instaTags[] = $instaTagData;
-//                    }
-//                }
-//                return response()->json(['response' => true , 'results' => $instaTags],200);
-//            }
-//        }
+        if(strlen($word) >= 3)
+        {
+            
+            $url = sprintf('https://api.ritekit.com/v1/stats/auto-hashtag?post='.$word.'&maxHashtags=50&hashtagPosition=auto?&client_id=7b3d825c32da1a4eb611bf1eba9706165cfe61a098ae');
+            $response = SocialHelper::curlGetRequest($url);
+            return $response;
+            if($response->post) {
+                return $response->post;
+            }else{
+                return false;
+            }
+        }
     }
 
     public function getHastagifyApiToken()
     {
-//            $token = \Session()->get('hastagify');
-//            if($token){
-//                return $token;
-//            }else{
-//
-//            $consumerKey = env('HASTAGIFY_CONSUMER_KEY');
-//            $consumerSecret = env('HASTAGIFY_CONSUMER_SECRET');
-//            \Log::error(" hashtagify credentials: " . $consumerKey.', '.$consumerSecret);
-//            $curl = curl_init();
-//
-//            curl_setopt_array($curl, array(
-//              CURLOPT_URL => "https://api.hashtagify.me/oauth/token",
-//              CURLOPT_RETURNTRANSFER => true,
-//              CURLOPT_ENCODING => "",
-//              CURLOPT_MAXREDIRS => 10,
-//              CURLOPT_TIMEOUT => 30,
-//              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-//              CURLOPT_CUSTOMREQUEST => "POST",
-//              CURLOPT_POSTFIELDS => "grant_type=client_credentials&client_id=".$consumerKey."&client_secret=".$consumerSecret,
-//              CURLOPT_HTTPHEADER => array(
-//                "cache-control: no-cache",
-//                "content-type: application/x-www-form-urlencoded"
-//              ),
-//            ));
-//
-//            $response = curl_exec($curl);
-//            $err = curl_error($curl);
-//            \Log::error(" hashtagify response " .$response);
-//            \Log::error(" hashtagify error" .$err);
-//            curl_close($curl);
-//
-//            if ($err) {
-//                return false;
-//            } else {
-//                $response = json_decode($response);
-//                // dd($response);
-//                \Session()->put('hastagify', $response->access_token);
-//                return $response->access_token;
-//            }
-//        }
+           $token = \Session()->get('hastagify');
+           if($token){
+               return $token;
+           }else{
+
+            $consumerKey = env('HASTAGIFY_CONSUMER_KEY');
+            $consumerSecret = env('HASTAGIFY_CONSUMER_SECRET');
+           
+        //    $image_upload_url = 'https://api.hashtagify.me/oauth/token';
+
+        //    $fbImage = [
+        //         'grant_type' =>'client_credentials', 
+        //         'client_id' =>$consumerKey, 
+        //         'client_secret' => $consumerSecret, 
+        //     ];
+
+        //     $response = SocialHelper::curlPostRequest($image_upload_url,$fbImage);
+        //     $response = json_decode($response);
+
+            // die(var_dump($response ));
+           
+           \Log::error(" hashtagify credentials: " . $consumerKey.', '.$consumerSecret);
+           $curl = curl_init();
+
+           curl_setopt_array($curl, array(
+             CURLOPT_URL => "https://api.hashtagify.me/oauth/token",
+             CURLOPT_RETURNTRANSFER => true,
+             CURLOPT_ENCODING => "",
+             CURLOPT_MAXREDIRS => 10,
+             CURLOPT_TIMEOUT => 30,
+             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+             CURLOPT_CUSTOMREQUEST => "POST",
+             CURLOPT_POSTFIELDS => "grant_type=client_credentials&client_id=".$consumerKey."&client_secret=".$consumerSecret,
+             CURLOPT_HTTPHEADER => array(
+               "cache-control: no-cache",
+               "content-type: application/x-www-form-urlencoded"
+             ),
+           ));
+
+           $response = curl_exec($curl);
+
+           
+
+           $err = curl_error($curl);
+           die(var_dump('teeeest',$err));
+           \Log::error(" hashtagify response " .$response);
+           \Log::error(" hashtagify error" .$err);
+           curl_close($curl);
+
+           if ($err) {
+               return false;
+           } else {
+               $response = json_decode($response);
+               // dd($response);
+               \Session()->put('hastagify', $response->access_token);
+               return $response->access_token;
+           }
+       }
     }
 
     public function getHashTashSuggestions($token, $word)
     {
-//
-//        $curl = curl_init();
-//
-//        curl_setopt_array($curl, array(
-//        CURLOPT_URL => "https://api.hashtagify.me/1.0/tag/".$word,
-//        CURLOPT_RETURNTRANSFER => true,
-//        CURLOPT_ENCODING => "",
-//        CURLOPT_MAXREDIRS => 10,
-//        CURLOPT_TIMEOUT => 30,
-//        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-//        CURLOPT_CUSTOMREQUEST => "GET",
-//        CURLOPT_HTTPHEADER => array(
-//            "authorization: Bearer ".$token,
-//            "cache-control: no-cache"
-//          ),
-//        ));
-//
-//        $response = curl_exec($curl);
-//        $err = curl_error($curl);
-//
-//        curl_close($curl);
-//
-//        if ($err) {
-//          //echo "cURL Error #:" . $err;
-//        } else {
-//          return  $response;
-//        }
+
+       $curl = curl_init();
+
+       curl_setopt_array($curl, array(
+       CURLOPT_URL => "https://api.hashtagify.me/1.0/tag/".$word,
+       CURLOPT_RETURNTRANSFER => true,
+       CURLOPT_ENCODING => "",
+       CURLOPT_MAXREDIRS => 10,
+       CURLOPT_TIMEOUT => 30,
+       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+       CURLOPT_CUSTOMREQUEST => "GET",
+       CURLOPT_HTTPHEADER => array(
+           "authorization: Bearer ".$token,
+           "cache-control: no-cache"
+         ),
+       ));
+
+       $response = curl_exec($curl);
+       $err = curl_error($curl);
+
+       curl_close($curl);
+
+       if ($err) {
+         //echo "cURL Error #:" . $err;
+       } else {
+         return  $response;
+       }
     }
 
     public function updateHashtagPost(Request $request)

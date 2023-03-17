@@ -18,6 +18,7 @@ class ProductEnhancementController extends Controller
      *   tags={"Products"},
      *   summary="get product enhance where product status is imageEnhancement",
      *   operationId="get-product-enhance",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -70,9 +71,11 @@ class ProductEnhancementController extends Controller
      *   tags={"Products"},
      *   summary="post product enhance",
      *   operationId="post-product-enhance",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="images[]",
      *          in="formData",
@@ -106,6 +109,16 @@ class ProductEnhancementController extends Controller
                 'error' => 'Product is not found',
             ], 400);
         }
+
+        //sets initial status pending for finalApproval in product status histroy 
+        $data = [
+            'product_id' => $product->id,
+            'old_status' => $product->status_id,
+            'new_status' => StatusHelper::$finalApproval,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        \App\ProductStatusHistory::addStatusToProduct($data); 
 
         // Check if product is being enhanced
         if ($product->status_id != StatusHelper::$isBeingEnhanced) {

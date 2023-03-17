@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
+use App\ReadOnly\SoloNumbers;
 use App\Setting;
 use Illuminate\Http\Request;
 
@@ -18,10 +19,12 @@ class QuickCustomerController extends Controller
         $groups = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
         $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->renderAsDropdown();
         $brands = \App\Brand::all()->toArray();
+        $solo_numbers = (new SoloNumbers)->all();
+        $storeWebsites = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
 
         $request->merge(['do_not_disturb' => '0']);
 
-        return view('quick-customer.index', compact('title', 'category_suggestion', 'brands', 'nextActionArr', 'reply_categories', 'groups', 'nextActionList'));
+        return view('quick-customer.index', compact('storeWebsites', 'solo_numbers', 'title', 'category_suggestion', 'brands', 'nextActionArr', 'reply_categories', 'groups', 'nextActionList'));
     }
 
     public function records(Request $request)
@@ -45,7 +48,7 @@ class QuickCustomerController extends Controller
             $chatMessagesWhere .= " and message != '' and message is not null and number = c.phone";
             $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id '.$chatMessagesWhere.' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
             $customer = $customer->leftJoin('chat_messages as cm', 'cm.id', '=', 'm_max.max_id');
-            $customer = $customer->whereNotNull('cm.id');
+//            $customer = $customer->where('cm.id' != 0);
             $customer = $customer->orderBy('cm.created_at', 'desc');
         } elseif ($type == null) {
             $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id '.$chatMessagesWhere.' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
@@ -71,6 +74,9 @@ class QuickCustomerController extends Controller
         }
 
         //Setting::get('pagination')
+
+//        $customer = $customer->select(['customers.*', 'cm.id as message_id', 'cm.status as message_status', 'cm.message'])->toSql();
+//        dd($customer);
 
         $customer = $customer->select(['customers.*', 'cm.id as message_id', 'cm.status as message_status', 'cm.message'])->paginate(10);
 

@@ -57,6 +57,13 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
+                  <input type="email" name="gmail" class="form-control" placeholder="Gmail:" value="{{ old('gmail') }}"> @if ($errors->has('gmail'))
+                  <div class="alert alert-danger">{{$errors->first('gmail')}}</div>
+                  @endif
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
                   <input type="text" name="social_handle" class="form-control" placeholder="Social Handle:" value="{{ old('social_handle') }}">
                   @if ($errors->has('social_handle'))
                   <div class="alert alert-danger">{{$errors->first('social_handle')}}</div>
@@ -167,7 +174,7 @@
                   @endif
                 </div>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-12">
                 <div class="form-group">
                   <textarea name="remark" class="form-control" placeholder="Remark:"style="height:34px;">{{ old('remark') }}</textarea>
                   @if ($errors->has('remark'))

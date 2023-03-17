@@ -19,17 +19,58 @@
 
 @section('content')
     <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+        <img id="loading-image" src="{{asset('/images/pre-loader.gif')}}" style="display:none;"/>
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Queues ({{count($queues)}})</h2>
-            <div class="row">
+
+            @if (Auth::user()->hasRole('Admin'))
+                <div class="row mb-3 p-0">
+                <div class="col-md-12">
+                    <div class="pull-left">
+                        <form class="form-inline" action="{{route('redisQueue.list')}}" method="GET">
+                            <div class="col-5 pl-2 pr-0">
+                                <div class="form-group">
+                                    <div class='input-group'>
+                                        <input type='text' placeholder="Name.." class="form-control" name="name"  value="{{ isset($_GET['name'])?$_GET['name']:''}}"  />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-5 pl-2 pr-0">
+                                <div class="form-group">
+                                    <div class='input-group'>
+{{--                                        <select name="type" class="form-control">--}}
+{{--                                            @foreach($types as $type)--}}
+{{--                                                <option value="{{$type->type}}" {{isset($_GET['name'])?isset($_GET['name']):""}}>{{$type->type}}</option>--}}
+{{--                                            @endforeach--}}
+{{--                                        </select>--}}
+                                        <select name="type" id="type" class="form-control">
+                                            <option value="">Select Type..</option>
+                                            <option value="WEBPUSHQUEUE" {{ !empty(Request::get('type'))?'selected':''}}>WEBPUSHQUEUE</option>
+                                            <option value="MAINQUEUE" {{ !empty(Request::get('type'))?'selected':''}}>MAINQUEUE</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2 pl-2">
+                                <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <div class="row m-auto">
                 <div class="p-2 ml-4"><b>Horizon Commands</b></div>
                 <div class="col-md-6">
                     <button type="button" onclick="horizonRun('horizon:status')" class="btn btn-secondary" title="Horizon status">
                         <i class="fa fa-line-chart" aria-hidden="true"></i>
                     </button>
+                    {{--                    <button type="button" onclick="horizonRun('horizon')" class="btn btn-secondary" title="Horizon run">--}}
+                    {{--                        <i class="fa fa-play" aria-hidden="true"></i>--}}
+                    {{--                    </button>--}}
                     <button type="button" onclick="horizonRun('horizon')" class="btn btn-secondary" title="Horizon run">
                         <i class="fa fa-play" aria-hidden="true"></i>
                     </button>
@@ -56,6 +97,7 @@
                     &nbsp
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -75,6 +117,8 @@
             </ul>
         </div>
     @endif
+    <div class="col-md-12">
+
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="queue-table">
             <thead>
@@ -94,8 +138,6 @@
             </tbody>
         </table>
     </div>
-
-
 
     <div id="queueCreateModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -219,45 +261,15 @@
         </div>
     </div>
 
+    </div>
+
 @endsection
 
 
 @section('scripts')
 
     <script>
-        $(document).ready(function () {
-            src = "{{ route('redisQueue.list') }}";
 
-            // search_title = $('#search_title').val();
-            // search_status= $('#search_status').val();
-            // search_date = $('#search_date').val();
-            $.ajax({
-                url: src,
-                dataType: "json",
-                data: {
-                    // search_title: search_title,
-                    // search_status:search_status,
-                    // search_date:search_date,
-                    // date: date,
-
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-
-            }).done(function (data) {
-                $("#loading-image").hide();
-                $("#queue-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        });
 
         function editQueue(id) {
             let $this = $(this);

@@ -355,6 +355,7 @@ class ProductCropperController extends Controller
      *   tags={"Crop"},
      *   summary="Get Crop amends",
      *   operationId="crop-get-crop-amends",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -373,9 +374,11 @@ class ProductCropperController extends Controller
      *   tags={"Crop"},
      *   summary="Save Crop amends",
      *   operationId="crop-save-crop-amends",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="file",
      *          in="formData",
@@ -495,6 +498,18 @@ class ProductCropperController extends Controller
 
         // Add new status
         ProductStatus::updateStatus($product->id, 'CROP_APPROVAL_CONFIRMATION', 1);
+
+        if($product){
+        //sets initial status pending for finalApproval in product status histroy 
+         $data = [
+            'product_id' => $product->id,
+            'old_status' => $product->status_id,
+            'new_status' => StatusHelper::$finalApproval,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        \App\ProductStatusHistory::addStatusToProduct($data); 
+        }
 
         // Set new status
         //check final approval

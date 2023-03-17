@@ -91,6 +91,8 @@ class Task extends Model
         'is_flow_task',
         'user_feedback_cat_id',
         'parent_review_task_id',
+        'time_doctor_task_id',
+        'lead_time_doctor_task_id',
     ];
 
     const TASK_TYPES = [

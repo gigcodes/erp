@@ -48,6 +48,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
+use App\TimeDoctor\TimeDoctorMember;
+use App\TimeDoctor\TimeDoctorTask;
+use App\Library\TimeDoctor\Src\Timedoctor;
 
 class TaskModuleController extends Controller
 {
@@ -216,6 +219,7 @@ class TaskModuleController extends Controller
             AND (id IS NOT NULL) 
             AND is_statutory != 1 '.$isCompleteWhereClose.$userquery.$status_filter.$flag_filter.$categoryWhereClause.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.'; '
             );
+//            dd($isCompleteWhereClose.$userquery.$status_filter.$flag_filter.$categoryWhereClause.$searchWhereClause.$orderByClause);
 
             foreach ($data['task']['pending'] as $task) {
                 array_push($assign_to_arr, $task->assign_to);
@@ -1387,6 +1391,229 @@ class TaskModuleController extends Controller
         );
     }
 
+    public function searchTask(Request $request)
+    {
+        $id = $request->id;
+
+        if ($request->input('selected_user') == '') {
+            $userid = Auth::id();
+
+            $searchMasterUserId = $userid;
+            if ($request->search_master_user_id != '') {
+                $searchMasterUserId = $request->search_master_user_id;
+            }
+
+            $searchSecondMasterUserId = $userid;
+            if ($request->search_second_master_user_id != '') {
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+            }
+
+            $userquery = ' AND (assign_from = '.$userid.' OR  second_master_user_id = '.$searchSecondMasterUserId.' OR  master_user_id = '.$searchMasterUserId.')';
+        } else {
+            $userid = $request->input('selected_user');
+
+            $searchMasterUserId = $userid;
+            if ($request->search_master_user_id != '') {
+                $searchMasterUserId = $request->search_master_user_id;
+            }
+
+            $searchSecondMasterUserId = $userid;
+            if ($request->search_second_master_user_id != '') {
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+            }
+
+            $userquery = ' AND (master_user_id = '.$searchMasterUserId.' OR  second_master_user_id = '.$searchSecondMasterUserId.')';
+        }
+
+        if (! $request->input('type') || $request->input('type') == '') {
+            $type = 'pending';
+        } else {
+            $type = $request->input('type');
+        }
+        $activeCategories = TaskCategory::where('is_active', 1)->pluck('id')->all();
+
+        $term = $request->term ?? '';
+        $searchWhereClause = '';
+
+        if ($request->term != '') {
+            $searchWhereClause = ' AND (id LIKE "%'.$term.'%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%'.$term.'%") OR task_subject LIKE "%'.$term.'%" OR task_details LIKE "%'.$term.'%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%'.$term.'%"))) AND id = "'.$term.'" ';
+        }
+
+        if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
+            $searchWhereClause .= ' AND is_statutory = '.$request->get('is_statutory_query');
+        } else {
+            $searchWhereClause .= ' AND is_statutory != 3';
+        }
+
+        $orderByClause = ' ORDER BY';
+        if ($request->sort_by == 1) {
+            $orderByClause .= ' tasks.created_at desc,';
+        } elseif ($request->sort_by == 2) {
+            $orderByClause .= ' tasks.created_at asc,';
+        }
+        $data['task'] = [];
+
+        $search_term_suggestions = [];
+        $search_suggestions = [];
+        $assign_from_arr = [0];
+        $special_task_arr = [0];
+        $assign_to_arr = [0];
+        $data['task']['pending'] = [];
+        $data['task']['statutory_not_completed'] = [];
+        $data['task']['completed'] = [];
+        $status_filter = '';
+        $selectStatusList = TaskStatus::pluck('id')->toArray();
+
+        $status_filter = " AND status IN ('".implode("','", $selectStatusList)."')";
+
+        if ($type == 'pending') {
+            $paginate = 50;
+            $page = $request->get('page', 1);
+            $offSet = ($page * $paginate) - $paginate;
+
+            $orderByClause .= ' is_flagged DESC, message_created_at DESC';
+            $isCompleteWhereClose = ' AND is_verified IS NULL ';
+
+            if (! Auth::user()->isAdmin()) {
+                $isCompleteWhereClose = ' AND is_verified IS NULL ';
+            }
+            if ($request->filter_by == 1) {
+                $isCompleteWhereClose = ' AND is_completed IS NULL ';
+            }
+            if ($request->filter_by == 2) {
+                $isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
+            }
+
+            $data['task']['pending'] = DB::select(
+                '
+			SELECT tasks.*
+
+			FROM (
+			  SELECT * FROM tasks
+			  LEFT JOIN (
+				  SELECT 
+				  chat_messages.id as message_id, 
+				  chat_messages.task_id, 
+				  chat_messages.message, 
+				  chat_messages.status as message_status, 
+				  chat_messages.sent as message_type, 
+				  chat_messages.created_at as message_created_at, 
+				  chat_messages.is_reminder AS message_is_reminder,
+				  chat_messages.user_id AS message_user_id
+				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+			  ) as chat_messages  ON chat_messages.task_id = tasks.id
+			) AS tasks
+			WHERE (deleted_at IS NULL) 
+            AND (id IS NOT NULL) 
+            AND is_statutory != 1 '.$isCompleteWhereClose.$status_filter.$searchWhereClause.$orderByClause.' limit '.$paginate.' offset '.$offSet.'; '
+            );
+
+            foreach ($data['task']['pending'] as $task) {
+                array_push($assign_to_arr, $task->assign_to);
+                array_push($assign_from_arr, $task->assign_from);
+                array_push($special_task_arr, $task->id);
+            }
+
+            $user_ids_from = array_unique($assign_from_arr);
+            $user_ids_to = array_unique($assign_to_arr);
+
+            foreach ($data['task']['pending'] as $task) {
+                $search_suggestions[] = '#'.$task->id.' '.$task->task_subject.' '.$task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
+                    $from_user = User::find($task->assign_from);
+                    if ($from_user) {
+                        $search_term_suggestions[] = $from_user->name;
+                    }
+                }
+
+                $to_exist = in_array($task->assign_to, $user_ids_to);
+                if ($to_exist) {
+                    $to_user = User::find($task->assign_to);
+                    if ($to_user) {
+                        $search_term_suggestions[] = $to_user->name;
+                    }
+                }
+                $search_term_suggestions[] = "$task->id";
+                $search_term_suggestions[] = $task->task_subject;
+                $search_term_suggestions[] = $task->task_details;
+            }
+        }
+        //task pending backup
+        $data['users'] = User::orderBy('name')->where('is_active', 1)->get()->toArray();
+        $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
+
+        // Lead user process starts
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
+        $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
+        $team_members_array_unique_ids = '';
+        if (count($model_team) > 0) {
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
+            $team_ids = implode(',', $team_id_array);
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
+        }
+        $team_members_array_unique = array_unique($team_members_array);
+        $team_members_array_unique_ids = implode(',', $team_members_array_unique);
+        // Lead user process ends
+
+        //My code start
+        $selected_user = $request->input('selected_user');
+
+        if (Auth::user()->hasRole('Admin')) {
+            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+        } elseif ($isTeamLeader) {
+            $usrlst = User::orderby('name')->where('is_active', 1)->whereIn('id', $team_members_array_unique)->get();
+        } else {
+            $usrlst = User::orderby('name')->where('is_active', 1)->get();
+        }
+
+        $users = Helpers::getUserArray($usrlst);
+        $task_categories = TaskCategory::where('parent_id', 0)->get();
+        $selected_category = $request->category;
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
+        $task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(
+            [
+                'name' => 'category',
+                'class' => 'form-control input-sm',
+            ]
+        )->selected($selected_category)->renderAsDropdown();
+
+        $categories = [];
+        foreach (TaskCategory::all() as $category) {
+            $categories[$category->id] = $category->title;
+        }
+
+        if (! empty($selected_user) && ! Helpers::getadminorsupervisor()) {
+            return response()->json(['user not allowed'], 405);
+        }
+        //My code end
+        $tasks_view = [];
+        $priority = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
+
+        $openTask = \App\Task::join('users as u', 'u.id', 'tasks.assign_to')->whereNull('tasks.is_completed')->groupBy('tasks.assign_to')->select(\DB::raw('count(u.id) as total'), 'u.name as person')->pluck('total', 'person');
+
+        if ($request->is_statutory_query == 3) {
+            $title = 'Discussion tasks';
+        } else {
+            $title = 'Task & Activity';
+        }
+
+        $task_statuses = TaskStatus::all();
+
+        return view('task-module.partials.menu-search-task-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+    }
+
     public function update(Request $request, $id)
     {
         $this->validate(
@@ -1633,7 +1860,7 @@ class TaskModuleController extends Controller
             );
         }
 
-        if ($request->module_type == 'task-discussion') {
+//        if ($request->module_type == 'task-discussion') {
             // NotificationQueueController::createNewNotification([
             // 	'message' => 'Remark for Developer Task',
             // 	'timestamps' => ['+0 minutes'],
@@ -1653,7 +1880,7 @@ class TaskModuleController extends Controller
             // 	'sent_to' => 56,
             // 	'role' => '',
             // ]);
-        }
+//        }
 
         // if ($request->module_type == 'developer') {
         // 	$task = DeveloperTask::find($id);
@@ -1719,33 +1946,55 @@ class TaskModuleController extends Controller
 
     public function list(Request $request)
     {
-        $pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed')->where('assign_from', Auth::id());
-        $completed_tasks = Task::where('is_statutory', 0)->whereNotNull('is_completed')->where('assign_from', Auth::id());
+        $pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed');
+        $developer_tasks = DeveloperTask::orderBy('id', 'DESC');
+
+        if(!Auth::user()->hasRole('Admin'))
+        {
+            $pending_tasks = $pending_tasks->where('assign_to', Auth::id());
+            $developer_tasks = $developer_tasks->where('assigned_to', Auth::id());
+        }
+        if ($request->term && $request->term != null) {
+            $pending_tasks = $pending_tasks->where('id', 'LIKE', "%$request->term%");
+            $developer_tasks = $developer_tasks->where('id', 'LIKE', "%$request->term%");
+        }
+
+        if ($request->task_subject && $request->task_subject != null) {
+            $pending_tasks = $pending_tasks->where('task_subject', 'LIKE',  "%$request->task_subject%");
+            $developer_tasks = $developer_tasks->where('subject', 'LIKE',  "%$request->task_subject%");
+        }
 
         if (is_array($request->user) && $request->user[0] != null) {
             $pending_tasks = $pending_tasks->whereIn('assign_to', $request->user);
-            $completed_tasks = $completed_tasks->whereIn('assign_to', $request->user);
+            $developer_tasks = $developer_tasks->whereIn('assigned_to', $request->user);
         }
 
         if ($request->date != null) {
             $pending_tasks = $pending_tasks->where('created_at', 'LIKE', "%$request->date%");
-            $completed_tasks = $completed_tasks->where('created_at', 'LIKE', "%$request->date%");
+            $developer_tasks = $developer_tasks->where('created_at', 'LIKE', "%$request->date%");
         }
 
-        $pending_tasks = $pending_tasks->oldest()->paginate(Setting::get('pagination'));
-        $completed_tasks = $completed_tasks->orderBy('is_completed', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+        $pending_tasks = $pending_tasks->latest()->paginate(Setting::get('pagination'));
+        $developer_tasks = $developer_tasks->latest()->paginate(Setting::get('pagination'));
 
         $users = Helpers::getUserArray(User::all());
         $user = $request->user ?? [];
         $date = $request->date ?? '';
+        $taskstatus = TaskStatus::get();
+        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
+        //$developer_tasks = DeveloperTask::all(['task']);
+
+
 
         return view(
             'task-module.list', [
                 'pending_tasks' => $pending_tasks,
-                'completed_tasks' => $completed_tasks,
+                'taskstatus' => $taskstatus,
+                'isTeamLeader' => $isTeamLeader,
                 'users' => $users,
                 'user' => $user,
                 'date' => $date,
+                'developer_tasks' => $developer_tasks,
             ]
         );
     }
@@ -2398,6 +2647,7 @@ class TaskModuleController extends Controller
                             $data['created_by'] = Auth::id();
 
                             //echo $data["site_developement_id"]; die;
+                            $task = $this->developerTaskCreate($data);
 
                             if (request('need_review_task')) {
                                 $data['parent_review_task_id'] = $task->id;
@@ -2481,13 +2731,14 @@ class TaskModuleController extends Controller
             $data['subject'] = $request->get('task_subject');
             $data['task'] = $request->get('task_detail');
             $data['task_type_id'] = 1;
-            $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id');
+            $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id') ?? 0;
             $data['site_developement_id'] = $request->get('site_id');
             $data['cost'] = $request->get('cost', 0);
             $data['status'] = 'In Progress';
             $data['created_by'] = Auth::id();
 
             //echo $data["site_developement_id"]; die;
+            $task = $this->developerTaskCreate($data);
 
             if (request('need_review_task')) {
                 $data['parent_review_task_id'] = $task->id;
@@ -2593,7 +2844,7 @@ class TaskModuleController extends Controller
 
         // Discussion task
         if ($data['task_type'] == 3) {
-            $task = Task::find($request->get('task_subject'));
+            $task = Task::find($data['task_subject']);
             if (! $task) {
                 $task = Task::create($data);
                 $newCreated = 1;
@@ -2629,8 +2880,12 @@ class TaskModuleController extends Controller
             $newCreated = 1;
         }
 
-        if ($newCreated) {
-            $this->hubstaffActions('TASK', $task);
+        if ($newCreated) {            
+            if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
+                $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['time_doctor_account'], $data['assign_to']);
+            } else {
+                $this->hubstaffActions('TASK', $task);
+            }
         }
 
         if ($task->is_statutory != 1) {
@@ -2723,6 +2978,115 @@ class TaskModuleController extends Controller
         return $task;
     }
 
+    public function developerTaskCreate($data)
+    {
+        $loggedUser = request()->user();
+
+        $data['created_by'] = loginId();
+
+        if ($data['parent_review_task_id'] ?? 0) {
+            $data['subject'] = $data['subject'].' - #REVIEW_TASK';
+            $data['task'] = $data['task'].' - #REVIEW_TASK';
+        }
+        $task = DeveloperTask::create($data);
+
+        // Check the assinged user in any team ?
+        if ($task->assigned_to > 0 && empty($task->team_lead_id)) {
+            $teamUser = \App\TeamUser::where('user_id', $task->assigned_to)->first();
+            if ($teamUser) {
+                $team = $teamUser->team;
+                if ($team) {
+                    $task->team_lead_id = $team->user_id;
+                    $task->save();
+                }
+            } else {
+                $isTeamLeader = \App\Team::where('user_id', $task->assigned_to)->first();
+                if ($isTeamLeader) {
+                    $task->team_lead_id = $task->assigned_to;
+                    $task->save();
+                }
+            }
+        }
+
+        // CREATE GITHUB REPOSITORY BRANCH
+        $newBranchName = $this->createBranchOnGithub(
+            $task->repository_id,
+            $task->id,
+            $task->subject
+        );
+
+        // UPDATE TASK WITH BRANCH NAME
+        if ($newBranchName) {
+            $task->github_branch_name = $newBranchName;
+            $task->save();
+        }
+
+        // SEND MESSAGE
+        if (is_string($newBranchName)) {
+            $message = $task->task.PHP_EOL.'A new branch '.$newBranchName." has been created. Please pull the current code and run 'git checkout ".$newBranchName."' to work in that branch.";
+        } else {
+            $message = $task->task;
+        }
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+        $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
+
+        MessageHelper::sendEmailOrWebhookNotification([
+                                                          $task->user_id,
+                                                          $task->assigned_to,
+                                                          $task->master_user_id,
+                                                          $task->responsible_user_id,
+                                                          $task->team_lead_id,
+                                                          $task->tester_id,
+                                                      ], ' [ '.$loggedUser->name.' ] - '.$message);
+
+        $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') ?: 0;
+
+        $hubstaffUserId = null;
+        if ($assignedUser = HubstaffMember::where('user_id', $task->assigned_to)->first()) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        }
+
+        $summary = substr($task->task, 0, 200);
+        if ($data['task_type_id'] == 1) {
+            $taskSummery = '#DEVTASK-'.$task->id.' => '.$summary;
+        } else {
+            $taskSummery = '#TASK-'.$task->id.' => '.$summary;
+        }
+
+        if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
+            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assigned_to']);
+        } else {
+            $hubstaffTaskId = '';
+            if (env('PRODUCTION', true)) {
+                $hubstaffTaskId = $this->createHubstaffTask(
+                    $taskSummery,
+                    $hubstaffUserId,
+                    $hubstaff_project_id
+                );
+            } else {
+                $hubstaff_project_id = '#TASK-3';
+                $hubstaffUserId = 406; //for local system
+                $hubstaffTaskId = 34543; //for local system
+            }
+
+            if ($hubstaffTaskId) {
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->save();
+
+                $task = new HubstaffTask();
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->project_id = $hubstaff_project_id;
+                $task->hubstaff_project_id = $hubstaff_project_id;
+                $task->summary = $task->task;
+                $task->save();
+            }
+        }
+
+        return $task;
+    }
+
     public function hubstaffActions($type, $task)
     {
         $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
@@ -2759,6 +3123,77 @@ class TaskModuleController extends Controller
         }
 
         return false;
+    }
+
+    public function timeDoctorActions($type, $task, $projectId, $accountId, $assignTo)
+    {
+        $check_entry = 0;
+        $project_data = [];
+        $project_data['time_doctor_project'] = $projectId;
+        $project_data['time_doctor_task_name'] = $task['task_subject'];
+        $project_data['time_doctor_task_description'] = $task['task_details'];
+
+        if ($type == 'DEVTASK') {
+            $message = '#DEVTASK-'.$task->id.' => '.$task->subject;
+            $assignedToId = $assignTo;
+        } elseif ($type == 'TASK') {
+            $message = '#TASK-'.$task->id.' => '.$task->task_subject.'. '.$task->task_details;
+            $assignedToId = $assignTo;
+        } else {
+            return false;
+        }
+
+        /*$assignUsersData = TimeDoctorMember::where('user_id', $assignedToId)->get();        */
+        $assignUsersData = \App\TimeDoctor\TimeDoctorAccount::find( $accountId );
+
+        $timedoctor = Timedoctor::getInstance();
+        $companyId = $assignUsersData->company_id;
+        $accessToken = $assignUsersData->auth_token;
+
+        $taskSummary = substr($message, 0, 200);                        
+        $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
+        if( $timeDoctorTaskId != ''){                   
+            if ($timeDoctorTaskId) {
+                $task->time_doctor_task_id = $timeDoctorTaskId;
+                $task->save();
+
+                $time_doctor_task = new TimeDoctorTask();
+                $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
+                $time_doctor_task->project_id = $projectId;
+                $time_doctor_task->time_doctor_project_id = $projectId;
+                $time_doctor_task->summery = $message;
+                $time_doctor_task->save();
+                return true;
+            }
+        }
+
+        return false;
+        
+        /*foreach($assignUsersData as $assignedUser){
+            $companyId = $assignedUser->account_detail->company_id;
+            $accessToken = $assignedUser->account_detail->auth_token;
+            $taskSummary = substr($message, 0, 200);                        
+            $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
+            if( $timeDoctorTaskId != ''){                   
+                if ($timeDoctorTaskId) {
+                    $task->time_doctor_task_id = $timeDoctorTaskId;
+                    $task->save();
+
+                    $time_doctor_task = new TimeDoctorTask();
+                    $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
+                    $time_doctor_task->project_id = $projectId;
+                    $time_doctor_task->time_doctor_project_id = $projectId;
+                    $time_doctor_task->summery = $message;
+                    $time_doctor_task->save();
+                    $check_entry = 1;
+                }
+            }
+        }        
+        
+        if($check_entry == 1){
+            return true;
+        }
+        return false;*/
     }
 
     //START - Purpose : Set Remined , Revise - DEVTASK-4354
@@ -2972,11 +3407,12 @@ class TaskModuleController extends Controller
                 ]
             );
         }
-        $documents = $request->input('document', []);
-        $task = Task::find($request->task_id);
 
+        $documents = $request->input('document', []) ? $request->input('document', []) : $request->document;
+
+        $task = Task::find($request->task_id);
         if (! empty($documents)) {
-            $count = count($documents);
+            $count = count([$documents]);
 
             $message = '['.$loggedUser->name.'] - #ISSUE-'.$task->id.' - '.$task->task_subject."\n\n ".$count.' new attchment'.($count > 1 ? 's' : '');
 
@@ -3407,58 +3843,88 @@ class TaskModuleController extends Controller
         }
     }
 
+    public function devgetTaskRemark(Request $request){
+        if($request->status != 'view')
+        {
+            if ($request->remark != '') {
+                $remark = TaskRemark::create(
+                    [
+                        'task_id' => $request->task_id,
+                        'task_type' => $request->type,
+                        'updated_by' => Auth::id(),
+                        'remark' => $request->remark,
+                    ]
+                );
+            }
+        }else{
+            $remark = TaskRemark::where([['task_id','=',$request->task_id,],['task_type','=',$request->type,],])->get();
+        }
+
+        return response()->json(['remark' => $remark], 200);
+    }
+
     public function createHubstaffManualTask(Request $request)
     {
         $task = Task::find($request->id);
+
         if ($task) {
-            if ($request->type == 'developer') {
-                $user_id = $task->assign_to;
-            } else {
-                $user_id = $task->master_user_id;
-            }
-            // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-            $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-
-            $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
-
-            $hubstaffUserId = null;
-            if ($assignedUser) {
-                $hubstaffUserId = $assignedUser->hubstaff_user_id;
-            }
-            $taskSummery = '#'.$task->id.'. '.$task->task_subject;
-            // $hubstaffUserId = 901839;
-            if ($hubstaffUserId) {
-                $hubstaffTaskId = $this->createHubstaffTask(
-                    $taskSummery, $hubstaffUserId, $hubstaff_project_id
-                );
-            } else {
-                return response()->json(
-                    [
-                        'message' => 'Hubstaff member not found',
-                    ], 500
-                );
-            }
-            if ($hubstaffTaskId) {
+            if($request->task_for_modal == "hubstaff"){
                 if ($request->type == 'developer') {
-                    $task->hubstaff_task_id = $hubstaffTaskId;
+                    $user_id = $task->assign_to;
                 } else {
-                    $task->lead_hubstaff_task_id = $hubstaffTaskId;
+                    $user_id = $task->master_user_id;
                 }
-                $task->save();
+                // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+                $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+                $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
+
+                $hubstaffUserId = null;
+                if ($assignedUser) {
+                    $hubstaffUserId = $assignedUser->hubstaff_user_id;
+                }
+                $taskSummery = '#'.$task->id.'. '.$task->task_subject;
+                // $hubstaffUserId = 901839;
+                if ($hubstaffUserId) {
+                    $hubstaffTaskId = $this->createHubstaffTask(
+                        $taskSummery, $hubstaffUserId, $hubstaff_project_id
+                    );
+                } else {
+                    return response()->json(
+                        [
+                            'message' => 'Hubstaff member not found',
+                        ], 500
+                    );
+                }
+                if ($hubstaffTaskId) {
+                    if ($request->type == 'developer') {
+                        $task->hubstaff_task_id = $hubstaffTaskId;
+                    } else {
+                        $task->lead_hubstaff_task_id = $hubstaffTaskId;
+                    }
+                    $task->save();
+                } else {
+                    return response()->json(
+                        [
+                            'message' => 'Hubstaff task not created',
+                        ], 500
+                    );
+                }
+                if ($hubstaffTaskId) {
+                    $task = new HubstaffTask();
+                    $task->hubstaff_task_id = $hubstaffTaskId;
+                    $task->project_id = $hubstaff_project_id;
+                    $task->hubstaff_project_id = $hubstaff_project_id;
+                    $task->summary = $taskSummery;
+                    $task->save();
+                }
             } else {
-                return response()->json(
-                    [
-                        'message' => 'Hubstaff task not created',
-                    ], 500
-                );
-            }
-            if ($hubstaffTaskId) {
-                $task = new HubstaffTask();
-                $task->hubstaff_task_id = $hubstaffTaskId;
-                $task->project_id = $hubstaff_project_id;
-                $task->hubstaff_project_id = $hubstaff_project_id;
-                $task->summary = $taskSummery;
-                $task->save();
+                $timeDoctorTaskId = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                if (!$timeDoctorTaskId) {
+                    return response()->json([
+                        'message' => 'Time Doctor task not created',
+                    ], 500);
+                } 
             }
 
             return response()->json(

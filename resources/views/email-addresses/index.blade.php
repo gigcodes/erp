@@ -40,7 +40,7 @@
                           </select>
                       </div>
                   </div>
-                  <div class="col-2 pd-2">
+                    <div class="col-2 pd-2">
                     <div class="form-group status mb-0">
                       <Select name="website_id" class="form-control">
                         <option value>-- Select Website --</option>
@@ -49,19 +49,23 @@
                         @endforeach
                       </Select>
                     </div>
-                  </div>
+                    </div>
+                    <div class="col-2 pd-2">
+                    <div class="form-group status mb-0">
+                      <button type="submit" class="btn btn-xs mt-1 ml-3">
+                        <i class="fa fa-filter"></i>
+                      </button>
+                      <a href="/email-addresses" class="btn btn-image mt-auto" id=""><img src="{{asset('/images/resend2.png')}}" style="cursor: nwse-resize;"></a>
+                    </div>
+                    </div>
                     <!-- Language Selection -->
-                    <div class="col-xs-12 col-md-3 pd-2">
+                    <div class="col-2 d-flex" style=" justify-content: end !important;padding-right: 22px;">
                         <div class="form-group mb-0">
-                            <button type="submit" class="btn btn-xs mt-1 ml-3">
-                              <i class="fa fa-filter"></i>
-                            </button>
-                          <a href="/email-addresses" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-                            <button class="btn btn-xs btn-secondary error-email-history ml-3">View Errors</button>
+                            <button class="btn btn-xs btn-secondary error-email-history ml-3 ">View Errors</button>
                             <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#emailAddressModal">
-                              <i class="fa fa-plus"></i>
+                              <i class="fa fa-plus" style=" width:25px"></i>
                             </button>
-                        </div>
+                          </div>
                     </div>
                     <!-- Search Network -->
 
@@ -81,10 +85,10 @@
                     <button type="submit" class="btn btn-xs btn-secondary"> Generate password </button>
                 {{ Form::close() }}
             </div>
-            <div class="pull-left ml-3">
-                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#passwordCreateModal"><i class="fa fa-plus"></i></button>
+            <div class="pull-left pl-1">
+                <button type="button" class="btn btn-xs btn-secondary" style="width: 25px" data-toggle="modal" data-target="#passwordCreateModal"><i class="fa fa-plus"></i></button>
             </div>
-            <div class="pull-left ml-3">
+            <div class="pull-left pl-1">
               <button class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#store-api-token">Email Update</button>
             </div>
         </div>
@@ -95,7 +99,7 @@
         <thead>
           <tr>
             <th width="2%">ID</th>
-			      <th width="9%">Username</th>
+            <th width="9%">Username</th>
             <th width="9%">Password</th>
             <th width="7%">Rec Phone</th>
             <th width="7%">Rec Email</th>
@@ -106,7 +110,7 @@
             <th width="10%">Encryp</th>
             <th width="10%">Str Website</th>
             <th width="5%">Status</th>
-            <th width="14%">Action</th>
+            <th width="5%">Action</th>
           </tr>
         </thead>
 
@@ -123,14 +127,14 @@
               <td class="expand-row-msg" data-name="username" data-id="{{$server->id}}">
                   <span class="show-short-username-{{$server->id}}">{{ Str::limit($server->username, 12, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-username-{{$server->id}} hidden">{{$server->username}}</span>
-                <button type="button"  class="btn btn-copy-username btn-sm" data-id="{{$server->username}}" style="border:1px solid">
+                <button type="button"  class="btn btn-copy-username btn-sm float-right" data-id="{{$server->username}}">
                   <i class="fa fa-clone" aria-hidden="true"></i>
                 </button>
               </td>
               <td class="expand-row-msg" data-name="password" data-id="{{$server->id}}">
                   <span class="show-short-password-{{$server->id}}">{{ Str::limit($server->password, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$server->id}} hidden">{{$server->password}}</span>
-                <button type="button"  class="btn btn-copy-password btn-sm" data-id="{{$server->password}}" style="border:1px solid">
+                <button type="button"  class="btn btn-copy-password btn-sm float-right" data-id="{{$server->password}}">
                   <i class="fa fa-clone" aria-hidden="true"></i>
                 </button>
               </td>
@@ -152,7 +156,7 @@
               </td>
               <td>
                   {{ $server->send_grid_token??'N/A' }}
-                <button type="button"  class="btn btn-copy-token btn-sm" data-id="{{$server->send_grid_token}}" style="border:1px solid">
+                <button type="button"  class="btn btn-copy-token btn-sm float-right" data-id="{{$server->send_grid_token}}">
                   <i class="fa fa-clone" aria-hidden="true"></i>
                 </button>
               </td>
@@ -166,6 +170,12 @@
                 @if($server->history_last_message->is_success ?? '' == 1) {{ 'Success' }} @elseif(isset($server->history_last_message->is_success)) {{'Error'}} @else {{'-'}} @endif
               </td>
               <td>
+                <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="EmailAddressesbtn('{{$server->id}}')"><i class="fa fa-arrow-down"></i></button>
+              </td>
+            </tr>
+            <tr class="action-emailaddressesbtn-tr-{{$server->id}} d-none">
+              <td class="font-weight-bold">Action</td>
+              <td colspan="12">
                 <button type="button" class="btn btn-xs assign-users p-0 m-0 text-secondary mr-2"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal{{$server->id}}" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}">
                   <i class="fa fa-plus"></i>
                 </button>
@@ -176,11 +186,11 @@
                   <i class="fa fa-eye"></i>
                 </button>
                 {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-xs p-0 m-0 text-secondary mr-2">
-                      <i class="fa fa-trash"></i>
-                    </button>
+                <button type="submit" class="btn btn-xs p-0 m-0 text-secondary mt-0 mr-2">
+                  <i class="fa fa-trash"></i>
+                </button>
                 {!! Form::close() !!}
-                <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts p-0 m-0 text-secondary mr-2" title="Show Account">
+                <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts text-secondary mr-2" title="Show Account">
                   <i class="fa fa-eye"></i>
                 </a>
                 <a href="javascript:;" onclick="sendtoWhatsapp({{ $server->id }})" title="Send to Whatsapp" class="btn btn-xs p-0 m-0 text-secondary mr-2">
@@ -190,11 +200,11 @@
                   <div class="modal-dialog">
                     <!-- Modal content-->
                     <div class="modal-content">
-                        <div class="modal-header">
-                          <h4 class="modal-title">Send to Whatsapp</h4>
-                          <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <form action="{{ route('email.password.sendwhatsapp') }}" method="POST">
+                      <div class="modal-header">
+                        <h4 class="modal-title">Send to Whatsapp</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <form action="{{ route('email.password.sendwhatsapp') }}" method="POST">
                         @csrf
                         <div class="modal-body">
                           <div class="form-group">
@@ -210,14 +220,12 @@
                           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                           <button type="submit" class="btn btn-secondary">Update</button>
                         </div>
-                        </form>
+                      </form>
                     </div>
                   </div>
                 </div>
               </td>
             </tr>
-
-
 
           @endforeach
         </tbody>
@@ -875,6 +883,11 @@
 @section('scripts')
 <script src="https://cdn.tiny.cloud/1/8lx26kd08fse8eckrno8tqi4pkf298s9d9hunvvzy4ri6ru4/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
+  function EmailAddressesbtn(id){
+    $(".action-emailaddressesbtn-tr-"+id).toggleClass('d-none')
+  }
+</script>
+<script>
   tinymce.init({
     selector: '#address',
     menubar: false
@@ -956,7 +969,7 @@
       $('#emailAddressEditModal').find('input[name="recovery_email"]').val(emailAddress.recovery_email);
 
       $('#emailAddressEditModal').find('input[name="signature_name"]').val(emailAddress.signature_name);
-	    $('#emailAddressEditModal').find('input[name="signature_title"]').val(emailAddress.signature_title);
+      $('#emailAddressEditModal').find('input[name="signature_title"]').val(emailAddress.signature_title);
       $('#emailAddressEditModal').find('input[name="signature_email"]').val(emailAddress.signature_email);
       $('#emailAddressEditModal').find('input[name="signature_phone"]').val(emailAddress.signature_phone);
       $('#emailAddressEditModal').find('input[name="signature_website"]').val(emailAddress.signature_website);
@@ -987,6 +1000,7 @@
 	  $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
 
     $('#edit_driver').val(emailAddress.driver).trigger('change');
+    $('#edit_port').val(emailAddress.port).trigger('change');
     $('#edit_port').val(emailAddress.port).trigger('change');
     $('#edit_encryption').val(emailAddress.encryption).trigger('change');
 
@@ -1103,7 +1117,6 @@ function sendtoWhatsapp(password_id) {
                         $loader.show();
                     },
                     success: function (data) {
-
                         $loader.hide();
                         if('' === data.trim())
                             return;
