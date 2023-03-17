@@ -3,6 +3,17 @@
     .editbtn_model {
         position: unset !important;
     }
+
+    .chat-msg{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-word;
+    }
+    .chat-msg:hover {
+        white-space: normal;
+        overflow: visible;
+    }
 </style>
 @section('content')
 <div class="row">
@@ -59,16 +70,16 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
-                            <th width="3%">ID</th>
-                            <th width="10%">Store website</th>
-                            <th width="10%">Category</th>
-							<th width="7%">Translate From</th>
-                            <th width="10%">Original Reply</th>
+                            <th class="chat-msg" width="5%">ID</th>
+                            <th class="chat-msg" width="10%">Store website</th>
+                            <th class="chat-msg" width="10%">Category</th>
+							<th class="chat-msg" width="7%">Translate From</th>
+                            <th class="chat-msg" width="10%">Original Reply</th>
                             @foreach ($lang as $reply)
-                                <th width="9%">{{$reply}}</th>
+                                <th class="chat-msg" width="9%">{{$reply}}</th>
                             @endforeach
-                            <th width="9%">Created On</th>
-							<th width="9%">Updated On</th>
+                            <th class="chat-msg" width="9%">Created On</th>
+							<th class="chat-msg" width="9%">Updated On</th>
                         </tr>
                         @foreach (json_decode($replies) as $key => $reply)
                             <tr>
@@ -766,7 +777,7 @@
                         <label>Select User :</label>
                         <select class="form-control" id="selectuserid" name="selectusername">
                             <option>Select</option>
-                            @foreach (App\User::where('is_active', '1')->get() as $user)
+                            @foreach (App\User::where('is_active', '1')->orderBy('name', 'ASC')->get() as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
                         </select>
@@ -854,7 +865,7 @@
                         <label>Select User :</label>
                         <select class="form-control" id="selectUserId" name="user">
                             <option>Select</option>
-                            @foreach (App\User::where('is_active', '1')->get() as $user)
+                            @foreach (App\User::where('is_active', '1')->orderBy('name', 'ASC')->get() as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
                         </select>
