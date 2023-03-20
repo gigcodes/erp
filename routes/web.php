@@ -726,7 +726,6 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/listing/autocompleteForFilter', [ProductController::class, 'autocompleteForFilter'])->name('products.autocompleteForFilter');
 
     Route::get('products/listing/conditions-check-logs/{llm_id}', [ProductController::class, 'magentoConditionsCheckLogs'])->name('products.magentoConditionsCheckLogs');
-    Route::get('products/get-loglist-magento-detail/{llm_id}', [ProductController::class, 'getLogListMagentoDetail'])->name('products.getLogListMagentoDetail');
     Route::get('products/push/magento/conditions', [ProductController::class, 'pushToMagentoConditions'])->name('products.push.conditions');
     Route::get('products/conditions/status/update', [ProductController::class, 'updateConditionStatus'])->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', [ProductController::class, 'approvedListing'])->name('products.listing.approved.images');
@@ -1336,6 +1335,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
+    Route::get('email/email-frame/{id}', [EmailController::class, 'viewEmailFrame']);
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
