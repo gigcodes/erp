@@ -735,7 +735,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/listing/final/pushproduct', [ProductController::class, 'pushProduct']);
     Route::post('products/listing/final/process-conditions-check', [ProductController::class, 'processProductsConditionsCheck'])->name('products.processProductsConditionsCheck');
     Route::post('products/listing/push-to-magento', [ProductController::class, 'pushProductsToMagento'])->name('products.pushToMagento');
-    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatus'])->name('products.magentoPushStatus');
+    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatusForMagentoCheck'])->name('products.magentoPushStatus');
     Route::post('products/changeautopushvalue', [ProductController::class, 'changeAutoPushValue']);
     Route::post('products/listing/magento-push-status/autocomplete', [ProductController::class, 'autocompleteSearchPushStatus'])->name('products.autocompleteSearchPushStatus');
     Route::post('product/image/order/change', [ProductController::class, 'changeimageorder']);
@@ -4693,6 +4693,7 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
+    Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {

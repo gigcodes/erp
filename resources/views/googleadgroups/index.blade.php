@@ -3,7 +3,7 @@
 
 @section('content')
     <div class="col-md-12">
-      <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <button class="btn-image float-right custom-button" onclick="window.location.href='/google-campaigns/ads-account';">Back to Campaign</button></h2>
+      <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <a class="btn-image float-right custom-button" href="{{ url()->previous() }}">Back to Campaign</a></h2>
     <div class="pull-left p-0">
         <div class="form-group">
             <div class="row">      
@@ -89,9 +89,8 @@
                             {!! Form::open(['method' => 'DELETE','route' => ['adgroup.deleteAdGroup',$campaignId,$adGroup->google_adgroup_id],'style'=>'display:inline']) !!}
                                 <button type="submit" class="btn btn-image"><img src="{{asset('/images/delete.png')}}"></button>
                             {!! Form::close() !!}
-                            {!! Form::open(['method' => 'GET','route' => ['adgroup.updatePage',$campaignId,$adGroup->google_adgroup_id],'style'=>'display:inline']) !!}
-                                <button type="submit" class="btn btn-image"><img src="{{asset('/images/edit.png')}}"></button>
-                            {!! Form::close() !!}
+
+                                <button type="button" class="float-right btn btn-image btn mb-3 mr-3" data-toggle="modal" data-target="#updateadgroupmodal"><img src="{{asset('/images/edit.png')}}"></button>
                         @endif
                     </div>
                     </td>
@@ -214,7 +213,36 @@
                                 </div>
                             </div>
                         @endif
+                        @if($campaign_channel_type == "SEARCH")
+                            <input type="hidden" name="campaignId" id="campaignId" value="{{$campaignId}}">
+                            <div class="form-group row">
+                                <label for="scanurl" class="col-sm-2 col-form-label">Url</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control google_ads_keywords" id="scanurl" name="scanurl" placeholder="Enter a URL to scan for keywords" value="{{@$adGroup['scanurl']}}">
+                                    <span id="scanurl-error"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="scan_keywords" class="col-sm-2 col-form-label">Keyword</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control google_ads_keywords" id="scan_keywords" name="scan_keywords" placeholder="Enter products or services to advertise">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="" class="col-sm-2 col-form-label">&nbsp;</label>
+                                <div class="col-sm-6">
+                                    <button type="button" class="btn btn-default" id="btnGetKeywords">Get keyword suggestions</button>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="suggested_keywords" class="col-sm-2 col-form-label">Suggested Keywords</label>
+                                <div class="col-sm-6">
+                                    <textarea class="form-control" id="suggested_keywords" name="suggested_keywords" rows="10" placeholder="Enter or paste keywords. You can separate each keyword by commas."></textarea>
 
+                                    <span class="text-muted">Note: You can add up to 80 keyword and each keyword character must be less than 80 character.</span>
+                                </div>
+                            </div>
+                        @endif
                         <div class="form-group row">
                             <label for="ad-group-status" class="col-sm-2 col-form-label">Ad group status</label>
                             <div class="col-sm-6">
