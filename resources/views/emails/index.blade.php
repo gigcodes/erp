@@ -272,7 +272,6 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-              <!-- <div id="emailIframe"></div> -->
               <p><strong>Subject : </strong> <span id="emailSubject"></span> </p>
               <p><strong>Message : </strong> <span id="emailMsg"></span> </p>
               <iframe src="" id="eFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('eFrame');"></iframe>
@@ -650,17 +649,6 @@
             $(this).find('.td-full-container').toggleClass('hidden');
         }
     });
-  //   let interval = window.setInterval(trackClick, 100);
-  //   let i = 0;
-  //   function trackClick() {
-  //   if(document.activeElement == document.querySelector("#listFrame")) {
-  //     i++
-  //     alert('click');
-  //     //document.activeElement.hide();
-  //     //$(".expand-row").trigger("click");
-  //     window.focus();
-  //   }
-  // }
     
     $(".pagination-custom").on("click", ".page-link", function (e) {
             e.preventDefault();
