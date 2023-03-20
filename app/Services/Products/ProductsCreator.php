@@ -143,6 +143,15 @@ class ProductsCreator
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+             // sets initial status pending for autoCrop
+             $auto_crop_status = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$autoCrop,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($auto_crop_status);
 
             // Is the product not approved yet?
             if (! StatusHelper::isApproved($image->status_id)) {
@@ -290,31 +299,13 @@ class ProductsCreator
 
                 $product->save();
             }
-
-            // sets initial status pending for scrape
-            $scrap_status_data = [
-                'product_id' => $product->id,
-                'old_status' => $product->status_id,
-                'new_status' => StatusHelper::$scrape,
-                'pending_status' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-            ];
-            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
-            // sets initial status pending for isBeingScrape
-            $scrap_status_data = [
-                'product_id' => $product->id,
-                'old_status' => $product->status_id,
-                'new_status' => StatusHelper::$isBeingScraped,
-                'pending_status' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-            ];
-            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
-            
+                       
             // Initially save status scrape in Product_status_history
             $scrap_status_data = [
                 'product_id' => $product->id,
                 'old_status' => $product->status_id,
                 'new_status' => StatusHelper::$scrape,
+                'pending_status' => 0,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
@@ -324,6 +315,7 @@ class ProductsCreator
                     'product_id' => $product->id,
                     'old_status' => StatusHelper::$scrape,
                     'new_status' => StatusHelper::$isBeingScraped,
+                    'pending_status' => 0,
                     'created_at' => date('Y-m-d H:i:s'),
                 ];
                 \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
@@ -528,12 +520,22 @@ class ProductsCreator
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+             // sets initial status pending for autoCrop
+             $pending_auto_crop_status = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$autocrop,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($pending_auto_crop_status);
             
             // Initially save status scrape in Product_status_history when validator failed
             $scrap_status_data = [
                 'product_id' => $product->id,
                 'old_status' => $product->status_id,
                 'new_status' => StatusHelper::$scrape,
+                'pending_status' => 0,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
@@ -543,6 +545,7 @@ class ProductsCreator
                 'product_id' => $product->id,
                 'old_status' => StatusHelper::$scrape,
                 'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 0,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
