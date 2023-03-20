@@ -119,8 +119,10 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleScreencastController;
 use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleDeveloperLogsController;
+use \App\Http\Controllers\GoogleDriveController;
 
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
@@ -338,6 +340,7 @@ use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\GoogleAppAdController;
 use App\Http\Controllers\GoogleAdGroupKeywordController;
+use App\Http\Controllers\GoogleAdReportController;
 use App\Http\Controllers\UnknownAttributeProductController;
 use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
@@ -353,7 +356,7 @@ Route::get('sendgrid/notifyurl', [Marketing\MailinglistController::class, 'notif
 Route::get('send_auto_emails', [Marketing\MailinglistController::class, 'sendAutoEmails']);
 
 Route::get('textcurl', [Marketing\MailinglistController::class, 'textcurl']);
-
+Route::get('totem/query-command/{name}', [TasksController::class, 'queryCommand']);
 //Route::get('unused_category', 'TestingController@Demo');
 
 Route::get('/test/dummydata', [TestingController::class, 'testingFunction']);
@@ -724,6 +727,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/listing/autocompleteForFilter', [ProductController::class, 'autocompleteForFilter'])->name('products.autocompleteForFilter');
 
     Route::get('products/listing/conditions-check-logs/{llm_id}', [ProductController::class, 'magentoConditionsCheckLogs'])->name('products.magentoConditionsCheckLogs');
+    Route::get('products/get-loglist-magento-detail/{llm_id}', [ProductController::class, 'getLogListMagentoDetail'])->name('products.getLogListMagentoDetail');
     Route::get('products/push/magento/conditions', [ProductController::class, 'pushToMagentoConditions'])->name('products.push.conditions');
     Route::get('products/conditions/status/update', [ProductController::class, 'updateConditionStatus'])->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', [ProductController::class, 'approvedListing'])->name('products.listing.approved.images');
@@ -732,7 +736,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/listing/final/pushproduct', [ProductController::class, 'pushProduct']);
     Route::post('products/listing/final/process-conditions-check', [ProductController::class, 'processProductsConditionsCheck'])->name('products.processProductsConditionsCheck');
     Route::post('products/listing/push-to-magento', [ProductController::class, 'pushProductsToMagento'])->name('products.pushToMagento');
-    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatus'])->name('products.magentoPushStatus');
+    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatusForMagentoCheck'])->name('products.magentoPushStatus');
     Route::post('products/changeautopushvalue', [ProductController::class, 'changeAutoPushValue']);
     Route::post('products/listing/magento-push-status/autocomplete', [ProductController::class, 'autocompleteSearchPushStatus'])->name('products.autocompleteSearchPushStatus');
     Route::post('product/image/order/change', [ProductController::class, 'changeimageorder']);
@@ -857,6 +861,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::prefix('{id}')->group(function () {
             Route::get('push-in-shopify', [NewProductInventoryController::class, 'pushInShopify'])->name('product-inventory.push-in-shopify');
         });
+    });
+
+    Route::prefix('google-drive')->group(function () {
+        Route::get('/', [GoogleDriveController::class, 'index'])->name('google-drive.new');
+        Route::post('/create', [GoogleDriveController::class, 'create'])->name('google-drive.create');
     });
 
     Route::get('log_history/discount/', [ProductInventoryController::class, 'discountlogHistory'])->name('log-history/discount/brand');
@@ -3981,6 +3990,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     });
 
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
+    Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
@@ -4685,6 +4695,13 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
+    Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
+});
+
+Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
+    Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
+    Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
+    Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
 });
 
 //Queue Management::
@@ -4722,5 +4739,6 @@ Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
 Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
 Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
  });
+
 
    

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Setting;
 use Exception;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
@@ -44,6 +45,7 @@ use Illuminate\Http\Request;
 use Google\Protobuf\Int32Value;
 
 use App\Models\GoogleAdGroupKeyword;
+use App\Models\GoogleResponsiveDisplayAd;
 use App\Models\GoogleResponsiveDisplayAdMarketingImage;
 use App\Models\GoogleAppAd;
 use App\Models\GoogleAppAdImage;
@@ -71,44 +73,145 @@ class GoogleCampaignsController extends Controller
         }
     }
 
-
     public function campaignslist(Request $request)
     {
-        $campaignslist = \App\GoogleAdsCampaign::get();
+        $search_data = \App\GoogleAdsCampaign::has('account')->with('account')->latest()->get();
+        $campaignslist = \App\GoogleAdsCampaign::has('account')->with('account')->latest();
+
+        if(!empty($request->account_name))
+        {
+            $campaignslist->where('account_id',$request->account_name);
+        }
+        if(!empty($request->campaign_name))
+        {
+            $campaignslist->Where('campaign_name',$request->campaign_name);
+        }
+        if(!empty($request->channel_type))
+        {
+            $campaignslist->where('channel_type','like', '%'.$request->channel_type.'%');
+        }
+        if(!empty($request->channel_sub_type))
+        {
+            $campaignslist->where('channel_sub_type','like', '%'.$request->channel_sub_type.'%');
+        }
+        if(!empty($request->status))
+        {
+            $campaignslist->where('status','like', '%'.$request->status.'%');
+        }
+        if(!empty($request->start_date))
+        {
+            $campaignslist->where('start_date','like', '%'.$request->start_date.'%');
+        }
+        if(!empty($request->end_date))
+        {
+            $campaignslist->where('end_date','like', '%'.$request->end_date.'%');
+        }
+
+
+
+        $campaignslist = $campaignslist->paginate(10)->appends(request()->except(['page']));
 
         $totalNumEntries = count($campaignslist);
 
-        return view('googlecampaigns.google_campaignslist', compact('campaignslist','totalNumEntries'));
+        return view('googlecampaigns.google_campaignslist', compact('campaignslist','totalNumEntries','search_data'));
     }
 
     public function adslist(Request $request)
     {
-        $adslist = \App\GoogleAd::get();
+        $search_data = \App\GoogleAd::has('adgroup')->with('adgroup', 'campaign', 'campaign.account')->latest()->get();
+        $adslist = \App\GoogleAd::has('adgroup')->with('adgroup', 'campaign', 'campaign.account')->latest();
+
+        if(!empty($request->campaign_name))
+        {
+            $adslist->where('adgroup_google_campaign_id',$request->campaign_name);
+        }
+        if(!empty($request->ad_group_name))
+        {
+            $adslist->where('google_adgroup_id',$request->ad_group_name);
+        }
+        if(!empty($request->google_ad_id))
+        {
+            $adslist->where('google_ad_id',$request->google_ad_id);
+        }
+
+        $adslist = $adslist->paginate(10)->appends(request()->except(['page']));
+
         $totalNumEntries = count($adslist);
 
-        return view('googleads.ads_list', compact('adslist','totalNumEntries'));
+        return view('googleads.ads_list', compact('adslist','totalNumEntries','search_data'));
     }
 
     public function appadlist(Request $request)
     {
-        $googleappadd = \App\Models\GoogleAppAd::all();
+        $search_data =  \App\Models\GoogleAppAd::has('adgroup')->with('adgroup', 'campaign', 'campaign.account')->latest()->get();
+        $googleappadd = \App\Models\GoogleAppAd::has('adgroup')->with('adgroup', 'campaign', 'campaign.account')->latest();
+
+        if(!empty($request->campaign_name))
+        {
+            $googleappadd->where('adgroup_google_campaign_id',$request->campaign_name);
+        }
+        if(!empty($request->google_adgroup_id))
+        {
+            $googleappadd->where('google_adgroup_id',$request->google_adgroup_id);
+        }
+        if(!empty($request->headline1))
+        {
+            $googleappadd->where('headline1',$request->headline1);
+        }
+
+        $googleappadd = $googleappadd->paginate(10)->appends(request()->except(['page']));
+
         $totalentries = $googleappadd->count();
-        return view('google_app_ad.appaddlist' , compact('googleappadd' , 'totalentries'));
+        return view('google_app_ad.appaddlist' , compact('googleappadd' , 'totalentries','search_data'));
     }
 
     public function display_ads(Request $request)
     {
-        $display_ads = GoogleResponsiveDisplayAd::get();
+        $search_data = GoogleResponsiveDisplayAd::has('adgroup')->with('adgroup', 'campaign', 'campaign.account')->latest()->get();
+        $display_ads = GoogleResponsiveDisplayAd::has('adgroup')->with('adgroup', 'campaign', 'campaign.account')->latest();
+
+        if(!empty($request->campaign_name))
+        {
+            $display_ads->where('adgroup_google_campaign_id',$request->campaign_name);
+        }
+        if(!empty($request->google_adgroup_id))
+        {
+            $display_ads->where('google_adgroup_id',$request->google_adgroup_id);
+        }
+        if(!empty($request->headline1))
+        {
+            $display_ads->where('headline1',$request->headline1);
+        }
+
+        $display_ads = $display_ads->paginate(10)->appends(request()->except(['page']));
+
         $totalNumEntries = count($display_ads);
 
-        return view('google_responsive_display_ad.displayads_list', compact('display_ads','totalNumEntries'));
+        return view('google_responsive_display_ad.displayads_list', compact('display_ads','totalNumEntries','search_data'));
     }
 
     public function adsgroupslist(Request $request)
     {
-        $adsgroups = \App\AdGroup::all();
+        $search_data = \App\GoogleAdsGroup::has('campaign')->with('campaign', 'campaign.account')->latest()->get();
+        $adsgroups = \App\GoogleAdsGroup::has('campaign')->with('campaign', 'campaign.account')->latest();
+
+        if(!empty($request->campaign_name))
+        {
+            $adsgroups->where('adgroup_google_campaign_id',$request->campaign_name);
+        }
+        if(!empty($request->ad_group_name))
+        {
+            $adsgroups->where('ad_group_name',$request->ad_group_name);
+        }
+        if(!empty($request->created_at))
+        {
+            $adsgroups->where('created_at','like', '%'.$request->created_at.'%');
+        }
+
+        $adsgroups = $adsgroups->paginate(10)->appends(request()->except(['page']));
+
         $totalentries = $adsgroups->count();
-        return view('googleadgroups.grouplist' , compact('adsgroups' , 'totalentries'));
+        return view('googleadgroups.grouplist' , compact('adsgroups' , 'totalentries','search_data'));
     }
 
     public function index(Request $request)
@@ -762,7 +865,7 @@ class GoogleCampaignsController extends Controller
 
             // Delete other data
             GoogleAdGroupKeyword::where('adgroup_google_campaign_id', $campaignId)->delete();
-            \GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->delete();
+            GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleResponsiveDisplayAdMarketingImage::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleAppAd::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleAppAdImage::where('adgroup_google_campaign_id', $campaignId)->delete();

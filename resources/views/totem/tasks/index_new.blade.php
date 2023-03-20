@@ -146,7 +146,7 @@ table tr td {
                             <th width="5%">Action</th> 
                         </tr>    
                     </thead>
-                    <tbody> 
+                    <tbody>
                             @foreach($tasks as $key => $task)
                             <tr class="{{$task->is_active ? '' : 'red' }}">
                                 <td>{{$task->id}}</td>
@@ -186,6 +186,7 @@ table tr td {
 
                                     <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image command-schedule" href="#" data-id="{{$task->command}}" title="See Cron query and description"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                 </td>
                             </tr>
                             @endforeach
@@ -311,6 +312,39 @@ table tr td {
         </div>
     </div>
     </div>
+
+    <div class="modal fade" id="view_command_query" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">COMMAND QUERIES</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+                            <thead>
+                            <tr>
+                                <th width="5%">Command Name</th>
+                                <th width="5%">Queries</th>
+                                <th width="5%">Description</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="modal fade" id="view_execution_error" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
         <div class="modal-dialog modal-lg" role="document">
@@ -669,6 +703,32 @@ table tr td {
         $("#view_execution_history tbody").html(html_content);                   
         $('#view_execution_history').modal('show'); 
     });
+
+    $(document).on("click",".command-schedule",function(e) {
+        $.ajax({
+            type: "GET",
+            url: "query-command/"+$(this).data('id'),
+            success: function (response) {
+                var html_content = '';
+                for(let i=0; i< response.length; i++){
+                    html_content += '<tr>';
+                    html_content += '<td>' + response[i].schedule_name + '</td>';
+                    html_content += '<td>' + response[i].query + '</td>';
+                    html_content += '<td>' + response[i].description + '</td>';
+                    html_content += '</tr>';
+                }
+                if(response.length == 0){
+                    html_content += '<tr class="text-center"><td colspan="3"><h5>' + 'No Data to show.' + '</h5></td></tr>';
+                }
+                $("#view_command_query tbody").html(html_content);
+                $('#view_command_query').modal('show');
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });
+
 
     $(document).on("click","#show-result",function(e) {
         let results = $(this).attr('data-output'); 

@@ -352,7 +352,7 @@ class GoogleAdGroupController extends Controller
                     );
             insertGoogleAdsLog($input);
 
-            return redirect('google-campaigns/'.$campaignId.'/adgroups/create')->with('actError', $this->exceptionError);
+            return redirect()->back()->with('actError', $this->exceptionError);
         }
     }
 

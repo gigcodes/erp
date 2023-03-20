@@ -30,7 +30,7 @@ class StoreAdsReportingData extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'This command is used for store ads reporting data into database.';
 
     /**
      * Create a new command instance.
@@ -49,11 +49,13 @@ class StoreAdsReportingData extends Command
      */
     public function handle()
     {
-        $googleAdsAccounts = GoogleAdsAccount::with(['campaigns'])->get();
+        $googleAdsAccounts = GoogleAdsAccount::has('campaigns')->with(['campaigns'])->get();
         foreach ($googleAdsAccounts as $googleAdsAccount){
-            $this->getAllCampaignData($googleAdsAccount);
+            $campaignIds = $googleAdsAccount->campaigns->pluck('google_campaign_id')->toArray();
+            if(!empty($campaignIds)){
+                $this->getAllCampaignData($googleAdsAccount, $campaignIds);
+            }
         }
-        $this->info('test-');
         return 0;
     }
 
@@ -61,10 +63,15 @@ class StoreAdsReportingData extends Command
      * @param $googleAdsCampaign
      * @throws \Google\ApiCore\ApiException
      */
-    public function getAllCampaignData($googleAdsAccount)
+    public function getAllCampaignData($googleAdsAccount, $campaignIds)
     {
+        $campaignIds = implode(",", $campaignIds);
+
         $storagepath = storage_path('app/adsapi/'.$googleAdsAccount->id.'/'.$googleAdsAccount->config_file_path);        // Get OAuth2 configuration from file.
 
+        if(!file_exists($storagepath)){
+            return true;
+        }
         $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
 
         // Generate a refreshable OAuth2 credential for authentication.
@@ -76,59 +83,77 @@ class StoreAdsReportingData extends Command
             ->build();
         $googleAdsServiceClient = $googleAdsClient->getGoogleAdsServiceClient();
 
-//        $campaignIds = $googleAdsAccount->campaigns->pluck('google_campaign_id')->toArray();
-//        $campaignIdsVal = implode(',',$campaignIds);
+        // get data from google query
+        $query = "SELECT 
+                  metrics.clicks, 
+                  metrics.impressions, 
+                  metrics.ctr, 
+                  metrics.average_cpc, 
+                  ad_group_ad.ad.id, 
+                  -- ad_group_ad.ad.name, 
+                  ad_group.name, 
+                  ad_group.id, 
+                  -- ad_group_ad.ad.type, 
+                  -- ad_group_ad.ad.responsive_search_ad.headlines, 
+                  campaign.id, 
+                  campaign.name, 
+                  campaign.advertising_channel_sub_type, 
+                  campaign.advertising_channel_type 
+                FROM ad_group_ad 
+                WHERE 
+                  campaign.id IN ($campaignIds) AND segments.date DURING TODAY";
 
-        $query = "SELECT metrics.impressions,
-            metrics.clicks,
-            campaign.id,
-            campaign.name,
-            metrics.ctr,
-            metrics.average_cpc FROM keyword_view";
-
-        // Issues a search stream request.
-        /** @var GoogleAdsServerStreamDecorator $stream */
         $stream = $googleAdsServiceClient->search($googleAdsAccount->google_customer_id, $query);
 
         // Iterates over all rows in all messages and prints the requested field values for
         // the keyword in each row.
         foreach ($stream->iterateAllElements() as $googleAdsRow) {
 
-            /** @var GoogleAdsRow $googleAdsRow */
             $metrics = $googleAdsRow->getMetrics();
             $campaign = $googleAdsRow->getCampaign();
+            $adGroup = $googleAdsRow->getAdGroup();
+            $ad = $googleAdsRow->getAdGroupAd()->getAd();
 
             try {
-                \DB::enableQueryLog();
+                $input = array(
+                                'google_customer_id' => $googleAdsAccount->google_customer_id, 
+                                'adgroup_google_campaign_id' => $campaign->getId(), 
+                                'google_adgroup_id' => $adGroup->getId(), 
+                                'google_ad_id' => $ad->getId(), 
+                                'google_account_id' => $googleAdsAccount->id, 
+                                'campaign_type' => self::getCampaignType($campaign->getAdvertisingChannelType()), 
+                                'impression' => $metrics->getImpressions(), 
+                                'click' => $metrics->getClicks(), 
+                                'cost_micros' => $metrics->getCostMicros(), 
+                                'average_cpc' => $metrics->getAverageCpc(), 
+                                'date' => date("Y-m-d"), 
+                            );
+                GoogleAdsReporting::updateOrCreate([
+                                        'google_customer_id' => $googleAdsAccount->google_customer_id, 
+                                        'adgroup_google_campaign_id' => $campaign->getId(), 
+                                        'google_adgroup_id' => $adGroup->getId(), 
+                                        'google_ad_id' => $ad->getId(),
+                                        'google_account_id' => $googleAdsAccount->id,
+                                        'date' => date("Y-m-d"),
+                                    ], $input);
 
-                $exists_compaign = GoogleAdsCampaign::all();
-                if($exists_compaign->isEmpty()){
-                    dd("Compaign not found::");
-                }else{
-//                  $compaign_list = GoogleAdsCampaign::where('account_id',$googleAdsAccount->id)->first();
-//                  dd($compaign_list->google_campaign_id);
-                    $exists_account = GoogleAdsReporting::where('google_account_id',$googleAdsAccount->id)->exists();
-                    if($exists_account){
-                        $store_reporting = GoogleAdsReporting::where('google_account_id', '=',  $googleAdsAccount->id)->first();
-                        $store_reporting->google_account_id = $googleAdsAccount->id;
-                        $store_reporting->name = $campaign->getName();
-                        $store_reporting->impression = $metrics->getImpressions();
-                        $store_reporting->click = $metrics->getClicks();
-                        $store_reporting->cost_micros = $metrics->getCostMicros();
-                        $store_reporting->save();
-                    }else{
-                        $store_reporting = New GoogleAdsReporting();
-                        $store_reporting->google_account_id = $googleAdsAccount->id;
-                        $store_reporting->name = $campaign->getName();
-                        $store_reporting->impression = $metrics->getImpressions();
-                        $store_reporting->click = $metrics->getClicks();
-                        $store_reporting->cost_micros = $metrics->getCostMicros();
-                        $store_reporting->save();
-                    }
-                }
+                $this->info('Store reporting data for ad: '. $ad->getId());
+
             }catch (Exception $exception){
-                dd($exception->getMessage());
             }
         }
+    }
+
+    private function getCampaignType($advertisingChannelTypeId)
+    {
+        $data = array(
+                    0 => "UNSPECIFIED",
+                    2 => "SEARCH",
+                    3 => "DISPLAY",
+                    4 => "SHOPPING",
+                    7 => "MULTI_CHANNEL",
+                );
+
+        return $data[$advertisingChannelTypeId] ?? $data[0];
     }
 }

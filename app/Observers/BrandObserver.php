@@ -22,12 +22,12 @@ class BrandObserver
         } else {
             $user = User::find(6);
         }
-        Activity::create([
+        /*Activity::create([
             'subject_type' => 'Brand',
             'subject_id' => $brand->id,
             'causer_id' => $user->id,
             'description' => $user->name.' has created brand '.$brand->name,
-        ]);
+        ]);*/
     }
 
     /**
@@ -43,12 +43,12 @@ class BrandObserver
         } else {
             $user = User::find(6);
         }
-        Activity::create([
+        /*Activity::create([
             'subject_type' => 'Brand',
             'subject_id' => $brand->id,
             'causer_id' => $user->id,
             'description' => $user->name.' has updated brand '.$brand->name,
-        ]);
+        ]);*/
     }
 
     /**
@@ -64,12 +64,12 @@ class BrandObserver
         } else {
             $user = User::find(6);
         }
-        Activity::create([
+        /*Activity::create([
             'subject_type' => 'Brand',
             'subject_id' => $brand->id,
             'causer_id' => $user->id,
             'description' => $user->name.' has deleted brand '.$brand->name,
-        ]);
+        ]);*/
     }
 
     /**
