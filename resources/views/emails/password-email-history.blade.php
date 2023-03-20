@@ -7,7 +7,7 @@
     <td>
         {{ $email->to }}
     </td>
-    <td>
+    <td style="word-wrap: break-word;">
         {{ $email->from }}
     </td>
     <td>
@@ -15,6 +15,9 @@
     </td>
     <td>
         <?= $email->message ?>
+    </td>
+    <td>
+        {{ $email->error_message  }}
     </td>
 
     <td>

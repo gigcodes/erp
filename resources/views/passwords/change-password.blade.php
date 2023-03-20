@@ -108,9 +108,8 @@
                     @endif
                 </div>
                 <div class="form-group">
-                    <strong>From Mail</strong>
-                    <select class="form-control" name="from_email" required>
-                        <?php $emailAddressArr = \App\EmailAddress::all(); ?>
+                    <label for="value">From Mail</label>
+                    <select class="form-control" name="from_email" id="from_email" required>
                         @foreach ($emailAddressArr as $emailAddress)
                         <option value="{{ $emailAddress->from_address }}">{{ $emailAddress->from_name }} - {{ $emailAddress->from_address }} </option>
                         @endforeach
@@ -141,6 +140,7 @@
                 <th style="width:20%">From Email</th>
                 <th style="width:20%">Subject</th>
                 <th style="width:25%">Message</th>
+                <th style="width:25%">Error Message</th>
                 <th style="width:10%">Date</th>
             </thead>
             <tbody class="password-email-history">
@@ -203,6 +203,10 @@
                 $('#passwordSendEmailHistoryModal').modal('show');
                 $('.password-email-history').html(result);
             });
+        });
+
+        $('#from_email').select2({
+            placeholder: 'Select an Email',
         });
     </script>
 @endsection

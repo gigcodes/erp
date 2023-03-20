@@ -222,8 +222,9 @@ class PasswordController extends Controller
     public function manage()
     {
         $users = User::where('is_active', 1)->orderBy('id', 'desc')->get();
+        $emailAddressArr = \App\EmailAddress::orderBy('from_address', 'asc')->get();
 
-        return view('passwords.change-password', compact('users'));
+        return view('passwords.change-password', compact('users', 'emailAddressArr'));
     }
 
     public function changePassword(Request $request)
@@ -363,44 +364,51 @@ class PasswordController extends Controller
      */
     public function passwordSendEmail(Request $request)
     {
-        $this->validate($request, [
-            'email' => 'required|email',
-            'from_email' => 'required',
-        ]);
+        try {
+            $this->validate($request, [
+                'email' => 'required|email',
+                'from_email' => 'required',
+            ]);
 
-        $newPassword = Str::random(12);
-        $message =  '';
-        $message .= 'Email id = '. $request->email . '<br>';
-        $message .= 'Password = '. $newPassword;
+            $newPassword = Str::random(12);
+            $message =  '';
+            $message .= 'Email id = '. $request->email . '<br>';
+            $message .= 'Password = '. $newPassword;
 
-        //Store data in chat_message table.
-        $params = [
-            'number' => null,
-            'user_id' => Auth::user()->id,
-            'message' => $message,
-        ];
+            //Store data in chat_message table.
+            $params = [
+                'number' => null,
+                'user_id' => Auth::user()->id,
+                'message' => $message,
+            ];
 
-        ChatMessage::create($params);
+            ChatMessage::create($params);
 
-        // Store data in email table
-        $from_address = isset($request->from_email) && $request->from_email != ''  ? $request->from_email : config('env.MAIL_FROM_ADDRESS');
+            // Store data in email table
+            $from_address = isset($request->from_email) && $request->from_email != ''  ? $request->from_email : config('env.MAIL_FROM_ADDRESS');
 
-        $email = Email::create([
-            'model_id' => '',
-            'model_type' => \App\Password::class,
-            'from' => $from_address,
-            'to' => $request->email,
-            'subject' => 'Password Manager',
-            'message' => $message,
-            'template' => 'reset-password',
-            'status' => 'pre-send',
-            'store_website_id' => null,
-            'is_draft' => 1,
-        ]);
+            $email = Email::create([
+                'model_id' => '',
+                'model_type' => \App\Password::class,
+                'from' => $from_address,
+                'to' => $request->email,
+                'subject' => 'Password Manager',
+                'message' => $message,
+                'template' => 'reset-password',
+                'status' => 'pre-send',
+                'store_website_id' => null,
+                'is_draft' => 1,
+            ]);
 
-        // Send email
-        \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
-        \Session::flash('success', 'Password manager email send successfully');
+            // Send email
+            \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
+            \Session::flash('success', 'Password manager email send successfully');
+        } catch (\Throwable $th) {
+            $emails = Email::latest('created_at')->first();
+            $emails->error_message = $th->getMessage();
+            $emails->save();
+            \Session::flash('error', $th->getMessage());
+        }
 
         return redirect()->back();
     }

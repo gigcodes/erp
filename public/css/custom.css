@@ -2768,6 +2768,10 @@ button.show-task-history{
   word-break: break-all;
 }
 
+#passwordSendEmailModal .select2.select2-container.select2-container--default{
+  width: 100% !important;
+}
+
 @media (min-width: 992px){
   #addPostman .modal-lg {
       width: 1180px !important;
