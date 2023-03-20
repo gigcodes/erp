@@ -126,7 +126,7 @@
                                                    $text = $translate->$l;
                                                    $id = $reply->translate_id[$key];
                                                    $re_lang = $reply->translate_lang[$key];
-                                                   $id = $reply->translate_status[$key];
+                                                   $status = $reply->translate_status[$key];
                                                }
                                             }
                                         }

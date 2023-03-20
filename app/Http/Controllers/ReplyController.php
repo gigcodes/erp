@@ -550,21 +550,26 @@ class ReplyController extends Controller
     {
         $record = TranslateReplies::find($request->record_id);
         $oldRecord = $request->lang_id;
-        $record->updated_by_user_id = $request->update_by_user_id;
-        $record->translate_text = $request->update_record;
-        $record->status = 'new';
-        $record->update();
+        if($record)
+        {
+            $record->updated_by_user_id = !empty($request->update_by_user_id) ? $request->update_by_user_id : '';
+            $record->translate_text = !empty($request->update_record)?$request->update_record:"";
+            $record->status = 'new';
+            $record->update();
 
-        $historyData = [];
-        $historyData['translate_replies_id'] = $record->id;
-        $historyData['updated_by_user_id'] = $record->updated_by_user_id;
-        $historyData['translate_text'] = $request->update_record;
-        $historyData['status'] = 'new';
-        $historyData['lang'] = $oldRecord;
-        $historyData['created_at'] = \Carbon\Carbon::now();
-        RepliesTranslatorHistory::insert($historyData);
+            $historyData = [];
+            $historyData['translate_replies_id'] = $record->id;
+            $historyData['updated_by_user_id'] = $record->updated_by_user_id;
+            $historyData['translate_text'] = $request->update_record;
+            $historyData['status'] = 'new';
+            $historyData['lang'] = $oldRecord;
+            $historyData['created_at'] = \Carbon\Carbon::now();
+            RepliesTranslatorHistory::insert($historyData);
 
-        return redirect()->back()->with(['success' => 'Successfully Updated']);
+            return redirect()->back()->with(['success' => 'Successfully Updated']);
+        }else{
+            return redirect()->back()->withErrors('Something Wrong');
+        }
     }
 
     public function replyTranslatehistory(Request $request)
