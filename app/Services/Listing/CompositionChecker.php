@@ -66,7 +66,7 @@ class CompositionChecker implements CheckerInterface
 
     private function setCompositionReplacementData(): void
     {
-        $cs = Compositions::all();
+        $cs = [];
         $original = [];
         $replaces = [];
         foreach ($cs as $c) {

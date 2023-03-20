@@ -29,4 +29,9 @@ class GoogleAdsGroup extends Model
     {
         return $this->hasOne(\App\GoogleAdsCampaign::class, 'id', 'campaign_id');
     }
+
+    public function campaign()
+    {
+        return $this->belongsTo(\App\GoogleAdsCampaign::class, 'adgroup_google_campaign_id', 'google_campaign_id');
+    }
 }
