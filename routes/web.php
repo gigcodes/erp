@@ -345,6 +345,7 @@ use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
+use App\Http\Controllers\CodeShortcutController;
 
 
 Auth::routes();
@@ -651,11 +652,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
-    Route::get('incorrect-attributes', [UnknownAttributeProductController::class,'index'])->name('incorrect-attributes');
-    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
-    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
-    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
-    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
+    Route::get('incorrect-attributes', [UnknownAttributeProductController::class, 'index'])->name('incorrect-attributes');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class, 'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class, 'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
+    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class, 'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
+    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class, 'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -799,7 +800,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/{id}/originalColor', [ProductController::class, 'originalColor']);
     Route::post('products/{id}/submitForApproval', [ProductController::class, 'submitForApproval']);
     Route::get('products/{id}/category-history', [ProductCategoryController::class, 'history']);
-//    Route::post('products/{id}/addListingRemarkToProduct', [ProductController::class, 'addListingRemarkToProduct']);
+    //    Route::post('products/{id}/addListingRemarkToProduct', [ProductController::class, 'addListingRemarkToProduct']);
     Route::get('products/{id}/get-translation-product', [ProductController::class, 'getTranslationProduct']);
     Route::post('products/{id}/
     ', [ProductController::class, 'updateApprovedBy']);
@@ -2483,6 +2484,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('type', [TemplatesController::class, 'typeIndex'])->name('templates.type');
     });
 
+    Route::prefix('code-shortcuts')->middleware('auth')->group(function () {
+        Route::get('/', [CodeShortcutController::class, 'index'])->name('code-shortcuts');
+        Route::post('/store', [CodeShortcutController::class, 'store'])->name('code-shortcuts.store');
+        Route::put('/{id}/update', [CodeShortcutController::class, 'update'])->name('code-shortcuts.update');
+        Route::get('/{id}/destory', [CodeShortcutController::class, 'destory'])->name('code-shortcuts.destory');
+    });
+
     Route::prefix('erp-events')->middleware('auth')->group(function () {
         Route::get('/', [ErpEventController::class, 'index'])->name('erp-events');
         Route::post('/store', [ErpEventController::class, 'store'])->name('erp-events.store');
@@ -2551,11 +2559,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
 
 /**
-* This route will push the FAQ to series of website with help of API
-*/
+ * This route will push the FAQ to series of website with help of API
+ */
 Route::middleware('auth')->group(function () {
-	Route::post('push/faq', 			[FaqPushController::class, 'pushFaq']);
-	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
+    Route::post('push/faq',             [FaqPushController::class, 'pushFaq']);
+    Route::post('push/faq/all',         [FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
@@ -2601,7 +2609,9 @@ Route::any('twilio/store-cancel-task-record', [TwilioController::class, 'storeCa
 Route::any('twilio/store-complete-task-record', [TwilioController::class, 'storeCompleteTaskRecord'])->name('twilio.store_complete_task_record');
 
 Route::get(
-    '/twilio/hangup', [TwilioController::class, 'showHangup'])->name('hangup');
+    '/twilio/hangup',
+    [TwilioController::class, 'showHangup']
+)->name('hangup');
 
 Route::post('twilio/handleIncomingCall', [TwilioController::class, 'handleIncomingCall'])->name('handleIncomingCall');;
 
@@ -2723,7 +2733,7 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects']);
-    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks']);    
+    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks']);
     Route::get('time-doctor/members', [TimeDoctorController::class, 'userList'])->name('time-doctor.members');
     Route::post('time-doctor/link_time_doctor_user', [TimeDoctorController::class, 'linkUser']);
     Route::post('time-doctor/saveuseraccount', [TimeDoctorController::class, 'saveUserAccount'])->name('time-doctor.adduser');
@@ -2775,7 +2785,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/userTreckTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
         });
     });
-    
+
 
     /***
      * use for Postman
@@ -3770,8 +3780,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
-     Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
-     Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
+    Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
+    Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
     Route::resource('/search/keyword', GoogleSearchController::class);
     Route::get('/search/keyword-priority', [GoogleSearchController::class, 'markPriority'])->name('google.search.keyword.priority');
     Route::get('/search/keyword', [GoogleSearchController::class, 'index'])->name('google.search.keyword');
@@ -3788,15 +3798,15 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/email/send', [GoogleAffiliateController::class, 'emailSend'])->name('affiliate.email.send');
     Route::get('/affiliate/scrap', [GoogleAffiliateController::class, 'callScraper'])->name('google.affiliate.keyword.scrap');
     //Google Developer API
-// Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
+    // Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
 
-Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
-// Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
-Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+    Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+    // Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
+    Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
-Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
-	
-     Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
+    Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
+
+    Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -3984,7 +3994,6 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
                 });
             });
-
         });
     });
 
@@ -4391,7 +4400,7 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 // DEV MANISH
 //System size
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');    
+    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
@@ -4723,18 +4732,16 @@ Route::get('status-list', [TaskController::class, 'statusList'])->name('statusLi
 
 
 Route::prefix('appconnect')->middleware('auth')->group(function () {
-Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
-Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
-Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
-Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
-Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
-Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
-Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
-Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
-Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
-Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
-Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
-Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
- });
-
-   
+    Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
+    Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+    Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
+    Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
+    Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
+    Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+    Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
+    Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
+    Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
+    Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
+    Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
+    Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
+});

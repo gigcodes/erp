@@ -16,6 +16,7 @@ use Laravel\Passport\HasApiTokens;
 use Plank\Mediable\Mediable;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\CodeShortcut;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -613,5 +614,10 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function user_detail()
+    {
+        return $this->belongsTo(CodeShortcut::class);
     }
 }

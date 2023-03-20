@@ -935,6 +935,9 @@ if (!empty($notifications)) {
                                             class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
+											<a class="dropdown-item" 
+												href="{{ action('\App\Http\Controllers\CodeShortcutController@index') }}">
+												Node Code Shortcut</a>
                                             <a class="dropdown-item"
                                                 href="{{ action('\App\Http\Controllers\ProductController@productStats') }}">Product
                                                 Statistics</a>
