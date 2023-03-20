@@ -259,8 +259,8 @@
                             <div class="col-sm-6">
                                 @if(!empty($campaign['status']))
                                 <select class="browser-default custom-select" id="campaign-status" name="campaignStatus" style="height: auto">
-                                    <option value="1" {{($campaign['status'] == 'ENABLED') ? 'selected' : ''}}>Enabled</option>
-                                    <option value="2" {{($campaign['status'] == 'PAUSED') ? 'selected' : ''}}>Paused</option>
+                                    <option value="1" {{($campaign['status'] ?? '' == 'ENABLED') ? 'selected' : ''}}>Enabled</option>
+                                    <option value="2" {{($campaign['status'] ?? '' == 'PAUSED') ? 'selected' : ''}}>Paused</option>
                                 </select>
                                 @endif
                             </div>

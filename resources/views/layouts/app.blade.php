@@ -2172,6 +2172,9 @@ if (!empty($notifications)) {
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googleadsaccount.appadlist')}}">Google App Ads</a>
                                         </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadreport.index')}}">Google Ads Report</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">

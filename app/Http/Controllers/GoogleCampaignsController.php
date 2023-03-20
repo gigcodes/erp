@@ -216,6 +216,7 @@ class GoogleCampaignsController extends Controller
 
     public function index(Request $request)
     {
+
         if ($request->get('account_id')) {
             $account_id = $request->get('account_id');
         } else {

@@ -340,6 +340,7 @@ use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\GoogleAppAdController;
 use App\Http\Controllers\GoogleAdGroupKeywordController;
+use App\Http\Controllers\GoogleAdReportController;
 use App\Http\Controllers\UnknownAttributeProductController;
 use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
@@ -3990,6 +3991,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     });
 
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
+    Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
