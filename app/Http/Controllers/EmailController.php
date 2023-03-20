@@ -1387,4 +1387,15 @@ class EmailController extends Controller
 
         return response()->json(['type' => 'success'], 200);
     }
+    /**
+     * To view email in iframe
+     */
+    public function viewEmailFrame(Request $request)
+    {
+        $id = $request->id;
+        $emailData = Email::find($id);
+
+        return view('emails.frame-view', compact('emailData'));
+    }
+    
 }

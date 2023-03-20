@@ -14,7 +14,7 @@
                         <select name="campaign_name" class="form-control" id="campaign_name">
                             <option value="">Google Campaign Name</option>
                             @foreach($search_data->unique('adgroup_google_campaign_id') as $campaign)
-                                <option value="{{$campaign->campaign->google_campaign_id}}" {{($campaign->campaign->google_campaign_id == @$_GET['campaign_name'])? 'selected' :''}}>{{$campaign->campaign->campaign_name}}</option>
+                                <option value="{{@$campaign->campaign->google_campaign_id}}" {{(@$campaign->campaign->google_campaign_id == @$_GET['campaign_name'])? 'selected' :''}}>{{@$campaign->campaign->campaign_name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -23,7 +23,7 @@
                         <select name="channel_type" class="form-control" id="channel_type">
                             <option value="">Ad Group Name</option>
                             @foreach($search_data->unique('ad_group_name') as $ad_group_name)
-                                <option value="{{$ad_group_name->ad_group_name}}" {{($ad_group_name->ad_group_name == @$_GET['channel_type'])? 'selected' :''}}>{{$ad_group_name->ad_group_name}}</option>
+                                <option value="{{@$ad_group_name->ad_group_name}}" {{(@$ad_group_name->ad_group_name == @$_GET['channel_type'])? 'selected' :''}}>{{@$ad_group_name->ad_group_name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -34,7 +34,7 @@
 
                     <div class="col-md-1 pr-1">
                         <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
-                        <button type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></button>
+                        <a href="{{route('googleadsaccount.adsgroupslist')}}" type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></a>
                     </div>
                 </form>
             </div>

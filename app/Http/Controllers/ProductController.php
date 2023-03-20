@@ -1589,11 +1589,13 @@ class ProductController extends Controller
             $value = $request->get('value');
             $search = $request->get('fieldname');
 
-            if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            $products = Product::query();
+            
+            /*if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
                 $products = Product::query();
             } else {
                 $products = Product::query()->where('assigned_to', auth()->user()->id);
-            }
+            }*/
             $products = $products->where(function ($query) {
                 $query->where('status_id', StatusHelper::$pushToMagento);
                 $query->orWhere('status_id', StatusHelper::$inMagento);
@@ -1608,7 +1610,7 @@ class ProductController extends Controller
                 $join->on('products.status_id', 's.id');
             });
 
-            $products = $products->where('isUploaded', 0);
+            $products = $products->where('isUploaded', 1);
             $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
 
             if ($request->get('id') != '') {

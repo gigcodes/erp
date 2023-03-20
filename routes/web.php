@@ -340,6 +340,7 @@ use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\GoogleAppAdController;
 use App\Http\Controllers\GoogleAdGroupKeywordController;
+use App\Http\Controllers\GoogleAdReportController;
 use App\Http\Controllers\UnknownAttributeProductController;
 use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
@@ -958,6 +959,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
     Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
 
+    Route::post('/reply-translate-list/update', [ReplyController::class, 'replyTranslateUpdate'])->name('reply.replyTranslateupdate');
+    Route::post('/reply-translate-list/history', [ReplyController::class, 'replyTranslatehistory'])->name('reply.replyTranslatehistory');
+    Route::post('/reply-translate-list/approvedByAdmin', [ReplyController::class, 'approvedByAdmin'])->name('reply.approved_by_admin');
+    Route::post('/reply-translate-list/permissions', [ReplyController::class, 'quickRepliesPermissions'])->name('reply.permissions');
+
+    Route::post('/reply-translate-list/removepermissions', [ReplyController::class, 'removepermissions'])->name('remove.permissions');
+
     Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
 
     // Auto Replies
@@ -1336,6 +1344,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
+    Route::get('email/email-frame/{id}', [EmailController::class, 'viewEmailFrame']);
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
@@ -3989,6 +3998,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     });
 
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
+    Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {

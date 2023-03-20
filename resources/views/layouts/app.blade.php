@@ -2172,6 +2172,9 @@ if (!empty($notifications)) {
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googleadsaccount.appadlist')}}">Google App Ads</a>
                                         </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadreport.index')}}">Google Ads Report</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
@@ -3091,6 +3094,9 @@ if (!empty($notifications)) {
                             @endif
                             <li  class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
+                            </li>
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('reply.replyTranslateList')}}">Reply Translate List</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>

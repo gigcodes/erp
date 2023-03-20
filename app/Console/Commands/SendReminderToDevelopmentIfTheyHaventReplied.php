@@ -40,10 +40,10 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
+       /*$report = CronJobReport::create([
             'signature' => $this->signature,
             'start_time' => Carbon::now(),
-        ]);
+        ]);*/
 
         $now = Carbon::now()->toDateTimeString();
 
