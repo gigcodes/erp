@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\GoogleDoc;
+use App\User;
+use Auth;
 use App\Jobs\CreateGoogleDoc;
 use App\Jobs\CreateGoogleSpreadsheet;
 use Google\Client;
@@ -33,9 +35,19 @@ class GoogleDocController extends Controller
                 $q->where('docid', 'LIKE', "%$keyword%");
             });
         }
+        if ($keyword = request('user_gmail')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->whereRaw("find_in_set('".$keyword."',google_docs.read)")->orWhereRaw("find_in_set('".$keyword."',google_docs.write)");
+            });
+        }
+        if(!Auth::user()->isAdmin())
+        {
+            $data->whereRaw("find_in_set('".Auth::user()->gmail."',google_docs.read)")->orWhereRaw("find_in_set('".Auth::user()->gmail."',google_docs.write)");
+        }
         $data = $data->get();
+        $users = User::select('id','name','email','gmail')->whereNotNull('gmail')->get();
 
-        return view('googledocs.index', compact('data'))
+        return view('googledocs.index', compact('data','users'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
@@ -213,5 +225,19 @@ class GoogleDocController extends Controller
         $fileData->write = !empty($writeData)?implode(',',$writeData):NULL;
         $fileData->save();
         return back()->with('success', "Permission successfully updated.");
+    }
+
+    /**
+     * Search data of google docs.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $subject
+     * @return \Illuminate\Http\Response
+     */
+    public function googledocSearch(Request $request)
+    {
+        $subject = $request->subject;
+        $data = GoogleDoc::where('name', 'LIKE', '%'.$subject.'%')->orderBy('created_at', 'desc')->get();
+        return view('googledocs.partials.list-files', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 }

@@ -1,0 +1,17 @@
+[
+    {
+      "schedule_name" : "hubstaff:account",
+      "query" : "SELECT id FROM hubstaff_activities ORDER BY starts_at",
+      "description": "select all data from hubstaff_activity table and order them by starts_at"
+    },
+    {
+      "schedule_name" : "hubstaff:account",
+      "query" : "SELECT * from user_rates where id in (SELECT GROUP_CONCAT(id) as id FROM ( SELECT * FROM `user_rates` WHERE start_date < 'time') as a group by user_id)",
+      "description": "select all data from user_rates where id in user_rates where start_date is less than time and group by user_id"
+    },
+    {
+      "schedule_name" : "hubstaff:account",
+      "query" : "SELECT * from hubstaff_activities where start_date >= `start` where start_date < `end`)",
+      "description": "select all data from hubstaff_activities where start_date is grater than start where start_date is less than end"
+    }
+]

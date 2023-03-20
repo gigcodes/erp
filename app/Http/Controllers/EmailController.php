@@ -905,7 +905,7 @@ class EmailController extends Controller
             'signature' => 'fetch:all_emails',
             'start_time' => \Carbon\Carbon::now(),
         ]);
-
+        $failedEmailAddresses = [];
         $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
@@ -961,7 +961,7 @@ class EmailController extends Controller
                         $emails = ($inbox) ? $inbox->messages() : '';
                     }
                     if($emails){
-                        $emails = $emails->get();
+                        $emails = $emails->all()->get();
                         foreach ($emails as $email) {
                             $reference_id = $email->references;
                             //                        dump($reference_id);
@@ -1170,9 +1170,7 @@ class EmailController extends Controller
 
                 EmailRunHistories::create($historyParam);
                 $report->update(['end_time' => Carbon::now()]);
-                session()->flash('success', 'Emails added successfully');
-
-                return redirect('/email');
+                
             } catch (\Exception $e) {
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
@@ -1182,10 +1180,20 @@ class EmailController extends Controller
                 ];
                 EmailRunHistories::create($historyParam);
                 \App\CronJob::insertLastError('fetch:all_emails', $e->getMessage());
-                session()->flash('danger', $e->getMessage());
+                $failedEmailAddresses[] = $emailAddress->username;
+            }
+        }
+        if(!empty($failedEmailAddresses))
+        {
+            session()->flash('danger', "Some address failed to synchronize.For more details: please check Email Run History for following Email Addresses: ".implode(", ",$failedEmailAddresses));
+
+            return redirect('/email');   
+        }
+        else
+        {
+            session()->flash('success', 'Emails added successfully');
 
                 return redirect('/email');
-            }
         }
     }
 
@@ -1379,4 +1387,15 @@ class EmailController extends Controller
 
         return response()->json(['type' => 'success'], 200);
     }
+    /**
+     * To view email in iframe
+     */
+    public function viewEmailFrame(Request $request)
+    {
+        $id = $request->id;
+        $emailData = Email::find($id);
+
+        return view('emails.frame-view', compact('emailData'));
+    }
+    
 }

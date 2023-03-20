@@ -252,7 +252,9 @@
                 @php
                     $logList = \App\Loggers\LogListMagento::select('message')
                           ->where('product_id', $product->id)->where('store_website_id', $product->sw_id)->orderBy('id', 'desc')->first();
+                    if(isset($logList) && !empty($logList)) {
                       echo $logList->message;
+                    }
                 @endphp
             </td>
             <td>

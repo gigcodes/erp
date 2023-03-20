@@ -42,7 +42,16 @@
                                             @endforeach
                                         </datalist>
                                     </div>
-
+				    @if(Auth::user()->isAdmin())
+                                    <div class="form-group m-1">
+                                        <select name="user_gmail" class="form-control" placeholder="Search User">
+                                        <option value="">Search User</option>
+                                            @foreach ($users as $key => $val )
+                                                <option value="{{$val->gmail}}" @if(request()->get('user_gmail')==$val->gmail) selected @endif>{{$val->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+				    @endif
                                     <div class="form-group">
                                         <label for="button">&nbsp;</label>
                                         <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
@@ -54,11 +63,13 @@
                     </div>
                 </div>
             </div>
+	    @if(Auth::user()->isAdmin())
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createGoogleDocModal">
                     + Create Doc
                 </button>
             </div>
+	    @endif
         </div>
     </div>
 
@@ -95,7 +106,7 @@ $(document).on('click', '.permissionupdate', function (e) {
         let data_write = $(this).data('writepermission');
 		var file_id = $(this).data('docid');
         var id = $(this).data('id');
-		var permission_read = data_read.split(',')
+		var permission_read = data_read.split(',');
 		var permission_write = data_write.split(',');
 		if(permission_read)
 		{

@@ -19,7 +19,7 @@ The product push journey starts from `pushProduct` function in the `ProductContr
    After these steps it will return store websites from `store_websites` table with checking specified store website ids(`$websiteArray`) and groupping data by `tag_id` column.
 3. ### Start push to magento:
     - Loops the store websites and checks each website are exists. If the website doesn't exist, the error will be logged to `product_push_error_logs`.
-    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **waiting**.
+    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **initialization**.
     - A log will be added to `product_push_error_logs` table with necessary details like `request_data`, `response_data` and `response_status`.
     - At this stage, a queue will be created and product push job will be added to the queue.
 4.  ### Product push flow:
@@ -144,13 +144,13 @@ The product push condition check starts from `processProductsConditionsCheck` fu
         - **Get store website ids from the products which are landing page products:**  if a product has an entry in `landing_page_products` table, that will be checked here as first step. Then get all store websites which has `o-labels` string in the `title` and `cropper_color` is not `null`. This store websites will be looped and will be pushed to `$websiteArray` if it is not already exists.
 
    After these steps it will return store websites from `store_websites` table with checking specified store website ids(`$websiteArray`) and groupping data by `tag_id` column.
-4. ### Start push to magento:
+4. ### Start to condition check:
     - Loops the store websites and checks each website are exists. If the website doesn't exist, the error will be logged to `product_push_error_logs`.
-    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **waiting**.
+    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **initialization**.
     - A log will be added to `product_push_error_logs` table with necessary details like `request_data`, `response_data` and `response_status`.
     - At this stage, a queue will be created and product push job will be added to the queue.
 5.  ### Product push condition check flow:
-    - The product push condition check flow starts from the `PushToMagento` job. As the first step of the job, product and website passed from the `pushProduct` function will be assigned to the `$product` and `$website` respectively.
+    - The product push condition check flow starts from the `ConditionCheckFirstJob` job. As the first step of the job, product and website passed from the `processProductsConditionsCheck` function will be assigned to the `$product` and `$website` respectively.
     - push to magento Conditions with `status` is `1` will be fetched from the `push_to_magento_conditions` table and assigned to `$conditionsWithIds` variable and then it will convert as array and will assign to `$conditions`.
     - Push to magento Conditions with `upteam_status` is `1` will be fetched from the `push_to_magento_conditions` table and assigned to `$upteamconditionsWithIds` variable and then it will convert as array and will assign to `$upteamconditions`.
     - Parent of the product's category will find and assign to `$topParent` variable with the `getTopParent` function in the `ProductHelper`.  Here the parent of the product will be fetched from the `categories` table.
@@ -246,12 +246,12 @@ The product push conditions checked starts from `pushProductsToMagento` function
    After these steps it will return store websites from `store_websites` table with checking specified store website ids(`$websiteArray`) and groupping data by `tag_id` column.
 4. ### Start push to magento:
     - Loops the store websites and checks each website are exists. If the website doesn't exist, the error will be logged to `product_push_error_logs`.
-    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **waiting**.
+    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **initialization**.
     - A log will be added to `product_push_error_logs` table with necessary details like `request_data`, `response_data` and `response_status`.
     - At this stage, a queue will be created and product push job will be added to the queue.
 
 5.  ### Product push conditions checked flow:
-    - The product push flow starts from the `PushToMagentoJob` job. As the first step of the job, product and website passed from the `assignOperation` function will be assigned to the `$product` and `$website` respectively.
+    - The product push flow starts from the `ProductPushFlow2Job` job. As the first step of the job, product and website passed from the `assignOperation` function will be assigned to the `$product` and `$website` respectively.
     - push to magento Conditions with `status` is `1` will be fetched from the `push_to_magento_conditions` table and assigned to `$conditionsWithIds` variable and then it will convert as array and will assign to `$conditions`.
     - Push to magento Conditions with `upteam_status` is `1` will be fetched from the `push_to_magento_conditions` table and assigned to `$upteamconditionsWithIds` variable and then it will convert as array and will assign to `$upteamconditions`.
     - Parent of the product's category will find and assign to `$topParent` variable with the `getTopParent` function in the `ProductHelper`.  Here the parent of the product will be fetched from the `categories` table.
@@ -300,3 +300,18 @@ The product push conditions checked starts from `pushProductsToMagento` function
         - If push type is `configurable`, product images will be added to product in `_pushProduct` function. Here `configurable` is products with multiple size options. 
         - If push type is `simple_configurable`, product visibility will set as `1`. Here `simple_configurable` is products with one size option.
         - After this step it will follow the same steps of single product push.
+## Magento push status
+- This functionlity is used to view listing pushed product in magento.
+- The product push status check starts from `magentoPushStatusForMagentoCheck` function in the `ProductController`.
+-  pushed products will fetch from the `products` table with the following conditions:
+    - checking status `pushToMagento`(11) or `inMagento`(12)
+    - `is_push_attempted` is `1`
+    - `isUploaded` is `0`
+    - Default data fetching `limit` has set to `10`
+ - **Filter**
+    - There are eight filter provided in top of the page,filters are Product Id, Product Name,Brand, Category, Composition, Color, Price,Status
+    - When click on search icon button then it will apply filter and getting data.
+ - **Listing**
+    - After getting pushed product data then it will display in table grid.
+    
+    
