@@ -102,6 +102,24 @@
                             <div class="alert alert-danger">{{$errors->first('task_for')}}</div>
                             @endif
                         </div>
+
+                        @php 
+                            $accountList = \App\TimeDoctor\TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token','!=','')->get();
+                        @endphp
+                        <div class="form-group col-md-6 time_doctor_project_section">
+                            <label for="time_doctor_account">Time Doctor Account:</label>
+                            <select class="form-control" name="time_doctor_account" id="time_doctor_account">
+                                <option value="">Select Account</option>
+                                @foreach($accountList as $account)
+                                <option value="{{$account->id}}">{{$account->time_doctor_email}}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('time_doctor_account'))
+                            <div class="alert alert-danger">{{$errors->first('time_doctor_account')}}</div>
+                            @endif
+                        </div>
+
                         @php 
                             $projectList = \App\TimeDoctor\TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name')->get();
                         @endphp
@@ -110,9 +128,6 @@
                             <?php //echo Form::select("time_doctor_project",['' => ''],null,["class" => "form-control time_doctor_project globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.time_doctor_projects'), 'data-placeholder' => 'Project']); ?>
                             <select class="form-control" name="time_doctor_project" id="time_doctor_project">
                                 <option value="">Select Project</option>
-                                @foreach($projectList as $project)
-                                <option value="{{$project->time_doctor_project_id}}">{{$project->time_doctor_project_name}}</option>
-                                @endforeach
                             </select>
 
                             @if ($errors->has('time_doctor_project'))

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\CronJob;
 use App\CronJobErroLog;
+use App\ScheduleQuery;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,7 @@ class TasksController extends Controller
                 })
                 ->paginate(50),
             'task' => null,
+            'queries' => ScheduleQuery::all(),
             'commands' => Totem::getCommands(),
             'timezones' => timezone_identifiers_list(),
             'frequencies' => Totem::frequencies(),
@@ -155,5 +157,10 @@ class TasksController extends Controller
         ]);
 
         return $cronError;
+    }
+
+    public function queryCommand(Request $request, $name){
+        $query = ScheduleQuery::where('schedule_name' , '=', $name)->get()->toArray();
+        return $query;
     }
 }

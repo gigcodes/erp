@@ -56,6 +56,7 @@ class EmailController extends Controller
         $status = $request->status ?? '';
         $category = $request->category ?? '';
         $mailbox = $request->mail_box ?? '';
+        $email_model_type = $request->email_model_type?? '';
 
         $date = $request->date ?? '';
         $type = $request->type ?? $type;
@@ -96,10 +97,16 @@ class EmailController extends Controller
             $query = $query->where('status', 'pre-send');
         } else {
             $query = $query->where(function ($query) use ($type) {
-                $query->where('type', $type)->orWhere('type', 'outgoing')->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
+                $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
             });
         }
-
+        if ($email_model_type)
+        {
+            $model_type = explode(',', $email_model_type);
+                $query = $query->where(function ($query) use ($model_type) {
+                    $query->whereIn('model_type', $model_type);
+                });
+        }
         if ($date) {
             $query = $query->whereDate('created_at', $date);
         }
@@ -192,6 +199,9 @@ class EmailController extends Controller
         //Get All Status
         $email_categories = DB::table('email_category')->get();
 
+        //Get List of model types
+        $emailModelTypes = Email::emailModelTypeList();
+
         //Get Cron Email Histroy
         $reports = CronJobReport::where('cron_job_reports.signature', 'fetch:all_emails')
             ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
@@ -200,7 +210,7 @@ class EmailController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status', 'emailModelTypes'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string) $emails->links(),
                 'count' => $emails->total(),
                 'emails' => $emails,
@@ -257,6 +267,7 @@ class EmailController extends Controller
 
         $mailboxdropdown = \App\EmailAddress::pluck('from_address', 'from_name', 'username');
 
+
         /*if (count($usernames) > 0) {
         $mailboxdropdown = $mailboxdropdown->where(function ($mailboxdropdown) use ($usernames) {
         foreach ($usernames as $_uname) {
@@ -272,9 +283,9 @@ class EmailController extends Controller
         }*/
 
         $mailboxdropdown = $mailboxdropdown->toArray();
-        $totalEmail = count(Email::all());
+        $totalEmail = Email::count();
 
-        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown, 'totalEmail' => $totalEmail])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown,'emailModelTypes'=> $emailModelTypes, 'totalEmail' => $totalEmail])->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function platformUpdate(Request $request)
@@ -405,6 +416,7 @@ class EmailController extends Controller
         $emailsLog = \App\Email::create([
             'model_id' => $email->id,
             'model_type' => \App\Email::class,
+            'type' => $email->type,
             'from' => $email->from,
             'to' => $email->to,
             'subject' => $email->subject,
@@ -893,7 +905,7 @@ class EmailController extends Controller
             'signature' => 'fetch:all_emails',
             'start_time' => \Carbon\Carbon::now(),
         ]);
-
+        $failedEmailAddresses = [];
         $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
@@ -949,7 +961,7 @@ class EmailController extends Controller
                         $emails = ($inbox) ? $inbox->messages() : '';
                     }
                     if($emails){
-                        $emails = $emails->get();
+                        $emails = $emails->all()->get();
                         foreach ($emails as $email) {
                             $reference_id = $email->references;
                             //                        dump($reference_id);
@@ -1158,9 +1170,7 @@ class EmailController extends Controller
 
                 EmailRunHistories::create($historyParam);
                 $report->update(['end_time' => Carbon::now()]);
-                session()->flash('success', 'Emails added successfully');
-
-                return redirect('/email');
+                
             } catch (\Exception $e) {
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
@@ -1170,10 +1180,20 @@ class EmailController extends Controller
                 ];
                 EmailRunHistories::create($historyParam);
                 \App\CronJob::insertLastError('fetch:all_emails', $e->getMessage());
-                session()->flash('danger', $e->getMessage());
+                $failedEmailAddresses[] = $emailAddress->username;
+            }
+        }
+        if(!empty($failedEmailAddresses))
+        {
+            session()->flash('danger', "Some address failed to synchronize.For more details: please check Email Run History for following Email Addresses: ".implode(", ",$failedEmailAddresses));
+
+            return redirect('/email');   
+        }
+        else
+        {
+            session()->flash('success', 'Emails added successfully');
 
                 return redirect('/email');
-            }
         }
     }
 

@@ -90,7 +90,7 @@
 
                         <div class="form-group">
                             <label for="">Choose Ads Manager Account</label>
-                                <select class="form-control" name="ads_manager"  id="adset_id" required>
+                                <select class="form-control" name="ads_manager"  id="adset_id">
                                 <option value="">Select Ads Manager</option>
                                 </select>
                             <!-- <input type="hidden" name="ad_set_name" id="ad_set_name" /> -->
@@ -117,6 +117,21 @@
                             <div class="alert alert-danger">{{$errors->first('page_token')}}</div>
                             @endif
                         </div>
+
+                        <div class="form-group">
+                            <strong>Language of Page:</strong>
+                            <select class="form-control" name="page_language" required>
+                                <option value="0">Select language of page</option>
+                                @foreach($languages as $language)
+                                <option value="{{ $language->locale }}">{{ $language->name }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('languages'))
+                            <div class="alert alert-danger">{{$errors->first('languages')}}</div>
+                            @endif
+                        </div>
+
 
                         <div class="form-group">
                             <strong>Webhook Verify Token:</strong>

@@ -76,14 +76,15 @@
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
                             <th width="5%">ID</th>
-                            <th width="12%">Store website</th>
+                            <th width="10%">Store website</th>
                             <th width="9%">Parent Category</th>
                             <th width="8%">Category </th>
                             <th width="10%">Sub Category</th>
                             <th width="10%">Reply</th>
                             <th width="7%">Model</th>
                             <th width="5%">Intent Id</th>
-                            <th width="10%">Updated On</th>
+                            <th width="7%">Updated On</th>
+                            <th width="9%">Is Pushed</th>
                             <th width="9%">Is Pushed To Watson</th>
                             <th width="5%">Action</th>
                         </tr>
@@ -154,11 +155,15 @@
                                         {{$reply->created_at }}
                                     </span>
                                 </td>
+                                <td>
+                                    {{ $reply->is_pushed ? 'True' : 'False' }}
+                                </td>
                                 <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
                                 <td class="Website-task"title="">
                                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$reply->id}}')"><i class="fa fa-arrow-down"></i></button>
                                 </td>
                             </tr>
+                            
                             <tr class="action-btn-tr-{{$reply->id}} d-none">
                                 <td>Action</td>
                                 <td id="reply_action"  colspan="10" >
@@ -166,8 +171,7 @@
                                     @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
                                     <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
                                     <!-- To push the FAQ Over every website using the API -->
-                                    <i class="fa fa-upload  upload_faq" data-id="{{ $reply->id }}" alt="Push To FAQ" style="color: #808080;"></i>
-
+                                    
                                     <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
                                     <button type="button" title="Flagged for Translate" data-reply_id="{{ $reply->id }}" data-is_flagged="<?php if($reply->is_flagged=='1') { echo '1'; } else { echo '0'; } ?>" onclick="updateTranslateReply(this)" class="btn" style="padding: 0px 1px;">
                                         <?php if($reply->is_flagged == '1') { ?>
@@ -176,6 +180,13 @@
                                         <i class="fa fas fa-toggle-off"></i>
                                         <?php } ?>
                                     </button>
+
+                                    <button type="button" class="btn btn-xs show-reply-logs" title="Log of reply" data-id="{{$reply->id}}" data-type="developer">
+                                        <i class="fa fa-info-circle" style="color: #808080;"></i>
+                                    </button>
+                                    <i class="fa fa-upload  upload_faq" data-id="{{ $reply->id }}" title="Push To FAQ" style="color: #808080;"></i>
+
+
                                 </td>
                             </tr>
                         @endforeach

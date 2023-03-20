@@ -119,8 +119,10 @@ use App\Http\Controllers\GoogleAffiliateController;
 use App\Http\Controllers\GoogleBigQueryDataController;
 use App\Http\Controllers\GoogleCampaignsController;
 use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\GoogleScreencastController;
 use App\Http\Controllers\GoogleDeveloperController;
 use App\Http\Controllers\GoogleDeveloperLogsController;
+use \App\Http\Controllers\GoogleDriveController;
 
 use App\Http\Controllers\GoogleFileTranslator;
 use App\Http\Controllers\GoogleScrapperController;
@@ -353,7 +355,7 @@ Route::get('sendgrid/notifyurl', [Marketing\MailinglistController::class, 'notif
 Route::get('send_auto_emails', [Marketing\MailinglistController::class, 'sendAutoEmails']);
 
 Route::get('textcurl', [Marketing\MailinglistController::class, 'textcurl']);
-
+Route::get('totem/query-command/{name}', [TasksController::class, 'queryCommand']);
 //Route::get('unused_category', 'TestingController@Demo');
 
 Route::get('/test/dummydata', [TestingController::class, 'testingFunction']);
@@ -724,6 +726,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/listing/autocompleteForFilter', [ProductController::class, 'autocompleteForFilter'])->name('products.autocompleteForFilter');
 
     Route::get('products/listing/conditions-check-logs/{llm_id}', [ProductController::class, 'magentoConditionsCheckLogs'])->name('products.magentoConditionsCheckLogs');
+    Route::get('products/get-loglist-magento-detail/{llm_id}', [ProductController::class, 'getLogListMagentoDetail'])->name('products.getLogListMagentoDetail');
     Route::get('products/push/magento/conditions', [ProductController::class, 'pushToMagentoConditions'])->name('products.push.conditions');
     Route::get('products/conditions/status/update', [ProductController::class, 'updateConditionStatus'])->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', [ProductController::class, 'approvedListing'])->name('products.listing.approved.images');
@@ -732,7 +735,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/listing/final/pushproduct', [ProductController::class, 'pushProduct']);
     Route::post('products/listing/final/process-conditions-check', [ProductController::class, 'processProductsConditionsCheck'])->name('products.processProductsConditionsCheck');
     Route::post('products/listing/push-to-magento', [ProductController::class, 'pushProductsToMagento'])->name('products.pushToMagento');
-    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatus'])->name('products.magentoPushStatus');
+    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatusForMagentoCheck'])->name('products.magentoPushStatus');
     Route::post('products/changeautopushvalue', [ProductController::class, 'changeAutoPushValue']);
     Route::post('products/listing/magento-push-status/autocomplete', [ProductController::class, 'autocompleteSearchPushStatus'])->name('products.autocompleteSearchPushStatus');
     Route::post('product/image/order/change', [ProductController::class, 'changeimageorder']);
@@ -857,6 +860,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::prefix('{id}')->group(function () {
             Route::get('push-in-shopify', [NewProductInventoryController::class, 'pushInShopify'])->name('product-inventory.push-in-shopify');
         });
+    });
+
+    Route::prefix('google-drive')->group(function () {
+        Route::get('/', [GoogleDriveController::class, 'index'])->name('google-drive.new');
+        Route::post('/create', [GoogleDriveController::class, 'create'])->name('google-drive.create');
     });
 
     Route::get('log_history/discount/', [ProductInventoryController::class, 'discountlogHistory'])->name('log-history/discount/brand');
@@ -1111,6 +1119,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/social/account/create', [ContentManagementController::class, 'viewAddSocialAccount'])->name('content-management.social.create');
         Route::post('/social/account/create', [ContentManagementController::class, 'addSocialAccount'])->name('content-management.social.submit');
         Route::get('/manage/{id}', [ContentManagementController::class, 'manageContent'])->name('content-management.manage');
+        Route::post('/social/account/post', [ContentManagementController::class, 'postSocialAccount'])->name('content-management.social.post');
+        Route::get('/social/account/pagepost', [ContentManagementController::class, 'pagePost'])->name('content-management.social.pagepost');
+
         Route::get('/manage/task-list/{id}', [ContentManagementController::class, 'getTaskList'])->name('content-management.manage.task-list');
         Route::get('/manage/preview-img/{id}', [ContentManagementController::class, 'previewCategoryImage'])->name('content-management.manage.preview-img');
         Route::get('/manage/milestone-task/{id}', [ContentManagementController::class, 'getTaskMilestones'])->name('content-management.manage.milestone-task');
@@ -1368,6 +1379,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');
     Route::get('task/categories', [TaskModuleController::class, 'getTaskCategories'])->name('task.categories');
     Route::get('task/list', [TaskModuleController::class, 'list'])->name('task.list');
+    Route::get('tasks/devgettaskremark', [TaskModuleController::class, 'devgetTaskRemark'])->name('task.devgettaskremark');
     Route::get('task/get-discussion-subjects', [TaskModuleController::class, 'getDiscussionSubjects'])->name('task.discussion-subjects');
     // Route::get('task/create-task', 'TaskModuleController@createTask')->name('task.create-task');
     Route::post('task/flag', [TaskModuleController::class, 'flag'])->name('task.flag');
@@ -2549,7 +2561,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
 Route::post('twilio/ivr', [TwilioController::class, 'ivr'])->name('ivr')->middleware('twilio.voice.validate');
-Route::get('twilio/webhook-error', [TwilioController::class, 'webhookError']);
+Route::any('twilio/webhook-error', [TwilioController::class, 'webhookError']);
 Route::post('twilio/workspace/assignment', [TwilioController::class, 'workspaceEvent']);
 Route::post('twilio/assignment-task', [TwilioController::class, 'assignmentTask']);
 Route::post('twilio/call-status', [TwilioController::class, 'callStatus']);
@@ -2941,6 +2953,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('social.account.posts');
     Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('social.account.comments');
     Route::post('delete-post', [Social\SocialPostController::class, 'deletePost'])->name('social.post.postdelete');
+    Route::get('view-posts/{id}', [Social\SocialPostController::class, 'viewPost'])->name('social.post.viewpost');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
 });
@@ -4503,6 +4516,8 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 
     Route::get('time-doctor-accounts', [Select2Controller::class, 'timeDoctorAccounts'])->name('select2.time_doctor_accounts');
     Route::get('time-doctor-projects', [Select2Controller::class, 'timeDoctorProjects'])->name('select2.time_doctor_projects');
+    Route::get('time-doctor-projects-ajax', [Select2Controller::class, 'timeDoctorProjectsAjax'])->name('select2.time_doctor_projects_ajax');
+    Route::get('time-doctor-accounts-for-task', [Select2Controller::class, 'timeDoctorAccountsForTask'])->name('select2.time_doctor_accounts_for_task');
 });
 Route::get('whatsapp-log', [Logging\WhatsappLogsController::class, 'getWhatsappLog'])->name('whatsapp.log');
 Route::get('chatbot-message-log', [ChatbotMessageLogsController::class, 'index'])->name('chatbot.messages.logs');
@@ -4571,7 +4586,10 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('post/edit', [Social\SocialPostController::class, 'edit'])->name('social.post.edit');
     Route::post('post/delete', [Social\SocialPostController::class, 'destroy'])->name('social.post.delete');
     Route::get('post/create/{id}', [Social\SocialPostController::class, 'create'])->name('social.post.create');
+    Route::get('post/getimage/{id}', [Social\SocialPostController::class, 'getImage'])->name('social.post.getimage');
     Route::post('post/history', [Social\SocialPostController::class, 'history'])->name('social.post.history');
+
+    Route::get('post/grid', [Social\SocialPostController::class, 'grid'])->name('social.post.grid');
 
     Route::get('campaigns', [Social\SocialCampaignController::class, 'index'])->name('social.campaign.index');
     Route::post('campaign/store', [Social\SocialCampaignController::class, 'store'])->name('social.campaign.store');
@@ -4673,6 +4691,15 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
+    Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
+    Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
+    Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
+});
+
+Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
+    Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
+    Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
+    Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
 });
 
 //Queue Management::
@@ -4710,5 +4737,6 @@ Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
 Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
 Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
  });
+
 
    

@@ -345,9 +345,9 @@ class CroppedImageReferenceController extends Controller
                         $cropped_image .= '<td>';
                         $cropped_image .= '<div style="width: 100px;margin: 0px;display: inline-block;">';
                         $cropped_image .= ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : "N/A";
-                        $src = $images->newMedia ? "http://localhost/erp/public/uploads/product/29/296559/123.webp" : '';
+                        $src = $images->newMedia ? $images->newMedia->getUrl() : 'http://localhost/erp/public/uploads/product/29/296559/123.webp';
                         $onclick = $images->newMedia ? $images->newMedia->getUrl() : '';
-                        $cropped_image .= '<img src="'.$src.'" alt="" height="100" width="100" onclick="bigImg("'.$onclick.'")">';
+                        $cropped_image .= '<img src="'.$src.'" alt="" height="100" width="100" onclick="bigImg(`'.$onclick.'`)">';
                         $cropped_image .= '</div>';
                         $cropped_image .= '</td>';
                     }

@@ -90,7 +90,7 @@
                         <div class="form-group">
                             <label for="">Choose Ads Manager Account</label>
                                 <input type="hidden" id="ads_manager_id" name="ads_manager_id" value="{{$socialConfig->ads_manager}}">
-                                <select class="form-control adsmanager" name="adsmanager"  id="adsmanager" required>
+                                <select class="form-control adsmanager" name="adsmanager"  id="adsmanager">
                                 <option value="">Select Ads Manager</option>
                                 </select>
                             
@@ -114,6 +114,20 @@
 
                             @if ($errors->has('page_token'))
                             <div class="alert alert-danger">{{$errors->first('page_token')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Language of Page::</strong>
+                            <select class="form-control" name="page_language">
+                                <option value="0">Select language of page</option>
+                                @foreach($languages as $language)
+                                <option value="{{ $language->locale }}" @if($language->locale == $socialConfig->page_language) selected @endif>{{ $language->name }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('page_language'))
+                            <div class="alert alert-danger">{{$errors->first('page_language')}}</div>
                             @endif
                         </div>
 
