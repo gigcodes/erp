@@ -499,6 +499,18 @@ class ProductCropperController extends Controller
         // Add new status
         ProductStatus::updateStatus($product->id, 'CROP_APPROVAL_CONFIRMATION', 1);
 
+        if($product){
+        //sets initial status pending for finalApproval in product status histroy 
+         $data = [
+            'product_id' => $product->id,
+            'old_status' => $product->status_id,
+            'new_status' => StatusHelper::$finalApproval,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        \App\ProductStatusHistory::addStatusToProduct($data); 
+        }
+
         // Set new status
         //check final approval
         if ($product->checkPriceRange()) {

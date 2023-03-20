@@ -3,7 +3,7 @@
 
 @section('content')
     <div class="col-md-12">
-      <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <button class="btn-image float-right custom-button" onclick="window.location.href='/google-campaigns/ads-account';">Back to Campaign</button></h2>
+      <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <a class="btn-image float-right custom-button" href="{{ url()->previous() }}">Back to Campaign</a></h2>
     <div class="pull-left p-0">
         <div class="form-group">
             <div class="row">      
@@ -89,9 +89,8 @@
                             {!! Form::open(['method' => 'DELETE','route' => ['adgroup.deleteAdGroup',$campaignId,$adGroup->google_adgroup_id],'style'=>'display:inline']) !!}
                                 <button type="submit" class="btn btn-image"><img src="{{asset('/images/delete.png')}}"></button>
                             {!! Form::close() !!}
-                            {!! Form::open(['method' => 'GET','route' => ['adgroup.updatePage',$campaignId,$adGroup->google_adgroup_id],'style'=>'display:inline']) !!}
-                                <button type="submit" class="btn btn-image"><img src="{{asset('/images/edit.png')}}"></button>
-                            {!! Form::close() !!}
+
+                                <button type="button" class="float-right btn btn-image btn mb-3 mr-3" data-toggle="modal" data-target="#updateadgroupmodal"><img src="{{asset('/images/edit.png')}}"></button>
                         @endif
                     </div>
                     </td>
@@ -131,6 +130,38 @@
                                 </div>
                             </div>
                         @endif
+
+                        @if($campaign_channel_type == "SEARCH")
+                        <input type="hidden" name="campaignId" id="campaignId" value="{{$campaignId}}">
+                        <div class="form-group row">
+                            <label for="scanurl" class="col-sm-2 col-form-label">Url</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control google_ads_keywords" id="scanurl" name="scanurl" placeholder="Enter a URL to scan for keywords">
+                                <span id="scanurl-error"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="scan_keywords" class="col-sm-2 col-form-label">Keyword</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control google_ads_keywords" id="scan_keywords" name="scan_keywords" placeholder="Enter products or services to advertise">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="" class="col-sm-2 col-form-label">&nbsp;</label>
+                            <div class="col-sm-6">
+                                <button type="button" class="btn btn-default" id="btnGetKeywords">Get keyword suggestions</button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="suggested_keywords" class="col-sm-2 col-form-label">Suggested Keywords</label>
+                            <div class="col-sm-6">
+                                <textarea class="form-control" id="suggested_keywords" name="suggested_keywords" rows="10" placeholder="Enter or paste keywords. You can separate each keyword by commas."></textarea>
+
+                                <span class="text-muted">Note: You can add up to 80 keyword and each keyword character must be less than 80 character.</span>
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="form-group row">
                             <label for="ad-group-status" class="col-sm-2 col-form-label">Ad group status</label>
                             <div class="col-sm-6">
@@ -161,11 +192,11 @@
                     </div>
                     <form method="POST" action="/google-campaigns/{{$campaignId}}/adgroups/update" enctype="multipart/form-data">
                         @csrf
-                        <input type="hidden" name="adGroupId" value="{{$adGroup['google_adgroup_id']}}">
+                        <input type="hidden" name="adGroupId" value="{{@$adGroup['google_adgroup_id']}}">
                         <div class="form-group row">
                             <label for="ad-group-name" class="col-sm-2 col-form-label">Ad group name</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="ad-group-name" name="adGroupName" placeholder="Ad group name" value="{{$adGroup['ad_group_name']}}">
+                                <input type="text" class="form-control" id="ad-group-name" name="adGroupName" placeholder="Ad group name" value="{{@$adGroup['ad_group_name']}}">
                                 @if ($errors->has('adGroupName'))
                                     <span class="text-danger">{{$errors->first('adGroupName')}}</span>
                                 @endif
@@ -175,20 +206,49 @@
                             <div class="form-group row">
                                 <label for="cpc-bid-micro-amount" class="col-sm-2 col-form-label">Bid ($)</label>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="cpc-bid-micro-amount" name="cpcBidMicroAmount" placeholder="Bid ($)" value="{{$adGroup['bid']}}">
+                                    <input type="text" class="form-control" id="cpc-bid-micro-amount" name="cpcBidMicroAmount" placeholder="Bid ($)" value="{{@$adGroup['bid']}}">
                                     @if ($errors->has('cpcBidMicroAmount'))
                                         <span class="text-danger">{{$errors->first('cpcBidMicroAmount')}}</span>
                                     @endif
                                 </div>
                             </div>
                         @endif
+                        @if($campaign_channel_type == "SEARCH")
+                            <input type="hidden" name="campaignId" id="campaignId" value="{{$campaignId}}">
+                            <div class="form-group row">
+                                <label for="scanurl" class="col-sm-2 col-form-label">Url</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control google_ads_keywords" id="scanurl" name="scanurl" placeholder="Enter a URL to scan for keywords" value="{{@$adGroup['scanurl']}}">
+                                    <span id="scanurl-error"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="scan_keywords" class="col-sm-2 col-form-label">Keyword</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control google_ads_keywords" id="scan_keywords" name="scan_keywords" placeholder="Enter products or services to advertise">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="" class="col-sm-2 col-form-label">&nbsp;</label>
+                                <div class="col-sm-6">
+                                    <button type="button" class="btn btn-default" id="btnGetKeywords">Get keyword suggestions</button>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="suggested_keywords" class="col-sm-2 col-form-label">Suggested Keywords</label>
+                                <div class="col-sm-6">
+                                    <textarea class="form-control" id="suggested_keywords" name="suggested_keywords" rows="10" placeholder="Enter or paste keywords. You can separate each keyword by commas."></textarea>
 
+                                    <span class="text-muted">Note: You can add up to 80 keyword and each keyword character must be less than 80 character.</span>
+                                </div>
+                            </div>
+                        @endif
                         <div class="form-group row">
                             <label for="ad-group-status" class="col-sm-2 col-form-label">Ad group status</label>
                             <div class="col-sm-6">
                                 <select class="browser-default custom-select" id="ad-group-status" name="adGroupStatus" style="height: auto">
-                                    <option value="1" {{$adGroup['status'] == 'ENABLED' ? 'selected' : ''}}>Enabled</option>
-                                    <option value="2" {{$adGroup['status'] == 'PAUSED' ? 'selected' : ''}}>Paused</option>
+                                    <option value="1" {{@$adGroup['status'] == 'ENABLED' ? 'selected' : ''}}>Enabled</option>
+                                    <option value="2" {{@$adGroup['status'] == 'PAUSED' ? 'selected' : ''}}>Paused</option>
                                 </select>
                             </div>
                         </div>
@@ -206,41 +266,10 @@
 @endsection
 
 @section('scripts')
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 <script type="text/javascript">
     $('.select-multiple').select2({width: '100%'});
-
-    $('#btnGetKeywords').on('click', function(e) {
-        kw = $("#scan_keywords")[0].value;
-        // console.log({"scanurl":$("#scanurl").val(),"scan_keywords":kw,"campaignId":$("#campaignId").val()});
-        key_words='';
-        $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-            },
-            type: "POST",
-            url: "/google-campaigns/"+$("#campaignId").val()+"/adgroups/generate-keywords",
-            data: {"scanurl":$("#scanurl").val(),"scan_keywords":kw,"campaignId":$("#campaignId").val()},
-            dataType : "json",
-            // beforeSend: function () {
-            //   $(this).attr('disabled', true);
-            //   $(this).text('Adding...');
-            // }
-        }).done(function(res) {
-            // console.log(res);
-            if(res['count'] > 0) {
-                key_words = res['result'].join(",");
-                // console.log(key_words);
-                // $.each(res['result'], function(k,v) {
-                //     key_words += v + ",";
-                // });
-            }
-            $("#suggested_keywords").html(key_words);
-        }).fail(function(response) {
-            // console.log(response);
-        });
-    });
 
     function submitSearch(){
         src = '/google-campaigns/<?php echo $campaignId;  ?>/adgroups';
@@ -275,7 +304,6 @@
         }).fail(function (jqXHR, ajaxOptions, thrownError) {
             alert('No response from server');
         });
-        
     }
 
     function resetSearch(){
@@ -314,5 +342,72 @@
         });
     }
 </script>
-
 @endsection
+
+@if($campaign_channel_type == "SEARCH")
+    @push('scripts')
+        <link rel="stylesheet" type="text/css" href="{{ url('tagify/tagify.css') }}">
+        {{-- <script src="//code.jquery.com/jquery.min.js"></script> --}}
+        <script type="text/javascript" src="{{ url('tagify/jQuery.tagify.min.js') }}"></script>
+
+        <script>
+            $(document).ready(function() {
+                $('[name=scan_keywords]').tagify();
+
+                $("#btnGetKeywords").prop('disabled',true);
+                $('.google_ads_keywords').on('input', function(e) {
+                attrId = e.delegateTarget.id;
+                $("#"+attrId+"-error").html("");
+                $("#btnGetKeywords").prop('disabled',true);
+                if(attrId == 'scanurl')
+                {
+                attrVal = $(this).val();
+                var res = attrVal.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+                if(res == null && attrVal != "") {
+                    $("#"+attrId+"-error").html("Enter valid URL");
+                } else {
+                  $("#btnGetKeywords").prop('disabled',false);
+                }
+                } else {
+                newVal = $.trim($(this)[0].innerText);
+                // console.log(newVal)
+                if(newVal!='') {
+                    $("#btnGetKeywords").prop('disabled',false);
+                }
+                }
+                });
+
+                $('#btnGetKeywords').on('click', function(e) {
+                kw = $("#scan_keywords")[0].value;
+                // console.log({"scanurl":$("#scanurl").val(),"scan_keywords":kw,"campaignId":$("#campaignId").val()});
+                key_words='';
+                $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "POST",
+                url: "/google-campaigns/"+$("#campaignId").val()+"/adgroups/generate-keywords",
+                data: {"scanurl":$("#scanurl").val(),"scan_keywords":kw,"campaignId":$("#campaignId").val()},
+                dataType : "json",
+                // beforeSend: function () {
+                //   $(this).attr('disabled', true);
+                //   $(this).text('Adding...');
+                // }
+                }).done(function(res) {
+                  // console.log(res);
+                  if(res['count'] > 0) {
+                    key_words = res['result'].join(",");
+                    // console.log(key_words);
+                      // $.each(res['result'], function(k,v) {
+                      //     key_words += v + ",";
+                      // });
+                  }
+                  $("#suggested_keywords").html(key_words);
+                }).fail(function(response) {
+                  // console.log(response);
+                });
+                });
+            }); 
+        </script>
+    @endpush 
+@endif

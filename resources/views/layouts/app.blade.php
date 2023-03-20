@@ -46,6 +46,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
     <script src="{{siteJs('site.js')}}" defer></script>
+    <script>var BASE_URL = "{{config('app.url')}}";</script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
@@ -319,7 +320,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         /*padding-right: 30px;*/
     }
 
-    .time_doctor_project_section{
+    .time_doctor_project_section,
+    .time_doctor_account_section{
         display: none;
     }
 
@@ -2134,6 +2136,9 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('google-drive.new') }}">Google Drive</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>Google Web Master<span
@@ -3412,6 +3417,14 @@ if (!empty($notifications)) {
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
                             <li>
+                                <a title="Create Google Doc" type="button" data-toggle="modal" data-target="#createGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Search Google Doc" type="button" data-toggle="modal" data-target="#SearchGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <a title="Quick Dev Task" type="button" class="quick-icon menu-show-dev-task" style="padding: 0px 1px;"><span><i
                                             class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -3950,7 +3963,8 @@ if (!empty($notifications)) {
                 </div>
             </div>
         </div>
-
+        @include('googledocs.partials.create-doc')
+        @include('googledocs.partials.search-doc')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -6228,8 +6242,10 @@ if (!\Auth::guest()) {
         var getTask = $(this).val();
         if(getTask == 'time_doctor'){
             $('.time_doctor_project_section').show();
+            $('.time_doctor_account_section').show();
         } else {
             $('.time_doctor_project_section').hide();
+            $('.time_doctor_account_section').hide();
         }
     });
 

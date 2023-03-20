@@ -56,8 +56,10 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
+                            <th style="width:5%">Image</th>
                             <th style="width:5%">Date</th>
                             <th style="width:5%">Website</th>
+                            <th style="width:5%">Platform</th>
                             <th style="width:25%">Caption</th>
                             <th style="width:30%">Post</th>
                             <th style="width:30%">Hashtags</th>
@@ -224,11 +226,11 @@
 
 
 
-        $(window).scroll(function() {
-            if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
-                loadMore();
-            }
-        });
+        // $(window).scroll(function() {
+        //     if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
+        //         loadMore();
+        //     }
+        // });
 
         var isLoadingProducts;
 

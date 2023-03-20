@@ -30,4 +30,14 @@ class GoogleResponsiveDisplayAd extends Model
     {
         return $this->hasMany(GoogleResponsiveDisplayAdMarketingImage::class, 'google_responsive_display_ad_id', 'id');
     }
+
+    public function campaign()
+    {
+        return $this->belongsTo(\App\GoogleAdsCampaign::class, 'adgroup_google_campaign_id', 'google_campaign_id');
+    }
+
+    public function adgroup()
+    {
+        return $this->belongsTo(\App\GoogleAdsGroup::class, 'google_adgroup_id', 'google_adgroup_id');
+    }
 }

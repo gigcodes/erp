@@ -358,6 +358,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');
 
+        $schedule->command('fetch:all_emails')->dailyAt('02:00');
+
         $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
