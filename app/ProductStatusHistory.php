@@ -18,7 +18,7 @@ class ProductStatusHistory extends Model
 
     public static function getStatusHistoryFromProductId($product_id)
     {
-        $columns = ['old_status', 'new_status', 'created_at'];
+        $columns = ['old_status', 'new_status', 'pending_status', 'created_at'];
 
         return \App\ProductStatusHistory::where('product_id', $product_id)->get($columns);
     }

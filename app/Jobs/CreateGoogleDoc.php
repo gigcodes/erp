@@ -15,6 +15,7 @@ class CreateGoogleDoc
     use Dispatchable, SerializesModels;
 
     private $googleDoc;
+    private $execute;
 
     /**
      * Create a new job instance.
@@ -38,8 +39,9 @@ class CreateGoogleDoc
         $client = new Client();
         $client->useApplicationDefaultCredentials();
         $client->addScope(Drive::DRIVE);
+        $docMimeType =  $this->googleDoc->type == 'ppt'?'application/vnd.google-apps.presentation':'application/vnd.google-apps.document';
         try {
-            $createFile = $this->createDriveFile(env('GOOGLE_SHARED_FOLDER'));
+            $createFile = $this->createDriveFile(env('GOOGLE_SHARED_FOLDER'), $this->googleDoc->read, $this->googleDoc->write,$docMimeType);
             $spreadsheetId = $createFile->id;
 
             $this->googleDoc->docId = $spreadsheetId;
@@ -75,7 +77,7 @@ class CreateGoogleDoc
         }
     }
 
-    public function createDriveFile($folderId)
+    public function createDriveFile($folderId, $googleDocUsersRead, $googleDocUsersWrite, $docMimeType)
     {
         try {
             $client = new Client();
@@ -85,17 +87,65 @@ class CreateGoogleDoc
             $fileMetadata = new Drive\DriveFile([
                 'name' => $this->googleDoc->name,
                 'parents' => [$folderId],
-                'mimeType' => 'application/vnd.google-apps.document',
+                'mimeType' => $docMimeType,
             ]);
 
             $file = $driveService->files->create($fileMetadata, [
                 'fields' => 'id,parents,mimeType',
             ]);
+            $index = 1;
+            $driveService->getClient()->setUseBatch(true);
+            $batch = $driveService->createBatch();
+            $googleDocUsersRead = explode(',', $googleDocUsersRead);
+
+            foreach ($googleDocUsersRead as $email) {
+                $userPermission = new Drive\Permission([
+                    'type' => 'user',
+                    'role' => 'reader',
+                    'emailAddress' => $email,
+                ]);
+
+                $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
+                $batch->add($request, 'user'.$index);
+                $index++;
+            }
+            $results = $batch->execute();
+
+            $batch = $driveService->createBatch();
+            $googleDocUsersWrite = explode(',', $googleDocUsersWrite);
+
+            foreach ($googleDocUsersWrite as $email) {
+                $userPermission = new Drive\Permission([
+                    'type' => 'user',
+                    'role' => 'writer',
+                    'emailAddress' => $email,
+                ]);
+
+                $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
+                $batch->add($request, 'user'.$index);
+                $index++;
+            }
+            $results = $batch->execute();
 
             return $file;
         } catch (Exception $e) {
             echo 'Error Message: '.$e;
             dd($e);
         }
+    }
+    public function insertPermission($fileId, $value, $type, $role)
+    {
+        $service = $this->service;
+        $newPermission = new \Google_Service_Drive_Permission();
+        $newPermission->setType($type);
+        $newPermission->setRole($role);
+
+        try {
+            return $service->permissions->create($fileId, $newPermission);
+        } catch (Exception $e) {
+            echo 'An error occurred: '.$e->getMessage();
+        }
+
+        return null;
     }
 }

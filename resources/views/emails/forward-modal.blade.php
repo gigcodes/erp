@@ -7,7 +7,7 @@
             <input type="text" id="forward-email" name="email" class="form-control forward-message-input" placeholder="Forward To..." />
         <div class="message-to-forward">
             <blockquote style="margin:15px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
-                {!! $email['message'] !!}
+            <iframe src="{{url('/email/email-frame', [$email['id']])}}" id="forwardFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('forwardFrame');"></iframe>
             </blockquote>
         </div>
         </div>

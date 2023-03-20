@@ -414,6 +414,7 @@ class VendorController extends Controller
             'address' => 'sometimes|nullable|string',
             //'phone' => 'required|nullable|numeric',
             'email' => 'sometimes|nullable|email',
+            'gmail' => 'sometimes|nullable|email',
             'social_handle' => 'sometimes|nullable',
             'website' => 'sometimes|nullable',
             'login' => 'sometimes|nullable',
@@ -432,8 +433,8 @@ class VendorController extends Controller
         ]);
 
         $source = $request->get('source', '');
-
         $data = $request->except(['_token', 'create_user']);
+        
         if (empty($data['whatsapp_number'])) {
             //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
             //get default whatsapp number for vendor from whatsapp config
@@ -475,6 +476,7 @@ class VendorController extends Controller
                 }
                 $password = Str::random(10);
                 $user->email = $email;
+                $user->gmail = $data['gmail'];
                 $user->password = Hash::make($password);
                 $user->phone = $request->phone;
 
