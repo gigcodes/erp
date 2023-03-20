@@ -58,11 +58,12 @@
             <img src="{{asset('images/docs.png')}}" />
             Open</a>
         @endif
-        @if(Auth::user()->isAdmin())
+        @if(Auth::user()->hasRole('Admin'))
         {!! Form::open(['method' => 'DELETE','route' => ['google-docs.destroy', $file->docId],'style'=>'display:inline']) !!}
-        <button type="submit" class="btn btn-image" onclick="return confirm('{{ __('Are you sure you want to delete?') }}')"><img src="/images/delete.png" /></button>
+        <button type="submit" class="btn btn-image" onclick="return confirm('{{ __('Are you sure you want to delete?') }}')"><img src="{{asset('/images/delete.png')}}" /></button>
         {!! Form::close() !!}
-        <button style="padding:3px;" type="button" class="btn btn-image permissionupdate d-inline border-0" data-toggle="modal" data-readpermission="{{ $file->read }}" data-writepermission="{{ $file->write}}" data-docid="{{ $file->docId}}" data-target="#updateGoogleDocPermissionModal" data-id="{{ $file->id }}"><img width="2px;" src="images/edit.png"/></button>
+        <button style="padding:3px;" type="button" class="btn btn-image permissionupdate d-inline border-0" data-toggle="modal" data-readpermission="{{ $file->read }}" data-writepermission="{{ $file->write}}" data-docid="{{ $file->docId}}" data-target="#updateGoogleDocPermissionModal" data-id="{{ $file->id }}"><img width="2px;" src="{{asset('images/edit.png')}}"/></button>
+        <button type="button" class="btn btn-image permissionview d-inline border-0" data-toggle="modal" data-readpermission="{{ $file->read }}" data-writepermission="{{ $file->write}}" data-docid="{{ $file->docId}}" data-target="#viewGoogleDocPermissionModal" data-id="{{ $file->id }}"><img width="2px;" src="{{asset('images/view.png')}}"/></button>
         @endif
     </td>
 

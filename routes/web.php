@@ -4684,6 +4684,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
+    Route::post('/permission-remove', [GoogleDocController::class, 'permissionRemove'])->name('.permission.remove');
+    Route::post('/permission-view', [GoogleDocController::class, 'permissionView'])->name('.permission.view');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
 });
 
