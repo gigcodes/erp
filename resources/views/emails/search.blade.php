@@ -26,12 +26,12 @@
 			
             <td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
 			
-            <td class="expand-row table-hover-cell p-2">
-                <span class="td-mini-container">
+            <td class="table-hover-cell p-2" onclick="toggleMsgView({{$email->id}})">
+                <span id="td-mini-container-{{$email->id}}" class="">
                     {{ substr($email->message, 0,  25) }} {{strlen($email->message) > 20 ? '...' : '' }}
                 </span>
-                <span class="td-full-container hidden">
-                    {!! $email->message !!}
+                <span id ="td-full-container-{{$email->id}}" class="hidden">
+                <iframe src="" id="listFrame-{{$email->id}}" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('listFrame-{{$email->id}}');"></iframe>
                 </span>
             </td>
             

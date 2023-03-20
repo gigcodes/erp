@@ -50,7 +50,7 @@
 
                     <div class="col-md-2 pr-1">
                         <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
-                        <button type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></button>
+                        <a href="{{route('googleadslogs.index')}}" type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></a>
                     </div>
                 </form>
             </div>

@@ -14,15 +14,29 @@
             <h4 class="modal-title">Page Posting</h4>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
+      
         <div class="modal-body">
             <label>Picture from content management</label>
             <div class="form-group">
                 <a class="btn btn-secondary btn-sm mr-3 openmodalphoto" title="attach media from all content"><i class="fa fa-paperclip"></i></a>
-
             </div>
             <div id="chirag" class="form-group">
                 
             </div>
+
+            <label>Except this page you can choose same website other pages</label>
+            <select class="form-control input-sm select-multiple" name="webpage[]" multiple >
+                @if($socialWebsiteAccount)
+                    @foreach ($socialWebsiteAccount as $website)
+                    @if($website['id'] != $id)
+                    <option value="{{ $website['id'] }}">{{ $website['name'] }}</option>
+                    @endif
+                    @endforeach
+                @endif
+            </select>
+
+            <div class="form-group"></div>
+
             <div class="form-group">
                 <label>Picture <small class="text-danger">* You can select multiple images only </small></label>
                 <input type="file"  multiple="multiple"  name="source[]" class="form-control-file">
@@ -77,9 +91,12 @@
             <button type="submit" class="btn btn-secondary">Post</button>
         </div>
     </form>
- 
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+
     <script type="text/javascript">
-        
+         $('.select-multiple').select2({width: '100%'});
         $(document).on('click', '.openmodalphoto', function(e) {
             
             e.preventDefault();

@@ -355,7 +355,7 @@ Route::get('sendgrid/notifyurl', [Marketing\MailinglistController::class, 'notif
 Route::get('send_auto_emails', [Marketing\MailinglistController::class, 'sendAutoEmails']);
 
 Route::get('textcurl', [Marketing\MailinglistController::class, 'textcurl']);
-
+Route::get('totem/query-command/{name}', [TasksController::class, 'queryCommand']);
 //Route::get('unused_category', 'TestingController@Demo');
 
 Route::get('/test/dummydata', [TestingController::class, 'testingFunction']);
@@ -735,7 +735,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/listing/final/pushproduct', [ProductController::class, 'pushProduct']);
     Route::post('products/listing/final/process-conditions-check', [ProductController::class, 'processProductsConditionsCheck'])->name('products.processProductsConditionsCheck');
     Route::post('products/listing/push-to-magento', [ProductController::class, 'pushProductsToMagento'])->name('products.pushToMagento');
-    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatus'])->name('products.magentoPushStatus');
+    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatusForMagentoCheck'])->name('products.magentoPushStatus');
     Route::post('products/changeautopushvalue', [ProductController::class, 'changeAutoPushValue']);
     Route::post('products/listing/magento-push-status/autocomplete', [ProductController::class, 'autocompleteSearchPushStatus'])->name('products.autocompleteSearchPushStatus');
     Route::post('product/image/order/change', [ProductController::class, 'changeimageorder']);
@@ -1343,6 +1343,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
+    Route::get('email/email-frame/{id}', [EmailController::class, 'viewEmailFrame']);
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
@@ -4700,6 +4701,7 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
+    Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
@@ -4743,5 +4745,6 @@ Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
 Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
 Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
  });
+
 
    

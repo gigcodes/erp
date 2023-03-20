@@ -28,7 +28,7 @@ class LogSuccessfulLoginListener
     public function handle()
     {
         //	    activity()->performedOn(\App\User::getModel())->withProperties(['type' => 'info'])->log('Login');
-        ActivityConroller::create(0, 'User', 'Login');
+        // ActivityConroller::create(0, 'User', 'Login');
 
         // if ($user_login = UserLogin::where('user_id', Auth::id())->latest()->first()) {
         //   if (Carbon::now()->diffInDays($user_login->login_at) != 0) {
