@@ -300,3 +300,18 @@ The product push conditions checked starts from `pushProductsToMagento` function
         - If push type is `configurable`, product images will be added to product in `_pushProduct` function. Here `configurable` is products with multiple size options. 
         - If push type is `simple_configurable`, product visibility will set as `1`. Here `simple_configurable` is products with one size option.
         - After this step it will follow the same steps of single product push.
+## Magento push status
+- This functionlity is used to view listing pushed product in magento.
+- The product push status check starts from `magentoPushStatusForMagentoCheck` function in the `ProductController`.
+-  pushed products will fetch from the `products` table with the following conditions:
+    - checking status `pushToMagento`(11) or `inMagento`(12)
+    - `is_push_attempted` is `1`
+    - `isUploaded` is `0`
+    - Default data fetching `limit` has set to `10`
+ - **Filter**
+    - There are eight filter provided in top of the page,filters are Product Id, Product Name,Brand, Category, Composition, Color, Price,Status
+    - When click on search icon button then it will apply filter and getting data.
+ - **Listing**
+    - After getting pushed product data then it will display in table grid.
+    
+    
