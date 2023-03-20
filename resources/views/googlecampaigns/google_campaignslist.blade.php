@@ -39,7 +39,7 @@
                         <select  name="account_name" class="form-control" id="account_name">
                             <option value="">Account Name</option>
                             @foreach($search_data->unique('account_id') as $account)
-                                <option value="{{$account->account->id}}" {{($account->account->id == @$_GET['account_name'])? 'selected' :''}}>{{$account->account->account_name}}</option>
+                                <option value="{{@$account->account->id}}" {{(@$account->account->id == @$_GET['account_name'])? 'selected' :''}}>{{@$account->account->account_name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -48,7 +48,7 @@
                         <select name="campaign_name" class="form-control" id="campaign_name">
                             <option value="">Campaign Name</option>
                             @foreach($search_data->unique('campaign_name') as $campaign)
-                                <option value="{{$campaign->campaign_name}}" {{($campaign->campaign_name == @$_GET['campaign_name'])? 'selected' :''}}>{{$campaign->campaign_name}}</option>
+                                <option value="{{@$campaign->campaign_name}}" {{(@$campaign->campaign_name == @$_GET['campaign_name'])? 'selected' :''}}>{{@$campaign->campaign_name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -57,7 +57,7 @@
                         <select name="channel_type" class="form-control" id="channel_type">
                             <option value="">Channel Type</option>
                             @foreach($search_data->unique('channel_type') as $type)
-                                <option value="{{$type->channel_type}}" {{($type->channel_type == @$_GET['channel_type'])? 'selected' :''}}>{{$type->channel_type}}</option>
+                                <option value="{{@$type->channel_type}}" {{(@$type->channel_type == @$_GET['channel_type'])? 'selected' :''}}>{{@$type->channel_type}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -66,7 +66,7 @@
                         <select name="channel_sub_type" class="form-control" id="channel_sub_type">
                             <option value="">Channel Sub Type</option>
                             @foreach($search_data->unique('channel_sub_type')  as $sub_type)
-                                <option value="{{$sub_type->channel_sub_type}}" {{($sub_type->channel_sub_type == @$_GET['channel_sub_type'])? 'selected' :''}}>{{$sub_type->channel_sub_type}}</option>
+                                <option value="{{@$sub_type->channel_sub_type}}" {{(@$sub_type->channel_sub_type == @$_GET['channel_sub_type'])? 'selected' :''}}>{{@$sub_type->channel_sub_type}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -75,7 +75,7 @@
                         <select name="status" class="form-control" id="status">
                             <option value="">Status</option>
                             @foreach($search_data->unique('status') as $status)
-                                <option value="{{$status->status}}" {{($status->status == @$_GET['status'])? 'selected' :''}}>{{$status->status}}</option>
+                                <option value="{{@$status->status}}" {{(@$status->status == @$_GET['status'])? 'selected' :''}}>{{@$status->status}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -90,7 +90,7 @@
 
                     <div class="col-md-1 pr-1">
                         <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
-                        <button type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></button>
+                        <a href="{{route('googlecampaigns.campaignslist')}}" type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></a>
                     </div>
                 </form>
         </div>

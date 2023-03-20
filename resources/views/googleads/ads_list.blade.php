@@ -39,7 +39,7 @@
                     <select name="campaign_name" class="form-control" id="campaign_name">
                         <option value="">Google Campaign Name</option>
                         @foreach($search_data->unique('adgroup_google_campaign_id') as $campaign)
-                            <option value="{{$campaign->campaign->google_campaign_id}}" {{($campaign->campaign->google_campaign_id == @$_GET['campaign_name'])? 'selected' :''}}>{{$campaign->campaign->campaign_name}}</option>
+                            <option value="{{@$campaign->campaign->google_campaign_id}}" {{(@$campaign->campaign->google_campaign_id == @$_GET['campaign_name'])? 'selected' :''}}>{{@$campaign->campaign->campaign_name}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -48,7 +48,7 @@
                     <select name="ad_group_name" class="form-control" id="ad_group_name">
                         <option value="">Ad Group Name</option>
                         @foreach($search_data->unique('google_adgroup_id') as $ad)
-                            <option value="{{$ad->adgroup->google_adgroup_id}}" {{($ad->adgroup->google_adgroup_id == @$_GET['ad_group_name'])? 'selected' :''}}>{{$ad->adgroup->ad_group_name}}</option>
+                            <option value="{{@$ad->adgroup->google_adgroup_id}}" {{(@$ad->adgroup->google_adgroup_id == @$_GET['ad_group_name'])? 'selected' :''}}>{{@$ad->adgroup->ad_group_name}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -57,7 +57,7 @@
                     <select name="google_ad_id" class="form-control" id="google_ad_id">
                         <option value="">Google Ad Id</option>
                         @foreach($search_data->unique('google_adgroup_id') as $google_ad_id)
-                            <option value="{{$google_ad_id->google_ad_id}}" {{($google_ad_id->google_ad_id == @$_GET['google_ad_id'])? 'selected' :''}}>{{$google_ad_id->google_ad_id}}</option>
+                            <option value="{{@$google_ad_id->google_ad_id}}" {{(@$google_ad_id->google_ad_id == @$_GET['google_ad_id'])? 'selected' :''}}>{{@$google_ad_id->google_ad_id}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -68,7 +68,7 @@
 
                 <div class="col-md-1 pr-1">
                     <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
-                    <button type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></button>
+                    <a href="{{route('googlecampaigns.adslist')}}" type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></a>
                 </div>
             </form>
         </div>
