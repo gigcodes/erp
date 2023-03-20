@@ -719,6 +719,18 @@
             });
 
         });
+
+        $(document).on('change', '#time_doctor_account', function(){
+            var account_id = $(this).val();
+            var url = "{{ route('select2.time_doctor_projects_ajax') }}"+"?account_id="+account_id;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response) {
+                    $("#time_doctor_project").html(response);
+                }
+            });
+        });
     </script>
 
     <script type="text/javascript">
