@@ -337,7 +337,7 @@
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.tiny.cloud/1/8lx26kd08fse8eckrno8tqi4pkf298s9d9hunvvzy4ri6ru4/tinymce/5/tinymce.min.js"
+    <script src="https://cdn.tiny.cloud/1/{{env('TINY_MCE_API_KEY')}}/tinymce/5/tinymce.min.js"
         referrerpolicy="origin"></script>
     <script>
         tinymce.init({
