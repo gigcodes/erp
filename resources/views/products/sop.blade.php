@@ -326,9 +326,9 @@ float: left;
                                     <span class="show-short-category-{{$value->id}}">{{ Str::limit($value->category, 17, '..')}}</span>
                                     <span style="word-break:break-all;" class="show-full-category-{{$value->id}} hidden">{{$value->category}}</span>
                                 </td>
-                                <td class="expand-row-msg Website-task " data-name="content" data-id="{{$value->id}}">
-                                    <span class="show-short-content-{{$value->id}}">{!! Str::limit($value->content, 50, '..') !!}</span>
-                                    <span style="word-break:break-all;" class="show-full-content-{{$value->id}} hidden">{!! $value->content !!}</span>
+                                <td class="expand-row-msg" data-name="content" data-id="{{$value->id}}">
+                                    <span class="show-content" id="show_content_{{$value->id}}" data-content="{!! $value->content !!}" data-id="{{$value->id}}">{{ strip_tags(Str::limit($value->content, 50, '..')) }}</span>
+{{--                                    <span style="word-break:break-all;" class="show-full-content-{{$value->id}} hidden">{!! $value->content !!}</span>--}}
                                 </td>
                                 <td class="table-hover-cell p-1">
                                     <div class="select_table">
@@ -584,6 +584,7 @@ float: left;
                     <div class="form-group">
                         <strong>Message *</strong>
                         <textarea class="form-control mail_message" name="message"  id="message" rows="8" cols="80" required></textarea>
+                        message
                         <span class="error" id="message-error" for="message" style="color:red;display:none;font-size: 10px;">This field is required</span>
                     </div>
 
@@ -602,6 +603,37 @@ float: left;
     </div>
 </div>
  <!-- End Send Email Modal-->
+
+ <!-- Show Content Model -->
+
+    <div class="modal fade" id="showContentModal"  role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <input type="hidden" name="content_message_id" id="content_message_id">
+                    <div class="modal-header">
+                        <h3>Content</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="content_message" name="content_message"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--End Show Content Model -->
+
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('{{asset('/images/pre-loader.gif')}}')
                                                                   50% 50% no-repeat;display:none;">
 
@@ -717,6 +749,7 @@ float: left;
 
     $(document).on('click','.send-email-common-btn',function(e){
         e.preventDefault();
+        document.getElementById("message").innerHTML = '';
         var ele = $(this).parentsUntil('form').parent();
         var mailtype = $(this).data('object');
         var id = $(this).data('id');
@@ -726,10 +759,11 @@ float: left;
         $('#commonEmailModal').find('form').find('input[name="sendto"]').val(toemail);
         $('#commonEmailModal').find('form').find('input[name="object"]').val(mailtype);
         $('#commonEmailModal').find('form').find('textarea[name="message"]').val(content);
+
         $('#commonEmailModal').modal("show");
     });
 
-    $(document).on('click','.send-multi-email-btn',function(){
+         $(document).on('click','.send-multi-email-btn',function(){
         var id = [];
         var toemail = [];
         $('input[name=select_user]:checked').each(function (i) {
@@ -755,17 +789,17 @@ float: left;
         }
     });
 
-    // $('form').submit(function (event) {
-    //     if ($(this).hasClass('submitted')) {
-    //         event.preventDefault();
-    //     }
-    //     else {
-    //         $(this).find(':submit').html('<i class="fa fa-spinner fa-spin"></i>');
-    //         $(this).addClass('submitted');
-    //     }
-    // });
+        $(document).on('click','.show-content',function(e){
+            e.preventDefault();
+            document.getElementById("content_message").innerHTML = '';
 
-
+            var ele = $(this).parentsUntil('form').parent();
+            var id = $(this).data('id');
+            var content = $('#show_content_'+ id).data('content');
+            $('#showContentModal').find('form').find('input[name="content_message_id"]').val(id);
+            document.getElementById("content_message").innerHTML = content;
+            $('#showContentModal').modal("show");
+        });
 
     $(document).on('keyup','#subject', function() {
         if ($(this).val()) {
@@ -835,15 +869,6 @@ float: left;
 
         });
 
-    // $('#resetdata').submit(function (event) {
-    //     if ($(this).hasClass('submitted')) {
-    //         event.preventDefault();
-    //     }
-    //     else {
-    //         $(this).find(':submit').html('<i class="fa fa-spinner fa-spin"></i>');
-    //         $(this).addClass('submitted');
-    //     }
-    // });
 
     $(document).on("click", ".check-all", function() {
         $(".checkbox").trigger("click");
@@ -1091,12 +1116,12 @@ $(document).on('click', '.send-message-open', function (event) {
                         $("#exampleModal").modal('hide');
                         toastr["success"]("Data Inserted Successfully!", "Message");
                         $(document).on('click', '.expand-row-msg', function () {
-                        var name = $(this).data('name');
-                        var id = $(this).data('id');
-                        var full = '.expand-row-msg .show-short-'+name+'-'+id;
-                        var mini ='.expand-row-msg .show-full-'+name+'-'+id;
-                        $(full).toggleClass('hidden');
-                        $(mini).toggleClass('hidden');
+                            var name = $(this).data('name');
+                            var id = $(this).data('id');
+                            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+                            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+                            $(full).toggleClass('hidden');
+                            $(mini).toggleClass('hidden');
                         });
                     }
                 }
