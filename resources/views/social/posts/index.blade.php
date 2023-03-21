@@ -22,6 +22,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     @include("social.posts.history")
+    @include("social.posts.translation-approve")
    
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
@@ -57,13 +58,11 @@
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
                             <th style="width:5%">Image</th>
-                            <th style="width:5%">Date</th>
                             <th style="width:5%">Website</th>
                             <th style="width:5%">Platform</th>
                             <th style="width:25%">Caption</th>
-                            <th style="width:30%">Post</th>
                             <th style="width:30%">Hashtags</th>
-                            <!-- <th style="width:10%">Image</th> -->
+                            <th style="width:10%">Translation Approved & Post By</th>
                             <th style="width:10%">Posted on</th>
                             <th style="width:5%">Status</th>
                             <th style="width:5%">Action</th>
@@ -109,7 +108,7 @@
       
 
         $(document).on("click",".account-history",function(e) {
-        e.preventDefault();
+            e.preventDefault();
             var post_id = $(this).data("id");
             $.ajax({
                 url: "{{ route('social.post.history') }}",
@@ -139,7 +138,36 @@
                     $("#loading-image").hide();
                 }
             });
-       });
+        });
+
+        $(document).on("click",".translation-approval",function(e) {
+            e.preventDefault();
+            var post_id = $(this).data("id");
+            $.ajax({
+                url: "{{ route('social.post.translationapproval') }}",
+                type: 'POST',
+                data : { "_token": "{{ csrf_token() }}", post_id : post_id },
+                dataType: 'json',
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
+                success: function(result){
+                    console.log(result);
+                    $("#loading-image").hide();
+                    
+                    document.getElementById("caption").value = result.data.caption;
+                    document.getElementById("post_id").value = result.data.post_id;
+                    document.getElementById("caption_trans").value = result.data.caption_trans;
+                    document.getElementById("hashtag").value = result.data.hashtag;
+                    document.getElementById("hashtag_trans").value = result.data.hashtag_trans;
+
+                    $("#TranslationApproval").modal("show");
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                }
+            });
+        });
     
       
 
