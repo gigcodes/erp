@@ -21,7 +21,7 @@ class WebNotificationController extends Controller
     {
         $token = $request->token;
         $user_id = auth()->user()->id;
-        $isExist = NotificationToken::where('device_token', $token)->exists();
+        $isExist = NotificationToken::where('device_token', $token)->where('user_id', $user_id)->exists();
         if(!$isExist){
             $notificationToken = new NotificationToken();
             $notificationToken->user_id = $user_id;
@@ -56,11 +56,12 @@ class WebNotificationController extends Controller
             }
         }
         if (isset($userId) && $userId){
-            $FcmToken = NotificationToken::whereNotNull('device_token')->whereId($userId)->pluck('device_token')->all();
+            $FcmToken = NotificationToken::whereNotNull('device_token')->whereUserId($userId)->pluck('device_token')->all();
         }
         else {
             $FcmToken = NotificationToken::whereNotNull('device_token')->pluck('device_token')->all();
         }
+
         $serverKey = env('FCM_SECRET_KEY');
         $data = [
             "registration_ids" => $FcmToken,
