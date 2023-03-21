@@ -26,8 +26,10 @@ class SocialPost extends Model
     protected $fillable = [
         'config_id',
         'caption',
+        'hashtag',
         'post_body',
         'post_by',
+        'translation_approved_by',
         'posted_on',
         'status',
     ];
