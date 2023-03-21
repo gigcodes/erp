@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Problem List')
+
 @section('large_content')
 
 @section('styles')
@@ -74,33 +76,41 @@
                 <div class="row">
                     <div class="col-md-2 pl-0 pr-3">
                         <select class="form-control select-multiple" name="host_name">
-                            <option value="">Host Name</option>
+                            <option selected>Host Name</option>
                             @foreach($search_data->unique('hostname') as $key => $hostname)
-                                <option value="{{ $hostname->hostname }}" {{ request()->get('host_name') == $hostname->hostname ? 'selected' : '' }}>{{ $hostname->hostname }}</option>
+                                @if($hostname->hostname != '')
+                                    <option value="{{ $hostname->hostname }}" {{ request()->get('host_name') == $hostname->hostname ? 'selected' : '' }}>{{ $hostname->hostname }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-2 pl-0 pr-0">
                         <select class="form-control select-multiple" name="event_id">
-                            <option value="">Event ID</option>
+                            <option selected>Event ID</option>
                             @foreach($search_data->unique('eventid') as $key => $event_id)
-                                <option value="{{ $event_id->eventid }}" {{ request()->get('event_id') == $event_id->eventid ? 'selected' : '' }}>{{ $event_id->eventid }}</option>
+                                @if($event_id->eventid != '')
+                                    <option value="{{ $event_id->eventid }}" {{ request()->get('event_id') == $event_id->eventid ? 'selected' : '' }}>{{ $event_id->eventid }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-2 pr-2">
                         <select class="form-control select-multiple" name="object_id">
-                            <option value="">Object ID</option>
+                            <option selected>Object ID</option>
                             @foreach($search_data->unique('objectid') as $key => $object_id)
-                                <option value="{{ $object_id->objectid }}" {{ request()->get('object_id') == $object_id->objectid ? 'selected' : '' }}>{{ $object_id->objectid }}</option>
+                                @if($object_id->objectid != '')
+                                    <option value="{{ $object_id->objectid }}" {{ request()->get('object_id') == $object_id->objectid ? 'selected' : '' }}>{{ $object_id->objectid }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-2 pr-2">
                         <select class="form-control select-multiple" name="problem">
-                            <option value="">Problem</option>
+                            <option selected>Problem</option>
                             @foreach($search_data->unique('name') as $key => $problem)
-                                <option value="{{ $problem->name }}" {{ request()->get('problem') == $problem->hostname ? 'selected' : '' }}>{{ $problem->name }}</option>
+                                @if($problem->name != '')
+                                <option value="{{ $problem->name }}" {{ request()->get('problem') == $problem->name ? 'selected' : '' }}>{{ $problem->name }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
