@@ -341,6 +341,7 @@ use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\GoogleAppAdController;
 use App\Http\Controllers\GoogleAdGroupKeywordController;
+use App\Http\Controllers\GoogleAdReportController;
 use App\Http\Controllers\UnknownAttributeProductController;
 use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
@@ -962,6 +963,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('reply-logs', [ChatbotMessageLogsController::class, 'replyLogs'])->name('reply.replylogs');
     Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
     Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
+
+    Route::post('/reply-translate-list/update', [ReplyController::class, 'replyTranslateUpdate'])->name('reply.replyTranslateupdate');
+    Route::post('/reply-translate-list/history', [ReplyController::class, 'replyTranslatehistory'])->name('reply.replyTranslatehistory');
+    Route::post('/reply-translate-list/approvedByAdmin', [ReplyController::class, 'approvedByAdmin'])->name('reply.approved_by_admin');
+    Route::post('/reply-translate-list/permissions', [ReplyController::class, 'quickRepliesPermissions'])->name('reply.permissions');
+
+    Route::post('/reply-translate-list/removepermissions', [ReplyController::class, 'removepermissions'])->name('remove.permissions');
 
     Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
 
@@ -2130,6 +2138,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
     Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
+    Route::post('password/send/email', [PasswordController::class, 'passwordSendEmail'])->name('password.send.email');
+    Route::get('password/email/history', [PasswordController::class, 'passwordSendEmailHistory'])->name('password.email.history');
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
@@ -3995,6 +4005,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     });
 
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
+    Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
