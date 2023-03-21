@@ -4606,6 +4606,8 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('post/create/{id}', [Social\SocialPostController::class, 'create'])->name('social.post.create');
     Route::get('post/getimage/{id}', [Social\SocialPostController::class, 'getImage'])->name('social.post.getimage');
     Route::post('post/history', [Social\SocialPostController::class, 'history'])->name('social.post.history');
+    Route::post('post/translationapproval', [Social\SocialPostController::class, 'translationapproval'])->name('social.post.translationapproval');
+    Route::post('post/approvepost', [Social\SocialPostController::class, 'approvepost'])->name('social.post.approvepost');
 
     Route::get('post/grid', [Social\SocialPostController::class, 'grid'])->name('social.post.grid');
 
