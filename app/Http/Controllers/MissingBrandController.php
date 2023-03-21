@@ -74,7 +74,7 @@ class MissingBrandController extends Controller
         }
 
         $scrapers = MissingBrand::select('supplier')->groupBy('supplier')->get();
-        $missingBrands = $missingBrands->paginate(20);
+        $missingBrands = $missingBrands->orderBy('name','Asc')->paginate(20);
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('missingbrand.partial.data', compact('missingBrands', 'scrapers'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
@@ -117,12 +117,12 @@ class MissingBrandController extends Controller
         if ($mBrand) {
             $mBrand->delete();
         }
-        Activity::create([
+        /*Activity::create([
             'subject_type' => 'Brand',
             'subject_id' => $brand->id,
             'causer_id' => Auth::user()->id,
             'description' => Auth::user()->name.' has merged '.$brand->name.' to '.$mBrand->brand_name,
-        ]);
+        ]);*/
 
         return redirect()->back()->with('success', 'Brand reference added successfully');
     }

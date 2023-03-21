@@ -5,7 +5,7 @@
             <textarea id="reply-message" name="message" class="form-control reply-message-textarea" rows="3" placeholder="Reply..."></textarea>
         <div class="message-to-reply">
             <blockquote style="margin:15px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
-                {!! $email['message'] !!}
+            <iframe src="{{url('/email/email-frame', [$email['id']])}}" id="replyFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('replyFrame');"></iframe>
             </blockquote>
         </div>
         </div>

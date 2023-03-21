@@ -46,6 +46,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
     <script src="{{siteJs('site.js')}}" defer></script>
+    <script>var BASE_URL = "{{config('app.url')}}";</script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
@@ -53,7 +54,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
    <style type="text/css">
         .select2-container--open{
             z-index:9999999
@@ -319,6 +320,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         /*padding-right: 30px;*/
     }
 
+    .time_doctor_project_section,
+    .time_doctor_account_section{
+        display: none;
+    }
+
     /*.navbar-brand{*/
     /*    margin-right: 20px;*/
     /*}*/
@@ -342,8 +348,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="d-flex" id="search-bar">
-                                <input type="text" value="" name="search" class="form-control sop_search" placeholder="Search Here.." style="width: 30%;">
-{{--                                <button title="Sop Search" type="button" class="btn btn-xs search-button" style="padding: 0px 1px;"><span><i class="fa fa-search" aria-hidden="true"></i></span></button>--}}
+                                <input type="text" value="" name="search" id="menu_sop_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="Sop Search" type="button" class="sop_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
                             </div>
                         </div>
                         <div class="col-lg-12">
@@ -720,6 +727,8 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ action('\App\Http\Controllers\AttributeReplacementController@index') }}">Attribute
                                                     Replacement</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\UnknownAttributeProductController@index') }}">Incorrect Attributes</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1512,6 +1521,10 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
+                                        Meeting List</a>
+                                </li>                                
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -2034,6 +2047,31 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+
+                               
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-users')}}">Usage</a>
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sales')}}">Sales</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sub')}}">Subscription</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-ads')}}">Ads</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-rate')}}">Ratings</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-pay')}}">Payments</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                              
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>Google<span
@@ -2053,6 +2091,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.search.results')}}">Search Results</a>
                                                 </li>
+                                               
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2075,7 +2114,30 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                v-pre>Developer API<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.developer-api.crash')}}">Crash Report</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.anr')}}">ANR Report</a>
+                                                </li>
+                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.logs')}}">Logs</a>
+                                                </li>
+                                            
+                                            </ul>
+                                        </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('google-drive.new') }}">Google Drive</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2090,8 +2152,30 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google
-                                        AdWords</a>
+                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="width: fit-content !important;">
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.adsgroupslist')}}">Google Ads groups</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.adslist')}}">Google Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.displayads')}}">Google Responsive Display Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.appadlist')}}">Google App Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadreport.index')}}">Google Ads Report</a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social
@@ -2119,6 +2203,12 @@ if (!empty($notifications)) {
                                 aria-haspopup="true" aria-expanded="false">Social <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.post.grid')}}">Social Posts Grid</a>
+                                </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2136,8 +2226,14 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
                                 </li>
-                                    <li class="nav-item dropdown">
+                                <li class="nav-item dropdown">
                                     <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.adcreative.index')}}">Social Ad Creative</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.ad.index')}}">Social Ads</a>
                                 </li>
                                 @endif
                             </ul>
@@ -2379,6 +2475,10 @@ if (!empty($notifications)) {
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item" href="{{ route('twilio.errors') }}">Twilio
                                                         Errors</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('twilio.webhook.error.logs') }}">Twilio
+                                                        Webhook Error Logs</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a href="{{ route('twilio-manage-accounts') }}">Twilio Account
@@ -2832,6 +2932,44 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+
+                                        <!-- time doctor -->
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" v-pre>Time Doctor<span
+                                                    class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor.members') }}">Members</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/projects') }}">Projects</a>
+                                                </li>
+
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/tasks') }}">Tasks</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/notification') }}">Activity
+                                                        Notofication</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/activities') }}">Activities</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">User
+                                                        Track Time</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -2933,6 +3071,7 @@ if (!empty($notifications)) {
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ url('sop') }}">SOP</a>
                                         </li>
+                                        <li>
                                         <a class="dropdown-item"
                                             href="{{ route('gtmetrix.error.index.list') }}">GTMetrix Error log</a>
                                 </li>
@@ -2956,8 +3095,14 @@ if (!empty($notifications)) {
                             <li  class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
                             </li>
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('reply.replyTranslateList')}}">Reply Translate List</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
                             </li>
                             <li class="nav-item dropdown dropdown-submenu">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
@@ -3017,7 +3162,7 @@ if (!empty($notifications)) {
                                             States</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
+                                        <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage
@@ -3039,6 +3184,10 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project
                                             Directory manager</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
+                                        <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
                                     </li>
                                 </ul>
                             </li>
@@ -3252,6 +3401,9 @@ if (!empty($notifications)) {
                                             </li>
                                         </ul>
                                     </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a class="dropdown-item" href="{{ url('learning') }}">Learning Menu</a>
+                                    </li>
                                 </ul>
                             </li>
                             </ul>
@@ -3270,6 +3422,14 @@ if (!empty($notifications)) {
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
+                            <li>
+                                <a title="Create Google Doc" type="button" data-toggle="modal" data-target="#createGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Search Google Doc" type="button" data-toggle="modal" data-target="#SearchGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
                             <li>
                                 <a title="Quick Dev Task" type="button" class="quick-icon menu-show-dev-task" style="padding: 0px 1px;"><span><i
                                             class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
@@ -3809,7 +3969,8 @@ if (!empty($notifications)) {
                 </div>
             </div>
         </div>
-
+        @include('googledocs.partials.create-doc')
+        @include('googledocs.partials.search-doc')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -4667,11 +4828,11 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
-    $(document).on("keyup", ".sop_search", function(e) {
-        let $this = $(this);
-        var q = $this.val();
+    $(document).on("click", ".sop_search_menu", function(e) {
+        let $this = $('#menu_sop_search').val();
+        var q = $this;
         $.ajax({
-            url: '{{env('app_url')}}sop/search-ajax',
+            url: '{{route('menu.sop.search')}}',
             type: 'GET',
             data: {
                 search: q,
@@ -4687,6 +4848,7 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
+                toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
                 $("#loading-image").hide();
@@ -4854,7 +5016,7 @@ if (!empty($notifications)) {
         $(mini).toggleClass('hidden');
     });
 
-    $(document).on('click', '.send-message-open-menu', function (event) {
+    $(document).on('click', '.send-message-open-quick-menu', function (event) {
         var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
         var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
         let issueId = textBox.attr('data-id');
@@ -5009,6 +5171,7 @@ if (!empty($notifications)) {
                     $(thiss).siblings('input').val('');
                     $('#getMsg' + task_id).val('');
                     $('#menu_confirmMessageModal').modal('hide');
+                    toastr["success"]("Message sent successfully!", "Message");
                     if (cached_suggestions) {
                         suggestions = JSON.parse(cached_suggestions);
                         if (suggestions.length == 10) {
@@ -5997,7 +6160,7 @@ if (!\Auth::guest()) {
 
     $(document).on('change', '#autoTranslate', function(e) {
         e.preventDefault();
-        var customerId = $("input[name='message-id'").val();
+        var customerId = $("input[name='message-id']").val();
         var language = $(".auto-translate").val();
         let self = $(this);
         $.ajax({
@@ -6079,6 +6242,17 @@ if (!\Auth::guest()) {
             toastr['error'](response.responseJSON.message);
 
         });
+    });
+
+    $(document).on('change', '.task_for', function(e) {
+        var getTask = $(this).val();
+        if(getTask == 'time_doctor'){
+            $('.time_doctor_project_section').show();
+            $('.time_doctor_account_section').show();
+        } else {
+            $('.time_doctor_project_section').hide();
+            $('.time_doctor_account_section').hide();
+        }
     });
 
     $(document).on("click", ".save-task-window", function(e) {

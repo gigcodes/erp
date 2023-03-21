@@ -55,4 +55,27 @@ class Email extends Model
     {
         return $this->belongsTo(EmailCategory::class, 'email_category_id', 'id');
     }
+
+    public static function emailModelTypeList()
+    {
+        return [
+            '' => '-- Model Type --',
+            'App\Affiliates' => 'Affiliates',
+            'App\Contact' => 'Contact',
+            'App\Coupon' => 'Coupon',
+            'App\CouponCodeRules' => 'Coupon Code Rules',
+            'App\Customer' => 'Customer',
+            'App\CustomerCharity' => 'Customer Charity',
+            'App\Email' => 'Email',
+            'App\ErpLeads' => 'ErpLeads',
+            'App\GiftCard' => 'GiftCard',
+            'App\Order' => 'Order',
+            'App\ReturnExchange' => 'ReturnExchange',
+            'App\ScrapInfluencer' => 'ScrapInfluencer',
+            'App\Supplier' => 'Supplier',
+            'App\Tickets' => 'Tickets',
+            'App\User' => 'User',
+            'App\Vendor' => 'Vendor',
+        ];
+    }
 }

@@ -30,5 +30,15 @@ class GoogleAd extends Model
      */
     protected $table = 'googleads';
 
-    protected $fillable = ['adgroup_google_campaign_id', 'google_adgroup_id', 'google_ad_id', 'headline1', 'headline2', 'headline3', 'description1', 'description2', 'final_url', 'path1', 'path2', 'ads_resposne', 'status'];
+    protected $fillable = ['google_customer_id', 'adgroup_google_campaign_id', 'google_adgroup_id', 'google_ad_id', 'headline1', 'headline2', 'headline3', 'description1', 'description2', 'final_url', 'path1', 'path2', 'ads_resposne', 'status'];
+
+    public function campaign()
+    {
+        return $this->belongsTo(\App\GoogleAdsCampaign::class, 'adgroup_google_campaign_id', 'google_campaign_id');
+    }
+
+    public function adgroup()
+    {
+        return $this->belongsTo(\App\GoogleAdsGroup::class, 'google_adgroup_id', 'google_adgroup_id');
+    }
 }

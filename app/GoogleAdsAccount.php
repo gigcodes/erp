@@ -7,6 +7,7 @@ namespace App;
  */
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GoogleAdsAccount extends Model
 {
@@ -22,5 +23,10 @@ class GoogleAdsAccount extends Model
      */
     protected $table = 'googleadsaccounts';
 
-    protected $fillable = ['account_name', 'store_websites', 'config_file_path', 'notes', 'status'];
+    protected $fillable = ['google_customer_id', 'account_name', 'store_websites', 'config_file_path', 'notes', 'status'];
+
+    public function campaigns(): HasMany
+    {
+        return $this->hasMany(GoogleAdsCampaign::class,'account_id');
+    }
 }

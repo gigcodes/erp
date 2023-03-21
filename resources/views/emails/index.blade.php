@@ -33,6 +33,7 @@
     .table-responsive select.select {
         width: 110px !important;
     }
+    
 </style>
 @endsection
 <div id="myDiv">
@@ -128,15 +129,14 @@
             </span>
           </div>
         </div-->
-		
-		<div class="form-group px-2">
+    <div class="form-group px-2">
             <select class="form-control sender_select" name="sender" id="sender" style="width: 208px !important;" multiple>
                 <option value="">Select Sender</option>
                 @foreach($sender_drpdwn as $sender)
                     <option value="{{ $sender['from'] }}" {{ (Request::get('sender') && strcmp(Request::get('sender'),$sender['from']) == 0) ? "selected" : ""}}>{{ $sender['from'] }}</option>
                 @endforeach
             </select>
-        </div>
+    </div>
 		<div class="form-group px-2">
             <select class="form-control receiver_select" name="receiver" id="receiver" style="width: 208px !important;" multiple>
                 <option value="">Select Receiver</option>
@@ -169,7 +169,7 @@
 			</select>
         </div>
 		<div class="form-group px-2">
-			<select class="form-control select_category" name="category" id="category" style="width: 208px !important;" multiple>
+			<select class="form-control select_category" name="category" id="category" multiple>
 				<option value="">Select Category</option>
 				<?php
 				foreach ($email_categories as $category) { ?>
@@ -178,6 +178,15 @@
 				?>
 			</select>
         </div>
+        <div class="form-group px-2">
+            <select class="form-control model_type_select" name="email_model_type" id="email_model_type" multiple>
+                
+                @foreach($emailModelTypes as $m => $module)
+                <option value="{{$m}}">{{$module}}</option>
+                    
+                @endforeach
+            </select>
+    </div>
         <input type='hidden' class="form-control" id="type" name="type" value="" />
         <input type='hidden' class="form-control" id="seen" name="seen" value="1" />
 
@@ -194,6 +203,7 @@
             <th width="5%">Date</th>
             <th width="5%">Sender</th>
             <th width="5%">Receiver</th>
+            <th width="4%">Model <br> Type</th>
             <th width="4%">Mail <br> Type</th>
             <th width="5%">Subject</th>
             <th width="14%">Body</th>
@@ -264,6 +274,7 @@
             <div class="modal-body">
               <p><strong>Subject : </strong> <span id="emailSubject"></span> </p>
               <p><strong>Message : </strong> <span id="emailMsg"></span> </p>
+              <iframe src="" id="eFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('eFrame');"></iframe>
             </div>
         </div>
     </div>
@@ -613,6 +624,9 @@
           $(".pagination-custom").find(".pagination").find(".active").next().find("a").click();
         }
     });
+    $('.model_type_select').select2({
+        placeholder:"Select Model Type",
+    });
     $('.sender_select').select2({
         placeholder:"Select sender",
     });
@@ -635,7 +649,7 @@
             $(this).find('.td-full-container').toggleClass('hidden');
         }
     });
-
+    
     $(".pagination-custom").on("click", ".page-link", function (e) {
             e.preventDefault();
 
@@ -743,6 +757,7 @@
       var category = category_name.toString();
       var mail_box_name = $("#mail_box").val();
       var mail_box = mail_box_name.toString();
+      var email_model_type = $('#email_model_type').val().toString();
 
      console.log(window.url);
         $.ajax({
@@ -757,7 +772,8 @@
 				receiver:receiver,
 				status:status,
 				category:category,
-                mail_box : mail_box
+                mail_box : mail_box,
+                email_model_type : email_model_type
             },
             beforeSend: function () {
                 $("#loading-image").show();
@@ -1084,13 +1100,47 @@
             })
         }
     });
-
-
+    // To set the iframe height based on content
+    function autoIframe(frameId) {
+      try {
+        frame = document.getElementById(frameId);
+        innerDoc = (frame.contentDocument) ?
+                  frame.contentDocument : frame.contentWindow.document;
+        objToResize = (frame.style) ? frame.style : frame;
+        objToResize.height = innerDoc.body.scrollHeight + 10 + 'px';
+      }
+      catch (err) {
+        window.status = err.message;
+      }
+    }
+    // toggle iframe and short message view
+    function toggleMiniFullView(emailId){
+      $('#td-mini-container-'+emailId).toggleClass('hidden');
+      $('#td-full-container-'+emailId).toggleClass('hidden');
+    }
+    function toggleMsgView(emailId){
+      var divID = '#' + $(this).attr('id') + '_div';
+      $('#listFrame-'+emailId).attr('src', "");
+      var emailUrl = '/email/email-frame/'+emailId;
+      $('#listFrame-'+emailId).attr('src', emailUrl);
+      toggleMiniFullView(emailId);
+    }
+    // identify click event within iframe
+    let interval = window.setInterval(trackClick, 100);
+    function trackClick() {
+      var elem = document.activeElement;
+      if(elem && elem.tagName == 'IFRAME'){
+        var emailId = elem.id.split('-')[1];
+        toggleMiniFullView(emailId);
+        window.focus();
+      }
+    }
     function opnMsg(email) {
       console.log(email);
+      $('#eFrame').attr('src', "");
+      var emailUrl = '/email/email-frame/'+email.id;
       $('#emailSubject').html(email.subject);
-      $('#emailMsg').html(email.message);
-
+      $('#eFrame').attr('src', emailUrl);
       // Mark email as seen as soon as its opened
       if(email.seen ==0 || email.seen=='0'){
         // Mark email as read

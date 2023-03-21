@@ -52,7 +52,7 @@ class ZabbixStore extends Command
                             'name' => $host->name,
                             'host' => $host->host,
                         ];
-                        Host::where('hostid', $host->hostid)->update($hostarray);
+                        //Host::where('hostid', $host->hostid)->update($hostarray);
                         $items = $this->item_api($auth_key, $host->hostid);
                     } else {
                         $hostarray = [

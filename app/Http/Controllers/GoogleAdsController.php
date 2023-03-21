@@ -3,24 +3,20 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use Google\AdsApi\AdWords\AdWordsServices;
-use Google\AdsApi\AdWords\AdWordsSession;
-use Google\AdsApi\AdWords\AdWordsSessionBuilder;
-use Google\AdsApi\AdWords\v201809\cm\Ad;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupAd;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupAdOperation;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupAdService;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupAdStatus;
-use Google\AdsApi\AdWords\v201809\cm\AdType;
-use Google\AdsApi\AdWords\v201809\cm\ExpandedTextAd;
-use Google\AdsApi\AdWords\v201809\cm\Operator;
-use Google\AdsApi\AdWords\v201809\cm\OrderBy;
-use Google\AdsApi\AdWords\v201809\cm\Paging;
-use Google\AdsApi\AdWords\v201809\cm\Predicate;
-use Google\AdsApi\AdWords\v201809\cm\PredicateOperator;
-use Google\AdsApi\AdWords\v201809\cm\Selector;
-use Google\AdsApi\AdWords\v201809\cm\SortOrder;
-use Google\AdsApi\Common\OAuth2TokenBuilder;
+use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
+use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
+use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
+use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
+use Google\Ads\GoogleAds\Lib\V12\GoogleAdsException;
+use Google\Ads\GoogleAds\Util\V12\ResourceNames;
+use Google\Ads\GoogleAds\V12\Common\AdTextAsset;
+use Google\Ads\GoogleAds\V12\Common\ResponsiveSearchAdInfo;
+use Google\Ads\GoogleAds\V12\Enums\AdGroupAdStatusEnum\AdGroupAdStatus;
+use Google\Ads\GoogleAds\V12\Enums\ServedAssetFieldTypeEnum\ServedAssetFieldType;
+use Google\Ads\GoogleAds\V12\Errors\GoogleAdsError;
+use Google\Ads\GoogleAds\V12\Resources\Ad;
+use Google\Ads\GoogleAds\V12\Resources\AdGroupAd;
+use Google\Ads\GoogleAds\V12\Services\AdGroupAdOperation;
 use Illuminate\Http\Request;
 
 class GoogleAdsController extends Controller
@@ -53,6 +49,7 @@ class GoogleAdsController extends Controller
             return [
                 'account_id' => $campaignDetail->account_id,
                 'campaign_name' => $campaignDetail->campaign_name,
+                'google_customer_id' => $campaignDetail->google_customer_id,
             ];
         } else {
             abort(404, 'Invalid account!');
@@ -73,7 +70,7 @@ class GoogleAdsController extends Controller
             ['ads' => $adsInfo['ads'], 'totalNumEntries' => $adsInfo['totalNumEntries'],
                 'campaignId' => $campaignId, 'adGroupId' => $adGroupId]); */
 
-        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->first();
+        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
         $query = \App\GoogleAd::query();
 
         if ($request->headline) {
@@ -114,6 +111,14 @@ class GoogleAdsController extends Controller
         }
 
         $totalEntries = $adsInfo->total();
+
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Ad',
+                    'message' => "Viewed ad listing for ". $groupDetail->ad_group_name
+                );
+        insertGoogleAdsLog($input);
 
         return view('googleads.index', ['ads' => $adsInfo, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'adGroupId' => $adGroupId, 'groupname' => @$groupDetail->ad_group_name]);
     }
@@ -184,13 +189,24 @@ class GoogleAdsController extends Controller
     // go to ad create page
     public function createPage($campaignId, $adGroupId)
     {
-        //
+        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
+
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Ad',
+                    'message' => "Viewed ad create for ". $groupDetail->ad_group_name
+                );
+        insertGoogleAdsLog($input);
+
         return view('googleads.create', ['campaignId' => $campaignId, 'adGroupId' => $adGroupId]);
     }
 
     // create ad
     public function createAd(Request $request, $campaignId, $adGroupId)
     {
+        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
+
         //create account
         $this->validate($request, [
             'headlinePart1' => 'required|max:25',
@@ -203,9 +219,10 @@ class GoogleAdsController extends Controller
 
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
+        $customerId = $acDetail['google_customer_id'];
+
         $storagepath = $this->getstoragepath($account_id);
 
-        $adsArray = [];
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
         $headlinePart1 = $request->headlinePart1;
         $headlinePart2 = $request->headlinePart2;
@@ -216,6 +233,9 @@ class GoogleAdsController extends Controller
         $path1 = $request->path1;
         $path2 = $request->path2;
         $adStatus = $adStatuses[$request->adStatus];
+
+        $adsArray = [];
+        $adsArray['google_customer_id'] = $customerId;
         $adsArray['adgroup_google_campaign_id'] = $campaignId;
         $adsArray['google_adgroup_id'] = $adGroupId;
         $adsArray['headline1'] = $headlinePart1;
@@ -227,49 +247,81 @@ class GoogleAdsController extends Controller
         $adsArray['path1'] = $path1;
         $adsArray['path2'] = $path2;
         $adsArray['status'] = $adStatus;
+        
         try {
-            $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
+            // Get OAuth2 configuration from file.
+            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
 
-            $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
+            // Generate a refreshable OAuth2 credential for authentication.
+            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
 
-            $adGroupAdService = (new AdWordsServices())->get($session, AdGroupAdService::class);
+            $googleAdsClient = (new GoogleAdsClientBuilder())
+                                ->from($oAuth2Configuration)
+                                ->withOAuth2Credential($oAuth2Credential)
+                                ->build();
 
-            $operations = [];
-            // Create an expanded text ad.
-            $expandedTextAd = new ExpandedTextAd();
-            $expandedTextAd->setHeadlinePart1($headlinePart1);
-            $expandedTextAd->setHeadlinePart2($headlinePart2);
-            $expandedTextAd->setHeadlinePart3($headlinePart3);
-            $expandedTextAd->setDescription($description1);
-            $expandedTextAd->setDescription2($description2);
-            $expandedTextAd->setFinalUrls([$finalUrl]);
-            $expandedTextAd->setPath1($path1);
-            $expandedTextAd->setPath2($path2);
+            // Creates an ad and sets responsive search ad info.
+            $ad = new Ad([
+                'responsive_search_ad' => new ResponsiveSearchAdInfo([
+                    'headlines' => [
+                        // Sets a pinning to always choose this asset for HEADLINE_1. Pinning is
+                        // optional; if no pinning is set, then headlines and descriptions will be
+                        // rotated and the ones that perform best will be used more often.
+                        self::createAdTextAsset($headlinePart1, ServedAssetFieldType::HEADLINE_1),
+                        self::createAdTextAsset($headlinePart2, ServedAssetFieldType::HEADLINE_2),
+                        self::createAdTextAsset($headlinePart3, ServedAssetFieldType::HEADLINE_3),
+                    ],
+                    'descriptions' => [
+                        self::createAdTextAsset($description1, ServedAssetFieldType::DESCRIPTION_1),
+                        self::createAdTextAsset($description2, ServedAssetFieldType::DESCRIPTION_2)
+                    ],
+                    'path1' => $path1 ?? null,
+                    'path2' => $path2 ?? null
+                ]),
+                'final_urls' => [$finalUrl]
+            ]);
 
-            // Create ad group ad.
-            $adGroupAd = new AdGroupAd();
-            $adGroupAd->setAdGroupId($adGroupId);
-            $adGroupAd->setAd($expandedTextAd);
+            // Creates an ad group ad to hold the above ad.
+            $adGroupAd = new AdGroupAd([
+                'ad_group' => ResourceNames::forAdGroup($customerId, $adGroupId),
+                'status' => self::getAdStatus($adStatus),
+                'ad' => $ad
+            ]);
 
-            // Optional: Set additional settings.
-            $adGroupAd->setStatus($adStatus);
+            // Creates an ad group ad operation.
+            $adGroupAdOperation = new AdGroupAdOperation();
+            $adGroupAdOperation->setCreate($adGroupAd);
 
-            // Create ad group ad operation and add it to the list.
-            $operation = new AdGroupAdOperation();
-            $operation->setOperand($adGroupAd);
-            $operation->setOperator(Operator::ADD);
-            $operations[] = $operation;
+            // Issues a mutate request to add the ad group ad.
+            $adGroupAdServiceClient = $googleAdsClient->getAdGroupAdServiceClient();
+            $response = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
 
-            // Add expanded text ads on the server.
-            $result = $adGroupAdService->mutate($operations);
-            $addedAds = $result->getValue();
-            $addedAdsId = $addedAds[0]->getAd()->getId();
-            $adsArray['google_ad_id'] = $addedAdsId;
-            $adsArray['ads_response'] = json_encode($addedAds[0]);
+            $createdAdGroupAd = $response->getResults()[0];
+            $createdAdGroupAdResourceName = $createdAdGroupAd->getResourceName();
+
+            $adsArray['google_ad_id'] = substr($createdAdGroupAdResourceName, strrpos($createdAdGroupAdResourceName, "~") + 1);
+            $adsArray['ads_response'] = json_encode($createdAdGroupAd);
             \App\GoogleAd::create($adsArray);
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Ad',
+                        'message' => "Created ad for ". $groupDetail->ad_group_name,
+                        'response' => json_encode($adsArray)
+                    );
+            insertGoogleAdsLog($input);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actSuccess', 'Ads created successfully');
         } catch (Exception $e) {
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Ad',
+                        'message' => 'Create new ad > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads/create')->with('actError', $this->exceptionError);
         }
     }
@@ -289,42 +341,94 @@ class GoogleAdsController extends Controller
     {
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
+        $customerId = $acDetail['google_customer_id'];
+
         $storagepath = $this->getstoragepath($account_id);
 
-        // Generate a refreshable OAuth2 credential for authentication.
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
+        $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
-        // Construct an API session configured from a properties file and the
-        // OAuth2 credentials above.
         try {
-            $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
+            // Get OAuth2 configuration from file.
+            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
 
-            $adGroupAdService = (new AdWordsServices())->get($session, AdGroupAdService::class);
+            // Generate a refreshable OAuth2 credential for authentication.
+            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
 
-            $operations = [];
-            // Create ad using an existing ID. Use the base class Ad instead of TextAd
-            // to avoid having to set ad-specific fields.
-            $ad = new Ad();
-            $ad->setId($adId);
+            $googleAdsClient = (new GoogleAdsClientBuilder())
+                                ->from($oAuth2Configuration)
+                                ->withOAuth2Credential($oAuth2Credential)
+                                ->build();
 
-            // Create ad group ad.
-            $adGroupAd = new AdGroupAd();
-            $adGroupAd->setAdGroupId($adGroupId);
-            $adGroupAd->setAd($ad);
+            // Creates ad group ad resource name.
+            $adGroupAdResourceName = ResourceNames::forAdGroupAd($customerId, $adGroupId, $adId);
 
-            // Create ad group ad operation and add it to the list.
-            $operation = new AdGroupAdOperation();
-            $operation->setOperand($adGroupAd);
-            $operation->setOperator(Operator::REMOVE);
-            $operations[] = $operation;
+            // Constructs an operation that will remove the ad with the specified resource name.
+            $adGroupAdOperation = new AdGroupAdOperation();
+            $adGroupAdOperation->setRemove($adGroupAdResourceName);
 
-            // Remove the ad on the server.
-            $result = $adGroupAdService->mutate($operations);
-            \App\GoogleAd::where('adgroup_google_campaign_id', $campaignId)->where('google_adgroup_id', $adGroupId)->where('google_ad_id', $adId)->delete();
+            // Issues a mutate request to remove the ad group ad.
+            $adGroupAdServiceClient = $googleAdsClient->getAdGroupAdServiceClient();
+            $response = $adGroupAdServiceClient->mutateAdGroupAds(
+                $customerId,
+                [$adGroupAdOperation]
+            );
+
+            $removedAdGroupAd = $response->getResults()[0];
+
+            $ad = \App\GoogleAd::where('adgroup_google_campaign_id', $campaignId)->where('google_adgroup_id', $adGroupId)->where('google_ad_id', $adId)->first();
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Ad',
+                        'message' => "Deleted ad for ". $groupDetail->ad_group_name,
+                        'response' => json_encode($ad)
+                    );
+
+            $ad->delete();
+            
+            insertGoogleAdsLog($input);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actSuccess', 'Ads deleted successfully');
         } catch (Exception $e) {
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Ad',
+                        'message' => 'Delete ad > ' . $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);
+
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actError', $this->exceptionError);
+        }
+    }
+
+
+    //Creates an ad text asset with the specified text and pin field enum value.
+    private function createAdTextAsset(string $text, int $pinField = null)
+    {
+        $adTextAsset = new AdTextAsset(['text' => $text]);
+        if (!is_null($pinField)) {
+            $adTextAsset->setPinnedField($pinField);
+        }
+        return $adTextAsset;
+    }
+
+    //get ad status  
+    private function getAdStatus($v)
+    {
+        switch ($v) {
+            case 'ENABLED':
+                return AdGroupAdStatus::ENABLED;
+                break;
+
+            case 'PAUSED':
+                return AdGroupAdStatus::PAUSED;
+                break;
+
+            default:
+                return AdGroupAdStatus::PAUSED;
         }
     }
 }

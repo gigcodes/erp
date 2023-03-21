@@ -250,10 +250,15 @@
             </td>
             <td>
                 @php
-                  $logList = \App\Loggers\LogListMagento::select('message')
-                        ->where('product_id', $product->id)->where('store_website_id', $product->sw_id)->orderBy('id', 'desc')->first();
-                    echo $logList->message;
+                    $logList = \App\Loggers\LogListMagento::select('id','magento_status')
+                        ->where('product_id', $product->id)->where('store_website_id', $product->sw_id)->orderBy('id', 'desc')->first();                    
                 @endphp
+                
+                @if(isset($logList) && !empty($logList))
+                    <a onclick="getLogListMagentoDetail({{ $logList->id }})" class="btn btn-link" title="{{ $logList->magento_status }}">
+                        {{ $logList->magento_status }}
+                    </a>
+                @endif
             </td>
             <td>
 {{--                @if($product->magentoLog)--}}

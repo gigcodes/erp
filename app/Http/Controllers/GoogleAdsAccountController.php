@@ -2,11 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Google\Auth\CredentialsLoader;
 use Google\Auth\OAuth2;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Session;
+
+use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
+use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
+use Google\Ads\GoogleAds\Util\V12\ResourceNames;
+use Google\Ads\GoogleAds\V12\Services\CampaignOperation;
+use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
+
+use App\Models\GoogleAdGroupKeyword;
+use App\Models\GoogleResponsiveDisplayAd;
+use App\Models\GoogleResponsiveDisplayAdMarketingImage;
+use App\Models\GoogleAppAd;
+use App\Models\GoogleAppAdImage;
+use App\GoogleAd;
+use App\GoogleAdsGroup;
+use App\GoogleAdsCampaign;
 
 class GoogleAdsAccountController extends Controller
 {
@@ -45,12 +61,28 @@ class GoogleAdsAccountController extends Controller
         $store_website = \App\StoreWebsite::all();
         $totalentries = $googleadsaccount->count();
 
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Google AdWords Account',
+                    'message' => "Viewed account listing"
+                );
+        insertGoogleAdsLog($input);
+
         return view('googleadsaccounts.index', ['googleadsaccount' => $googleadsaccount, 'totalentries' => $totalentries, 'store_website' => $store_website]);
     }
 
     public function createGoogleAdsAccountPage()
     {
         $store_website = \App\StoreWebsite::all();
+
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Google AdWords Account',
+                    'message' => "Viewed create account"
+                );
+        insertGoogleAdsLog($input);
 
         return view('googleadsaccounts.create', ['store_website' => $store_website]);
     }
@@ -59,6 +91,7 @@ class GoogleAdsAccountController extends Controller
     {
         //create account
         $this->validate($request, [
+            'google_customer_id' => 'required|integer',
             'account_name' => 'required',
             'store_websites' => 'required',
             'config_file_path' => 'required',
@@ -66,32 +99,66 @@ class GoogleAdsAccountController extends Controller
             'notes' => 'required',
         ]);
 
-        $accountArray = [
-            'account_name' => $request->account_name,
-            'store_websites' => $request->store_websites,
-            'notes' => $request->notes,
-            'status' => $request->status,
-        ];
-        $googleadsAc = \App\GoogleAdsAccount::create($accountArray);
-        $account_id = $googleadsAc->id;
-        if ($request->file('config_file_path')) {
-            $uploadfile = MediaUploader::fromSource($request->file('config_file_path'))
-                ->toDestination('adsapi', $account_id)
-                ->upload();
-            $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
-            $googleadsAc->config_file_path = $getfilename;
-            $googleadsAc->save();
-        }
+        try {
+            $accountArray = [
+                'google_customer_id' => $request->google_customer_id,
+                'account_name' => $request->account_name,
+                'store_websites' => $request->store_websites,
+                'notes' => $request->notes,
+                'status' => $request->status,
+            ];
+            $googleadsAc = \App\GoogleAdsAccount::create($accountArray);
+            $account_id = $googleadsAc->id;
+            if ($request->file('config_file_path')) {
 
-        return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account details added successfully');
+                ini_set('max_execution_time', -1);
+
+                $uploadfile = MediaUploader::fromSource($request->file('config_file_path'))
+                    ->toDestination('adsapi', $account_id)
+                    ->upload();
+                $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
+                $googleadsAc->config_file_path = $getfilename;
+                $googleadsAc->save();
+            }
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Google AdWords Account',
+                        'message' => "Created new account",
+                        'response' => json_encode($googleadsAc)
+                    );
+            insertGoogleAdsLog($input);
+
+            return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account details added successfully');
+        } catch (Exception $e) {
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Google AdWords Account',
+                        'message' => 'Create new account > '. $e->getMessage()
+                    );
+            insertGoogleAdsLog($input);
+
+            return redirect()->to('/google-campaigns/ads-account')->with('actError', $e->getMessage());
+        }
     }
 
     public function editeGoogleAdsAccountPage($id)
     {
         $store_website = \App\StoreWebsite::all();
-        $googleAdsAc = \App\GoogleAdsAccount::find($id);
+        $googleAdsAc = \App\GoogleAdsAccount::findOrFail($id);
 
-        return view('googleadsaccounts.update', ['account' => $googleAdsAc, 'store_website' => $store_website]);
+        // Insert google ads log 
+        $input = array(
+                    'type' => 'SUCCESS',
+                    'module' => 'Google AdWords Account',
+                    'message' => "Viewed update account of ". $googleAdsAc->account_name
+                );
+        insertGoogleAdsLog($input);
+
+        return $googleAdsAc;
     }
 
     public function updateGoogleAdsAccount(Request $request)
@@ -99,34 +166,61 @@ class GoogleAdsAccountController extends Controller
         $account_id = $request->account_id;
         //update account
         $this->validate($request, [
+            'google_customer_id' => 'required|integer',
             'account_name' => 'required',
             'store_websites' => 'required',
             'status' => 'required',
         ]);
 
-        $accountArray = [
-            'account_name' => $request->account_name,
-            'store_websites' => $request->store_websites,
-            'notes' => $request->notes,
-            'status' => $request->status,
-        ];
-        $googleadsAcQuery = new \App\GoogleAdsAccount;
-        $googleadsAc = $googleadsAcQuery->find($account_id);
-        if ($request->file('config_file_path')) {
-            //find old one
-            if (isset($googleadsAc->config_file_path) && $googleadsAc->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id.'/'.$googleadsAc->config_file_path)) {
-                \Storage::disk('adsapi')->delete($account_id.'/'.$googleadsAc->config_file_path);
-            }
-            $uploadfile = MediaUploader::fromSource($request->file('config_file_path'))
-                ->toDestination('adsapi', $account_id)
-                ->upload();
-            $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
-            $accountArray['config_file_path'] = $getfilename;
-        }
-        $googleadsAc->fill($accountArray);
-        $googleadsAc->save();
+        try {
+            $accountArray = [
+                'google_customer_id' => $request->google_customer_id,
+                'account_name' => $request->account_name,
+                'store_websites' => $request->store_websites,
+                'notes' => $request->notes,
+                'status' => $request->status,
+            ];
+            $googleadsAcQuery = new \App\GoogleAdsAccount;
+            $googleadsAc = $googleadsAcQuery->find($account_id);
+            if ($request->file('config_file_path')) {
 
-        return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account details added successfully');
+                ini_set('max_execution_time', -1);
+                
+                //find old one
+                if (isset($googleadsAc->config_file_path) && $googleadsAc->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id.'/'.$googleadsAc->config_file_path)) {
+                    \Storage::disk('adsapi')->delete($account_id.'/'.$googleadsAc->config_file_path);
+                }
+                $uploadfile = MediaUploader::fromSource($request->file('config_file_path'))
+                    ->toDestination('adsapi', $account_id)
+                    ->upload();
+                $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
+                $accountArray['config_file_path'] = $getfilename;
+            }
+            $googleadsAc->fill($accountArray);
+            $googleadsAc->save();
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Google AdWords Account',
+                        'message' => "Updated account details for ". $googleadsAc->account_name,
+                        'response' => json_encode($googleadsAc)
+                    );
+            insertGoogleAdsLog($input);
+
+            return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account details updated successfully');
+            
+        } catch (Exception $e) {
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Google AdWords Account',
+                        'message' => 'Update account > '. $e->getMessage()
+                    );
+            insertGoogleAdsLog($input);
+
+            return redirect()->to('/google-campaigns/ads-account')->with('actError', $e->getMessage());
+        }
     }
 
     /*
@@ -209,5 +303,103 @@ class GoogleAdsAccountController extends Controller
         } else {
             return redirect('/google-campaigns/ads-account')->with('message', 'Unable to Get Tokens ');
         }
+    }
+
+
+    public function getstoragepath($account_id)
+    {
+        $result = \App\GoogleAdsAccount::find($account_id);
+        if (isset($result->config_file_path) && $result->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id.'/'.$result->config_file_path)) {
+            $storagepath = \Storage::disk('adsapi')->url($account_id.'/'.$result->config_file_path);
+            $storagepath = storage_path('app/adsapi/'.$account_id.'/'.$result->config_file_path);
+            /* echo $storagepath; exit;
+        echo storage_path('adsapi_php.ini'); exit; */
+            /* echo '<pre>' . print_r($result, true) . '</pre>';
+            die('developer working'); */
+            return $storagepath;
+        } else {
+            return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
+        }
+    }
+    
+    public function deleteGoogleAdsAccount($id)
+    {
+        $googleAdsAc = \App\GoogleAdsAccount::findOrFail($id);
+
+        try {
+            $account_id = $id;
+            $customerId = $googleAdsAc->google_customer_id;
+            $storagepath = $this->getstoragepath($account_id);
+
+            $googleAdsCampaigns = GoogleAdsCampaign::where('account_id', $account_id)->get();
+
+            foreach($googleAdsCampaigns as $campaign){
+                $campaignId = $campaign->google_campaign_id;
+
+
+                try {
+                    // Get OAuth2 configuration from file.
+                    $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
+
+                    // Generate a refreshable OAuth2 credential for authentication.
+                    $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
+
+                    $googleAdsClient = (new GoogleAdsClientBuilder())
+                                        ->from($oAuth2Configuration)
+                                        ->withOAuth2Credential($oAuth2Credential)
+                                        ->build();
+
+                    // Creates the resource name of a campaign to remove.
+                    $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
+
+                    // Creates a campaign operation.
+                    $campaignOperation = new CampaignOperation();
+                    $campaignOperation->setRemove($campaignResourceName);
+
+                    // Issues a mutate request to remove the campaign.
+                    $campaignServiceClient = $googleAdsClient->getCampaignServiceClient();
+                    $response = $campaignServiceClient->mutateCampaigns($customerId, [$campaignOperation]);
+                    
+                } catch (Exception $e) {
+                    
+                }
+                
+                // Delete other data
+                GoogleAdGroupKeyword::where('adgroup_google_campaign_id', $campaignId)->delete();
+                GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->delete();
+                GoogleResponsiveDisplayAdMarketingImage::where('adgroup_google_campaign_id', $campaignId)->delete();
+                GoogleAppAd::where('adgroup_google_campaign_id', $campaignId)->delete();
+                GoogleAppAdImage::where('adgroup_google_campaign_id', $campaignId)->delete();
+                GoogleAd::where('adgroup_google_campaign_id', $campaignId)->delete();
+                GoogleAdsGroup::where('adgroup_google_campaign_id', $campaignId)->delete();
+
+                $campaign->delete();
+            }
+
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'SUCCESS',
+                        'module' => 'Google AdWords Account',
+                        'message' => "Deleted google adwords account of ". $googleAdsAc->account_name
+                    );
+
+            insertGoogleAdsLog($input);
+
+            $googleAdsAc->delete();
+
+            return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account deleted successfully');
+
+        } catch (Exception $e) {
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Google AdWords Account',
+                        'message' => 'Deleted google adwords account > '. $e->getMessage()
+                    );
+            insertGoogleAdsLog($input);
+
+            return redirect()->to('/google-campaigns/ads-account')->with('actError', $e->getMessage());
+        }
+
     }
 }

@@ -40,7 +40,7 @@ class CreateGoogleSpreadsheet
         $client->useApplicationDefaultCredentials();
         $client->addScope(Drive::DRIVE);
         try {
-            $createFile = $this->createDriveFile(env('GOOGLE_SHARED_FOLDER'));
+            $createFile = $this->createDriveFile(env('GOOGLE_SHARED_FOLDER'), $this->googleDoc->read, $this->googleDoc->write);
             $spreadsheetId = $createFile->id;
 
             $this->googleDoc->docId = $spreadsheetId;
@@ -77,7 +77,7 @@ class CreateGoogleSpreadsheet
         }
     }
 
-    public function createDriveFile($folderId)
+    public function createDriveFile($folderId, $googleDocUsersRead, $googleDocUsersWrite)
     {
         try {
             $client = new Client();
@@ -93,6 +93,39 @@ class CreateGoogleSpreadsheet
             $file = $driveService->files->create($fileMetadata, [
                 'fields' => 'id,parents,mimeType',
             ]);
+            $index = 1;
+            $driveService->getClient()->setUseBatch(true);
+            $batch = $driveService->createBatch();
+            $googleDocUsersRead = explode(',', $googleDocUsersRead);
+
+            foreach ($googleDocUsersRead as $email) {
+                $userPermission = new Drive\Permission([
+                    'type' => 'user',
+                    'role' => 'reader',
+                    'emailAddress' => $email,
+                ]);
+
+                $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
+                $batch->add($request, 'user'.$index);
+                $index++;
+            }
+            $results = $batch->execute();
+
+            $batch = $driveService->createBatch();
+            $googleDocUsersWrite = explode(',', $googleDocUsersWrite);
+
+            foreach ($googleDocUsersWrite as $email) {
+                $userPermission = new Drive\Permission([
+                    'type' => 'user',
+                    'role' => 'writer',
+                    'emailAddress' => $email,
+                ]);
+
+                $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
+                $batch->add($request, 'user'.$index);
+                $index++;
+            }
+            $results = $batch->execute();
 
             return $file;
         } catch (Exception $e) {

@@ -225,6 +225,8 @@
 				}
 				var context = $(this).attr("data-context");
 				var id = $(this).attr("data-id");
+				var numberCallFrom = $(this).attr("data-from-number");
+				var auth_id = $(this).data('auth-id');
 
 				var call = $("<button class='btn btn-primary' type='button' id='twillio_call_button'>Call</button>");
 				call.click(function () {
@@ -232,17 +234,17 @@
 					if (!numberToCall.startsWith("+")) {
 						numberToCall = "+" + number;
 					}
-					callNumber(numberToCall, context, id);
+					callNumber(numberCallFrom, numberToCall, context, id, auth_id);
 				});
 				call.insertAfter(this);
 			});
 
-			$(document).on('change', '.call-twilio', function () {
+			$(document).on('change click', '.call-twilio', function (e) {
 
 				var id = $(this).data('id');
 				var numberToCall = $(this).data('phone');
 				var context = $(this).data('context');
-				var numberCallFrom = $(this).children("option:selected").val();
+				var numberCallFrom = e.type === 'click' ? $(this).attr("data-from-number") : $(this).children("option:selected").val();
 				var auth_id = $(this).data('auth-id');
 				$('#show' + id).hide();
 				console.log(id);
@@ -361,7 +363,7 @@
 						$('.call__to').html(conn.customParameters.get('phone'))
 					}
 
-					$confirmModal.modal('show');
+					// $confirmModal.modal('show');
 					$confirmModal.modal({
 						backdrop: 'static',
 						keyboard: false
@@ -477,6 +479,10 @@
 							url : "/twilio/reject-incoming-call",
 							method: 'GET'
 						})
+
+						if(!data.found) {
+							conn.reject();
+						}
 					})
 
 					$buttonForBlockCall.off().one('click', function () {

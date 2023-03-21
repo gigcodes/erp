@@ -7,6 +7,16 @@
     table.table tbody td {
         padding:5px;
     }
+    .chat-msg{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-word;
+    }
+    .chat-msg:hover{
+        white-space: normal;
+        overflow: visible;
+    }
 </style>
 <!-- COUPON Rule Edit Modal -->
 <div class="modal fade" id="fullUrlModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
@@ -316,64 +326,392 @@
     <table class="table table-bordered table-striped" style="table-layout: fixed;">
         <thead>
             <tr>
-                <th style="width:3.5%">Website</th>
-                <th style="width:3.5%">Browser</th>
-                <th style="width:3.5%">OS</th>
-                <th style="width:3.5%">Country</th>
-                <th style="width:4.5%">Iso Code</th>
-                <th style="width:5%">User Type</th>
-                <th style="width:6%">Page</th>
-                <th style="width:4.5%">Avg Time</th>
-                <th style="width:5%">Page Views</th>
-                <th style="width:6%">U. Page Views</th>
-                <th style="width:5%">Exist Rate</th>
-                <th style="width:4%">Entrances</th>
-                <th style="width:6%">Entrance Rate</th>
-                <th style="width:2%">Age</th>
-                <th style="width:3%">Gender</th>
-                <th style="width:4%">Session</th>
-                <th style="width:4%">Date</th>
+                <th class="chat-msg" style="word-break: break-all; width:3.5%">Website</th>
+                <th class="chat-msg" style="word-break: break-all; width:3.5%">Browser</th>
+                <th class="chat-msg" style="word-break: break-all; width:3.5%">OS</th>
+                <th class="chat-msg" style="word-break: break-all; width:3.5%">Country</th>
+                <th class="chat-msg" style="word-break: break-all; width:4.5%">Iso Code</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">User Type</th>
+                <th class="chat-msg" style="word-break: break-all; width:6%">Page</th>
+                <th class="chat-msg" style="word-break: break-all; width:4.5%">Avg Time</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Page Views</th>
+                <th class="chat-msg" style="word-break: break-all; width:6%">U. Page Views</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Exist Rate</th>
+                <th class="chat-msg" style="word-break: break-all; width:4%">Entrances</th>
+                <th class="chat-msg" style="word-break: break-all; width:6%">Entrance Rate</th>
+                <th class="chat-msg" style="word-break: break-all; width:3%">Age</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Gender</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Session</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Exception</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Log</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Device</th>
+                <th class="chat-msg" style="word-break: break-all; width:4%">Date</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td class="Website-task"title="theunlimitedlulxury.com">theunlimitedlulxury.com</td>
-                <td>chrome</td>
-                <td>windows</td>
-                <td class="Website-task"title="india">india</td>
-                <td>IN</td>
-                <td class="Website-task"title="Returuning Visitor">Returuning Visitor</td>
-                <td class="Website-task"title="video/6254471?key=84644b22536310e75ea9cc07535f06a1">video/6254471?key=84644b22536310e75ea9cc07535f06a1</td>
-                <td>22.667</td>
-                <td>4</td>
-                <td>2</td>
-                <td>25.0</td>
-                <td>2</td>
-                <td>50</td>
-                <td></td>
-                <td></td>
-                <td>2</td>
-                <td class="Website-task"title="2021-11-25">2021-11-25</td>
-            </tr>
             @foreach ($google_analytics_data as $data)
                 <tr>
-                    <td>{{ $data->website }}</td>
-                    <td>{{ $data->browser }}</td>
-                    <td>{{ $data->os }}</td>
-                    <td>{{ $data->country }}</td>
-                    <td>{{ $data->iso_code }}</td>
-                    <td>{{ $data->user_type }}</td>
-                    <td>{{ $data->page }}</td>
-                    <td>{{ round($data->avg_time_page, 4) }}</td>
-                    <td>{{ $data->page_view }}</td>
-                    <td>{{ $data->unique_page_views }}</td>
-                    <td>{{ $data->exit_rate }}</td>
-                    <td>{{ $data->entrances }}</td>
-                    <td>{{ $data->entrance_rate }}</td>
-                    <td>{{ $data->age }}</td>
-                    <td>{{ $data->gender }}</td>
-                    <td>{{ $data->session }}</td>
-                    <td>{{ $data->created_at->format('Y-m-d') }}</td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->website) > 4)
+                            @php
+                                $dns = $data->website;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->browser) > 4)
+                            @php
+                                $dns = $data->browser;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->os) > 4)
+                            @php
+                                $dns = $data->os;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->country) > 4)
+                            @php
+                                $dns = $data->country;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->iso_code) > 4)
+                            @php
+                                $dns = $data->iso_code;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->user_type) > 4)
+                            @php
+                                $dns = $data->user_type;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->page) > 4)
+                            @php
+                                $dns = $data->page;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen(round($data->avg_time_page, 4)) > 4)
+                            @php
+                                $dns = round($data->avg_time_page, 4);
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->page_view) > 4)
+                            @php
+                                $dns = $data->page_view;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->unique_page_views) > 4)
+                            @php
+                                $dns = $data->unique_page_views;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->exit_rate) > 4)
+                            @php
+                                $dns = $data->exit_rate;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->entrances) > 4)
+                            @php
+                                $dns = $data->entrances;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->entrance_rate) > 4)
+                            @php
+                                $dns = $data->entrance_rate;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->age) > 4)
+                            @php
+                                $dns = $data->age;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->gender) > 4)
+                            @php
+                                $dns = $data->gender;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->session) > 4)
+                            @php
+                                $dns = $data->session;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->exception) > 4)
+                            @php
+                                $dns = $data->exception;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->log) > 4)
+                            @php
+                                $dns = $data->log;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->device) > 4)
+                            @php
+                                $dns = $data->device;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->created_at->format('Y-m-d')) > 4)
+                            @php
+                                $dns = $data->created_at->format('Y-m-d');
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>
@@ -395,6 +733,14 @@
 
 @section('scripts')
 <script type="text/javascript">
+
+    $(document).on('click', '.expand-row', function() {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
 
     $(document).on("click",".show-history",function(e) {
         e.preventDefault();

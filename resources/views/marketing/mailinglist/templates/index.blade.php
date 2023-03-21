@@ -17,7 +17,7 @@
 @endsection
 
 @section('content')
-<script src="https://cdn.ckeditor.com/4.18.0/standard/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/4.18.0/standard/ckeditor.js"></script>
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
@@ -46,7 +46,7 @@
                             </div>
                             <!-- added by pawan for filter the data through above selected id's -->
                             <div class="form-group ml-3">
-                                <div class='input-group' >
+                                <div class='input-group'>
                                     <select name="filter_mailinglist_category" class="form-control select2" id='filter_mailinglist_category'>
                                         <option value="">Select MailingList-Category</option>
                                         @if(!empty($MailingListCategory))
@@ -70,7 +70,7 @@
                                     </select>
                                     <span class="text-danger"></span>
                                 </div>
-                            </div>                            						
+                            </div>
                             <!-- end -->
                             <button id="filter" type="submit" class="btn mt-0 btn-image"><img src="/images/filter.png"/>
                             </button>
@@ -106,14 +106,14 @@
                 <div class="modal-body">
                     <form enctype="multipart/form-data" id="form-store">
                         <input type="hidden" name="id" class="py-3" id="form_id">
-                        
+
                         <div class="form-group col-md-6">
                             <label>Name</label>
                             <input required type="text" name="name" class="form-control" id="form_name"
                                    aria-describedby="NameHelp" placeholder="Enter Name">
                             <span class="text-danger"></span>
                         </div>
-						<div class="form-group col-md-6">
+                        <div class="form-group col-md-6">
                             <label>Subject</label>
                             <input required type="text" name="subject" class="form-control" id="form_subject" placeholder="Enter Subject">
                             <span class="text-danger"></span>
@@ -130,47 +130,65 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Introduction</label>
-                             <textarea required name="introduction" id="form_introduction" class="form-control" placeholder="Enter Introduction" rows='8' style="height: 34px;"></textarea>
+                            <textarea required name="introduction" id="form_introduction" class="form-control" placeholder="Enter Introduction" rows='8' style="height: 34px;"></textarea>
                             <span class="text-danger"></span>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Logo</label>
                             <input type="hidden" name="old_logo" class="py-3" id="form_logo">
                             <input required type="file" name="logo" class="py-3" id="logo">
-                               <span class="text-danger"></span>
+                            <span class="text-danger"></span>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Template Example</label>
                             <input required type="file" name="image" class="py-3" id="image">
                         </div>
-						<div class="form-group col-md-6">
+                        <div class="form-group col-md-6">
                             <label>Static Template</label>
                             <textarea required name="static_template" id="form_static_template" class="form-control" placeholder="Enter Static Template" rows='8' style="height: 34px;"></textarea>
                             <span class="text-danger"></span>
                         </div>
-						
+
                         <div class="form-group col-md-6">
                             <label>Form Mail Template</label>
-                            <?php echo Form::select("mail_tpl", ["-- None --"] + $rViewMail, null, ["class" => "form-control select2", "required" => true, "id" => "form_mail_tpl"]); ?>
+                            <?php echo Form::select(
+                                "mail_tpl", ["-- None --"] + $rViewMail, null, [
+                                              "class" => "form-control select2",
+                                              "required" => true,
+                                              "id" => "form_mail_tpl"
+                                          ]
+                            ); ?>
                             <span class="text-danger"></span>
                         </div>
 
                         <div class="form-group col-md-6">
                             <label>Category</label>
-                            <?php echo Form::select("category", ["-- None --"] + $MailingListCategory, null, ["class" => "form-control select2", "required" => true, "id" => "template_category"]); ?>
+                            <?php echo Form::select(
+                                "category", ["-- None --"] + $MailingListCategory, null, [
+                                              "class" => "form-control select2",
+                                              "required" => true,
+                                              "id" => "template_category"
+                                          ]
+                            ); ?>
                             <span class="text-danger"></span>
                         </div>
 
                         <div class="form-group col-md-6">
                             <label>Store Website</label>
-                            <?php echo Form::select("store_website", ["-- None --"] + $storeWebSites, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]); ?>
+                            <?php echo Form::select(
+                                "store_website", ["-- None --"] + $storeWebSites, null, [
+                                                   "class" => "form-control select2",
+                                                   "required" => true,
+                                                   "id" => "store_website"
+                                               ]
+                            ); ?>
                             <span class="text-danger"></span>
                         </div>
-						
-						
+
+
                         <div class="form-group col-md-6">
                             <label for="mail_tpl">Store Website</label>
-							{{ Form::checkbox("store_website", null, null, ["class" => " select2", "required" => true, "id" => "store_website"]) }}
+                            {{ Form::checkbox("store_website", null, null, ["class" => " select2", "required" => true, "id" => "store_website"]) }}
                             <span class="text-danger"></span>
                         </div>
 
@@ -192,7 +210,7 @@
                             <label for="old_image">Template Example</label>
                             <input type="hidden" name="old_image" class="py-3" id="form_image">
                         </div> --}}
-                        
+
                         <div class="form-group col-md-12">
                             <label for="image">Template HTML</label><br/>
                             <textarea cols="80" id="form_html_text" name="html_text" rows="10"></textarea>
@@ -234,7 +252,7 @@
     <!-- Model Add Mailinglist category END -->
 
 
-    
+
 
 
 
@@ -248,7 +266,7 @@
                     </button>
                 </div>
                 <div class="modal-body content_body">
-                    
+
                 </div>
             </div>
         </div>
@@ -264,18 +282,18 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" >
-                <form method="post" action="{{url('/marketing/mailinglist-templates/saveimagesfile')}}" enctype="multipart/form-data" >
-                {{ csrf_field() }}   
-                <input required type="file" name="image" class="py-3" id="image">
-                   <input  type="hidden" name="id"  id="i_id" value='0'>
-                   <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
+                <div class="modal-body">
+                    <form method="post" action="{{url('/marketing/mailinglist-templates/saveimagesfile')}}" enctype="multipart/form-data">
+                        {{ csrf_field() }}
+                        <input required type="file" name="image" class="py-3" id="image">
+                        <input type="hidden" name="id" id="i_id" value='0'>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
 
 
-                       <div id="image_body">
+                    <div id="image_body">
 
-                       </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -284,90 +302,154 @@
     @if(Session::has('message'))
         <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
     @endif
-   <div class="col-md-12">
-    <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="passwords-table"style="table-layout: fixed;">
-            <thead>
-            <tr>
-                <!-- <th style="">ID</th> -->
-                <th width="15%">Name</th>
-                <th width="10%">Mail Tpl</th>
-                <th width="10%">Subject</th>
-                <th width="9%">Static Tem</th>
-                <th width="6%">Category</th>
-                <th width="7%">Store Web</th>
-                <!-- <th style="">Image Count</th>
-                <th style="">Text Count</th> -->
-                <th width="7%">Template Ex</th>
-                <th width="6%">Salutation</th>
-                <th width="7%">Introduction</th>
-                <th width="7%">Logo</th>
-                <th width="7%">Action</th>
-                {{--  <th style="">File</th>--}}
-            </tr>
-            </thead>
-            <tbody>
-            @foreach($mailings as $value)
-                   <tr>
-                    <td class="Website-task">{{$value["name"]}}</td>
-                    <td class="Website-task">{{$value["mail_tpl"]}}</td>
-                    <td class="Website-task">{{$value["subject"]}}</td>
-                    <td class="Website-task">{{$value["static_template"]}}</td>
-                    <td class="Website-task">{{$value->category !== null ? $value->category->title : '-' }}</td>
-                    <td class="Website-task">{{$value->storeWebsite !== null ? $value->storeWebsite->title : '-' }}</td>
-                <!-- <td>{{$value["image_count"]}}</td> -->
-                <!-- <td>{{$value["text_count"]}}</td> -->
-                    <td>
-                        @if($value['example_image'])
-                            <img style="width: 100px" src="{{ asset($value['example_image']) }}">
-                        @endif
-                    </td>
-                    <td>{{$value["salutation"]}}</td>
-                    <td class="Website-task">{{$value["introduction"]}}</td>
-                    <td>
-                        @if($value['logo'])
-                            <img style="width: 100px" src="{{ asset($value['logo']) }}">
-                        @endif
-                    </td>
-                    <td>
-                        <a data-id="{{ $value['id'] }}" class="delete-template-act" href="javascript:;"style="color: gray;">
-                            <i class="fa fa-trash"></i>
-                        </a>
-                        | 
-                        <a data-id="{{ $value['id'] }}" data-storage='{{ $value }}' class="edit-template-act"
-                            href="javascript:;" style="color: gray;">
-                            <i class="fa fa-edit"></i>
-                        </a>
-                        | 
-                        <a data-id="{{ $value['id'] }}"  class="add-content"
-                                href="javascript:;" style="color: gray;">
-                            <i class="fa fa-send"></i>
-                        </a>
-                        |
-                        <a data-id="{{ $value['id'] }}"  class="add-image"
-                                href="javascript:;" style="color: gray;">
-                            <i class="fa fa-list"></i>
-                        </a>
-                    </td>
+    <div class="col-md-12">
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered" id="passwords-table" style="table-layout: fixed;">
+                <thead>
+                <tr>
+                    <!-- <th style="">ID</th> -->
+                    <th width="10%">Name</th>
+                    <th width="10%">Mail Tpl</th>
+                    <th width="10%">Subject</th>
+                    <th width="9%">Static Tem</th>
+                    <th width="6%">Category</th>
+                    <th width="7%">Store Web</th>
+                    <!-- <th style="">Image Count</th>
+                    <th style="">Text Count</th> -->
+                    <th width="7%">Template Ex</th>
+                    <th width="6%">Salutation</th>
+                    <th width="7%">Introduction</th>
+                    <th width="7%">Logo</th>
+                    <th width="3%">Action</th>
+                    {{--  <th style="">File</th>--}}
                 </tr>
-            @endforeach
-            </tbody>
-        </table>
-        @if(isset($mailings))
-            {{$mailings->appends($_GET)->links()}}
-        @endif
+                </thead>
+                <tbody>
+                @foreach($mailings as $value)
+                    <tr>
+
+                        <td class="expand-row table-hover-cell" style="word-break: break-all;">
+                             <span class="td-mini-container">
+                                {{ strlen($value["name"]) > 10 ? substr($value["name"], 0, 10).'...' : $value["name"] }}
+                            </span>
+                            <span class="td-full-container hidden">
+                                {{$value["name"]}}
+                            </span>
+                        </td>
+                        <td class="expand-row table-hover-cell" style="word-break: break-all;">
+                            <span class="td-mini-container">
+                                     {{ strlen($value["mail_tpl"]) > 10 ? substr($value["mail_tpl"], 0, 10).'...' : $value["mail_tpl"] }}
+                                    </span>
+                            <span class="td-full-container hidden">
+                                    {{$value["mail_tpl"]}}
+                                </span>
+                        </td>
+                        <td class="expand-row table-hover-cell" style="word-break: break-all;">
+                                <span class="td-mini-container">
+                                {{ strlen($value["subject"]) > 10 ? substr($value["subject"], 0, 10).'...' : $value["subject"] }}
+                                </span>
+                            <span class="td-full-container hidden">
+                                    {{$value["subject"]}}
+                                </span>
+                        </td>
+                        <td class="expand-row table-hover-cell" style="word-break: break-all;">
+                             <span class="td-mini-container">
+                                {{ strlen($value["static_template"]) > 10 ? substr($value["static_template"], 0, 10).'...' : $value["static_template"] }}
+                             </span>
+                            <span class="td-full-container hidden">
+                                    {{$value["static_template"]}}
+                            </span>
+                        </td>
+
+                        <td class="expand-row table-hover-cell" style="word-break: break-all;">
+                             <span class="td-mini-container">
+                               {{$value->category !== null ? strlen($value->category->title) > 10 ? substr($value->category->title, 0, 10).'...' : $value->category->title  : '-' }}
+                             </span>
+                            <span class="td-full-container hidden">
+                                   {{$value->category !== null ? $value->category->title : '-'}}
+                            </span>
+                        </td>
+
+                        <td class="expand-row table-hover-cell" style="word-break: break-all;">
+                             <span class="td-mini-container">
+                               {{$value->storeWebsite !== null ? strlen($value->storeWebsite->title) > 10 ? substr($value->storeWebsite->title, 0, 10).'...' : $value->storeWebsite->title  : '-' }}
+                             </span>
+                            <span class="td-full-container hidden">
+                                   {{$value->storeWebsite !== null ? $value->storeWebsite->title : '-'}}
+                            </span>
+                        </td>
+                    <!-- <td>{{$value["image_count"]}}</td> -->
+                    <!-- <td>{{$value["text_count"]}}</td> -->
+                        <td>
+                            @if($value['example_image'])
+                                <img style="width: 100px" src="{{ asset($value['example_image']) }}">
+                            @endif
+                        </td>
+                        <td>{{$value["salutation"]}}</td>
+                        <td class="expand-row table-hover-cell" style="word-break: break-all;">
+                              <span class="td-mini-container">
+                                     {{ strlen($value["introduction"]) > 10 ? substr($value["introduction"], 0, 10).'...' : $value["introduction"] }}
+                                    </span>
+                            <span class="td-full-container hidden">
+                                    {{$value["introduction"]}}
+                                </span>
+
+                        </td>
+                        <td>
+                            @if($value['logo'])
+                                <img style="width: 100px" src="{{ asset($value['logo']) }}">
+                            @endif
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn({{$value["id"]}})"><i class="fa fa-arrow-down"></i></button>
+                        </td>
+                    </tr>
+                    <tr class="action-btn-tr-{{$value["id"]}} d-none">
+                        <td>Action</td>
+                        <td colspan="10">
+                            <a data-id="{{ $value['id'] }}" class="delete-template-act pr-1" href="javascript:;" style="color: gray;">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                            <a data-id="{{ $value['id'] }}" data-storage='{{ $value }}' class="edit-template-act pr-1"
+                               href="javascript:;" style="color: gray;">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a data-id="{{ $value['id'] }}" class="add-content pr-1"
+                               href="javascript:;" style="color: gray;">
+                                <i class="fa fa-send"></i>
+                            </a>
+                            <a data-id="{{ $value['id'] }}" class="add-image pr-1"
+                               href="javascript:;" style="color: gray;">
+                                <i class="fa fa-list"></i>
+                            </a>
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+            @if(isset($mailings))
+                {{$mailings->appends($_GET)->links()}}
+            @endif
+        </div>
     </div>
-</div>
 @endsection
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    
+
     <script>
-        CKEDITOR.replace( 'form_html_text' );
-        
+        $(document).on('click', '.expand-row', function () {
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                $(this).find('.td-mini-container').toggleClass('hidden');
+                $(this).find('.td-full-container').toggleClass('hidden');
+            }
+        });
+
+        CKEDITOR.replace('form_html_text');
+
         $(document).ready(function () {
             $(".select-multiple").multiselect();
             $(".select-multiple2").select2();
@@ -397,7 +479,7 @@
             var logo = $("#form-store").find("#logo")[0].files[0];
             var image = $("#form-store").find("#image")[0].files[0];
             var html_text = CKEDITOR.instances['form_html_text'].getData();
-            
+
             var productForm = new FormData();
             productForm.append("id", id);
             productForm.append("name", name);
@@ -412,12 +494,11 @@
             productForm.append("logo", logo);
             productForm.append("image", image);
             productForm.append("html_text", html_text);
-           
 
             var form = $('#form-store')[0];
             var formData = new FormData(form);
             $.ajax({
-                url: "mailinglist-templates/store",
+                url: "/mailinglist-templates/store",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
@@ -473,7 +554,7 @@
             // alert(StoreWebsite);
 
             $.ajax({
-                url: "/marketing/mailinglist-ajax",
+                url: "marketing/mailinglist-ajax",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
@@ -496,7 +577,6 @@
             e.preventDefault();
             var term = $('#term').val();
             var date = $('#date').val();
-            
             $.ajax({
                 url: "/marketing/mailinglist-ajax",
                 headers: {
@@ -506,7 +586,6 @@
                 data: {
                     term: term,
                     date: date
-                    
                 }
             }).done(function (response) {
                 $('tbody').html('');
@@ -552,7 +631,7 @@
                     var tagName = formField.prop("tagName").toLowerCase();
                     if(tagName == "input" || tagName == "hidden" || tagName == "textarea") {
                         if(k === 'html_text') {
-                            CKEDITOR.instances['form_html_text'].setData(v);    
+                            CKEDITOR.instances['form_html_text'].setData(v);
                         } else {
                             formField.val(v);
                         }
@@ -573,17 +652,16 @@
              * Make Category and storeWebsite Selected
              * */
 
-            findForm.find('select[name=category]').find('option[value="'+ storage.category_id +'"]').val(storage.category_id).prop('selected', true)
-            findForm.find('select[name=store_website]').find('option[value="'+ storage.store_website_id +'"]').val(storage.store_website_id).prop('selected', true)
+            findForm.find('select[name=category]').find('option[value="' + storage.category_id + '"]').val(storage.category_id).prop('selected', true)
+            findForm.find('select[name=store_website]').find('option[value="' + storage.store_website_id + '"]').val(storage.store_website_id).prop('selected', true)
 
 
             $(".edit-template-modal").modal("show");
-           
         });
 
         $(document).on("click", ".create-new-template-btn", function () {
             document.getElementById("form-store").reset();
-           // $(".template-modal").modal("show");
+            // $(".template-modal").modal("show");
         });
 
 
@@ -617,12 +695,12 @@
             $.ajax({
                 type: 'POST',
                 url: '{{ route('mailingList.category.store') }}',
-                data : new FormData($(this)[0]),
+                data: new FormData($(this)[0]),
                 contentType: false,
                 processData: false,
             }).done(function (response) {
 
-                if(response.status){
+                if (response.status) {
                     form[0].reset();
                     toastr['success'](' Mailinglist category has been successfully created.', 'success');
 
@@ -634,7 +712,7 @@
 
             }).fail(function (response) {
 
-                if(response.responseJSON.errors) {
+                if (response.responseJSON.errors) {
                     error_notification(form, response.responseJSON.errors)
                 }
 
@@ -646,54 +724,58 @@
         });
 
 
-        $('.add-content').on('click',function(){
+        $('.add-content').on('click', function () {
             let id = $(this).attr('data-id');
 
             $.ajax({
-                url : "{{ route('displayContentModal') }}",
-                type : "POST",
+                url: "{{ route('displayContentModal') }}",
+                type: "POST",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
-                data : {
-                    id : id
+                data: {
+                    id: id
                 },
-                success : function (response){
+                success: function (response) {
                     $('.content_body').html('');
                     $('.content_body').append(response.html);
                     $('#addcontent').modal('show');
                 },
-                error : function (response){
+                error: function (response) {
 
                 }
             });
         });
 
-        $('.add-image').on('click',function(){
+        $('.add-image').on('click', function () {
             let id = $(this).attr('data-id');
-            
+
             $.ajax({
-                url : "{{ url('marketing/mailinglist-templates/images_file') }}",
-                type : "POST",
+                url: "{{ url('marketing/mailinglist-templates/images_file') }}",
+                type: "POST",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
-                data : {
-                    id : id
+                data: {
+                    id: id
                 },
-                success : function (response){
-                    
+                success: function (response) {
+
                     $('#image_body').html('');
                     $('#i_id').val(id);
                     $('#image_body').html(response);
                     $('#addimage').modal('show');
-                    
+
                 },
-                error : function (response){
+                error: function (response) {
 
                 }
             });
         });
+
+        function Showactionbtn(id) {
+            $(".action-btn-tr-" + id).toggleClass('d-none')
+        }
 
     </script>
 @endsection

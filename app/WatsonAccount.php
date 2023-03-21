@@ -18,6 +18,8 @@ class WatsonAccount extends Model
      * @SWG\Property(property="work_space_id",type="integer")
      * @SWG\Property(property="assistant_id",type="integer")
      * @SWG\Property(property="url",type="string")
+     * @SWG\Property(property="speech_to_text_api_key",type="string")
+     * @SWG\Property(property="speech_to_text_url",type="string")
      * @SWG\Property(property="api_key",type="string")
      * @SWG\Property(property="watson_push",type="string")
      * @SWG\Property(property="is_active",type="integer")
@@ -30,6 +32,8 @@ class WatsonAccount extends Model
         'user_name',
         'password',
         'url',
+        'speech_to_text_api_key',
+        'speech_to_text_url',
         'is_active',
         'watson_push',
     ];

@@ -22,11 +22,14 @@ class StoreWebsiteAnalyticsController extends Controller
     {
         try {
             $storeWebsiteAnalyticsData = StoreWebsiteAnalytic::all();
+            $storeWebsites = StoreWebsite::where('deleted_at', null)->get();
 
-            return view('store-website-analytics.index', compact('storeWebsiteAnalyticsData'));
+            return view('store-website-analytics.index', compact('storeWebsiteAnalyticsData','storeWebsites'));
         } catch (Exception $e) {
             \Log::error('Account page ::'.$e->getMessage());
         }
+
+
     }
 
     public function create(Request $request)
@@ -35,7 +38,7 @@ class StoreWebsiteAnalyticsController extends Controller
             $rules = [
                 'website' => 'required',
                 'account_id' => 'required',
-                'view_id' => 'required',
+//                'view_id' => 'required',
                 'store_website_id' => 'required|integer',
             ];
 

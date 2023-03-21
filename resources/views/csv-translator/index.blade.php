@@ -42,7 +42,27 @@
             border: none;
             background: none
         }
-     
+
+        table.csvData-table tbody tr td div{
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        table.csvData-table tbody tr td .bg-success{
+            padding: 5px !important;
+        }
+
+        table.csvData-table tbody tr td .bg-custom-grey{
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+        .csvData-table tbody td {
+            padding-bottom: 10px !important;
+        }
 
         @media (max-width: 1280px) {
             table.table {
@@ -140,10 +160,9 @@
 </div>
 
 
-<div class="table-responsive mt-3" style="margin-top:20px;">
+<div class="table-responsive mt-3 table-horizontal-scroll" style="margin-top:20px;">
     <table class="table table-bordered text-wrap csvData-table w-100" style="border: 1px solid #ddd;" id="csvData-table">
         <thead>
-            
             <tr>
             @if(auth()->user()->hasRole('Lead Translator'))
                 <th>Id</th>
@@ -331,6 +350,32 @@
 </div>
 </div>
 
+<div class="modal fade" id="Show_message_display" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title position-absolute">Csv Translator</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered text-wrap w-auto min-w-100">
+                    <thead>
+                    <tr>
+                        <th>Message</th>
+                    </tr>
+                    </thead>
+                    <tbody class="chat_message_history">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -373,7 +418,6 @@
             method:'POST',
             data:{'user_id':userId,'lang_id':langId,'action':actionId,'_token':"{{csrf_token()}}"},
             success:function(response){
-                debugger
                 if(response.status === 200){       
                     $(".alert-class").text("Successfully added");
                     $(".alert-class").addClass("alert-success");
@@ -400,40 +444,40 @@
         cols =  [{ data: 'id' },
             { data: 'key' },
             { data: 'en', render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="en" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="en" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             }},
             { data: 'es',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="es" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="es" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'ru',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="ru" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ru" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'ko' ,render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="ko" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ko" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             }},
             { data: 'ja',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="ja" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ja" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'it',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="it" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="it" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'de',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="de" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="de" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'fr',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="fr" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="fr" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'nl',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="nl" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="nl" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'zh',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="zh" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="zh" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'ar',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="ar" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ar" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'ur',render: function(data, type, row, meta) {
-                return data +'<a href="#" class="history_model position-absolute btn btn-secondary float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } }]
     </script>
 @else
@@ -450,11 +494,27 @@
         csvTable = $('#csvData-table').DataTable({
             ajax: "{{route('csvTranslator.list')}}",
             responsive: true,
+            pageLength: 50,
             searchDelay: 500,
             processing: true,
             serverSide: true,
             columns: cols,
         });
+    });
+
+    $(document).on("click",".show_csv_co", function(e) {
+        e.preventDefault();
+        $("#Show_message_display").modal('show');
+        var _this = $(this);
+        var content = _this.html();
+        var aa = $('_this .show_csv_co').html();
+
+        $('.chat_message_history').html('<td>'+content+'</td>')
+    });
+
+    $(".show_csv_data").click(function() {
+        var res = $('#demo').text();
+        alert(res);
     });
 
     $(".btn_export").on('click',function(){
@@ -466,6 +526,9 @@
     });
 
     $(document).on('click', ".editbtn_model", function() {
+        setTimeout(function() {
+            $("#Show_message_display").modal('hide');
+        }, 1);
         var id = $(this).data('id');
         var formValue = $(this).data('value');
         var userId = $(this).data('user');
@@ -479,6 +542,9 @@
     });
 
     $(document).on('click','.history_model',function(){
+        setTimeout(function() {
+            $("#Show_message_display").modal('hide');
+        }, 0.1);
         var id = $(this).data('id');
         var key = $(this).data('key');
         var language = $(this).data('lang');
@@ -488,6 +554,7 @@
             method:'POST',
             data:{'id':id,"key":key,"language":language,'_token':"{{csrf_token()}}"},
             success:function(response){
+                $("#Show_message_display").modal('hide');
                 let html;
                 $(".data_history").html('');
                 if(response.data.length == 0){
@@ -504,7 +571,7 @@
                         <td>${value.ko}</td>
                         <td>${value.ja}</td>
                         <td>${value.it}</td>
-                        <td>${value.de}</td>    
+                        <td>${value.de}</td>
                         <td>${value.fr}</td>
                         <td>${value.nl}</td>
                         <td>${value.zh}</td>
@@ -529,8 +596,7 @@
         
     });
 
-
-        $(document).on("change",'input:radio[name="radio1"]',function(){
+    $(document).on("change",'input:radio[name="radio1"]',function(){
             var id,language,status;
             if($(this).val() == 'checked'){
                  id = $(this).data('id');
