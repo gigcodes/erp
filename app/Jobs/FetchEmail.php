@@ -98,7 +98,7 @@ class FetchEmail implements ShouldQueue
                 //                    $latest_email_date = Carbon::parse('2020-01-01');
 
                 if ($latest_email_date) {
-                    $emails = $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y'));
+                    $emails = ($inbox) ? $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y')) : '';
                 } else {
                     $emails = ($inbox) ? $inbox->messages() : '';
                 }
@@ -182,7 +182,7 @@ class FetchEmail implements ShouldQueue
                         'origin_id' => $origin_id,
                         'reference_id' => $reference_id,
                         'type' => $type['type'],
-                        'seen' => $email->getFlags()['seen'],
+                        'seen' => isset($email->getFlags()['seen'])?$email->getFlags()['seen']:0,
                         'from' => $email->getFrom()[0]->mail,
                         'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
                         'subject' => $email->getSubject(),
@@ -226,7 +226,6 @@ class FetchEmail implements ShouldQueue
                                     'vendor_id' => null,
                                     'customer_id' => $customer->id,
                                     'is_email' => 1,
-                                    'email_id' => $email_id,
                                     'from_email' => $from,
                                     'to_email' => $to,
                                     'email_id' => $email_id,
@@ -290,6 +289,12 @@ class FetchEmail implements ShouldQueue
 
                 } catch (\Exception $e) {
                     \Log::error('error while fetching some emails for '.$emailAddress->username.' Error Message: '.$e->getMessage());
+                    $historyParam = [
+                        'email_address_id' => $emailAddress->id,
+                        'is_success' => 0,
+                        'message' => 'error while fetching some emails for '.$emailAddress->username.' Error Message: '.$e->getMessage(),
+                    ];
+                    EmailRunHistories::create($historyParam);
                 }
                 }
 
