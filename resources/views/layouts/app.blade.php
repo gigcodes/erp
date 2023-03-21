@@ -225,7 +225,55 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/global_custom.css') }}">
     @yield("styles")
-
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: env('FCM_API_KEY'),
+            authDomain: env('FCM_AUTH_DOMAIN'),
+            projectId: env('FCM_PROJECT_ID'),
+            storageBucket: env('FCM_STORAGE_BUCKET'),
+            messagingSenderId: env('FCM_MESSAGING_SENDER_ID'),
+            appId: env('FCM_APP_ID'),
+            measurementId: env('FCM_MEASUREMENT_ID')
+        };
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+        messaging
+            .requestPermission()
+            .then(function () {
+                return messaging.getToken()
+            })
+            .then(function (response) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: '{{ route("store.token") }}',
+                    type: 'POST',
+                    data: {
+                        token: response
+                    },
+                    dataType: 'JSON',
+                    success: function (response) {
+                    },
+                    error: function (error) {
+                        alert(error);
+                    },
+                });
+            }).catch(function (error) {
+            alert(error);
+        });
+        messaging.onMessage(function (payload) {
+            const title = payload.notification.title;
+            const options = {
+                body: payload.notification.body,
+                icon: payload.notification.icon,
+            };
+            new Notification(title, options);
+        });
+    </script>
     <script>
     window.Laravel = '{{!!json_encode(['
     csrfToken '=>csrf_token(),'
