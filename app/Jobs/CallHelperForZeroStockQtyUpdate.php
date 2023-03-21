@@ -37,11 +37,15 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
      */
     public function handle()
     {
+        \Log::info('CallHelperForZeroStockQtyUpdate JOB');
         try {
+            \Log::info('CallHelperForZeroStockQtyUpdate TRY');
             $zeroStock = [];
             if (! empty($this->products)) {
                 foreach ($this->products as $item) {
+                    \Log::info('Item :'.json_encode( $item));
                     $websiteArrays = ProductHelper::getStoreWebsiteNameFromPushed($item['id']);
+                    \Log::info('websiteArrays:'.json_encode( $websiteArrays));
                     if (count($websiteArrays) > 0) {
                         foreach ($websiteArrays as $websiteArray) {
                             $zeroStock[$websiteArray]['stock'][] = ['sku' => $item['sku'], 'qty' => 0];
@@ -51,14 +55,16 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
                     }
                 }
             }
-
+            \Log::info('zeroStock:'.json_encode($zeroStock));
             if (! empty($zeroStock)) {
+                \Log::info('Inside block zeroStock:'.json_encode($zeroStock));
                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                     MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
                     \Log::info('inventory:update Jobs Run');
                 }
             }
         } catch (\Exception $e) {
+            \Log::info('CallHelperForZeroStockQtyUpdate END');
             \Log::info('Issue fom MagentoHelperForZeroStockQtyUpdate '.$e->getMessage());
             throw new \Exception($e->getMessage());
         }
