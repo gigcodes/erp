@@ -81,4 +81,14 @@ class GoogleAdsCampaign extends Model
         'DISPLAY_SMART_CAMPAIGN' => 'Display smart campaign',
         'DISPLAY_GMAIL_AD' => 'Display gmail ad',
     ];
+
+    public function googleAccount()
+    {
+        return $this->belongsTo(GoogleAdsAccount::class,'account_id');
+    }
+    
+    public function account()
+    {
+        return $this->hasOne(\App\GoogleAdsAccount::class, 'id', 'account_id');
+    }
 }
