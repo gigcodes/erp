@@ -342,6 +342,9 @@
                 <th class="chat-msg" style="word-break: break-all; width:3%">Age</th>
                 <th class="chat-msg" style="word-break: break-all; width:5%">Gender</th>
                 <th class="chat-msg" style="word-break: break-all; width:5%">Session</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Exception</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Log</th>
+                <th class="chat-msg" style="word-break: break-all; width:5%">Device</th>
                 <th class="chat-msg" style="word-break: break-all; width:4%">Date</th>
             </tr>
         </thead>
@@ -636,6 +639,61 @@
                             N/A
                         @endif
                     </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->exception) > 4)
+                            @php
+                                $dns = $data->exception;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->log) > 4)
+                            @php
+                                $dns = $data->log;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td  style="word-break: break-all"; class="expand-row">
+                        @if(strlen($data->device) > 4)
+                            @php
+                                $dns = $data->device;
+                                $dns = str_replace('"[', '', $dns);
+                                $dns = str_replace(']"', '', $dns);
+                            @endphp
+
+                            <div class="td-mini-container brand-supplier-mini-{{ $data->id }}">
+                                {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                            </div>
+                            <div class="td-full-container hidden brand-supplier-full-{{ $data->id }}">
+                                {{ $dns }}
+                            </div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    
                     <td  style="word-break: break-all"; class="expand-row">
                         @if(strlen($data->created_at->format('Y-m-d')) > 4)
                             @php
