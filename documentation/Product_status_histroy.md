@@ -3,6 +3,7 @@ Product status Log is used to display products with their status and time of whe
 
 Genereally, there are total 49 status managed for product in different different stage but in this page, we are showing only 13 status and their time. 
 
+Now system is also manage ` Pending` status. When any process start which manage this status that is initialize by ` Pending` status. Once relevant condition satisfy or specific code block execute then status will be changed to active and grid show relevant time under column of that status.
 1. ### Product Status Grid:
 - It list out products from `product_status_histories` table and this table contain history of each product when it's status has been updated in various stage.
 - Data fetch process start from `productScrapLog` function in the `ProductController` controller.

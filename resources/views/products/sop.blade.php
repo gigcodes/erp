@@ -88,9 +88,10 @@ float: left;
 @endsection
 @section('content')
 
+
     <div class="row" style="margin:0%">
         <div class="col-md-12 margin-tb p-0">
-            <h2 class="page-heading"> ListingApproved - SOP
+            <h2 class="page-heading"> ListingApproved - SOP ({{$usersop->count()}})
 
                 <div class="pull-right">
                     <button class="btn btn-Secondary1" data-toggle="modal" data-target="#Sop-Permission-Modal">Sop Permissions</button>
@@ -101,18 +102,19 @@ float: left;
                 <div class="pull-right">
                     <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" data-target="#categoryModal">Add Category</button>
                 </div>
+                <div class="pull-right">
+                    <button type="button" class="btn btn-secondary1 mr-2 send-multi-email-btn" id="send_mail"  data-object="Sop" data-type="multi_user">Send Mail</button>
+                </div>
             </h2>
         </div>
 
         <div class="col-lg-12 margin-tb">
-
             <div class="pull-left">
                 <div class="form-group" style="margin-bottom: 0px;">
                     <div class="row">
                         <form method="get" action="{{ route('sop.index') }}">
                             <div class="flex">
                                 <div class="col" id="search-bar">
-
                                     <input type="text" value="{{ request('search') ?? '' }}" name="search" class="form-control"
                                         placeholder="Search Here.." style="margin-left: -5px;">
                                     {{-- <input type="text" name="search" id="search" class="form-control search-input" placeholder="Search Here Text.." autocomplete="off"> --}}
@@ -125,6 +127,8 @@ float: left;
                                 <a href="{{ route('sop.store') }}" type="button" class="btn btn-xs mt-3 ml-2" id="">
                                     <i class="fa fa-undo"></i>
                                 </a>
+
+
                             </div>
                         </form>
                     </div>
@@ -292,11 +296,11 @@ float: left;
     <!--------------------------------------------------- end Add Data Modal ------------------------------------------------------->
 
         <div class="col-md-12">
-
             <div class="table-responsive mt-3">
                 <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable">
                     <thead>
                         <tr>
+                            <th width="2%"><input type="checkbox" class="check-all" style="height: auto"></th>
                             <th width="2%">ID</th>
                             <th width="13%">Name</th>
                             <th width="10%">Category</th>
@@ -310,7 +314,10 @@ float: left;
 
                         @foreach ($usersop as $key => $value)
                             <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
-                                <td class="sop_table_id">{{ $value->id }}</td>
+                                <td> <input type="checkbox" class="checkbox" name="select_user" data-id="{{ $value->id }}"  data-toemail="@if ($value->user){{$value->user->email}}@endif" value="" style="height:auto;"></td>
+                                <td class="sop_table_id">
+                                    {{ $value->id }}
+                                </td>
                                 <td class="expand-row-msg" data-name="name" data-id="{{$value->id}}">
                                     <span class="show-short-name-{{$value->id}}">{{ Str::limit($value->name, 17, '..')}}</span>
                                     <span style="word-break:break-all;" class="show-full-name-{{$value->id}} hidden">{{$value->name}}</span>
@@ -319,11 +326,10 @@ float: left;
                                     <span class="show-short-category-{{$value->id}}">{{ Str::limit($value->category, 17, '..')}}</span>
                                     <span style="word-break:break-all;" class="show-full-category-{{$value->id}} hidden">{{$value->category}}</span>
                                 </td>
-                                <td class="expand-row-msg Website-task " data-name="content" data-id="{{$value->id}}">
-                                    <span class="show-short-content-{{$value->id}}">{{ Str::limit($value->content, 50, '..')}}</span>
-                                    <span style="word-break:break-all;" class="show-full-content-{{$value->id}} hidden">{{$value->content}}</span>
+                                <td class="expand-row-msg" data-name="content" data-id="{{$value->id}}">
+                                    <span class="show-content" id="show_content_{{$value->id}}" data-content="{!! $value->content !!}" data-id="{{$value->id}}">{{ strip_tags(Str::limit($value->content, 50, '..')) }}</span>
+{{--                                    <span style="word-break:break-all;" class="show-full-content-{{$value->id}} hidden">{!! $value->content !!}</span>--}}
                                 </td>
-
                                 <td class="table-hover-cell p-1">
                                     <div class="select_table">
                                         <div class="w-50-25-main">
@@ -356,12 +362,8 @@ float: left;
                                         </div>
                                    </div>
                                 </td>
-
-
                                 <td>{{ date('yy-m-d', strtotime($value->created_at)) }}</td>
-
                                 <td class="p-1">
-
                                     <a href="javascript:;" data-id="{{ $value->id }}" class="editor_edit btn btn-xs p-2" >
                                         <i class="fa fa-edit"></i>
                                     </a>
@@ -377,7 +379,7 @@ float: left;
                                     <a title="Download Invoice" class="btn btn-xs p-2" href="{{ route('sop.download',$value->id) }}">
                                             <i class="fa fa-download downloadpdf"></i>
                                     </a>
-                                    <button type="button" class="btn send-email-common-btn p-2" data-toemail="@if ($value->user) {{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}">
+                                    <button type="button" class="btn send-email-common-btn p-2" data-content="{!! $value->content !!}" data-toemail="@if ($value->user){{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}">
                                         <i class="fa fa-envelope-square"></i>
                                     </button>
                                     <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list p-2" title="Sop User" data-sop_id="{{ $value->id }}">
@@ -387,8 +389,8 @@ float: left;
                                         <i class="fa fa-copy"></i>
                                     </a>
                                 </td>
+                            </tr>
                         @endforeach
-
                     </tbody>
                 </table>
                 {{ $usersop->appends(request()->input())->links() }}
@@ -521,8 +523,6 @@ float: left;
  <!-- Send Email Modal-->
 <div id="commonEmailModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
-
-
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Send Email</h4>
@@ -530,7 +530,9 @@ float: left;
             </div>
 
             <form action="" method="POST" enctype="multipart/form-data" id="resetdata">
+
                 <input type="hidden" name="id" id="id">
+                <input type="hidden" name="datatype" id="datatype">
                 <input type="hidden" name="object" id="object">
                 <input type="hidden" name="action" class="action" value="{{route('common.getmailtemplate')}}">
                 @csrf
@@ -581,7 +583,8 @@ float: left;
 
                     <div class="form-group">
                         <strong>Message *</strong>
-                        <textarea name="message" class="form-control mail_message" id="message" rows="8" cols="80" required></textarea>
+                        <textarea class="form-control mail_message" name="message"  id="message" rows="8" cols="80" required></textarea>
+                        message
                         <span class="error" id="message-error" for="message" style="color:red;display:none;font-size: 10px;">This field is required</span>
                     </div>
 
@@ -592,7 +595,7 @@ float: left;
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-secondary sop-mail-send">Send</button>
+                    <button type="button" class="btn btn-secondary sop-mail-send">Send</button>
                 </div>
             </form>
         </div>
@@ -600,6 +603,40 @@ float: left;
     </div>
 </div>
  <!-- End Send Email Modal-->
+
+ <!-- Show Content Model -->
+
+    <div class="modal fade" id="showContentModal"  role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <input type="hidden" name="content_message_id" id="content_message_id">
+                    <div class="modal-header">
+                        <h3>Content</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="content_message" name="content_message"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--End Show Content Model -->
+
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('{{asset('/images/pre-loader.gif')}}')
+                                                                  50% 50% no-repeat;display:none;">
+
 
 @endsection
 
@@ -623,6 +660,83 @@ float: left;
         });
     </script>
     <script>
+        // cc
+
+        $(document).on('click', '.add-cc', function (e) {
+            e.preventDefault();
+
+            if ($('#cc-label').is(':hidden')) {
+                $('#cc-label').fadeIn();
+            }
+
+            var el = `<div class="row cc-input">
+            <div class="col-md-10">
+                <input type="text" name="cc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#cc-list').append(el);
+        });
+
+        $(document).on('click', '.cc-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.cc-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#cc-label').fadeOut();
+                }
+            });
+        });
+
+        // bcc
+
+        $(document).on('click', '.add-bcc', function (e) {
+            e.preventDefault();
+
+            if ($('#bcc-label').is(':hidden')) {
+                $('#bcc-label').fadeIn();
+            }
+
+            var el = `<div class="row bcc-input">
+            <div class="col-md-10">
+                <input type="text" name="bcc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image bcc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#bcc-list').append(el);
+        });
+
+        $(document).on('click', '.bcc-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.bcc-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#bcc-label').fadeOut();
+                }
+            });
+        });
     
     $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
@@ -635,7 +749,7 @@ float: left;
 
     $(document).on('click','.send-email-common-btn',function(e){
         e.preventDefault();
-
+        document.getElementById("message").innerHTML = '';
         var ele = $(this).parentsUntil('form').parent();
         var mailtype = $(this).data('object');
         var id = $(this).data('id');
@@ -644,8 +758,48 @@ float: left;
         $('#commonEmailModal').find('form').find('input[name="id"]').val(id);
         $('#commonEmailModal').find('form').find('input[name="sendto"]').val(toemail);
         $('#commonEmailModal').find('form').find('input[name="object"]').val(mailtype);
+        $('#commonEmailModal').find('form').find('textarea[name="message"]').val(content);
+
         $('#commonEmailModal').modal("show");
     });
+
+         $(document).on('click','.send-multi-email-btn',function(){
+        var id = [];
+        var toemail = [];
+        $('input[name=select_user]:checked').each(function (i) {
+            id[i] = $(this).data('id');
+        });
+
+        $('input[name=select_user]:checked').each(function (i) {
+            toemail[i] = $(this).data('toemail');
+        });
+
+        if (id == ''){
+            toastr["error"]("Please Select User!", "Message");
+        }else {
+            var ele = $(this).parentsUntil('form').parent();
+            var mailtype = $(this).data('object');
+            var data = $(this).data('type');
+            console.log(content)
+            $('#commonEmailModal').find('form').find('input[name="id"]').val(id);
+            $('#commonEmailModal').find('form').find('input[name="datatype"]').val(data);
+            $('#commonEmailModal').find('form').find('input[name="sendto"]').val(toemail);
+            $('#commonEmailModal').find('form').find('input[name="object"]').val(mailtype);
+            $('#commonEmailModal').modal("show");
+        }
+    });
+
+        $(document).on('click','.show-content',function(e){
+            e.preventDefault();
+            document.getElementById("content_message").innerHTML = '';
+
+            var ele = $(this).parentsUntil('form').parent();
+            var id = $(this).data('id');
+            var content = $('#show_content_'+ id).data('content');
+            $('#showContentModal').find('form').find('input[name="content_message_id"]').val(id);
+            document.getElementById("content_message").innerHTML = content;
+            $('#showContentModal').modal("show");
+        });
 
     $(document).on('keyup','#subject', function() {
         if ($(this).val()) {
@@ -657,29 +811,33 @@ float: left;
             $('#message-error').hide();
         }
     })
+
     $(document).on('click','.sop-mail-send',function(e){
         e.preventDefault();
 
-            let id = $("#id").val();
-            let sendto = $("#sendto").val();
-            let from_mail = $("#from_mail").val();
-            let object = $("#object").val();
-            let subject = $("#subject").val();
-            let message = $(".mail_message").val();
-            if (!message || !subject) {
-                if (!message) {
-                    $('#message-error').show();
+                let id = $("#id").val();
+                let datatype = $("#datatype").val();
+                let sendto = $("#sendto").val();
+                let from_mail = $("#from_mail").val();
+                let object = $("#object").val();
+                let subject = $("#subject").val();
+                let message = $(".mail_message").val();
+
+                if (!message || !subject) {
+                    if (!message) {
+                        $('#message-error').show();
+                    }
+                    if (!subject) {
+                        $('#subject-error').show();
+                    }
+                    return;
                 }
-                if (!subject) {
-                    $('#subject-error').show();
-                }
-                return;
-            }
-            $.ajax({
+                $.ajax({
                 url: "{{ route('common.send.email') }}",
                 type: 'POST',
                 data: {
-                   "id": id,
+                    "id": id,
+                    "datatype": datatype,
                     "sendto": sendto,
                    "from_mail": from_mail,
                     "object": object,
@@ -690,7 +848,11 @@ float: left;
 
                 },
                 dataType: "json",
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                    },
                 success: function (response) {
+                    $("#loading-image").hide();
                     $("#resetdata")[0].reset();
                     $('#commonEmailModal').modal('hide');
 
@@ -699,12 +861,18 @@ float: left;
 
                 },
                 error: function (response) {
+                    $("#loading-image").hide();
                     toastr["error"]("There was an error sending the Mail...", "Message");
 
                 }
             });
 
         });
+
+
+    $(document).on("click", ".check-all", function() {
+        $(".checkbox").trigger("click");
+    });
 
 </script>
 
@@ -807,7 +975,7 @@ $(document).on('click', '.send-message-open', function (event) {
     </script>
 
     <script>
-        
+
 
         // category submit form start
         $('#FormCategoryModal').submit(function(e) {
@@ -948,12 +1116,12 @@ $(document).on('click', '.send-message-open', function (event) {
                         $("#exampleModal").modal('hide');
                         toastr["success"]("Data Inserted Successfully!", "Message");
                         $(document).on('click', '.expand-row-msg', function () {
-                        var name = $(this).data('name');
-                        var id = $(this).data('id');
-                        var full = '.expand-row-msg .show-short-'+name+'-'+id;
-                        var mini ='.expand-row-msg .show-full-'+name+'-'+id;
-                        $(full).toggleClass('hidden');
-                        $(mini).toggleClass('hidden');
+                            var name = $(this).data('name');
+                            var id = $(this).data('id');
+                            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+                            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+                            $(full).toggleClass('hidden');
+                            $(mini).toggleClass('hidden');
                         });
                     }
                 }

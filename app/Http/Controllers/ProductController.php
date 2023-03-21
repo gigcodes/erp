@@ -1589,11 +1589,13 @@ class ProductController extends Controller
             $value = $request->get('value');
             $search = $request->get('fieldname');
 
-            if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            $products = Product::query();
+            
+            /*if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
                 $products = Product::query();
             } else {
                 $products = Product::query()->where('assigned_to', auth()->user()->id);
-            }
+            }*/
             $products = $products->where(function ($query) {
                 $query->where('status_id', StatusHelper::$pushToMagento);
                 $query->orWhere('status_id', StatusHelper::$inMagento);
@@ -1608,7 +1610,7 @@ class ProductController extends Controller
                 $join->on('products.status_id', 's.id');
             });
 
-            $products = $products->where('isUploaded', 0);
+            $products = $products->where('isUploaded', 1);
             $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
 
             if ($request->get('id') != '') {
@@ -3399,6 +3401,28 @@ class ProductController extends Controller
         $productId = request('product_id', null);
         $supplierId = request('supplier_id', null);
         if ($productId != null) {
+            $product = Product::where('id', $productId)->first();
+            if($product){
+                //set initial pending status for isBeingCropped
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$isBeingCropped,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
+                //set initial pending status for pending products with category(attributeRejectCategory)
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$attributeRejectCategory,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);  
+            }
             \Log::info('product_start_time_if_block: '.date('Y-m-d H:i:s'));
             $product = Product::where('id', $productId)->where('category', '>', 3)->first();
             \Log::info('product_end_time_if_block: '.date('Y-m-d H:i:s'));
@@ -3414,14 +3438,13 @@ class ProductController extends Controller
                 ->first();
             \Log::info('product_supplier_end_time: '.date('Y-m-d H:i:s'));
         } else {
-            \Log::info('product_image_start_time_else_block: '.date('Y-m-d H:i:s'));
+            \Log::info('product_image_start_time_else_block: '.date('Y-m-d H:i:s'));      
            // Get next product
             $product = Product::where('products.status_id', StatusHelper::$autoCrop)
                                 ->where('products.category', '>', 3)
                                 ->where('products.stock', '>=', 1)
                                 ->orderBy('products.scrap_priority', 'DESC')
                                 ->select('products.*');
-
             // Prioritize suppliers
             $prioritizeSuppliers = "CASE WHEN brand IN (4,13,15,18,20,21,24,25,27,30,32,144,145) AND category IN (11,39,5,41,14,42,60,17,31,63) AND products.supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
             $product = $product->orderByRaw($prioritizeSuppliers);
@@ -3435,7 +3458,6 @@ class ProductController extends Controller
             })
             ->whereHasMedia('original')
             ->first();
-            
             if(!empty($product)) {
                 $product->priority = isset($product->suppliers_info->first()->supplier->priority) ? $product->suppliers_info->first()->supplier->priority : 5;
             }
@@ -3534,7 +3556,6 @@ class ProductController extends Controller
         $cat = $category->title;
         $parent = '';
         $child = '';
-
         try {
             if ($cat != 'Select Category') {
                 if ($category->isParent($category->id)) {
@@ -3584,7 +3605,6 @@ class ProductController extends Controller
         if (! isset($colors)) {
             $colors = [];
         }
-
         if ($parent == null && $parent == '') {
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -3692,7 +3712,6 @@ class ProductController extends Controller
             'crop_image_get_request_id' => $request->token,
             'request' => json_encode($req),
         ]);
-
         try {
             // Find the product or fail
             $product = Product::find($request->get('product_id'));
@@ -3707,6 +3726,17 @@ class ProductController extends Controller
 
                 return response()->json($res);
             }
+
+            //sets initial status pending for finalApproval in product status histroy
+            $data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$finalApproval,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($data); 
+            
 
             // Check if we have a file
             if ($request->hasFile('file')) {
@@ -3795,7 +3825,6 @@ class ProductController extends Controller
                 $productMediacount = ($productMediacount * $multi);
 
                 //\Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
-
                 if ($productMediacount <= $cropCount) {
                     $product->cropped_at = Carbon::now()->toDateTimeString();
                     //check final approval
@@ -4213,12 +4242,12 @@ class ProductController extends Controller
         $products->getCollection()->transform(function ($getproduct) {
             $getproduct->total_count = $getproduct->productstatushistory->count();
             $history_log = [];
-            foreach ($getproduct->productstatushistory->toArray() as $key => $history) {
+            $productstatushistory = $getproduct->productstatushistory->toArray();
+            foreach ($productstatushistory as $key => $history) {
                 $history['created_at'] = Carbon::parse($history['created_at'])->format('H:i');
-                $history_log[$history['new_status']][] = $history;
+                $history_log[$history['new_status']] = $history;
             }
             $getproduct->alllog_status = $history_log;
-
             return $getproduct;
         });
         //$allproduct = Product::select('name','id')->get();

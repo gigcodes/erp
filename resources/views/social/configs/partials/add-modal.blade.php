@@ -119,6 +119,21 @@
                         </div>
 
                         <div class="form-group">
+                            <strong>Language of Page:</strong>
+                            <select class="form-control" name="page_language" required>
+                                <option value="0">Select language of page</option>
+                                @foreach($languages as $language)
+                                <option value="{{ $language->locale }}">{{ $language->name }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('languages'))
+                            <div class="alert alert-danger">{{$errors->first('languages')}}</div>
+                            @endif
+                        </div>
+
+
+                        <div class="form-group">
                             <strong>Webhook Verify Token:</strong>
                             <input type="text" name="webhook_token" class="form-control" value="{{ old('webhook_token') }}" >
 

@@ -523,10 +523,10 @@ class Kernel extends ConsoleKernel
 
         //2020-02-17 $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
-        // Update the inventory (every fifteen minutes)
-        // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
+        // Update the inventory (Daily run cron to update stock 0 at magento store website)
+        $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
         $schedule->command('magento:get-config-value')->dailyAt('00:00')->timezone('Asia/Dubai');
-
+        
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
 
@@ -728,6 +728,10 @@ class Kernel extends ConsoleKernel
         // Ads history Cron
         $schedule->command('social:ads-history')->dailyAt('0:00');
         $schedule->command('save:zoom-meetings')->dailyAt('23:59');
+
+
+        //Store Google Ad Reporting Data
+        $schedule->command('store:ads-reporting-data')->hourly();
     }
 
     /**`
