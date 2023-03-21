@@ -330,6 +330,7 @@ use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\VoucherCouponController;
 use App\Http\Controllers\WatsonController;
+use App\Http\Controllers\WebNotificationController;
 use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
@@ -349,6 +350,10 @@ use App\Http\Controllers\TimeDoctorActivitiesController;
 
 
 Auth::routes();
+Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
+Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
+Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
+
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', [CustomerController::class, 'add_customer_address']);
 Route::post('sendgrid/notifyurl', [Marketing\MailinglistController::class, 'notifyUrl']);
