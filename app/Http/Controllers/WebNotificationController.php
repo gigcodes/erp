@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\NotificationToken;
 use App\User;
 use Illuminate\Http\Request;
 use App\DeveloperTask;
@@ -18,7 +19,16 @@ class WebNotificationController extends Controller
 
     public function storeToken(Request $request)
     {
-        auth()->user()->update(['device_token'=>$request->token]);
+        $token = $request->token;
+        $user_id = auth()->user()->id;
+        $isExist = NotificationToken::where('device_token', $token)->exists();
+        if(!$isExist){
+            $notificationToken = new NotificationToken();
+            $notificationToken->user_id = $user_id;
+            $notificationToken->device_token = $token;
+            $notificationToken->is_enabled = true;
+            $notificationToken->save();
+        }
         return response()->json(['Token successfully stored.']);
     }
 
@@ -46,10 +56,10 @@ class WebNotificationController extends Controller
             }
         }
         if (isset($userId) && $userId){
-            $FcmToken = User::whereNotNull('device_token')->whereId($userId)->pluck('device_token')->all();
+            $FcmToken = NotificationToken::whereNotNull('device_token')->whereId($userId)->pluck('device_token')->all();
         }
         else {
-            $FcmToken = User::whereNotNull('device_token')->pluck('device_token')->all();
+            $FcmToken = NotificationToken::whereNotNull('device_token')->pluck('device_token')->all();
         }
         $serverKey = env('FCM_SECRET_KEY');
         $data = [
