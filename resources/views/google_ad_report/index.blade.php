@@ -101,7 +101,7 @@
                         <th>Campaign Name</th>
                         <th>Google Campaign Id</th>
                         <th>Channel Type</th>
-                        <th>Ad Group</th>
+                        <th>Ad Group Name</th>
                         <th>Google Ad Group Id</th>
                         <th>Ad Headline1</th>
                         <th>Google Ad Id</th>
