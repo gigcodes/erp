@@ -151,7 +151,7 @@ class UpdateInventory extends Command
                             }
 
                             if (is_null($records['last_inventory_at']) || strtotime($records['last_inventory_at']) < strtotime('-'.$inventoryLifeTime.' days')) {
-                                $needToCheck[] = ['id' => $records['product_id'], 'sku' => $records['sku'].$records['color']];
+                                $needToCheck[] = ['id' => $records['product_id'], 'sku' => $records['sku'].'-'.$records['color']];
                                 \Log::info('Last inventory condition is success');
                                 continue;
                             }  else {
