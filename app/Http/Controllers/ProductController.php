@@ -5092,7 +5092,7 @@ class ProductController extends Controller
             $details['product_index'] = ($key)+1;
             $details['no_of_product'] = $no_of_product;
             
-            PushProductOnlyJob::dispatch($product,$details)->onQueue('push_product_only');
+            PushProductOnlyJob::dispatch($product,$details)->onQueue('pushproductonly');
             // Setting is_conditions_checked flag as 1
             /*$websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
             if (! empty($websiteArrays)) {
@@ -5153,7 +5153,7 @@ class ProductController extends Controller
             $details = [];
             $details['product_index'] = ($key)+1;
             $details['no_of_product'] = $no_of_product;
-            ConditionCheckOnlyJob::dispatch($product,$details)->onQueue('condition_check_only');
+            ConditionCheckOnlyJob::dispatch($product,$details)->onQueue('conditioncheckonly');
             
             // Setting is_conditions_checked flag as 1
             /*$productRow = Product::find($product->id);
@@ -5218,7 +5218,7 @@ class ProductController extends Controller
             $details['product_index'] = ($key)+1;
             $details['no_of_product'] = $no_of_product;
             
-            PushProductFlow2OnlyJob::dispatch($product,$details)->onQueue('push_product_flow2_only');
+            PushProductFlow2OnlyJob::dispatch($product,$details)->onQueue('pushproductflow2only');
             
             /*$productRow = Product::find($product->id);
             $productRow->is_push_attempted = 1;
