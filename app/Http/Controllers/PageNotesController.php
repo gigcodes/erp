@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\GoogleAnalyticData;
 use App\Setting;
+use App\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request; //Purpose : Add Setting - DEVTASK-4289
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
+//Purpose : Add Setting - DEVTASK-4289
 
 //use Spatie\Permission\Models\Permission;
 //use Spatie\Permission\Models\Role;
@@ -62,7 +67,7 @@ class PageNotesController extends Controller
         ->orderBy('page_notes.id', 'desc')
         ->get()
         ->toArray();
-
+        
         return response()->json(['code' => 1, 'notes' => $pageNotes]);
     }
 
@@ -123,16 +128,39 @@ class PageNotesController extends Controller
         ->select(['page_notes.*', 'users.name', 'page_notes_categories.name as category_name']);
 
         //START - Purpose : Add search - DEVTASK-4289
-        if ($request->search) {
-            $search = '%'.$request->search.'%';
-            $records = $records->where('page_notes.note', 'like', $search);
-        }
+//        dump($request->all());
+        $note_title = $request->note_title;
+        $noteData = $request->note;
+        $records->where(function ($q) use (
+            $note_title,
+            $noteData
+        ) {
+            if ($note_title && count($note_title) > 0) {
+                $q->orWhere(function ($nestedQuery) use ($note_title) {
+                    foreach ($note_title as $value) {
+                        $nestedQuery->orWhere('page_notes.title', 'LIKE', '%'.$value.'%');
+                    }
+                });
+            }
+            if ($noteData && count($noteData) > 0) {
+                $q->orWhere(function ($nestedQuery) use ($noteData) {
+                    foreach ($noteData as $value) {
+                        $nestedQuery->orWhere('page_notes.note', 'LIKE', '%'.$value.'%');
+                    }
+                });
+            }
+        });
+        
         //END - DEVTASK-4289
 
         $records = $records->paginate(Setting::get('pagination'));
 
+        $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
+        $title =  \App\PageNotes::select('title')->distinct()->pluck('title')->toArray();
+        $note =  \App\PageNotes::select('note')->pluck('note')->toArray();
+        
         // return view("pagenotes.index");
-        return view('pagenotes.index', compact('records'));
+        return view('pagenotes.index', compact('records','category','title','note'));
         //END - DEVTASK-4289
     }
 
@@ -165,8 +193,9 @@ class PageNotesController extends Controller
     {
         \App\PageNotes::create([
             'url' => $request->url,
-            'category_id' => '',
+            'category_id' => $request->category,
             'note' => $request->data,
+            'title' => $request->title,
             'user_id' => \Auth::user()->id,
         ]);
 

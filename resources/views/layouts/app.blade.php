@@ -3417,6 +3417,10 @@ if (!empty($notifications)) {
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
                             <li>
+                                <a title="Create PageNote" class="create_notes_btn quick-icon" href="#"><span><i
+                                                class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <a title="Create Google Doc" type="button" data-toggle="modal" data-target="#createGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -5773,8 +5777,15 @@ if (!empty($notifications)) {
 
     $('.btn_save_notes').on('click', function(e) {
         e.preventDefault();
+        var title = $('#page_note_title').val();
+        var category = $('#category_name').val();
         var data = $('#editor-notes-content').val();
 
+        if (title == '') {
+            toastr['error']('Title Is Required');
+            return false;
+        }
+        
         if ($(data).text() == '') {
             toastr['error']('Note Is Required');
             return false;
@@ -5788,6 +5799,8 @@ if (!empty($notifications)) {
             data: {
                 data: data,
                 url: url,
+                title: title,
+                category: category,
                 _token: "{{ csrf_token() }}",
             },
             dataType: "json",
