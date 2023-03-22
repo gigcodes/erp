@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\GoogleTranslate;
 use App\PushFcmNotification;
+use App\Translations;
 use FCM;
 use Illuminate\Console\Command;
 use LaravelFCM\Message\OptionsBuilder;
@@ -42,9 +44,9 @@ class SendFcmNotification extends Command
      */
     public function handle()
     {
-        $fromdate = date('Y-m-d H:i');
+        $fromdate = date('Y-m-d H:i:s');
         $newtimestamp = strtotime($fromdate.' + 4 minute');
-        $todate = date('Y-m-d H:i', $newtimestamp);
+        $todate = date('Y-m-d H:i:s', $newtimestamp);
         echo $fromdate.' # '.$todate;
         echo PHP_EOL;
         \Log::info('fcm:send was started to run');
@@ -70,9 +72,28 @@ class SendFcmNotification extends Command
                     $optionBuilder = new OptionsBuilder();
                     $optionBuilder->setTimeToLive(60 * 20);
 
-                    $notificationBuilder = new PayloadNotificationBuilder($Notification->title);
-                    $notificationBuilder->setBody($Notification->body)
-                        ->setSound('default');
+                    $data_title                   =   '';
+                    $googleTranslate        =   new GoogleTranslate();
+                    $translationString      =   $googleTranslate->translate($Notification->lang, $Notification->title);
+
+                    if($translationString   !=  '') {
+                        Translations::addTranslation($Notification->title, $translationString, 'en', $Notification->lang);
+                        $data_title               =   htmlspecialchars_decode($translationString, ENT_QUOTES);
+                    }
+
+                    $data_body                   =   '';
+                    $googleTranslate        =   new GoogleTranslate();
+                    $translationString      =   $googleTranslate->translate($Notification->lang, $Notification->body);
+
+                    if($translationString   !=  '') {
+                        Translations::addTranslation($Notification->body, $translationString, 'en', $Notification->lang);
+                        $data_body               =   htmlspecialchars_decode($translationString, ENT_QUOTES);
+                    }
+
+                    $notificationBuilder = new PayloadNotificationBuilder($data_title);
+                    $notificationBuilder->setBody($data_body)
+                                        ->setSound('default');
+
 
                     $dataBuilder = new PayloadDataBuilder();
                     $dataBuilder->addData([
