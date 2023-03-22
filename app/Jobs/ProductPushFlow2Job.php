@@ -22,6 +22,12 @@ class ProductPushFlow2Job implements ShouldQueue
     protected $log;
 
     protected $mode;
+    
+    protected $details;
+    
+    protected $product_index;
+    
+    protected $no_of_product;
 
     /**
      * Create a new job instance.
@@ -32,12 +38,15 @@ class ProductPushFlow2Job implements ShouldQueue
      * @param  null  $log
      * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null)
+    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null,$details = [])
     {
         $this->_product = $product;
         $this->_website = $website;
         $this->log = $log;
         $this->mode = $mode;
+        $this->details = $details;
+        $this->product_index = (isset($details) && isset($details['product_index'])) ? $details['product_index']: 0;
+        $this->no_of_product = (isset($details) && isset($details['no_of_product'])) ? $details['no_of_product']: 0;
     }
 
     /**
@@ -50,5 +59,10 @@ class ProductPushFlow2Job implements ShouldQueue
         set_time_limit(0);
         $magentoService = new MagentoService($this->_product, $this->_website, $this->log, $this->mode);
         $magentoService->assignOperation();
+    }
+    
+    public function tags()
+    {
+        return ['product_'.$this->_product->id,'#'.$this->product_index,$this->no_of_product];
     }
 }

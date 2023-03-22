@@ -250,6 +250,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <script src="{{env('APP_URL')}}/js/jquery.jscroll.min.js"></script>
 <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
 <script src="{{env('APP_URL')}}/js/bootstrap-filestyle.min.js"></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
 
 <script>
     jQuery(document).ready(function() {
@@ -777,6 +778,18 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             },
             dataType: "json",
             success: function(response) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('send.web-notification') }}",
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'title': 'issue Id: '+ issueId,
+                        'body': textBox.val(),
+                        "issue_id": issueId,
+                        "sendTo": sendToStr,
+                    }
+                }).done(function (response) {
+                });
                 $("#loading-image").hide(); //Purpose : Hide loader - DEVTASK-4359
                 toastr["success"]("Message sent successfully!", "Message");
                 if (response.message) {
