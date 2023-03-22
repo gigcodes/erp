@@ -2616,7 +2616,6 @@ class WhatsAppController extends FindByNumberController
                         $prefix = ($issue->task_type_id == 1) ? '#DEVTASK-' : '#ISSUE-';
                         $params['message'] = $prefix.$issue->id.'-'.$issue->subject.'=>'.$request->get('message');
                         if (Auth::user() && Auth::user()->id != $userId) {
-                            
                             $chat_message = ChatMessage::create($params);
                             $this->sendWithThirdApi($number, $whatsapp, $params['message'], null, $chat_message->id);
                         }
@@ -2723,7 +2722,7 @@ class WhatsAppController extends FindByNumberController
 
                     MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id], $message_);
                     //END - DEVTASK-4359
-
+                    WebNotificationController::sendWebNotification2($request, $sendTo, $params['issue_id'], $prefix.$issue->id.'-'.$issue->subject, $request->get('message'));
                     return response()->json(['message' => isset($chat_message) ? $chat_message : ""]);
                 } elseif ($context == 'auto_task') {
                     $params['issue_id'] = $request->get('issue_id');
