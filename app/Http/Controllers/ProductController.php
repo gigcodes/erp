@@ -20,7 +20,9 @@ use App\HsCodeGroupsCategoriesComposition;
 use App\HsCodeSetting;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
-use App\Jobs\ConditionCheckFirstJob;
+use App\Jobs\PushProductOnlyJob;
+use App\Jobs\ConditionCheckOnlyJob;
+use App\Jobs\PushProductFlow2OnlyJob;
 use App\Jobs\ProductPushFlow2Job;
 use App\Language;
 use App\ListingHistory;
@@ -5083,9 +5085,16 @@ class ProductController extends Controller
             ->limit($limit)
             ->get();
         \Log::info('Product push star time: '.date('Y-m-d H:i:s'));
+        $no_of_product = count($products);
         foreach ($products as $key => $product) {
+            
+            $details = [];
+            $details['product_index'] = ($key)+1;
+            $details['no_of_product'] = $no_of_product;
+            
+            PushProductOnlyJob::dispatch($product,$details)->onQueue('push_product_only');
             // Setting is_conditions_checked flag as 1
-            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
+            /*$websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
             if (! empty($websiteArrays)) {
                 $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
@@ -5113,7 +5122,7 @@ class ProductController extends Controller
                 }
             } else {
                 ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-            }
+            }*/
         }
         \Log::info('Product push end time: '.date('Y-m-d H:i:s'));
 
@@ -5137,10 +5146,17 @@ class ProductController extends Controller
             ->groupBy('brand', 'category')
             ->limit($limit)
             ->get();
-
+        
+        $no_of_product = count($products);
         foreach ($products as $key => $product) {
+            
+            $details = [];
+            $details['product_index'] = ($key)+1;
+            $details['no_of_product'] = $no_of_product;
+            ConditionCheckOnlyJob::dispatch($product,$details)->onQueue('condition_check_only');
+            
             // Setting is_conditions_checked flag as 1
-            $productRow = Product::find($product->id);
+            /*$productRow = Product::find($product->id);
             $productRow->is_conditions_checked = 1;
             $productRow->save();
             \Log::info('Product conditions check started and is_conditions_checked set as 1!');
@@ -5165,7 +5181,7 @@ class ProductController extends Controller
                 }
             } else {
                 ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-            }
+            }*/
         }
 
         if ($mode == 'conditions-check') {
@@ -5194,9 +5210,17 @@ class ProductController extends Controller
         if ($products->count() == 0) {
             return response()->json(['code' => 500, 'message' => 'No products found!']);
         }
-
+        
+        $no_of_product = count($products);
         foreach ($products as $product) {
-            $productRow = Product::find($product->id);
+            
+            $details = [];
+            $details['product_index'] = ($key)+1;
+            $details['no_of_product'] = $no_of_product;
+            
+            PushProductFlow2OnlyJob::dispatch($product,$details)->onQueue('push_product_flow2_only');
+            
+            /*$productRow = Product::find($product->id);
             $productRow->is_push_attempted = 1;
             $productRow->save();
 
@@ -5220,7 +5244,7 @@ class ProductController extends Controller
                 }
             } else {
                 ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-            }
+            }*/
         }
 
         return response()->json(['code' => 200, 'message' => 'Product pushed to magento successfully!']);
