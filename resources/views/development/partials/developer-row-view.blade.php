@@ -65,6 +65,9 @@
 
 
         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top: 2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+        <a class="btn btn-xs btn-image" title="View Drive Files" onclick="fetchGoogleDriveFileData('{{$issue->id}}')" style="margin-top: 2%;">
+        <img width="2px;" src="/images/google-drive.png"/>
+        </a>
         <br>
         <div class="td-full-container hidden">
             <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>

@@ -26,12 +26,14 @@ class GoogleScreencastController extends Controller
         //get file list
         $data = GoogleScreencast::orderBy('id', 'desc');
         //fetch task list
-        $taskList = DeveloperTask::select('id','subject')->where('task_type_id',1)->orderBy('id', 'desc');
+        $taskList = DeveloperTask::where('task_type_id',1)->orderBy('id', 'desc');
         if(!Auth::user()->isAdmin())
         {
-            $taskList = $taskList->where('user_id', Auth::id());
+            $taskList = $taskList->where('user_id', Auth::id())->orWhere('assigned_to', Auth::id())->orWhere('tester_id', Auth::id())->orWhere('team_lead_id', Auth::id());
         }
-        $tasks = $taskList->get();
+        $tasks = $taskList->select('id','subject')->get();
+        $taskIds = $taskList->pluck('id');
+        //print"<pre>";print_r($taskIds);exit;
         $users = User::select('id','name','email','gmail')->whereNotNull('gmail')->get();
         if ($keyword = request('name')) {
             $data = $data->where(function ($q) use ($keyword) {
@@ -55,7 +57,7 @@ class GoogleScreencastController extends Controller
         }
         if(empty($request->input('name')) && empty($request->input('docid')) && empty($request->input('task_id')) && !Auth::user()->isAdmin())
         {
-            $data->where('user_id',Auth::id())->orWhereRaw("find_in_set('".Auth::user()->gmail."',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('".Auth::user()->gmail."',google_drive_screencast_upload.write)");
+            $data->whereIn('developer_task_id',$taskIds)->orWhere('user_id',Auth::id())->orWhereRaw("find_in_set('".Auth::user()->gmail."',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('".Auth::user()->gmail."',google_drive_screencast_upload.write)");
         }
         $data = $data->get();
 
@@ -149,7 +151,7 @@ class GoogleScreencastController extends Controller
     {
         //
     }
-    public function filePermissionUpdate(Request $request)
+    public function driveFilePermissionUpdate(Request $request)
     {
         $fileId = request('file_id');
         $fileData = GoogleScreencast::find(request('id'));
@@ -235,5 +237,24 @@ class GoogleScreencastController extends Controller
         }
         GoogleScreencast::where('google_drive_file_id', $id)->delete();
         return redirect()->back()->with('success', 'Your File has been deleted successfuly!');
+    }
+    
+    /**
+     * Get drive files for requested task
+     */
+    public function getTaskDriveFiles($taskId)
+    {
+        $driveFiles = GoogleScreencast::where('developer_task_id', $taskId)->orderBy('id', 'desc')->get();
+
+        $driveFileData = '';
+
+        foreach ($driveFiles as $driveFile) {
+            $driveFileData .= '<tr><td>'.$driveFile['file_name'].'</td><td>'.$driveFile['file_creation_date'].'</td><td><input class="fileUrl" type="text" value="'.env('GOOGLE_DRIVE_FILE_URL').$driveFile['google_drive_file_id'].'/view?usp=share_link" /><button class="copy-button btn btn-secondary" data-message="'.env('GOOGLE_DRIVE_FILE_URL').$driveFile['google_drive_file_id'].'/view?usp=share_link">Copy</button></td><td>'.$driveFile['remarks'].'</td></tr>';
+        }
+        if ($driveFileData == '') {
+            $driveFileData = '<tr><td colspan="4">No data found.</td></tr>';
+        }
+
+        return $driveFileData;
     }
 }
