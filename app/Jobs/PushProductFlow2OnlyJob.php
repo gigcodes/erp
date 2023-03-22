@@ -58,6 +58,7 @@ class PushProductFlow2OnlyJob implements ShouldQueue
         set_time_limit(0);
         
         $product = $this->_product;
+        $mode = 'product-push';
 
         // Setting is_push_attempted flag as 1
         $productRow = Product::find($product->id);
