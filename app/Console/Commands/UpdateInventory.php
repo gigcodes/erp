@@ -63,7 +63,6 @@ class UpdateInventory extends Command
                 ->select('sp.last_inventory_at', 'sp.sku', 'sc.inventory_lifetime', 'suppliers.id as supplier_id', 'sp.id as sproduct_id', 'last_cron_check')
                 ->groupBy('sku')
                 ->get();
-
             $skuProductArr = [];
             
             $skusArr = $products->pluck('sku')->toArray();
@@ -96,7 +95,6 @@ class UpdateInventory extends Command
                     $hasInventory = false;
                     $today = date('Y-m-d');
                     $productId = null;
-
                     foreach ($skuRecords as $records) {
                         $sku = $records['sku'];
                         $last_cron_check = $records['last_cron_check'];
@@ -113,7 +111,6 @@ class UpdateInventory extends Command
                             $inventoryLifeTime = isset($records['inventory_lifetime']) && is_numeric($records['inventory_lifetime'])
                             ? $records['inventory_lifetime']
                             : 0;
-
                             if (isset($records['product_id']) && isset($records['supplier_id'])) {
                                 $history = \App\InventoryStatusHistory::where('date', $today)->where('product_id', $records['product_id'])->where('supplier_id', $records['supplier_id'])->first();
                                 $lasthistory = \App\InventoryStatusHistory::where('date', '<', $today)->where('product_id', $records['product_id'])->where('supplier_id', $records['supplier_id'])->orderBy('created_at', 'desc')->first();
@@ -148,8 +145,7 @@ class UpdateInventory extends Command
                                 $productId = $records['product_id'];
                             } else {
                                 \Log::info('product_id or supplier_id is not found');
-                            }
-
+                            }   
                             if (is_null($records['last_inventory_at']) || strtotime($records['last_inventory_at']) < strtotime('-'.$inventoryLifeTime.' days')) {
                                 $needToCheck[] = ['id' => $records['product_id'], 'sku' => $records['sku'].$records['color']];
                                 \Log::info('Last inventory condition is success');
@@ -186,7 +182,7 @@ class UpdateInventory extends Command
                     \App\InventoryStatusHistory::insert($statusHistory);
                     \Log::info('********InventoryStatusHistory Bulk Insert********:'.json_encode($statusHistory));
                 }
-
+                
                 if (! empty($needToCheck)) {
                     \Log::info('********needToCheck********:'.json_encode($needToCheck));
                     try {
