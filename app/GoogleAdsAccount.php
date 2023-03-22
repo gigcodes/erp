@@ -23,7 +23,22 @@ class GoogleAdsAccount extends Model
      */
     protected $table = 'googleadsaccounts';
 
-    protected $fillable = ['google_customer_id', 'account_name', 'store_websites', 'config_file_path', 'notes', 'status'];
+    protected $fillable = [
+        'google_customer_id',
+        'account_name',
+        'store_websites',
+        'config_file_path',
+        'notes',
+        'status',
+        'google_adwords_client_account_email',
+        'google_adwords_client_account_password',
+        'google_adwords_manager_account_customer_id',
+        'google_adwords_manager_account_email',
+        'google_adwords_manager_account_password',
+        'oauth2_client_id',
+        'oauth2_client_secret',
+        'oauth2_refresh_token',
+    ];
 
     public function campaigns(): HasMany
     {

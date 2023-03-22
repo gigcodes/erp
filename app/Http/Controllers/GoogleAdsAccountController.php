@@ -94,22 +94,26 @@ class GoogleAdsAccountController extends Controller
             'google_customer_id' => 'required|integer',
             'account_name' => 'required',
             'store_websites' => 'required',
-            'config_file_path' => 'required',
+            // 'config_file_path' => 'required',
             'status' => 'required',
             'notes' => 'required',
+            'google_adwords_client_account_email' => 'required|email',
+            'google_adwords_client_account_password' => 'required',
+            'google_adwords_manager_account_customer_id' => 'required|integer',
+            'google_adwords_manager_account_email' => 'required|email',
+            'google_adwords_manager_account_password' => 'required',
+            'oauth2_client_id' => 'required',
+            'oauth2_client_secret' => 'required',
+            'oauth2_refresh_token' => 'required',
         ]);
 
         try {
-            $accountArray = [
-                'google_customer_id' => $request->google_customer_id,
-                'account_name' => $request->account_name,
-                'store_websites' => $request->store_websites,
-                'notes' => $request->notes,
-                'status' => $request->status,
-            ];
-            $googleadsAc = \App\GoogleAdsAccount::create($accountArray);
+
+            $input = $request->all();
+            $googleadsAc = \App\GoogleAdsAccount::create($input);
             $account_id = $googleadsAc->id;
-            if ($request->file('config_file_path')) {
+
+            /*if ($request->file('config_file_path')) {
 
                 ini_set('max_execution_time', -1);
 
@@ -119,7 +123,7 @@ class GoogleAdsAccountController extends Controller
                 $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
                 $googleadsAc->config_file_path = $getfilename;
                 $googleadsAc->save();
-            }
+            }*/
 
             // Insert google ads log 
             $input = array(
@@ -170,19 +174,22 @@ class GoogleAdsAccountController extends Controller
             'account_name' => 'required',
             'store_websites' => 'required',
             'status' => 'required',
+            'google_adwords_client_account_email' => 'required|email',
+            'google_adwords_client_account_password' => 'required',
+            'google_adwords_manager_account_customer_id' => 'required|integer',
+            'google_adwords_manager_account_email' => 'required|email',
+            'google_adwords_manager_account_password' => 'required',
+            'oauth2_client_id' => 'required',
+            'oauth2_client_secret' => 'required',
+            'oauth2_refresh_token' => 'required',
         ]);
 
         try {
-            $accountArray = [
-                'google_customer_id' => $request->google_customer_id,
-                'account_name' => $request->account_name,
-                'store_websites' => $request->store_websites,
-                'notes' => $request->notes,
-                'status' => $request->status,
-            ];
+            $input = $request->all();
             $googleadsAcQuery = new \App\GoogleAdsAccount;
             $googleadsAc = $googleadsAcQuery->find($account_id);
-            if ($request->file('config_file_path')) {
+            
+            /*if ($request->file('config_file_path')) {
 
                 ini_set('max_execution_time', -1);
                 
@@ -194,9 +201,9 @@ class GoogleAdsAccountController extends Controller
                     ->toDestination('adsapi', $account_id)
                     ->upload();
                 $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
-                $accountArray['config_file_path'] = $getfilename;
-            }
-            $googleadsAc->fill($accountArray);
+                $input['config_file_path'] = $getfilename;
+            }*/
+            $googleadsAc->fill($input);
             $googleadsAc->save();
 
             // Insert google ads log 

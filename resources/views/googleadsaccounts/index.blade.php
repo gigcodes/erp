@@ -11,6 +11,25 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
+
+    legend {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        padding: 0;
+        margin-bottom: 0;
+        font-size: 1.5rem;
+        line-height: inherit;
+        color: inherit;
+        white-space: normal;
+        border-bottom:none !important;
+    }
+    fieldset {
+        padding: 10px 10px;
+        margin: 20px 2px;
+        border: 1px solid #c0c0c07a;
+        border-radius: 4px;
+    }
 </style>
 @endsection
 @section('content')
@@ -58,7 +77,7 @@
                     <th>#ID</th>
                     <th>Account Name</th>
                     <th>Store Website</th>
-                    <th>Config-File</th>
+                    <th>Google AdWords Client Customer Id</th>
                     <th>Notes</th>
                     <th>Status</th>
                     <th>Created At</th>
@@ -72,7 +91,7 @@
                     <td>{{$loop->iteration}}</td>
                     <td>{{$googleadsac->account_name}}</td>
                     <td>{{$googleadsac->store_websites}}</td>
-                    <td>{{$googleadsac->config_file_path}}</td>
+                    <td>{{$googleadsac->google_customer_id}}</td>
                     <td>{{$googleadsac->notes}}</td>
                     <td>{{$googleadsac->status}}</td>
                     <td>{{$googleadsac->created_at}}</td>
@@ -148,15 +167,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group row">
-                        <label for="google_customer_id" class="col-sm-2 col-form-label">Google Customer Id</label>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" id="google_customer_id" name="google_customer_id" placeholder="Google Customer Id">
-                            @if ($errors->has('google_customer_id'))
-                                <span class="text-danger">{{$errors->first('google_customer_id')}}</span>
-                            @endif
-                        </div>
-                    </div>
 
                     <div class="form-group row">
                         <label for="store_websites" class="col-sm-2 col-form-label">Store Websites</label>
@@ -183,7 +193,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    {{-- <div class="form-group row">
                         <label for="config_file_path" class="col-sm-2 col-form-label">Config File</label>
                         <div class="col-sm-6">
                             <input type="file" class="form-control" id="config_file_path" name="config_file_path">
@@ -191,7 +201,108 @@
                                 <span class="text-danger">{{$errors->first('config_file_path')}}</span>
                             @endif
                         </div>
-                    </div>
+                    </div> --}}
+
+                    <fieldset>
+                        <legend class="lagend">Google AdWords Client Account</legend>
+                        <div class="form-group row mt-2">
+                            <label for="google_customer_id" class="col-sm-2 col-form-label">Customer Id</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="google_customer_id" name="google_customer_id" placeholder="Customer Id">
+                                @if ($errors->has('google_customer_id'))
+                                    <span class="text-danger">{{$errors->first('google_customer_id')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="google_adwords_client_account_email" class="col-sm-2 col-form-label">Email Address</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="google_adwords_client_account_email" name="google_adwords_client_account_email" placeholder="Email Address">
+                                @if ($errors->has('google_adwords_client_account_email'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_client_account_email')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="google_adwords_client_account_password" class="col-sm-2 col-form-label">Password</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="google_adwords_client_account_password" name="google_adwords_client_account_password" placeholder="Password">
+                                @if ($errors->has('google_adwords_client_account_password'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_client_account_password')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </fieldset>
+
+
+                    <fieldset>
+                        <legend class="lagend">Google AdWords Manager Account</legend>
+                        <div class="form-group row mt-2">
+                            <label for="google_adwords_manager_account_customer_id" class="col-sm-2 col-form-label">Customer Id</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="google_adwords_manager_account_customer_id" name="google_adwords_manager_account_customer_id" placeholder="Customer Id">
+                                @if ($errors->has('google_adwords_manager_account_customer_id'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_manager_account_customer_id')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="google_adwords_manager_account_email" class="col-sm-2 col-form-label">Email Address</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="google_adwords_manager_account_email" name="google_adwords_manager_account_email" placeholder="Email Address">
+                                @if ($errors->has('google_adwords_manager_account_email'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_manager_account_email')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="google_adwords_manager_account_password" class="col-sm-2 col-form-label">Password</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="google_adwords_manager_account_password" name="google_adwords_manager_account_password" placeholder="Password">
+                                @if ($errors->has('google_adwords_manager_account_password'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_manager_account_password')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </fieldset>
+
+
+                    <fieldset>
+                        <legend class="lagend">OAuth2</legend>
+                        <div class="form-group row">
+                            <label for="oauth2_client_id" class="col-sm-2 col-form-label">Client Id</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="oauth2_client_id" name="oauth2_client_id" placeholder="Client Id">
+                                @if ($errors->has('oauth2_client_id'))
+                                    <span class="text-danger">{{$errors->first('oauth2_client_id')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="oauth2_client_secret" class="col-sm-2 col-form-label">Client Secret</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="oauth2_client_secret" name="oauth2_client_secret" placeholder="Client Secret">
+                                @if ($errors->has('oauth2_client_secret'))
+                                    <span class="text-danger">{{$errors->first('oauth2_client_secret')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="oauth2_refresh_token" class="col-sm-2 col-form-label">Refresh Token</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="oauth2_refresh_token" name="oauth2_refresh_token" placeholder="Refresh Token">
+                                @if ($errors->has('oauth2_refresh_token'))
+                                    <span class="text-danger">{{$errors->first('oauth2_refresh_token')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </fieldset>
 
                     <div class="form-group row">
                         <label for="status" class="col-sm-2 col-form-label">Status</label>
@@ -241,16 +352,6 @@
                     </div>
 
                     <div class="form-group row">
-                        <label for="google_customer_id" class="col-sm-2 col-form-label">Google Customer Id</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="edit_google_customer_id" name="google_customer_id" placeholder="Google Customer Id" value="">
-                            @if ($errors->has('google_customer_id'))
-                                <span class="text-danger">{{$errors->first('google_customer_id')}}</span>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
                         <label for="store_websites" class="col-sm-2 col-form-label">Store Website</label>
                         <div class="col-sm-10">
                             <select class="browser-default custom-select" id="edit_store_websites" name="store_websites" style="height: auto">
@@ -275,7 +376,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    {{-- <div class="form-group row">
                         <label for="config_file_path" class="col-sm-2 col-form-label">Config File</label>
                         <div class="col-sm-10">
                             <input type="file" class="form-control" id="edit_config_file_path" name="config_file_path">
@@ -283,7 +384,108 @@
                                 <span class="text-danger">{{$errors->first('config_file_path')}}</span>
                             @endif
                         </div>
-                    </div>
+                    </div> --}}
+
+                    <fieldset>
+                        <legend class="lagend">Google AdWords Client Account</legend>
+                        <div class="form-group row mt-2">
+                            <label for="edit_google_customer_id" class="col-sm-2 col-form-label">Customer Id</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_google_customer_id" name="google_customer_id" placeholder="Customer Id">
+                                @if ($errors->has('google_customer_id'))
+                                    <span class="text-danger">{{$errors->first('google_customer_id')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="edit_google_adwords_client_account_email" class="col-sm-2 col-form-label">Email Address</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_google_adwords_client_account_email" name="google_adwords_client_account_email" placeholder="Email Address">
+                                @if ($errors->has('google_adwords_client_account_email'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_client_account_email')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="edit_google_adwords_client_account_password" class="col-sm-2 col-form-label">Password</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_google_adwords_client_account_password" name="google_adwords_client_account_password" placeholder="Password">
+                                @if ($errors->has('google_adwords_client_account_password'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_client_account_password')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </fieldset>
+
+
+                    <fieldset>
+                        <legend class="lagend">Google AdWords Manager Account</legend>
+                        <div class="form-group row mt-2">
+                            <label for="edit_google_adwords_manager_account_customer_id" class="col-sm-2 col-form-label">Customer Id</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_google_adwords_manager_account_customer_id" name="google_adwords_manager_account_customer_id" placeholder="Customer Id">
+                                @if ($errors->has('google_adwords_manager_account_customer_id'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_manager_account_customer_id')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="edit_google_adwords_manager_account_email" class="col-sm-2 col-form-label">Email Address</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_google_adwords_manager_account_email" name="google_adwords_manager_account_email" placeholder="Email Address">
+                                @if ($errors->has('google_adwords_manager_account_email'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_manager_account_email')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="edit_google_adwords_manager_account_password" class="col-sm-2 col-form-label">Password</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_google_adwords_manager_account_password" name="google_adwords_manager_account_password" placeholder="Password">
+                                @if ($errors->has('google_adwords_manager_account_password'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_manager_account_password')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </fieldset>
+
+
+                    <fieldset>
+                        <legend class="lagend">OAuth2</legend>
+                        <div class="form-group row">
+                            <label for="edit_oauth2_client_id" class="col-sm-2 col-form-label">Client Id</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_oauth2_client_id" name="oauth2_client_id" placeholder="Client Id">
+                                @if ($errors->has('oauth2_client_id'))
+                                    <span class="text-danger">{{$errors->first('oauth2_client_id')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="edit_oauth2_client_secret" class="col-sm-2 col-form-label">Client Secret</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_oauth2_client_secret" name="oauth2_client_secret" placeholder="Client Secret">
+                                @if ($errors->has('oauth2_client_secret'))
+                                    <span class="text-danger">{{$errors->first('oauth2_client_secret')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="edit_oauth2_refresh_token" class="col-sm-2 col-form-label">Refresh Token</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_oauth2_refresh_token" name="oauth2_refresh_token" placeholder="Refresh Token">
+                                @if ($errors->has('oauth2_refresh_token'))
+                                    <span class="text-danger">{{$errors->first('oauth2_refresh_token')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </fieldset>
 
                     <div class="form-group row">
                         <label for="status" class="col-sm-2 col-form-label">Status</label>
@@ -388,7 +590,6 @@
             dataType: "json",
             headers: {'X-Requested-With': 'XMLHttpRequest'},
             success: function (data) {
-                $('#EditModal').show();
                 $("#account_id").val(data.id);
                 $("#edit_account_name").val(data.account_name);
                 $('#edit_google_customer_id').val(data.google_customer_id);
@@ -396,6 +597,17 @@
                 $('#edit_notes').val(data.notes);
                 $('#edit_config_file_path').val(data.config_file_path);
                 $('#edit_status').val(data.status);
+
+                $('#edit_google_adwords_client_account_email').val(data.google_adwords_client_account_email);
+                $('#edit_google_adwords_client_account_password').val(data.google_adwords_client_account_password);
+                $('#edit_google_adwords_manager_account_customer_id').val(data.google_adwords_manager_account_customer_id);
+                $('#edit_google_adwords_manager_account_email').val(data.google_adwords_manager_account_email);
+                $('#edit_google_adwords_manager_account_password').val(data.google_adwords_manager_account_password);
+                $('#edit_oauth2_client_id').val(data.oauth2_client_id);
+                $('#edit_oauth2_client_secret').val(data.oauth2_client_secret);
+                $('#edit_oauth2_refresh_token').val(data.oauth2_refresh_token);
+
+                $('#EditModal').show();
             }
         });
     }
