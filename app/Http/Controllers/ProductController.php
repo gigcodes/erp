@@ -5212,7 +5212,7 @@ class ProductController extends Controller
         }
         
         $no_of_product = count($products);
-        foreach ($products as $product) {
+        foreach ($products as $key => $product) {
             
             $details = [];
             $details['product_index'] = ($key)+1;
