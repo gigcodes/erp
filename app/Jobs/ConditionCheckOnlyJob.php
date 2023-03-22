@@ -58,6 +58,7 @@ class ConditionCheckOnlyJob implements ShouldQueue
         set_time_limit(0);
         
         $product = $this->_product;
+        $mode = 'conditions-check';
 
         // Setting is_conditions_checked flag as 1
         $productRow = Product::find($product->id);
