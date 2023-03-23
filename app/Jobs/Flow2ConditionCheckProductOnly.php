@@ -16,7 +16,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use App\Loggers\LogListMagento;
-class PushProductFlow2OnlyJob implements ShouldQueue
+class Flow2ConditionCheckProductOnly implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -58,29 +58,30 @@ class PushProductFlow2OnlyJob implements ShouldQueue
         set_time_limit(0);
         
         $product = $this->_product;
-        $mode = 'product-push';
+        $mode = 'conditions-check';
 
-        // Setting is_push_attempted flag as 1
+        // Setting is_conditions_checked flag as 1
         $productRow = Product::find($product->id);
-        $productRow->is_push_attempted = 1;
+        $productRow->is_conditions_checked = 1;
         $productRow->save();
+        \Log::info('Product conditions check started and is_conditions_checked set as 1!');
 
-        $category = $product->categories;
         $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
+        \Log::info('Gets all websites to process the condition check of a product!');
         if (! empty($websiteArrays)) {
             $i = 1;
             foreach ($websiteArrays as $websiteArray) {
                 $website = $websiteArray;
                 if ($website) {
-                    \Log::info('Product push started For the website'.$website->website);
-                    $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
+                    \Log::info('Product conditions check started website found For website '.$website->website);
+                    $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
                     $log->queue = \App\Helpers::createQueueName($website->title);
                     $log->save();
-                    ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                    ProductPushFlow2Job::dispatch($product, $website, $log,$mode,$this->details)->onQueue($log->queue);
+                    ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
+                    Flow2ConditionCheckBasic::dispatch($product, $website, $log, $mode,$this->details)->onQueue($log->queue);
                     $i++;
                 } else {
-                    ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
+                    ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', null, null, null, null, null);
                 }
             }
         } else {
@@ -91,7 +92,7 @@ class PushProductFlow2OnlyJob implements ShouldQueue
     public function failed(\Throwable $exception = null)
     {
         $product = $this->_product; 
-        ProductPushErrorLog::log('', $product->id, 'PushProductFlow2OnlyJob Failed Product'.$product->name, 'error', null, null, null, null, null);
+        ProductPushErrorLog::log('', $product->id, 'Flow2ConditionCheckBasic Failed Product'.$product->name, 'error', null, null, null, null, null);
     }
 
     public function tags()
