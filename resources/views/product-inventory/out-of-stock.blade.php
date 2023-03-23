@@ -7,11 +7,11 @@
 @endsection
 
 @section('large_content')
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">Out Of Stock Products({{ $products_count }})</h2>
         </div>
-    </div>
+    </div> --}}
     <div class="modal fade" id="productLogs" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
