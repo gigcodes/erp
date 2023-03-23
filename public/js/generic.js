@@ -345,7 +345,7 @@ var getHtml = function(response) {
             }
 
             li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message copy_message'+message.id+'" id="main_message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
-            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + datetime + '</span>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendTo + ' to ' + message.sendBy + ' on ' + datetime + '</span>';
 
 
         } else if (message.inout == 'out') {
@@ -364,7 +364,9 @@ var getHtml = function(response) {
         li += '</div>';
         fullHtml = fullHtml + '<td style="width:45%">' + li + '</td>';
         fullHtml = fullHtml + '<td style="width:30%">' + button + '</td>'; 
-        fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + '</td></tr>'; 
+        fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + '</td></tr>';
+        console.log(fromMsg);
+
     });
     fullHtml = fullHtml + '</table></div>';
     return fullHtml;

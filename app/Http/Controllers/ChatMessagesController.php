@@ -354,7 +354,6 @@ class ChatMessagesController extends Controller
             } else {
                 $textMessage = htmlentities($chatMessage->message);
             }
-            //dd($object);
             $isOut = ($chatMessage->number != $object->phone) ? true : false;
             //check for parent message
             $textParent = null;
@@ -462,8 +461,8 @@ class ChatMessagesController extends Controller
                     'sop_category' => @$sopdata->category,
                     'sop_content' => @$sopdata->content,
                     'inout' => ($isOut) ? 'out' : 'in',
-                    'sendTo' => User::where('id', $chatMessage->sent_to_user_id)->value('name') ,
-                    'sendBy' => User::where('id', $chatMessage->user_id)->value('name'),
+                    'sendBy' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites' || $request->object == 'developer_task') ? User::where('id', $chatMessage->sent_to_user_id)->value('name') : (($isOut) ? 'ERP' : $objectname),
+                    'sendTo' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites' || $request->object == 'developer_task') ? User::where('id', $chatMessage->user_id)->value('name') : (($isOut) ? $object->name : 'ERP'),
                     'message' => $textMessage,
                     'parentMessage' => $textParent,
                     'media_url' => $chatMessage->media_url,
