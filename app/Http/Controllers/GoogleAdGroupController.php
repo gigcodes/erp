@@ -31,6 +31,8 @@ use App\Models\GoogleAppAd;
 use App\Models\GoogleAppAdImage;
 use App\GoogleAd;
 
+use App\Helpers\GoogleAdsHelper;
+
 class GoogleAdGroupController extends Controller
 {
     const PAGE_LIMIT = 500;
@@ -218,7 +220,7 @@ class GoogleAdGroupController extends Controller
             $microAmount = $request->microAmount * 1000000;
             $adGroupStatus = $adGroupStatusArr[$request->adGroupStatus];
 
-            $storagepath = $this->getstoragepath($account_id);
+            // $storagepath = $this->getstoragepath($account_id);
             $addgroupArray['adgroup_google_campaign_id'] = $campaignId;
             $addgroupArray['google_customer_id'] = $customerId;
             $addgroupArray['ad_group_name'] = $adGroupName;
@@ -227,16 +229,8 @@ class GoogleAdGroupController extends Controller
             // $criterionTypeGroup = $criterionTypeGroups[$request->criterionTypeGroup];
             // $adRotationMode = $adRotationModes[$request->adRotationMode];
 
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
 
@@ -364,7 +358,7 @@ class GoogleAdGroupController extends Controller
         $campaign_name = $acDetail['campaign_name'];
         $campaign_channel_type = $acDetail['campaign_channel_type'];
 
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
         // $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         // // Construct an API session configured from a properties file and the
@@ -427,7 +421,7 @@ class GoogleAdGroupController extends Controller
         $this->validate($request, $rules);
 
         try {
-            $storagepath = $this->getstoragepath($account_id);
+            // $storagepath = $this->getstoragepath($account_id);
             $addgroupArray = [];
             $adGroupStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
             $adGroupId = $request->adGroupId;
@@ -439,16 +433,8 @@ class GoogleAdGroupController extends Controller
             $addgroupArray['bid'] = $request->cpcBidMicroAmount ?? null;
             $addgroupArray['status'] = $adGroupStatus;
 
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             // Creates an ad group object with the specified resource name and other changes.
             $addgroupArr = array(
@@ -510,21 +496,13 @@ class GoogleAdGroupController extends Controller
         $campaign_name = $acDetail['campaign_name'];
         $customerId = $acDetail['google_customer_id'];
 
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $adGroup = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->firstOrFail();
 
         try {
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             // Creates ad group resource name.
             $adGroupResourceName = ResourceNames::forAdGroup($customerId, $adGroupId);
@@ -581,7 +559,7 @@ class GoogleAdGroupController extends Controller
         $campaignId = $request->campaignId;
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $keywords = [];
         if(!empty($request->scan_keywords)){
@@ -591,17 +569,11 @@ class GoogleAdGroupController extends Controller
             }
         }
 
-        $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
         // Generate a refreshable OAuth2 credential for authentication.
-        $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-        $googleAdsClient = (new GoogleAdsClientBuilder())
-                            ->from($oAuth2Configuration)
-                            ->withOAuth2Credential($oAuth2Credential)
-                            ->build();
+        $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
         
         $customerId = $googleAdsClient->getLoginCustomerId();
+        
         $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
 
         $pageUrl = $request->scanurl;

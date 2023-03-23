@@ -30,12 +30,7 @@
 @section('content')
     <h2 class="page-heading">Google AdWords - Campaigns ( <span id="ads_campaign_count">{{$totalNumEntries}} </span>)
 
-        <div class="pull-right">
-            <form method="get" data-toggle="modal" data-target="#create-compaign" {{--action="/google-campaigns/create"--}}>
-                <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
-                <button type="button" class="float-right mb-3 btn-secondary">New Campaign</button>
-            </form>
-        </div>
+        <a class="btn-image float-right custom-button" href="{{ route('googleadsaccount.index') }}">Back to Account</a>
     </h2>
     <div class="container-fluid p-0" style="margin-top: 10px">
 
@@ -43,7 +38,7 @@
         <div class="form-group" style="margin-bottom: 10px;">
             <div class="row m-0">
                 
-            <div class="col-md-2 pl-3">
+                <div class="col-md-1 pl-3">
                     <input name="googlecampaign_id" type="text" class="form-control" value="{{ isset($googlecampaign_id) ? $googlecampaign_id : '' }}" placeholder="Campaign Id" id="googlecampaign_id">
                 </div>
                 
@@ -76,9 +71,16 @@
 
                 </div>
 
-                <div class="col-md-2 pl-0">
+                <div class="col-md-1 pl-0">
                     <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png" /></button>
                     <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" /></button>
+                </div>
+
+                <div class="col-md-2 pl-0">
+                    <form method="get" data-toggle="modal" data-target="#create-compaign" {{--action="/google-campaigns/create"--}}>
+                        <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
+                        <button type="button" class="float-right mb-3 btn-secondary">New Campaign</button>
+                    </form>
                 </div>
 
             </div>
