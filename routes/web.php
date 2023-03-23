@@ -829,6 +829,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('productlister', ProductListerController::class);
     Route::resource('productapprover', ProductApproverController::class);
     Route::get('productinventory/product-images/{id}', [ProductInventoryController::class, 'getProductImages'])->name('productinventory.product-images');
+    Route::get('productinventory/out-of-stock', [ProductInventoryController::class, 'getStockwithZeroQuantity'])->name('productinventory.out-of-stock');
+    Route::get('productinventory/out-of-stock-product-log', [ProductInventoryController::class, 'outOfStockProductLog'])->name('productinventory.out-of-stock-product-log');
     Route::get('productinventory/product-rejected-images/{id}', [ProductInventoryController::class, 'getProductRejectedImages'])->name('productinventory.product-rejected-images');
     Route::post('productinventory/import', [ProductInventoryController::class, 'import'])->name('productinventory.import');
     Route::get('productinventory/list', [ProductInventoryController::class, 'list'])->name('productinventory.list');

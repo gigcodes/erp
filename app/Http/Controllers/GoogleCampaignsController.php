@@ -52,6 +52,8 @@ use App\Models\GoogleAppAdImage;
 use App\GoogleAd;
 use App\GoogleAdsGroup;
 
+use App\Helpers\GoogleAdsHelper;
+
 class GoogleCampaignsController extends Controller
 {
     // show campaigns in main page
@@ -222,7 +224,7 @@ class GoogleCampaignsController extends Controller
         } else {
             return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
         }
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
         //echo $storagepath; exit;
         //echo $storagepath; exit;
         /* $oAuth2Credential = (new OAuth2TokenBuilder())
@@ -401,7 +403,7 @@ class GoogleCampaignsController extends Controller
             $campaignArray['account_id'] = $account_id;
             $campaignArray['google_customer_id'] = $customerId;
 
-            $storagepath = $this->getstoragepath($account_id);
+            // $storagepath = $this->getstoragepath($account_id);
             $campaignArray['campaign_name'] = $campaignName;
             $campaignArray['budget_amount'] = $request->budgetAmount;
             $campaignArray['start_date'] = $campaign_start_date;
@@ -483,17 +485,9 @@ class GoogleCampaignsController extends Controller
                 $sales_country = '';
             }
             $campaignArray['sales_country'] = $sales_country;
-
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
+            
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             $budget = self::addCampaignBudget($googleAdsClient, $customerId, $budgetAmount, $channel_type);
             $campaignArray['budget_uniq_id'] = $budget['budget_uniq_id'] ?? null;
@@ -675,7 +669,7 @@ class GoogleCampaignsController extends Controller
         $account_id = $campaignDetail->account_id;
         $customerId = $campaignDetail->google_customer_id;
         try {
-            $storagepath = $this->getstoragepath($account_id);
+            // $storagepath = $this->getstoragepath($account_id);
             $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
             $campaignId = $request->campaignId;
             $campaignName = $request->campaignName;
@@ -722,17 +716,9 @@ class GoogleCampaignsController extends Controller
             }
             $campaignArray['maximize_clicks'] = $txt_maximize_clicks;
 
-
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
+            
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             $budget = self::updateCampaignBudget($googleAdsClient, $customerId, $budgetAmount, $campaignDetail->budget_id);
             $budgetResourceName = $budget['budget_resource_name'] ?? null;
@@ -831,18 +817,10 @@ class GoogleCampaignsController extends Controller
             $googleAdsCampaign = \App\GoogleAdsCampaign::where('account_id', $account_id)->where('google_campaign_id', $campaignId)->firstOrFail();
             $customerId = $googleAdsCampaign->google_customer_id;
 
-            $storagepath = $this->getstoragepath($account_id);
-            
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
+            // $storagepath = $this->getstoragepath($account_id);
+                        
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             // Creates the resource name of a campaign to remove.
             $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
@@ -1256,5 +1234,5 @@ class GoogleCampaignsController extends Controller
             ]);
 
         return $appCampaignSetting;
-    } 
+    }
 }
