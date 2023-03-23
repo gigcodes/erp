@@ -127,7 +127,9 @@
                               <input type="hidden" id="delete_account_id" name="delete_account_id" value='{{$campaign->account_id}}'/>
                               <button type="submit" class="btn-image"><img src="{{asset('/images/delete.png')}}"></button>
                               {!! Form::close() !!}
-                              <button type="button" class="btn-image ml-2" data-toggle="modal" data-target="#updateadgroupmodal"><img src="{{asset('/images/edit.png')}}"></button>
+
+                              <button type="button" onclick="editDetails('{{$campaign->google_campaign_id}}')" class="btn-image" data-toggle="modal" data-target="#updateCampaignModal"><img src="{{asset('/images/edit.png')}}"></button>
+
                           </td>
                       </tr>
                   @endforeach
@@ -160,7 +162,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="updateadgroupmodal" role="dialog" style="z-index: 3000;">
+    <div class="modal fade" id="updateCampaignModal" role="dialog" style="z-index: 3000;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="container">
@@ -362,6 +364,32 @@
 
         }).fail(function (jqXHR, ajaxOptions, thrownError) {
             alert('No response from server');
+        });
+    }
+
+    function editDetails(id) {
+        $('#updateCampaignModal').hide();
+        var url = "{{ route('googlecampaigns.updatePage', [":id"]) }}";
+        url = url.replace(':id', id);
+        $.ajax({
+            method: "GET",
+            url: url,
+            dataType: "json",
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            success: function (data) {
+                // alert($('#updateCampaignModal [name="adGroupStatus"] option:eq(1)').text());
+                $('#updateCampaignModal [name="adGroupId"]').val(data.google_adgroup_id);
+                $('#updateCampaignModal [name="adGroupName"]').val(data.ad_group_name);
+                $('#updateCampaignModal [name="cpcBidMicroAmount"]').val(data.bid);
+                
+                if(data.status == "ENABLED"){
+                    $('#updateCampaignModal [name="adGroupStatus"] option:eq(0)').prop('selected', true).change();
+                }else{
+                    $('#updateCampaignModal [name="adGroupStatus"] option:eq(1)').prop('selected', true).change();
+                }
+
+                $('#updateCampaignModal').show();
+            }
         });
     }
 </script>
