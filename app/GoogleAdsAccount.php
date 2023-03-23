@@ -35,6 +35,7 @@ class GoogleAdsAccount extends Model
         'google_adwords_manager_account_customer_id',
         'google_adwords_manager_account_email',
         'google_adwords_manager_account_password',
+        'google_adwords_manager_account_developer_token',
         'oauth2_client_id',
         'oauth2_client_secret',
         'oauth2_refresh_token',

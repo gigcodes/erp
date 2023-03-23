@@ -249,6 +249,16 @@
                             </div>
                         </div>
 
+                        <div class="form-group row mt-2">
+                            <label for="google_adwords_manager_account_developer_token" class="col-sm-2 col-form-label">Developer Token</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="google_adwords_manager_account_developer_token" name="google_adwords_manager_account_developer_token" placeholder="Developer Token">
+                                @if ($errors->has('google_adwords_manager_account_developer_token'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_manager_account_developer_token')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
                         <div class="form-group row">
                             <label for="google_adwords_manager_account_email" class="col-sm-2 col-form-label">Email Address</label>
                             <div class="col-sm-6">
@@ -432,6 +442,16 @@
                             </div>
                         </div>
 
+                        <div class="form-group row mt-2">
+                            <label for="edit_google_adwords_manager_account_developer_token" class="col-sm-2 col-form-label">Developer Token</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_google_adwords_manager_account_developer_token" name="google_adwords_manager_account_developer_token" placeholder="Developer Token">
+                                @if ($errors->has('google_adwords_manager_account_developer_token'))
+                                    <span class="text-danger">{{$errors->first('google_adwords_manager_account_developer_token')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
                         <div class="form-group row">
                             <label for="edit_google_adwords_manager_account_email" class="col-sm-2 col-form-label">Email Address</label>
                             <div class="col-sm-10">
@@ -601,6 +621,7 @@
                 $('#edit_google_adwords_client_account_email').val(data.google_adwords_client_account_email);
                 $('#edit_google_adwords_client_account_password').val(data.google_adwords_client_account_password);
                 $('#edit_google_adwords_manager_account_customer_id').val(data.google_adwords_manager_account_customer_id);
+                $('#edit_google_adwords_manager_account_developer_token').val(data.google_adwords_manager_account_developer_token);
                 $('#edit_google_adwords_manager_account_email').val(data.google_adwords_manager_account_email);
                 $('#edit_google_adwords_manager_account_password').val(data.google_adwords_manager_account_password);
                 $('#edit_oauth2_client_id').val(data.oauth2_client_id);

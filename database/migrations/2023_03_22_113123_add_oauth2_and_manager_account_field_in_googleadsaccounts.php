@@ -19,6 +19,7 @@ class AddOauth2AndManagerAccountFieldInGoogleadsaccounts extends Migration
             $table->unsignedBigInteger('google_adwords_manager_account_customer_id')->nullable();
             $table->string('google_adwords_manager_account_email')->nullable();
             $table->string('google_adwords_manager_account_password')->nullable();
+            $table->string('google_adwords_manager_account_developer_token')->nullable();
             $table->text('oauth2_client_id')->nullable();
             $table->text('oauth2_client_secret')->nullable();
             $table->text('oauth2_refresh_token')->nullable();

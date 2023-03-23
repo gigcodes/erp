@@ -24,6 +24,8 @@ use App\GoogleAd;
 use App\GoogleAdsGroup;
 use App\GoogleAdsCampaign;
 
+use App\Helpers\GoogleAdsHelper;
+
 class GoogleAdsAccountController extends Controller
 {
     // show campaigns in main page
@@ -100,6 +102,7 @@ class GoogleAdsAccountController extends Controller
             'google_adwords_client_account_email' => 'required|email',
             'google_adwords_client_account_password' => 'required',
             'google_adwords_manager_account_customer_id' => 'required|integer',
+            'google_adwords_manager_account_developer_token' => 'required',
             'google_adwords_manager_account_email' => 'required|email',
             'google_adwords_manager_account_password' => 'required',
             'oauth2_client_id' => 'required',
@@ -177,6 +180,7 @@ class GoogleAdsAccountController extends Controller
             'google_adwords_client_account_email' => 'required|email',
             'google_adwords_client_account_password' => 'required',
             'google_adwords_manager_account_customer_id' => 'required|integer',
+            'google_adwords_manager_account_developer_token' => 'required',
             'google_adwords_manager_account_email' => 'required|email',
             'google_adwords_manager_account_password' => 'required',
             'oauth2_client_id' => 'required',
@@ -336,7 +340,7 @@ class GoogleAdsAccountController extends Controller
         try {
             $account_id = $id;
             $customerId = $googleAdsAc->google_customer_id;
-            $storagepath = $this->getstoragepath($account_id);
+            // $storagepath = $this->getstoragepath($account_id);
 
             $googleAdsCampaigns = GoogleAdsCampaign::where('account_id', $account_id)->get();
 
@@ -345,16 +349,8 @@ class GoogleAdsAccountController extends Controller
 
 
                 try {
-                    // Get OAuth2 configuration from file.
-                    $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
                     // Generate a refreshable OAuth2 credential for authentication.
-                    $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-                    $googleAdsClient = (new GoogleAdsClientBuilder())
-                                        ->from($oAuth2Configuration)
-                                        ->withOAuth2Credential($oAuth2Credential)
-                                        ->build();
+                    $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
                     // Creates the resource name of a campaign to remove.
                     $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);

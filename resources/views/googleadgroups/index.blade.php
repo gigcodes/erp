@@ -3,7 +3,7 @@
 
 @section('content')
     <div class="col-md-12">
-      <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <a class="btn-image float-right custom-button" href="{{ url()->previous() }}">Back to Campaign</a></h2>
+      <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <a class="btn-image float-right custom-button" href="{{ route('googlecampaigns.index') }}?account_id={{$campaign_account_id}}">Back to Campaign</a></h2>
     <div class="pull-left p-0">
         <div class="form-group">
             <div class="row">      
@@ -213,7 +213,7 @@
                                 </div>
                             </div>
                         @endif
-                        @if($campaign_channel_type == "SEARCH")
+                        {{-- @if($campaign_channel_type == "SEARCH")
                             <input type="hidden" name="campaignId" id="campaignId" value="{{$campaignId}}">
                             <div class="form-group row">
                                 <label for="scanurl" class="col-sm-2 col-form-label">Url</label>
@@ -242,7 +242,7 @@
                                     <span class="text-muted">Note: You can add up to 80 keyword and each keyword character must be less than 80 character.</span>
                                 </div>
                             </div>
-                        @endif
+                        @endif --}}
                         <div class="form-group row">
                             <label for="ad-group-status" class="col-sm-2 col-form-label">Ad group status</label>
                             <div class="col-sm-6">
