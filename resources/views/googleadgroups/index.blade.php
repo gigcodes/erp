@@ -175,8 +175,8 @@
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-8">
-                                <button type="button" class="float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
-                                <button type="submit" class="mb-2 float-right">Create</button>
+                                <button type="button" class="btn btn-secondary float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
+                                <button type="submit" class="btn btn-primary mb-2 float-right">Create</button>
                             </div>
                         </div>
                     </form>

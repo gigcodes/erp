@@ -366,9 +366,11 @@
 
         //end re-arranging everything
 
-        if(bidding_focus_on_val=="conversions"){
-            biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
-        }
+        biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+
+        // if(bidding_focus_on_val=="conversions"){
+        //     biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+        // }
         
         if(channel_type.val()=="MULTI_CHANNEL"){
             biddingStrategyArray=['TARGET_CPA'];
@@ -379,6 +381,8 @@
                 $("#biddingStrategyType option[value=" + v + "]").show();
             });
         }
+
+        $('#biddingStrategyType option:not([hidden]):eq(0)').prop('selected', true).change();
 
     }
 
@@ -422,7 +426,6 @@
         }else{
             $("#div_html_append_1").hide();
         } 
-
     });
 
     $("#directiBiddingSelect").click(function(){
@@ -447,6 +450,8 @@
                 $("#biddingStrategyType option[value=" + v + "]").show();
             });
         }
+
+        $('#biddingStrategyType option:not([hidden]):eq(0)').prop('selected', true).change();
     });
     
     $("#resetBiddingSection").click(function(){
@@ -464,6 +469,8 @@
                 $("#biddingStrategyType option[value=" + v + "]").show();
             });
         }
+
+        $('#biddingStrategyType option:not([hidden]):eq(0)').prop('selected', true).change();
 
     });
 
@@ -510,6 +517,7 @@
             });
         }
 
+        $('#channel_sub_type option:not([hidden]):eq(0)').prop('selected', true).change();
         // $("#channel_sub_type").select2("destroy");
         // $("#channel_sub_type").select2();
     }
