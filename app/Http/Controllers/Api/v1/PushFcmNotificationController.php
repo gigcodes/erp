@@ -67,8 +67,8 @@ class PushFcmNotificationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'lang' => 'required|string',
-            'website' => 'required|exists:store_websites, website',
-            'device_id' => 'required|exists:fcm_tokens, device_id',
+            'website' => 'required|exists:store_websites,website',
+            'device_id' => 'required|exists:fcm_tokens,device_id',
         ]);
         if ($validator->fails()) {
             $message = $this->generate_erp_response('notification.failed.validation', 0, $default = 'Please check validation errors !', request('lang_code'));
