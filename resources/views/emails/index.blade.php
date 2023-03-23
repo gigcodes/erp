@@ -130,32 +130,21 @@
           </div>
         </div-->
     <div class="form-group px-2">
-            <select class="form-control sender_select" name="sender" id="sender" style="width: 208px !important;" multiple>
+            <select class="form-control sender_select" name="sender" id="sender" style="width: 208px !important;" multiple data-email-sender-dropdown>
                 <option value="">Select Sender</option>
-                @foreach($sender_drpdwn as $sender)
-                    <option value="{{ $sender['from'] }}" {{ (Request::get('sender') && strcmp(Request::get('sender'),$sender['from']) == 0) ? "selected" : ""}}>{{ $sender['from'] }}</option>
-                @endforeach
+                
             </select>
     </div>
 		<div class="form-group px-2">
-            <select class="form-control receiver_select" name="receiver" id="receiver" style="width: 208px !important;" multiple>
+            <select class="form-control receiver_select" name="receiver" id="receiver" style="width: 208px !important;" multiple data-email-receiver-dropdown>
                 <option value="">Select Receiver</option>
-                @foreach($receiver_drpdwn as $sender)
-                    <!-- Purpose : Add If condition -  DEVTASK-18283 -->
-                    @if($receiver != '' && $from == 'order_data')
-                    <option value="{{ $sender['to'] }}" {{ ($sender['to'] == $receiver) ? "selected" : ""}}>{{ $sender['to'] }}</option>
-                    @else
-                    <option value="{{ $sender['to'] }}" {{ (Request::get('to') && strcmp(Request::get('receiver'),$sender['to']) == 0) ? "selected" : ""}}>{{ $sender['to'] }}</option>
-                    @endif
-                @endforeach
+                
             </select>
         </div>
     <div class="form-group px-2">
-        <select class="form-control mail_box_select" name="mail_box" id="mail_box" style="width: 208px !important;" multiple>
+        <select class="form-control mail_box_select" name="mail_box" id="mail_box" style="width: 208px !important;" multiple data-email-mailbox-dropdown>
             <option value="">Select Mailbox</option>
-            @foreach($mailboxdropdown as $sender)
-                <option value="{{ $sender }}" {{ (Request::get('mail_box') == $sender) ? "selected" : ""}}>{{ $sender }}</option>
-            @endforeach
+           
         </select>
     </div>    
 		<div class="form-group px-2">
@@ -786,6 +775,62 @@
         }).fail(function(errObj) {
           $("#loading-image").hide();
         });
+    }
+
+    $(document).ready(function() {
+      getEmailFilterOptions();
+    });
+  
+    function getEmailFilterOptions(){
+      $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: 'email/filter-options',
+        type: 'post',
+        // beforeSend: function () {
+        //   $("#loading-image").show();
+        // },
+      }).done( function(response) {
+        var sender = '@php echo Request::get('sender'); @endphp';
+        var senderDropdownHtml = '';
+
+        $.each(response.senderDropdown, function(k, v){
+          senderDropdownHtml += "<option value='"+v.from+"' "+(sender == v.from ? 'selected' : '')+">"+v.from+"</option>";
+        });
+        $('[data-email-sender-dropdown]').append(senderDropdownHtml);
+
+        var receiverName = '@php echo $receiver; @endphp';
+        var from = '@php echo $from; @endphp';
+        var receiver = '@php echo Request::get('receiver'); @endphp';
+        var receiverDropdownHtml = '';
+
+        $.each(response.receiverDropdown, function(k, v){
+          if(receiverName.length != 0 && from == 'order_data'){
+            receiverDropdownHtml += "<option value='"+v.to+"' "+(receiverName == v.to ? 'selected' : '')+">"+v.to+"</option>";
+          }else{
+            receiverDropdownHtml += "<option value='"+v.to+"' "+(receiver == v.to ? 'selected' : '')+">"+v.to+"</option>";
+          }
+        });
+        $('[data-email-receiver-dropdown]').append(receiverDropdownHtml);
+
+        var mailBox = '@php echo Request::get('mail_box'); @endphp';
+        var mailboxDropdownHtml = '';
+
+        $.each(response.mailboxDropdown, function(k, v){
+          mailboxDropdownHtml += "<option value='"+v+"' "+(mailBox == v ? 'selected' : '')+">"+v+"</option>";
+        });
+        $('[data-email-mailbox-dropdown]').append(mailboxDropdownHtml);
+
+        $('[data-email-sender-dropdown]').trigger('change.select2');
+        $('[data-email-receiver-dropdown]').trigger('change.select2');
+        $('[data-email-mailbox-dropdown]').trigger('change.select2');
+
+        // toastr['success'](response.message);
+        // $("#loading-image").hide();
+      }).fail(function(errObj) {
+        // $("#loading-image").hide();
+      });
     }
 
 
