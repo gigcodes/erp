@@ -3030,7 +3030,7 @@ if (!empty($notifications)) {
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('database.states') }}">States</a>
+                                                        href="{{ route('database.states') }}">Query Process List</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -3207,7 +3207,7 @@ if (!empty($notifications)) {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('database.states') }}">Database
-                                            States</a>
+                                        Query Process List</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
