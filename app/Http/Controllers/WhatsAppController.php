@@ -2722,7 +2722,7 @@ class WhatsAppController extends FindByNumberController
 
                     MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id], $message_);
                     //END - DEVTASK-4359
-                    WebNotificationController::sendWebNotification2($sendTo, $params['issue_id'], $prefix.$issue->id.'-'.$issue->subject, $request->get('message'));
+                    WebNotificationController::sendWebNotification2($request->get('sendTo'), $params['issue_id'], $prefix.$issue->id.'-'.$issue->subject, $request->get('message'));
                     return response()->json(['message' => isset($chat_message) ? $chat_message : ""]);
                 } elseif ($context == 'auto_task') {
                     $params['issue_id'] = $request->get('issue_id');

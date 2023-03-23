@@ -110,6 +110,9 @@ class WebNotificationController extends Controller
                 $adminIds[] = $user->id;
             }
         }
+        if($sendTo == 'to_developer'){
+            $userId = $issue->assigned_to;
+        }
         if ($sendTo == 'to_master') {
             if ($issue->master_user_id) {
                 $userId = $issue->master_user_id;
@@ -129,6 +132,10 @@ class WebNotificationController extends Controller
         }
         if (isset($userId) && $userId){
             $adminIds[] = $userId;
+            $adminIds = array_unique($adminIds);
+            if (($key = array_search(\Auth::User()->id, $adminIds)) !== false) {
+                unset($adminIds[$key]);
+            }
             $FcmToken = NotificationToken::whereNotNull('device_token')->whereIn('user_id', $adminIds)->pluck('device_token')->all();
         }
         else {
