@@ -49,7 +49,7 @@
 
         <!-- class="expand-row" -->
         <span class="{{ ($issue->message && $issue->message_status == 0) ||$issue->message_is_reminder == 1 ||($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0)? 'text-danger': '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end = '...') }}</span>
-        <input type="text" class="form-control send-message-textbox" data-id="{{ $issue->id }}" id="send_message_{{ $issue->id }}" name="send_message_{{ $issue->id }}" style="margin-bottom:5px" />
+        <textarea class="form-control send-message-textbox" data-id="{{ $issue->id }}" id="send_message_{{ $issue->id }}" name="send_message_{{ $issue->id }}" style="margin-bottom:5px" rows="3" cols="20"></textarea>
         <?php echo Form::select(
             'send_message_' . $issue->id,
             [
