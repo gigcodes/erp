@@ -364,7 +364,9 @@ var getHtml = function(response) {
         li += '</div>';
         fullHtml = fullHtml + '<td style="width:45%">' + li + '</td>';
         fullHtml = fullHtml + '<td style="width:30%">' + button + '</td>'; 
-        fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + '</td></tr>'; 
+        fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + '</td></tr>';
+        console.log(fromMsg);
+
     });
     fullHtml = fullHtml + '</table></div>';
     return fullHtml;

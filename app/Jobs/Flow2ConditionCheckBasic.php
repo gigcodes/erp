@@ -16,7 +16,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class ConditionCheckFirstJob implements ShouldQueue
+class Flow2ConditionCheckBasic implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -190,7 +190,7 @@ class ConditionCheckFirstJob implements ShouldQueue
                     
                    
                     try {
-                        ConditionCheckSecondJob::dispatch($product, $website, $this->log, $this->mode,$this->details)->onQueue($this->log->queue);
+                        Flow2ConditionCheckAll::dispatch($product, $website, $this->log, $this->mode,$this->details)->onQueue($this->log->queue);
                     } catch (\Exception $e) {
                         $error_msg = 'Condition Check Second Job failed: '.$e->getMessage();
                         $this->log->sync_status = 'error';
@@ -296,7 +296,7 @@ class ConditionCheckFirstJob implements ShouldQueue
         $product = $this->_product;
         $website = $this->_website;
 
-        $error_msg = 'Condition Check First Job failed for '.$product->name;
+        $error_msg = 'Flow2ConditionCheckBasic failed for '.$product->name;
         if ($this->log) {
             $this->log->sync_status = 'error';
             $this->log->message = $error_msg;
