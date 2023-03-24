@@ -113,7 +113,7 @@
                      <label for="campaign-status" class="col-form-label">ChannelSub Type</label>
                      <div class="form-input">
                          <select class="browser-default custom-select" id="channel_sub_type" name="channel_sub_type" style="height: auto">
-                             {{-- <option value="">---select subtype---</option> --}}
+                             <option value="">Select subtype</option>
                              <option value="UNSPECIFIED" selected>Unspecified</option>
                              <option value="SEARCH_MOBILE_APP">Mobile App Campaigns for search</option>
                              <option value="DISPLAY_MOBILE_APP">Mobile App Campaigns for display</option>
@@ -192,6 +192,7 @@
                         <label for="campaign-status" class="col-form-label">Bidding Strategy</label>
                         <div id="biddingStrategyType_second_div">
                             <select class="browser-default custom-select" id="biddingStrategyType" name="biddingStrategyType" style="height: auto">
+                                <option value="">Select bidding strategy</option>
                                 @foreach($biddingStrategyTypes as $bskey=>$bs)
                                     <option value="{{$bskey}}">{{$bs}}</option>
                                 @endforeach
