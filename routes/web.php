@@ -352,6 +352,7 @@ use App\Http\Controllers\TimeDoctorActivitiesController;
 Auth::routes();
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
+Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
 
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', [CustomerController::class, 'add_customer_address']);
@@ -1003,6 +1004,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('most-used-phrases/deleted', [AutoReplyController::class, 'mostUsedPhrasesDeleted'])->name('chatbot.mostUsedPhrasesDeleted');
     Route::get('most-used-phrases/deleted/records', [AutoReplyController::class, 'mostUsedPhrasesDeletedRecords'])->name('chatbot.mostUsedPhrasesDeletedRecords');
     Route::post('settings/update', [SettingController::class, 'update']);
+    Route::get('settings/telescope', [SettingController::class, 'getTelescopeSettings']);
+    Route::post('settings/telescope/update', [SettingController::class, 'updateTelescopeSettings']);
     Route::post('settings/updateAutomatedMessages', [SettingController::class, 'updateAutoMessages'])->name('settings.update.automessages');
     Route::resource('settings', SettingController::class);
 
@@ -1335,6 +1338,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
+    Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
 
     Route::get('email/order_data/{email?}', [EmailController::class, 'index']); //Purpose : Add Route -  DEVTASK-18283
     Route::post('email/platform-update', [EmailController::class, 'platformUpdate']);
