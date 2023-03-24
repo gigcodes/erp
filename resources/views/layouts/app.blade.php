@@ -3085,6 +3085,10 @@ if (!empty($notifications)) {
                                                 Translator</a>
                                         </li>
                                         <li class="nav-item">
+                                            <a class="dropdown-item"
+                                                href="{{ url('telescope/dashboard') }}">Telescope Logs</a>
+                                        </li>
+                                        <li class="nav-item">
                                             <a class="dropdown-item" href="{{ route('google-docs.index') }}">Google
                                                 Docs</a>
                                         </li>
