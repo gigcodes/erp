@@ -125,7 +125,7 @@ class GoogleTranslate
         } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
             \Log::error($e);
             $message = json_decode($e->getMessage());
-            dd($message->error);
+            // dd($message->error);
 
             return $message->error;
         }
