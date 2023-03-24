@@ -1006,4 +1006,13 @@ class ProductHelper extends Model
             return ProductHelper::getTopParent($category->parent_id);
         }
     }
+
+    public static function getProducts($status, $limit){
+        return Product::select('*')
+            ->whereShortDescription('short_description', '!=', '')->whereName('name', '!=', '')
+            ->whereStatusId('status_id', $status)
+            ->groupBy('brand', 'category')
+            ->limit($limit)
+            ->get();
+    }
 }

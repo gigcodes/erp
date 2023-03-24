@@ -20,6 +20,8 @@ return [
     'image_per_folder' => '10000',
     'excelimporter' => 'excelimporter',
     'gd_supported_files' => ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    'no_of_product' => '100',
+    'mode' => 'product-push',
     'cron_minutes' => [
         '*' => 'Every Minutes',
         '5' => 'Every Five Minutes',
