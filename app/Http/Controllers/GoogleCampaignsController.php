@@ -602,44 +602,6 @@ class GoogleCampaignsController extends Controller
     // go to update page
     public function updatePage(Request $request, $campaignId)
     {
-        /* $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
-            ->build();
-
-        $session = (new AdWordsSessionBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
-            ->withOAuth2Credential($oAuth2Credential)
-            ->build();
-
-        $adWordsServices = new AdWordsServices();
-
-        $campaignService = $adWordsServices->get($session, CampaignService::class);
-
-        // Create selector.
-        $campaignSelector = new Selector();
-        $campaignSelector->setFields(['Id', 'Name', 'Status']);
-        //        $campaignSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
-        //        $campaignSelector->setPaging(new Paging(0, 10));
-        $campaignSelector->setPredicates(
-            [new Predicate('Id', PredicateOperator::IN, [$campaignId])]
-        );
-
-        $page = $campaignService->get($campaignSelector);
-        $pageEntries = $page->getEntries();
-
-        if ($pageEntries !== null) {
-            $campaign = $pageEntries[0];
-        }
-        $campaign = [
-            "campaignId" => $campaign->getId(),
-            //            "campaignGroups" => $adGroups,
-            "name" => $campaign->getName(),
-            "status" => $campaign->getStatus(),
-            //                        "budgetId" => $campaignBudget->getBudgetId(),
-            //                        "budgetName" => $campaignBudget->getName(),
-            //                        "budgetAmount" => $campaignBudget->getAmount()
-        ];
-        // */
         $biddingStrategyTypes = $this->getBiddingStrategyTypeArray();
         $campaign = \App\GoogleAdsCampaign::where('google_campaign_id', $campaignId)->firstOrFail();
 
@@ -651,7 +613,8 @@ class GoogleCampaignsController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googlecampaigns.update', ['campaign' => $campaign, 'biddingStrategyTypes' => $biddingStrategyTypes]);
+        return $campaign;
+        // return view('googlecampaigns.update', ['campaign' => $campaign, 'biddingStrategyTypes' => $biddingStrategyTypes]);
     }
 
     // save campaign's changes
