@@ -45,7 +45,7 @@ class SendFcmNotification extends Command
     public function handle()
     {
         $fromdate = date('Y-m-d H:i:s');
-        $newtimestamp = strtotime($fromdate.' + 400 minute');
+        $newtimestamp = strtotime($fromdate.' + 4 minute');
         $todate = date('Y-m-d H:i:s', $newtimestamp);
         echo $fromdate.' # '.$todate;
         echo PHP_EOL;
