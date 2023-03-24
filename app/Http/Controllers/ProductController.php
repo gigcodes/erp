@@ -217,12 +217,11 @@ class ProductController extends Controller
 
             $categories_array[$category->id] = $category->parent_id;
         }
-        $newProducts = Product::query();
-        // if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
-        //     $newProducts = Product::query();
-        // } else {
-        //     $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
-        // }
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            $newProducts = Product::query();
+        } else {
+            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
+        }
 
         if ($request->get('status_id') != null) {
             $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
