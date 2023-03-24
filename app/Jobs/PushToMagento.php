@@ -145,7 +145,6 @@ class PushToMagento implements ShouldQueue
                     }
 
                     // started to check the validation for the category size is available or not and if not then throw the error
-                    //$categorym = $product->categories;
                     if ($categorym && ! $product->isCharity()) {
                         $categoryparent = $categorym->parent;
                         if (($topParent == 'NEW' && in_array('check_if_size_chart_exists', $conditions)) || ($topParent == 'PREOWNED' && in_array('check_if_size_chart_exists', $upteamconditions))) {
@@ -232,63 +231,6 @@ class PushToMagento implements ShouldQueue
                 \Log::error($e);
             }
         }
-        /*if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-        $addedProduct =   MagentoHelper::callHelperForProductUpload($product, $website, $this->log);
-        $availableProduct = Product::where('sku',$addedProduct->sku)->first();
-        $real_product_id  =null;
-        if($availableProduct){
-        $real_product_id = $availableProduct->id ?? null;
-        }
-        if(is_object($addedProduct) || $addedProduct instanceof \Illuminate\Database\Eloquent\Collection){
-        $updated =   ProductPushInformation::updateOrCreate(
-        ['product_id'=>$addedProduct->id ?? NULL,
-        'store_website_id' => $website->store_website_id
-        ],[
-        'sku'=>$addedProduct->sku,
-        'status'=> $addedProduct->status,
-        'quantity'=>$addedProduct->stock,
-        'stock_status'=> $addedProduct->stock_status,
-        'is_added_from_csv'=>0,
-        'real_product_id'=>$real_product_id
-        ]);
-        }
-        return false;
-        } else {
-        ProductPushErrorLog::log('', $product->id, 'Magento helper class not found', 'error', $website->id, null, null, $this->log->id);
-        return false;
-        }*/
-
-        /*} catch (\Exception $e) {
-        if ($this->log) {
-        ProductPushErrorLog::log('', $product->id, $e->getMessage(), 'error', $website->id, null, null, $this->log->id);
-        $this->log->message         = $e->getMessage();
-        $this->log->sync_status  = "error";
-        $this->log->queue_id     = $this->job->getJobId();
-        $this->log->job_end_time = $date_time;
-        $this->log->save();
-        } else {
-        \Log::error($e);
-        }
-        }*/
-
-        // Load Magento Soap Helper
-        // $magentoSoapHelper = new MagentoSoapHelper();
-
-        // // Push product to Magento
-        // $result = $magentoSoapHelper->pushProductToMagento( $product );
-
-        // Check for result
-        // if ( !$result ) {
-        //     // Log alert
-        //     Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
-
-        //     // Set product to isListed is 0
-        //     $product->isListed = 0;
-        //     $product->save();
-        // } else {
-        //     // Log info
-        //     Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
-        // }
     }
 
     public function failed(\Throwable $exception = null)
