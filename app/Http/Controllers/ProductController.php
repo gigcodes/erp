@@ -21,9 +21,8 @@ use App\HsCodeSetting;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
 use App\Jobs\PushProductOnlyJob;
-use App\Jobs\ConditionCheckOnlyJob;
-use App\Jobs\PushProductFlow2OnlyJob;
-use App\Jobs\ProductPushFlow2Job;
+use App\Jobs\Flow2ConditionCheckProductOnly;
+use App\Jobs\Flow2PushProductOnlyJob;
 use App\Language;
 use App\ListingHistory;
 use App\Loggers\LogListMagento;
@@ -5153,7 +5152,7 @@ class ProductController extends Controller
             $details = [];
             $details['product_index'] = ($key)+1;
             $details['no_of_product'] = $no_of_product;
-            ConditionCheckOnlyJob::dispatch($product,$details)->onQueue('conditioncheckonly');
+            Flow2ConditionCheckProductOnly::dispatch($product,$details)->onQueue('conditioncheckonly');
             
             // Setting is_conditions_checked flag as 1
             /*$productRow = Product::find($product->id);
@@ -5218,7 +5217,7 @@ class ProductController extends Controller
             $details['product_index'] = ($key)+1;
             $details['no_of_product'] = $no_of_product;
             
-            PushProductFlow2OnlyJob::dispatch($product,$details)->onQueue('pushproductflow2only');
+            Flow2PushProductOnlyJob::dispatch($product,$details)->onQueue('pushproductflow2only');
             
             /*$productRow = Product::find($product->id);
             $productRow->is_push_attempted = 1;
