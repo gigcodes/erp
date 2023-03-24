@@ -1,3 +1,18 @@
+# Flow1 Jobs
+1. `PushProductOnlyJob`: This job used to get single products, find all store websites and send in second job.
+2. `PushToMagento`: Second job created for each store website, and check basic conditions.
+3. `MagentoServiceJob`: It check all conditions and call Magento's rest API to push single product on single store website.
+    
+# Flow2 jobs
+## Condition Checking from final approved pages
+1. `Flow2ConditionCheckProductOnly`: This job used to get single products, find all store websites and send in second job
+2. `Flow2ConditionCheckBasic`: Second job created for each store website, and check basic conditions.
+3. `Flow2ConditionCheckAll`: It is checking all conditions and save status of all-conditions-checked in db-table
+
+## Push Product from condition checked page
+1. `Flow2PushProductOnlyJob`: This job used to get single products, find all store websites and send in second job.
+2. `Flow2PushToMagento`: Second job created for each store website, and call Magento's rest API to push single product on single store website.
+
 # Product Push Flow 1
 
 ## Product Push Journey
@@ -12,6 +27,8 @@ The product push journey starts from `pushProduct` function in the `ProductContr
     - After product selection, it will pass all the selected products to in `pushproductonly` queue. Also passed `product`, total product(`no_of_product`) and current product order(`product_index`) to find them in Horizon and to be make all jobs are completed. Each queue well dispatched by `PushProductOnlyJob`.
 2. ### PushProductOnlyJob:
     - This job is to get store websites by tag that have the same category & brand of the product and check if it must exist in the store_website table.
+    - **How work tag functionality:**
+        - This functionality is used get parent store website with all child website by using tag group.
     - Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteNameByTag` which returns the and array with list of store websites which has these products. The flow to get the store website ids as follows:
     - **Get store website category:** Selected products will be looped to fetch all store categories from the `store_website_categories` which has a valid `remote_id` and which matches to the each product's `category_id`.
         - **Get store website ids from store website brands:** Fetched store website categories will be looped to get all the store website brands from the `store_website_brands` table. This will returns all the brands which matches the `store_website_id` of the each category and matches `brand_id` of each product get looped and which has a valid `magento_value`. The brands get from this steps will again loop to make an array (`$websiteArray`) of store websites ids.
