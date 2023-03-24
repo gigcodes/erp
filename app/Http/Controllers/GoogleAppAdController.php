@@ -36,6 +36,8 @@ use App\GoogleAdsCampaign;
 use App\GoogleAdsGroup;
 use Storage;
 
+use App\Helpers\GoogleAdsHelper;
+
 class GoogleAppAdController extends Controller
 {
     const PAGE_LIMIT = 500;
@@ -150,7 +152,7 @@ class GoogleAppAdController extends Controller
         $customerId = $acDetail['google_customer_id'];
         $channelSubType = $acDetail['channel_sub_type'];
 
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
         $adStatus = $adStatuses[$request->adStatus];
@@ -164,16 +166,8 @@ class GoogleAppAdController extends Controller
 
             ini_set('max_execution_time', -1);
 
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             // store image on folder as well as google
             $imagesArr = [];
@@ -286,7 +280,7 @@ class GoogleAppAdController extends Controller
     {
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 

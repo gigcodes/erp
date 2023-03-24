@@ -16,7 +16,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class ConditionCheckFirstJob implements ShouldQueue
+class Flow2ConditionCheckBasic implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -27,6 +27,12 @@ class ConditionCheckFirstJob implements ShouldQueue
     protected $log;
 
     protected $mode;
+    
+    protected $details;
+    
+    protected $product_index;
+    
+    protected $no_of_product;
 
     /**
      * Create a new job instance.
@@ -36,13 +42,16 @@ class ConditionCheckFirstJob implements ShouldQueue
      * @param  null  $log
      * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null)
+    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null,$details = [])
     {
         // Set product and website
         $this->_product = $product;
         $this->_website = $website;
         $this->log = $log;
         $this->mode = $mode;
+        $this->details = $details;
+        $this->product_index = (isset($details) && isset($details['product_index'])) ? $details['product_index']: 0;
+        $this->no_of_product = (isset($details) && isset($details['no_of_product'])) ? $details['no_of_product']: 0;
     }
 
     /**
@@ -181,7 +190,7 @@ class ConditionCheckFirstJob implements ShouldQueue
                     
                    
                     try {
-                        ConditionCheckSecondJob::dispatch($product, $website, $this->log, $this->mode)->onQueue($this->log->queue);
+                        Flow2ConditionCheckAll::dispatch($product, $website, $this->log, $this->mode,$this->details)->onQueue($this->log->queue);
                     } catch (\Exception $e) {
                         $error_msg = 'Condition Check Second Job failed: '.$e->getMessage();
                         $this->log->sync_status = 'error';
@@ -287,7 +296,7 @@ class ConditionCheckFirstJob implements ShouldQueue
         $product = $this->_product;
         $website = $this->_website;
 
-        $error_msg = 'Condition Check First Job failed for '.$product->name;
+        $error_msg = 'Flow2ConditionCheckBasic failed for '.$product->name;
         if ($this->log) {
             $this->log->sync_status = 'error';
             $this->log->message = $error_msg;
@@ -298,6 +307,6 @@ class ConditionCheckFirstJob implements ShouldQueue
 
     public function tags()
     {
-        return ['magento', $this->_product->id];
+        return ['product_'.$this->_product->id,'#'.$this->product_index,$this->no_of_product];
     }
 }

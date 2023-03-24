@@ -250,6 +250,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <script src="{{env('APP_URL')}}/js/jquery.jscroll.min.js"></script>
 <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
 <script src="{{env('APP_URL')}}/js/bootstrap-filestyle.min.js"></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
 
 <script>
     jQuery(document).ready(function() {

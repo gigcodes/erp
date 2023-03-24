@@ -34,6 +34,8 @@ use App\GoogleAdsCampaign;
 use App\GoogleAdsGroup;
 use Storage;
 
+use App\Helpers\GoogleAdsHelper;
+
 class GoogleResponsiveDisplayAdController extends Controller
 {
     const PAGE_LIMIT = 500;
@@ -156,7 +158,7 @@ class GoogleResponsiveDisplayAdController extends Controller
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
         $adStatus = $adStatuses[$request->adStatus];
@@ -170,16 +172,8 @@ class GoogleResponsiveDisplayAdController extends Controller
 
             ini_set('max_execution_time', -1);
 
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             // store marketing image on folder as well as google
             $marketingImagesArr = self::storeMarketingImageOnStorageAndGoogle($googleAdsClient, $customerId, $account_id, $input['marketing_images']);
@@ -283,22 +277,14 @@ class GoogleResponsiveDisplayAdController extends Controller
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
         try {
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
-
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
+            
             // Creates ad group ad resource name.
             $adGroupAdResourceName = ResourceNames::forAdGroupAd($customerId, $adGroupId, $adId);
 
@@ -351,7 +337,7 @@ class GoogleResponsiveDisplayAdController extends Controller
     {
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 

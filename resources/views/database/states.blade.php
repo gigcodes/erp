@@ -13,8 +13,24 @@
 
 <div class="row">
     <div class="col-xl-12">
+        <div class="row">
+            <div class="col-md-8 pl-5">
+                <h4 class="header-title mb-3">
+                    Query Process List <a href="javascript:;" id="refresh-process-list"><span class="glyphicon glyphicon-refresh"></span></a>
+                </h4>
+            </div>
+            <div class="col-md-4 pr-5">
+                <form class="form-inline pull-right">
+                    <div class="form-group mr-2">
+                        <input type="text" class="form-control" id="databaseName" placeholder="Enter database name">
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="dbExport()">Export Database</button>
+                </form>
+
+            </div>
+        </div>
+
       <div class="card-box">
-        <h4 class="header-title mb-3">Query Process List <a href="javascript:;" id="refresh-process-list"><span class="glyphicon glyphicon-refresh"></span></a></h4>
         <div class="table-responsive table-process-list-disp">
         </div>
       </div>
@@ -64,6 +80,38 @@
           console.log("Sorry, something went wrong");
         });
   });
+
+  function dbExport() {
+      let dbName = $('#databaseName').val();
+      if(dbName === '') {
+          toastr['error']('Please enter a valid database name!', 'error');
+          return false;
+      }
+
+      if (confirm("Are you sure you want to run this command?")) {
+          $.ajax({
+              url: "{{ route('database.export') }}",
+              type: "post",
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              data: {
+                  db_name: dbName
+              }
+          }).done(function (response) {
+              if (response.code == '200') {
+                  window.open(response.data, "_blank");
+                  toastr['success'](response.message, 'success');
+              } else {
+                  toastr['error'](response.message, 'error');
+              }
+          }).fail(function (errObj) {
+              toastr['error'](errObj.message, 'error');
+          });
+      } else {
+          return false;
+      }
+  }
 
 </script>
 @endsection
