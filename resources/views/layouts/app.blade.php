@@ -237,46 +237,42 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             measurementId: '{{env('FCM_MEASUREMENT_ID')}}'
         };
         firebase.initializeApp(firebaseConfig);
-        if (firebase.messaging.isSupported()){
-            const messaging = firebase.messaging();
-            messaging
-                .requestPermission()
-                .then(function () {
-                    return messaging.getToken()
-                })
-                .then(function (response) {
-                    $.ajaxSetup({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        }
-                    });
-                    $.ajax({
-                        url: '{{ route("store.token") }}',
-                        type: 'POST',
-                        data: {
-                            token: response
-                        },
-                        dataType: 'JSON',
-                        success: function (response) {
-                        },
-                        error: function (error) {
-                            console.error(error);
-                        },
-                    });
-                }).catch(function (error) {
-                alert(error);
-            });
-            messaging.onMessage(function (payload) {
-                const title = payload.notification.title;
-                const options = {
-                    body: payload.notification.body,
-                    icon: payload.notification.icon,
-                };
-                new Notification(title, options);
-            });
-        } else {
-            console.warn('This browser is not supported firebase push notification.');
-        }
+        const messaging = firebase.messaging();
+        messaging
+            .requestPermission()
+            .then(function () {
+                return messaging.getToken()
+            })
+            .then(function (response) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: '{{ route("store.token") }}',
+                    type: 'POST',
+                    data: {
+                        token: response
+                    },
+                    dataType: 'JSON',
+                    success: function (response) {
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    },
+                });
+            }).catch(function (error) {
+            alert(error);
+        });
+        messaging.onMessage(function (payload) {
+            const title = payload.notification.title;
+            const options = {
+                body: payload.notification.body,
+                icon: payload.notification.icon,
+            };
+            new Notification(title, options);
+        });
     </script>
     <script>
     window.Laravel = '{{!!json_encode(['
@@ -3243,6 +3239,9 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
                                         <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('settings/telescope') }}">Manage Telescope </a>
                                     </li>
                                 </ul>
                             </li>
