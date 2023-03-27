@@ -1,13 +1,13 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
 
-@section('title', 'States | Database')
+@section('title', 'Database | Query Process List')
 
 @section('content')
 
 <div class="row">
-	<div class="col-lg-12 margin-tb">
-	    <h2 class="page-heading">States | Database</h2>
+	<div class="col-lg-12 margin-tb" id="process_count">
+	    <h2 class="page-heading">Database | Query Process List</h2>
 	</div>
 </div>
 
@@ -50,9 +50,11 @@
           dataType:"json"
         }).done(function(response) {
           if(response.code == 200) {
+            var count = response.records.length;
             var tpl = $.templates("#template-list-state-process-list");
             var tplHtml       = tpl.render(response);
                 $(".table-process-list-disp").html(tplHtml);
+                $("#process_count h2").append(" ("+count+")");
           }
         }).fail(function(response) {
           console.log("Sorry, something went wrong");

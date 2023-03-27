@@ -19,6 +19,8 @@ use Google\Ads\GoogleAds\V12\Resources\AdGroupAd;
 use Google\Ads\GoogleAds\V12\Services\AdGroupAdOperation;
 use Illuminate\Http\Request;
 
+use App\Helpers\GoogleAdsHelper;
+
 class GoogleAdsController extends Controller
 {
     const PAGE_LIMIT = 500;
@@ -221,7 +223,7 @@ class GoogleAdsController extends Controller
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
         $headlinePart1 = $request->headlinePart1;
@@ -249,16 +251,8 @@ class GoogleAdsController extends Controller
         $adsArray['status'] = $adStatus;
         
         try {
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             // Creates an ad and sets responsive search ad info.
             $ad = new Ad([
@@ -343,21 +337,13 @@ class GoogleAdsController extends Controller
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
         try {
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             // Creates ad group ad resource name.
             $adGroupAdResourceName = ResourceNames::forAdGroupAd($customerId, $adGroupId, $adId);

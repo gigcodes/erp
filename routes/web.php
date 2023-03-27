@@ -352,7 +352,6 @@ use App\Http\Controllers\TimeDoctorActivitiesController;
 Auth::routes();
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
-Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
 
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', [CustomerController::class, 'add_customer_address']);
@@ -830,6 +829,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('productlister', ProductListerController::class);
     Route::resource('productapprover', ProductApproverController::class);
     Route::get('productinventory/product-images/{id}', [ProductInventoryController::class, 'getProductImages'])->name('productinventory.product-images');
+    Route::get('productinventory/out-of-stock', [ProductInventoryController::class, 'getStockwithZeroQuantity'])->name('productinventory.out-of-stock');
+    Route::get('productinventory/out-of-stock-product-log', [ProductInventoryController::class, 'outOfStockProductLog'])->name('productinventory.out-of-stock-product-log');
     Route::get('productinventory/product-rejected-images/{id}', [ProductInventoryController::class, 'getProductRejectedImages'])->name('productinventory.product-rejected-images');
     Route::post('productinventory/import', [ProductInventoryController::class, 'import'])->name('productinventory.import');
     Route::get('productinventory/list', [ProductInventoryController::class, 'list'])->name('productinventory.list');
@@ -2939,7 +2940,7 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/', [DatabaseController::class, 'index'])->name('database.index');
     Route::get('/tables/{id}', [DatabaseTableController::class, 'index'])->name('database.tables');
     Route::post('/tables/view-lists', [DatabaseTableController::class, 'viewList']);
-    Route::get('/states', [DatabaseController::class, 'states'])->name('database.states');
+    Route::get('/query-process-list', [DatabaseController::class, 'states'])->name('database.states');
     Route::get('/process-list', [DatabaseController::class, 'processList'])->name('database.process.list');
     Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
     Route::post('/export', [DatabaseController::class, 'export'])->name('database.export');

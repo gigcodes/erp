@@ -78,6 +78,6 @@ class MagentoServiceJob implements ShouldQueue
     
     public function tags()
     {
-        return ['product22_'.$this->_product->id,'#'.$this->details['product_index'],$this->details['no_of_product']];
+        return ['product_'.$this->_product->id,'#'.$this->details['product_index'],$this->details['no_of_product']];
     }
 }
