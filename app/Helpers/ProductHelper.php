@@ -899,11 +899,10 @@ class ProductHelper extends Model
         $brand = $product->brand;
  
         $category = $product->category;
-        $storeCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->pluck('store_website_id')->toArray();
-        $websiteArray = [];
-        if(!empty($storeCategories)){
-            $websiteArray = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->whereIn('store_website_id', $storeCategories)->pluck('store_website_id')->toArray();
-        }
+        
+        $storeWebsiteIdOfCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->get()->pluck('store_website_id');
+        $websiteArray = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->whereIn('store_website_id', $storeWebsiteIdOfCategories)->get()->pluck('store_website_id')->toArray();
+
         //Exception for o-labels
         if ($product->landingPageProduct) {
             $websiteForLandingPage = StoreWebsite::whereNotNull('cropper_color')->where('title', 'LIKE', '%o-labels%')->first();
@@ -1000,6 +999,7 @@ class ProductHelper extends Model
         }
     }
 
+<<<<<<< HEAD
     public static function getListOfPushableProduct($limit)
     {
         return Product::select('*')
@@ -1008,6 +1008,13 @@ class ProductHelper extends Model
             ->status(StatusHelper::$finalApproval)
             ->groupBy('brand', 'category')
             ->orderBy('id','desc')
+=======
+    public static function getProducts($status, $limit){
+        return Product::select('*')
+            ->whereNotNull(['name','short_description'])
+            ->whereStatusId($status)
+            ->groupBy('brand', 'category')
+>>>>>>> 0e130b7d6d83e2869fb19b6707bca702fb56a885
             ->limit($limit)
             ->get();
     }
