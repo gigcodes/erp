@@ -999,22 +999,11 @@ class ProductHelper extends Model
         }
     }
 
-<<<<<<< HEAD
-    public static function getListOfPushableProduct($limit)
-    {
-        return Product::select('*')
-            ->whereNotNull('short_description')
-            ->whereNotNull('name')
-            ->status(StatusHelper::$finalApproval)
-            ->groupBy('brand', 'category')
-            ->orderBy('id','desc')
-=======
     public static function getProducts($status, $limit){
         return Product::select('*')
             ->whereNotNull(['name','short_description'])
-            ->whereStatusId($status)
+           ->status(StatusHelper::$finalApproval)
             ->groupBy('brand', 'category')
->>>>>>> 0e130b7d6d83e2869fb19b6707bca702fb56a885
             ->limit($limit)
             ->get();
     }
