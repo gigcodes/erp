@@ -2693,46 +2693,63 @@ class ProductInventoryController extends Controller
         }
     }
 
-    public function getStockwithZeroQuantity(Request $request)
-    {
-        if($request->ajax()){
-            // $products = \App\InventoryStatusHistory::with('product', 'supplier');
-            // $query =  $products->where('in_stock', 1)->groupBy(['product_id' , 'supplier_id'])->orderBy('created_at', 'desc')->query();
-
+     // Inventory sold out products list
+     public function getStockwithZeroQuantity(Request $request)
+     {
+         if($request->ajax()){
             $products = \App\InventoryStatusHistory::query();
             $products->with('product', 'supplier');
+
+            if(isset($request->id) && !empty($request->id)) {
+                $products = $products->where('product_id', $request->id);
+            }
+            if(isset($request->name) && !empty($request->name)) {
+                $products->select('product_id', 'inventory_status_histories.created_at', 'in_stock', 'prev_in_stock')->leftjoin('products', 'products.id', 'inventory_status_histories.product_id')->
+                where('name', $request->name);
+            }
+
+            if(isset($request->sku) && !empty($request->sku)) {
+                $products->select('product_id', 'inventory_status_histories.created_at', 'in_stock', 'prev_in_stock')->leftjoin('products', 'products.id', 'inventory_status_histories.product_id')->
+                where('sku', $request->sku);
+            }
+            
             $products->where('in_stock', 1)
-                        ->groupBy('product_id')
-                        ->orderBy('created_at', 'desc');
-
-            return Datatables::of($products)
-            ->addIndexColumn()
-            ->addColumn('product_name', function($row){
-               $product = $row->product ? $row->product->name : "N/A";
-               return $product;
-            })
-            ->addColumn('action', function($row){
-                $actionBtn = '<a href="javascript:void(0)" data-id="'.$row->id.'" data-product-id="'.$row->product_id.'" class="get-product-log-detail btn btn-warning btn-sm"><i class="fa fa-list fa-sm"></i></a>&nbsp;';
-                return $actionBtn;
-            })
-            ->rawColumns(['action', 'product_name'])
-            ->make(true);
-        }    
-
-        // $products_count = \App\InventoryStatusHistory::with('product', 'supplier')->where('in_stock', 1)->groupBy('product_id')->orderBy('created_at', 'desc')->get()->count();
-
-        return view('product-inventory.out-of-stock');
-    }
-
-    public function outOfStockProductLog(Request $request)
-    {
-        $product = $request->product;
-        if($product){
-            $productsLog = \App\InventoryStatusHistory::with('product', 'supplier')->where(['in_stock' => 1, 'product_id' => $request->product])->get();
-            $productName = $productsLog[0]->product ? $productsLog[0]->product->name : "N/A";
-            $productSku = $productsLog[0]->product ? $productsLog[0]->product->sku : "N/A";
-            $response = (string)view('product-inventory.out-of-stock-product-log', compact('productsLog'));
-            return response()->json(['success' => true, 'msg' => 'Product logs found successfully.', 'data' => $response, 'productName' => $productName, 'productSku' => $productSku]);
-        }
-    }
+                         ->groupBy('product_id')
+                         ->orderBy('created_at', 'desc');
+                                   
+             return Datatables::of($products)
+             ->addIndexColumn()
+             ->addColumn('product_name', function($row){
+                $product = $row->product ? $row->product->name : "N/A";
+                return $product;
+             })
+             ->addColumn('sku', function($row){
+                $product = $row->product ? $row->product->sku : "N/A";
+                return $product;
+             })
+             ->addColumn('action', function($row){
+                 $actionBtn = '<a href="javascript:void(0)" data-id="'.$row->id.'" data-product-id="'.$row->product_id.'" class="get-product-log-detail btn btn-warning btn-sm"><i class="fa fa-list fa-sm"></i></a>&nbsp;';
+                 return $actionBtn;
+             })
+             ->rawColumns(['action', 'product_name', 'sku'])
+             ->make(true);
+         }    
+ 
+         return view('product-inventory.out-of-stock');
+     }
+ 
+     // Inventory sold out product history list
+     public function outOfStockProductLog(Request $request)
+     {
+         $product = $request->product;
+         if($product){
+             $productsLog = \App\InventoryStatusHistory::with('product', 'supplier')->where(['in_stock' => 1, 'product_id' => $request->product])->get();
+             $productName = $productsLog[0]->product ? $productsLog[0]->product->name : "N/A";
+             $productSku = $productsLog[0]->product ? $productsLog[0]->product->sku : "N/A";
+             $response = (string)view('product-inventory.out-of-stock-product-log', compact('productsLog'));
+             return response()->json(['success' => true, 'msg' => 'Product logs found successfully.', 'data' => $response, 'productName' => $productName, 'productSku' => $productSku]);
+         }else{
+             return response()->json(['success' => false, 'msg' => 'No product history found']);
+         }
+     }
 }
