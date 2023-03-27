@@ -779,6 +779,7 @@ if (!empty($notifications)) {
                                                     Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New
                                                     Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.out-of-stock') }}">Sold Out Products</a>    
                                                 <a class="dropdown-item"
                                                     href="{{ route('listing.history.index') }}">Product Listing
                                                     history</a>
