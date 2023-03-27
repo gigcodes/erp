@@ -2719,19 +2719,20 @@ class ProductInventoryController extends Controller
             ->make(true);
         }    
 
-        $products = \App\InventoryStatusHistory::with('product', 'supplier')->where('in_stock', 1)->groupBy('product_id')->orderBy('created_at', 'desc')->get();
+        // $products_count = \App\InventoryStatusHistory::with('product', 'supplier')->where('in_stock', 1)->groupBy('product_id')->orderBy('created_at', 'desc')->get()->count();
 
-        $products_count = $products->count();
-        return view('product-inventory.out-of-stock', compact('products_count'));
+        return view('product-inventory.out-of-stock');
     }
 
     public function outOfStockProductLog(Request $request)
     {
-        $productsLog = \App\InventoryStatusHistory::with('product', 'supplier')->where(['in_stock' => 1, 'product_id' => $request->product])->get();
-        // dd($productsLog);
-        $productName = $productsLog[0]->product ? $productsLog[0]->product->name : "N/A";
-        $productSku = $productsLog[0]->product ? $productsLog[0]->product->sku : "N/A";
-        $response = (string)view('product-inventory.out-of-stock-product-log', compact('productsLog'));
-        return response()->json(['success' => true, 'msg' => 'Product logs found successfully.', 'data' => $response, 'productName' => $productName, 'productSku' => $productSku]);
+        $product = $request->product;
+        if($product){
+            $productsLog = \App\InventoryStatusHistory::with('product', 'supplier')->where(['in_stock' => 1, 'product_id' => $request->product])->get();
+            $productName = $productsLog[0]->product ? $productsLog[0]->product->name : "N/A";
+            $productSku = $productsLog[0]->product ? $productsLog[0]->product->sku : "N/A";
+            $response = (string)view('product-inventory.out-of-stock-product-log', compact('productsLog'));
+            return response()->json(['success' => true, 'msg' => 'Product logs found successfully.', 'data' => $response, 'productName' => $productName, 'productSku' => $productSku]);
+        }
     }
 }

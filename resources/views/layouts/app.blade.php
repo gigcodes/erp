@@ -237,42 +237,46 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             measurementId: '{{env('FCM_MEASUREMENT_ID')}}'
         };
         firebase.initializeApp(firebaseConfig);
-        const messaging = firebase.messaging();
-        messaging
-            .requestPermission()
-            .then(function () {
-                return messaging.getToken()
-            })
-            .then(function (response) {
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                $.ajax({
-                    url: '{{ route("store.token") }}',
-                    type: 'POST',
-                    data: {
-                        token: response
-                    },
-                    dataType: 'JSON',
-                    success: function (response) {
-                    },
-                    error: function (error) {
-                        console.error(error);
-                    },
-                });
-            }).catch(function (error) {
-            alert(error);
-        });
-        messaging.onMessage(function (payload) {
-            const title = payload.notification.title;
-            const options = {
-                body: payload.notification.body,
-                icon: payload.notification.icon,
-            };
-            new Notification(title, options);
-        });
+        if (firebase.messaging.isSupported()){
+            const messaging = firebase.messaging();
+            messaging
+                .requestPermission()
+                .then(function () {
+                    return messaging.getToken()
+                })
+                .then(function (response) {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                    $.ajax({
+                        url: '{{ route("store.token") }}',
+                        type: 'POST',
+                        data: {
+                            token: response
+                        },
+                        dataType: 'JSON',
+                        success: function (response) {
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        },
+                    });
+                }).catch(function (error) {
+                alert(error);
+            });
+            messaging.onMessage(function (payload) {
+                const title = payload.notification.title;
+                const options = {
+                    body: payload.notification.body,
+                    icon: payload.notification.icon,
+                };
+                new Notification(title, options);
+            });
+        } else {
+            console.warn('This browser is not supported firebase push notification.');
+        }
     </script>
     <script>
     window.Laravel = '{{!!json_encode(['
@@ -2203,7 +2207,7 @@ if (!empty($notifications)) {
                                     <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="width: fit-content !important;">
                                         <li  class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.index')}}">Google AdWords Account</a>
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
@@ -2222,6 +2226,9 @@ if (!empty($notifications)) {
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googleadreport.index')}}">Google Ads Report</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -3030,7 +3037,7 @@ if (!empty($notifications)) {
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('database.states') }}">States</a>
+                                                        href="{{ route('database.states') }}">Query Process List</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -3207,7 +3214,7 @@ if (!empty($notifications)) {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('database.states') }}">Database
-                                            States</a>
+                                        Query Process List</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>

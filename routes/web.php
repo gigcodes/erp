@@ -352,7 +352,6 @@ use App\Http\Controllers\TimeDoctorActivitiesController;
 Auth::routes();
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
-Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
 
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', [CustomerController::class, 'add_customer_address']);
@@ -2942,7 +2941,7 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/', [DatabaseController::class, 'index'])->name('database.index');
     Route::get('/tables/{id}', [DatabaseTableController::class, 'index'])->name('database.tables');
     Route::post('/tables/view-lists', [DatabaseTableController::class, 'viewList']);
-    Route::get('/states', [DatabaseController::class, 'states'])->name('database.states');
+    Route::get('/query-process-list', [DatabaseController::class, 'states'])->name('database.states');
     Route::get('/process-list', [DatabaseController::class, 'processList'])->name('database.process.list');
     Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
     Route::post('/export', [DatabaseController::class, 'export'])->name('database.export');
@@ -4722,7 +4721,10 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
     Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
     Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
+    Route::post('/permission-update', [GoogleScreencastController::class, 'driveFilePermissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
+    Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
+
 });
 
 //Queue Management::

@@ -20,6 +20,8 @@ return [
     'image_per_folder' => '10000',
     'excelimporter' => 'excelimporter',
     'gd_supported_files' => ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    'no_of_product' => '100',
+    'mode' => 'product-push',
     'cron_minutes' => [
         '*' => 'Every Minutes',
         '5' => 'Every Five Minutes',
@@ -54,5 +56,5 @@ return [
     'product_check_py' => env('PRODUCT_CHECK_PY'),
 
     /** website root access */
-    'WEBSITES_LOGS_FOLDER' => 'storage/websites',
+    'WEBSITES_LOGS_FOLDER' => 'storage/websites'
 ];
