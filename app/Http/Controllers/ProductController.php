@@ -5066,23 +5066,11 @@ class ProductController extends Controller
 
     public function pushProduct(Request $request)
     {
-        /*$webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
-        ->join('store_website_brands', 'store_websites.id', 'store_website_brands.store_website_id')
-        ->join('store_website_categories', 'store_websites.id', 'store_website_categories.store_website_id')
-        ->where("website_source", "!=", "")
-        ->get();
+        $limit = $request->get('no_of_product', config('constants.push_product_configuration.no_of_product'));
 
-        $brandIds = array_unique($webData->pluck('brandId')->toArray());
-        $categoryIds = array_unique($webData->pluck('category_id')->toArray());*/
-        $limit = $request->get('no_of_product', 100);
         // Mode($mode) defines the whether it's a condition check or product push.
-        $mode = $request->get('mode', 'product-push');
-        $products = Product::select('*')
-            ->where('short_description', '!=', '')->where('name', '!=', '')
-            ->where('status_id', StatusHelper::$finalApproval)
-            ->groupBy('brand', 'category')
-            ->limit($limit)
-            ->get();
+        $mode = $request->get('mode', config('constants.push_product_configuration.no_of_product'));
+        $products = ProductHelper::getListOfPushableProduct($limit);
         \Log::info('Product push star time: '.date('Y-m-d H:i:s'));
         $no_of_product = count($products);
         foreach ($products as $key => $product) {
@@ -5092,36 +5080,6 @@ class ProductController extends Controller
             $details['no_of_product'] = $no_of_product;
             
             PushProductOnlyJob::dispatch($product,$details)->onQueue('pushproductonly');
-            // Setting is_conditions_checked flag as 1
-            /*$websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
-            if (! empty($websiteArrays)) {
-                $i = 1;
-                foreach ($websiteArrays as $websiteArray) {
-                    $website =  $websiteArray;
-                    if ($website) {
-                        \Log::info('Product started website found For website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
-                        //currently we have 3 queues assigned for this task.
-                        $log->queue = \App\Helpers::createQueueName($website->title);
-                        $log->save();
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        try {
-                            PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
-                        } catch (\Exception $e) {
-                            $error_msg = 'First Job failed: '.$e->getMessage();
-                            $log->sync_status = 'error';
-                            $log->message = $error_msg;
-                            $log->save();
-                            ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $log->id, null);
-                        }
-                        $i++;
-                    } else {
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
-                    }
-                }
-            } else {
-                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-            }*/
         }
         \Log::info('Product push end time: '.date('Y-m-d H:i:s'));
 

@@ -14,6 +14,8 @@ use App\PushToMagentoCondition;
 use App\StoreWebsiteBrand;
 use App\StoreWebsiteCategory;
 use App\SystemSizeManager;
+use App\Helpers\StatusHelper;
+use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductHelper extends Model
@@ -897,35 +899,26 @@ class ProductHelper extends Model
         $brand = $product->brand;
  
         $category = $product->category;
-        
-        $storeCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->get();
+        $storeCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->pluck('store_website_id')->toArray();
         $websiteArray = [];
-        foreach ($storeCategories as $storeCategory) {
-            $storeBrands = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->where('store_website_id', $storeCategory->store_website_id)->get();
-            if (! empty($storeBrands)) {
-                foreach ($storeBrands as $storeBrand) {
-                    $websiteArray[] = $storeBrand->store_website_id;
-                }
-            }
+        if(!empty($storeCategories)){
+            $websiteArray = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->whereIn('store_website_id', $storeCategories)->pluck('store_website_id')->toArray();
         }
-        
         //Exception for o-labels
         if ($product->landingPageProduct) {
-            $websiteForLandingPage = \App\StoreWebsite::whereNotNull('cropper_color')->where('title', 'LIKE', '%o-labels%')->first();
+            $websiteForLandingPage = StoreWebsite::whereNotNull('cropper_color')->where('title', 'LIKE', '%o-labels%')->first();
             if ($websiteForLandingPage) {
                 if (! in_array($websiteForLandingPage->id, $websiteArray)) {
                     $websiteArray[] = $websiteForLandingPage->id;
                 }
             }
         }
-
         $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->where('tag_id',null)->get();
 
         $not_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->whereNotNull('tag_id')->groupBy('tag_id')->get()->pluck('tag_id');
         $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id',$not_null_tags)->get();
         
         $finalResult = $store_websites_of_null_tags->merge($store_websites_of_not_null_tags);
-        
         return $finalResult;
     }
 
@@ -1005,5 +998,17 @@ class ProductHelper extends Model
         } else {
             return ProductHelper::getTopParent($category->parent_id);
         }
+    }
+
+    public static function getListOfPushableProduct($limit)
+    {
+        return Product::select('*')
+            ->whereNotNull('short_description')
+            ->whereNotNull('name')
+            ->status(StatusHelper::$finalApproval)
+            ->groupBy('brand', 'category')
+            ->orderBy('id','desc')
+            ->limit($limit)
+            ->get();
     }
 }
