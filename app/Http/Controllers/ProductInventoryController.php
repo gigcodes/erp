@@ -2704,13 +2704,13 @@ class ProductInventoryController extends Controller
                 $products = $products->where('product_id', $request->id);
             }
             if(isset($request->name) && !empty($request->name)) {
-                $products->select('product_id', 'inventory_status_histories.created_at', 'in_stock', 'prev_in_stock')->leftjoin('products', 'products.id', 'inventory_status_histories.product_id')->
-                where('name', $request->name);
+                $products->select('inventory_status_histories.*')->leftjoin('products as p1', 'p1.id', 'inventory_status_histories.product_id')->
+                where('p1.name', $request->name);
             }
 
             if(isset($request->sku) && !empty($request->sku)) {
-                $products->select('product_id', 'inventory_status_histories.created_at', 'in_stock', 'prev_in_stock')->leftjoin('products', 'products.id', 'inventory_status_histories.product_id')->
-                where('sku', $request->sku);
+                $products->select('inventory_status_histories.*')->leftjoin('products as p2', 'p2.id', 'inventory_status_histories.product_id')->
+                where('p2.sku', $request->sku);
             }
             
             $products->where('in_stock', 1)
