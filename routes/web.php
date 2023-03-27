@@ -4720,7 +4720,10 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
     Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
     Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
+    Route::post('/permission-update', [GoogleScreencastController::class, 'driveFilePermissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
+    Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
+
 });
 
 //Queue Management::
