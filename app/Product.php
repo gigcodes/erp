@@ -7,6 +7,7 @@ namespace App;
  */
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
@@ -1800,5 +1801,10 @@ class Product extends Model
     public function isCharity()
     {
         return CustomerCharity::where('product_id', $this->id)->first() ? true : false;
+    }
+
+    public function scopeStatus(Builder $query, int $status): void
+    {
+        $query->where('status_id',$status);
     }
 }
