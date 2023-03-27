@@ -117,6 +117,20 @@
                             @endif
                         </div>
 
+                        <div class="form-group">
+                            <strong>Language of Page::</strong>
+                            <select class="form-control" name="page_language">
+                                <option value="0">Select language of page</option>
+                                @foreach($languages as $language)
+                                <option value="{{ $language->locale }}" @if($language->locale == $socialConfig->page_language) selected @endif>{{ $language->name }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('page_language'))
+                            <div class="alert alert-danger">{{$errors->first('page_language')}}</div>
+                            @endif
+                        </div>
+
 						<div class="form-group">
                             <strong>Webhook Verify Token:</strong>
                             <input type="text" name="webhook_token" class="form-control" value="{{ $socialConfig->webhook_token }}" >

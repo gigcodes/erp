@@ -8,6 +8,7 @@ use App\Social\SocialConfig;
 use Crypt;
 use Illuminate\Http\Request;
 use Response;
+use App\Language;
 
 class SocialConfigController extends Controller
 {
@@ -38,11 +39,14 @@ class SocialConfigController extends Controller
             }
             $socialConfigs = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
         }
-        
+
+       
        // $adsAccountManager = $this->getadsAccountManager();
         $websites = \App\StoreWebsite::select('id', 'title')->get();
         $user_names = SocialConfig::select('email')->distinct()->get();
         $platforms = SocialConfig::select('platform')->distinct()->get();
+        $languages = Language::get();
+        
         $selected_website = $request->store_website_id;
         $selected_user_name = $request->user_name;
         $selected_platform = $request->platform;
@@ -53,7 +57,7 @@ class SocialConfigController extends Controller
             ], 200);
         }
 
-        return view('social.configs.index', compact('socialConfigs', 'websites', 'user_names', 'platforms', 'selected_website', 'selected_user_name', 'selected_platform'));
+        return view('social.configs.index', compact('socialConfigs', 'websites', 'user_names', 'platforms','languages', 'selected_website', 'selected_user_name', 'selected_platform'));
     }
 
     public function getadsAccountManager(Request $request){
@@ -166,7 +170,6 @@ class SocialConfigController extends Controller
      */
     public function store(Request $request)
     {
-        //dd($request);
         $this->validate($request, [
             'store_website_id' => 'required',
             'platform' => 'required',
@@ -180,7 +183,7 @@ class SocialConfigController extends Controller
         ]);
         $pageId = $request->page_id;
         $data = $request->except('_token');
-
+        $data['page_language'] = $request->page_language;
         if ($request->platform == 'instagram') {
             $curl = curl_init();
 
@@ -277,7 +280,7 @@ class SocialConfigController extends Controller
         } else {
             $data['account_id'] = $pageId;
         }
-
+        $data['page_language'] = $request->page_language;
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();

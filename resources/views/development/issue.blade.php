@@ -168,7 +168,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 @include("development.partials.pull-request-history-modal")
 
 @include("development.partials.development-reminder-modal")
-
+@include("development.partials.google-drive-files-modal")
 <div id="preview-task-create-get-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -250,6 +250,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <script src="{{env('APP_URL')}}/js/jquery.jscroll.min.js"></script>
 <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
 <script src="{{env('APP_URL')}}/js/bootstrap-filestyle.min.js"></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
 
 <script>
     jQuery(document).ready(function() {
@@ -1594,6 +1595,18 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         });
         $('#user_history_modal').modal('show');
     });
+    function fetchGoogleDriveFileData(task_id) {
+			if(task_id == ''){
+				$('#googleDriveFileData').html('<tr><td>No Data Found.</td></tr>');
+				$('#driveFiles').modal('show');
+				return;
+			} else{
+				$.get(window.location.origin+"/google-drive-screencast/task-files/"+task_id, function(data, status){
+					$('#googleDriveFileData').html(data);
+					$('#driveFiles').modal('show');
+				});
+			}
+		}
 </script>
 @endsection
 @push('scripts')

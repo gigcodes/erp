@@ -28,12 +28,79 @@
     </style>
 @endsection
 @section('content')
-    <h2 class="page-heading">Google AdWords - Campaigns ( <span id="ads_campaign_count">{{$totalNumEntries}} </span>)</h2>
+
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <h2 class="page-heading">Google AdWords - Campaigns ( <span id="ads_campaign_count">{{$totalNumEntries}} </span>)</h2>
+
+                <form action="{{route('googlecampaigns.campaignslist')}}" method="get">
+
+                    <div class="col-md-1 pr-2 p-0">
+                        <select  name="account_name" class="form-control" id="account_name">
+                            <option value="">Account Name</option>
+                            @foreach($search_data->unique('account_id') as $account)
+                                <option value="{{@$account->account->id}}" {{(@$account->account->id == @$_GET['account_name'])? 'selected' :''}}>{{@$account->account->account_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-1 pr-2">
+                        <select name="campaign_name" class="form-control" id="campaign_name">
+                            <option value="">Campaign Name</option>
+                            @foreach($search_data->unique('campaign_name') as $campaign)
+                                <option value="{{@$campaign->campaign_name}}" {{(@$campaign->campaign_name == @$_GET['campaign_name'])? 'selected' :''}}>{{@$campaign->campaign_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-1 pr-2">
+                        <select name="channel_type" class="form-control" id="channel_type">
+                            <option value="">Channel Type</option>
+                            @foreach($search_data->unique('channel_type') as $type)
+                                <option value="{{@$type->channel_type}}" {{(@$type->channel_type == @$_GET['channel_type'])? 'selected' :''}}>{{@$type->channel_type}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-1 pr-2">
+                        <select name="channel_sub_type" class="form-control" id="channel_sub_type">
+                            <option value="">Channel Sub Type</option>
+                            @foreach($search_data->unique('channel_sub_type')  as $sub_type)
+                                <option value="{{@$sub_type->channel_sub_type}}" {{(@$sub_type->channel_sub_type == @$_GET['channel_sub_type'])? 'selected' :''}}>{{@$sub_type->channel_sub_type}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-1 pr-2">
+                        <select name="status" class="form-control" id="status">
+                            <option value="">Status</option>
+                            @foreach($search_data->unique('status') as $status)
+                                <option value="{{@$status->status}}" {{(@$status->status == @$_GET['status'])? 'selected' :''}}>{{@$status->status}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-1 pr-2">
+                        <input name="start_date" type="date" class="form-control" value="{{isset($_GET['start_date'])?$_GET['start_date']:''}}" placeholder="Start Date" id="start_date">
+                    </div>
+
+                    <div class="col-md-1 pr-2">
+                        <input name="end_date" type="date" class="form-control" value="{{isset($_GET['end_date'])?$_GET['end_date']:''}}" placeholder="End Date" id="end_date">
+                    </div>
+
+                    <div class="col-md-1 pr-1">
+                        <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
+                        <a href="{{route('googlecampaigns.campaignslist')}}" type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></a>
+                    </div>
+                </form>
+        </div>
+    </div>
+
     <div class="container-fluid p-0" style="margin-top: 10px">
 
         <div class="pl-3 pr-3">
             <div class="table-responsive mt-3">
-
+                {{ $campaignslist->links() }}
                 <table class="table table-bordered" id="adscampaign-table">
                     <thead>
                     <tr>
@@ -75,6 +142,5 @@
                 </table>
             </div>
         </div>
-{{--        {{ $campaignslist->links() }}--}}
     </div>
 @endsection

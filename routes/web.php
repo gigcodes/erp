@@ -330,6 +330,7 @@ use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\VoucherCouponController;
 use App\Http\Controllers\WatsonController;
+use App\Http\Controllers\WebNotificationController;
 use App\Http\Controllers\WebsiteLogController;
 use App\Http\Controllers\WeTransferController;
 use App\Http\Controllers\WhatsAppController;
@@ -340,6 +341,7 @@ use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\GoogleAppAdController;
 use App\Http\Controllers\GoogleAdGroupKeywordController;
+use App\Http\Controllers\GoogleAdReportController;
 use App\Http\Controllers\UnknownAttributeProductController;
 use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
@@ -348,6 +350,10 @@ use App\Http\Controllers\TimeDoctorActivitiesController;
 
 
 Auth::routes();
+Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
+Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
+Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
+
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', [CustomerController::class, 'add_customer_address']);
 Route::post('sendgrid/notifyurl', [Marketing\MailinglistController::class, 'notifyUrl']);
@@ -735,7 +741,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/listing/final/pushproduct', [ProductController::class, 'pushProduct']);
     Route::post('products/listing/final/process-conditions-check', [ProductController::class, 'processProductsConditionsCheck'])->name('products.processProductsConditionsCheck');
     Route::post('products/listing/push-to-magento', [ProductController::class, 'pushProductsToMagento'])->name('products.pushToMagento');
-    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatus'])->name('products.magentoPushStatus');
+    Route::get('products/listing/magento-push-status', [ProductController::class, 'magentoPushStatusForMagentoCheck'])->name('products.magentoPushStatus');
     Route::post('products/changeautopushvalue', [ProductController::class, 'changeAutoPushValue']);
     Route::post('products/listing/magento-push-status/autocomplete', [ProductController::class, 'autocompleteSearchPushStatus'])->name('products.autocompleteSearchPushStatus');
     Route::post('product/image/order/change', [ProductController::class, 'changeimageorder']);
@@ -824,6 +830,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('productlister', ProductListerController::class);
     Route::resource('productapprover', ProductApproverController::class);
     Route::get('productinventory/product-images/{id}', [ProductInventoryController::class, 'getProductImages'])->name('productinventory.product-images');
+    Route::get('productinventory/out-of-stock', [ProductInventoryController::class, 'getStockwithZeroQuantity'])->name('productinventory.out-of-stock');
+    Route::get('productinventory/out-of-stock-product-log', [ProductInventoryController::class, 'outOfStockProductLog'])->name('productinventory.out-of-stock-product-log');
     Route::get('productinventory/product-rejected-images/{id}', [ProductInventoryController::class, 'getProductRejectedImages'])->name('productinventory.product-rejected-images');
     Route::post('productinventory/import', [ProductInventoryController::class, 'import'])->name('productinventory.import');
     Route::get('productinventory/list', [ProductInventoryController::class, 'list'])->name('productinventory.list');
@@ -958,6 +966,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('reply-translate', [ReplyController::class, 'replyTranslate'])->name('reply.replytranslate');
     Route::get('reply-translate-list', [ReplyController::class, 'replyTranslateList'])->name('reply.replyTranslateList');
 
+    Route::post('/reply-translate-list/update', [ReplyController::class, 'replyTranslateUpdate'])->name('reply.replyTranslateupdate');
+    Route::post('/reply-translate-list/history', [ReplyController::class, 'replyTranslatehistory'])->name('reply.replyTranslatehistory');
+    Route::post('/reply-translate-list/approvedByAdmin', [ReplyController::class, 'approvedByAdmin'])->name('reply.approved_by_admin');
+    Route::post('/reply-translate-list/permissions', [ReplyController::class, 'quickRepliesPermissions'])->name('reply.permissions');
+
+    Route::post('/reply-translate-list/removepermissions', [ReplyController::class, 'removepermissions'])->name('remove.permissions');
+
     Route::post('show-reply-logs', [ReplyController::class, 'show_logs'])->name('reply.show_logs');
 
     // Auto Replies
@@ -989,6 +1004,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('most-used-phrases/deleted', [AutoReplyController::class, 'mostUsedPhrasesDeleted'])->name('chatbot.mostUsedPhrasesDeleted');
     Route::get('most-used-phrases/deleted/records', [AutoReplyController::class, 'mostUsedPhrasesDeletedRecords'])->name('chatbot.mostUsedPhrasesDeletedRecords');
     Route::post('settings/update', [SettingController::class, 'update']);
+    Route::get('settings/telescope', [SettingController::class, 'getTelescopeSettings']);
+    Route::post('settings/telescope/update', [SettingController::class, 'updateTelescopeSettings']);
     Route::post('settings/updateAutomatedMessages', [SettingController::class, 'updateAutoMessages'])->name('settings.update.automessages');
     Route::resource('settings', SettingController::class);
 
@@ -1321,6 +1338,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
+    Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
 
     Route::get('email/order_data/{email?}', [EmailController::class, 'index']); //Purpose : Add Route -  DEVTASK-18283
     Route::post('email/platform-update', [EmailController::class, 'platformUpdate']);
@@ -1336,6 +1354,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
+    Route::get('email/email-frame/{id}', [EmailController::class, 'viewEmailFrame']);
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
@@ -2124,6 +2143,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
     Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
+    Route::post('password/send/email', [PasswordController::class, 'passwordSendEmail'])->name('password.send.email');
+    Route::get('password/email/history', [PasswordController::class, 'passwordSendEmailHistory'])->name('password.email.history');
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
@@ -2923,9 +2944,10 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/', [DatabaseController::class, 'index'])->name('database.index');
     Route::get('/tables/{id}', [DatabaseTableController::class, 'index'])->name('database.tables');
     Route::post('/tables/view-lists', [DatabaseTableController::class, 'viewList']);
-    Route::get('/states', [DatabaseController::class, 'states'])->name('database.states');
+    Route::get('/query-process-list', [DatabaseController::class, 'states'])->name('database.states');
     Route::get('/process-list', [DatabaseController::class, 'processList'])->name('database.process.list');
     Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
+    Route::post('/export', [DatabaseController::class, 'export'])->name('database.export');
 });
 
 Route::resource('pre-accounts', PreAccountController::class)->middleware('auth');
@@ -3989,6 +4011,7 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     });
 
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
+    Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
@@ -4588,6 +4611,8 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('post/create/{id}', [Social\SocialPostController::class, 'create'])->name('social.post.create');
     Route::get('post/getimage/{id}', [Social\SocialPostController::class, 'getImage'])->name('social.post.getimage');
     Route::post('post/history', [Social\SocialPostController::class, 'history'])->name('social.post.history');
+    Route::post('post/translationapproval', [Social\SocialPostController::class, 'translationapproval'])->name('social.post.translationapproval');
+    Route::post('post/approvepost', [Social\SocialPostController::class, 'approvepost'])->name('social.post.approvepost');
 
     Route::get('post/grid', [Social\SocialPostController::class, 'grid'])->name('social.post.grid');
 
@@ -4693,12 +4718,16 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
+    Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
     Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
     Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
+    Route::post('/permission-update', [GoogleScreencastController::class, 'driveFilePermissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
+    Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
+
 });
 
 //Queue Management::
