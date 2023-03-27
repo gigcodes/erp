@@ -23,6 +23,7 @@ use App\Jobs\PushToMagento;
 use App\Jobs\PushProductOnlyJob;
 use App\Jobs\Flow2ConditionCheckProductOnly;
 use App\Jobs\Flow2PushProductOnlyJob;
+use App\Jobs\ImageApprovalPushProductOnlyJob;
 use App\Language;
 use App\ListingHistory;
 use App\Loggers\LogListMagento;
@@ -2077,39 +2078,12 @@ class ProductController extends Controller
         try {
             // code...
             // Get product by ID
-            $mode = $request->get('mode', 'product-push');
-            $product = Product::find($id);
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-            if (! empty($websiteArrays)) {
-                $storeWebsites = \App\StoreWebsite::whereIn('id', $websiteArrays)->get();
-                foreach ($storeWebsites as $website) {
-                    if ($website) {
-                        \Log::info('Product started website found For website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $website->id, 'waiting');
-                        //currently we have 3 queues assigned for this task.
-                        $log->sync_status = 'waiting';
-                        $log->queue = \App\Helpers::createQueueName($website->title);
-                        $log->save();
-                        PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                    } else {
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'success', $website->id, null, null, null, null);
-                    }
-                }
-                $product->isUploaded = 1;
-                $product->save();
-                // Return response
-                return response()->json([
-                    'result' => 'queuedForDispatch',
-                    'status' => 'listed',
-                ]);
-            } else {
-                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-            }
+            $product = Product::find($id);         
+            ImageApprovalPushProductOnlyJob::dispatch($product)->onQueue('imageapprovalpushproductonly');
 
             return response()->json([
-                'result' => 'No website for push',
-                'status' => 'failed',
+                'result' => 'queuedForDispatch',
+                'status' => 'listed',
             ]);
 
             //check for hscode
