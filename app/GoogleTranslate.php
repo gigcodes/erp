@@ -13,6 +13,7 @@ namespace App;
  */
 
 use App\Loggers\TranslateLog;
+use Exception;
 use Google\Cloud\Translate\V2\TranslateClient;
 
 class GoogleTranslate
@@ -24,7 +25,7 @@ class GoogleTranslate
         $this->path = public_path().'/google/translation_key.json';
     }
 
-    public function translate($target, $text)
+    public function translate($target, $text, $throwException = false)
     {
         $lastFileId = '';
         someLine:
@@ -51,7 +52,7 @@ class GoogleTranslate
                 $result = $translate->translate($text, [
                     'target' => $target,
                 ]);
-                \Log::info(print_r(['Result of google', $result], true));
+                // \Log::info(print_r(['Result of google', $result], true));
 
                 return $result['text'];
             } else {
@@ -65,6 +66,10 @@ class GoogleTranslate
                     'domain' => ' ',
                     'reason' => ' ',
                 ]);
+
+                if ($throwException) {
+                    throw new Exception("You have no google translation account enabled.", 500);
+                }
             }
         } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
             // \Log::info("-----------------");
@@ -72,9 +77,10 @@ class GoogleTranslate
             // \Log::info($e->getServiceException());
             \Log::error($e);
             $message = json_decode($e->getMessage());
-            // dd($message->error);
+            $errorMessage = "";
 
-            if ($message->error) {
+            if (isset($message) && isset($message->error)) {
+                $errorMessage = $message->error->message;
                 $translateLog = TranslateLog::log([
                     'google_traslation_settings_id' => (! empty($lastFileId)) ? $lastFileId : 0,
                     'messages' => $message->error->message,
@@ -83,6 +89,16 @@ class GoogleTranslate
                     'reason' => $message->error->errors[0]->reason,
                 ]);
                 // $translateLog = TranslateLog::log(["google_traslation_settings_id" => (!empty($lastFileId)), "messages" => $flow["name"] . " has found total Action  : " . $flowActions->count()]);
+            } else {
+                // Sensitive error message
+                $errorMessage = "Something went wrong while translating.";
+                $translateLog = TranslateLog::log([
+                    'google_traslation_settings_id' => (! empty($lastFileId)) ? $lastFileId : 0,
+                    'messages' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'domain' => " ",
+                    'reason' => " ",
+                ]);
             }
             if (! empty($lastFileId)) {
                 $googleTraslationSettings = new googleTraslationSettings;
@@ -98,6 +114,36 @@ class GoogleTranslate
             ->first();
             if (! empty($file)) {
                 goto someLine;
+            }
+
+            if ($throwException) {
+                throw new Exception($errorMessage ?? "");
+            }
+        } catch (Exception $e) {
+            \Log::error($e);
+            $code = $e->getCode();
+
+            if(isset($lastFileId)) {
+                $translateLog = TranslateLog::log([
+                    'google_traslation_settings_id' => (! empty($lastFileId)) ? $lastFileId : 0,
+                    'messages' => $e->getMessage(),
+                    'code' => 404,
+                    'domain' => " ",
+                    'reason' => " ",
+                ]);
+                $googleTraslationSettings = new googleTraslationSettings;
+                $googleTraslationSettings->where('id', $lastFileId)
+                ->limit(1)
+                ->update([
+                    'status' => 0,
+                ]);
+            }
+            if ($throwException) {
+                if($code == 500) {
+                    throw new Exception($e->getMessage());
+                } else {
+                    throw new Exception("Something went wrong while translating.");
+                }
             }
         }
     }
@@ -125,8 +171,6 @@ class GoogleTranslate
         } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
             \Log::error($e);
             $message = json_decode($e->getMessage());
-            dd($message->error);
-
             return $message->error;
         }
     }

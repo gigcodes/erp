@@ -4331,6 +4331,7 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
 Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('/list', [TranslationController::class, 'index'])->name('translation.list');
     Route::get('translate-logs', [TranslationController::class, 'translateLog'])->name('translation.log');
+    Route::post('mark-as-resolve', [TranslationController::class, 'markAsResolve'])->name('translation.log.markasresolve');
     Route::DELETE('/delete/{id?}', [TranslationController::class, 'destroy'])->name('translation.destroy');
     Route::get('/add', [TranslationController::class, 'create'])->name('translation.add');
     Route::get('/{id?}/edit', [TranslationController::class, 'edit'])->name('translation.edit');

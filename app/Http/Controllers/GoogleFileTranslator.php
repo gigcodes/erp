@@ -6,6 +6,7 @@ use App\GoogleFiletranslatorFile;
 use App\GoogleTranslate;
 use App\Language;
 use App\Translations;
+use Exception;
 use File;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -75,7 +76,11 @@ class GoogleFileTranslator extends Controller
         $path = public_path().'/uploads/google-file-translator/';
         $languageData = Language::where('id', $insert->tolanguage)->first();
         if (file_exists($path.$insert->name)) {
-            $this->translateFile($path.$insert->name, $languageData->locale, ',');
+            try {
+                $result = $this->translateFile($path.$insert->name, $languageData->locale, ',');
+            } catch (\Exception $e) {
+                return redirect()->route('googlefiletranslator.list')->with('error', $e->getMessage());
+            }
         }
 
         return redirect()->route('googlefiletranslator.list')->with('success', 'Translation created successfully');
@@ -167,13 +172,14 @@ class GoogleFileTranslator extends Controller
                 } else {
                     try {
                         $googleTranslate = new GoogleTranslate();
-                        $translationString = $googleTranslate->translate($language, $data[0]);
+                        $translationString = $googleTranslate->translate($language, $data[0], true);
 
                         // Devtask-2893 : Added model to save individual line translation
                         Translations::addTranslation($data[0], $translationString, 'en', $language);
                         $data[] = htmlspecialchars_decode($translationString, ENT_QUOTES);
                     } catch (\Exception $e) {
                         \Log::channel('errorlog')->error($e);
+                        throw new Exception($e->getMessage());
                     }
                 }
                 $newCsvData[] = $data;
