@@ -898,17 +898,9 @@ class ProductHelper extends Model
  
         $category = $product->category;
         
-        $storeCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->get();
-        $websiteArray = [];
-        foreach ($storeCategories as $storeCategory) {
-            $storeBrands = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->where('store_website_id', $storeCategory->store_website_id)->get();
-            if (! empty($storeBrands)) {
-                foreach ($storeBrands as $storeBrand) {
-                    $websiteArray[] = $storeBrand->store_website_id;
-                }
-            }
-        }
-        
+        $storeWebsiteIdOfCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->get()->pluck('store_website_id');
+        $websiteArray = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->whereIn('store_website_id', $storeWebsiteIdOfCategories)->get()->pluck('store_website_id')->toArray();
+
         //Exception for o-labels
         if ($product->landingPageProduct) {
             $websiteForLandingPage = \App\StoreWebsite::whereNotNull('cropper_color')->where('title', 'LIKE', '%o-labels%')->first();
@@ -918,14 +910,8 @@ class ProductHelper extends Model
                 }
             }
         }
-
-        $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->where('tag_id',null)->get();
-
-        $not_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->whereNotNull('tag_id')->groupBy('tag_id')->get()->pluck('tag_id');
-        $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id',$not_null_tags)->get();
         
-        $finalResult = $store_websites_of_null_tags->merge($store_websites_of_not_null_tags);
-        
+        $finalResult = \App\StoreWebsite::whereIn('id',$websiteArray)->get();
         return $finalResult;
     }
 
@@ -1009,8 +995,8 @@ class ProductHelper extends Model
 
     public static function getProducts($status, $limit){
         return Product::select('*')
-            ->whereShortDescription('short_description', '!=', '')->whereName('name', '!=', '')
-            ->whereStatusId('status_id', $status)
+            ->whereNotNull(['name','short_description'])
+            ->whereStatusId($status)
             ->groupBy('brand', 'category')
             ->limit($limit)
             ->get();

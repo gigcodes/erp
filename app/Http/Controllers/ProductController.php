@@ -217,12 +217,12 @@ class ProductController extends Controller
 
             $categories_array[$category->id] = $category->parent_id;
         }
-
-        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
-            $newProducts = Product::query();
-        } else {
-            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
-        }
+        $newProducts = Product::query();
+        // if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+        //     $newProducts = Product::query();
+        // } else {
+        //     $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
+        // }
 
         if ($request->get('status_id') != null) {
             $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
@@ -5066,9 +5066,9 @@ class ProductController extends Controller
 
     public function pushProduct(Request $request)
     {
-        $limit = $request->get(config('constants.no_of_product'));
+        $limit = $request->get('no_of_product',config('constants.no_of_product'));
         // Mode($mode) defines the whether it's a condition check or product push.
-        $mode = $request->get(config('constants.mode'));
+        $mode = $request->get('mode',config('constants.mode'));
         $products = ProductHelper::getProducts(StatusHelper::$finalApproval, $limit);
         \Log::info('Product push star time: '.date('Y-m-d H:i:s'));
         $no_of_product = count($products);
@@ -5091,10 +5091,9 @@ class ProductController extends Controller
 
     public function processProductsConditionsCheck(Request $request)
     {
-        $limit = $request->get(config('constants.no_of_product'));
+        $limit = $request->get('no_of_product',config('constants.no_of_product'));
         // Mode($mode) defines the whether it's a condition check or product push.
-        $mode = $request->get(config('constants.mode'));
-
+        $mode = $request->get('mode',config('constants.mode'));
         // Gets all products with final approval status
         $products = ProductHelper::getProducts(StatusHelper::$finalApproval, $limit);
         
@@ -5121,7 +5120,7 @@ class ProductController extends Controller
     public function pushProductsToMagento(Request $request)
     {
         $mode = 'product-push';
-        $limit = $request->get(config('constants.no_of_product'));
+        $limit = $request->get('no_of_product',config('constants.no_of_product'));
         $products = ProductHelper::getProducts(StatusHelper::$productConditionsChecked, $limit);
         if ($products->count() == 0) {
             return response()->json(['code' => 500, 'message' => 'No products found!']);
