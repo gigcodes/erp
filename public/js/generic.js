@@ -431,6 +431,7 @@ $(document).on('click', '.load-communication-modal', function () {
             $("#chat-list-history").find(".modal-body").html(li);
             $("#chat-list-history").find('#chat_obj_type').val(object_type);
             $("#chat-list-history").find('#chat_obj_id').val(object_id);
+            $("#chat-list-history").find(".message").css({"white-space": "pre-wrap","word-wrap": "break-word"});
             $("#chat-list-history").modal("show");
         } else {
             $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
