@@ -56,10 +56,5 @@ return [
     'product_check_py' => env('PRODUCT_CHECK_PY'),
 
     /** website root access */
-    'WEBSITES_LOGS_FOLDER' => 'storage/websites',
-    'push_product_limit' => 100,
-    'push_product_configuration' => [
-        'no_of_product' => 100,
-        'mode' => 'product-push'
-    ]
+    'WEBSITES_LOGS_FOLDER' => 'storage/websites'
 ];

@@ -1002,7 +1002,7 @@ class ProductHelper extends Model
     public static function getProducts($status, $limit){
         return Product::select('*')
             ->whereNotNull(['name','short_description'])
-           ->status(StatusHelper::$finalApproval)
+            ->status($status)
             ->groupBy('brand', 'category')
             ->limit($limit)
             ->get();
