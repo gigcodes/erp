@@ -8,6 +8,12 @@
 
 @section('large_content')
 <div class="row">
+	<div class="col-lg-12 margin-tb mt-3">
+		<h2 class="page-heading">Supplier Category</h2>
+		<button type="button" class="btn btn-secondary ml-3" id="btn_manage_supplier_priority">Manage Supplier Priority</button>
+	</div>
+</div>
+<div class="row">
     <div class="mt-3 col-md-12">
       <table class="table table-bordered table-responsive table-striped">
         <thead>
@@ -154,6 +160,102 @@
         </tbody>
       </table>
     </div>
-    </div>
-    {{-- {!! $suppliers->appends(Request::except('page'))->links() !!} --}}
+</div>
+
+<div id="manageSupplierPriorityModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Manage Supplier Priority</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-inline" id="frm_manage_supplier_priority">
+					<div class="form-group mx-sm-3 mb-2">
+						<label for="priority" class="sr-only">Enter Priority</label>
+						<input type="text" class="form-control" id="priority" name="priority" placeholder="Enter Priority">
+					</div>
+					<button type="submit" class="btn btn-primary mb-2" id="btn_add_priority">Add</button>
+				</form>
+				<hr>
+				
+				<table class="table table-bordered table-striped" id="priority_list_table">
+					<thead>
+						<tr>
+							<th>Priority</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{{-- {!! $suppliers->appends(Request::except('page'))->links() !!} --}}
+@endsection
+
+@section('scripts')
+	<script>
+		$("#btn_manage_supplier_priority").on('click',function() {
+			$("#manageSupplierPriorityModal").modal('show');
+			getSupplierPriorityList();
+		});
+		$("#frm_manage_supplier_priority").on('submit',function(e) {
+			e.preventDefault();
+			
+			var formData = new FormData($("#frm_manage_supplier_priority")[0]);
+			formData.append('_token',"{{ csrf_token() }}");
+			
+			$.ajax({
+				url: '{{ route("supplier.add_new_priority")}}',
+				type: 'POST',
+				data :formData,
+				dataType: 'json',
+				contentType:false,
+				processData:false,
+				beforeSend: function () {
+				},
+				success: function(result){
+					if(result.code == 200) {
+						toastr["success"](result.message);
+						$("#frm_manage_supplier_priority")[0].reset();
+						getSupplierPriorityList();
+					}
+					
+					if(result.code == 500) {
+						toastr["error"](result.message);
+					}
+				},
+				error: function (){
+				
+				}
+			});
+		});
+		
+		function getSupplierPriorityList() {
+			
+			$.ajax({
+				url: '{{ route("supplier.get_supplier_priority_list")}}',
+				type: 'GET',
+				dataType: 'json',
+				beforeSend: function () {
+				},
+				success: function(result){
+					if(result.code == 200) {
+						$("#priority_list_table tbody").html(result.html);
+					} 
+					
+					if(result.code == 500) {
+						$("#priority_list_table tbody").html('<tr><td>'+result.message+'</td></tr>');
+					}
+				},
+				error: function (){
+				
+				}
+			});
+		}
+	</script>
 @endsection

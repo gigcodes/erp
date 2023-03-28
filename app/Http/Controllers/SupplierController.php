@@ -24,6 +24,7 @@ use App\SupplierPriceRange;
 use App\SupplierSize;
 use App\SupplierStatus;
 use App\SupplierSubCategory;
+use App\SupplierPriority;
 use App\User;
 use Auth;
 use Illuminate\Http\Request;
@@ -1877,5 +1878,34 @@ class SupplierController extends Controller
         $suppliercategory = SupplierCategory::pluck('name', 'id')->toArray();
 
         return view('suppliers.supplier_category_priority', compact('suppliers', 'suppliercategory'));
+    }
+    
+    public function addNewPriority(Request $request)
+    {
+        $validateArr['priority'] = 'required|numeric|unique:supplier_priority,priority';
+        $validator = Validator::make($request->all(), $validateArr);
+
+        if ($validator->fails()) {
+            $return = ['code' => 500, 'message' => $validator->errors()->first()];
+        } else {
+            $supplier_priority = SupplierPriority::create([
+                'priority' => $request->priority,
+            ]);
+            $return = ['code' => 200, 'message' => 'Supplier priority created!'];
+        }
+        
+        return response()->json($return);
+    }
+    
+    public function getSupplierPriorityList(Request $request)
+    {
+        $supplier_priority_list = \App\SupplierPriority::get();
+        if(isset($supplier_priority_list) && count($supplier_priority_list)) {
+            $show_history = (string)view('suppliers.ajax_priority_list',compact('supplier_priority_list'));
+            $return = ['code' => 200, 'message' => 'Success','html'=> $show_history];
+        } else {
+            $return = ['code' => 500, 'message' => 'No Results Found.'];
+        }
+        return response()->json($return);
     }
 }
