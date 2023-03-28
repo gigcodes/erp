@@ -1871,4 +1871,11 @@ class SupplierController extends Controller
 
         return response()->json(['code' => 200, 'data' => $list]);
     }
+
+    public function getPrioritiesList(){
+        $suppliers = \App\Supplier::get();
+        $suppliercategory = SupplierCategory::pluck('name', 'id')->toArray();
+
+        return view('suppliers.supplier_category_priority', compact('suppliers', 'suppliercategory'));
+    }
 }

@@ -2380,6 +2380,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('supplier/updateCategoryCount', [SupplierController::class, 'updateSupplierCategoryCount'])->name('supplier.count.update');
     Route::post('supplier/deleteCategoryCount', [SupplierController::class, 'deleteSupplierCategoryCount'])->name('supplier.count.delete');
 
+    Route::get('supplier-category', [SupplierController::class, 'getPrioritiesList'])->name('supplier-category.list');
+
     Route::get('supplier/brandcount', [SupplierController::class, 'addSupplierBrandCount'])->name('supplier.brand.count');
     Route::post('supplier/saveBrandCount', [SupplierController::class, 'saveSupplierBrandCount'])->name('supplier.brand.count.save');
     Route::post('supplier/getBrandCount', [SupplierController::class, 'getSupplierBrandCount'])->name('supplier.brand.count.get');
