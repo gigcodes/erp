@@ -16,7 +16,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class PushToMagento implements ShouldQueue
+class Flow2ConditionCheckBasic implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -27,7 +27,7 @@ class PushToMagento implements ShouldQueue
     protected $log;
 
     protected $mode;
-
+    
     protected $details;
     
     protected $product_index;
@@ -43,7 +43,7 @@ class PushToMagento implements ShouldQueue
     protected $conditions;
     
     protected $upteamconditions;
-    
+
     /**
      * Create a new job instance.
      *
@@ -54,7 +54,6 @@ class PushToMagento implements ShouldQueue
      */
     public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null,$details = [])
     {
-        
         // Set product and website
         $this->_product = $product;
         $this->_website = $website;
@@ -79,7 +78,7 @@ class PushToMagento implements ShouldQueue
         // Load product and website
         if ($this->log) {
             $this->log->sync_status = 'first_job_started';
-            $this->log->message = 'First job started';
+            $this->log->message = 'Condition Check First job started';
             $this->log->job_start_time = $date_time;
             $this->log->save();
         }
@@ -138,11 +137,11 @@ class PushToMagento implements ShouldQueue
                     $this->condition_check_disable_push();
                     $this->condition_check_charity_and_size_chart();
                     $this->condition_check_if_images_exists();
-
+                    
                     try {
-                        MagentoServiceJob::dispatch($product, $website, $this->log, $this->mode,$this->details)->onQueue($this->log->queue);
+                        Flow2ConditionCheckAll::dispatch($product, $website, $this->log, $this->mode,$this->details)->onQueue($this->log->queue);
                     } catch (\Exception $e) {
-                        $error_msg = 'Second Job failed: '.$e->getMessage();
+                        $error_msg = 'Condition Check Second Job failed: '.$e->getMessage();
                         $this->log->sync_status = 'error';
                         $this->log->message = $error_msg;
                         $this->log->save();
@@ -303,7 +302,7 @@ class PushToMagento implements ShouldQueue
         $product = $this->_product;
         $website = $this->_website;
 
-        $error_msg = 'First Job failed for '.$product->name;
+        $error_msg = 'Flow2ConditionCheckBasic failed for '.$product->name;
         if ($this->log) {
             $this->log->sync_status = 'error';
             $this->log->message = $error_msg;

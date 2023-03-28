@@ -401,7 +401,8 @@ class GoogleAdGroupController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googleadgroups.update', ['adGroup' => $adGroup, 'campaignId' => $campaignId , 'campaign_channel_type' => $campaign_channel_type]);
+        return $adGroup;
+        // return view('googleadgroups.update', ['adGroup' => $adGroup, 'campaignId' => $campaignId , 'campaign_channel_type' => $campaign_channel_type]);
     }
 
     // update ad group

@@ -21,7 +21,7 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Google Drive Screencasts</h2>
+            <h2 class="page-heading">Google Drive Screencasts/Files</h2>
             <div class="pull-left">
                 <div class="form-group">
                     <div class="row">
@@ -42,7 +42,24 @@
                                             @endforeach
                                         </datalist>
                                     </div>
-
+                                    <div class="form-group m-1">
+                                        <select name="task_id" id="search_task" class="form-control" placeholder="Search Dev Task">
+                                        <option value="">Search Dev Task</option>
+                                            @foreach ($tasks as $key => $task )
+                                                <option value="{{$task->id}}" @if(request()->get('task_id')==$task->id) selected @endif>#DEVTASK-{{$task->id}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @if(Auth::user()->isAdmin())
+                                    <div class="form-group m-1">
+                                        <select name="user_gmail" id="search_user" class="form-control" placeholder="Search User">
+                                        <option value="">Search User</option>
+                                            @foreach ($users as $key => $val )
+                                                <option value="{{$val->gmail}}" @if(request()->get('user_gmail')==$val->gmail) selected @endif>{{$val->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+				                    @endif
                                     <div class="form-group">
                                         <label for="button">&nbsp;</label>
                                         <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
@@ -56,7 +73,7 @@
             </div>
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadeScreencastModal">
-                    + Upload Screencast
+                    + Upload Screencast/File
                 </button>
             </div>
         </div>
@@ -65,21 +82,66 @@
     @include('partials.flash_messages')
 
     <div class="table-responsive">
-        <table class="table table-bordered" id="googlefiletranslator-table">
+        <table class="table table-bordered">
             <thead>
             <tr>
                 <th>No</th>
                 <th>File Name</th>
-                <th>Created At</th>
+                <th>Dev Task</th>
+                <th>File Creation Date</th>
                 <th>URL</th>
+                <th>Remarks</th>
+                <th>File Uploaded AT</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
             @include('googledrivescreencast.partials.list')
+            @include('googledrivescreencast.partials.update-file-permissions')
             </tbody>
         </table>
     </div>
 
-    @include('googledrivescreencast.partials.upload')
+@include('googledrivescreencast.partials.upload')
 @endsection
+@section('scripts')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript">
+$("#id_label_multiple_user_read").select2();
+$("#id_label_multiple_user_write").select2();
+$("#search_user").select2();
+$('#id_label_task').select2({
+  minimumInputLength: 3 // only start searching when the user has input 3 or more characters
+});
+$('#search_task').select2({
+  minimumInputLength: 3 // only start searching when the user has input 3 or more characters
+});
+
+$(document).on('click', '.filepermissionupdate', function (e) {
+		
+		$("#updateGoogleFilePermissionModal #id_label_file_permission_read").val("").trigger('change');
+		$("#updateGoogleFilePermissionModal #id_label_file_permission_write").val("").trigger('change');
+		
+        let data_read = $(this).data('readpermission');
+        let data_write = $(this).data('writepermission');
+		var file_id = $(this).data('fileid');
+        var id = $(this).data('id');
+		var permission_read = data_read.split(',');
+		var permission_write = data_write.split(',');
+		if(permission_read)
+		{
+			$("#updateGoogleFilePermissionModal #id_label_file_permission_read").val(permission_read).trigger('change');
+		}
+		if(permission_write)
+		{
+			$("#updateGoogleFilePermissionModal #id_label_file_permission_write").val(permission_write).trigger('change');
+		}
+		
+		$('#file_id').val(file_id);
+        $('#id').val(id);
+	
+	});
+    </script>
+@endsection
+

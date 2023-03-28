@@ -196,6 +196,7 @@ return [
         //LaravelFCM\FCMServiceProvider::class,
 
         App\Providers\EmailServiceProvider::class,
+        App\Providers\ConfigServiceProvider::class,
     ],
 
     /*

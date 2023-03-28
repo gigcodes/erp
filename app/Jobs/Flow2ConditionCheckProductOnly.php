@@ -16,7 +16,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use App\Loggers\LogListMagento;
-class ConditionCheckOnlyJob implements ShouldQueue
+class Flow2ConditionCheckProductOnly implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -78,7 +78,7 @@ class ConditionCheckOnlyJob implements ShouldQueue
                     $log->queue = \App\Helpers::createQueueName($website->title);
                     $log->save();
                     ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                    ConditionCheckFirstJob::dispatch($product, $website, $log, $mode,$this->details)->onQueue($log->queue);
+                    Flow2ConditionCheckBasic::dispatch($product, $website, $log, $mode,$this->details)->onQueue($log->queue);
                     $i++;
                 } else {
                     ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', null, null, null, null, null);
@@ -92,7 +92,7 @@ class ConditionCheckOnlyJob implements ShouldQueue
     public function failed(\Throwable $exception = null)
     {
         $product = $this->_product; 
-        ProductPushErrorLog::log('', $product->id, 'ConditionCheckOnlyJob Failed Product'.$product->name, 'error', null, null, null, null, null);
+        ProductPushErrorLog::log('', $product->id, 'Flow2ConditionCheckBasic Failed Product'.$product->name, 'error', null, null, null, null, null);
     }
 
     public function tags()

@@ -16,7 +16,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class PushToMagento implements ShouldQueue
+class ImageApprovalPushToMagento implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -27,12 +27,6 @@ class PushToMagento implements ShouldQueue
     protected $log;
 
     protected $mode;
-
-    protected $details;
-    
-    protected $product_index;
-    
-    protected $no_of_product;
     
     protected $topParent;
     
@@ -52,7 +46,7 @@ class PushToMagento implements ShouldQueue
      * @param  null  $log
      * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null,$details = [])
+    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null)
     {
         
         // Set product and website
@@ -60,9 +54,6 @@ class PushToMagento implements ShouldQueue
         $this->_website = $website;
         $this->log = $log;
         $this->mode = $mode;
-        $this->details = $details;
-        $this->product_index = (isset($details) && isset($details['product_index'])) ? $details['product_index']: 0;
-        $this->no_of_product = (isset($details) && isset($details['no_of_product'])) ? $details['no_of_product']: 0;
     }
 
     /**
@@ -140,9 +131,9 @@ class PushToMagento implements ShouldQueue
                     $this->condition_check_if_images_exists();
 
                     try {
-                        MagentoServiceJob::dispatch($product, $website, $this->log, $this->mode,$this->details)->onQueue($this->log->queue);
+                        ImageApprovalMagentoServiceJob::dispatch($product, $website, $this->log, $this->mode)->onQueue($this->log->queue);
                     } catch (\Exception $e) {
-                        $error_msg = 'Second Job failed: '.$e->getMessage();
+                        $error_msg = 'ImageApprovalMagentoServiceJob failed: '.$e->getMessage();
                         $this->log->sync_status = 'error';
                         $this->log->message = $error_msg;
                         $this->log->save();
@@ -303,7 +294,7 @@ class PushToMagento implements ShouldQueue
         $product = $this->_product;
         $website = $this->_website;
 
-        $error_msg = 'First Job failed for '.$product->name;
+        $error_msg = 'ImageApprovalPushToMagento failed for '.$product->name;
         if ($this->log) {
             $this->log->sync_status = 'error';
             $this->log->message = $error_msg;
@@ -314,6 +305,6 @@ class PushToMagento implements ShouldQueue
 
     public function tags()
     {
-        return ['product_'.$this->_product->id,'#'.$this->product_index,$this->no_of_product];
+        return ['product_'.$this->_product->id];
     }
 }

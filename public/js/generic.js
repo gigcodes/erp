@@ -364,7 +364,9 @@ var getHtml = function(response) {
         li += '</div>';
         fullHtml = fullHtml + '<td style="width:45%">' + li + '</td>';
         fullHtml = fullHtml + '<td style="width:30%">' + button + '</td>'; 
-        fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + '</td></tr>'; 
+        fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + '</td></tr>';
+        console.log(fromMsg);
+
     });
     fullHtml = fullHtml + '</table></div>';
     return fullHtml;
@@ -429,6 +431,7 @@ $(document).on('click', '.load-communication-modal', function () {
             $("#chat-list-history").find(".modal-body").html(li);
             $("#chat-list-history").find('#chat_obj_type').val(object_type);
             $("#chat-list-history").find('#chat_obj_id').val(object_id);
+            $("#chat-list-history").find(".message").css({"white-space": "pre-wrap","word-wrap": "break-word"});
             $("#chat-list-history").modal("show");
         } else {
             $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
