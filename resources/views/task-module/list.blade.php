@@ -93,7 +93,7 @@
               @php
               $status_color = \App\TaskStatus::where('id',$task->status)->first();
               @endphp
-              <tr style="background-color: {{$status_color->task_color}}!important;">
+              <tr @if(!empty($status_color)) style="background-color: {{$status_color->task_color}}!important;" @endif>
                 <td>{{ $task->id }}</td>
                 <td>{{ \Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                 <td>{{ $categories[$task->category] ?? '' }}</td>
