@@ -30,12 +30,7 @@
 @section('content')
     <h2 class="page-heading">Google AdWords - Campaigns ( <span id="ads_campaign_count">{{$totalNumEntries}} </span>)
 
-        <div class="pull-right">
-            <form method="get" data-toggle="modal" data-target="#create-compaign" {{--action="/google-campaigns/create"--}}>
-                <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
-                <button type="button" class="float-right mb-3 btn-secondary">New Campaign</button>
-            </form>
-        </div>
+        <a class="btn-image float-right custom-button" href="{{ route('googleadsaccount.index') }}">Back to Account</a>
     </h2>
     <div class="container-fluid p-0" style="margin-top: 10px">
 
@@ -43,7 +38,7 @@
         <div class="form-group" style="margin-bottom: 10px;">
             <div class="row m-0">
                 
-            <div class="col-md-2 pl-3">
+                <div class="col-md-1 pl-3">
                     <input name="googlecampaign_id" type="text" class="form-control" value="{{ isset($googlecampaign_id) ? $googlecampaign_id : '' }}" placeholder="Campaign Id" id="googlecampaign_id">
                 </div>
                 
@@ -76,9 +71,16 @@
 
                 </div>
 
-                <div class="col-md-2 pl-0">
+                <div class="col-md-1 pl-0">
                     <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png" /></button>
                     <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" /></button>
+                </div>
+
+                <div class="col-md-2 pl-0">
+                    <form method="get" data-toggle="modal" data-target="#create-compaign" {{--action="/google-campaigns/create"--}}>
+                        <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
+                        <button type="button" class="float-right mb-3 btn-secondary">New Campaign</button>
+                    </form>
                 </div>
 
             </div>
@@ -125,7 +127,9 @@
                               <input type="hidden" id="delete_account_id" name="delete_account_id" value='{{$campaign->account_id}}'/>
                               <button type="submit" class="btn-image"><img src="{{asset('/images/delete.png')}}"></button>
                               {!! Form::close() !!}
-                              <button type="button" class="btn-image ml-2" data-toggle="modal" data-target="#updateadgroupmodal"><img src="{{asset('/images/edit.png')}}"></button>
+
+                              <button type="button" onclick="editDetails('{{$campaign->google_campaign_id}}')" class="btn-image" data-toggle="modal" data-target="#updateCampaignModal"><img src="{{asset('/images/edit.png')}}"></button>
+
                           </td>
                       </tr>
                   @endforeach
@@ -158,7 +162,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="updateadgroupmodal" role="dialog" style="z-index: 3000;">
+    <div class="modal fade" id="updateCampaignModal" role="dialog" style="z-index: 3000;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="container">
@@ -167,12 +171,12 @@
                     </div>
                     <form method="POST" action="/google-campaigns/update" enctype="multipart/form-data">
                         {{csrf_field()}}
-                        <input type="hidden" name="campaignId" value="{{$campaign['google_campaign_id'] ?? ''}}">
-                        <input type="hidden" name="channel_type" value="{{$campaign['channel_type'] ?? ''}}" id="channel_type">
+                        <input type="hidden" name="campaignId">
+                        <input type="hidden" name="channel_type" id="channel_type">
                         <div class="form-group row">
                             <label for="campaign-name" class="col-sm-2 col-form-label">Campaign name</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="campaign-name" name="campaignName" placeholder="Campaign name" value="{{$campaign['campaign_name'] ?? ''}}">
+                                <input type="text" class="form-control" id="campaign-name" name="campaignName" placeholder="Campaign name">
                                 @if ($errors->has('campaignName'))
                                     <span class="text-danger">{{$errors->first('campaignName')}}</span>
                                 @endif
@@ -201,35 +205,35 @@
                                     @endforeach
                                 </select>
 
-                                <div id="maindiv_for_target" style="display:none;"><input type="checkbox" name="target_cost_per_action" id="target_cost_per_action" value="1"> Set a target cost per action
-                                    <div id="div_html_append_1" style="display:none;">
+                                <div id="edit_maindiv_for_target" style="display:none;"><input type="checkbox" name="target_cost_per_action" id="edit_target_cost_per_action" value="1"> Set a target cost per action
+                                    <div id="edit_div_html_append_1" style="display:none;">
                                         <label>Target CPA</lable>
-                                            <input type="text" name="txt_target_cpa" id="txt_target_cpa" value="">
+                                            <input type="text" name="txt_target_cpa" id="edit_txt_target_cpa" value="">
                                             <!-- <label>Pay For</lable>
                                             <select name="pay_for" id="pay_for">
                                             <option value="clicks">Clicks</option>
                                             <option value="viewable_impressions">Viewable Impressions</option>
                                             </select> -->
                                     </div></div>
-                                <div id="div_roas" style="display:none; margin-top:20px;">
+                                <div id="edit_div_roas" style="display:none; margin-top:20px;">
                                     <label>Target ROAS (This field must be between 0.01 and 1000.0, inclusive)</lable>
-                                        <input type="text" name="txt_target_roas" id="txt_target_roas" value="0.01"> %
+                                        <input type="text" name="txt_target_roas" id="edit_txt_target_roas" value="0.01"> %
                                 </div>
-                                <div id="div_targetspend" style="display:none; margin-top:20px;">
+                                <div id="edit_div_targetspend" style="display:none; margin-top:20px;">
                                     <label>Maximize clicks (This field must be greater than or equal to 0)</lable>
-                                        <input type="text" name="txt_maximize_clicks" id="txt_maximize_clicks" value="0">
+                                        <input type="text" name="txt_maximize_clicks" id="edit_txt_maximize_clicks" value="0">
                                 </div>
                                 <br><br>
-                                <a href="javascript:void(0);" class="btn btn-link" id="directiBiddingSelect">Or, select a bid strategy directly (not recommended)</a>
+                                <a href="javascript:void(0);" class="btn btn-link" id="edit_directiBiddingSelect">Or, select a bid strategy directly (not recommended)</a>
 
-                                <a href="javascript:void(0);" class="btn btn-link" id="resetBiddingSection">Reset</a>
+                                <a href="javascript:void(0);" class="btn btn-link" id="edit_resetBiddingSection">Reset</a>
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="budget-amount" class="col-sm-2 col-form-label">Budget amount ($)</label>
+                            <label for="budget-amount" class="col-sm-2 col-form-label">Budget amount</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="budget-amount" name="budgetAmount" placeholder="Budget amount ($)" value="{{$campaign['budget_amount'] ?? ''}}">
+                                <input type="text" class="form-control" id="budget-amount" name="budgetAmount" placeholder="Budget amount">
                                 @if ($errors->has('budgetAmount'))
                                     <span class="text-danger">{{$errors->first('budgetAmount')}}</span>
                                 @endif
@@ -238,7 +242,7 @@
                         <div class="form-group row">
                             <label for="start-date" class="col-sm-2 col-form-label">Start Date</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="start-date" name="start_date" placeholder="Start Date E.g {{date('Ymd', strtotime('+1 day'))}}" value="{{$campaign['start_date'] ?? ''}}">
+                                <input type="text" class="form-control" id="start-date" name="start_date" placeholder="Start Date E.g {{date('Ymd', strtotime('+1 day'))}}" >
                                 @if ($errors->has('start_date'))
                                     <span class="text-danger">{{$errors->first('start_date')}}</span>
                                 @endif
@@ -247,7 +251,7 @@
                         <div class="form-group row">
                             <label for="start-date" class="col-sm-2 col-form-label">End Date</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="end-date" name="end_date" placeholder="End Date E.g {{date('Ymd', strtotime('+1 month'))}}" value="{{$campaign['end_date'] ?? ''}}">
+                                <input type="text" class="form-control" id="end-date" name="end_date" placeholder="End Date E.g {{date('Ymd', strtotime('+1 month'))}}" >
                                 @if ($errors->has('end_date'))
                                     <span class="text-danger">{{$errors->first('end_date')}}</span>
                                 @endif
@@ -257,16 +261,15 @@
                         <div class="form-group row">
                             <label for="campaign-status" class="col-sm-2 col-form-label">Campaign status</label>
                             <div class="col-sm-6">
-                                @if(!empty($campaign['status']))
                                 <select class="browser-default custom-select" id="campaign-status" name="campaignStatus" style="height: auto">
-                                    <option value="1" {{($campaign['status'] ?? '' == 'ENABLED') ? 'selected' : ''}}>Enabled</option>
-                                    <option value="2" {{($campaign['status'] ?? '' == 'PAUSED') ? 'selected' : ''}}>Paused</option>
+                                    <option value="1">Enabled</option>
+                                    <option value="2">Paused</option>
                                 </select>
-                                @endif
                             </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-8">
+                                <button type="button" class="btn btn-secondary float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
                                 <button type="submit" class="btn btn-primary mb-2 float-right">Update</button>
                             </div>
                         </div>
@@ -362,6 +365,169 @@
             alert('No response from server');
         });
     }
+
+    // Start Update Model
+    function editDetails(id) {
+        $('#updateCampaignModal').hide();
+        var url = "{{ route('googlecampaigns.updatePage', [":id"]) }}";
+        url = url.replace(':id', id);
+        $.ajax({
+            method: "GET",
+            url: url,
+            dataType: "json",
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            success: function (data) {
+                // alert($('#updateCampaignModal [name="adGroupStatus"] option:eq(1)').text());
+                $('#updateCampaignModal [name="campaignId"]').val(data.google_campaign_id);
+                $('#updateCampaignModal [name="channel_type"]').val(data.channel_type);
+                $('#updateCampaignModal [name="campaignName"]').val(data.campaign_name);
+                $('#updateCampaignModal [name="budgetAmount"]').val(data.budget_amount);
+                $('#updateCampaignModal [name="start_date"]').val(data.start_date);
+                $('#updateCampaignModal [name="end_date"]').val(data.end_date);
+                
+                $('#updateCampaignModal [name="txt_target_cpa"]').val(data.target_cpa_value);
+                $('#updateCampaignModal [name="txt_target_roas"]').val(data.target_roas_value);
+                $('#updateCampaignModal [name="maximize_clicks"]').val(data.maximize_clicks);
+                
+                if(data.status == "ENABLED"){
+                    $('#updateCampaignModal [name="campaignStatus"] option:eq(0)').prop('selected', true).change();
+                }else{
+                    $('#updateCampaignModal [name="campaignStatus"] option:eq(1)').prop('selected', true).change();
+                }
+
+                $("#edit_maindiv_for_target").hide();
+                $("#edit_div_html_append_1").hide();
+                $("#edit_target_cost_per_action").prop('checked',false);
+                
+                $("#edit_div_roas").hide();
+                $("#edit_div_targetspend").hide();
+
+                biddingFocusBaseStrategyEdit();
+
+                $('#updateCampaignModal [name="biddingStrategyType"] option[value="'+ data.bidding_strategy_type+'"]').prop('selected', true).change();
+                
+                if(data.bidding_strategy_type == "TARGET_CPA"){
+                    $("#edit_target_cost_per_action").prop('checked', true);
+                    $("#edit_maindiv_for_target").show();
+                    $("#edit_div_html_append_1").show();
+                }
+                if(data.bidding_strategy_type == "TARGET_ROAS" /*|| biddingStrategyTypeVal=="MAXIMIZE_CONVERSIONS"*/){
+                    $("#edit_div_roas").show();
+                }
+
+                if(data.bidding_strategy_type == "TARGET_SPEND"){
+                    $("#edit_div_targetspend").show();
+                }
+
+                $('#updateCampaignModal').show();
+            }
+        });
+    }
+        
+    function biddingFocusBaseStrategyEdit(){
+        /* var biddingStrategyArray= '<?php //echo json_encode(array_keys($biddingStrategyTypes)); ?>';
+        biddingStrategyArray=JSON.parse(biddingStrategyArray); */
+        var biddingStrategyArray=[];
+        //start re-arranging everything
+        var bidding_focus_on_val=$("#updateCampaignModal [name='bidding_focus_on']").val();
+        //$("#updateCampaignModal [name='biddingStrategyType']").children('option').hide();
+
+        $("#updateCampaignModal [name='biddingStrategyType']").removeAttr('selected');
+        $("#updateCampaignModal [name='biddingStrategyType'] option").hide();
+
+        //end re-arranging everything
+
+        // if(bidding_focus_on_val=="conversions"){
+            biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+        // }
+        
+        if($("#updateCampaignModal [name='channel_type']").val()=="MULTI_CHANNEL"){
+            biddingStrategyArray=['TARGET_CPA'];
+        }
+
+        if(biddingStrategyArray.length>0){
+            $(biddingStrategyArray).each(function(i,v){
+                $("#updateCampaignModal [name='biddingStrategyType'] option[value=" + v + "]").show();
+            });
+        }
+
+       $('#updateCampaignModal [name="biddingStrategyType"] option:not([hidden]):eq(0)').prop('selected', true).change();
+
+    }
+
+    $("#updateCampaignModal [name='biddingStrategyType']").on('change',function(){
+        var biddingStrategyTypeVal=$(this).val();
+        $("#edit_maindiv_for_target").hide();
+        $("#edit_div_html_append_1").hide();
+        $("#edit_target_cost_per_action").prop('checked',false);
+        $("#edit_div_roas").hide();
+        $("#edit_div_targetspend").hide();
+        if(biddingStrategyTypeVal=="TARGET_CPA"){
+            $("#edit_maindiv_for_target").css('display','block');
+        }
+        if(biddingStrategyTypeVal=="TARGET_ROAS" /*|| biddingStrategyTypeVal=="MAXIMIZE_CONVERSIONS"*/){
+            $("#edit_div_roas").show();
+        }
+
+        if(biddingStrategyTypeVal=="TARGET_SPEND"){
+            $("#edit_div_targetspend").show();
+        }
+    });
+    
+    $("#edit_target_cost_per_action").click(function(){
+        if($("#edit_target_cost_per_action").is(":checked")){
+            $("#edit_div_html_append_1").show();
+        }else{
+            $("#edit_div_html_append_1").hide();
+        } 
+    });
+
+    $("#edit_directiBiddingSelect").click(function(){
+        $("#edit_maindiv_for_target").hide();
+        $("#edit_div_html_append_1").hide();
+        $("#edit_target_cost_per_action").prop('checked',false);
+        
+        $("#edit_div_roas").hide();
+        $("#edit_div_targetspend").hide();
+       
+        var bidding_focus_on_val=$("#updateCampaignModal [name='bidding_focus_on']").val();
+        if(bidding_focus_on_val=="conversions"){
+            var biddingStrategyArray=['TARGET_CPA','TARGET_ROAS','TARGET_SPEND','MAXIMIZE_CONVERSIONS','MANUAL_CPM','MANUAL_CPC','UNSPECIFIED'];
+        }
+
+        if($("#updateCampaignModal [name='channel_type']").val()=="MULTI_CHANNEL"){
+            var biddingStrategyArray=['TARGET_CPA'];
+        }
+
+        if(biddingStrategyArray.length>0){
+            $(biddingStrategyArray).each(function(i,v){
+                $("#updateCampaignModal [name='biddingStrategyType'] option[value=" + v + "]").show();
+            });
+        }
+        $('#updateCampaignModal [name="biddingStrategyType"] option:not([hidden]):eq(0)').prop('selected', true).change();
+    });
+    
+    $("#edit_resetBiddingSection").click(function(){
+        $("#updateCampaignModal [name='biddingStrategyType']").removeAttr('selected');
+        $("#updateCampaignModal [name='biddingStrategyType'] option").hide();
+        
+        var biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+
+        if($("#updateCampaignModal [name='channel_type']").val()=="MULTI_CHANNEL"){
+            biddingStrategyArray=['TARGET_CPA'];
+        }
+       
+        if(biddingStrategyArray.length>0){
+            $(biddingStrategyArray).each(function(i,v){
+                $("#updateCampaignModal [name='biddingStrategyType'] option[value=" + v + "]").show();
+            });
+        }
+        $('#updateCampaignModal [name="biddingStrategyType"] option:not([hidden]):eq(0)').prop('selected', true).change();
+
+    });
+
+
+    // End Update Model
 </script>
 
 @endsection

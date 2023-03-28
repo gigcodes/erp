@@ -39,6 +39,7 @@
         "laravel/horizon": "*",
         "laravel/passport": "^10.0",
         "laravel/socialite": "*",
+        "laravel/telescope": "^4.14",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.0",
         "laravelcollective/html": "^6.2",

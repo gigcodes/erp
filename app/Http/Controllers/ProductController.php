@@ -20,8 +20,10 @@ use App\HsCodeGroupsCategoriesComposition;
 use App\HsCodeSetting;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
-use App\Jobs\ConditionCheckFirstJob;
-use App\Jobs\ProductPushFlow2Job;
+use App\Jobs\PushProductOnlyJob;
+use App\Jobs\Flow2ConditionCheckProductOnly;
+use App\Jobs\Flow2PushProductOnlyJob;
+use App\Jobs\ImageApprovalPushProductOnlyJob;
 use App\Language;
 use App\ListingHistory;
 use App\Loggers\LogListMagento;
@@ -216,12 +218,12 @@ class ProductController extends Controller
 
             $categories_array[$category->id] = $category->parent_id;
         }
-
-        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
-            $newProducts = Product::query();
-        } else {
-            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
-        }
+        $newProducts = Product::query();
+        // if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+        //     $newProducts = Product::query();
+        // } else {
+        //     $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
+        // }
 
         if ($request->get('status_id') != null) {
             $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
@@ -2076,39 +2078,12 @@ class ProductController extends Controller
         try {
             // code...
             // Get product by ID
-            $mode = $request->get('mode', 'product-push');
-            $product = Product::find($id);
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-            if (! empty($websiteArrays)) {
-                $storeWebsites = \App\StoreWebsite::whereIn('id', $websiteArrays)->get();
-                foreach ($storeWebsites as $website) {
-                    if ($website) {
-                        \Log::info('Product started website found For website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $website->id, 'waiting');
-                        //currently we have 3 queues assigned for this task.
-                        $log->sync_status = 'waiting';
-                        $log->queue = \App\Helpers::createQueueName($website->title);
-                        $log->save();
-                        PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                    } else {
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'success', $website->id, null, null, null, null);
-                    }
-                }
-                $product->isUploaded = 1;
-                $product->save();
-                // Return response
-                return response()->json([
-                    'result' => 'queuedForDispatch',
-                    'status' => 'listed',
-                ]);
-            } else {
-                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-            }
+            $product = Product::find($id);         
+            ImageApprovalPushProductOnlyJob::dispatch($product)->onQueue('imageapprovalpushproductonly');
 
             return response()->json([
-                'result' => 'No website for push',
-                'status' => 'failed',
+                'result' => 'queuedForDispatch',
+                'status' => 'listed',
             ]);
 
             //check for hscode
@@ -5065,55 +5040,19 @@ class ProductController extends Controller
 
     public function pushProduct(Request $request)
     {
-        /*$webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
-        ->join('store_website_brands', 'store_websites.id', 'store_website_brands.store_website_id')
-        ->join('store_website_categories', 'store_websites.id', 'store_website_categories.store_website_id')
-        ->where("website_source", "!=", "")
-        ->get();
-
-        $brandIds = array_unique($webData->pluck('brandId')->toArray());
-        $categoryIds = array_unique($webData->pluck('category_id')->toArray());*/
-        $limit = $request->get('no_of_product', 100);
+        $limit = $request->get('no_of_product',config('constants.no_of_product'));
         // Mode($mode) defines the whether it's a condition check or product push.
-        $mode = $request->get('mode', 'product-push');
-        $products = Product::select('*')
-            ->where('short_description', '!=', '')->where('name', '!=', '')
-            ->where('status_id', StatusHelper::$finalApproval)
-            ->groupBy('brand', 'category')
-            ->limit($limit)
-            ->get();
+        $mode = $request->get('mode',config('constants.mode'));
+        $products = ProductHelper::getProducts(StatusHelper::$finalApproval, $limit);
         \Log::info('Product push star time: '.date('Y-m-d H:i:s'));
+        $no_of_product = count($products);
         foreach ($products as $key => $product) {
-            // Setting is_conditions_checked flag as 1
-            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
-            if (! empty($websiteArrays)) {
-                $i = 1;
-                foreach ($websiteArrays as $websiteArray) {
-                    $website =  $websiteArray;
-                    if ($website) {
-                        \Log::info('Product started website found For website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
-                        //currently we have 3 queues assigned for this task.
-                        $log->queue = \App\Helpers::createQueueName($website->title);
-                        $log->save();
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        try {
-                            PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
-                        } catch (\Exception $e) {
-                            $error_msg = 'First Job failed: '.$e->getMessage();
-                            $log->sync_status = 'error';
-                            $log->message = $error_msg;
-                            $log->save();
-                            ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $log->id, null);
-                        }
-                        $i++;
-                    } else {
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
-                    }
-                }
-            } else {
-                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-            }
+            
+            $details = [];
+            $details['product_index'] = ($key)+1;
+            $details['no_of_product'] = $no_of_product;
+            
+            PushProductOnlyJob::dispatch($product,$details)->onQueue('pushproductonly');
         }
         \Log::info('Product push end time: '.date('Y-m-d H:i:s'));
 
@@ -5126,46 +5065,19 @@ class ProductController extends Controller
 
     public function processProductsConditionsCheck(Request $request)
     {
-        $limit = $request->get('no_of_product', 100);
+        $limit = $request->get('no_of_product',config('constants.no_of_product'));
         // Mode($mode) defines the whether it's a condition check or product push.
-        $mode = $request->get('mode', 'product-push');
-
+        $mode = $request->get('mode',config('constants.mode'));
         // Gets all products with final approval status
-        $products = Product::select('*')
-            ->where('short_description', '!=', '')->where('name', '!=', '')
-            ->where('status_id', StatusHelper::$finalApproval)
-            ->groupBy('brand', 'category')
-            ->limit($limit)
-            ->get();
-
+        $products = ProductHelper::getProducts(StatusHelper::$finalApproval, $limit);
+        
+        $no_of_product = count($products);
         foreach ($products as $key => $product) {
-            // Setting is_conditions_checked flag as 1
-            $productRow = Product::find($product->id);
-            $productRow->is_conditions_checked = 1;
-            $productRow->save();
-            \Log::info('Product conditions check started and is_conditions_checked set as 1!');
-
-            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
-            \Log::info('Gets all websites to process the condition check of a product!');
-            if (! empty($websiteArrays)) {
-                $i = 1;
-                foreach ($websiteArrays as $websiteArray) {
-                    $website = $websiteArray;
-                    if ($website) {
-                        \Log::info('Product conditions check started website found For website '.$website->website);
-                        $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
-                        $log->queue = \App\Helpers::createQueueName($website->title);
-                        $log->save();
-                        ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        ConditionCheckFirstJob::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
-                        $i++;
-                    } else {
-                        ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', null, null, null, null, null);
-                    }
-                }
-            } else {
-                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-            }
+            
+            $details = [];
+            $details['product_index'] = ($key)+1;
+            $details['no_of_product'] = $no_of_product;
+            Flow2ConditionCheckProductOnly::dispatch($product,$details)->onQueue('conditioncheckonly');
         }
 
         if ($mode == 'conditions-check') {
@@ -5182,45 +5094,20 @@ class ProductController extends Controller
     public function pushProductsToMagento(Request $request)
     {
         $mode = 'product-push';
-        $limit = $request->get('no_of_product', 100);
-        $products = Product::select('*')
-            ->where('short_description', '!=', '')->where('name', '!=', '')
-            ->where('status_id', StatusHelper::$productConditionsChecked)
-            // ->where('status_id', StatusHelper::$finalApproval)
-//            $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
-            ->groupBy('brand', 'category')
-            ->limit($limit)
-            ->get();
+        $limit = $request->get('no_of_product',config('constants.no_of_product'));
+        $products = ProductHelper::getProducts(StatusHelper::$productConditionsChecked, $limit);
         if ($products->count() == 0) {
             return response()->json(['code' => 500, 'message' => 'No products found!']);
         }
-
-        foreach ($products as $product) {
-            $productRow = Product::find($product->id);
-            $productRow->is_push_attempted = 1;
-            $productRow->save();
-
-            $category = $product->categories;
-            $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
-            if (! empty($websiteArrays)) {
-                $i = 1;
-                foreach ($websiteArrays as $websiteArray) {
-                    $website = $websiteArray;
-                    if ($website) {
-                        \Log::info('Product push started For the website'.$website->website);
-                        $log = LogListMagento::log($product->id, 'Push to magento: product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
-                        $log->queue = \App\Helpers::createQueueName($website->title);
-                        $log->save();
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        ProductPushFlow2Job::dispatch($product, $website, $log,$mode)->onQueue($log->queue);
-                        $i++;
-                    } else {
-                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', null, null, null, null, null);
-                    }
-                }
-            } else {
-                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-            }
+        
+        $no_of_product = count($products);
+        foreach ($products as $key => $product) {
+            
+            $details = [];
+            $details['product_index'] = ($key)+1;
+            $details['no_of_product'] = $no_of_product;
+            
+            Flow2PushProductOnlyJob::dispatch($product,$details)->onQueue('pushproductflow2only');
         }
 
         return response()->json(['code' => 200, 'message' => 'Product pushed to magento successfully!']);
