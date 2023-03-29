@@ -2451,7 +2451,7 @@
   "description": "update end_time field in cron_job_report table where id equal id"
 },{
   "schedule_name" : "command:FetchScrapeMissing",
-  "query" : "select  count(*) as total_product ,  sum(CASE WHEN p.category =  OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,       sum(CASE WHEN p.color =            OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color,       sum(CASE WHEN p.composition =            OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition,       sum(CASE WHEN p.title =            OR p.title IS NULL THEN 1 ELSE 0 END) AS missing_name,       sum(CASE WHEN p.description =            OR p.description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,       sum(CASE WHEN p.price =            OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,       sum(CASE WHEN p.size =            OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_size,       `p`.`supplier`,       `p`.`id`,       `p`.`website`from `scraped_products` as `p` where `p`.`website` <> ? and  date(created_at) = date('2023-03-28')  group by `p`.`website` having missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1",
+  "query" : "select  count(*) as total_product ,  sum(CASE WHEN p.category =  OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category, sum(CASE WHEN p.color =OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color, sum(CASE WHEN p.composition =OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition, sum(CASE WHEN p.title =OR p.title IS NULL THEN 1 ELSE 0 END) AS missing_name, sum(CASE WHEN p.description =OR p.description IS NULL THEN 1 ELSE 0 END) AS missing_short_description, sum(CASE WHEN p.price =OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price, sum(CASE WHEN p.size =OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_size, `p`.`supplier`, `p`.`id`, `p`.`website`from `scraped_products` as `p` where `p`.`website` <> ? and  date(created_at) = date('2023-03-28')  group by `p`.`website` having missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1",
   "description": ""
 },{
   "schedule_name" : "command:FetchScrapeMissing",
@@ -4083,7 +4083,7 @@
   },
   {
     "schedule_name": "update-product:from-csv",
-    "query" : "select count(*) as total_product_count,sw.id as store_website_id,c.id  as       customer_id , b.id as brand_id from product_push_informations left join products as p on p.id = product_push_informations.real_product_id left join brands as b on b.id = p.brand left join categories as c on c.id = p.category left join store_websites as sw on sw.id = product_push_informations.store_website_id where product_push_informations.deleted_at is null group by b.id, c.id, sw.id",
+    "query" : "select count(*) as total_product_count,sw.id as store_website_id,c.id  as customer_id , b.id as brand_id from product_push_informations left join products as p on p.id = product_push_informations.real_product_id left join brands as b on b.id = p.brand left join categories as c on c.id = p.category left join store_websites as sw on sw.id = product_push_informations.store_website_id where product_push_informations.deleted_at is null group by b.id, c.id, sw.id",
     "description": ""
   },
   {
@@ -4665,6 +4665,672 @@
     "schedule_name": "MailingListSendMail",
     "query" : "select * from mailing_list_email orderBy created_at",
     "description": "get all data from mailing_list_email orderthem by created_at"
+  },{
+    "schedule_name": "farfetch:import-suppliers",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },{
+    "schedule_name": "import:customers-by-keyword-to-category",
+    "query" : "select * from designer",
+    "description": "select all data in designer table"
+  },{
+    "schedule_name": "import:customers-by-keyword-to-category",
+    "query" : "select * from supplier where supplier = supplier",
+    "description": "select all data in designer table"
+  },{
+    "schedule_name": "import:customers-by-keyword-to-category",
+    "query" : "update supplier set social_handle=social_handle,instagram_handle=instagram_handle,address=address,email=email,phone=phone,website=website,brands=brands where id =id",
+    "description": "update the social_handle,instagram_handle,address,email,phone and website field value in supplier table where id equal id"
+  },{
+    "schedule_name": "import:customers-by-keyword-to-category",
+    "query" : "insert into agent (model_id,model_type,name,phone,email) values (model_id,model_type,name,phone,email)",
+    "description": "insert the record in agent table"
+  },{
+    "schedule_name": "import:customers-by-keyword-to-category",
+    "query" : "insert into supplier (source,supplier,brands,address,email,phone,website,social_handle,instagram_handle) values (source,supplier,brands,address,email,phone,website,social_handle,instagram_handle)",
+    "description": "insert the record in supplier table"
+  },{
+    "schedule_name": "import:customers-by-keyword-to-category",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },{
+    "schedule_name": "giglio:download-images",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },{
+    "schedule_name": "giglio:download-images",
+    "query" : "select * from product where id = 2754",
+    "description": "select all data in product table where id equal 2754"
+  },{
+    "schedule_name": "giglio:download-images",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },{
+    "schedule_name": "import-watson:intents",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },{
+    "schedule_name": "import-watson:intents",
+    "query" : "select * from chatbot_question where value = value",
+    "description": "select all data in chatbot_question where value equal value"
+  },{
+    "schedule_name": "import-watson:intents",
+    "query" : "insert into chatbot_question (value,workspace_id) values (value,workspace_id)",
+    "description": "insert the record in chatbot_question table"
+  },{
+    "schedule_name": "import-watson:intents",
+    "query" : "insert into chatbot_question_example (chatbot_question_id,question,text) values (chatbot_question_id,question,text)",
+    "description": "insert the record in chatbot_question table"
+  },{
+    "schedule_name": "import-watson:intents",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },{
+    "schedule_name": "whatsppconfig:frequency",
+    "query" : "select * from whatsapp_config where is_customer_support = 0",
+    "description": "select all data in whatsapp_config table where is_customer_support equal 0"
+  },{
+    "schedule_name": "whatsppconfig:frequency",
+    "query" : "update whatsapp_config set frequency=frequency where id = id",
+    "description": "update frequency field value in whatsapp_config table"
+  },{
+    "schedule_name": "influencer:description",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },{
+    "schedule_name": "influencer:description",
+    "query" : "select * from scrap_influencer",
+    "description": "select all data in scrap_influencer table"
+  },{
+    "schedule_name": "influencer:description",
+    "query" : "update `scrap_influencer` set `email` = email where id=id",
+    "description": "update email field in scrap_influencer table where id equal id"
+},{
+    "schedule_name": "influencer:description",
+    "query" : "update `scrap_influencer` set `country` = country where id=id",
+    "description": "update country field in scrap_influencer table where id equal id"
+},{
+    "schedule_name": "influencer:description",
+    "query" : "update `scrap_influencer` set `facebook` = facebook where id=id",
+    "description": "update facebook field value in scrap_influencer table where id equal id"
+},{
+    "schedule_name": "influencer:description",
+    "query" : "update `scrap_influencer` set `twitter` = twitter where id=id",
+    "description": "update twitter field value  in scrap_influencer table where id equal id"
+},{
+    "schedule_name": "influencer:description",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+},{
+    "schedule_name": "influencers:startstop",
+    "query" : "select * from  influencer_keyword",
+    "description": "select all data in influencer_keyword table"
+},{
+    "schedule_name": "influencers:startstop",
+    "query" : "select * from  influencer_keyword where id = id",
+    "description": "select all data in influencer_keyword table  where id equal id"
+},{
+    "schedule_name": "plesk:insert",
+    "query" : "select * from  email_address where username = username",
+    "description": "select all data in email_address table  where username equal username"
+},{
+    "schedule_name": "plesk:insert",
+    "query" : "insert into email_address (from_name,from_address,driver,host,port,encryption,username,password) values (from_name,from_address,'smtp',host,465,encryption,username,password)",
+    "description": "insert the record in email_address table"
+},{
+    "schedule_name": "store-website-shipping:insert",
+    "query" : "select * from simply_duty_country",
+    "description": "select all data in simply_duty_country table"
+},{
+    "schedule_name": "store-website-shipping:insert",
+    "query" : "select * from store_website where api_token != ''",
+    "description": "select all data in store_website table where api_token != ''"
+},{
+    "schedule_name": "instagram:handler",
+    "query" : "select * from `accounts` where `accounts`.`deleted_at` is null order by `id` desc",
+    "description": "select all data in accounts table where deleted_at is null order by id desc"
+},{
+    "schedule_name": "instagram:handler",
+    "query" : "update accounts set last_cron_time=last_cron_time where id=id",
+    "description": "update last_cron_time field value in accounts table where id equal id"
+},{
+    "schedule_name": "IosAdsReport:check",
+    "query" : "insert into app_ads_report (product_id,networks,start_date,end_date,revenue,requests,impressions,ecpm,fillrate,ctr,clicks,requests_filled) values(product_id,networks,start_date,end_date,revenue,requests,impressions,ecpm,fillrate,ctr,clicks,requests_filled)",
+    "description": "insert the record in app_ads_report table"
+},{
+    "schedule_name": "IosPaymentsReport:check",
+    "query" : "insert into app_payment_report (product_id,group_by,start_date,end_date,revenue,converted_revenue,financial_revenue,estimated_revenue,storefront,store) values(product_id,group_by,start_date,end_date,revenue,converted_revenue,financial_revenue,estimated_revenue,storefront,store)",
+    "description": "insert the record in app_payment_report table"
+},{
+    "schedule_name": "IosRatingsReport:check",
+    "query" : "insert into app_payment_report (product_id,group_by,start_date,end_date,breakdown,new,average,total,new_average,new_total,positive,negative,neutral,new_positive,new_negative,new_neutral,storefront,store) values(product_id,group_by,start_date,end_date,breakdown,new,average,total,new_average,new_total,positive,negative,neutral,new_positive,new_negative,new_neutral,storefront,store)",
+    "description": "insert the record in app_payment_report table"
+},{
+    "schedule_name": "IosSalesReport:check",
+    "query" : "insert into App_sales_report ('group_by', 'start_date', 'end_date', 'product_id', 'downloads', 're_downloads', 'uninstalls', 'updates', 'returns', 'net_downloads', 'promos', 'revenue', 'returns_amount', 'edu_downloads', 'gifts', 'gift_redemptions', 'edu_revenue', 'gross_revenue', 'gross_returns_amount', 'gross_edu_revenue', 'business_downloads', 'business_revenue', 'gross_business_revenue', 'standard_downloads', 'standard_revenue', 'gross_standard_revenue', 'app_downloads', 'app_returns', 'iap_amount', 'iap_returns', 'subscription_purchases', 'subscription_returns', 'app_revenue', 'app_returns_amount', 'gross_app_revenue', 'gross_app_returns_amount', 'iap_revenue', 'iap_returns_amount', 'gross_iap_revenue', 'gross_iap_returns_amount', 'subscription_revenue', 'subscription_returns_amount', 'gross_subscription_revenue', 'gross_subscription_returns_amount', 'pre_orders', 'storefront', 'store') values('group_by', 'start_date', 'end_date', 'product_id', 'downloads', 're_downloads', 'uninstalls', 'updates', 'returns', 'net_downloads', 'promos', 'revenue', 'returns_amount', 'edu_downloads', 'gifts', 'gift_redemptions', 'edu_revenue', 'gross_revenue', 'gross_returns_amount', 'gross_edu_revenue', 'business_downloads', 'business_revenue', 'gross_business_revenue', 'standard_downloads', 'standard_revenue', 'gross_standard_revenue', 'app_downloads', 'app_returns', 'iap_amount', 'iap_returns', 'subscription_purchases', 'subscription_returns', 'app_revenue', 'app_returns_amount', 'gross_app_revenue', 'gross_app_returns_amount', 'iap_revenue', 'iap_returns_amount', 'gross_iap_revenue', 'gross_iap_returns_amount', 'subscription_revenue', 'subscription_returns_amount', 'gross_subscription_revenue', 'gross_subscription_returns_amount', 'pre_orders', 'storefront', 'store')",
+    "description": "insert the record in App_sales_report table"
+},{
+    "schedule_name": "IosSalesReport:check",
+    "query" : "insert into app_sales_report ('group_by', 'start_date', 'end_date', 'product_id', 'downloads', 're_downloads', 'uninstalls', 'updates', 'returns', 'net_downloads', 'promos', 'revenue', 'returns_amount', 'edu_downloads', 'gifts', 'gift_redemptions', 'edu_revenue', 'gross_revenue', 'gross_returns_amount', 'gross_edu_revenue', 'business_downloads', 'business_revenue', 'gross_business_revenue', 'standard_downloads', 'standard_revenue', 'gross_standard_revenue', 'app_downloads', 'app_returns', 'iap_amount', 'iap_returns', 'subscription_purchases', 'subscription_returns', 'app_revenue', 'app_returns_amount', 'gross_app_revenue', 'gross_app_returns_amount', 'iap_revenue', 'iap_returns_amount', 'gross_iap_revenue', 'gross_iap_returns_amount', 'subscription_revenue', 'subscription_returns_amount', 'gross_subscription_revenue', 'gross_subscription_returns_amount', 'pre_orders', 'storefront', 'store') values('group_by', 'start_date', 'end_date', 'product_id', 'downloads', 're_downloads', 'uninstalls', 'updates', 'returns', 'net_downloads', 'promos', 'revenue', 'returns_amount', 'edu_downloads', 'gifts', 'gift_redemptions', 'edu_revenue', 'gross_revenue', 'gross_returns_amount', 'gross_edu_revenue', 'business_downloads', 'business_revenue', 'gross_business_revenue', 'standard_downloads', 'standard_revenue', 'gross_standard_revenue', 'app_downloads', 'app_returns', 'iap_amount', 'iap_returns', 'subscription_purchases', 'subscription_returns', 'app_revenue', 'app_returns_amount', 'gross_app_revenue', 'gross_app_returns_amount', 'iap_revenue', 'iap_returns_amount', 'gross_iap_revenue', 'gross_iap_returns_amount', 'subscription_revenue', 'subscription_returns_amount', 'gross_subscription_revenue', 'gross_subscription_returns_amount', 'pre_orders', 'storefront', 'store')",
+    "description": "insert the record in app_sales_report table"
+},{
+    "schedule_name": "IosSubscriptionReport:check",
+    "query" : "insert into ios_subscription_report ('group_by', 'start_date', 'end_date', 'product_id', 'active_subscriptions', 'active_free_trials', 'new_subscriptions', 'cancelled_subscriptions', 'new_trials', 'trial_conversion_rate', 'mrr', 'actual_revenue', 'renewals', 'first_year_subscribers', 'non_first_year_subscribers', 'reactivations', 'transitions_out', 'trial_cancellations', 'transitions_in', 'activations', 'cancellations', 'trial_conversions', 'churn', 'gross_revenue', 'gross_mrr', 'active_grace', 'new_grace', 'grace_drop_off', 'grace_recovery', 'new_trial_grace', 'trial_grace_drop_off', 'trial_grace_recovery', 'active_trials', 'active_discounted_subscriptions', 'all_active_subscriptions', 'paying_subscriptions', 'all_subscribers', 'storefront', 'store') values ('group_by', 'start_date', 'end_date', 'product_id', 'active_subscriptions', 'active_free_trials', 'new_subscriptions', 'cancelled_subscriptions', 'new_trials', 'trial_conversion_rate', 'mrr', 'actual_revenue', 'renewals', 'first_year_subscribers', 'non_first_year_subscribers', 'reactivations', 'transitions_out', 'trial_cancellations', 'transitions_in', 'activations', 'cancellations', 'trial_conversions', 'churn', 'gross_revenue', 'gross_mrr', 'active_grace', 'new_grace', 'grace_drop_off', 'grace_recovery', 'new_trial_grace', 'trial_grace_drop_off', 'trial_grace_recovery', 'active_trials', 'active_discounted_subscriptions', 'all_active_subscriptions', 'paying_subscriptions', 'all_subscribers', 'storefront', 'store')",
+    "description": "insert the record in ios_subscription_report table"
+},{
+    "schedule_name": "IosUsageReport:check",
+    "query" : "insert into app_usage_report ('group_by', 'start_date', 'end_date', 'product_id', 'crashes', 'sessions', 'app_store_views', 'unique_app_store_views', 'daily_active_devices', 'monthly_active_devices', 'paying_users', 'impressions', 'uninstalls', 'unique_impressions', 'avg_daily_active_devices', 'avg_optin_rate', 'storefront', 'store') values ('group_by', 'start_date', 'end_date', 'product_id', 'crashes', 'sessions', 'app_store_views', 'unique_app_store_views', 'daily_active_devices', 'monthly_active_devices', 'paying_users', 'impressions', 'uninstalls', 'unique_impressions', 'avg_daily_active_devices', 'avg_optin_rate', 'storefront', 'store')",
+    "description": "insert the record in app_usage_report table"
+},{
+  "schedule_name": "github:load_branch_state",
+  "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+  "description": "insert signature and start_time filed in cron_job_report table"
+},{
+  "schedule_name": "github:load_branch_state",
+  "query" : "insert into github_branch_state ('repository_id', 'branch_name', 'ahead_by', 'behind_by', 'last_commit_author_username', 'last_commit_time') values ('repository_id', 'branch_name', 'ahead_by', 'behind_by', 'last_commit_author_username', 'last_commit_time')",
+  "description": "insert the record in github_branch_state table"
+},{
+  "schedule_name": "github:load_branch_state",
+  "query" : "delete  from  github_branch_state WHERE repository_id=repository_id and not branch_name !=branch_name",
+  "description": "delete route id in github_branch_state WHERE repository_id=repository_id and not branch_name !=branch_name"
+},{
+  "schedule_name": "github:load_branch_state",
+  "query" : "update `cron_job_report` set `end_time` = time where id=id",
+  "description": "update end_time field in cron_job_report table where id equal id"
+},{
+  "schedule_name": "hubstaff:load_activities",
+  "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+  "description": "insert signature and start_time filed in cron_job_report table"
+},{
+  "schedule_name": "hubstaff:load_activities",
+  "query" : "insert into hubstaff_activity (user_id,task_id,starts_at,tracked,keyboard,mouse,overall) values (user_id,task_id,starts_at,tracked,keyboard,mouse,overall)",
+  "description": "insert the record in hubstaff_activity table"
+},{
+  "schedule_name": "sentry:load_error_logs",
+  "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+  "description": "insert signature and start_time filed in cron_job_report table"
+},{
+  "schedule_name": "sentry:load_error_logs",
+  "query" : "DELETE FROM sentry_error_log",
+  "description": "delete all data in sentry_error_log table"
+},{
+  "schedule_name": "sentry:load_error_logs",
+  "query" : "insert into sentry_error_log ('error_id','error_title','issue_type','issue_category','is_unhandled','first_seen','last_seen','project_id','total_events','total_user','device_name','os','os_name','release_version') values ('error_id','error_title','issue_type','issue_category','is_unhandled','first_seen','last_seen','project_id','total_events','total_user','device_name','os','os_name','release_version')",
+  "description": "insert the record in sentry_error_log table"
+},{
+  "schedule_name": "sentry:load_error_logs",
+  "query" : "update `cron_job_report` set `end_time` = time where id=id",
+  "description": "update end_time field in cron_job_report table where id equal id"
+},{
+  "schedule_name": "timedoctor:load_time_doctor_activity {id}",
+  "query" : "select * from time_doctor_account id =id",
+  "description": "select all data in time_doctor_account where id equal id"
+},{
+  "schedule_name": "timedoctor:load_time_doctor_activity {id}",
+  "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+  "description": "insert signature and start_time filed in cron_job_report table"
+},{
+  "schedule_name": "timedoctor:load_time_doctor_activity {id}",
+  "query" : "update `cron_job_report` set `end_time` = time where id=id",
+  "description": "update end_time field in cron_job_report table where id equal id"
+},{
+  "schedule_name": "log_scraper:delete",
+  "query" : "DELETE FROM log_scraper where created_at <= current date",
+  "description": "delete all data in log_scraper table where created_at <= current date"
+},{
+  "schedule_name": "magento:get-config-value",
+  "query" : "select `magento_settings`.*, `users`.`name` as `uname` from `magento_settings` left join `users` on `magento_settings`.`created_by` = `users`.`id` order by `magento_settings`.`created_at` desc",
+  "description": ""
+},{
+  "schedule_name": "magento:get-config-value",
+  "query" : "select * from `store_website` where id= id",
+  "description": "select all data in store_website table"
+},{
+  "schedule_name": "magento:get-config-value",
+  "query" : "update magento_setting set value_on_magento=value_on_magento where id=id",
+  "description": "update value_on_magento field value in magento_setting table"
+},{
+  "schedule_name": "command:MagentoDevUpdateScript {id?} {folder_name?}",
+  "query" : "select * from `store_websites` where `is_dev_website` = 1 and `id` = ? and `store_websites`.`deleted_at` is null",
+  "description": "select all data in store_websites table where is_dev_website = 1 and id = ? and deleted_at is null"
+},{
+  "schedule_name": "command:MagentoDevUpdateScript {id?} {folder_name?}",
+  "query" : "insert into magento_dev_scrip_update_log (store_website_id,website,response,command_name,site_folder) values (store_website_id,website,response,command_name,site_folder)",
+  "description": "insert the record in magento_dev_scrip_update_log table"
+},{
+  "schedule_name": "command:MagentoDevUpdateScriptAsset {id?} {folder_name?}",
+  "query" : "select * from assets_manager where id= id",
+  "description": "select all data in assets_manager table where id equal id"
+},{
+  "schedule_name": "command:MagentoDevUpdateScriptAsset {id?} {folder_name?}",
+  "query" : "insert into asset_magento_dev_scrip_update_log (asset_manager_id,user_id,ip,response,command_name,site_folder) values (asset_manager_id,user_id,ip,response,command_name,site_folder)",
+  "description": "insert the record in asset_magento_dev_scrip_update_log table"
+},{
+  "schedule_name": "command:MagentoDevUpdateScriptAsset {id?} {folder_name?}",
+  "query" : "insert into asset_magento_dev_scrip_update_log (store_website_id,asset_manager_id,user_id,ip,response,command_name,site_folder) values (store_website_id,asset_manager_id,user_id,ip,response,command_name,site_folder)",
+  "description": "insert the record in asset_magento_dev_scrip_update_log table"
+},{
+  "schedule_name": "Magento-Product:Api",
+  "query" : "select * from `log_list_magentos` inner join `products` as `p` on `p`.`id` = `log_list_magentos`.`product_id` where `sync_status` = ? group by `product_id`, `store_website_id` order by `log_list_magentos`.`id` desc",
+  "description": ""
+},{
+  "schedule_name": "Magento-Product:Api",
+  "query" : "insert into log_magento_api (magento_api_search_product_id,api_log,message) values (magento_api_search_product_id,'success','Product Unique id Generated: ')",
+  "description": "insert record in log_magento_api table"
+},{
+  "schedule_name": "Magento-Product:Api",
+  "query" : "select * from store_website where id = id",
+  "description": "select all data in store_website table where id equal id"
+},{
+  "schedule_name": "Magento-Product:Api",
+  "query" : "insert into log_magento_api (magento_api_search_product_id,api_log,message) values (magento_api_search_product_id,'helper_output',message)",
+  "description": "insert record in log_magento_api table"
+},{
+  "schedule_name": "Magento-Product:Api",
+  "query" : "select `wsv`.* from `websites` inner join `website_stores` as `ws` on `ws`.`website_id` = `websites`.`id` inner join `website_store_views` as `wsv` on `wsv`.`website_store_id` = `ws`.`id` where `websites`.`store_website_id` = ? and `wsv`.`name` like ? group by `ws`.`name`",
+  "description": ""
+},{
+  "schedule_name": "Magento-Product:Api",
+  "query" : "insert into store_magento_api_search_product ('website_id','website','sku','size','category_names','brands','dimensions','composition','size_chart_url','images','english','arabic','german','spanish','french','italian','japanese','korean','russian','chinese','status','log_refid') values ('website_id','website','sku','size','category_names','brands','dimensions','composition','size_chart_url','images','english','arabic','german','spanish','french','italian','japanese','korean','russian','chinese','status','log_refid')",
+  "description": "insert record in store_magento_api_search_product table"
+},{
+  "schedule_name": "command:MagentoReportLog",
+  "query" : "select * from store_website where server_ip != null",
+  "description": "select all dta in store_website table where server_ip not null"
+},{
+  "schedule_name": "command:MagentoReportLog",
+  "query" : "insert into website_log (sql_query, time, module, website_id, type) values (sql_query, time, module, website_id, type)",
+  "description": "insert data into website log table"
+},{
+  "schedule_name": "command:MagentoCreatRunCommand {id?}",
+  "query" : "select * from magento_command where id = id",
+  "description": "select all data in magento_command table where id equal id"
+},{
+  "schedule_name": "command:MagentoCreatRunCommand {id?}",
+  "query" : "insert into magento_command_run_log (command_id,user_id,website_ids,command_name,server_ip,command_type,response) values (command_id,user_id,website_ids,command_name,server_ip,command_type,response)",
+  "description": "insert record in magento_command_run_log table"
+},{
+  "schedule_name": "command:MagentoCreatRunCommand {id?}",
+  "query" : "select * from store_website where id = id",
+  "description": "select all data in store_website table where id equal id"
+},{
+  "schedule_name": "command:MagentoCreatRunCommand {id?}",
+  "query" : "insert into magento_command_run_log (command_id,user_id,website_ids,command_name,server_ip,command_type,response) values (command_id,user_id,website_ids,command_name,server_ip,command_type,response)",
+  "description": "insert record in magento_command_run_log table"
+},{
+  "schedule_name": "command:MagentoSettingUpdates",
+  "query" : "select * from store_website where api_token != null and magento_url != null and server_ip != null",
+  "description": "select all data in store_website table where api_token,magento_url and server_ip not null  "
+},{
+  "schedule_name": "command:MagentoSettingUpdates",
+  "query" : "select * from magento_setting where store_website_id = store_website_id and path = path",
+  "description": "select all data in magento_setting table where store_website_id equal store_website_id and path equal path"
+},{
+  "schedule_name": "command:MagentoSettingUpdates",
+  "query" : "update magento_setting set config_id=config_id,scope=scope,store_website_id=store_website_id,website_store_id=website_store_id,scope_id=scope_id,path=path,value=value,updated_at=updated_at where id=id",
+  "description": "update record in magento_setting table where id equal id"
+},{
+  "schedule_name": "command:MagentoSettingUpdates",
+  "query" : "insert into magento_setting (config_id,scope,store_website_id,website_store_id,scope_id,path,value,updated_at) values (config_id,scope,store_website_id,website_store_id,scope_id,path,value,updated_at)",
+  "description": "insert record in magento_setting table "
+},{
+  "schedule_name": "command:MagentoSettingUpdates",
+  "query" : "insert into magento_setting_update_responseLog (website_id,response) values (website_id,response)",
+  "description": "insert record in magento_setting_update_responseLog table "
+},{
+  "schedule_name": "command:MagentoSettingUpdates",
+  "query" : "insert into magento_setting_update_responseLog (website_id,magento_setting_id,response) values (website_id,magento_setting_id,response)",
+  "description": "insert record in magento_setting_update_responseLog table "
+},{
+  "schedule_name": "product:remove-categories-with-subcategories",
+  "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+  "description": "insert signature and start_time filed in cron_job_report table"
+},{
+  "schedule_name": "product:remove-categories-with-subcategories",
+  "query" : "update `cron_job_report` set `end_time` = time where id=id",
+  "description": "update end_time field in cron_job_report table where id equal id"
+},{
+  "schedule_name": "product:remove-categories-with-subcategories",
+  "query" : "select * from product",
+  "description": "select all data in product table"
+},{
+  "schedule_name": "product:remove-categories-with-subcategories",
+  "query" : "select * from category where id=id",
+  "description": "select all data in category table where id equal id"
+},{
+  "schedule_name": "product:remove-categories-with-subcategories",
+  "query" : "update product set category=category where id=id",
+  "description": "update the category field in product table where id equal id"
+},{
+  "schedule_name": "product:remove-categories-with-subcategories",
+  "query" : "update `cron_job_report` set `end_time` = time where id=id",
+  "description": "update end_time field in cron_job_report table where id equal id"
+},{
+  "schedule_name": "remove-table:log-scraper",
+  "query" : "select * from log_scraper",
+  "description": "select all data in log_scraper table"
+},{
+  "schedule_name": "remove-table:log-scraper",
+  "query" : "select * from scraped_products where sku=sku and website=website and url=url",
+  "description": "select all data in scraped_products table where sku equal sku and website equal website and url equal url"
+},{
+  "schedule_name": "remove-unwanted:images",
+  "query" : "select * from mediables where media_id=media_id",
+  "description": "select all data in mediables table where media_id equal media_id"
+},{
+  "schedule_name": "scraper:missing-data",
+  "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+  "description": "insert signature and start_time filed in cron_job_report table"
+},{
+  "schedule_name": "scraper:missing-data",
+  "query" : " SELECT    MAX(id),     website,     url,     sku,     brand_id,     category,     title,     description,     properties,     images,     size_system,     currency,     price,     discounted_price,     is_sale FROM     scraped_products WHERE     validated=1 AND     description LIKE '%shoe%' GROUP BY     website ",
+  "description": "select value in scraped_products table validated=1 and description LIKE '%shoe%' group by website"
+},{
+  "schedule_name": "scraper:missing-data",
+  "query" : "update `cron_job_report` set `end_time` = time where id=id",
+  "description": "update end_time field in cron_job_report table where id equal id"
+},{
+  "schedule_name": "scrapedProducts:setFormattedPricing",
+  "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+  "description": "insert signature and start_time filed in cron_job_report table"
+},{
+  "schedule_name": "scrapedProducts:setFormattedPricing",
+  "query" : "select * from scraped_products ",
+  "description": "select all data in scraped_products table"
+},{
+  "schedule_name": "scrapedProducts:setFormattedPricing",
+  "query" : "update `cron_job_report` set `end_time` = time where id=id",
+  "description": "update end_time field in cron_job_report table where id equal id"
+},{
+  "schedule_name": "test:test",
+  "query" : "insert into sku_color_references (brand_id,color_code,color_name) values (brand_id,color_code,color_name) ",
+  "description": "insert record in sku_color_references table"
+},{
+  "schedule_name": "hubstaff:upload_tasks",
+  "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+  "description": "insert signature and start_time filed in cron_job_report table"
+},{
+  "schedule_name": "hubstaff:upload_tasks",
+  "query" : "select `tasks`.`id`, `tasks`.`task_subject` as `summary`, `hubstaff_members`.`hubstaff_user_id` as `assignee_id` from `tasks` left join `hubstaff_members` on `hubstaff_members`.`user_id` = `tasks`.`assign_to` where `is_completed` is null and `hubstaff_task_id` = ?",
+  "description": "select id and task_subject in tasks and hubstaff_user_id in hubstaff_members table from `tasks` left join `hubstaff_members` on `hubstaff_members`.`user_id` = `tasks`.`assign_to` where `is_completed` is null and `hubstaff_task_id` = ?"
+},{
+  "schedule_name": "hubstaff:upload_tasks",
+  "query" : "select `developer_tasks`.`id`, `developer_tasks`.`subject` as `summary`, `developer_tasks`.`task_type_id`, `hubstaff_members`.`hubstaff_user_id` as `assignee_id` from `developer_tasks` left join `hubstaff_members` on `hubstaff_members`.`user_id` = `developer_tasks`.`user_id` where `status` in (?, ?, ?, ?) and `hubstaff_task_id` = ?",
+  "description": "select id and task_subject in developer_tasks and task_type_id in developer_tasks from `developer_tasks` left join `hubstaff_members` on `hubstaff_members`.`user_id` = `developer_tasks`.`user_id` where `status` in (?, ?, ?, ?) and `hubstaff_task_id` = ?"
+},{
+  "schedule_name": "hubstaff:upload_tasks",
+  "query" : "update `cron_job_report` set `end_time` = time where id=id",
+  "description": "update end_time field in cron_job_report table where id equal id"
+},{
+  "schedule_name": "whatsapp:move-to-new",
+  "query" : "CustomerSELECT  DISTINCT(customer_id)    FROM  chat_messages    WHERE  customer_id IN (SELECT    c.idFROM    customers cWHERE    do_not_disturb=0 AND    is_blocked=0  ) AND  number IS NOT NULL AND  created_at > DATE_SUB(NOW(), INTERVAL '.$days.' DAY)",
+  "description": "select DISTINCT(customer_id) from chat_messages table where customer_id IN (SELECT    c.idFROM    customers cWHERE    do_not_disturb=0 AND    is_blocked=0  ) AND  number IS NOT NULL AND  created_at > DATE_SUB(NOW(), INTERVAL '.$days.' DAY)"
+},{
+  "schedule_name": "whatsapp:move-to-new",
+  "query" : "select all data in customer  where id=customer_id",
+  "description": "select all data in customer table where id equal customer_id"
+},{
+  "schedule_name": "whatsapp:move-to-new",
+  "query" : "update customer set whatsapp_number=whatsapp_number where id=id",
+  "description": "update whatsapp_number field in customer table where id equal id"
+},{
+  "schedule_name": "whatsapp:move-to-new",
+  "query" : "update `cron_job_report` set `end_time` = time where id=id",
+  "description": "update end_time field in cron_job_report table where id equal id"
+},  {
+  "schedule_name": "attach-product-id:order-products",
+  "query": "select * from order_product where product_id = null",
+  "description": "select all data from order_prodcut table based on product_id"
+},
+  {
+    "schedule_name": "attach-product-id:order-products",
+    "query": "select * from product where sku = `sku`",
+    "description": "select all from product table"
+  },
+  {
+    "schedule_name": "attach-product-id:scraper-products",
+    "query": "select * from scraped_products where product_id = null",
+    "description": "select all scraped product based on product_id"
+  },
+  {
+    "schedule_name": "attach-product-id:scraper-products",
+    "query": "select * from product where sku = `sku`",
+    "description": "select all from product table"
+  },
+  {
+    "schedule_name": "store-website:push-brand-in-live",
+    "query": "select * from store_websites where (api_token != ? or (magento_url != ? and magento_username != ? and magento_password = ?)) and store_websites.deleted_at is null",
+    "description": "select data from store_website based on apitoken and deleted_at"
+  },
+  {
+    "schedule_name": "store-website:push-brand-in-live",
+    "query": "select brands.* from brands left join store_website_brands as swb on brands.id = swb.brand_id and swb.store_website_id = ? where swb.magento_value is null",
+    "description": "select data from brands and store_website with left join"
+  },
+  {
+    "schedule_name": "store-website:push-category-in-live",
+    "query": "select * from store_websites where (api_token != ? or (magento_url != ? and magento_username != ? and magento_password = ?)) and store_websites.deleted_at is null",
+    "description": "select data from store_website based on apitoken and deleted_at"
+  },
+  {
+    "schedule_name": "store-website:push-category-in-live",
+    "query": "select categories.* from categories left join store_website_categories as swc on categories.id = swc.category_id and swc.store_website_id = ? where swc.remote_id is null",
+    "description": "select data from categories and store_website with left join"
+  },
+  {
+    "schedule_name": "product:correctPricing",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "product:correctPricing",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "product:correctPricing",
+    "query" : "SELECT p.id, p.sku, p.price*1 as price ,  MIN(sp.price_eur) AS sp_price_min,MAX(sp.price_eur) AS sp_price_max,GREATEST(p.price*1,MIN(sp.price_eur),MAX(sp.price_eur)) AS new_price FROM products JOIN scraped_products sp ON p.id=sp.product_id WHERE discounted_price IS NOT NULL AND p.price!=sp.price_eur GROUP BY p.id HAVING MIN(sp.price_eur) > 0 AND MAX(sp.price_eur) > 0 ORDER BY p.id",
+    "description": ""
+  },
+  {
+    "schedule_name": "product:correctPricing",
+    "query" : "select * from product where id = `id`",
+    "description": "select product data based on ID"
+  },
+  {
+    "schedule_name": "create_mailing_list_news_letters",
+    "query" : "select * from store_website",
+    "description": "select all data from store_website"
+  },
+  {
+    "schedule_name": "create_mailing_list_news_letters",
+    "query" : "select * from language",
+    "description": "select all data from language"
+  },
+  {
+    "schedule_name": "create_mailing_list_news_letters",
+    "query" : "insert into mailing_list (id, name, language, website_id, service_id, remote_id, send_in_blue_account, send_in_blue_api) values (id, name, language, website_id, service_id, remote_id, send_in_blue_account, send_in_blue_api)",
+    "description": "insert ata into mailing_list table"
+  },
+  {
+    "schedule_name": "create_mailing_list_news_letters",
+    "query" : "select * from store_website",
+    "description": "select all data from store_website"
+  },
+  {
+    "schedule_name": "crop-reference:product",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "crop-reference:product",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "crop-reference:product",
+    "query" : "select * from croped_image_refrence where product_id = 0",
+    "description": "select all data from croped_image_refrence"
+  },
+  {
+    "schedule_name": "crop-reference:product",
+    "query" : "select id from product where id  = `id` fetch first",
+    "description": "fetch first id from product table based on id"
+  },
+  {
+    "schedule_name": "crop-reference:product",
+    "query" : "select * from croped_image_refrence where id = `id`",
+    "description": "select all data from croped_image_refrence based on id"
+  },
+  {
+    "schedule_name": "hubstaff:load_past_activities {start=2019-09-01} {end=2020-04-18} {user_ids=0}",
+    "query" : "insert into hubstaff_activity (id, user_id, task_id, starts_at, tracked, keyboard, mouse, overall) values (id, user_id, task_id, starts_at, tracked, keyboard, mouse, overall)",
+    "description": "insert data into hubstaff_activity table"
+  },
+  {
+    "schedule_name": "product:image-scraper {website?}",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "product:image-scraper {website?}",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "product:image-scraper {website?}",
+    "query" : "select * from scraped_products",
+    "description": "get all data from scraped_products"
+  },
+  {
+    "schedule_name": "product:image-scraper {website?}",
+    "query" : "select * from scraped_products where website = `website`",
+    "description": "get all scraped_products based on website"
+  },
+  {
+    "schedule_name": "import:issues",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "import:issues",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "import:issues",
+    "query" : "select * from issue",
+    "description": "get all data from issue"
+  },
+  {
+    "schedule_name": "import:issues",
+    "query" : "insert into (user_id, module_id, priority, subject, task, status, created_at, is_resolved, estimate_time, cost, task_type_id, responsible_user_id, created_at) values (user_id, module_id, priority, subject, task, status, created_at, is_resolved, estimate_time, cost, task_type_id, responsible_user_id, created_at)",
+    "description": "insert data into developer_task table"
+  },
+  {
+    "schedule_name": "import:issues",
+    "query" : "select * from erp_priority where model_id = `id` and model_type = `model_type` fetch first",
+    "description": "select first record from erp_priority based on id and model_type"
+  },
+  {
+    "schedule_name": "magento:sync-categories",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "magento:sync-categories",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "magento:sync-categories",
+    "query" : "select * from category where parent_id = 0",
+    "description": "select all data from category based on parent_id"
+  },
+  {
+    "schedule_name": "ai:queue-manually",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "ai:queue-manually",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "ai:queue-manually",
+    "query" : "select * from product where status_id > 2 and stock > 0",
+    "description": "select all data from product based on status_id and stock"
+  },
+  {
+    "schedule_name": "magento:queue-manually",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "magento:queue-manually",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "magento:queue-manually",
+    "query" : "iselect * from product where status_id = 9 and stock > 0",
+    "description": "get data from product based on status_id and stock"
+  },
+  {
+    "schedule_name": "media:check-file-exists",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "media:check-file-exists",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "media:check-file-exists",
+    "query" : "select * from product",
+    "description": "get all data from product"
+  },
+  {
+    "schedule_name": "order-status:move-to-new-field",
+    "query" : "select * from order where order_status != '' and order_status_id = null",
+    "description": "get all data from order table "
+  },
+  {
+    "schedule_name": "password:change-all",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "password:change-all",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "price:special",
+    "query" : "update `cron_job_report` set `end_time` = time where id=id",
+    "description": "update end_time field in cron_job_report table where id equal id"
+  },
+  {
+    "schedule_name": "price:special",
+    "query" : "insert into cron_job_report (signature, start_time) values (signature, date)",
+    "description": "insert signature and start_time filed in cron_job_report table"
+  },
+  {
+    "schedule_name": "magento:push-pages",
+    "query" : "select * from store_website where id in $id and api_token != '' and remote_software = 2 and website_source = 'magento'",
+    "description": "select data from store_website table based on apitoken, remote_software and website_source"
+  },
+  {
+    "schedule_name": "magento:push-pages",
+    "query" : "select * from store_website where api_token != '' and remote_software =2 and website_source = `magento`",
+    "description": "select data from store_website based on remote_software, api_token and website_source"
+  },
+  {
+    "schedule_name": "magento:push-pages",
+    "query" : "insert into store_website (store_website_id, platform_id, title, url_key, layout, meta_title, meta_keywords, meta_description, content_heading, content) values (store_website_id, platform_id, title, url_key, layout, meta_title, meta_keywords, meta_description, content_heading, content)",
+    "description": "insert data into store_website table"
   }
 
 ]
