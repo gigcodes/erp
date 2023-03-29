@@ -777,6 +777,8 @@ if (!empty($notifications)) {
                                                     Replacement</a>
                                                 <a class="dropdown-item"
                                                     href="{{ action('\App\Http\Controllers\UnknownAttributeProductController@index') }}">Incorrect Attributes</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\CropRejectedController@index') }}">Crop Rejected Final Approval Images</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
