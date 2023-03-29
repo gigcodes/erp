@@ -20,7 +20,7 @@ class AddIndexFromAndToEmailsTable extends Migration
             $table->index('type');
             $table->index('model_type');
             $table->index('subject');
-            $table->fullText('message');
+            // $table->fullText('message');
         });
     }
 
