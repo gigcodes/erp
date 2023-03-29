@@ -488,7 +488,7 @@
             e.preventDefault();
             
             if ($("#send_message").find("#is_email").val() == "") {
-                alert('Please select Type ');
+                alert('Please select Medium ');
                 return false;
             }
 
