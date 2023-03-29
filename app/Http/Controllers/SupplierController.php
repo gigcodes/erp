@@ -24,6 +24,7 @@ use App\SupplierPriceRange;
 use App\SupplierSize;
 use App\SupplierStatus;
 use App\SupplierSubCategory;
+use App\SupplierPriority;
 use App\User;
 use Auth;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ use Illuminate\Support\Facades\Mail;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use Validator;
+use DataTables;
 
 class SupplierController extends Controller
 {
@@ -1870,5 +1872,56 @@ class SupplierController extends Controller
         $list = \App\Supplier::where('source', $source)->where('supplier_status_id', 1)->pluck('supplier', 'id');
 
         return response()->json(['code' => 200, 'data' => $list]);
+    }
+
+    public function getPrioritiesList(Request $request){
+        if($request->ajax()){
+            $suppliers = \App\Supplier::query();
+            $suppliers->with('supplier_category');
+             return Datatables::of($suppliers)
+             ->addIndexColumn()
+             ->addColumn('supplier_category_name', function($row){
+                $supplier_category_name = ($row->supplier_category) ? $row->supplier_category->name : "N/A";
+                return $supplier_category_name;
+             })
+             ->addColumn('action', function($row){
+                 $actionBtn = '<a href="javascript:void(0)" data-id="'.$row->id.'" data-product-id="'.$row->product_id.'" class="get-product-log-detail btn btn-warning btn-sm"><i class="fa fa-list fa-sm"></i></a>&nbsp;';
+                 return $actionBtn;
+             })
+             ->rawColumns(['action', 'supplier_category_id'])
+             ->make(true);
+         } 
+
+
+        return view('suppliers.supplier_category_priority');
+    }
+    
+    public function addNewPriority(Request $request)
+    {
+        $validateArr['priority'] = 'required|numeric|unique:supplier_priority,priority';
+        $validator = Validator::make($request->all(), $validateArr);
+
+        if ($validator->fails()) {
+            $return = ['code' => 500, 'message' => $validator->errors()->first()];
+        } else {
+            $supplier_priority = SupplierPriority::create([
+                'priority' => $request->priority,
+            ]);
+            $return = ['code' => 200, 'message' => 'Supplier priority created!'];
+        }
+        
+        return response()->json($return);
+    }
+    
+    public function getSupplierPriorityList(Request $request)
+    {
+        $supplier_priority_list = \App\SupplierPriority::get();
+        if(isset($supplier_priority_list) && count($supplier_priority_list)) {
+            $show_history = (string)view('suppliers.ajax_priority_list',compact('supplier_priority_list'));
+            $return = ['code' => 200, 'message' => 'Success','html'=> $show_history];
+        } else {
+            $return = ['code' => 500, 'message' => 'No Results Found.'];
+        }
+        return response()->json($return);
     }
 }
