@@ -126,6 +126,14 @@
 			<form id="send_message" method="POST">
                 <input type="hidden" name="id" id="bid" value="">
 				<div class="modal-body">
+                    <div class="form-group">
+						<strong>Medium</strong>
+                        <select name="is_email" class="form-control" id="is_email">
+                            <option value="">Select Medium</option>
+                            <option value="0">Whatsapp</option>
+                            <option value="1">Email</option>
+                        </select>
+					</div>
 					<div class="form-group">
 						<strong>Name</strong>
 						<input name="name" id="name" autocomplete="off" type="text" class="form-control"/>
@@ -478,6 +486,11 @@
         
         $("#send_message").submit(function (e) {
             e.preventDefault();
+            
+            if ($("#send_message").find("#is_email").val() == "") {
+                alert('Please select Type ');
+                return false;
+            }
 
             if ($("#send_message").find("#name").val() == "") {
                 alert('Please type name ');
@@ -497,6 +510,7 @@
                     message: $("#send_message").find("#message_to_all_field").val(),
                     name: $("#send_message").find("#name").val(),
                     id:$("#send_message").find("#bid").val(),
+                    is_email:$("#send_message").find("#is_email").val(),
                 }
             }).done(function () {
                 //window.location.reload();
