@@ -6,8 +6,9 @@
 @section('content')
 
 <div class="row">
-	<div class="col-lg-12 margin-tb" id="process_count">
-	    <h2 class="page-heading">Database | Query Process List</h2>
+	<div class="col-lg-12 margin-tb">
+	    <h2 class="page-heading">Database | Query Process List <span id="process_count"></span>
+</h2>
 	</div>
 </div>
 
@@ -57,7 +58,7 @@
             var tpl = $.templates("#template-list-state-process-list");
             var tplHtml       = tpl.render(response);
                 $(".table-process-list-disp").html(tplHtml);
-                $("#process_count h2").append(" ("+count+")");
+                $("#process_count").html(" ("+count+")");
           }
         }).fail(function(response) {
           console.log("Sorry, something went wrong");

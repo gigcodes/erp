@@ -343,6 +343,7 @@ use App\Http\Controllers\GoogleAppAdController;
 use App\Http\Controllers\GoogleAdGroupKeywordController;
 use App\Http\Controllers\GoogleAdReportController;
 use App\Http\Controllers\UnknownAttributeProductController;
+use App\Http\Controllers\CropRejectedController;
 use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
@@ -662,6 +663,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
     Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
     Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
+    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class,'index'])->name('crop-rejected-final-approval-images');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -2379,6 +2381,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('supplier/getCategoryCount', [SupplierController::class, 'getSupplierCategoryCount'])->name('supplier.count.get');
     Route::post('supplier/updateCategoryCount', [SupplierController::class, 'updateSupplierCategoryCount'])->name('supplier.count.update');
     Route::post('supplier/deleteCategoryCount', [SupplierController::class, 'deleteSupplierCategoryCount'])->name('supplier.count.delete');
+
+    Route::get('supplier-priority', [SupplierController::class, 'getPrioritiesList'])->name('supplier-priority.list');
+    Route::post('supplier/add_new_priority', [SupplierController::class, 'addNewPriority'])->name('supplier.add_new_priority');
+    Route::get('supplier/getSupplierPriorityList', [SupplierController::class, 'getSupplierPriorityList'])->name('supplier.get_supplier_priority_list');
 
     Route::get('supplier/brandcount', [SupplierController::class, 'addSupplierBrandCount'])->name('supplier.brand.count');
     Route::post('supplier/saveBrandCount', [SupplierController::class, 'saveSupplierBrandCount'])->name('supplier.brand.count.save');
