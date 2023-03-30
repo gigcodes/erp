@@ -113,4 +113,5 @@ Route::group([
         Route::post('/edit', [UserManagementController::class, 'userAvailabilitiesEdit'])->name('user-availabilities.edit');
         Route::post('/history', [UserManagementController::class, 'userAvaibilityHistoryLog'])->name('user-availabilities.history');
     });
+    Route::post('/whitelist-bulk-update', [UserManagementController::class, 'whitelistBulkUpdate'])->name('user-management.whitelist-bulk-update');
 });

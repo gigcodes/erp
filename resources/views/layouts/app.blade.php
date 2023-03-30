@@ -4590,7 +4590,7 @@ if (!empty($notifications)) {
 
     @endif
     <div id="system-request" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg" style="width: 1000px; max-width: 1000px;">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -4619,20 +4619,22 @@ if (!empty($notifications)) {
                         @endphp
                         <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
                         <div>
-                            <select class="form-control col-md-3 ml-3" name="user_id" id="ipusers">
-                                <option>Select user</option>
+                            <select class="form-control col-md-2 ml-3" name="user_id" id="ipusers">
+                                <option value="">Select user</option>
                                 @foreach ($userLists as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
                                 <option value="other">Other</option>
                             </select>
                             <input type="text" name="other_user_name" id="other_user_name"
-                                class="form-control col-md-3 ml-3" style="display:none;" placeholder="other name">
-                        </div>
-                        <input type="text" name="ip_comment" class="form-control col-md-3 ml-3"
+                                class="form-control col-md-2 ml-3" style="display:none;" placeholder="other name">
+                            <input type="text" name="ip_comment" class="form-control col-md-3 ml-3"
                             placeholder="Add comment...">
+                        </div>
+                        
                         <button class="btn-success btn addIp ml-3 mb-5">Add</button>
-                        <table class="table table-bordered" id="userAllIps">
+                        <table class="table table-bordered">
+                            <thead>
                             <tr>
                                 <th>Index</th>
                                 <th>IP</th>
@@ -4640,6 +4642,9 @@ if (!empty($notifications)) {
                                 <th>Comment</th>
                                 <th>Action</th>
                             </tr>
+                            </thead>
+                            <tbody id="userAllIps">
+                            </tbody>
                             <!-- @if (!empty($final_array)) @foreach (array_reverse($final_array) as $values)
                                     <tr>
                                         <td>{{ isset($values[0]) ? $values[0] : '' }}</td>
@@ -5494,7 +5499,15 @@ if (!empty($notifications)) {
     $(document).on("click", ".addIp", function(e) {
         e.preventDefault();
         if ($('input[name="add-ip"]').val() != '') {
-            $.ajax({
+            if ($('#ipusers').val() === '') {
+                alert('Please select User OR Other from list.');
+            }
+            else if($('#ipusers').val() === 'other' && $('input[name="other_user_name"]').val()==='')
+            {
+                alert('Please enter other name.');
+            }
+            else{
+                $.ajax({
                 url: '/users/add-system-ip',
                 type: 'GET',
                 data: {
@@ -5518,6 +5531,8 @@ if (!empty($notifications)) {
                     toastr["Error"]("An error occured!");
                 }
             });
+            }
+            
         } else {
             alert('please enter IP');
         }
@@ -5712,7 +5727,7 @@ if (!empty($notifications)) {
             dataType: 'json',
             success: function(result) {
                 // console.log(result.data);
-                t += '<option>Select user</option>';
+                t += '<option value="">Select user</option>';
                 $.each(result.data, function(i, j) {
                     t += '<option value="' + i + '">' + j + '</option>'
                 });
@@ -5724,7 +5739,7 @@ if (!empty($notifications)) {
                     ip += '<tr>';
                     ip += '<td> ' + v.index_txt + ' </td>';
                     ip += '<td> ' + v.ip + '</td>';
-                    // ip += '<td>' + v.user.name ? v.user.name : v.other_user_name + '</td>';
+                    ip += '<td>' +( (v.user!=null) ? v.user.name : v.other_user_name )+ '</td>';
                     ip += '<td>' + v.notes + '</td>';
                     ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v
                         .id + '">Delete</button></td>';
