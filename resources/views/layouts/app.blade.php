@@ -4628,11 +4628,12 @@ if (!empty($notifications)) {
                             </select>
                             <input type="text" name="other_user_name" id="other_user_name"
                                 class="form-control col-md-2 ml-3" style="display:none;" placeholder="other name">
-                            <input type="text" name="ip_comment" class="form-control col-md-3 ml-3"
+                            <input type="text" name="ip_comment" class="form-control col-md-2 ml-3"
                             placeholder="Add comment...">
                         </div>
                         
                         <button class="btn-success btn addIp ml-3 mb-5">Add</button>
+                        <button class="btn-warning btn bulkDeleteIp ml-3 mb-5">Delete All IPs</button>
                         <table class="table table-bordered">
                             <thead>
                             <tr>
@@ -5714,7 +5715,34 @@ if (!empty($notifications)) {
             }
         });
     });
-
+    $(document).on("click", ".bulkDeleteIp", function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        if(confirm('Are you sure you want to perform this Action?') == false)
+        {
+            return false;
+        }
+        $.ajax({
+            url: '/users/bulk-delete-system-ip',
+            type: 'GET',
+            data: {
+                _token: "{{ csrf_token() }}",
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(result) {
+                $("#userAllIps").empty();
+                $("#loading-image").hide();
+                toastr["success"]("IPs Deteted successfully");
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
     function loadUsersList() {
         var t = "";
         var ip = "";

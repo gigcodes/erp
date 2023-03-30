@@ -793,4 +793,21 @@ class UserController extends Controller
 
         return response()->json(['code' => 500, 'message' => 'Message record not found!']);
     }
+    public function bulkDeleteSystemIp(Request $request)
+    {
+        try{
+            $systemIps = UserSysyemIp::get();
+            if(!empty($systemIps))
+            {
+                foreach($systemIps as $systemIp)
+                {
+                    shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f delete -n '.$systemIp->index ?? '');
+                    $systemIp->delete();
+                }
+                return response()->json(['code' => 200, 'data' => 'Success']);
+            }
+        } catch (\Throwable $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
 }
