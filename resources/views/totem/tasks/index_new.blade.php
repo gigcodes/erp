@@ -137,12 +137,12 @@ table tr td {
                 <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
                         <tr>
-                            <th width="2%">#</th>
-                            <th width="5%">Description</th> 
-                            <th width="8%">Average Runtime</th>
-                            <th width="5%">Last Run</th>
-                            <th width="5%">Next Run</th>
-                            <th width="5%">Frequencies</th>
+                            <th width="2%" class="tablesorter-header category">#</th>
+                            <th width="5%" class="tablesorter-header category" >Description</th>
+                            <th width="8%" class="tablesorter-header category">Average Runtime</th>
+                            <th width="5%" class="tablesorter-header category">Last Run</th>
+                            <th width="5%" class="tablesorter-header category">Next Run</th>
+                            <th width="5%" class="tablesorter-header category">Frequencies</th>
                             <th width="5%">Action</th> 
                         </tr>    
                     </thead>
@@ -150,7 +150,7 @@ table tr td {
                             @foreach($tasks as $key => $task)
                             <tr class="{{$task->is_active ? '' : 'red' }}">
                                 <td>{{$task->id}}</td>
-                                <td>
+                                <td >
                                         {{Str::limit($task->description, 30)}}
                                 </td>
                                 <td>
@@ -556,11 +556,14 @@ table tr td {
 
 @endsection
 @section('scripts')
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
     $('ul.pagination').hide();
     $(function() {
+        $(".table").tablesorter();
         $('.infinite-scroll').jscroll({
             autoTrigger: true,
             loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
