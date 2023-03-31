@@ -48,12 +48,19 @@ class GoogleTranslate
                 $translate = new TranslateClient($keyFileArray);
 
                 // echo $target." ".$text;
-                $result = $translate->translate($text, [
-                    'target' => $target,
-                ]);
-                \Log::info(print_r(['Result of google', $result], true));
-
-                return $result['text'];
+                if(is_array($text)) {
+                    $result = $translate->translateBatch($text, [
+                        'target' => $target,
+                    ]);
+                    return $result;
+                } else {
+                    $result = $translate->translate($text, [
+                        'target' => $target,
+                    ]);
+                    // \Log::info(print_r(['Result of google', $result], true));
+    
+                    return $result['text'];
+                }
             } else {
                 // $translate = new TranslateClient([
                 //     'keyFile' => json_decode(file_get_contents($this->path), true)

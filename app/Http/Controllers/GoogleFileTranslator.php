@@ -6,6 +6,7 @@ use App\GoogleFiletranslatorFile;
 use App\GoogleTranslate;
 use App\Language;
 use App\Translations;
+use Exception;
 use File;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -75,7 +76,11 @@ class GoogleFileTranslator extends Controller
         $path = public_path().'/uploads/google-file-translator/';
         $languageData = Language::where('id', $insert->tolanguage)->first();
         if (file_exists($path.$insert->name)) {
-            $this->translateFile($path.$insert->name, $languageData->locale, ',');
+            try {
+                $this->translateFile($path.$insert->name, $languageData->locale, ',');
+            } catch (\Exception $e) {
+                return redirect()->route('googlefiletranslator.list')->with('error', $e->getMessage());
+            }
         }
 
         return redirect()->route('googlefiletranslator.list')->with('success', 'Translation created successfully');
@@ -158,6 +163,7 @@ class GoogleFileTranslator extends Controller
             return false;
         }
         $newCsvData = [];
+        $keywordToTranslate = [];
         if (($handle = fopen($path, 'r')) !== false) {
             while (($data = fgetcsv($handle, 1000, ',')) !== false) {
                 // Check translation SEPARATE LINE exists or not
@@ -165,26 +171,66 @@ class GoogleFileTranslator extends Controller
                 if ($checkTranslationTable) {
                     $data[] = htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
                 } else {
-                    try {
-                        $googleTranslate = new GoogleTranslate();
-                        $translationString = $googleTranslate->translate($language, $data[0]);
-
-                        // Devtask-2893 : Added model to save individual line translation
-                        Translations::addTranslation($data[0], $translationString, 'en', $language);
-                        $data[] = htmlspecialchars_decode($translationString, ENT_QUOTES);
-                    } catch (\Exception $e) {
-                        \Log::channel('errorlog')->error($e);
-                    }
+                    $keywordToTranslate[] = $data[0];
+                    $data[] = $data[0];
                 }
                 $newCsvData[] = $data;
             }
             fclose($handle);
         }
-        $handle = fopen($path, 'r+');
 
-        foreach ($newCsvData as $line) {
-            fputcsv($handle, $line, $delimiter, $enclosure = '"');
+        $translateKeyPair = [];
+        if(isset($keywordToTranslate) && count($keywordToTranslate) > 0) {
+            // Max 128 lines supports for translation per request 
+            $keywordToTranslateChunk = array_chunk($keywordToTranslate, 100);
+            $translationString = [];
+            foreach ($keywordToTranslateChunk as $key => $chunk) {
+                try {
+                    $googleTranslate = new GoogleTranslate();
+                    $result = $googleTranslate->translate($language, $chunk);
+                } catch (\Exception $e) {
+                    \Log::channel('errorlog')->error($e);
+                    throw new Exception($e->getMessage());
+                }
+                // $translationString = [...$translationString, ...$result];
+                array_push($translationString, ...$result);
+            }
+
+            $insertData = [];
+            if(isset($translationString) && count($translationString) > 0) {
+                foreach ($translationString as $key => $value) {
+                    $translateKeyPair[$value["input"]] = $value["text"];
+                    $insertData[] = [
+                        "text_original" => $value["input"],
+                        "text" => $value["text"],
+                        "from" => "en",
+                        "to" => $language,
+                        "created_at" => now(),
+                        "updated_at" => now(),
+                    ];
+                }
+            }
+            
+            if(!empty($insertData)) {
+                Translations::insert($insertData);
+            }
+            
         }
-        fclose($handle);
+
+        // Update the csv with Translated data
+        if(isset($newCsvData) && count($newCsvData) > 0) {
+            for ($i=0; $i < count($newCsvData); $i++) { 
+                $last = array_pop($newCsvData[$i]);
+                array_push($newCsvData[$i],  htmlspecialchars_decode($translateKeyPair[$last] ?? $last));
+            }
+
+            $handle = fopen($path, 'r+');
+            foreach ($newCsvData as $line) {
+                fputcsv($handle, $line, $delimiter, $enclosure = '"');
+            }
+            fclose($handle);
+        }
+
+       
     }
 }
