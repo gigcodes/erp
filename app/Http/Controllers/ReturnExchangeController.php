@@ -849,7 +849,7 @@ class ReturnExchangeController extends Controller
             }
         }
 
-        return response()->json(['code' => 200, 'html' => $response]);
+        return response()->json(['code' => 200, 'html' => $response ?? "Product not found."]);
     }
 
     public function product(Request $request, $id)
