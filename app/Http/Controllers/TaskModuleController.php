@@ -1974,7 +1974,7 @@ class TaskModuleController extends Controller
             $developer_tasks = $developer_tasks->where('created_at', 'LIKE', "%$request->date%");
         }
 
-        $pending_tasks = $pending_tasks->latest()->paginate(Setting::get('pagination'));
+        $pending_tasks = $pending_tasks->orderBy('id', 'DESC')->latest()->paginate(Setting::get('pagination'));
         $developer_tasks = $developer_tasks->latest()->paginate(Setting::get('pagination'));
 
         $users = Helpers::getUserArray(User::all());

@@ -3,7 +3,7 @@
     <td>{{$loop->iteration}}</td>
     <td>{{$googleadsac->account_name}}</td>
     <td>{{$googleadsac->store_websites}}</td>
-    <td>{{$googleadsac->config_file_path}}</td>
+    <td>{{$googleadsac->google_customer_id}}</td>
     <td>{{$googleadsac->notes}}</td>
     <td>{{$googleadsac->status}}</td>
     <td>{{$googleadsac->created_at}}</td>

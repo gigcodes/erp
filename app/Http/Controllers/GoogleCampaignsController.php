@@ -4,16 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Setting;
 use Exception;
+use Google\Ads\GoogleAds\Util\FieldMasks;
+use Google\Ads\GoogleAds\Util\V12\ResourceNames;
+use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
+use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsException;
-use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\V12\Common\ManualCpc;
-use Google\Ads\GoogleAds\V12\Common\FrequencyCapEntry;
-use Google\Ads\GoogleAds\V12\Common\FrequencyCapKey;
 use Google\Ads\GoogleAds\V12\Common\TargetCpa;
 use Google\Ads\GoogleAds\V12\Common\TargetRoas;
 use Google\Ads\GoogleAds\V12\Common\TargetSpend;
+use Google\Ads\GoogleAds\V12\Common\LanguageInfo;
+use Google\Ads\GoogleAds\V12\Common\FrequencyCapKey;
+use Google\Ads\GoogleAds\V12\Common\FrequencyCapEntry;
 use Google\Ads\GoogleAds\V12\Common\MaximizeConversionValue;
 use Google\Ads\GoogleAds\V12\Enums\FrequencyCapLevelEnum\FrequencyCapLevel;
 use Google\Ads\GoogleAds\V12\Enums\BiddingStrategyTypeEnum\BiddingStrategyType;
@@ -27,20 +31,19 @@ use Google\Ads\GoogleAds\V12\Enums\AdvertisingChannelSubTypeEnum\AdvertisingChan
 use Google\Ads\GoogleAds\V12\Enums\AppCampaignBiddingStrategyGoalTypeEnum\AppCampaignBiddingStrategyGoalType;
 use Google\Ads\GoogleAds\V12\Enums\OptimizationGoalTypeEnum\OptimizationGoalType;
 use Google\Ads\GoogleAds\V12\Enums\CampaignStatusEnum\CampaignStatus;
-use Google\Ads\GoogleAds\V12\Errors\GoogleAdsError;
-use Google\Ads\GoogleAds\Util\V12\ResourceNames;
+use Google\Ads\GoogleAds\V12\Enums\AppCampaignAppStoreEnum\AppCampaignAppStore;
 use Google\Ads\GoogleAds\V12\Resources\Campaign;
-use Google\Ads\GoogleAds\Util\FieldMasks;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\NetworkSettings;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\GeoTargetTypeSetting;
 use Google\Ads\GoogleAds\V12\Resources\CampaignBudget;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\ShoppingSetting;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\AppCampaignSetting;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\OptimizationGoalSetting;
-use Google\Ads\GoogleAds\V12\Enums\AppCampaignAppStoreEnum\AppCampaignAppStore;
+use Google\Ads\GoogleAds\V12\Resources\CampaignCriterion;
 use Google\Ads\GoogleAds\V12\Services\CampaignBudgetOperation;
 use Google\Ads\GoogleAds\V12\Services\CampaignOperation;
-use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
+use Google\Ads\GoogleAds\V12\Services\CampaignCriterionOperation;
+use Google\Ads\GoogleAds\V12\Errors\GoogleAdsError;
 use Illuminate\Http\Request;
 use Google\Protobuf\Int32Value;
 
@@ -49,8 +52,11 @@ use App\Models\GoogleResponsiveDisplayAd;
 use App\Models\GoogleResponsiveDisplayAdMarketingImage;
 use App\Models\GoogleAppAd;
 use App\Models\GoogleAppAdImage;
+use App\Models\GoogleCampaignTargetLanguage;
 use App\GoogleAd;
 use App\GoogleAdsGroup;
+
+use App\Helpers\GoogleAdsHelper;
 
 class GoogleCampaignsController extends Controller
 {
@@ -222,7 +228,7 @@ class GoogleCampaignsController extends Controller
         } else {
             return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
         }
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
         //echo $storagepath; exit;
         //echo $storagepath; exit;
         /* $oAuth2Credential = (new OAuth2TokenBuilder())
@@ -396,12 +402,13 @@ class GoogleCampaignsController extends Controller
             $campaign_start_date = $request->start_date;
             $campaign_end_date = $request->end_date;
             $campaignStatus = $campaignStatusArr[$request->campaignStatus];
+            $targetLanguages = $request->target_languages;
 
             //start creating array to store data into database
             $campaignArray['account_id'] = $account_id;
             $campaignArray['google_customer_id'] = $customerId;
 
-            $storagepath = $this->getstoragepath($account_id);
+            // $storagepath = $this->getstoragepath($account_id);
             $campaignArray['campaign_name'] = $campaignName;
             $campaignArray['budget_amount'] = $request->budgetAmount;
             $campaignArray['start_date'] = $campaign_start_date;
@@ -483,17 +490,9 @@ class GoogleCampaignsController extends Controller
                 $sales_country = '';
             }
             $campaignArray['sales_country'] = $sales_country;
-
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
+            
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             $budget = self::addCampaignBudget($googleAdsClient, $customerId, $budgetAmount, $channel_type);
             $campaignArray['budget_uniq_id'] = $budget['budget_uniq_id'] ?? null;
@@ -582,6 +581,23 @@ class GoogleCampaignsController extends Controller
             $campaignArray['campaign_response'] = json_encode($createdCampaign);
             \App\GoogleAdsCampaign::create($campaignArray);
             
+
+            // Start Target Language 
+            if(!empty($targetLanguages) && !@$request->all_target_languages){
+                foreach($targetLanguages as $key => $value){
+                    $isAdded = self::addTargetLanguage($googleAdsClient, $customerId, $campaignArray['google_campaign_id'], $value);
+
+                    if($isAdded){
+                        GoogleCampaignTargetLanguage::create([
+                                                        'google_customer_id' => $customerId,
+                                                        'adgroup_google_campaign_id' => $campaignArray['google_campaign_id'],
+                                                        'google_language_constant_id' => $value,
+                                                    ]);
+                    }
+                }
+            }
+            // End Target Language 
+
             // Insert google ads log 
             $input = array(
                         'type' => 'SUCCESS',
@@ -608,46 +624,8 @@ class GoogleCampaignsController extends Controller
     // go to update page
     public function updatePage(Request $request, $campaignId)
     {
-        /* $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
-            ->build();
-
-        $session = (new AdWordsSessionBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
-            ->withOAuth2Credential($oAuth2Credential)
-            ->build();
-
-        $adWordsServices = new AdWordsServices();
-
-        $campaignService = $adWordsServices->get($session, CampaignService::class);
-
-        // Create selector.
-        $campaignSelector = new Selector();
-        $campaignSelector->setFields(['Id', 'Name', 'Status']);
-        //        $campaignSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
-        //        $campaignSelector->setPaging(new Paging(0, 10));
-        $campaignSelector->setPredicates(
-            [new Predicate('Id', PredicateOperator::IN, [$campaignId])]
-        );
-
-        $page = $campaignService->get($campaignSelector);
-        $pageEntries = $page->getEntries();
-
-        if ($pageEntries !== null) {
-            $campaign = $pageEntries[0];
-        }
-        $campaign = [
-            "campaignId" => $campaign->getId(),
-            //            "campaignGroups" => $adGroups,
-            "name" => $campaign->getName(),
-            "status" => $campaign->getStatus(),
-            //                        "budgetId" => $campaignBudget->getBudgetId(),
-            //                        "budgetName" => $campaignBudget->getName(),
-            //                        "budgetAmount" => $campaignBudget->getAmount()
-        ];
-        // */
         $biddingStrategyTypes = $this->getBiddingStrategyTypeArray();
-        $campaign = \App\GoogleAdsCampaign::where('google_campaign_id', $campaignId)->firstOrFail();
+        $campaign = \App\GoogleAdsCampaign::with('target_languages')->where('google_campaign_id', $campaignId)->firstOrFail();
 
          // Insert google ads log 
         $input = array(
@@ -657,7 +635,8 @@ class GoogleCampaignsController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googlecampaigns.update', ['campaign' => $campaign, 'biddingStrategyTypes' => $biddingStrategyTypes]);
+        return $campaign;
+        // return view('googlecampaigns.update', ['campaign' => $campaign, 'biddingStrategyTypes' => $biddingStrategyTypes]);
     }
 
     // save campaign's changes
@@ -670,12 +649,11 @@ class GoogleCampaignsController extends Controller
             'end_date' => 'required|max:15',
         ]);
 
-        $campaignDetail = \App\GoogleAdsCampaign::where('google_campaign_id',
-            $request->campaignId)->first();
+        $campaignDetail = \App\GoogleAdsCampaign::with('target_languages')->where('google_campaign_id', $request->campaignId)->first();
         $account_id = $campaignDetail->account_id;
         $customerId = $campaignDetail->google_customer_id;
         try {
-            $storagepath = $this->getstoragepath($account_id);
+            // $storagepath = $this->getstoragepath($account_id);
             $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
             $campaignId = $request->campaignId;
             $campaignName = $request->campaignName;
@@ -685,6 +663,7 @@ class GoogleCampaignsController extends Controller
             $budgetAmount = $request->budgetAmount;
             $campaign_start_date = $request->start_date;
             $campaign_end_date = $request->end_date;
+            $targetLanguages = $request->target_languages;
 
             //start creating array to store data into database
 
@@ -722,17 +701,9 @@ class GoogleCampaignsController extends Controller
             }
             $campaignArray['maximize_clicks'] = $txt_maximize_clicks;
 
-
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
+    
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             $budget = self::updateCampaignBudget($googleAdsClient, $customerId, $budgetAmount, $campaignDetail->budget_id);
             $budgetResourceName = $budget['budget_resource_name'] ?? null;
@@ -800,6 +771,48 @@ class GoogleCampaignsController extends Controller
             $campaignArray['campaign_response'] = json_encode($updatedCampaign);
             \App\GoogleAdsCampaign::whereId($campaignDetail->id)->update($campaignArray);
 
+
+            // Start Target Language 
+            if(!empty($targetLanguages) && !@$request->all_target_languages){
+                $targetLanguageIds = [];
+                foreach($targetLanguages as $key => $value){
+                    $insert = array(
+                                'google_customer_id' => $customerId,
+                                'adgroup_google_campaign_id' => $campaignArray['google_campaign_id'],
+                                'google_language_constant_id' => $value,
+                            );
+
+                    $isExist = GoogleCampaignTargetLanguage::where($insert)->first();
+                    if(!$isExist){
+                        $isAdded = self::addTargetLanguage($googleAdsClient, $customerId, $campaignArray['google_campaign_id'], $value);
+                        GoogleCampaignTargetLanguage::create($insert);
+                    }
+                    array_push($targetLanguageIds, $value);
+                }
+
+                // Remove old unused lang
+                $removeTargetLanguages = GoogleCampaignTargetLanguage::where('google_customer_id', $customerId)
+                                                                    ->where('adgroup_google_campaign_id', $campaignArray['google_campaign_id'])
+                                                                    ->whereNotIn('google_language_constant_id', $targetLanguageIds)
+                                                                    ->get();
+                if(!empty($removeTargetLanguages)){
+                    foreach($removeTargetLanguages as $key => $language){
+                        self::removeTargetLanguage($googleAdsClient, $customerId, $campaignArray['google_campaign_id'], $language->google_language_constant_id);
+
+                        $language->delete();
+                    }
+                }
+            }else{
+                if(!empty($campaignDetail->target_languages)){
+                    foreach($campaignDetail->target_languages as $key => $language){
+                        self::removeTargetLanguage($googleAdsClient, $customerId, $campaignArray['google_campaign_id'], $language->google_language_constant_id);
+
+                        $language->delete();
+                    }
+                }
+            }
+            // End Target Language 
+
             // Insert google ads log 
             $input = array(
                         'type' => 'SUCCESS',
@@ -831,29 +844,25 @@ class GoogleCampaignsController extends Controller
             $googleAdsCampaign = \App\GoogleAdsCampaign::where('account_id', $account_id)->where('google_campaign_id', $campaignId)->firstOrFail();
             $customerId = $googleAdsCampaign->google_customer_id;
 
-            $storagepath = $this->getstoragepath($account_id);
-            
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
+            try {
+                // $storagepath = $this->getstoragepath($account_id);
+                            
+                // Generate a refreshable OAuth2 credential for authentication.
+                $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
-            // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
+                // Creates the resource name of a campaign to remove.
+                $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
 
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+                // Creates a campaign operation.
+                $campaignOperation = new CampaignOperation();
+                $campaignOperation->setRemove($campaignResourceName);
 
-            // Creates the resource name of a campaign to remove.
-            $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
-
-            // Creates a campaign operation.
-            $campaignOperation = new CampaignOperation();
-            $campaignOperation->setRemove($campaignResourceName);
-
-            // Issues a mutate request to remove the campaign.
-            $campaignServiceClient = $googleAdsClient->getCampaignServiceClient();
-            $response = $campaignServiceClient->mutateCampaigns($customerId, [$campaignOperation]);
+                // Issues a mutate request to remove the campaign.
+                $campaignServiceClient = $googleAdsClient->getCampaignServiceClient();
+                $response = $campaignServiceClient->mutateCampaigns($customerId, [$campaignOperation]);
+            } catch (Exception $e) {
+                
+            }
 
             // Insert google ads log 
             $input = array(
@@ -871,6 +880,7 @@ class GoogleCampaignsController extends Controller
             GoogleAppAdImage::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleAd::where('adgroup_google_campaign_id', $campaignId)->delete();
             GoogleAdsGroup::where('adgroup_google_campaign_id', $campaignId)->delete();
+            GoogleCampaignTargetLanguage::where('adgroup_google_campaign_id', $campaignId)->delete();
 
             $googleAdsCampaign->delete();
 
@@ -1256,5 +1266,79 @@ class GoogleCampaignsController extends Controller
             ]);
 
         return $appCampaignSetting;
-    } 
+    }
+
+    // add target language
+    private function addTargetLanguage($googleAdsClient, $customerId, $campaignId, $languageConstantId)
+    {
+        $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
+
+        try {
+            $campaignCriterion = new CampaignCriterion([
+                'language' => new LanguageInfo([
+                    'language_constant' => ResourceNames::forLanguageConstant($languageConstantId),
+                ]),
+                'campaign' => $campaignResourceName
+            ]);
+
+            $campaignCriterionOperation = new CampaignCriterionOperation();
+            $campaignCriterionOperation->setCreate($campaignCriterion);
+
+            $campaignCriterionServiceClient = $googleAdsClient->getCampaignCriterionServiceClient();
+
+            $response = $campaignCriterionServiceClient->mutateCampaignCriteria(
+                $customerId,
+                [$campaignCriterionOperation]
+            );
+
+            $addedCampaignCriterion = $response->getResults()[0];
+            
+            return true;
+        } catch (Exception $e) {
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Campaign',
+                        'message' => 'Add campaign target language > '.$campaignId.' > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);    
+
+            return false;    
+        }
+    }
+
+    // remove target language
+    private function removeTargetLanguage($googleAdsClient, $customerId, $campaignId, $languageConstantId)
+    {
+        try {
+            // Creates campaign criterion resource name.
+            $campaignCriterionResourceName =
+                ResourceNames::forCampaignCriterion($customerId, $campaignId, $languageConstantId);
+
+            // Constructs an operation that will remove the language with the specified resource name.
+            $campaignCriterionOperation = new CampaignCriterionOperation();
+            $campaignCriterionOperation->setRemove($campaignCriterionResourceName);
+
+            // Issues a mutate request to remove the campaign criterion.
+            $campaignCriterionServiceClient = $googleAdsClient->getCampaignCriterionServiceClient();
+            $response = $campaignCriterionServiceClient->mutateCampaignCriteria(
+                $customerId,
+                [$campaignCriterionOperation]
+            );
+
+            $removedCampaignCriterion = $response->getResults()[0];
+            
+            return true;
+        } catch (Exception $e) {
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Campaign',
+                        'message' => 'Remove campaign target language > '.$campaignId.' > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);    
+
+            return false;    
+        }
+    }
 }

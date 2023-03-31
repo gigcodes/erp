@@ -60,17 +60,19 @@ class GoogleDocController extends Controller
     public function create(Request $request)
     {
         $data = $this->validate($request, [
-            'type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
-            'doc_name' => ['required', 'max:800'],
-            'existing_doc_id' => ['sometimes', 'nullable', 'string', 'max:800'],
-            'read' => ['sometimes'],
-            'write' => ['sometimes'],
+            'type'              => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
+            'doc_name'          => ['required', 'max:800'],
+            'doc_category'      => ['required', 'max:191'],
+            'existing_doc_id'   => ['sometimes', 'nullable', 'string', 'max:800'],
+            'read'              => ['sometimes'],
+            'write'             => ['sometimes'],
         ]);
 
         DB::transaction(function () use ($data) {
-            $googleDoc = new GoogleDoc();
-            $googleDoc->type = $data['type'];
-            $googleDoc->name = $data['doc_name'];
+            $googleDoc              = new GoogleDoc();
+            $googleDoc->type        = $data['type'];
+            $googleDoc->name        = $data['doc_name'];
+            $googleDoc->category    = $data['doc_category'];
             if (isset($data['read'])) {
                 $googleDoc->read = implode(',', $data['read']);
             }
@@ -128,6 +130,13 @@ class GoogleDocController extends Controller
     public function edit($id)
     {
         //
+        $modal = GoogleDoc::where('id', $id)->first();
+
+        if ($modal) {
+            return response()->json(['code' => 200, 'data' => $modal]);
+        }
+
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
     }
 
     /**
@@ -137,9 +146,15 @@ class GoogleDocController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         //
+        $modal = GoogleDoc::where('id', $request->id)->update(['category' => $request->doc_category]);
+        if($modal){
+            return back()->with('success', "Google Doc Category successfully updated.");
+        }else{
+            return back()->with('error', "Something went wrong.");
+        }
     }
 
     /**
