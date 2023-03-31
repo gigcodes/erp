@@ -284,6 +284,7 @@ class UserManagementController extends Controller
     public function records(Request $request)
     {
         $user = new User;
+        $isWhitelist = $request->is_whitelisted==1?1:0;
         if (! Auth::user()->isAdmin()) {
             $user = $user->where('users.id', Auth::user()->id);
         }
@@ -300,6 +301,9 @@ class UserManagementController extends Controller
                     ->orWhere('users.name', 'like', '%'.$request->keyword.'%')
                     ->orWhere('users.phone', 'like', '%'.$request->keyword.'%');
             });
+        }
+        if ($request->is_whitelisted) {
+            $user = $user->where('users.is_whitelisted', $isWhitelist);
         }
 
         $user = $user->select(['users.*', 'hubstaff_activities.starts_at'])
@@ -2540,6 +2544,20 @@ class UserManagementController extends Controller
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+    public function whitelistBulkUpdate(Request $request)
+    {
+        //remove all users from whitelist
+        if($request->action == 2)
+        {
+            User::where('is_whitelisted', 1)->update(['is_whitelisted' => 0]);
+        }
+        //add or remove selected users from whitelist
+        else
+        {
+            $whitelistValue = $request->action==1?1:0;
+            User::whereIn('id', $request->users)->update(['is_whitelisted' => $whitelistValue]);
         }
     }
 }
