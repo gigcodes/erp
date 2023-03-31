@@ -4640,6 +4640,7 @@ if (!empty($notifications)) {
                                 <th>Index</th>
                                 <th>IP</th>
                                 <th>User</th>
+                                <th>Source</th>
                                 <th>Comment</th>
                                 <th>Action</th>
                             </tr>
@@ -5768,6 +5769,7 @@ if (!empty($notifications)) {
                     ip += '<td> ' + v.index_txt + ' </td>';
                     ip += '<td> ' + v.ip + '</td>';
                     ip += '<td>' +( (v.user!=null) ? v.user.name : v.other_user_name )+ '</td>';
+                    ip += '<td> ' + v.source + '</td>';
                     ip += '<td>' + v.notes + '</td>';
                     ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v
                         .id + '">Delete</button></td>';
