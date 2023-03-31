@@ -235,7 +235,6 @@ class RepositoryController extends Controller
                 'last_commit_time' => $comparison['last_commit_time'],
             ]
         );
-        \Log::info("Entry added successfully to GithubBranchState");
     }
 
     private function findDeveloperTask($branchName)
