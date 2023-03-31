@@ -703,6 +703,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('users/add-system-ip', [UserController::class, 'addSystemIp']);
     Route::post('users/add-system-ip-from-text', [UserController::class, 'addSystemIpFromText']);
     Route::get('users/delete-system-ip', [UserController::class, 'deleteSystemIp']);
+    Route::get('users/bulk-delete-system-ip', [UserController::class, 'bulkDeleteSystemIp']);
     Route::get('permissions/grandaccess/users', [PermissionController::class, 'users'])->name('permissions.users');
     Route::get('userlogs', [UserLogController::class, 'index'])->name('userlogs.index');
     Route::get('userlogs/{$id}', [UserLogController::class, 'index']);
@@ -2145,8 +2146,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
     Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
+
+    Route::get('password/search', [PasswordController::class, 'passwordsSearch'])->name('password.search');
+    Route::post('password/show/edit-data', [PasswordController::class, 'passwordsShowEditdata'])->name('password.show.edit-data');
+
     Route::post('password/send/email', [PasswordController::class, 'passwordSendEmail'])->name('password.send.email');
     Route::get('password/email/history', [PasswordController::class, 'passwordSendEmailHistory'])->name('password.email.history');
+
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
@@ -2774,6 +2780,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/payment_data', [TimeDoctorActivitiesController::class, 'activityPaymentData'])->name('time-doctor-activity.payment_data');
         Route::post('/command_execution_manually', [TimeDoctorActivitiesController::class, 'timeDoctorActivityCommandExecution'])->name('time-doctor-activity.command_execution_manually');
         Route::get('/time-doctor-payment-download', [TimeDoctorActivitiesController::class, 'timeDoctorPaymentReportDownload'])->name('time-doctor-payment-report.download');
+        Route::post('/account_wise_time_track', [TimeDoctorActivitiesController::class, 'timeDoctorTaskTrackDetails'])->name('time-doctor-activity.account_wise_time_track');
+
         Route::get('/addtocashflow', [TimeDoctorActivitiesController::class, 'addtocashflow']);
 
         Route::prefix('notification')->group(function () {
