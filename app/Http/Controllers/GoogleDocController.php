@@ -7,7 +7,6 @@ use App\User;
 use Auth;
 use App\Jobs\CreateGoogleDoc;
 use App\Jobs\CreateGoogleSpreadsheet;
-use App\User;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
