@@ -218,12 +218,11 @@ class ProductController extends Controller
 
             $categories_array[$category->id] = $category->parent_id;
         }
-        $newProducts = Product::query();
-        // if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
-        //     $newProducts = Product::query();
-        // } else {
-        //     $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
-        // }
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            $newProducts = Product::query();
+        } else {
+            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
+        }
 
         if ($request->get('status_id') != null) {
             $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
@@ -5698,7 +5697,7 @@ class ProductController extends Controller
         }
         RejectedImages::updateOrCreate(
             ['website_id' => $request->site_id, 'product_id' => $request->product_id, 'user_id' => auth()->user()->id],
-            ['status' => $request->status = 'approve' ? 1 : 0]
+            ['status' => $request->status == 'approve' ? 1 : 0]
         );
 
         return response()->json(['code' => 200, 'message' => 'Successfully rejected']);
@@ -5721,7 +5720,7 @@ class ProductController extends Controller
             foreach ($sites as $site) {
                 RejectedImages::updateOrCreate(
                     ['website_id' => $site->website_id, 'product_id' => $request->product_id, 'user_id' => auth()->user()->id],
-                    ['status' => $request->status = 'approve' ? 1 : 0]
+                    ['status' => $request->status == 'approve' ? 1 : 0]
                 );
             }
 

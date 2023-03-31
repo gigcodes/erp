@@ -335,7 +335,7 @@ class RepositoryController extends Controller
             \Log::info(print_r($allOutput, true));
 
             // Used to reset php cache after merge.
-            opcache_reset();
+            // opcache_reset();
 
             $sqlIssue = false;
             if (! empty($allOutput) && is_array($allOutput)) {
