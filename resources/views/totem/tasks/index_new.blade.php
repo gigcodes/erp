@@ -418,6 +418,21 @@ table tr td {
                             <input class="form-control" placeholder="e.g. --type=all for options or name=John for arguments" name="parameters" id="parameters" value="" type="text">
                             <p class="d-none"></p>
                         </div>
+                        <div class="form-group">
+                            <label>Command</label><i class="fa fa-info-circle" title="Select an artisan command to schedule"></i>
+                            <select id="command" name="command" class="form-control select2" width="100%" placeholder="Click here to select one of the available commands">
+                                <option value="">Select a module</option>
+                                @forelse ($commands as $k => $command)
+                                    <optgroup label="{{$command->getName()}}">
+                                        <option value="{{$command->getName()}}">
+                                            {{$command->getDescription()}}
+                                        </option>
+                                    </optgroup>
+                                    <p class="d-none"></p>
+                                @empty
+                                @endforelse
+                            </select>
+                        </div>
                         <hr>
                         <div class="form-group">
                             <label>Timezone</label><i class="fa fa-info-circle" title="Select a timezone for your task. App timezone is selected by default"></i>
@@ -696,7 +711,7 @@ table tr td {
         for(let i=0; i< results.length; i++){ 
             html_content += '<tr>'; 
             html_content += '<td>' + results[i].ran_at + '</td>';
-            html_content += '<td>' + (results[i].duration / 1000 , 2).toFixed(2) + ' seconds</td>';
+            html_content += '<td>' + (results[i].duration / 1000).toFixed(2) + ' seconds</td>';
             html_content += `<td id="show-result" data-output="${results[i].result}"><i class="fa fa-info-circle"></i></td>`;
             html_content += '</tr>';
         }
