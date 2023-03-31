@@ -35,9 +35,12 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use Validator;
 use DataTables;
+use App\Helpers\SupplierPriorityTrait;
 
 class SupplierController extends Controller
 {
+    use SupplierPriorityTrait;
+
     const DEFAULT_FOR = 3; //For Supplier
 
     /**
@@ -1875,9 +1878,21 @@ class SupplierController extends Controller
     }
 
     public function getPrioritiesList(Request $request){
+        $priorities = SupplierPriority::get();
         if($request->ajax()){
             $suppliers = \App\Supplier::query();
             $suppliers->with('supplier_category');
+            if(isset($request->supplier) && !empty($request->supplier)) {
+                $suppliers = $suppliers->where('supplier', $request->supplier);
+            }
+            if(isset($request->priority) && !empty($request->priority)) {
+                $suppliers = $suppliers->where('priority', $request->priority);
+            }
+            if(isset($request->priority) && ($request->priority == 0)){
+                $suppliers = $suppliers->where('priority', null);
+            }
+
+            $suppliers->orderBy('created_at', 'desc');
              return Datatables::of($suppliers)
              ->addIndexColumn()
              ->addColumn('supplier_category_name', function($row){
@@ -1885,7 +1900,7 @@ class SupplierController extends Controller
                 return $supplier_category_name;
              })
              ->addColumn('action', function($row){
-                 $actionBtn = '<a href="javascript:void(0)" data-id="'.$row->id.'" data-product-id="'.$row->product_id.'" class="get-product-log-detail btn btn-warning btn-sm"><i class="fa fa-list fa-sm"></i></a>&nbsp;';
+                 $actionBtn = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="update-supplier-priority btn btn-warning btn-sm"><i class="fa fa-edit fa-sm"></i></a>&nbsp;';
                  return $actionBtn;
              })
              ->rawColumns(['action', 'supplier_category_id'])
@@ -1893,7 +1908,7 @@ class SupplierController extends Controller
          } 
 
 
-        return view('suppliers.supplier_category_priority');
+        return view('suppliers.supplier_category_priority', compact('priorities'));
     }
     
     public function addNewPriority(Request $request)
@@ -1923,5 +1938,31 @@ class SupplierController extends Controller
             $return = ['code' => 500, 'message' => 'No Results Found.'];
         }
         return response()->json($return);
+    }
+
+    public function getSupplierForPriority(Request $request){
+        $supplier = Supplier::with('supplier_category')->where('id', $request->id)->first();
+        $supplier_priority_list = \App\SupplierPriority::get();
+        if($supplier) {
+            $category = $supplier->supplier_category ? $supplier->supplier_category->name : "N\A";
+            $return = ['code' => 200, 'success' =>true, 'message' => 'Success','supplier'=> $supplier, 'category' => $category, 'supplier_priority_list' => $supplier_priority_list];
+        } else {
+            $return = ['code' => 500,'success' =>false,  'message' => 'No Results Found.'];
+        }
+        return response()->json($return);
+    }
+    
+     public function updateSupplierPriority(Request $request)
+    {
+        $supplier_id = $request->id; 
+        $priority = $request->priority; 
+        $updatedPriority =  $this->updatePriority($supplier_id, $priority);
+        if($updatedPriority){
+            $response = ['code' => 200, 'success' =>true, 'message' => 'Supplier priority updated!',];
+        }
+        else {
+            $response = ['code' => 500,'success' =>false,  'message' => 'No Results Found.'];
+        }    
+        return response()->json($response);        
     }
 }

@@ -1,7 +1,19 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
+
 @section('styles')
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+
 <style type="text/css">
+    .status-selection .btn-group {
+        padding: 0;
+        width: 100%;
+    }
+
+    .status-selection .multiselect {
+        width: 100%;
+    }
+
     #loading-image {
             position: fixed;
             top: 50%;
@@ -27,6 +39,7 @@
 
 </style>
 @endsection
+
 @section('content')
     <h2 class="page-heading">Google AdWords - Campaigns ( <span id="ads_campaign_count">{{$totalNumEntries}} </span>)
 
@@ -248,6 +261,7 @@
                                 @endif
                             </div>
                         </div>
+                        
                         <div class="form-group row">
                             <label for="start-date" class="col-sm-2 col-form-label">End Date</label>
                             <div class="col-sm-6">
@@ -255,6 +269,17 @@
                                 @if ($errors->has('end_date'))
                                     <span class="text-danger">{{$errors->first('end_date')}}</span>
                                 @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="start-date" class="col-sm-2 col-form-label">Target Languages</label>
+                            <div class="col-sm-6 status-selection">
+                                <select class="form-control multiselect" id="edit_target_languages" name="target_languages[]" style="height: auto" multiple>
+                                    @foreach(\App\Models\GoogleLanguageConstant::whereIsTargetable(true)->orderBy('name', 'ASC')->get() as $lang)
+                                        <option value="{{ $lang->google_language_constant_id }}">{{ $lang->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
@@ -267,6 +292,7 @@
                                 </select>
                             </div>
                         </div>
+
                         <div class="form-group row">
                             <div class="col-sm-8">
                                 <button type="button" class="btn btn-secondary float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
@@ -281,8 +307,9 @@
 @endsection
 
 @section('scripts')
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+
 <script type="text/javascript">
     $('.select-multiple').select2({width: '100%'});
 
@@ -369,6 +396,10 @@
     // Start Update Model
     function editDetails(id) {
         $('#updateCampaignModal').hide();
+
+        $('#edit_target_languages').multiselect('deselectAll', false);    
+        $('#edit_target_languages').multiselect('updateButtonText');
+
         var url = "{{ route('googlecampaigns.updatePage', [":id"]) }}";
         url = url.replace(':id', id);
         $.ajax({
@@ -417,6 +448,16 @@
 
                 if(data.bidding_strategy_type == "TARGET_SPEND"){
                     $("#edit_div_targetspend").show();
+                }
+
+                if(data.target_languages.length){
+                    $.each(data.target_languages, function(index, val) {
+                        $("#edit_target_languages").find('option[value="'+val.google_language_constant_id+'"]').prop('selected', true);
+                    });
+                    $("#edit_target_languages").multiselect('refresh');
+                }else{
+                    $("#edit_target_languages").multiselect('selectAll', false);
+                    $("#edit_target_languages").multiselect('updateButtonText');
                 }
 
                 $('#updateCampaignModal').show();
@@ -523,9 +564,15 @@
             });
         }
         $('#updateCampaignModal [name="biddingStrategyType"] option:not([hidden]):eq(0)').prop('selected', true).change();
-
     });
 
+    $("#edit_target_languages").multiselect({
+        allSelectedText: 'All',
+        includeSelectAllOption: true,
+        selectAllName: 'all_target_languages',
+        enableFiltering: true,
+        includeFilterClearBtn: false
+    });
 
     // End Update Model
 </script>
