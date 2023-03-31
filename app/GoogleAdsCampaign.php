@@ -91,4 +91,9 @@ class GoogleAdsCampaign extends Model
     {
         return $this->hasOne(\App\GoogleAdsAccount::class, 'id', 'account_id');
     }
+
+    public function target_languages()
+    {
+        return $this->hasMany(\App\Models\GoogleCampaignTargetLanguage::class, 'adgroup_google_campaign_id', 'google_campaign_id');
+    }
 }

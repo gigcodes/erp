@@ -20,6 +20,8 @@ use App\GoogleAdsCampaign;
 use App\GoogleAdsGroup;
 use Storage;
 
+use App\Helpers\GoogleAdsHelper;
+
 class GoogleAdGroupKeywordController extends Controller
 {
     const PAGE_LIMIT = 500;
@@ -141,18 +143,10 @@ class GoogleAdGroupKeywordController extends Controller
 
         try {
 
-            $storagepath = $this->getstoragepath($account_id);
-
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
+            // $storagepath = $this->getstoragepath($account_id);
 
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             // Start keyword
             ini_set('max_execution_time', -1);
@@ -240,7 +234,7 @@ class GoogleAdGroupKeywordController extends Controller
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
-        $storagepath = $this->getstoragepath($account_id);
+        // $storagepath = $this->getstoragepath($account_id);
 
         $where = array(
                     'google_adgroup_id' => $adGroupId,
@@ -251,16 +245,8 @@ class GoogleAdGroupKeywordController extends Controller
         $keyword = GoogleAdGroupKeyword::where($where)->firstOrFail();
 
         try {
-            // Get OAuth2 configuration from file.
-            $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
             // Generate a refreshable OAuth2 credential for authentication.
-            $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-            $googleAdsClient = (new GoogleAdsClientBuilder())
-                                ->from($oAuth2Configuration)
-                                ->withOAuth2Credential($oAuth2Credential)
-                                ->build();
+            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
             // Creates ad group criterion resource name.
             $adGroupCriterionResourceName =

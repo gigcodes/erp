@@ -113,7 +113,7 @@
                      <label for="campaign-status" class="col-form-label">ChannelSub Type</label>
                      <div class="form-input">
                          <select class="browser-default custom-select" id="channel_sub_type" name="channel_sub_type" style="height: auto">
-                             {{-- <option value="">---select subtype---</option> --}}
+                             <option value="">Select subtype</option>
                              <option value="UNSPECIFIED" selected>Unspecified</option>
                              <option value="SEARCH_MOBILE_APP">Mobile App Campaigns for search</option>
                              <option value="DISPLAY_MOBILE_APP">Mobile App Campaigns for display</option>
@@ -192,6 +192,7 @@
                         <label for="campaign-status" class="col-form-label">Bidding Strategy</label>
                         <div id="biddingStrategyType_second_div">
                             <select class="browser-default custom-select" id="biddingStrategyType" name="biddingStrategyType" style="height: auto">
+                                <option value="">Select bidding strategy</option>
                                 @foreach($biddingStrategyTypes as $bskey=>$bs)
                                     <option value="{{$bskey}}">{{$bs}}</option>
                                 @endforeach
@@ -280,7 +281,7 @@
                 </div>
             </div>
         </div>
-        <div class="row m-0 mb-4">
+        <div class="row m-0">
             <div class="col-md-6 pl-0 pr-3">
                 <div class="form-group m-0 mb-3">
                     <label for="start-date" class="col-form-label">End Date</label>
@@ -292,6 +293,21 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-6 pr-0 pl-0">
+                <div class="form-group m-0 mb-5">
+                    <label for="campaign-status" class="col-form-label">Target Languages</label>
+                    <div class="status-selection">
+                        <select class="form-control multiselect" id="target_languages" name="target_languages[]" style="height: auto" multiple>
+                            @foreach(\App\Models\GoogleLanguageConstant::whereIsTargetable(true)->orderBy('name', 'ASC')->get() as $lang)
+                                <option value="{{ $lang->google_language_constant_id }}">{{ $lang->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row m-0 mb-4">
             <div class="col-md-6 pr-0 pl-0">
                 <div class="form-group m-0 mb-5">
                     <label for="campaign-status" class="col-form-label">Campaign status</label>
@@ -366,9 +382,11 @@
 
         //end re-arranging everything
 
-        if(bidding_focus_on_val=="conversions"){
-            biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
-        }
+        biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+
+        // if(bidding_focus_on_val=="conversions"){
+        //     biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
+        // }
         
         if(channel_type.val()=="MULTI_CHANNEL"){
             biddingStrategyArray=['TARGET_CPA'];
@@ -379,6 +397,8 @@
                 $("#biddingStrategyType option[value=" + v + "]").show();
             });
         }
+
+        $('#biddingStrategyType option:not([hidden]):eq(0)').prop('selected', true).change();
 
     }
 
@@ -422,7 +442,6 @@
         }else{
             $("#div_html_append_1").hide();
         } 
-
     });
 
     $("#directiBiddingSelect").click(function(){
@@ -447,6 +466,8 @@
                 $("#biddingStrategyType option[value=" + v + "]").show();
             });
         }
+
+        $('#biddingStrategyType option:not([hidden]):eq(0)').prop('selected', true).change();
     });
     
     $("#resetBiddingSection").click(function(){
@@ -464,6 +485,8 @@
                 $("#biddingStrategyType option[value=" + v + "]").show();
             });
         }
+
+        $('#biddingStrategyType option:not([hidden]):eq(0)').prop('selected', true).change();
 
     });
 
@@ -510,6 +533,7 @@
             });
         }
 
+        $('#channel_sub_type option:not([hidden]):eq(0)').prop('selected', true).change();
         // $("#channel_sub_type").select2("destroy");
         // $("#channel_sub_type").select2();
     }
@@ -526,6 +550,17 @@
         }
     }
 
+
+    $("#target_languages").multiselect({
+        allSelectedText: 'All',
+        includeSelectAllOption: true,
+        selectAllName: 'all_target_languages',
+        enableFiltering: true,
+        includeFilterClearBtn: false
+    });
+
+    $("#target_languages").multiselect('selectAll', false);
+    $("#target_languages").multiselect('updateButtonText');
 });
 </script>
 {{--@endsection--}}

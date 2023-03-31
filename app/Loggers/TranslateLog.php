@@ -3,9 +3,12 @@
 namespace App\Loggers;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TranslateLog extends Model
 {
+    use SoftDeletes;
+    
     public static function log($result)
     {
         // Log result to database

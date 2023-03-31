@@ -166,6 +166,7 @@ use App\Console\Commands\DevAPIReport;
 use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Schema;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 
 //use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
@@ -543,7 +544,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('cold-leads:move-to-customers')->daily();
 
         // send only cron run time
-        if (! env('CI')) {
+        if ((!env('CI')) && (Schema::hasTable('chat_messages'))) {
             $queueStartTime = \App\ChatMessage::getStartTime();
             $queueEndTime = \App\ChatMessage::getEndTime();
             $queueTime = \App\ChatMessage::getQueueTime();
@@ -732,6 +733,9 @@ class Kernel extends ConsoleKernel
 
         //Store Google Ad Reporting Data
         $schedule->command('store:ads-reporting-data')->hourly();
+
+        //Telescope Remove Logs Every 72Hrs
+        $schedule->command('telescope:prune --hours=72')->daily();
     }
 
     /**`
