@@ -4535,6 +4535,8 @@ Route::middleware('auth')->prefix('totem')->group(function () {
         Route::get('/', [TasksController::class, 'index'])->name('totem.tasks.all');
         Route::get('{task}', [TasksController::class, 'view'])->name('totem.task.view');
         Route::post('{task}/delete', [TasksController::class, 'destroy'])->name('totem.task.delete');
+        Route::post('{task}/edit', [TasksController::class, 'update'])->name('totem.task.update');
+        Route::post('create', [TasksController::class, 'store'])->name('totem.task.create');
         Route::post('{task}/status', [TasksController::class, 'status'])->name('totem.task.status');
         Route::get('{task}/development-task', [TasksController::class, 'developmentTask'])->name('totem.task.developmentTask');
         Route::post('{task}/get-error', [TasksController::class, 'totemCommandError'])->name('totem.task.get-error');

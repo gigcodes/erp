@@ -84,7 +84,7 @@ table tr td {
 }
 </style>
 @endsection
-
+<?php /*print_r($developer_module); */?>
 @section('large_content')
     <script src="/js/jquery.jscroll.min.js"></script>
 
@@ -139,6 +139,7 @@ table tr td {
                         <tr>
                             <th width="2%" class="tablesorter-header category">#</th>
                             <th width="5%" class="tablesorter-header category" >Description</th>
+                            <th width="5%" class="tablesorter-header category" >Module</th>
                             <th width="8%" class="tablesorter-header category">Average Runtime</th>
                             <th width="5%" class="tablesorter-header category">Last Run</th>
                             <th width="5%" class="tablesorter-header category">Next Run</th>
@@ -152,6 +153,9 @@ table tr td {
                                 <td>{{$task->id}}</td>
                                 <td >
                                         {{Str::limit($task->description, 30)}}
+                                </td>
+                                <td>
+                                    {{$task->developer_module_id ? $developer_module->find($task->developer_module_id)->name : ''}}
                                 </td>
                                 <td>
                                     {{ number_format(  $task->averageRuntime / 1000 , 2 ) }} seconds
@@ -418,21 +422,6 @@ table tr td {
                             <input class="form-control" placeholder="e.g. --type=all for options or name=John for arguments" name="parameters" id="parameters" value="" type="text">
                             <p class="d-none"></p>
                         </div>
-                        <div class="form-group">
-                            <label>Command</label><i class="fa fa-info-circle" title="Select an artisan command to schedule"></i>
-                            <select id="command" name="command" class="form-control select2" width="100%" placeholder="Click here to select one of the available commands">
-                                <option value="">Select a module</option>
-                                @forelse ($commands as $k => $command)
-                                    <optgroup label="{{$command->getName()}}">
-                                        <option value="{{$command->getName()}}">
-                                            {{$command->getDescription()}}
-                                        </option>
-                                    </optgroup>
-                                    <p class="d-none"></p>
-                                @empty
-                                @endforelse
-                            </select>
-                        </div>
                         <hr>
                         <div class="form-group">
                             <label>Timezone</label><i class="fa fa-info-circle" title="Select a timezone for your task. App timezone is selected by default"></i>
@@ -444,7 +433,15 @@ table tr td {
                                 <p class="d-none"></p>
                                 @endforeach
                             </select>
-                        </div> 
+                        </div>
+                        <div class="form-group">
+                            <label>Module</label><i class="fa fa-info-circle" title="Select a module"></i>
+                            <select id="developer_module_id" name="developer_module_id" class="form-control select2" placeholder="Select a module">
+                                @foreach($developer_module as  $module)
+                                    <option value="{{$module->id}}">{{$module->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label>Type</label><i class="fa fa-info-circle" title="Choose whether to define a cron expression or to add frequencies"></i><br>
                             <label>
@@ -576,27 +573,31 @@ table tr td {
 
 <script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
-    $('ul.pagination').hide();
+    // $('ul.pagination').hide();
     $(function() {
         $(".table").tablesorter();
-        $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').hide();
-                setTimeout(function(){
-                    $('ul.pagination').first().remove();
-                }, 2000);
-                $(".select-multiple").select2();
-                initialize_select2();
-            }
-        });
+        // $('.infinite-scroll').jscroll({
+        //     autoTrigger: true,
+        //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        //     padding: 2500,
+        //     nextSelector: '.pagination li.active + li a',
+        //     contentSelector: 'div.infinite-scroll',
+        //     callback: function() {
+        //         $('ul.pagination').hide();
+        //         setTimeout(function(){
+        //             $('ul.pagination').first().remove();
+        //         }, 2000);
+        //         $(".select-multiple").select2();
+        //         initialize_select2();
+        //     }
+        // });
     });
 
     $('#command').select2({
+        dropdownParent: $('#addEditTaskModal')
+    });
+
+    $('#developer_module_id').select2({
         dropdownParent: $('#addEditTaskModal')
     });
 
@@ -606,18 +607,6 @@ table tr td {
         $(this).attr('data-id', '');
         $('#addEditTaskModal .modal-title').html('Create task');
         $('.freq').html('<tr><td class="default_td">No Frequencies Found</td></tr>');
-    });
-
-    $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').first().remove();
-                $(".select-multiple").select2();
-            }
     });
 
     $(document).on("click",".view-task",function(e) {
@@ -977,7 +966,7 @@ table tr td {
             url: "/totem/tasks/"+$(this).data('id'),  
             dataType : "json",
             success: function (response) {
-                let task_fields = response  .task;
+                let task_fields = response.task;
                 for (var key in task_fields) {
                     if($(`input[name="${key}"]`).length != 0){
                         $(`input[name="${key}"]`).val(task_fields[key]);
