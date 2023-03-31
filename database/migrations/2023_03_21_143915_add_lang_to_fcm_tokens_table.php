@@ -14,7 +14,7 @@ class AddLangToFcmTokensTable extends Migration
     public function up()
     {
         Schema::table('fcm_tokens', function (Blueprint $table) {
-            $table->string('lang')->default('en')->after('device_id');
+            $table->string('lang')->after('device_id');
         });
     }
 

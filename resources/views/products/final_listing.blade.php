@@ -20,6 +20,10 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet"/>
+    
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    
     <style>
         .quick-edit-color {
             transition: 1s ease-in-out;
@@ -172,6 +176,13 @@
             display: inline-block;
             min-width: 5px;
             padding: 0px 4px;
+        }
+        .toggle.btn{
+            margin:0px;
+        }
+        
+        input[type=checkbox] {
+            height: 12px;
         }
     </style>
 @endsection
@@ -370,6 +381,7 @@
                                 </a>
                             </div>
                         </div>
+                        @if($pageType != "images")
                         <div class="col-sm-2" style="display: flex;">
                             <div class="form-group">
                                 <input type="button" onclick="pushProduct()" class="btn btn-secondary" value="Push product"/>
@@ -383,6 +395,7 @@
                                 <input type="button" class="btn btn-secondary delete-out-of_stock" value="Delete OutOfStock products"/>
                             </div>  
                         </div>
+                        @endif
                     </div>
                     
                 <div class="row">                    
@@ -398,10 +411,12 @@
                     </div>
                 </div>
             </form>
-            <input type="button" value="Auto push product - {{$auto_push_product == 0 ? 'Not Active' : 'Active'}}" class=" btn-{{$auto_push_product == 0 ? 'secondary' : 'primary'}} active autopushproduct"style="height:34px; border:1px
-            solid transparent;border-radius: 4px;margin-left:16px;background-color: #6c757d;" auto_push_value="{{$auto_push_product}}">
+            <label class="checkbox-inline">
+                Auto push product: <input id="autopushproduct_toggle" type="checkbox" data-on="Active" data-off="Not Active" {{$auto_push_product == 1 ? 'checked' : ''}} data-onstyle="secondary" data-toggle="toggle"> 
+            </label>
+            @if($pageType != "images")
             <input type="button" onclick="conditionsCheck()" class="btn btn-secondary" value="Proceed to conditions check"/>
-
+            @endif
         </div>
     </div>
 
@@ -622,6 +637,9 @@
 
     <script type="text/javascript">
         var categoryJson = <?php echo json_encode($category_array); ?>;
+        $(function() {
+            $('#autopushproduct_toggle').bootstrapToggle();
+        })
         $(document).on('change', '.category_level_1', function () {
             var this_ = $(this);
             var category_id = $(this).val();
@@ -688,26 +706,26 @@
             });
         });
        
-        $(document).on('click','.autopushproduct',function(){
+        $(document).on('change','#autopushproduct_toggle',function(){
+            var autopushproduct_toggle = $(this).prop('checked');
+            var auto_push_value = 0;
+                if(autopushproduct_toggle) {
+                    auto_push_value = 1;
+                }
             $.ajax({
                 url: "{{ url('products') }}/changeautopushvalue",
                 type: 'POST',
                 data: {
-                    auto_push_value: $(this).attr("auto_push_value"),
+                    auto_push_value: auto_push_value,
                     _token: "{{csrf_token()}}",
                 },
                 success: function (data) {
                     $(self).val('');
                     toastr['success']('value changed successfully', 'Success')
                     console.log(data.data)
-                    $(".autopushproduct").attr("auto_push_value",data.data);
                     if(data.data == 0){
-                        $(".autopushproduct").removeClass("btn-primary").addClass("btn-secondary");
-                        $(".autopushproduct").val("Auto push product - Not Active")
                         $(".fa-upload").removeClass("hide");
                     }else{
-                        $(".autopushproduct").removeClass("btn-secondary").addClass("btn-primary");
-                        $(".autopushproduct").val("Auto push product - Active")
                         $(".fa-upload").addClass("hide");
                     }
                 }
@@ -2009,6 +2027,7 @@
         $(document).on('click', '.reject-product-cropping', function(){
             var product_id = $(this).data('product_id');
             var site_id = $(this).data('site_id');
+            
             const data = {
                 _token: "{{ csrf_token() }}",
                 product_id: $(this).data('product_id'),
@@ -2025,6 +2044,7 @@
                 $(cssId).html('Rejected');
                 if(response.code == 200) {
                     toastr['success'](response.message, 'Success')
+                    $('tbody .site_list_box[productid="'+product_id+'"][siteid="'+site_id+'"]').remove();
                 }
             }).fail(function (response) {
                 alert('Could not update status');
@@ -2046,6 +2066,8 @@
                 var cssId = '#reject-all-cropping'+product_id;
                 $(cssId).text('All Rejected');
                 if(response.code == 200) {
+                    $('thead[productid="'+product_id+'"]').remove();
+                    $('tbody[productid="'+product_id+'"]').remove();
                     toastr['success'](response.message, 'Success')
                 }
             }).fail(function (response) {
@@ -2064,7 +2086,7 @@
                 console.log("in scroll")
                 let product_id = $(".infinite-scroll-data table tbody .col-md-12").eq(i-1).attr("productid");
                 console.log(product_id)
-              if($(".autopushproduct").attr("auto_push_value") == "1" && product_id != undefined && old_product != product_id){
+              if($("#autopushproduct_toggle").prop('checked') && product_id != undefined && old_product != product_id){
                 old_product = product_id
               //  alert("auto update");
                 var ajaxes = [];
