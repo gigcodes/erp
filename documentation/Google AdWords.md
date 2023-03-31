@@ -1,13 +1,13 @@
 # Google AdWords Account, Campaign, Ads Group and Ads
 
-The account module is the representation of the Google Ads account, which provide to manage campaign, ads group and using Google Ads API. These module are handling with the following tables: `googleadsaccounts`, `googlecampaigns`, `googleadsgroups`, `googleads`, `google_responsive_display_ads`, `google_responsive_display_ad_marketing_images`, `google_app_ads` and `google_app_ad_images`.
+The account module is the representation of the Google Ads account, which provide to manage campaign, ads group and using Google Ads API. These module are handling with the following tables: `googleadsaccounts`, `googlecampaigns`, `googleadsgroups`, `googleads`, `google_responsive_display_ads`, `google_responsive_display_ad_marketing_images`, `google_app_ads`,  `google_language_constants`, `google_campaign_target_languages` and `google_app_ad_images`.
 
 *API Reference:* https://developers.google.com/google-ads/api/docs/first-call/overview \
 *Used PHP Package:* https://github.com/googleads/google-ads-php
 
 ## Account
 The account module store the configuration information to access Google Ads API for manage campaign, ads group and ads.
- - **Create:** It can be created by adding data in the create form. User have to enter account name, store website, config file, and choose status. 
+ - **Create:** It can be created by adding data in the create form. User have to enter account name, store website, notes, google adwords client account email, google adwords client account password, google adwords manager account customer id, google adwords manager account email, google adwords manager account password, google adwords manager account developer token, oauth2 client id, oauth2 client secret, oauth2 refresh token, and choose status. 
  - **Edit:** An edit option is available in this module to edit the all data that we entered in the creation time of the account.
  - **Delete** option will permanently delete an account.
  - **Create Campaign** option will allow to manage campaign regarding thing.
@@ -16,7 +16,7 @@ The account module store the configuration information to access Google Ads API 
 
 ## Campaign
 The campaign module has store budget details, billing detail and other details of campaign to manage ads group and ads using Google Ads API.
- - **Create:** It can be created by adding data in the create form. User have to enter campaign name, channel type, channel sub type, shopping setting, bidding details, URL details, budget amount, duration and status. 
+ - **Create:** It can be created by adding data in the create form. User have to enter campaign name, channel type, channel sub type, shopping setting, bidding details, URL details, budget amount, duration, target languages and status. 
  - **Edit:** An edit option is available in this module to edit the camapign name, bidding details, budget amount, duration and status. 
  - **Delete** option will permanently delete campaign from database as well as Google Ads account.
  - **Ad Groups** option will allow to manage campaign's ads group thing.
@@ -60,3 +60,9 @@ The ads group module has store group name, budget amount and status of ads group
      - **View:** A view option is available in this module to show details of the all data that we entered in the creation time.
 
     *API Reference:* https://developers.google.com/google-ads/api/docs/app-campaigns/create-ad-group
+    
+## Target Languages
+Here, created a seeder file to store available language records of Google Ads API in the database. 
+-   **Seeder Name:** StoreGoogleLanguageConstantSeeder
+
+*API Reference:* https://developers.google.com/google-ads/api/samples/search-for-language-and-carrier-constants 

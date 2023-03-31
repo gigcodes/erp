@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Loggers\TranslateLog;
 use App\Translations;
+use Exception;
 use Illuminate\Http\Request;
 
 class TranslationController extends Controller
@@ -140,8 +141,22 @@ class TranslationController extends Controller
         if (isset($request->id)) {
             $translateLog = $translateLog->where('google_traslation_settings_id', $request->id);
         }
-        $translateLog = $translateLog->get();
+        $translateLog = $translateLog->orderBy('id', "desc")->get();
 
         return view('translation.log', compact('translateLog'));
+    }
+
+    /**
+     * Soft deletes the log
+     */
+    public function markAsResolve(Request $request)
+    {
+        try {
+            if (isset($request->id)) {
+                TranslateLog::find($request->id)->delete();
+                return true;
+            }
+        } catch (Exception $e) {}
+        return false;
     }
 }

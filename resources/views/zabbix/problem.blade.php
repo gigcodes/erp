@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Problem List')
+
 @section('large_content')
 
 @section('styles')
@@ -59,38 +61,96 @@
 
 </style>
 @endsection
-<div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+
+
+<div class="container " style="max-width: 100%;width: 100%;">
+    <div class="row">
+        <div class="col-md-12 p-0">
+            <h2 class="page-heading">Problem List(<span id="ads_account_count">{{ $totalentries }}</span>)</h2>
+        </div>
     </div>
-<div class="row">
-	<div class="col-md-12 p-0">
-		<h2 class="page-heading">Problem List</h2>
-	</div>
-</div>
 
+    <div class="col-md-12">
+        <form action="{{ route('zabbix.problem') }}" method="GET">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-2 pl-0 pr-3">
+                        <select class="form-control select-multiple" name="host_name">
+                            <option selected>Host Name</option>
+                            @foreach($search_data->unique('hostname') as $key => $hostname)
+                                @if($hostname->hostname != '')
+                                    <option value="{{ $hostname->hostname }}" {{ request()->get('host_name') == $hostname->hostname ? 'selected' : '' }}>{{ $hostname->hostname }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 pl-0 pr-0">
+                        <select class="form-control select-multiple" name="event_id">
+                            <option selected>Event ID</option>
+                            @foreach($search_data->unique('eventid') as $key => $event_id)
+                                @if($event_id->eventid != '')
+                                    <option value="{{ $event_id->eventid }}" {{ request()->get('event_id') == $event_id->eventid ? 'selected' : '' }}>{{ $event_id->eventid }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 pr-2">
+                        <select class="form-control select-multiple" name="object_id">
+                            <option selected>Object ID</option>
+                            @foreach($search_data->unique('objectid') as $key => $object_id)
+                                @if($object_id->objectid != '')
+                                    <option value="{{ $object_id->objectid }}" {{ request()->get('object_id') == $object_id->objectid ? 'selected' : '' }}>{{ $object_id->objectid }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 pr-2">
+                        <select class="form-control select-multiple" name="problem">
+                            <option selected>Problem</option>
+                            @foreach($search_data->unique('name') as $key => $problem)
+                                @if($problem->name != '')
+                                <option value="{{ $problem->name }}" {{ request()->get('problem') == $problem->name ? 'selected' : '' }}>{{ $problem->name }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 mt-2 pl-0 d-flex">
+                        <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}"></button>
 
+                        <a href="{{route('zabbix.problem')}}" type="button" class="btn btn-image pl-0" id="resetFilter"><img src="{{asset('/images/resend2.png')}}" /></a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 
-<div class="table-responsive mt-3" style="margin-top:20px;">
-      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="problem-table">
-        <thead>       
+    <div class="table-responsive mt-3">
+        {{ $problems->links() }}
+        <table class="table table-bordered w-100" id="adsaccount-table">
+            <thead>
             <tr>
                 <th>Id</th>
                 <th>Hostname</th>
                 <th>Event Id</th>
                 <th>Object ID</th>
-                <th>Problem</th>                
+                <th>Problem</th>
             </tr>
-        </thead>
-        <tbody> 
-            
-        </tbody>
-      </table>
-      <div class="pagination-custom">
-       
-      </div> 
+            </thead>
+
+            <tbody>
+            @foreach($problems as $problem)
+                <tr>
+                    <td>{{$problem->id}}</td>
+                    <td>{{$problem->hostname}}</td>
+                    <td>{{$problem->eventid}}</td>
+                    <td>{{$problem->objectid}}</td>
+                    <td>{{$problem->name}}</td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
-
-
 
 
 @endsection
@@ -158,6 +218,7 @@
                 ],
             });
         });
+
     </script>
 
 

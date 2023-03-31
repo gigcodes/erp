@@ -16,5 +16,5 @@ class FcmToken extends Model
      * @SWG\Property(property="token",type="string")
      * @SWG\Property(property="store_website_id",type="integer")
      */
-    protected $fillable = ['token', 'store_website_id', 'device_id'];
+    protected $fillable = ['token', 'store_website_id', 'device_id', 'lang'];
 }

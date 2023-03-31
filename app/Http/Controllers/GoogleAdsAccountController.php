@@ -18,11 +18,14 @@ use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
 use App\Models\GoogleAdGroupKeyword;
 use App\Models\GoogleResponsiveDisplayAd;
 use App\Models\GoogleResponsiveDisplayAdMarketingImage;
+use App\Models\GoogleCampaignTargetLanguage;
 use App\Models\GoogleAppAd;
 use App\Models\GoogleAppAdImage;
 use App\GoogleAd;
 use App\GoogleAdsGroup;
 use App\GoogleAdsCampaign;
+
+use App\Helpers\GoogleAdsHelper;
 
 class GoogleAdsAccountController extends Controller
 {
@@ -94,22 +97,27 @@ class GoogleAdsAccountController extends Controller
             'google_customer_id' => 'required|integer',
             'account_name' => 'required',
             'store_websites' => 'required',
-            'config_file_path' => 'required',
+            // 'config_file_path' => 'required',
             'status' => 'required',
             'notes' => 'required',
+            'google_adwords_client_account_email' => 'required|email',
+            'google_adwords_client_account_password' => 'required',
+            'google_adwords_manager_account_customer_id' => 'required|integer',
+            'google_adwords_manager_account_developer_token' => 'required',
+            'google_adwords_manager_account_email' => 'required|email',
+            'google_adwords_manager_account_password' => 'required',
+            'oauth2_client_id' => 'required',
+            'oauth2_client_secret' => 'required',
+            'oauth2_refresh_token' => 'required',
         ]);
 
         try {
-            $accountArray = [
-                'google_customer_id' => $request->google_customer_id,
-                'account_name' => $request->account_name,
-                'store_websites' => $request->store_websites,
-                'notes' => $request->notes,
-                'status' => $request->status,
-            ];
-            $googleadsAc = \App\GoogleAdsAccount::create($accountArray);
+
+            $input = $request->all();
+            $googleadsAc = \App\GoogleAdsAccount::create($input);
             $account_id = $googleadsAc->id;
-            if ($request->file('config_file_path')) {
+
+            /*if ($request->file('config_file_path')) {
 
                 ini_set('max_execution_time', -1);
 
@@ -119,7 +127,7 @@ class GoogleAdsAccountController extends Controller
                 $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
                 $googleadsAc->config_file_path = $getfilename;
                 $googleadsAc->save();
-            }
+            }*/
 
             // Insert google ads log 
             $input = array(
@@ -170,19 +178,23 @@ class GoogleAdsAccountController extends Controller
             'account_name' => 'required',
             'store_websites' => 'required',
             'status' => 'required',
+            'google_adwords_client_account_email' => 'required|email',
+            'google_adwords_client_account_password' => 'required',
+            'google_adwords_manager_account_customer_id' => 'required|integer',
+            'google_adwords_manager_account_developer_token' => 'required',
+            'google_adwords_manager_account_email' => 'required|email',
+            'google_adwords_manager_account_password' => 'required',
+            'oauth2_client_id' => 'required',
+            'oauth2_client_secret' => 'required',
+            'oauth2_refresh_token' => 'required',
         ]);
 
         try {
-            $accountArray = [
-                'google_customer_id' => $request->google_customer_id,
-                'account_name' => $request->account_name,
-                'store_websites' => $request->store_websites,
-                'notes' => $request->notes,
-                'status' => $request->status,
-            ];
+            $input = $request->all();
             $googleadsAcQuery = new \App\GoogleAdsAccount;
             $googleadsAc = $googleadsAcQuery->find($account_id);
-            if ($request->file('config_file_path')) {
+            
+            /*if ($request->file('config_file_path')) {
 
                 ini_set('max_execution_time', -1);
                 
@@ -194,9 +206,9 @@ class GoogleAdsAccountController extends Controller
                     ->toDestination('adsapi', $account_id)
                     ->upload();
                 $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
-                $accountArray['config_file_path'] = $getfilename;
-            }
-            $googleadsAc->fill($accountArray);
+                $input['config_file_path'] = $getfilename;
+            }*/
+            $googleadsAc->fill($input);
             $googleadsAc->save();
 
             // Insert google ads log 
@@ -329,7 +341,7 @@ class GoogleAdsAccountController extends Controller
         try {
             $account_id = $id;
             $customerId = $googleAdsAc->google_customer_id;
-            $storagepath = $this->getstoragepath($account_id);
+            // $storagepath = $this->getstoragepath($account_id);
 
             $googleAdsCampaigns = GoogleAdsCampaign::where('account_id', $account_id)->get();
 
@@ -338,16 +350,8 @@ class GoogleAdsAccountController extends Controller
 
 
                 try {
-                    // Get OAuth2 configuration from file.
-                    $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
-
                     // Generate a refreshable OAuth2 credential for authentication.
-                    $oAuth2Credential = (new OAuth2TokenBuilder())->from($oAuth2Configuration)->build();
-
-                    $googleAdsClient = (new GoogleAdsClientBuilder())
-                                        ->from($oAuth2Configuration)
-                                        ->withOAuth2Credential($oAuth2Credential)
-                                        ->build();
+                    $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
                     // Creates the resource name of a campaign to remove.
                     $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
@@ -372,6 +376,7 @@ class GoogleAdsAccountController extends Controller
                 GoogleAppAdImage::where('adgroup_google_campaign_id', $campaignId)->delete();
                 GoogleAd::where('adgroup_google_campaign_id', $campaignId)->delete();
                 GoogleAdsGroup::where('adgroup_google_campaign_id', $campaignId)->delete();
+                GoogleCampaignTargetLanguage::where('adgroup_google_campaign_id', $campaignId)->delete();
 
                 $campaign->delete();
             }

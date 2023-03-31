@@ -81,6 +81,7 @@
             <tr>
                 <th>No</th>
                 <th>File Name</th>
+                <th>Category</th>
                 <th>Created At</th>
                 <th>URL</th>
                 <th>Action</th>
@@ -94,6 +95,7 @@
 
     @include('googledocs.partials.create-doc')
     @include('googledocs.partials.update-doc-permissions')
+    @include('googledocs.partials.update-doc')
 @endsection
 @section('scripts')
 <script type="text/javascript">
@@ -120,6 +122,19 @@ $(document).on('click', '.permissionupdate', function (e) {
 		$('#file_id').val(file_id);
         $('#id').val(id);
 	
+	});
+    $(document).on('click', '.google-doc-update', function (e) {
+		var action = $(this).data('action');
+        $.ajax({
+            type: "GET",
+            url: action,
+            data: {_token: "{{ csrf_token() }}"},
+            dataType: "json",
+            success: function (response) {
+                $('#updateGoogleDocModal input[name=doc_category]').val(response.data.category);
+                $('#updateGoogleDocModal input[name=id]').val(response.data.id);
+            }
+        });
 	});
     </script>
 @endsection

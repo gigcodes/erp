@@ -45,6 +45,7 @@ class ZabbixStore extends Command
         if ($auth_key != 0) {
             $hosts = $this->host_api($auth_key);
             if (! empty($hosts)) {
+                $hostItems = [];
                 foreach ($hosts as $host) {
                     $check_if_host_id_exist = Host::where('hostid', $host->hostid)->first();
                     if (! is_null($check_if_host_id_exist)) {
@@ -52,7 +53,7 @@ class ZabbixStore extends Command
                             'name' => $host->name,
                             'host' => $host->host,
                         ];
-                        Host::where('hostid', $host->hostid)->update($hostarray);
+                        //Host::where('hostid', $host->hostid)->update($hostarray);
                         $items = $this->item_api($auth_key, $host->hostid);
                     } else {
                         $hostarray = [
@@ -61,13 +62,16 @@ class ZabbixStore extends Command
                             'host' => $host->host,
                         ];
                         $last_host_id = Host::create($hostarray);
-                        $hostitems = [
+                        $hostItems[] = [
                             'host_id' => $last_host_id->id,
                             'hostid' => $host->hostid,
                         ];
-                        HostItem::create($hostitems);
                     }
                 }
+                if (count($hostItems)) {
+                    HostItem::create($hostItems);
+                }
+                
             }
         }
     }

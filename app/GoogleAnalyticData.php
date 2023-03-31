@@ -24,5 +24,8 @@ class GoogleAnalyticData extends Model
         'session',
         'age',
         'gender',
+        'exception',
+        'log',
+        'device',
     ];
 }
