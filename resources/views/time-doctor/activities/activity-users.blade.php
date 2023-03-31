@@ -126,8 +126,7 @@
                                 $totalApproved +=  $user['totalApproved'];
                                 $totalPending +=  $user['totalPending'];
                                 $totalUserRequested +=  $user['totalUserRequest'];
-                                $totalPaymentPending +=  $user['totalNotPaid'];
-
+                                $totalPaymentPending +=  $user['totalNotPaid'];                                
                             @endphp
                             <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
                             <td colspan="6">                                
@@ -143,7 +142,7 @@
                                             }
                                             else {
                                                 $est_time = 0;
-                                            }
+                                            }                                            
                                         ?>
                                         @if ( $taskid )
                                         <tr>
@@ -159,13 +158,14 @@
                                                     <span style="word-break:break-all;" class="show-full-devtask-{{$taskid}} hidden">{{$devtask}}</span>
                                                 </a>
                                                 <?php } ?>
-                                            </td>
+                                            </td>                                                                                   
                                             <td width="10%"class="Website-task">
-                                                @if ($taskName)
-                                                    {{ (isset($trackedTime) && $devtask ) ? number_format($trackedTime / 60,2,".",",") : 'N/A' }}
-                                                @endif
+                                                @if ($taskName)                                                    
+                                                    {{number_format($user['total_tracked'] / 60,2,".",",")}}
+                                                @endif                                                                                                
+                                                <button type="button" class="btn btn-xs show-total-account" title="Show Account" data-id="{{$user['system_user_id']}}" data-task-id="{{$taskid}}" data-toggle="modal" data-target="#timeDoctorTimeDetailModel" ><i class="fa fa-info-circle"></i></button>                                                
                                             </td>
-                                            <td width="11%" class="p-0 pt-1 pl-2 Website-task">
+                                            <td width="7%" class="p-0 pt-1 pl-2 Website-task">                                                
                                                 @if ($taskName)
                                                     {{ $estimation }}
                                                 @endif
@@ -475,6 +475,39 @@
                     </tr>
                 </thead>
                 <tbody class="time-doctor-payment-table"></tbody>
+            </table>
+        </div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="timeDoctorTimeDetailModel">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">TimeDoctor Time Tracked</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body" id="time_doctor_time_track">            
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Account</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="time-doctor-tracked-account"></tbody>
             </table>
         </div>
   
@@ -874,7 +907,7 @@ let r_s = jQuery('input[name="start_date"]').val();
         });
 
 
-        $(document).on('click', '.submit-fetch-activity', function(e) {                        
+        $(document).on('click', '.submit-fetch-activity', function(e) {                                    
         e.preventDefault();
         var form = $(this).closest("form");
         var thiss = $(this);
@@ -1090,6 +1123,33 @@ let r_s = jQuery('input[name="start_date"]').val();
                     $("#loading-image").hide();
                 });
         })
+
+        $(document).on('click', '.show-total-account', function() {            
+            var userId = $(this).attr('data-id');
+            var taskId = $(this).attr('data-task-id');
+
+            $.ajax({
+                url: "{{ route('time-doctor-activity.account_wise_time_track') }}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    task_id: taskId,
+                    user_id: userId,
+                },                
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+                }).done( function(response) {
+                    $("#loading-image").hide();
+                    if(response.status)
+                    {
+                        $("#time-doctor-tracked-account").html( response.tableData );   
+                    }
+                }).fail(function(errObj) {
+                    $("#loading-image").hide();
+                });
+        });
 
 </script>
 @endsection
