@@ -77,7 +77,7 @@ class GoogleFileTranslator extends Controller
         $languageData = Language::where('id', $insert->tolanguage)->first();
         if (file_exists($path.$insert->name)) {
             try {
-                $this->translateFile($path.$insert->name, $languageData->locale, ',');
+                $result = $this->translateFile($path.$insert->name, $languageData->locale, ',');
             } catch (\Exception $e) {
                 return redirect()->route('googlefiletranslator.list')->with('error', $e->getMessage());
             }
@@ -171,8 +171,10 @@ class GoogleFileTranslator extends Controller
                 if ($checkTranslationTable) {
                     $data[] = htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
                 } else {
+
                     $keywordToTranslate[] = $data[0];
                     $data[] = $data[0];
+
                 }
                 $newCsvData[] = $data;
             }
@@ -187,7 +189,7 @@ class GoogleFileTranslator extends Controller
             foreach ($keywordToTranslateChunk as $key => $chunk) {
                 try {
                     $googleTranslate = new GoogleTranslate();
-                    $result = $googleTranslate->translate($language, $chunk);
+                    $result = $googleTranslate->translate($language, $chunk, true);
                 } catch (\Exception $e) {
                     \Log::channel('errorlog')->error($e);
                     throw new Exception($e->getMessage());
