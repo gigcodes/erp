@@ -11,7 +11,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Route;
 
 class UserController extends Controller
 {

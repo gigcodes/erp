@@ -4342,6 +4342,7 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
 Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('/list', [TranslationController::class, 'index'])->name('translation.list');
     Route::get('translate-logs', [TranslationController::class, 'translateLog'])->name('translation.log');
+    Route::post('mark-as-resolve', [TranslationController::class, 'markAsResolve'])->name('translation.log.markasresolve');
     Route::DELETE('/delete/{id?}', [TranslationController::class, 'destroy'])->name('translation.destroy');
     Route::get('/add', [TranslationController::class, 'create'])->name('translation.add');
     Route::get('/{id?}/edit', [TranslationController::class, 'edit'])->name('translation.edit');
@@ -4727,6 +4728,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
     Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
+    Route::get('{id}/edit', [GoogleDocController::class, 'edit'])->name('.edit');
+    Route::post('/update', [GoogleDocController::class, 'update'])->name('.update');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
