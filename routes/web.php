@@ -1300,6 +1300,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/update-customer-address', [OrderController::class, 'updateCustomerInvoiceAddress'])->name('order.update.customer.address');
     Route::get('order/{id}/mail-invoice', [OrderController::class, 'mailInvoice'])->name('order.mail.invoice');
     Route::get('order/{id}/get-invoice-customer-email', [OrderController::class, 'getInvoiceCustomerEmail'])->name('get.invoice.customer.email');
+   
+    Route::get('order/get-invoice-customer-email-selected', [OrderController::class, 'getInvoiceCustomerEmailSelected']);
+    Route::get('order/mail-invoice-multi-select', [OrderController::class, 'mailInvoiceMultiSelect']);
+    Route::get('order/get-order-invoice-users', [OrderController::class, 'GetInvoiceOrderUsers']);
+
     Route::get('order/update-delivery-date', [OrderController::class, 'updateDelDate'])->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', [OrderController::class, 'viewEstDelDateHistory'])->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', [OrderController::class, 'addNewReply'])->name('order.addNewReply');
