@@ -343,6 +343,7 @@ use App\Http\Controllers\GoogleAppAdController;
 use App\Http\Controllers\GoogleAdGroupKeywordController;
 use App\Http\Controllers\GoogleAdReportController;
 use App\Http\Controllers\UnknownAttributeProductController;
+use App\Http\Controllers\CropRejectedController;
 use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
@@ -352,6 +353,7 @@ use App\Http\Controllers\TimeDoctorActivitiesController;
 Auth::routes();
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
+Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
 
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', [CustomerController::class, 'add_customer_address']);
@@ -661,6 +663,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
     Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
     Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
+    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class,'index'])->name('crop-rejected-final-approval-images');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -1003,6 +1006,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('most-used-phrases/deleted', [AutoReplyController::class, 'mostUsedPhrasesDeleted'])->name('chatbot.mostUsedPhrasesDeleted');
     Route::get('most-used-phrases/deleted/records', [AutoReplyController::class, 'mostUsedPhrasesDeletedRecords'])->name('chatbot.mostUsedPhrasesDeletedRecords');
     Route::post('settings/update', [SettingController::class, 'update']);
+    Route::get('settings/telescope', [SettingController::class, 'getTelescopeSettings']);
+    Route::post('settings/telescope/update', [SettingController::class, 'updateTelescopeSettings']);
     Route::post('settings/updateAutomatedMessages', [SettingController::class, 'updateAutoMessages'])->name('settings.update.automessages');
     Route::resource('settings', SettingController::class);
 
@@ -1335,6 +1340,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
+    Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
 
     Route::get('email/order_data/{email?}', [EmailController::class, 'index']); //Purpose : Add Route -  DEVTASK-18283
     Route::post('email/platform-update', [EmailController::class, 'platformUpdate']);
@@ -2376,6 +2382,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('supplier/updateCategoryCount', [SupplierController::class, 'updateSupplierCategoryCount'])->name('supplier.count.update');
     Route::post('supplier/deleteCategoryCount', [SupplierController::class, 'deleteSupplierCategoryCount'])->name('supplier.count.delete');
 
+    Route::get('supplier-priority', [SupplierController::class, 'getPrioritiesList'])->name('supplier-priority.list');
+    Route::post('supplier/add_new_priority', [SupplierController::class, 'addNewPriority'])->name('supplier.add_new_priority');
+    Route::get('supplier/get-supplier', [SupplierController::class, 'getSupplierForPriority'])->name('supplier.get_supplier');
+    Route::post('supplier/update_priority', [SupplierController::class, 'updateSupplierPriority'])->name('supplier.update_priority');
+    Route::get('supplier/getSupplierPriorityList', [SupplierController::class, 'getSupplierPriorityList'])->name('supplier.get_supplier_priority_list');
+
     Route::get('supplier/brandcount', [SupplierController::class, 'addSupplierBrandCount'])->name('supplier.brand.count');
     Route::post('supplier/saveBrandCount', [SupplierController::class, 'saveSupplierBrandCount'])->name('supplier.brand.count.save');
     Route::post('supplier/getBrandCount', [SupplierController::class, 'getSupplierBrandCount'])->name('supplier.brand.count.get');
@@ -2940,7 +2952,7 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/', [DatabaseController::class, 'index'])->name('database.index');
     Route::get('/tables/{id}', [DatabaseTableController::class, 'index'])->name('database.tables');
     Route::post('/tables/view-lists', [DatabaseTableController::class, 'viewList']);
-    Route::get('/states', [DatabaseController::class, 'states'])->name('database.states');
+    Route::get('/query-process-list', [DatabaseController::class, 'states'])->name('database.states');
     Route::get('/process-list', [DatabaseController::class, 'processList'])->name('database.process.list');
     Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
     Route::post('/export', [DatabaseController::class, 'export'])->name('database.export');
@@ -4720,7 +4732,10 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
     Route::get('/', [GoogleScreencastController::class, 'index'])->name('.index');
     Route::post('/', [GoogleScreencastController::class, 'create'])->name('.create');
+    Route::post('/permission-update', [GoogleScreencastController::class, 'driveFilePermissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
+    Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
+
 });
 
 //Queue Management::

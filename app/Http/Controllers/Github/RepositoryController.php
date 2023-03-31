@@ -116,7 +116,6 @@ class RepositoryController extends Controller
                         ]),
                     ]
                 );
-                echo 'done';
                 //Artisan::call('github:load_branch_state');
                 if ($source == 'master') {
                     $this->updateBranchState($repoId, $destination);
@@ -221,7 +220,7 @@ class RepositoryController extends Controller
     private function updateBranchState($repoId, $branchName)
     {
         $comparison = $this->compareRepoBranches($repoId, $branchName);
-
+        \Log::info("Add entry to GithubBranchState");
         GithubBranchState::updateOrCreate(
             [
                 'repository_id' => $repoId,
@@ -300,7 +299,7 @@ class RepositoryController extends Controller
         $pull_request_id = $request->task_id;
 
         $url = 'https://api.github.com/repositories/'.$id.'/merges';
-
+        
         try {
             $this->client->post(
                 $url,
@@ -311,7 +310,6 @@ class RepositoryController extends Controller
                     ]),
                 ]
             );
-            echo 'done';
             //Artisan::call('github:load_branch_state');
             if ($source == 'master') {
                 $this->updateBranchState($id, $destination);
@@ -335,7 +333,7 @@ class RepositoryController extends Controller
             \Log::info(print_r($allOutput, true));
 
             // Used to reset php cache after merge.
-            opcache_reset();
+            // opcache_reset();
 
             $sqlIssue = false;
             if (! empty($allOutput) && is_array($allOutput)) {
