@@ -6,8 +6,9 @@
 @section('content')
 
 <div class="row">
-	<div class="col-lg-12 margin-tb" id="process_count">
-	    <h2 class="page-heading">Database | Query Process List</h2>
+	<div class="col-lg-12 margin-tb">
+	    <h2 class="page-heading">Database | Query Process List <span id="process_count"></span>
+</h2>
 	</div>
 </div>
 
@@ -21,8 +22,11 @@
             </div>
             <div class="col-md-4 pr-5">
                 <form class="form-inline pull-right">
-                    <div class="form-group mr-2">
+                    <!-- <div class="form-group mr-2">
                         <input type="text" class="form-control" id="databaseName" placeholder="Enter database name">
+                    </div> -->
+                    <div id="progress" style="display: none;">
+                    <img src="/images/loading_new.gif" style="cursor: pointer; width: 30px;">
                     </div>
                     <button type="button" class="btn btn-secondary" onclick="dbExport()">Export Database</button>
                 </form>
@@ -54,7 +58,7 @@
             var tpl = $.templates("#template-list-state-process-list");
             var tplHtml       = tpl.render(response);
                 $(".table-process-list-disp").html(tplHtml);
-                $("#process_count h2").append(" ("+count+")");
+                $("#process_count").html(" ("+count+")");
           }
         }).fail(function(response) {
           console.log("Sorry, something went wrong");
@@ -84,13 +88,14 @@
   });
 
   function dbExport() {
-      let dbName = $('#databaseName').val();
-      if(dbName === '') {
-          toastr['error']('Please enter a valid database name!', 'error');
-          return false;
-      }
+      // let dbName = $('#databaseName').val();
+      // if(dbName === '') {
+      //     toastr['error']('Please enter a valid database name!', 'error');
+      //     return false;
+      // }
 
       if (confirm("Are you sure you want to run this command?")) {
+          $('#progress').show();
           $.ajax({
               url: "{{ route('database.export') }}",
               type: "post",
@@ -98,9 +103,10 @@
                   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
               data: {
-                  db_name: dbName
+                 // db_name: dbName
               }
           }).done(function (response) {
+              $('#progress').hide();
               if (response.code == '200') {
                   window.open(response.data, "_blank");
                   toastr['success'](response.message, 'success');

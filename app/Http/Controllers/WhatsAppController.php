@@ -4056,6 +4056,7 @@ class WhatsAppController extends FindByNumberController
         $model_id = '';
         $model_class = '';
         $toemail = '';
+        $subject = $request->get('subject')??NULL;
         if ($chat_id > 0) {
             $m = ChatMessage::where('id', $chat_id)->first();
 
@@ -4070,7 +4071,7 @@ class WhatsAppController extends FindByNumberController
 
             $model_id = $message->customer_id;
             $model_class = \App\Customer::class;
-            $toemail = '';
+            $toemail = $customer->email;
             // Check the message is email message
             /*  if( $message->is_email == 1 ){
 
@@ -4233,11 +4234,17 @@ class WhatsAppController extends FindByNumberController
                 } else {
                     $whatsapp_number = $supplier->whatsapp_number;
                 }
+                $toemail = $supplier->email;
+                $model_id = $message->supplier_id;
+                $model_class = \App\Supplier::class;
             } else {
                 if ($context == 'vendor') {
                     $vendor = Vendor::find($message->vendor_id);
                     $phone = $vendor->default_phone;
                     $whatsapp_number = $vendor->whatsapp_number;
+                    $toemail = $vendor->email;
+                    $model_id = $message->vendor_id;
+                    $model_class = \App\Vendor::class;
                 } else {
                     if ($context == 'task') {
                         $sender = User::find($message->user_id);
@@ -4415,7 +4422,7 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 if ($is_mail == 1) {
-                    $sendResult = $this->sendemail($message, $model_id, $model_class, $toemail, $chat_id);
+                    $sendResult = $this->sendemail($message, $model_id, $model_class, $toemail, $chat_id, $subject);
                 } else {
                     $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
                 }
@@ -6243,13 +6250,13 @@ class WhatsAppController extends FindByNumberController
         return response()->json(['data' => $data]);
     }
 
-    public function sendemail($message, $model_id, $model_class, $toemail, $chat_id = 0)
+    public function sendemail($message, $model_id, $model_class, $toemail, $chat_id = 0, $subject = null)
     {
         $botReply = \App\ChatbotReply::where('chat_id', $message->id)->get();
 
         $from_address = config('env.MAIL_FROM_ADDRESS');
         $cc = '';
-        $subject = null;
+        //$subject = null;
         $email_id = 0;
         $m = \App\ChatMessage::where('id', $chat_id)->first();
         if ($m) {

@@ -281,7 +281,7 @@
                 </div>
             </div>
         </div>
-        <div class="row m-0 mb-4">
+        <div class="row m-0">
             <div class="col-md-6 pl-0 pr-3">
                 <div class="form-group m-0 mb-3">
                     <label for="start-date" class="col-form-label">End Date</label>
@@ -293,6 +293,21 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-6 pr-0 pl-0">
+                <div class="form-group m-0 mb-5">
+                    <label for="campaign-status" class="col-form-label">Target Languages</label>
+                    <div class="status-selection">
+                        <select class="form-control multiselect" id="target_languages" name="target_languages[]" style="height: auto" multiple>
+                            @foreach(\App\Models\GoogleLanguageConstant::whereIsTargetable(true)->orderBy('name', 'ASC')->get() as $lang)
+                                <option value="{{ $lang->google_language_constant_id }}">{{ $lang->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row m-0 mb-4">
             <div class="col-md-6 pr-0 pl-0">
                 <div class="form-group m-0 mb-5">
                     <label for="campaign-status" class="col-form-label">Campaign status</label>
@@ -535,6 +550,17 @@
         }
     }
 
+
+    $("#target_languages").multiselect({
+        allSelectedText: 'All',
+        includeSelectAllOption: true,
+        selectAllName: 'all_target_languages',
+        enableFiltering: true,
+        includeFilterClearBtn: false
+    });
+
+    $("#target_languages").multiselect('selectAll', false);
+    $("#target_languages").multiselect('updateButtonText');
 });
 </script>
 {{--@endsection--}}

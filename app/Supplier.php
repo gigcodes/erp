@@ -137,6 +137,12 @@ class Supplier extends Model
         return $this->hasMany(\App\SupplierCategory::class);
     }
 
+    public function supplier_category()
+    {
+        return $this->belongsTo(\App\SupplierCategory::class,'supplier_category_id','id');
+    }
+
+
     public function status()
     {
         return $this->belongsToMany(\App\SupplierStatus::class, 'supplier_status', 'supplier_status_id', 'id');

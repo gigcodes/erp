@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIndexFromAndToEmailsTable extends Migration
+class AddIndexSentAndGroupIdInMessageQueuesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,10 @@ class AddIndexFromAndToEmailsTable extends Migration
      */
     public function up()
     {
-        Schema::table('emails', function (Blueprint $table) {
-            $table->index('from');
-            $table->index('to');
-            $table->index('status');
-            $table->index('type');
-            $table->index('model_type');
-            $table->index('subject');
+        Schema::table('message_queues', function (Blueprint $table) {
+            $table->index('sent');
+            $table->index('group_id');
+            $table->index('created_at');
         });
     }
 
@@ -30,7 +27,7 @@ class AddIndexFromAndToEmailsTable extends Migration
      */
     public function down()
     {
-        Schema::table('emails', function (Blueprint $table) {
+        Schema::table('message_queues', function (Blueprint $table) {
             //
         });
     }
