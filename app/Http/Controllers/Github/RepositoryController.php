@@ -221,7 +221,7 @@ class RepositoryController extends Controller
     private function updateBranchState($repoId, $branchName)
     {
         $comparison = $this->compareRepoBranches($repoId, $branchName);
-
+        \Log::info("Add entry to GithubBranchState");
         GithubBranchState::updateOrCreate(
             [
                 'repository_id' => $repoId,
@@ -236,6 +236,7 @@ class RepositoryController extends Controller
                 'last_commit_time' => $comparison['last_commit_time'],
             ]
         );
+        \Log::info("Entry added successfully to GithubBranchState");
     }
 
     private function findDeveloperTask($branchName)
@@ -300,7 +301,7 @@ class RepositoryController extends Controller
         $pull_request_id = $request->task_id;
 
         $url = 'https://api.github.com/repositories/'.$id.'/merges';
-
+        
         try {
             $this->client->post(
                 $url,
@@ -311,7 +312,6 @@ class RepositoryController extends Controller
                     ]),
                 ]
             );
-            echo 'done';
             //Artisan::call('github:load_branch_state');
             if ($source == 'master') {
                 $this->updateBranchState($id, $destination);
