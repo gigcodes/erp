@@ -4,12 +4,12 @@ The Google Ads Report page shows the report of google ads with Impression, Click
 
 1. ### Fetch log records from DB:
    It will records fetch from the `google_ads_reportings` table with the following conditions:
-   - Applying `account` relationship with `googleadsaccounts` table to fetch user details
-   - Applying `campaign` relationship with `googlecampaigns` table to fetch user details
-   - Applying `adgroup` relationship with `googleadsgroups` table to fetch user details
-   - Applying `search_ad` relationship with `googleads` table to fetch user details
-   - Applying `display_ad` relationship with `google_responsive_display_ads` table to fetch user details
-   - Applying `multi_channel_ad` relationship with `google_app_ads` table to fetch user details
+   - Applying `account` relationship with `googleadsaccounts` table to fetch account details
+   - Applying `campaign` relationship with `googlecampaigns` table to fetch campaign details
+   - Applying `adgroup` relationship with `googleadsgroups` table to fetch adgroup details
+   - Applying `search_ad` relationship with `googleads` table to fetch search ad details
+   - Applying `display_ad` relationship with `google_responsive_display_ads` table to fetch display ad details
+   - Applying `multi_channel_ad` relationship with `google_app_ads` table to fetch multi-channel ad details
    - Applying LIKE query to `google_account_id` field if request parameter `account_id` is not empty
    - Applying LIKE query to `adgroup_google_campaign_id` field if request parameter `campaign_id` is not empty
    - Applying LIKE query to `google_adgroup_id` field if request parameter `adgroup_id` is not empty

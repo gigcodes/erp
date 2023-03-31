@@ -18,6 +18,7 @@ use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
 use App\Models\GoogleAdGroupKeyword;
 use App\Models\GoogleResponsiveDisplayAd;
 use App\Models\GoogleResponsiveDisplayAdMarketingImage;
+use App\Models\GoogleCampaignTargetLanguage;
 use App\Models\GoogleAppAd;
 use App\Models\GoogleAppAdImage;
 use App\GoogleAd;
@@ -375,6 +376,7 @@ class GoogleAdsAccountController extends Controller
                 GoogleAppAdImage::where('adgroup_google_campaign_id', $campaignId)->delete();
                 GoogleAd::where('adgroup_google_campaign_id', $campaignId)->delete();
                 GoogleAdsGroup::where('adgroup_google_campaign_id', $campaignId)->delete();
+                GoogleCampaignTargetLanguage::where('adgroup_google_campaign_id', $campaignId)->delete();
 
                 $campaign->delete();
             }
