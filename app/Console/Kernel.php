@@ -732,6 +732,9 @@ class Kernel extends ConsoleKernel
 
         //Store Google Ad Reporting Data
         $schedule->command('store:ads-reporting-data')->hourly();
+
+        //Telescope Remove Logs Every 72Hrs
+        $schedule->command('telescope:prune --hours=72')->daily();
     }
 
     /**`

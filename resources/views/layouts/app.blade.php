@@ -225,7 +225,55 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/global_custom.css') }}">
     @yield("styles")
-
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: '{{env('FCM_API_KEY')}}',
+            authDomain: '{{env('FCM_AUTH_DOMAIN')}}',
+            projectId: '{{env('FCM_PROJECT_ID')}}',
+            storageBucket: '{{env('FCM_STORAGE_BUCKET')}}',
+            messagingSenderId: '{{env('FCM_MESSAGING_SENDER_ID')}}',
+            appId: '{{env('FCM_APP_ID')}}',
+            measurementId: '{{env('FCM_MEASUREMENT_ID')}}'
+        };
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+        messaging
+            .requestPermission()
+            .then(function () {
+                return messaging.getToken()
+            })
+            .then(function (response) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: '{{ route("store.token") }}',
+                    type: 'POST',
+                    data: {
+                        token: response
+                    },
+                    dataType: 'JSON',
+                    success: function (response) {
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    },
+                });
+            }).catch(function (error) {
+            alert(error);
+        });
+        messaging.onMessage(function (payload) {
+            const title = payload.notification.title;
+            const options = {
+                body: payload.notification.body,
+                icon: payload.notification.icon,
+            };
+            new Notification(title, options);
+        });
+    </script>
     <script>
     window.Laravel = '{{!!json_encode(['
     csrfToken '=>csrf_token(),'
@@ -729,6 +777,8 @@ if (!empty($notifications)) {
                                                     Replacement</a>
                                                 <a class="dropdown-item"
                                                     href="{{ action('\App\Http\Controllers\UnknownAttributeProductController@index') }}">Incorrect Attributes</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\CropRejectedController@index') }}">Crop Rejected<br>Final Approval Images</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -779,6 +829,7 @@ if (!empty($notifications)) {
                                                     Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New
                                                     Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.out-of-stock') }}">Sold Out Products</a>    
                                                 <a class="dropdown-item"
                                                     href="{{ route('listing.history.index') }}">Product Listing
                                                     history</a>
@@ -2155,7 +2206,7 @@ if (!empty($notifications)) {
                                     <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="width: fit-content !important;">
                                         <li  class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.index')}}">Google AdWords Account</a>
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
@@ -2174,6 +2225,9 @@ if (!empty($notifications)) {
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googleadreport.index')}}">Google Ads Report</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2982,7 +3036,7 @@ if (!empty($notifications)) {
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('database.states') }}">States</a>
+                                                        href="{{ route('database.states') }}">Query Process List</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -3159,7 +3213,7 @@ if (!empty($notifications)) {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('database.states') }}">Database
-                                            States</a>
+                                        Query Process List</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
@@ -3188,6 +3242,9 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
                                         <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('settings/telescope') }}">Manage Telescope </a>
                                     </li>
                                 </ul>
                             </li>

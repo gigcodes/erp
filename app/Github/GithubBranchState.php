@@ -8,6 +8,10 @@ class GithubBranchState extends Model
 {
     protected $primaryKey = ['repository_id', 'branch_name'];
 
+     protected $hidden = [
+        'created_at', 'updated_at'
+    ];
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -56,5 +60,15 @@ class GithubBranchState extends Model
         }
 
         return $this->getAttribute($keyName);
+    }
+
+    public function getKey()
+    {
+        $attributes = [];
+        foreach ($this->getKeyName() as $key) {
+            $attributes[$key] = $this->getAttribute($key);
+        }
+
+        return $attributes;
     }
 }
