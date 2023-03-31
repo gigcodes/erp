@@ -116,7 +116,6 @@ class RepositoryController extends Controller
                         ]),
                     ]
                 );
-                echo 'done';
                 //Artisan::call('github:load_branch_state');
                 if ($source == 'master') {
                     $this->updateBranchState($repoId, $destination);
