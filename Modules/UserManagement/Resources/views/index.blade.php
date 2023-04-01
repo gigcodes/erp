@@ -141,6 +141,17 @@
                     <div class="row">
                         <form class="form-inline message-search-handler" method="post">
                             <div class="col">
+                                @if (auth()->user()->isAdmin())
+                                <div class="form-group">
+                                    <a class="btn btn-secondary addToWhitelist" href="javascript:;" onclick="whitelistValueBulkUpdate(1)">Add to Whitelist</a>
+                                </div>
+                                <div class="form-group">
+                                    <a class="btn btn-secondary removeFromWhitelist" href="javascript:;" onclick="whitelistValueBulkUpdate(0)">Remove selected From Whitelist</a>
+                                </div>
+                                <div class="form-group">
+                                    <a class="btn btn-secondary removeFromWhitelist" href="javascript:;" onclick="whitelistValueBulkUpdate(2)">Remove All From Whitelist</a>
+                                </div>
+                                @endif
                                 <div class="form-group">
                                     <?php echo Form::text('keyword', request('keyword'), ['class' =>
                                     'form-control data-keyword', 'placeholder' => 'Enter keyword', 'list'=>'name-lists']); ?>
@@ -156,6 +167,15 @@
                                         <option value="1" {{ request('is_active') == 1 ? 'selected' : '' }}>Active
                                         </option>
                                         <option value="2" {{ request('is_active') == 2 ? 'selected' : '' }}>In active
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select name="is_whitelisted" class="form-control" placholder="Whitelist:">
+                                        <option value="0" {{ request('is_whitelisted') == 0 ? 'selected' : '' }}>All</option>
+                                        <option value="1" {{ request('is_whitelisted') == 1 ? 'selected' : '' }}>Whitelisted
+                                        </option>
+                                        <option value="2" {{ request('is_whitelisted') == 2 ? 'selected' : '' }}>Not Whitelisted
                                         </option>
                                     </select>
                                 </div>
@@ -1421,7 +1441,50 @@
     $(document).on('click', '#selectAll', function(event) {
         $("input[name='permissions[]']").prop('checked', $(this).prop('checked'));
     });
-
+    function whitelistValueBulkUpdate(action)
+    {
+        event.preventDefault();
+        var users = [];
+        var action = action;
+        var actionMessage = action==1?'Added To':'Removed From';
+        if(action != 2)
+        {
+            $(".bulk_user_action").each(function () {
+            if ($(this).prop("checked") == true) {
+                users.push($(this).val());
+            }
+            });
+            if (users.length == 0) {
+                alert('Please select User');
+                return false;
+            }
+        }
+        else{
+            if(confirm('Are you sure you want to perform this action?')==false)
+            {
+                return false;
+            }
+        }
+        $.ajax({
+            type: "post",
+            url: "{{ route('user-management.whitelist-bulk-update') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                users: users,
+                action: action,
+            },
+            beforeSend: function() {
+                $(this).attr('disabled', true);
+            }
+        }).done(function(data) {
+            toastr["success"](actionMessage+" Whitelist!", "Message")
+            window.location.reload();
+        }).fail(function(response) {
+            alert(response.responseJSON.message);
+            toastr["error"](error.responseJSON.message);
+        });
+    }
+    
     //});
 </script>
 

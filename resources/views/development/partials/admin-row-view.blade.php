@@ -50,7 +50,7 @@
 
         <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message" data-id="{{$issue->id}}"><img src="/images/filled-sent.png" /></button>
 
-        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}"><img src="/images/chat.png" alt=""></button>
         
         <a class="btn btn-xs btn-image" title="View Drive Files" onclick="fetchGoogleDriveFileData('{{$issue->id}}')" style="margin-top:-0%;margin-left: -3%;">
         <img width="2px;" src="/images/google-drive.png"/>

@@ -1121,7 +1121,7 @@ $(document).on('keypress', '.priority-no-field-change', function (e) {
 });
 
 
-$(document).on('click', '.show-time-history', function () {
+$(document).on('click', '.show-time-history', function () {    
     var issueId = $(this).data('id');
     var type = $(this).data('type');
     $('#time_history_div table tbody').html('');

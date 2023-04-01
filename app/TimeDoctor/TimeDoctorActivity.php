@@ -79,4 +79,8 @@ class TimeDoctorActivity extends Model
             ->select('time_doctor_activities.*', 'time_doctor_members.user_id as hm_user_id')
             ->get();
     }
+
+    public function getTimeDoctorAccount(){        
+        return $this->belongsTo(\App\TimeDoctor\TimeDoctorMember::class,'user_id', 'time_doctor_user_id');
+    }
 }

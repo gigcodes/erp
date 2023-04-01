@@ -703,6 +703,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('users/add-system-ip', [UserController::class, 'addSystemIp']);
     Route::post('users/add-system-ip-from-text', [UserController::class, 'addSystemIpFromText']);
     Route::get('users/delete-system-ip', [UserController::class, 'deleteSystemIp']);
+    Route::get('users/bulk-delete-system-ip', [UserController::class, 'bulkDeleteSystemIp']);
     Route::get('permissions/grandaccess/users', [PermissionController::class, 'users'])->name('permissions.users');
     Route::get('userlogs', [UserLogController::class, 'index'])->name('userlogs.index');
     Route::get('userlogs/{$id}', [UserLogController::class, 'index']);
@@ -2150,8 +2151,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
     Route::post('password/getHistory', [PasswordController::class, 'getHistory'])->name('password.history');
     Route::post('password/create-get-remark', [PasswordController::class, 'passwordCreateGetRemark'])->name('password.create.get.remark');
+
+    Route::get('password/search', [PasswordController::class, 'passwordsSearch'])->name('password.search');
+    Route::post('password/show/edit-data', [PasswordController::class, 'passwordsShowEditdata'])->name('password.show.edit-data');
+
     Route::post('password/send/email', [PasswordController::class, 'passwordSendEmail'])->name('password.send.email');
     Route::get('password/email/history', [PasswordController::class, 'passwordSendEmailHistory'])->name('password.email.history');
+
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
@@ -2389,6 +2395,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('supplier-priority', [SupplierController::class, 'getPrioritiesList'])->name('supplier-priority.list');
     Route::post('supplier/add_new_priority', [SupplierController::class, 'addNewPriority'])->name('supplier.add_new_priority');
+    Route::get('supplier/get-supplier', [SupplierController::class, 'getSupplierForPriority'])->name('supplier.get_supplier');
+    Route::post('supplier/update_priority', [SupplierController::class, 'updateSupplierPriority'])->name('supplier.update_priority');
     Route::get('supplier/getSupplierPriorityList', [SupplierController::class, 'getSupplierPriorityList'])->name('supplier.get_supplier_priority_list');
 
     Route::get('supplier/brandcount', [SupplierController::class, 'addSupplierBrandCount'])->name('supplier.brand.count');
@@ -2777,6 +2785,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/payment_data', [TimeDoctorActivitiesController::class, 'activityPaymentData'])->name('time-doctor-activity.payment_data');
         Route::post('/command_execution_manually', [TimeDoctorActivitiesController::class, 'timeDoctorActivityCommandExecution'])->name('time-doctor-activity.command_execution_manually');
         Route::get('/time-doctor-payment-download', [TimeDoctorActivitiesController::class, 'timeDoctorPaymentReportDownload'])->name('time-doctor-payment-report.download');
+        Route::post('/account_wise_time_track', [TimeDoctorActivitiesController::class, 'timeDoctorTaskTrackDetails'])->name('time-doctor-activity.account_wise_time_track');
+
         Route::get('/addtocashflow', [TimeDoctorActivitiesController::class, 'addtocashflow']);
 
         Route::prefix('notification')->group(function () {
@@ -4345,6 +4355,7 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
 Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('/list', [TranslationController::class, 'index'])->name('translation.list');
     Route::get('translate-logs', [TranslationController::class, 'translateLog'])->name('translation.log');
+    Route::post('mark-as-resolve', [TranslationController::class, 'markAsResolve'])->name('translation.log.markasresolve');
     Route::DELETE('/delete/{id?}', [TranslationController::class, 'destroy'])->name('translation.destroy');
     Route::get('/add', [TranslationController::class, 'create'])->name('translation.add');
     Route::get('/{id?}/edit', [TranslationController::class, 'edit'])->name('translation.edit');
@@ -4529,6 +4540,8 @@ Route::middleware('auth')->prefix('totem')->group(function () {
         Route::get('/', [TasksController::class, 'index'])->name('totem.tasks.all');
         Route::get('{task}', [TasksController::class, 'view'])->name('totem.task.view');
         Route::post('{task}/delete', [TasksController::class, 'destroy'])->name('totem.task.delete');
+        Route::post('{task}/edit', [TasksController::class, 'update'])->name('totem.task.update');
+        Route::post('create', [TasksController::class, 'store'])->name('totem.task.create');
         Route::post('{task}/status', [TasksController::class, 'status'])->name('totem.task.status');
         Route::get('{task}/development-task', [TasksController::class, 'developmentTask'])->name('totem.task.developmentTask');
         Route::post('{task}/get-error', [TasksController::class, 'totemCommandError'])->name('totem.task.get-error');
@@ -4730,6 +4743,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
     Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
+    Route::get('{id}/edit', [GoogleDocController::class, 'edit'])->name('.edit');
+    Route::post('/update', [GoogleDocController::class, 'update'])->name('.update');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
