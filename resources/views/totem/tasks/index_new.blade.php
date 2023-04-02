@@ -84,7 +84,7 @@ table tr td {
 }
 </style>
 @endsection
-
+<?php /*print_r($developer_module); */?>
 @section('large_content')
     <script src="/js/jquery.jscroll.min.js"></script>
 
@@ -137,12 +137,13 @@ table tr td {
                 <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
                         <tr>
-                            <th width="2%">#</th>
-                            <th width="5%">Description</th> 
-                            <th width="8%">Average Runtime</th>
-                            <th width="5%">Last Run</th>
-                            <th width="5%">Next Run</th>
-                            <th width="5%">Frequencies</th>
+                            <th width="2%" class="tablesorter-header category">#</th>
+                            <th width="5%" class="tablesorter-header category" >Description</th>
+                            <th width="5%" class="tablesorter-header category" >Module</th>
+                            <th width="8%" class="tablesorter-header category">Average Runtime</th>
+                            <th width="5%" class="tablesorter-header category">Last Run</th>
+                            <th width="5%" class="tablesorter-header category">Next Run</th>
+                            <th width="5%" class="tablesorter-header category">Frequencies</th>
                             <th width="5%">Action</th> 
                         </tr>    
                     </thead>
@@ -150,8 +151,11 @@ table tr td {
                             @foreach($tasks as $key => $task)
                             <tr class="{{$task->is_active ? '' : 'red' }}">
                                 <td>{{$task->id}}</td>
-                                <td>
+                                <td >
                                         {{Str::limit($task->description, 30)}}
+                                </td>
+                                <td>
+                                    {{$task->developer_module_id ? $developer_module->find($task->developer_module_id)->name : ''}}
                                 </td>
                                 <td>
                                     {{ number_format(  $task->averageRuntime / 1000 , 2 ) }} seconds
@@ -429,7 +433,15 @@ table tr td {
                                 <p class="d-none"></p>
                                 @endforeach
                             </select>
-                        </div> 
+                        </div>
+                        <div class="form-group">
+                            <label>Module</label><i class="fa fa-info-circle" title="Select a module"></i>
+                            <select id="developer_module_id" name="developer_module_id" class="form-control select2" placeholder="Select a module">
+                                @foreach($developer_module as  $module)
+                                    <option value="{{$module->id}}">{{$module->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label>Type</label><i class="fa fa-info-circle" title="Choose whether to define a cron expression or to add frequencies"></i><br>
                             <label>
@@ -556,29 +568,36 @@ table tr td {
 
 @endsection
 @section('scripts')
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
-    $('ul.pagination').hide();
+    // $('ul.pagination').hide();
     $(function() {
-        $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').hide();
-                setTimeout(function(){
-                    $('ul.pagination').first().remove();
-                }, 2000);
-                $(".select-multiple").select2();
-                initialize_select2();
-            }
-        });
+        $(".table").tablesorter();
+        // $('.infinite-scroll').jscroll({
+        //     autoTrigger: true,
+        //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        //     padding: 2500,
+        //     nextSelector: '.pagination li.active + li a',
+        //     contentSelector: 'div.infinite-scroll',
+        //     callback: function() {
+        //         $('ul.pagination').hide();
+        //         setTimeout(function(){
+        //             $('ul.pagination').first().remove();
+        //         }, 2000);
+        //         $(".select-multiple").select2();
+        //         initialize_select2();
+        //     }
+        // });
     });
 
     $('#command').select2({
+        dropdownParent: $('#addEditTaskModal')
+    });
+
+    $('#developer_module_id').select2({
         dropdownParent: $('#addEditTaskModal')
     });
 
@@ -588,18 +607,6 @@ table tr td {
         $(this).attr('data-id', '');
         $('#addEditTaskModal .modal-title').html('Create task');
         $('.freq').html('<tr><td class="default_td">No Frequencies Found</td></tr>');
-    });
-
-    $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').first().remove();
-                $(".select-multiple").select2();
-            }
     });
 
     $(document).on("click",".view-task",function(e) {
@@ -693,7 +700,7 @@ table tr td {
         for(let i=0; i< results.length; i++){ 
             html_content += '<tr>'; 
             html_content += '<td>' + results[i].ran_at + '</td>';
-            html_content += '<td>' + (results[i].duration / 1000 , 2).toFixed(2) + ' seconds</td>';
+            html_content += '<td>' + (results[i].duration / 1000).toFixed(2) + ' seconds</td>';
             html_content += `<td id="show-result" data-output="${results[i].result}"><i class="fa fa-info-circle"></i></td>`;
             html_content += '</tr>';
         }
@@ -959,7 +966,7 @@ table tr td {
             url: "/totem/tasks/"+$(this).data('id'),  
             dataType : "json",
             success: function (response) {
-                let task_fields = response  .task;
+                let task_fields = response.task;
                 for (var key in task_fields) {
                     if($(`input[name="${key}"]`).length != 0){
                         $(`input[name="${key}"]`).val(task_fields[key]);
