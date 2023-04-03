@@ -30,6 +30,8 @@ class TasksController extends Controller
                     $query->where('description', 'LIKE', '%'.request('q').'%');
                 })->when(request('developer_module'), function ($query) {
                     $query->where('developer_module_id', '=', request('developer_module'));
+                })->when(request('is_active'), function ($query) {
+                    $query->where('is_active', '=', request('is_active'));
                 })
                 ->paginate(50),
             'task' => null,

@@ -118,12 +118,20 @@ table tr td {
                             @endforeach
                         </datalist>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-2 pd-3">
                         <select name="developer_module" id="developer_module" class="form-control">
                             <option value="">Select Module</option>
                             @foreach($developer_module as  $module)
                                 <option {{ isset($_REQUEST['developer_module']) && $_REQUEST['developer_module']  == $module->id ? 'selected' : '' }} value="{{$module->id}}">{{$module->name}}</option>
                             @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2 pd-3">
+                        <select name="is_active" id="is_active" class="form-control">
+                            <option value="">Select Status</option>
+                            <option value="1" {{ isset($_REQUEST['is_active']) && $_REQUEST['is_active']  == "1" ? 'selected' : '' }} >Active</option>
+                            <option value="0" {{ isset($_REQUEST['is_active']) && $_REQUEST['is_active']  == "0" ? 'selected' : '' }} >In Active</option>
+
                         </select>
                     </div>
                     <div class="form-group col-md-1 pd-3">
