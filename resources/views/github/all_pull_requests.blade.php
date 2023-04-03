@@ -19,6 +19,59 @@
             window.location.href = url;
         }
     }
+
+    function confirmClosePR(repositoryId, pullRequestNumber) {
+        let result = confirm("Are you sure you want to close this PR : "+ pullRequestNumber+ "?");
+        if (result) {
+            $.ajax({
+                headers : {
+                    'Accept' : 'application/json',
+                    'Content-Type' : 'application/json',
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "post",
+                url: '/github/repos/'+repositoryId+'/pull-request/'+pullRequestNumber+'/close',
+                dataType: "json",
+                success: function (response) {
+                    if(response.status) {
+                        toastr['success']('Pull request has been closed successfully!');
+                        window.location.reload();
+                    }else{
+                        errorMessage = response.error ? response.error : 'Something went wrong please try again later!';
+                        toastr['error'](errorMessage);
+                    }
+                },
+                error: function () {
+                    toastr['error']('Could not change module!');
+                }
+            });
+        }
+    }
+
+    function githubActionResult(repositoryId, pullRequestNumber) {
+        $.ajax({
+            headers : {
+                'Accept' : 'application/json',
+                'Content-Type' : 'application/json',
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            type: "get",
+            url: '/github/repos/'+repositoryId+'/github-action',
+            dataType: "json",
+            success: function (response) {
+                if(response.status) {
+                    toastr['success']('Pull request has been closed successfully!');
+                    window.location.reload();
+                }else{
+                    errorMessage = response.error ? response.error : 'Something went wrong please try again later!';
+                    toastr['error'](errorMessage);
+                }
+            },
+            error: function () {
+                toastr['error']('Could not change module!');
+            }
+        });
+    }
 </script>
 <style>
     #pull-request-table_filter {
@@ -85,7 +138,8 @@
         </thead>
         <tbody>
            @foreach($pullRequests as $pullRequest)
-            <tr>
+            <?php $class =  !empty($pullRequest['conflict_exist']) ? "table-danger" : ""; ?>
+            <tr class="{!! $class !!}">
                 <td class="Website-task">{{$pullRequest['repository']['name']}}
                 <td class="Website-task">{{$pullRequest['id']}}</td>
                 <td class="Website-task">{{$pullRequest['title']}}</td>
@@ -105,8 +159,11 @@
                         </a>
                     </div> --}}
                     <div style="margin-top: 5px;">
-                        <button class="btn btn-sm btn-secondary" onclick="confirmMergeToMaster('{{$pullRequest["source"]}}','{{url('/github/repos/'.$pullRequest['repository']['id'].'/branch/merge?destination=master&source='.urlencode($pullRequest['source']).'&task_id='.urlencode($pullRequest['id']))}}')">
+                        <button class="btn btn-sm btn-secondary" style="margin-top: 5px;" onclick="confirmMergeToMaster('{{$pullRequest["source"]}}','{{url('/github/repos/'.$pullRequest['repository']['id'].'/branch/merge?destination=master&source='.urlencode($pullRequest['source']).'&task_id='.urlencode($pullRequest['id']))}}')">
                             Merge into master
+                        </button>
+                        <button class="btn btn-sm btn-secondary" style="margin-top: 5px;" onclick="confirmClosePR({!! $pullRequest['repository']['id'] !!}, {!! $pullRequest['id'] !!})">
+                            Close PR
                         </button>
                     </div>
                 </td>

@@ -86,4 +86,69 @@ trait GithubTrait
             return false;
         }
     }
+
+    private function getPullRequestDetail(string $repoId, string $number)
+    {
+        $url = 'https://api.github.com/repositories/'.$repoId.'/pulls/'.$number;
+
+        try {
+            $response = $this->client->get($url);
+            $pullRequest = json_decode($response->getBody()->getContents());
+                return [
+                    'id' => $pullRequest->number,
+                    'title' => $pullRequest->title,
+                    'number' => $pullRequest->number,
+                    'username' => $pullRequest->user->login,
+                    'userId' => $pullRequest->user->id,
+                    'updated_at' => $pullRequest->updated_at,
+                    'source' => $pullRequest->head->ref,
+                    'mergeable_state' => $pullRequest->mergeable_state,
+                    'destination' => $pullRequest->base->ref,
+            ];
+        } catch (Exception $e) {
+        }
+    }
+
+    private function closePullRequest(string $repositoryId, string $pullNumber)
+    {
+        $url = 'https://api.github.com/repositories/'.$repositoryId.'/pulls/'.$pullNumber;
+
+        try {
+            $this->client->patch($url,
+            [
+                'state' => "closed"
+            ]);
+            $data['status'] = true;
+        } catch (Exception $e) {
+            $data['status'] = false;
+            $data['error'] = $e->getMessage();
+        }
+        return $data;
+    }
+
+    private function getGithubActionRuns(string $repositoryId, $page=1)
+    {
+        $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs?page='.$page;
+
+        try {
+            $response = $this->client->get($url);
+            $githubAction = json_decode($response->getBody()->getContents());
+            return $githubAction;
+        } catch (Exception $e) {
+        }
+    }
+
+    private function getGithubActionRunJobs(string $repositoryId,string $runId)
+    {
+        $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs/'.$runId.'/jobs';
+
+        try {
+            $response = $this->client->get($url);
+            $githubAction = json_decode($response->getBody()->getContents());
+            return $githubAction;
+        } catch (Exception $e) {
+        }
+    }
+
+
 }

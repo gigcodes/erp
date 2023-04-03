@@ -442,12 +442,45 @@ class RepositoryController extends Controller
         ]);
     }
 
+    public function closePullRequestFromRepo($repositoryId, $pullRequestNumber){
+        return $this->closePullRequest($repositoryId, $pullRequestNumber);
+    }
+
+    public function actionWorkflows(Request $request, $repositoryId){
+        $githubActionRuns = $this->githubActionResult($repositoryId,$request->page);
+        return view('github.action_workflows', compact('githubActionRuns'));
+    }
+
+    public function githubActionResult($repositoryId, $page){
+        $githubActionRuns = $this->getGithubActionRuns($repositoryId,$page);
+        foreach($githubActionRuns->workflow_runs as $key => $runs){
+            $githubActionRuns->workflow_runs[$key]->failure_reason = "";
+            if($runs->conclusion == "failure"){
+                $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId,$runs->id);
+                foreach($githubActionRunJobs->jobs as $job){
+                    foreach($job->steps as $step){
+                        if($step->conclusion == "failure"){
+                            $githubActionRuns->workflow_runs[$key]->failure_reason = $step->name;
+                        }
+                    }
+                }
+            }
+        }
+        return $githubActionRuns;
+    }
+
     public function listAllPullRequests()
     {
         $repositories = GithubRepository::all(['id', 'name']);
         $allPullRequests = [];
         foreach ($repositories as $repository) {
             $pullRequests = $this->getPullRequests($repository->id);
+            foreach($pullRequests as $key =>  $pullRequest){
+                //Need to execute the detail API as we require the mergeable_state which is only return in the PR detail API.
+                $pr = $this->getPullRequestDetail($repository->id,$pullRequest['id']);
+                $pullRequests[$key]['mergeable_state'] = $pr['mergeable_state'];
+                $pullRequests[$key]['conflict_exist'] = $pr['mergeable_state'] == "dirty" ? true : false;
+            }
             $pullRequests = array_map(
                 function ($pullRequest) use ($repository) {
                     $pullRequest['repository'] = $repository;
