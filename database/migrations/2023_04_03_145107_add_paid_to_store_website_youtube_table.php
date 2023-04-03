@@ -17,7 +17,8 @@ class AddPaidToStoreWebsiteYoutubeTable extends Migration
             $table->id();
             $table->string('access_token', 1024)->nullable();
             $table->string('refresh_token', 1024)->nullable();
-            $table->unsignedBigInteger('store_website_id');
+            $table->unsignedBigInteger('store_website_id')->nullable();
+            $table->timestamp('token_expire_time')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
