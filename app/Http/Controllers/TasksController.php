@@ -28,6 +28,8 @@ class TasksController extends Controller
                 ->orderBy('description')
                 ->when(request('q'), function ($query) {
                     $query->where('description', 'LIKE', '%'.request('q').'%');
+                })->when(request('developer_module'), function ($query) {
+                    $query->where('developer_module_id', '=', request('developer_module'));
                 })
                 ->paginate(50),
             'task' => null,

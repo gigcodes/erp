@@ -105,10 +105,10 @@ table tr td {
                         </button>
                     </div>
                 </div>
-            </h2>
         </div>
         <div class="col-12 pl-2" style="padding-left:0px;">
             <div >
+
                 <form class="form-inline" action="" method="GET">
                     <div class="form-group col-md-2 pd-3">
                         <input list="tasks-lists" style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
@@ -117,6 +117,14 @@ table tr td {
                             <option value="{{$task->description}}">
                             @endforeach
                         </datalist>
+                    </div>
+                    <div class="form-group">
+                        <select name="developer_module" id="developer_module" class="form-control">
+                            <option value="">Select Module</option>
+                            @foreach($developer_module as  $module)
+                                <option {{ isset($_REQUEST['developer_module']) && $_REQUEST['developer_module']  == $module->id ? 'selected' : '' }} value="{{$module->id}}">{{$module->name}}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group col-md-1 pd-3">
                         <button type="submit" class="btn btn-image ml-0"><img src="{{asset('images/filter.png')}}" /></button>
@@ -573,24 +581,24 @@ table tr td {
 
 <script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
-    // $('ul.pagination').hide();
+    $('ul.pagination').hide();
     $(function() {
         $(".table").tablesorter();
-        // $('.infinite-scroll').jscroll({
-        //     autoTrigger: true,
-        //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-        //     padding: 2500,
-        //     nextSelector: '.pagination li.active + li a',
-        //     contentSelector: 'div.infinite-scroll',
-        //     callback: function() {
-        //         $('ul.pagination').hide();
-        //         setTimeout(function(){
-        //             $('ul.pagination').first().remove();
-        //         }, 2000);
-        //         $(".select-multiple").select2();
-        //         initialize_select2();
-        //     }
-        // });
+        $('.infinite-scroll').jscroll({
+            autoTrigger: true,
+            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            padding: 2500,
+            nextSelector: '.pagination li.active + li a',
+            contentSelector: 'div.infinite-scroll',
+            callback: function() {
+                $('ul.pagination').hide();
+                setTimeout(function(){
+                    $('ul.pagination').first().remove();
+                }, 2000);
+                $(".select-multiple").select2();
+                initialize_select2();
+            }
+        });
     });
 
     $('#command').select2({
