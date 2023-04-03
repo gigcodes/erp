@@ -134,7 +134,7 @@ table tr td {
                 </form> 
             </div>
         </div>
-    </div>	
+    </div>
 
 
 
@@ -152,8 +152,8 @@ table tr td {
                             <th width="5%" class="tablesorter-header category">Last Run</th>
                             <th width="5%" class="tablesorter-header category">Next Run</th>
                             <th width="5%" class="tablesorter-header category">Frequencies</th>
-                            <th width="5%">Action</th> 
-                        </tr>    
+                            <th width="5%">Action</th>
+                        </tr>
                     </thead>
                     <tbody>
                             @foreach($tasks as $key => $task)
@@ -205,7 +205,7 @@ table tr td {
                     </tbody>
                 </table>
                 @if(!count($tasks))
-                <h5 class="text-center">No Tasks found</h5> 
+                <h5 class="text-center">No Tasks found</h5>
                 @endif
 	        </div>
         </div>
@@ -581,25 +581,25 @@ table tr td {
 
 <script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
-    $('ul.pagination').hide();
-    $(function() {
-        $(".table").tablesorter();
-        $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').hide();
-                setTimeout(function(){
-                    $('ul.pagination').first().remove();
-                }, 2000);
-                $(".select-multiple").select2();
-                initialize_select2();
-            }
-        });
-    });
+    // $('ul.pagination').hide();
+     $(function() {
+         $(".table").tablesorter();
+    //     $('.infinite-scroll').jscroll({
+    //         autoTrigger: true,
+    //         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+    //         padding: 2500,
+    //         nextSelector: '.pagination li.active + li a',
+    //         contentSelector: 'div.infinite-scroll',
+    //         callback: function() {
+    //             $('ul.pagination').hide();
+    //             setTimeout(function(){
+    //                 $('ul.pagination').first().remove();
+    //             }, 2000);
+    //             $(".select-multiple").select2();
+    //             initialize_select2();
+    //         }
+    //     });
+     });
 
     $('#command').select2({
         dropdownParent: $('#addEditTaskModal')
