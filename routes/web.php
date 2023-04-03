@@ -348,9 +348,18 @@ use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
-
+use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\YoutubeController;
 
 Auth::routes();
+Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
+Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
+Route::get('/GetChanelData', [YoutubeController::class, 'GetChanelData'])->name('GetChanelData');
+Route::get('/chanelList', [YoutubeController::class, 'chanelList'])->name('chanelList');
+Route::get('/videoList/{chanelId}/{websiteId}', [YoutubeController::class, 'VideoListByChanelId'])->name('videoList');
+Route::get('/commentList/{websiteId}/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+
+
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
 Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');

@@ -126,6 +126,10 @@ class EventServiceProvider extends ServiceProvider
         'Illuminate\Mail\Events\MessageSending' => [
             \App\Listeners\AddSignatureToMail::class,
         ],
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            // ... other providers
+            \SocialiteProviders\YouTube\YouTubeExtendSocialite::class.'@handle',
+        ],
 
     ];
 
