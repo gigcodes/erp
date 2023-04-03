@@ -581,24 +581,24 @@ table tr td {
 
 <script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
-    // $('ul.pagination').hide();
+    $('ul.pagination').hide();
     $(function() {
         $(".table").tablesorter();
-        // $('.infinite-scroll').jscroll({
-        //     autoTrigger: true,
-        //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-        //     padding: 2500,
-        //     nextSelector: '.pagination li.active + li a',
-        //     contentSelector: 'div.infinite-scroll',
-        //     callback: function() {
-        //         $('ul.pagination').hide();
-        //         setTimeout(function(){
-        //             $('ul.pagination').first().remove();
-        //         }, 2000);
-        //         $(".select-multiple").select2();
-        //         initialize_select2();
-        //     }
-        // });
+        $('.infinite-scroll').jscroll({
+            autoTrigger: true,
+            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            padding: 2500,
+            nextSelector: '.pagination li.active + li a',
+            contentSelector: 'div.infinite-scroll',
+            callback: function() {
+                $('ul.pagination').hide();
+                setTimeout(function(){
+                    $('ul.pagination').first().remove();
+                }, 2000);
+                $(".select-multiple").select2();
+                initialize_select2();
+            }
+        });
     });
 
     $('#command').select2({
