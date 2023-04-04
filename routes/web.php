@@ -910,6 +910,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('update', [SopController::class, 'update'])->name('updateName');
     Route::get('sop/search', [SopController::class, 'search']);
     Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch'])->name('menu.sop.search');
+    Route::get('email/search-ajax', [EmailController::class, 'ajaxsearch'])->name('menu.email.search');
     Route::get('soplogs', [SopController::class, 'sopnamedata_logs'])->name('sopname.logs');
     Route::get('sop/DownloadData/{id}', [SopController::class, 'downloaddata'])->name('sop.download');
     // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
@@ -1301,6 +1302,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/update-customer-address', [OrderController::class, 'updateCustomerInvoiceAddress'])->name('order.update.customer.address');
     Route::get('order/{id}/mail-invoice', [OrderController::class, 'mailInvoice'])->name('order.mail.invoice');
     Route::get('order/{id}/get-invoice-customer-email', [OrderController::class, 'getInvoiceCustomerEmail'])->name('get.invoice.customer.email');
+   
+    Route::get('order/get-invoice-customer-email-selected', [OrderController::class, 'getInvoiceCustomerEmailSelected']);
+    Route::get('order/mail-invoice-multi-select', [OrderController::class, 'mailInvoiceMultiSelect']);
+    Route::get('order/get-order-invoice-users', [OrderController::class, 'GetInvoiceOrderUsers']);
+
     Route::get('order/update-delivery-date', [OrderController::class, 'updateDelDate'])->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', [OrderController::class, 'viewEstDelDateHistory'])->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', [OrderController::class, 'addNewReply'])->name('order.addNewReply');
@@ -1329,6 +1335,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/replyMail/{id}', [EmailController::class, 'replyMail']);
     Route::post('email/replyMail', [EmailController::class, 'submitReply'])->name('email.submit-reply');
 
+    Route::get('email/replyAllMail/{id}', [EmailController::class, 'replyAllMail']);
+    Route::post('email/replyAllMail', [EmailController::class, 'submitReplyAll'])->name('email.submit-reply-all');
+
     Route::get('email/forwardMail/{id}', [EmailController::class, 'forwardMail']);
     Route::post('email/forwardMail', [EmailController::class, 'submitForward'])->name('email.submit-forward');
 
@@ -1336,12 +1345,15 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::put('email/{id}/mark-as-read', [EmailController::class, 'markAsRead']);
     Route::post('email/{id}/excel-import', [EmailController::class, 'excelImporter']);
     Route::post('email/{id}/get-file-status', [EmailController::class, 'getFileStatus']);
+   
+    
     Route::resource('email', EmailController::class);
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
     Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
+    Route::get('email/category/mappings', [EmailController::class, 'getCategoryMappings']);
 
     Route::get('email/order_data/{email?}', [EmailController::class, 'index']); //Purpose : Add Route -  DEVTASK-18283
     Route::post('email/platform-update', [EmailController::class, 'platformUpdate']);
@@ -4736,6 +4748,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
     Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
     Route::post('/permission-update', [GoogleDocController::class, 'permissionUpdate'])->name('.permission.update');
+    Route::post('/permission-remove', [GoogleDocController::class, 'permissionRemove'])->name('.permission.remove');
+    Route::post('/permission-view', [GoogleDocController::class, 'permissionView'])->name('.permission.view');
     Route::delete('/{id}/destroy', [GoogleDocController::class, 'destroy'])->name('.destroy');
     Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
     Route::get('{id}/edit', [GoogleDocController::class, 'edit'])->name('.edit');
@@ -4786,6 +4800,3 @@ Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
 Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
 Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
  });
-
-
-   

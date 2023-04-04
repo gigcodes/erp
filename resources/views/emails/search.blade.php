@@ -77,6 +77,9 @@
     <a title="Reply" class="btn-image reply-email-btn" data-toggle="modal" data-target="#replyMail" data-id="{{ $email->id }}" >
     <i class="fa fa-reply"></i>
     </a>
+    <a title="Reply All" class="btn-image reply-all-email-btn" data-toggle="modal" data-target="#replyAllMail" data-id="{{ $email->id }}" >
+      <i class="fa fa-reply-all"></i>
+    </a>
     <a title="Forward" class="btn-image forward-email-btn" data-toggle="modal" data-target="#forwardMail" data-id="{{ $email->id }}" >
     <i class="fa fa-share"></i>
     </a>

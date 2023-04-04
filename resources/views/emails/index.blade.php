@@ -158,7 +158,7 @@
               ?>
           </select>
         </div>
-        <div class="form-group px-2">
+        <div class="form-group px-2 mt-4">
           <select class="form-control model_type_select" name="email_model_type" id="email_model_type" multiple>
             @foreach($emailModelTypes as $m => $module)
             <option value="{{$m}}">{{$module}}</option>
@@ -167,11 +167,13 @@
         </div>
         <input type='hidden' class="form-control" id="type" name="type" value="" />
         <input type='hidden' class="form-control" id="seen" name="seen" value="1" />
-        <button type="submit" class="btn btn-image ml-3 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
+        <button type="submit" class="btn btn-image ml-3 mt-4 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
       </form>
     </div>
   </div>
 </div>
+
+<a href="{{ url('email/category/mappings') }}" class="btn custom-button float-right mb-2">View Category Mappings</a>
 <div class="table-responsive mt-3" style="margin-top:20px;">
   <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
     <thead>
@@ -222,6 +224,18 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div id="reply-mail-content">
+      </div>
+    </div>
+  </div>
+</div>
+<div id="replyAllMail" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Email reply all</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div id="reply-all-mail-content">
       </div>
     </div>
   </div>
@@ -278,8 +292,18 @@
         @csrf
         <div class="modal-body">
           <div class="form-group">
-            <input type="text" name="category_name" value="{{ old('category_name') }}" class="form-control" placeholder="Category Name">
+            <input type="text" name="category_name" value="{{ old('category_name') }}" class="form-control" placeholder="Category Name" required>
           </div>
+
+          <div class="form-group">
+            <select class="form-control" id="category_priority" name="priority">
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+                <option value="UNDEFINED">Undefined</option>
+            </select>
+          </div>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-secondary">Create</button>
@@ -566,6 +590,34 @@
     </div>
   </div>
 </div>
+<div id="addReceiverReplyModal" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Add Receiver Email</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form action="#" method="post" id="addReceiverReplyForm">
+          @csrf
+
+          <div class="table-responsive">
+            <table class="table">
+              <tbody id="replyReceiverEmailBody">
+                  <tr id="reply_receiver_email_row_id_1">
+                    <td><input type="email" id="reply_receiver_email_id_1"  name="receiver_emails[]" class="form-control" required></td>
+                    <td><button type="button" class="btn btn-primary" data-add-receiver-email-btn><i class="fa fa-plus"></i></button></td>
+                  </tr>
+              </tbody>
+            </table>
+
+            <button class="btn btn-primary" type="submit">Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 @include('partials.modals.remarks')
 @endsection
 @section('scripts')
@@ -596,6 +648,66 @@
   $('.select_category').select2({
       placeholder:"Select Category",
   });
+
+  $('.select2-search__field').css('width', '100%')
+
+  $(document).on('click', '[data-reply-receiver-btn]', function (){
+    $('[row-receiver-items]').remove();
+    
+    $('#addReceiverReplyModal').modal('show');
+  });
+
+  var receiverCount = 1;
+
+  $(document).on('click', '[data-add-receiver-email-btn]', function (){
+    receiverCount += 1;
+    var receiverHtml = '<tr class="row-receiver-items" id="reply_receiver_email_row_id_'+receiverCount+'">';
+    receiverHtml += '<td><input type="email" id="reply_receiver_email_id_'+receiverCount+'" name="receiver_emails[]" class="form-control" required></td>';
+    receiverHtml += '<td><button type="button" class="btn btn-danger" data-remove-receiver-email-btn row-id="'+receiverCount+'"><i class="fa fa-close"></i></button></td>';
+    receiverHtml += '</tr>';
+
+    $('#replyReceiverEmailBody').append(receiverHtml);
+  });
+
+  $(document).on('click', '[data-remove-receiver-email-btn]', function (){
+    var rowId = Number($(this).attr('row-id'));
+
+    $('#reply_receiver_email_row_id_'+rowId).remove();
+  });
+
+  //option A
+  $("#addReceiverReplyForm").submit(function(e){
+    e.preventDefault();
+
+    var receiverEmails = [];
+
+    $("input[name='receiver_emails[]']").each(function (){
+      var receiverEmail = $(this).val();
+
+      receiverEmails.push(receiverEmail);
+    });
+
+    var currentReceiverEmails = $('#reply_receiver_email').val();
+    var currentReceiverEmailsArr = currentReceiverEmails.split('');
+
+    if(currentReceiverEmailsArr[0] == '['){
+      currentReceiverEmails = currentReceiverEmails.replace(/'/g, '"');
+      currentReceiverEmails = JSON.parse(currentReceiverEmails);
+    }else{
+      currentReceiverEmails = currentReceiverEmails.split(',');
+    }
+
+    if(receiverEmails.length > 0){
+      $.each(receiverEmails, function (k, v){
+        currentReceiverEmails.push(v);
+      });
+    }
+
+    $('#reply_receiver_email').val("[" + currentReceiverEmails.map(value => `"${value}"`).join(',') + "]");
+    
+    $('#addReceiverReplyModal').modal('hide');
+  });
+
   $(document).on('click', '.expand-row', function() {
       var selection = window.getSelection();
       if (selection.toString().length === 0) {
@@ -786,11 +898,20 @@
         mailboxDropdownHtml += "<option value='"+v+"' "+(mailBox == v ? 'selected' : '')+">"+v+"</option>";
       });
       $('[data-email-mailbox-dropdown]').append(mailboxDropdownHtml);
-  
-      $('[data-email-sender-dropdown]').trigger('change.select2');
-      $('[data-email-receiver-dropdown]').trigger('change.select2');
-      $('[data-email-mailbox-dropdown]').trigger('change.select2');
-  
+
+      $('[data-email-sender-dropdown]').select2('destroy').select2({
+        placeholder:"Select sender"
+      });
+
+      $('[data-email-receiver-dropdown]').select2('destroy').select2({
+        placeholder:"Select Receiver"
+      });
+
+      $('[data-email-mailbox-dropdown]').select2('destroy').select2({
+        placeholder:"Select Mailbox"
+      });
+
+      $('.select2-search__field').css('width', '100%')
       // toastr['success'](response.message);
       // $("#loading-image").hide();
     }).fail(function(errObj) {
@@ -843,6 +964,29 @@
         $("#loading-image").hide();
       });
   });
+
+  $(document).on('click', '.reply-all-email-btn', function(e) {
+    e.preventDefault();
+    var $this = $(this);
+      $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: '/email/replyAllMail/'+$this.data("id"),
+        type: 'get',
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+      }).done( function(response) {
+        $("#loading-image").hide();
+        // toastr['success'](response.message);
+        $("#reply-all-mail-content").html(response);
+      }).fail(function(errObj) {
+        $("#loading-image").hide();
+      });
+  });
+
+  
   
   $(document).on('click', '.forward-email-btn', function(e) {
     e.preventDefault();
@@ -865,8 +1009,11 @@
   
   $(document).on('click', '.submit-reply', function(e) {
     e.preventDefault();
+    var receiverEmail = $("#reply_receiver_email").val();
+    var replySubject = $("#reply_subject").val();
     var message = $("#reply-message").val();
     var reply_email_id = $("#reply_email_id").val();
+
       $.ajax({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -874,6 +1021,8 @@
         url: '/email/replyMail',
         type: 'post',
         data: {
+          'receiver_email': receiverEmail,
+          'subject': replySubject,
           'message': message,
           'reply_email_id': reply_email_id
         },
@@ -889,6 +1038,39 @@
         $("#loading-image").hide();
         toastr['error'](response.errors[0]);
   
+      });
+  });
+
+  $(document).on('click', '.submit-reply-all', function(e) {
+    e.preventDefault();
+    var receiverEmail = $("#reply_all_receiver_email").val();
+    var replySubject = $("#reply_all_subject").val();
+    var message = $("#reply-all-message").val();
+    var reply_email_id = $("#reply_all_email_id").val();
+
+      $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: '/email/replyAllMail',
+        type: 'post',
+        data: {
+          'receiver_email': receiverEmail,
+          'subject': replySubject,
+          'message': message,
+          'reply_email_id': reply_email_id
+        },
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+      }).done( function(response) {
+        $("#replyAllMail").modal('hide');
+        $("#loading-image").hide();
+        toastr['success'](response.message);
+      }).fail(function(errObj) {
+        $("#replyAllMail").modal('hide');
+        $("#loading-image").hide();
+        toastr['error'](response.errors[0]);
       });
   });
   
@@ -1068,46 +1250,46 @@
   });
   
   $(document).on('change','.status',function(e){
-      if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
-          $.ajax({
-                headers: {
-                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                type : "POST",
-                url : "{{ route('changeStatus') }}",
-                data : {
-                  status_id : $('option:selected', this).val(),
-                  email_id : $('option:selected', this).attr('data-id')
-                },
-                success : function (response){
-                      location.reload();
-                },
-                error : function (response){
-  
-                }
-          })
-      }
+    if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+      $.ajax({
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        type : "POST",
+        url : "{{ route('changeStatus') }}",
+        data : {
+          status_id : $('option:selected', this).val(),
+          email_id : $('option:selected', this).attr('data-id')
+        },
+        success : function (response){
+          location.reload();
+        },
+        error : function (response){
+          //
+        }
+      })
+    }
   });
   
   $(document).on('change','.email-category',function(e){
       if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
-          $.ajax({
-                headers: {
-                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                type : "POST",
-                url : "{{ route('changeEmailCategory') }}",
-                data : {
-                  category_id : $('option:selected', this).val(),
-                  email_id : $('option:selected', this).attr('data-id')
-                },
-                success : function (response){
-                     location.reload();
-                },
-                error : function (response){
-  
-                }
-          })
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('changeEmailCategory') }}",
+          data : {
+            category_id : $('option:selected', this).val(),
+            email_id : $('option:selected', this).attr('data-id')
+          },
+          success : function (response){
+             location.reload();
+          },
+          error : function (response){
+            //
+          }
+        })
       }
   });
   // To set the iframe height based on content
