@@ -62,7 +62,8 @@
                           <th width="10%">No</th>
                           <th width="20%">Email</th>
                           <th width="10%">Password</th>
-                          <th width="50%">Access Token</th>
+                          <th width="18%">Create DateTime</th>
+                          <th width="42%">Access Token</th>
                       </tr>
                     </thead>
                     <tbody id="account_list">                      
@@ -132,6 +133,7 @@
           <th>TimeDoctor User Id</th>
           <th>TimeDoctor Email</th>
           <th>TimeDoctor Account</th>
+          <th>Create DateTime</th>
           <th>User</th>
         </tr>
       </thead>
@@ -144,6 +146,7 @@
           <td style="vertical-align:middle;">{{ $member->time_doctor_user_id }}</td>
           <td style="vertical-align:middle;">{{ $member->email }}</td>
           <td style="vertical-align:middle;">{{ $member->account_detail->time_doctor_email }}</td>
+          <td style="vertical-align:middle;">{{ $member->account_detail->created_at }}</td>
           <td style="vertical-align:middle;">
              <div class="form-group"style="margin-top: -10px;margin-bottom:-10px;">
                 <select onchange="saveUser(this)"class="form-control">

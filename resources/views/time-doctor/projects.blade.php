@@ -135,6 +135,7 @@
           <th>TimeDocter Project Name</th>
           <th>TimeDocter Company Id</th>
           <th>TimeDocter Account</th>
+          <th>Create DateTime</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -148,6 +149,7 @@
           <td style="vertical-align:middle;">{{ $project->time_doctor_project_name }}</td>
           <td style="vertical-align:middle;">{{ $project->time_doctor_company_id }}</td>
           <td style="vertical-align:middle;">{{ $project->account_detail->time_doctor_email }}</td>
+          <td style="vertical-align:middle;">{{ $project->created_at }}</td>
           <td style="vertical-align:middle;"><button type="button" class="btn btn-secondary edit_project" data-id="{{ $project->id }}">Edit Project</button></
         </tr>
       </tbody>

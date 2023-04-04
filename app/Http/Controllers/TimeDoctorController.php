@@ -104,6 +104,7 @@ class TimeDoctorController extends Controller
             $html .= "<td>".$i++."</td>";
             $html .= "<td>".$account->time_doctor_email."</td>";
             $html .= "<td>".$account->time_doctor_password."</td>";
+            $html .= "<td>".$account->created_at."</td>";
             if($account->auth_token == ""){
                 $html .= "<td><button type='button' class='btn btn-secondary get_token' data-id=".$account->id.">Get Token</button></td>";
             } else {
