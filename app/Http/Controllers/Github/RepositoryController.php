@@ -448,7 +448,14 @@ class RepositoryController extends Controller
 
     public function actionWorkflows(Request $request, $repositoryId){
         $githubActionRuns = $this->githubActionResult($repositoryId,$request->page);
-        return view('github.action_workflows', compact('githubActionRuns'));
+        return view('github.action_workflows', [
+            'githubActionRuns' => $githubActionRuns,
+            'repositoryId' => $repositoryId
+        ]);
+    }
+
+    public function ajaxActionWorkflows(Request $request, $repositoryId){
+        return $this->githubActionResult($repositoryId,$request->page);
     }
 
     public function githubActionResult($repositoryId, $page){

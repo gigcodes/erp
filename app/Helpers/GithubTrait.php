@@ -116,7 +116,9 @@ trait GithubTrait
         try {
             $this->client->patch($url,
             [
-                'state' => "closed"
+                'json' => [
+                    'state' => "closed"
+                ]
             ]);
             $data['status'] = true;
         } catch (Exception $e) {

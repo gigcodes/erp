@@ -6,26 +6,31 @@
 <script>
 
     var currentChatParams = {};
+    currentChatParams.data = {
+        page : 1,
+        hasMore : true,
+    };
     var workingOn =  null;
-
-    ver getActionHtml = function(response){
+    function getActionHtml(response) {
         let html = "<tr>";
         $.each( response, function( key, value ) {
-            html .= "<td>"+value.name+"<td>";
-            html .= "<td>"+moment(value.created_at).format('DD-M H:mm') +"<td>";
-            html .= "<td>"+value.conclusion+"<td>";
-            html .= "<td>"+value.failure_reason+"<td>";
+            html += "<td>"+value.name+"<td>";
+            html += "<td>"+moment(value.created_at).format('DD-M H:mm') +"<td>";
+            html += "<td>"+value.conclusion+"<td>";
+            html += "<td>"+value.failure_reason+"<td>";
         });
-        html .= "<tr>";
+        html += "<tr>";
         return html;
     }
 
-    var getMoreActions = function(params) {
+    function getMoreActions(params) {
         var AllMessages = [];
         workingOn = $.ajax({
             type: "GET",
-            url: params.url,
-            data: params.data,
+            url: '/github/repos/{!! $repositoryId !!}/github-actions',
+            data: {
+                'page' : params.page
+            },
             beforeSend: function () {
                 var loadingIcon = '<div id="loading-image" style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url(/images/pre-loader.gif)50% 50% no-repeat;"></div>';
                 
@@ -34,11 +39,12 @@
         }).done(function (response) {
             workingOn = null;
             if(response.messages.length > 0) {
-                AllMessages = AllMessages.concat(response.messages);
-                var li = getActionHtml(response);
+                if(response.workflow_runs){
+                    var li = getActionHtml(response.workflow_runs);
+                    $("#action-workflows").append(li);
+                }
                 
                 $("#action-workflows").find("#loading-image").remove();
-                $("#action-workflows").append(li);
                 // var searchterm = $('.search_chat_pop').val();
                 // if(searchterm && searchterm != '') {
                 //     var value = searchterm.toLowerCase();
@@ -68,20 +74,14 @@
         });
     });
 
-    $('.action-table').on("scroll", function() {
-        console.log("Hey");
-        var $this = $(this);
-
-        var modal_scrollTop = $this.scrollTop();
-        var modal_scrollHeight = $this.find('.action-workflow-table').prop('scrollHeight');
-
-
-        // Bottom reached:
-        console.log([modal_scrollTop,(modal_scrollHeight - 500), workingOn , currentChatParams.data.hasMore]);
-        if (modal_scrollTop > (modal_scrollHeight - 1000) && workingOn == null) {
-            if(currentChatParams.data.hasMore && workingOn == null) {
+    $(window).scroll(function() {
+         if($(window).scrollTop() == $(document).height() - $(window).height()) {
+        console.log(currentChatParams.data);
+        console.log(currentChatParams.data.hasMore);
+        
+            if(currentChatParams.data && currentChatParams.data.hasMore && workingOn == null) {
                 workingOn = true;
-                currentChatParams.data.page++;
+                // currentChatParams.data.page++;
                 getMoreActions(currentChatParams);
             }
         }

@@ -3874,6 +3874,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/repos/{id}/pull-request', [Github\RepositoryController::class, 'listPullRequests']);
         Route::post('/repos/{id}/pull-request/{pr}/close', [Github\RepositoryController::class, 'closePullRequestFromRepo']);
         Route::get('/repos/{id}/actions', [Github\RepositoryController::class, 'actionWorkflows']);
+        Route::get('/repos/{id}/github-actions', [Github\RepositoryController::class, 'ajaxActionWorkflows']);
         Route::get('/repos/{id}/branch/merge', [Github\RepositoryController::class, 'mergeBranch']);
         Route::get('/repos/{id}/deploy', [Github\RepositoryController::class, 'deployBranch']);
         Route::post('/add_user_to_repo', [Github\UserController::class, 'addUserToRepository']);
