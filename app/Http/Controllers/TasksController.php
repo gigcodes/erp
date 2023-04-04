@@ -208,4 +208,16 @@ class TasksController extends Controller
         $query = ScheduleQuery::where('schedule_name' , '=', $name)->get()->toArray();
         return $query;
     }
+    public function enableDisableCron(Request $request){
+        if ($request->get('ids')) {
+                DB::table('crontasks')->whereIn('id', $request->get('ids'))->update([
+                    'is_active' => $request->get('active'),
+                ]);
+               $msg = $request->get('active') ? "Task enabled Successfully" : "Task disabled Successfully";
+                return response()->json([
+                'status' => true,
+                'message' => $msg,
+            ]);
+        }
+    }
 }

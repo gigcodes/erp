@@ -7,6 +7,71 @@
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
 <style>
+    #ckbCheckAll{
+        height: 12px !important;
+        margin-left: 6px !important;
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    /* Hide default HTML checkbox */
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
 .ajax-loader{
     position: fixed;
     left: 0;
@@ -152,7 +217,11 @@ table tr td {
 	        <div class="table-responsive mt-2">
                 <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
+                    <span>Select All</span><input type="checkbox" id="ckbCheckAll"/>
+                    <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
+                    <button id="disableAllData" class="btn btn-danger enable-disable" cron-status="0" >Disable</button>
                         <tr>
+                            <th width="2%"></th>
                             <th width="2%" class="tablesorter-header category">#</th>
                             <th width="5%" class="tablesorter-header category" >Description</th>
                             <th width="5%" class="tablesorter-header category" >Module</th>
@@ -161,11 +230,14 @@ table tr td {
                             <th width="5%" class="tablesorter-header category">Next Run</th>
                             <th width="5%" class="tablesorter-header category">Frequencies</th>
                             <th width="5%">Action</th>
+                            <th width="5%" class="">Enable & Disable</th>
+
                         </tr>
                     </thead>
                     <tbody>
                             @foreach($tasks as $key => $task)
                             <tr class="{{$task->is_active ? '' : 'red' }}">
+                                <td style="text-align: center"><input type="checkbox" data-id="{{$task->id}}" class="checkBoxClass" id="checkbox{{$task->id}}"/></td>
                                 <td>{{$task->id}}</td>
                                 <td >
                                         {{Str::limit($task->description, 30)}}
@@ -201,12 +273,17 @@ table tr td {
                                         <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
                                     @endif
                                     <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$task->id}}" title="task status" data-active="{{$task->is_active}}"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
 
                                     <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-schedule" href="#" data-id="{{$task->command}}" title="See Cron query and description"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+                                </td>
+                                <td>
+                                    <label class="switch">
+                                        <input class="active-task" data-id="{{$task->id}}" data-active="{{$task->is_active}}" {{$task->is_active ? "checked" : ""}} type="checkbox">
+                                        <span class="slider round"></span>
+                                    </label>
                                 </td>
                             </tr>
                             @endforeach
@@ -584,9 +661,8 @@ table tr td {
 
 @endsection
 @section('scripts')
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
     // $('ul.pagination').hide();
@@ -612,7 +688,46 @@ table tr td {
     $('#command').select2({
         dropdownParent: $('#addEditTaskModal')
     });
-
+    $("#ckbCheckAll").click(function () {
+        $(".checkBoxClass").prop('checked', $(this).prop('checked'));
+    });
+    $(".enable-disable").click(function () {
+        let type = $(this).attr('cron-status')
+        var selectedIds = []
+        $(".checkBoxClass:checked").each(function () {
+            selectedIds.push($(this).attr('data-id'))
+        })
+        if(selectedIds.length == 0){
+            toastr['error']('Please select at least one task to enable   ');
+        return;
+        }
+        $.ajax({
+            type: "POST",
+            url: "/totem/tasks/enable-disable",
+            beforeSend : function() {
+                $(".ajax-loader").show();
+            },
+            dataType : "json",
+            data:{
+                ids:selectedIds,
+                active: type,
+                _token: "{{ csrf_token() }}",
+            },
+            success: function (response) {
+                if(response.status){
+                    toastr['success'](response.message);
+                }else{
+                    toastr['error'](response.message);
+                }
+                setTimeout(function(){
+                    window.location.reload(1);
+                }, 1000);
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });
     $('#developer_module_id').select2({
         dropdownParent: $('#addEditTaskModal')
     });
