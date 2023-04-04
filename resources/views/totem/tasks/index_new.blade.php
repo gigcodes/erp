@@ -237,7 +237,7 @@ table tr td {
                     <tbody>
                             @foreach($tasks as $key => $task)
                             <tr class="{{$task->is_active ? '' : 'red' }}">
-                                <td style="text-align: center"><input type="checkbox" data-id="{{$task->id}}" class="checkBoxClass" id="checkbox{{$task->id}}"/></td>
+                                <td style="text-align: center;vertical-align: middle;"><input style="height:15px;" type="checkbox" data-id="{{$task->id}}" class="checkBoxClass" id="checkbox{{$task->id}}"/></td>
                                 <td>{{$task->id}}</td>
                                 <td >
                                         {{Str::limit($task->description, 30)}}
