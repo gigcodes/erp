@@ -4545,6 +4545,7 @@ Route::middleware('auth')->prefix('totem')->group(function () {
         Route::post('{task}/status', [TasksController::class, 'status'])->name('totem.task.status');
         Route::get('{task}/development-task', [TasksController::class, 'developmentTask'])->name('totem.task.developmentTask');
         Route::post('{task}/get-error', [TasksController::class, 'totemCommandError'])->name('totem.task.get-error');
+        Route::post('enable-disable', [TasksController::class, 'enableDisableCron'])->name('totem.task.enable-disable');
     });
 });
 
