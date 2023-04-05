@@ -348,6 +348,7 @@ use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
+use App\Http\Controllers\GoogleCampaignLocationController;
 
 
 Auth::routes();
@@ -4027,9 +4028,19 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
                 });
             });
+        });
 
+        Route::prefix('google-campaign-location')->group(function () {
+            Route::get('/', [GoogleCampaignLocationController::class, 'index'])->name('google-campaign-location.index');
+            Route::post('/create', [GoogleCampaignLocationController::class, 'createLocation'])->name('google-campaign-location.createLocation');
+            Route::delete('/delete/{locationId}', [GoogleCampaignLocationController::class, 'deleteLocation'])->name('google-campaign-location.deleteLocation');
         });
     });
+
+    Route::get('google-campaign-location/countries', [GoogleCampaignLocationController::class, 'countries'])->name('google-campaign-location.countries');
+    Route::get('google-campaign-location/states', [GoogleCampaignLocationController::class, 'states'])->name('google-campaign-location.states');
+    Route::get('google-campaign-location/cities', [GoogleCampaignLocationController::class, 'cities'])->name('google-campaign-location.cities');
+    Route::get('google-campaign-location/address', [GoogleCampaignLocationController::class, 'address'])->name('google-campaign-location.address');
 
     Route::get('/logs', [GoogleAdsLogController::class, 'index'])->name('googleadslogs.index');
     Route::get('/ad-report', [GoogleAdReportController::class, 'index'])->name('googleadreport.index');

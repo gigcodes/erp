@@ -19,6 +19,7 @@ use Google\Ads\GoogleAds\V12\Common\LanguageInfo;
 use Google\Ads\GoogleAds\V12\Common\FrequencyCapKey;
 use Google\Ads\GoogleAds\V12\Common\FrequencyCapEntry;
 use Google\Ads\GoogleAds\V12\Common\MaximizeConversionValue;
+use Google\Ads\GoogleAds\V12\Common\LocationInfo;
 use Google\Ads\GoogleAds\V12\Enums\FrequencyCapLevelEnum\FrequencyCapLevel;
 use Google\Ads\GoogleAds\V12\Enums\BiddingStrategyTypeEnum\BiddingStrategyType;
 use Google\Ads\GoogleAds\V12\Enums\FrequencyCapTimeUnitEnum\FrequencyCapTimeUnit;
@@ -29,6 +30,7 @@ use Google\Ads\GoogleAds\V12\Enums\NegativeGeoTargetTypeEnum\NegativeGeoTargetTy
 use Google\Ads\GoogleAds\V12\Enums\AdvertisingChannelTypeEnum\AdvertisingChannelType;
 use Google\Ads\GoogleAds\V12\Enums\AdvertisingChannelSubTypeEnum\AdvertisingChannelSubType;
 use Google\Ads\GoogleAds\V12\Enums\AppCampaignBiddingStrategyGoalTypeEnum\AppCampaignBiddingStrategyGoalType;
+use Google\Ads\GoogleAds\V12\Enums\GeoTargetConstantStatusEnum\GeoTargetConstantStatus;
 use Google\Ads\GoogleAds\V12\Enums\OptimizationGoalTypeEnum\OptimizationGoalType;
 use Google\Ads\GoogleAds\V12\Enums\CampaignStatusEnum\CampaignStatus;
 use Google\Ads\GoogleAds\V12\Enums\AppCampaignAppStoreEnum\AppCampaignAppStore;
@@ -44,6 +46,7 @@ use Google\Ads\GoogleAds\V12\Services\CampaignBudgetOperation;
 use Google\Ads\GoogleAds\V12\Services\CampaignOperation;
 use Google\Ads\GoogleAds\V12\Services\CampaignCriterionOperation;
 use Google\Ads\GoogleAds\V12\Errors\GoogleAdsError;
+use Google\Ads\GoogleAds\V12\Services\SuggestGeoTargetConstantsRequest\LocationNames;
 use Illuminate\Http\Request;
 use Google\Protobuf\Int32Value;
 
@@ -53,10 +56,18 @@ use App\Models\GoogleResponsiveDisplayAdMarketingImage;
 use App\Models\GoogleAppAd;
 use App\Models\GoogleAppAdImage;
 use App\Models\GoogleCampaignTargetLanguage;
+use App\Models\GoogleCampaignLocation;
+use App\Models\Country;
+use App\Models\State;
+use App\Models\City;
 use App\GoogleAd;
 use App\GoogleAdsGroup;
 
 use App\Helpers\GoogleAdsHelper;
+
+use Google\Ads\GoogleAds\V12\Common\ProximityInfo;
+use Google\Ads\GoogleAds\V12\Common\AddressInfo;
+use Google\Ads\GoogleAds\V12\Enums\ProximityRadiusUnitsEnum\ProximityRadiusUnits;
 
 class GoogleCampaignsController extends Controller
 {
@@ -229,16 +240,7 @@ class GoogleCampaignsController extends Controller
             return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
         }
         // $storagepath = $this->getstoragepath($account_id);
-        //echo $storagepath; exit;
-        //echo $storagepath; exit;
-        /* $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile($storagepath)
-            ->build();
-
-        $session = (new AdWordsSessionBuilder())
-            ->fromFile($storagepath)
-            ->withOAuth2Credential($oAuth2Credential)
-            ->build(); */
+        
 
         $query = \App\GoogleAdsCampaign::query();
         if ($request->googlecampaign_id) {
@@ -287,81 +289,10 @@ class GoogleCampaignsController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries, 'biddingStrategyTypes' => $biddingStrategyTypes]);
+        return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries, 'biddingStrategyTypes' => $biddingStrategyTypes, 'account_id' => $account_id]);
         /*$adWordsServices = new AdWordsServices();
          $campInfo = $this->getCampaigns($adWordsServices, $session);
         return view('googlecampaigns.index', ['campaigns' => $campInfo['campaigns'], 'totalNumEntries' => $campInfo['totalNumEntries']]); */
-    }
-
-    // get campaigns and total count
-    public function getCampaigns(AdWordsServices $adWordsServices, AdWordsSession $session)
-    {
-        $campaignService = $adWordsServices->get($session, CampaignService::class);
-
-        // Create selector.
-        $campaignSelector = new Selector();
-        $campaignSelector->setFields(['Id', 'Name', 'Status', 'BudgetId', 'BudgetName', 'Amount']);
-        $campaignSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
-        $campaignSelector->setPaging(new Paging(0, 10));
-
-        $adGroupService = $adWordsServices->get($session, AdGroupService::class);
-
-        // Create a selector to select all ad groups for the specified campaign.
-        $groupSelector = new Selector();
-        $groupSelector->setFields(['Id', 'Name']);
-        $groupSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
-        $groupSelector->setPaging(new Paging(0, 10));
-
-        //        $budgetService = $adWordsServices->get($session, BudgetService::class);
-        $totalNumEntries = 0;
-        $campaigns = [];
-        do {
-            // Make the get request.
-            $page = $campaignService->get($campaignSelector);
-            // Display results.
-            if ($page->getEntries() !== null) {
-                $totalNumEntries = $page->getTotalNumEntries();
-                foreach ($page->getEntries() as $campaign) {
-                    // getting campaign's adgroups
-                    $groupSelector->setPredicates(
-                        [new Predicate('CampaignId', PredicateOperator::IN, [$campaign->getId()])]
-                    );
-                    $adGroupPage = $adGroupService->get($groupSelector);
-                    $adGroups = [];
-                    if ($adGroupPage->getEntries() !== null) {
-                        //                        $totalNumEntries = $page->getTotalNumEntries();
-                        foreach ($adGroupPage->getEntries() as $adGroup) {
-                            $adGroups[] = [
-                                'adGroupId' => $adGroup->getId(),
-                                'adGroupName' => $adGroup->getName(),
-                            ];
-                        }
-                    }
-                    // getting budget
-                    $campaignBudget = $campaign->getBudget();
-                    // adding new campaign
-                    $campaigns[] = [
-                        'campaignId' => $campaign->getId(),
-                        'campaignGroups' => $adGroups,
-                        'name' => $campaign->getName(),
-                        'status' => $campaign->getStatus(),
-                        'budgetId' => $campaignBudget->getBudgetId(),
-                        'budgetName' => $campaignBudget->getName(),
-                        'budgetAmount' => $campaignBudget->getAmount()->getMicroAmount() / 1000000,
-                    ];
-                }
-            }
-
-            // Advance the paging index.
-            $campaignSelector->getPaging()->setStartIndex(
-                $campaignSelector->getPaging()->getStartIndex() + 10
-            );
-        } while ($campaignSelector->getPaging()->getStartIndex() < $totalNumEntries);
-
-        return [
-            'totalNumEntries' => $totalNumEntries,
-            'campaigns' => $campaigns,
-        ];
     }
 
     // go to create page
@@ -597,6 +528,83 @@ class GoogleCampaignsController extends Controller
                 }
             }
             // End Target Language 
+
+            // Start Target Location
+            if(@$request->target_location == "other"){
+                if(@$request->target_location_type == "radius"){
+                    $addedLocation = self::addLocationWithRadius(
+                                                        $googleAdsClient, 
+                                                        $customerId, 
+                                                        $campaignArray['google_campaign_id'], 
+                                                        @$request->target_location_address, 
+                                                        @$request->target_location_distance, 
+                                                        @$request->target_location_radius_units
+                                                    );
+
+                    if(!empty($addedLocation)){
+                        $locationArr = array(
+                                            'google_customer_id' => $customerId,
+                                            'adgroup_google_campaign_id' => $campaignArray['google_campaign_id'],
+                                            'google_location_id' => $addedLocation['location_id'],
+                                            'type' => $request->target_location_type,
+                                            'address' => @$request->target_location_address,
+                                            'distance' => @$request->target_location_distance,
+                                            'radius_units' => @$request->target_location_radius_units,
+                                            'is_target' => true,
+                                        );
+
+                        GoogleCampaignLocation::create($locationArr);
+                    }
+                }else{
+
+                    $search = "";
+                    if(@$request->city_id){
+                        $city = City::find($request->city_id);
+                        $search .= @$city->name ? $city->name : "";
+                    }
+
+                    if(@$request->state_id){
+                        $state = State::find($request->state_id);
+                        $search .= @$state->name ? ",". $state->name : "";
+                    }
+
+                    if(@$request->country_id){
+                        $country = Country::find($request->country_id);
+                        $search .= @$country->name ? ",". $country->name : "";
+                    }
+
+                    if(!empty($search)){
+                        $geoTargetConstant = self::getGeoTargetConstant($googleAdsClient, $search); 
+
+                        if(!empty($geoTargetConstant)){
+                            $addedLocation = self::addLocation(
+                                                                $googleAdsClient, 
+                                                                $customerId, 
+                                                                $campaignArray['google_campaign_id'], 
+                                                                $geoTargetConstant['location_id'],
+                                                                (@$request->is_target == 0 ? true : false)
+                                                            );
+
+                            if(!empty($addedLocation)){
+                                $locationArr = array(
+                                                    'google_customer_id' => $customerId,
+                                                    'adgroup_google_campaign_id' => $campaignArray['google_campaign_id'],
+                                                    'google_location_id' => $addedLocation['location_id'],
+                                                    'type' => $request->target_location_type,
+                                                    'country_id' => @$request->country_id,
+                                                    'state_id' => @$request->state_id,
+                                                    'city_id' => @$request->city_id,
+                                                    'address' => $search,
+                                                    'is_target' => @$request->is_target,
+                                                );
+
+                                GoogleCampaignLocation::create($locationArr);
+                            }
+                        }
+                    }
+                }
+            }
+            // End Target Location
 
             // Insert google ads log 
             $input = array(
@@ -1269,7 +1277,7 @@ class GoogleCampaignsController extends Controller
     }
 
     // add target language
-    private function addTargetLanguage($googleAdsClient, $customerId, $campaignId, $languageConstantId)
+    public static function addTargetLanguage($googleAdsClient, $customerId, $campaignId, $languageConstantId)
     {
         $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
 
@@ -1308,7 +1316,7 @@ class GoogleCampaignsController extends Controller
     }
 
     // remove target language
-    private function removeTargetLanguage($googleAdsClient, $customerId, $campaignId, $languageConstantId)
+    public static function removeTargetLanguage($googleAdsClient, $customerId, $campaignId, $languageConstantId)
     {
         try {
             // Creates campaign criterion resource name.
@@ -1340,5 +1348,136 @@ class GoogleCampaignsController extends Controller
 
             return false;    
         }
+    }
+
+    public static function addLocation($googleAdsClient, $customerId, $campaignId, $locationId, $isTarget){
+
+        try {
+            $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
+
+            $campaignCriterion = new CampaignCriterion([
+                'location' => new LocationInfo([
+                    'geo_target_constant' => ResourceNames::forGeoTargetConstant($locationId)
+                ]),
+                'negative' => $isTarget,
+                'campaign' => $campaignResourceName,
+            ]);
+
+            $campaignCriterionOperation = new CampaignCriterionOperation();
+            $campaignCriterionOperation->setCreate($campaignCriterion);
+
+            $campaignCriterionServiceClient = $googleAdsClient->getCampaignCriterionServiceClient();
+
+            $response = $campaignCriterionServiceClient->mutateCampaignCriteria(
+                $customerId,
+                [$campaignCriterionOperation]
+            );
+
+            $addedCampaignCriterion = $response->getResults()[0];
+            $locationResourceName = $addedCampaignCriterion->getResourceName();
+
+            $response = array(
+                            'location_id' => substr($locationResourceName, strrpos($locationResourceName, "~") + 1),
+                            'location_resource_name' => $locationResourceName,
+                        );
+        } catch (Exception $e) {
+            $response = [];
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Campaign',
+                        'message' => 'Add campaign target location > '.$campaignId.' > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);    
+        }
+
+        return $response;
+    }
+
+    public static function addLocationWithRadius($googleAdsClient, $customerId, $campaignId, $address, $radius, $radiusUnits){
+
+        try {
+            if($radiusUnits == "km"){
+                $radiusUnits = ProximityRadiusUnits::KILOMETERS;
+            }else{
+                $radiusUnits = ProximityRadiusUnits::MILES;
+            }
+
+            $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
+
+            $campaignCriterion = new CampaignCriterion([
+                'proximity' => new ProximityInfo([
+                    'address' => new AddressInfo([
+                        'street_address' => $address
+                    ]),
+                    'radius' => $radius,
+                    // Default is kilometers.
+                    'radius_units' => $radiusUnits
+                ]),
+                'campaign' => $campaignResourceName
+            ]);
+
+            $campaignCriterionOperation = new CampaignCriterionOperation();
+            $campaignCriterionOperation->setCreate($campaignCriterion);
+
+            $campaignCriterionServiceClient = $googleAdsClient->getCampaignCriterionServiceClient();
+
+            $response = $campaignCriterionServiceClient->mutateCampaignCriteria(
+                $customerId,
+                [$campaignCriterionOperation]
+            );
+
+            $addedCampaignCriterion = $response->getResults()[0];
+            $locationResourceName = $addedCampaignCriterion->getResourceName();
+
+            $response = array(
+                            'location_id' => substr($locationResourceName, strrpos($locationResourceName, "~") + 1),
+                            'location_resource_name' => $locationResourceName,
+                        );
+        } catch (Exception $e) {
+            $response = [];
+            // Insert google ads log 
+            $input = array(
+                        'type' => 'ERROR',
+                        'module' => 'Campaign',
+                        'message' => 'Add campaign target location with radius > '.$campaignId.' > '. $e->getMessage(),
+                    );
+            insertGoogleAdsLog($input);    
+        }
+
+        return $response;
+    }
+
+    public static function getGeoTargetConstant($googleAdsClient, $search){
+
+        $geoTargetConstantServiceClient = $googleAdsClient->getGeoTargetConstantServiceClient();
+
+        $response = $geoTargetConstantServiceClient->suggestGeoTargetConstants([
+            // 'locale' => $locale,
+            // 'countryCode' => $countryCode,
+            'locationNames' => new LocationNames(['names' => [$search]])
+        ]);
+
+        // Iterates over all geo target constant suggestion objects and prints the requested field
+        // values for each one.
+        $result = array();
+        foreach ($response->getGeoTargetConstantSuggestions() as $geoTargetConstantSuggestion) {
+            
+            $status = GeoTargetConstantStatus::name(
+                    $geoTargetConstantSuggestion->getGeoTargetConstant()->getStatus()
+                );
+
+            if($status == "ENABLED"){
+                $locationResourceName = $geoTargetConstantSuggestion->getGeoTargetConstant()->getResourceName();
+                $result = array(
+                            'location_id' => substr($locationResourceName, strrpos($locationResourceName, "/") + 1),
+                            'location_name' => $geoTargetConstantSuggestion->getGeoTargetConstant()->getCanonicalName(),
+                        );
+
+                return $result;
+            }
+        }
+
+        return $result;
     }
 }
