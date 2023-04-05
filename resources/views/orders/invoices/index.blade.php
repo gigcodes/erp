@@ -131,6 +131,9 @@
                    <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$invoice->id) }}">
                    <i class="fa fa-download"></i>
                    </a>
+                  <a title="Save For Later" class="btn btn-image saveLaterButton" invoiceNumber="{{$invoice->invoice_number}}" invoiceId="{{$invoice->id}}" href="javascript:void(0)">
+                     <i class="fa fa-clock-o"></i>
+                  </a>
                 </td>
              </tr>
              @endforeach
@@ -424,5 +427,17 @@
           toastr['error'](errObj.responseJSON.message);
       });
    });
+   $(document).on('click','.saveLaterButton',function(){
+      let invoiceId = $(this).attr('invoiceId');
+      let invoiceNumber = $(this).attr('invoiceNumber');
+      $.ajax({
+         type:"get",
+         url:"{{ url('order/invoices/saveLater') }}",
+         data:{invoiceId:invoiceId,invoiceNumber:invoiceNumber},
+         success:function(data){
+            toastr['success']('Invoice saved for print later!.');
+         }
+      })
+   })   
 </script>
 @endsection

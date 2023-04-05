@@ -1274,6 +1274,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('order/store/website', [OrderController::class, 'storeWebsiteList'])->name('order.storeWebsiteList');
 
     Route::get('order/invoices', [OrderController::class, 'viewAllInvoices']);
+    Route::get('order/invoices/saveLater', [OrderController::class, 'saveLaterCreate']);
+    Route::get('order/invoices/saveLaterList', [OrderController::class, 'saveLaterList']);
+    Route::get('order/invoices/ViewsaveLaterList/{id}', [OrderController::class, 'ViewsaveLaterList']);
     Route::post('order/create-product', [OrderController::class, 'createProduct'])->name('order.create.product');
 
     Route::get('order/{id}/edit-invoice', [OrderController::class, 'editInvoice'])->name('order.edit.invoice');
