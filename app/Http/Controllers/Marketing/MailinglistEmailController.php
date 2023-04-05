@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\GmailData;
+use App\GmailDataList;
 use App\Http\Controllers\Controller;
 use App\Image;
 use App\Mailinglist;
@@ -19,7 +19,7 @@ class MailinglistEmailController extends Controller
         $audience = Mailinglist::all();
         $templates = MailinglistTemplate::all();
         $images = Image::all();
-        $images_gmail = GmailData::all();
+        $images_gmail = GmailDataList::all();
         $mailings = MailinglistEmail::with('audience', 'template')->orderBy('created_at', 'desc')->get();
 
         return view('marketing.mailinglist.sending-email.index', compact('audience', 'templates', 'images', 'images_gmail', 'mailings'));

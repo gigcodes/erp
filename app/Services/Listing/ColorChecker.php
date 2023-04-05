@@ -5,6 +5,7 @@ namespace App\Services\Listing;
 use App\ColorReference;
 use App\Colors;
 use Illuminate\Support\Str;
+use Schema;
 
 class ColorChecker implements CheckerInterface
 {
@@ -14,7 +15,7 @@ class ColorChecker implements CheckerInterface
 
     public function __construct()
     {
-        if (! env('CI')) {
+        if ((!env('CI')) && (Schema::hasTable('color_references') )) {
             $this->setAvailableColors();
             $this->setColorTracks();
         }

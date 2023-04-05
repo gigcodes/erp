@@ -59,17 +59,19 @@ class GoogleDocController extends Controller
     public function create(Request $request)
     {
         $data = $this->validate($request, [
-            'type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
-            'doc_name' => ['required', 'max:800'],
-            'existing_doc_id' => ['sometimes', 'nullable', 'string', 'max:800'],
-            'read' => ['sometimes'],
-            'write' => ['sometimes'],
+            'type'              => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
+            'doc_name'          => ['required', 'max:800'],
+            'doc_category'      => ['required', 'max:191'],
+            'existing_doc_id'   => ['sometimes', 'nullable', 'string', 'max:800'],
+            'read'              => ['sometimes'],
+            'write'             => ['sometimes'],
         ]);
 
         DB::transaction(function () use ($data) {
-            $googleDoc = new GoogleDoc();
-            $googleDoc->type = $data['type'];
-            $googleDoc->name = $data['doc_name'];
+            $googleDoc              = new GoogleDoc();
+            $googleDoc->type        = $data['type'];
+            $googleDoc->name        = $data['doc_name'];
+            $googleDoc->category    = $data['doc_category'];
             if (isset($data['read'])) {
                 $googleDoc->read = implode(',', $data['read']);
             }
@@ -127,6 +129,13 @@ class GoogleDocController extends Controller
     public function edit($id)
     {
         //
+        $modal = GoogleDoc::where('id', $id)->first();
+
+        if ($modal) {
+            return response()->json(['code' => 200, 'data' => $modal]);
+        }
+
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
     }
 
     /**
@@ -136,9 +145,15 @@ class GoogleDocController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         //
+        $modal = GoogleDoc::where('id', $request->id)->update(['category' => $request->doc_category]);
+        if($modal){
+            return back()->with('success', "Google Doc Category successfully updated.");
+        }else{
+            return back()->with('error', "Something went wrong.");
+        }
     }
 
     /**
@@ -227,6 +242,45 @@ class GoogleDocController extends Controller
         return back()->with('success', "Permission successfully updated.");
     }
 
+    public function permissionRemove(Request $request)
+    {
+        $googledocs = GoogleDoc::get();
+
+        foreach($googledocs as $googledoc)
+        {
+            $read = explode(',',$googledoc->read);
+
+            if (($key = array_search($request->remove_permission, $read)) !== false) {
+                unset($read[$key]);
+            }
+            $new_read_data = implode(',',$read);
+            $googledoc->read = $new_read_data;
+
+            $write = explode(',',$googledoc->write);
+            if (($key = array_search($request->remove_permission, $write)) !== false) {
+                unset($write[$key]);
+            }
+            $new_write_data = implode(',',$write);
+            $googledoc->write = $new_write_data;
+
+            $googledoc->update();
+        }
+
+        return back()->with('success', "Permission successfully Remove");
+    }
+
+    public function permissionView(Request $request){
+        $googledoc = GoogleDoc::where('id', $request->id)->first();
+
+        $data =[
+            'read' => $googledoc->read,
+            'write' => $googledoc->write,
+            'code' => 200,
+        ];
+
+        return $data;
+    }
+    
     /**
      * Search data of google docs.
      *
