@@ -138,6 +138,7 @@
           <th>Task Id</th>
           <th>Summery</th>
           <th>Account</th>
+          <th>Create DateTime</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -155,6 +156,7 @@
                   -
               @endif
           </td>
+          <td style="vertical-align:middle;">{{ $task->created_at }}</td>
           <td style="vertical-align:middle;"><button type="button" class="btn btn-secondary edit_task" data-id="{{ $task->id }}">Edit Task</button></td>
         </tr>
       </tbody>
