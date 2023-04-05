@@ -65,8 +65,11 @@
       @endforeach
     </select>
   </td>
+  <td>
+    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn({{ $email->id }})"><i class="fa fa-arrow-down"></i></button>
+  </td>
 </tr>
-<tr>
+<tr class="action-btn-tr-{{ $email->id }} d-none">
   <th>Action</th>
   <td colspan="11">
     @if($email->type != "incoming")
@@ -76,6 +79,9 @@
     @endif
     <a title="Reply" class="btn-image reply-email-btn" data-toggle="modal" data-target="#replyMail" data-id="{{ $email->id }}" >
     <i class="fa fa-reply"></i>
+    </a>
+    <a title="Reply All" class="btn-image reply-all-email-btn" data-toggle="modal" data-target="#replyAllMail" data-id="{{ $email->id }}" >
+      <i class="fa fa-reply-all"></i>
     </a>
     <a title="Forward" class="btn-image forward-email-btn" data-toggle="modal" data-target="#forwardMail" data-id="{{ $email->id }}" >
     <i class="fa fa-share"></i>

@@ -911,6 +911,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('update', [SopController::class, 'update'])->name('updateName');
     Route::get('sop/search', [SopController::class, 'search']);
     Route::get('sop/search-ajax', [SopController::class, 'ajaxsearch'])->name('menu.sop.search');
+    Route::get('email/search-ajax', [EmailController::class, 'ajaxsearch'])->name('menu.email.search');
     Route::get('soplogs', [SopController::class, 'sopnamedata_logs'])->name('sopname.logs');
     Route::get('sop/DownloadData/{id}', [SopController::class, 'downloaddata'])->name('sop.download');
     // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
@@ -1335,6 +1336,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/replyMail/{id}', [EmailController::class, 'replyMail']);
     Route::post('email/replyMail', [EmailController::class, 'submitReply'])->name('email.submit-reply');
 
+    Route::get('email/replyAllMail/{id}', [EmailController::class, 'replyAllMail']);
+    Route::post('email/replyAllMail', [EmailController::class, 'submitReplyAll'])->name('email.submit-reply-all');
+
     Route::get('email/forwardMail/{id}', [EmailController::class, 'forwardMail']);
     Route::post('email/forwardMail', [EmailController::class, 'submitForward'])->name('email.submit-forward');
 
@@ -1342,12 +1346,15 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::put('email/{id}/mark-as-read', [EmailController::class, 'markAsRead']);
     Route::post('email/{id}/excel-import', [EmailController::class, 'excelImporter']);
     Route::post('email/{id}/get-file-status', [EmailController::class, 'getFileStatus']);
+   
+    
     Route::resource('email', EmailController::class);
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
     Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
+    Route::get('email/category/mappings', [EmailController::class, 'getCategoryMappings']);
 
     Route::get('email/order_data/{email?}', [EmailController::class, 'index']); //Purpose : Add Route -  DEVTASK-18283
     Route::post('email/platform-update', [EmailController::class, 'platformUpdate']);
@@ -4805,6 +4812,3 @@ Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
 Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
 Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
  });
-
-
-   
