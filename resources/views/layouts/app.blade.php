@@ -3480,7 +3480,11 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item"
-                                                    href="{{route('time-doctor-acitivties.notification.index')}}">Acitivties Notification</a>
+                                                    href="{{route('time-doctor-acitivties.activities')}}">Acitivties</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item"
+                                                    href="{{route('time-doctor-acitivties.notification.index')}}">Notification</a>
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item"

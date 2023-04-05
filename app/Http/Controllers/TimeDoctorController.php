@@ -107,11 +107,34 @@ class TimeDoctorController extends Controller
 
     public function getTasks(Request $request)
     {
-        $tasks = TimeDoctorTask::all();
+        $tasks = TimeDoctorTask::query();
+
+        if(isset($request->time_doctor_task_id) && $request->time_doctor_task_id != "") {
+            $tasks->where("time_doctor_task_id", "like", "%$request->time_doctor_task_id%");
+        }
+
+        if(isset($request->time_doctor_account_id) && count($request->time_doctor_account_id) > 0) {
+            $tasks->whereIn("time_doctor_account_id", $request->time_doctor_account_id);
+        }
+
+        if(isset($request->summery) && $request->summery != "") {
+            $tasks->where("summery", "like", "%$request->summery%");
+        }
+
+        $tasks = $tasks->get();
+
+        if($request->ajax()) {
+            return response()->json([
+                'tbody' => view('time-doctor.tasks-list', [ 'tasks' => $tasks])->render()
+            ], 200);
+        }
+        $accountList = TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token','!=','')->get();
+
         return view(
             'time-doctor.tasks', 
             [
                 'tasks' => $tasks,
+                'accountList' => $accountList
             ]
         );
     }

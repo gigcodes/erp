@@ -173,8 +173,8 @@
         </tr>
       </thead>
       @php  $no=1; @endphp
-      @foreach($members as $member)
       <tbody>
+      @foreach($members as $member)
         <tr>
           <td style="vertical-align:middle;">{{ $no++ }}</td>
           <td style="vertical-align:middle;">{{ $member->id }}</td>
@@ -193,8 +193,8 @@
             </div>
           </td>
         </tr>
+        @endforeach
       </tbody>
-      @endforeach
     </table>
     <br>
     <hr>
