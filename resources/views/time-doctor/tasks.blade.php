@@ -137,6 +137,7 @@
           <th>#</th>
           <th>Task Id</th>
           <th>Summery</th>
+          <th>Account</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -147,6 +148,13 @@
           <td style="vertical-align:middle;">{{ $no++ }}</td>
           <td style="vertical-align:middle;">{{ $task->time_doctor_task_id }}</td>
           <td style="vertical-align:middle;">{{ $task->summery }}</td>
+          <td style="vertical-align:middle;">
+              @if (isset($task->account) && isset($task->account->id))
+                {{$task->account->time_doctor_email}}
+              @else
+                  -
+              @endif
+          </td>
           <td style="vertical-align:middle;"><button type="button" class="btn btn-secondary edit_task" data-id="{{ $task->id }}">Edit Task</button></td>
         </tr>
       </tbody>

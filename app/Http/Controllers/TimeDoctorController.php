@@ -33,25 +33,74 @@ class TimeDoctorController extends Controller
      */
     public function userList(Request $request)
     {
-        $members = TimeDoctorMember::all();
+        $members = TimeDoctorMember::query();
         $users = User::all('id', 'name');
         
+        if(isset($request->time_doctor_user_id) && $request->time_doctor_user_id != ""){  
+            $members->where("time_doctor_user_id", "like", "%$request->time_doctor_user_id%");
+        }
+        if(isset($request->time_doctor_email) && $request->time_doctor_email != ""){
+            $members->where("email", "like", "%$request->time_doctor_email%");
+        }
+        if(isset($request->time_doctor_account_id) && count($request->time_doctor_account_id) > 0){
+            $members->whereIn("time_doctor_account_id", $request->time_doctor_account_id);
+        }
+        if(isset($request->time_doctor_user) && count($request->time_doctor_user) > 0){
+            $members->whereIn("user_id", $request->time_doctor_user);
+        }
+
+
+        $members = $members->get();
+        if($request->ajax()){
+            return response()->json([
+                'tbody' => view('time-doctor.users-list', ['members' => $members, 'users' => $users])->render()
+            ], 200);
+        }
+
+        $accountList = TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token','!=','')->get();
+
         return view(
             'time-doctor.users',
             [
                 'members' => $members,
                 'users' => $users,
+                'accountList' => $accountList
             ]
         );        
     }
 
     public function getProjects(Request $request)
     {
-        $projects = TimeDoctorProject::all();
+        $projects = TimeDoctorProject::query();
+        // dd($request->all());
+
+        if(isset($request->time_doctor_project_id) && $request->time_doctor_project_id != ""){  
+            $projects->where("time_doctor_project_id", "like", "%$request->time_doctor_project_id%");
+        }
+        if(isset($request->time_doctor_company_id) && $request->time_doctor_company_id != ""){
+            $projects->where("time_doctor_company_id", "like", "%$request->time_doctor_company_id%");
+        }
+        if(isset($request->time_doctor_project_name) && $request->time_doctor_project_name != ""){
+            $projects->where("time_doctor_project_name", "like", "%$request->time_doctor_project_name%");
+        }
+
+        if(isset($request->time_doctor_account) && count($request->time_doctor_account) > 0){
+            $projects->whereIn("time_doctor_account_id", $request->time_doctor_account);
+        }
+
+        $projects = $projects->get();
+        if($request->ajax()){
+            return response()->json([
+                'tbody' => view('time-doctor.list', ['projects' => $projects])->render()
+            ], 200);
+        }
+
+        $accountList = TimeDoctorAccount::select('id', 'time_doctor_email')->where('auth_token','!=','')->get();
         return view(
             'time-doctor.projects', 
             [
                 'projects' => $projects,
+                'accountList' => $accountList
             ]
         );
     }

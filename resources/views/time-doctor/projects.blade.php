@@ -124,13 +124,44 @@
   @if(!empty($projects))
   <div class="row">
     <div class="col-md-12 pr-5 pl-5">
-    <button type="button" class="btn btn-secondary float-right-addbtn" id="add_project">+ Add Project</button>
-    <button type="button" class="btn btn-danger float-right-addbtn" id="refresh_projects"> Refresh Projects</button>
-    <table class="table table-bordered">
+    <div class="row">
+        <div class="col-lg-8 col-12">
+          <form id="filter">
+            <div class="row">
+              <div class="col-lg-4 col-md-6 col-12">
+                <input type="text" class="form-control" name="time_doctor_project_id" id="time_doctor_project_id" placeholder="Project ID">
+              </div>
+              <div class="col-lg-4 col-md-6 col-12">
+                <input type="text" class="form-control" name="time_doctor_company_id" id="time_doctor_company_id" placeholder="Company ID">
+              </div>
+              <div class="col-lg-4 col-md-6 col-12">
+                <input type="text" class="form-control" name="time_doctor_project_name" id="time_doctor_project_name"  placeholder="Project Name">
+              </div>
+              <div class="col-lg-4 col-md-6 col-12 mt-4 mb-4">
+                <select class="form-control" name="time_doctor_account" id="time_doctor_account">
+                  @foreach($accountList as $account)
+                    <option value="{{$account->id}}">{{$account->time_doctor_email}}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-lg-4 col-12">
+                  <button type="button" class="btn btn-image mt-4" onclick="submitSearch()"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
+                  <button type="button" class="btn btn-image mt-4" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" style="cursor: nwse-resize;"></button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-lg-4 col-12">
+          <button type="button" class="btn btn-secondary float-right-addbtn" id="add_project">+ Add Project</button>
+          <button type="button" class="btn btn-danger float-right-addbtn" id="refresh_projects"> Refresh Projects</button>
+
+        </div>
+    </div>
+    <table class="table table-bordered" id="time-doctor-projects">
       <thead>
         <tr>
           <th>#</th>
-          <th>Project Id</th>
+          {{-- <th>Project Id</th> --}}
           <th>TimeDocter Project Id</th>
           <th>TimeDocter Project Name</th>
           <th>TimeDocter Company Id</th>
@@ -143,7 +174,7 @@
       <tbody>
         <tr>
           <td style="vertical-align:middle;">{{ $no++ }}</td>
-          <td style="vertical-align:middle;">{{ $project->id }}</td>
+          {{-- <td style="vertical-align:middle;">{{ $project->id }}</td> --}}
           <td style="vertical-align:middle;">{{ $project->time_doctor_project_id }}</td>
           <td style="vertical-align:middle;">{{ $project->time_doctor_project_name }}</td>
           <td style="vertical-align:middle;">{{ $project->time_doctor_company_id }}</td>
@@ -288,5 +319,68 @@
     }
   });
 
+  $(document).ready(function () {
+  	$("#time_doctor_account").select2({
+      multiple: true,
+      placeholder: "select account"
+    });
+    $("#time_doctor_account").val(null);
+    $("#time_doctor_account").trigger("change");
+  });
+
+  function submitSearch(){
+      src = "{{route('time-doctor.projects')}}"
+      time_doctor_project_id = $('#time_doctor_project_id').val()
+      time_doctor_company_id = $('#time_doctor_company_id').val()
+      time_doctor_project_name = $('#time_doctor_project_name').val()
+      time_doctor_account = $('#time_doctor_account').val()
+      $.ajax({
+          url: src,
+          dataType: "json",
+          data: {
+            time_doctor_project_id,
+            time_doctor_company_id,
+            time_doctor_project_name,
+            time_doctor_account
+          },
+          beforeSend: function () {
+              $("#loading-image").show();
+          },
+
+      }).done(function (data) {
+          console.log(data);
+          $("#loading-image").hide();
+          $("#time-doctor-projects tbody").empty().html(data.tbody);
+          // $("#Referral_count").text(data.count);
+          // if (data.links.length > 10) {
+          //     $('ul.pagination').replaceWith(data.links);
+          // } else {
+          //     $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+          // }
+
+      }).fail(function (jqXHR, ajaxOptions, thrownError) {
+          alert('No response from server');
+      });
+      
+  }
+
+  function resetSearch(){
+    $('#time_doctor_project_id').val("");
+    $('#time_doctor_company_id').val("");
+    $('#time_doctor_project_name').val("");
+    $('#time_doctor_account').val(null);
+    $("#time_doctor_account").trigger("change");
+    submitSearch();
+  }
+
 </script>
+<style>
+  .select2-search--inline {
+      display: contents; /*this will make the container disappear, making the child the one who sets the width of the element*/
+  }
+
+  .select2-search__field:placeholder-shown {
+      width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
+  }
+</style>
 @endsection

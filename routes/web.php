@@ -2757,8 +2757,8 @@ Route::middleware('auth')->group(function () {
     Route::get('hubstaff/userlist', [HubstaffController::class, 'userList'])->name('hubstaff.userList');
 
 
-    Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects']);
-    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks']);    
+    Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects'])->name('time-doctor.projects');
+    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks'])->name('time-doctor.tasks');    
     Route::get('time-doctor/members', [TimeDoctorController::class, 'userList'])->name('time-doctor.members');
     Route::post('time-doctor/link_time_doctor_user', [TimeDoctorController::class, 'linkUser']);
     Route::post('time-doctor/saveuseraccount', [TimeDoctorController::class, 'saveUserAccount'])->name('time-doctor.adduser');
@@ -2809,7 +2809,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/approved/payment', [TimeDoctorActivitiesController::class, 'submitPaymentRequest'])->name('time-doctor-acitivties.payment-request.submit');
             Route::post('/add-efficiency', [TimeDoctorActivitiesController::class, 'AddEfficiency'])->name('time-doctor-acitivties.efficiency.save');
             Route::get('/task-activity', [TimeDoctorActivitiesController::class, 'taskActivity'])->name('time-doctor-acitivties.acitivties.task-activity');
-            Route::get('/userTreckTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
+            Route::get('/userTrackTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
         });
     });
     
