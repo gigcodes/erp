@@ -81,7 +81,8 @@ class EmailController extends Controller
         if(empty($category)){
             $query = $query->whereHas('category', function($q){
                 $q->whereIn('priority', ['HIGH', 'UNDEFINED']);
-            });
+            })
+            ->orWhere('email_category_id', '<=', 0);
         }
 
         //START - Purpose : Add Email - DEVTASK-18283
