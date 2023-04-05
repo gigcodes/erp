@@ -79,6 +79,7 @@ class RefreshTimeDoctorTasks extends Command
     {
         try{
             $tasks = $this->timedoctor->getTaskList($this->TIME_DOCTOR_COMPANY_ID, $this->TIME_DOCTOR_AUTH_TOKEN);
+            // dd($tasks);
             if(!empty( $tasks )){
                 $record = count($tasks->data);
                 foreach( $tasks->data as $task){
@@ -87,11 +88,12 @@ class RefreshTimeDoctorTasks extends Command
                     $taskExist = TimeDoctorTask::where('time_doctor_task_id', $task->id)->first();
                     if (! $taskExist) {
                         if (! empty($task->name)) {
-                            if(isset( $task->project )){
+                            if(isset( $task->project ) && isset($task->project->id)){
                                 $project = TimeDoctorProject::where('time_doctor_project_id',$task->project->id)->first();
+                                // dd($project, $task);
                                 TimeDoctorTask::create([
                                     'time_doctor_task_id' => $task->id,
-                                    'project_id' => $project->id,
+                                    'project_id' => $project ? $project->id:1,
                                     'time_doctor_project_id' => $task->project->id,
                                     'time_doctor_company_id' => $this->TIME_DOCTOR_COMPANY_ID,
                                     'summery' => $task->name,
