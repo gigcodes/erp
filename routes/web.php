@@ -2498,6 +2498,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('assets-manager/magento-dev-script-update', [AssetsManagerController::class, 'magentoDevScriptUpdate']);
     Route::post('assets-manager/userchanges/history', [AssetsManagerController::class, 'userChangesHistoryLog'])->name('assetsmanager.userchange.history');
     Route::post('assets-manager/plateform/add', [AssetsManagerController::class, 'plateFormStore'])->name('asset.manage.plateform.add');
+    Route::post('assets-manager/send/email', [AssetsManagerController::class, 'assetsManagerSendEmail'])->name('asset.manage.send.email');
+    Route::post('assets-manager/records/permission', [AssetsManagerController::class, 'assetsManagerRecordPermission'])->name('asset.manage.records.permission');
+    Route::post('assets-manager/linkuser/list', [AssetsManagerController::class, 'linkUserList'])->name('assetsmanager.linkuser.list');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);
