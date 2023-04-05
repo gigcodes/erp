@@ -1,6 +1,64 @@
 @extends('layouts.app')
 @section('content')
 <br>
+
+
+<style>
+.invoice-form {
+   margin-top: -20px;
+   display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+.invoice-form .form-group {
+   width: 230px;
+   margin: 0;
+}
+.invoice-form .pd-l0 {
+   padding-left: 0px;
+}
+.invoice-form .select2-container .select2-selection--multiple {
+   min-height: 34px;
+   border: 1px solid #ddd !important;
+}
+.invoice-form .form-group ul.select2-selection__rendered {
+    display: flex !important;
+}
+
+.invoice-form .select2-container .select2-search--inline .select2-search__field {
+   height: 21px;
+    padding-left: 10px;
+    margin-left: 0;
+}
+.invoice-form  .btn-call-data {
+    margin-top: 3px !important;
+    margin-left: -10px;
+}
+.custom-row-desr {
+   gap: 10px;
+}
+@media (max-width:1500px) {
+   .invoice-form .form-group {
+     margin-bottom: 0
+   }
+}
+@media (max-width:1365px) {
+   .invoice-form {
+      padding-left: 15px;
+      margin-top: 20px;
+   }
+   .custom-row {
+      width: 100%;
+   }
+}
+@media (max-width:1280px) {
+   .invoice-form .form-group {
+      width: 226px;
+   }
+}
+</style>
 <div class="col-md-12">
 
 <a style="color:white;" title="Add invoice" class="btn btn-secondary add-invoice-btn pd-5 pull-right" data-id='q'>
@@ -11,50 +69,68 @@
 </a>
 <br>
 
-
-<div class="row pl-0">
-    <form action="" method="get">
-        <div class="col-xs-6 col-md-2 pd-2">
+<div class="row pl-0 custom-row">
+    <form action="" method="get" class="invoice-form">
+       
             <div class="form-group">
-                <input type="text" onfocus="(this.type = 'date')"  class="form-control" name="invoice_date" value="@if(request('invoice_date') != null){{request('invoice_date')}} @endif" placeholder="Select Date" />
+               <label>From Date</label>
+               <input type="text" onfocus="(this.type = 'date')"  class="form-control" name="invoice_date" value="@if(request('invoice_date') != null){{request('invoice_date')}} @endif" placeholder="Select Date" />
+              
             </div>
-        </div>
-        <div class="col-xs-6 col-md-3 pd-2">
+            <div class="form-group">
+               <label>To Date</label>
+               <input type="text" onfocus="(this.type = 'date')"  class="form-control" name="invoice_to_date" value="@if(request('invoice_to_date') != null){{request('invoice_to_date')}} @endif" placeholder="Select Date" />
+            </div>
+        
             <div class="form-group cls_task_subject">
+               <label>Select Invoice Number</label>
                 <select class="form-control globalSelect2" name="invoice_number[]" id="invoice_number" data-placeholder="Select Invoice Number.." multiple>
                     @foreach($invoiceNumber as $number)
                         <option value="{{$number->invoice_number}}" {{ isset($_GET['invoice_number']) && in_array($number->invoice_number,$_GET['invoice_number']) ? 'selected' : '' }}>{{$number->invoice_number}}</option>
                     @endforeach
                 </select>
             </div>
-        </div>
-        <div class="col-xs-6 col-md-3 pd-2">
+       
+       
             <div class="form-group cls_task_subject">
-                <select class="form-control  globalSelect2" name="customer_id[]" id="customer_id" data-placeholder="Select Customer Name.." multiple>
-                    @foreach($customerName as $name)
-                        <option value="{{$name->id}}" {{ isset($_GET['customer_id']) && in_array($name->id,$_GET['customer_id']) ? 'selected' : '' }}>{{$name->name}}</option>
-                    @endforeach
+               <label>Select Customer</label>
+                <select class="form-control" name="customer_id[]" id="customer_id" data-placeholder="Select Customer Name.." multiple>
+                   
                 </select>
             </div>
-        </div>
-        <div class="col-xs-6 col-md-3 pd-2">
+       
+        
             <div class="form-group cls_task_subject">
+               <label>Select Website</label>
                 <select class="form-control  globalSelect2" name="store_website_id[]" id="store_website_id" data-placeholder="Select Website Name.." multiple>
                     @foreach($websiteName as $website)
                         <option value="{{$website->id}}" {{ isset($_GET['store_website_id']) && in_array($website->id,$_GET['store_website_id']) ? 'selected' : '' }}>{{$website->website}}</option>
                     @endforeach
                 </select>
-            </div>
+            
         </div>
         <button type="submit"  class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}"style="margin-top:-6px;"></button>
+        <button  type="button" title="Clear Filter" class="btn btn-secondary clear-filter">
+         Clear Filter
+         </button>
     </form>
 </div>
 
-
+<div class="col-12">
+   <div class="row custom-row-desr">
+         <button type="button" title="Download" class="btn btn-primary download-selected-btn selectd-action-btns" style="display: none">
+            Download Selected Invoices
+         </button>
+         <button  type="button" title="Print Invoice" class="btn btn-warning print-selected-btn selectd-action-btns" style="display: none">
+            Resend Selected Invoices
+         </button>
+   </div>
+</div>
     <div class="table-responsive" style="margin-top:20px;">
        <table class="table table-bordered" style="border: 1px solid #ddd;">
           <thead>
              <tr>
+               <th> <input type="checkbox" name="checkAll" id="checkAll"> </th>
                 <th>Date</th>
                 <th>Invoice Number</th>
                 <th>Customer Name</th>
@@ -70,6 +146,7 @@
           <tbody>
              @foreach ($invoices as $key => $invoice)
              <tr>
+               <td> <input type="checkbox" name="checkedIds[]" class="checkboxes" value="{{$invoice->id}}"> </td>
                 <td>{{ $invoice->invoice_date }}</td>
                 <td>{{ $invoice->invoice_number }}</td>
                 <td>
@@ -131,6 +208,9 @@
                    <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$invoice->id) }}">
                    <i class="fa fa-download"></i>
                    </a>
+                  <a title="Save For Later" class="btn btn-image saveLaterButton" invoiceNumber="{{$invoice->invoice_number}}" invoiceId="{{$invoice->id}}" href="javascript:void(0)">
+                     <i class="fa fa-clock-o"></i>
+                  </a>
                 </td>
              </tr>
              @endforeach
@@ -184,6 +264,27 @@
          </div>
        </div>
      </div>
+     <div id="addInvoiceEmailSelected"  class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Invoice Email</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+               <form id="multi-select-invoice-form" class="multi-select-print">
+
+               </form>
+          </div>
+          <div class="modal-footer">
+               <button type="button" name="send_invoice_email_select" class="btn btn-secondary" id="send_invoice_email_select" data-allow-clear="true">Send invoice</button>
+               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="updateInvoiceAddressesold" class="modal fade" role="dialog">
        <div class="modal-dialog modal-lg">
           <!-- Modal content-->
@@ -250,6 +351,36 @@
           }).fail(function(errObj) {
              $("#addInvoiceEmail").hide();
           });
+   });
+
+   $(document).on("click","#send_invoice_email_select",function(e){
+      e.preventDefault();
+      var $this = $(this);
+      var id = $("#invoice_id").val();
+      $.ajax({
+      headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      url: "/order/mail-invoice-multi-select",
+      type: "get",
+      data:$('#multi-select-invoice-form').serialize(),
+      beforeSend: function() {
+         $("#loading-image").show();
+      }
+      }).done(function(response) {
+         if(response.code == 200) {
+         toastr['success'](response.message);
+         }else{
+         toastr['error'](response.message);
+         }
+         $("#loading-image").hide();
+         $("#addInvoiceEmail").modal('hide');
+      }).fail(function(xhr, status, error) {
+            $("#loading-image").hide();
+            var err = eval("(" + xhr.responseText + ")");
+            toastr['error']( err.message );
+            $("#addInvoiceEmail").modal('hide');
+      });
    });
 
    $(document).on("click","#send_invoice_email",function(e){
@@ -424,5 +555,115 @@
           toastr['error'](errObj.responseJSON.message);
       });
    });
+   
+   $(document).on('click','.saveLaterButton',function(){
+      let invoiceId = $(this).attr('invoiceId');
+      let invoiceNumber = $(this).attr('invoiceNumber');
+      $.ajax({
+         type:"get",
+         url:"{{ url('order/invoices/saveLater') }}",
+         data:{invoiceId:invoiceId,invoiceNumber:invoiceNumber},
+         success:function(data){
+            toastr['success']('Invoice saved for print later!.');
+         }
+      })
+   })   
+   
+   $(document).on('change','input[name="checkAll"]',function(){
+      if($(this).is(':checked')){
+         $('.selectd-action-btns').show();
+         $('.checkboxes').prop('checked',true);
+      }else{
+         $('.selectd-action-btns').hide();
+         $('.checkboxes').prop('checked',false);
+      }
+   })
+   function checkCheckboxIsChecked(){
+      let checkIds = [];
+      $('.checkboxes').each(function(){
+         if($(this).is(':checked')){
+            checkIds.push($(this).val());
+         }
+      });
+      return checkIds;
+   }
+   $(document).on('click','.download-selected-btn',function(){
+      let check = checkCheckboxIsChecked();
+      if(check.length === 0){
+         alert('Please select atleast one record');
+         return;
+      }
+      let url = '{{ url("order/download-invoice/") }}';
+      for(let i = 0; i < check.length; i++){
+         window.open(url+'/'+check[i]);
+      }
+   })
+
+   $(document).on('click','.print-selected-btn',function(){
+      let check = checkCheckboxIsChecked();
+      if(check.length === 0){
+         alert('Please select atleast one record');
+         return;
+      }
+      $.ajax({
+            url: "{{ url('order/get-invoice-customer-email-selected') }}"+"?ids="+check,
+            type: "get",
+      }).done(function(response) {
+         let html = '';
+         for(var i = 0; i < response.length; i++) {
+            html += `<div class="form-group" style="width:100%;">
+                   <label for="">Email :</label>
+                   <input type="text" name="invoice_email[]" class="form-control" placeholder="Enter email-address" value="${response[i].email}" data-allow-clear="true">
+                   <input type="hidden" name="invoice_id[]" value="${response[i].id}" />
+                </div>`;
+         }
+         $('.multi-select-print').html(html);
+         $('#addInvoiceEmailSelected').modal('show');
+      }).fail(function(errObj) {
+            $("#addInvoiceEmailSelected").hide();
+      });
+   })
+   
+   $(document).on('change','.checkboxes',function(){
+      let check = checkCheckboxIsChecked();
+      if(check.length === 0){
+         $('.selectd-action-btns').hide();
+         $('input[name="checkAll"]').prop('checked',false);
+      }else{
+         $('.selectd-action-btns').show();
+      }
+   })
+   
+   $(document).on('click','.clear-filter',function(){
+      window.location.href="{{url('order/invoices')}}"
+   })
+
+   $(document).on('keyup','#customer_id',function(){
+      alert();
+      select2Functions();	
+   })
+   function select2Functions(){
+      $("#customer_id").select2({
+         ajax: {
+            url: "{{ url('order/get-order-invoice-users')}}",
+            type: "get",
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+               return {
+                  searchTerm: params.term,// search term
+               };
+            },
+            processResults: function(response) {
+               return {
+                  results: response
+               };
+            },
+            cache: true
+         }
+      });
+   }
+   select2Functions();
+   
 </script>
 @endsection

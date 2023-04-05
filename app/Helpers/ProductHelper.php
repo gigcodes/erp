@@ -14,6 +14,8 @@ use App\PushToMagentoCondition;
 use App\StoreWebsiteBrand;
 use App\StoreWebsiteCategory;
 use App\SystemSizeManager;
+use App\Helpers\StatusHelper;
+use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductHelper extends Model
@@ -903,15 +905,19 @@ class ProductHelper extends Model
 
         //Exception for o-labels
         if ($product->landingPageProduct) {
-            $websiteForLandingPage = \App\StoreWebsite::whereNotNull('cropper_color')->where('title', 'LIKE', '%o-labels%')->first();
+            $websiteForLandingPage = StoreWebsite::whereNotNull('cropper_color')->where('title', 'LIKE', '%o-labels%')->first();
             if ($websiteForLandingPage) {
                 if (! in_array($websiteForLandingPage->id, $websiteArray)) {
                     $websiteArray[] = $websiteForLandingPage->id;
                 }
             }
         }
+        $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->where('tag_id',null)->get();
+
+        $not_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->whereNotNull('tag_id')->groupBy('tag_id')->get()->pluck('tag_id');
+        $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id',$not_null_tags)->get();
         
-        $finalResult = \App\StoreWebsite::whereIn('id',$websiteArray)->get();
+        $finalResult = $store_websites_of_null_tags->merge($store_websites_of_not_null_tags);
         return $finalResult;
     }
 
@@ -996,7 +1002,7 @@ class ProductHelper extends Model
     public static function getProducts($status, $limit){
         return Product::select('*')
             ->whereNotNull(['name','short_description'])
-            ->whereStatusId($status)
+            ->status($status)
             ->groupBy('brand', 'category')
             ->limit($limit)
             ->get();

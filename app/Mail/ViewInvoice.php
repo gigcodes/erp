@@ -27,6 +27,7 @@ class ViewInvoice extends Mailable
 
     public $duty_tax;
 
+    public $param;
     /**
      * Create a new message instance.
      *
@@ -34,6 +35,7 @@ class ViewInvoice extends Mailable
      */
     public function __construct($params)
     {
+        $this->param = $params;
         if (! empty($params['orders'])) {
             $this->orders = $params['orders'];
         }
@@ -111,7 +113,13 @@ class ViewInvoice extends Mailable
         $pdf = new Dompdf();
         $pdf->loadHtml($html);
         $pdf->render();
-        $pdf->stream(date('Y-m-d H:i:s').'invoice.pdf');
+        if(array_key_exists('savePDF',$this->param)){
+            $file = time().'invoice.pdf';
+            file_put_contents('pdf/'.$file, $pdf->output());
+            return $file;
+        }else{
+            $pdf->stream(date('Y-m-d H:i:s').'invoice.pdf');
+        }
     }
 
     /**

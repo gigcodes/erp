@@ -68,11 +68,12 @@ class DatabaseController extends Controller
 
     public function export(Request $request)
     {
-        $dbName = $request->input('db_name');
+        $dbName = env('DB_DATABASE');
         \Log::info('Database name:'.$dbName);
         $dumpName = str_replace(' ', '_', $dbName).'_schema.sql';
         \Log::info('Dump name:'.$dumpName);
-        $cmd = 'mysqldump -h erpdb -u erplive -p  --no-data '.$dbName.' > '.$dumpName;
+        //$cmd = 'mysqldump -h erpdb -u erplive -p  --no-data '.$dbName.' > '.$dumpName;
+        $cmd = "mysqldump --user=" . env('DB_USERNAME') ." --password=" . env('DB_PASSWORD') . " --host=" . env('DB_HOST') . " --no-data " . $dbName . "  > " . $dumpName."  2>&1";
         \Log::info('Executing:'.$cmd);
         $allOutput = [];
         $allOutput[] = $cmd;

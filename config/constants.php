@@ -57,4 +57,5 @@ return [
 
     /** website root access */
     'WEBSITES_LOGS_FOLDER' => 'storage/websites',
+    'PRINT_LATER_AUTO_DELETE_DAYS' => 15
 ];

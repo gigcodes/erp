@@ -230,7 +230,7 @@
 	});
 	$(document).on('click', '.truncate', function (e) {
 		$.ajax({
-			url: BASE_URL + "/database-log/truncate",
+			url: BASE_URL + "/admin/database-log/truncate",
 			method: "get",
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
