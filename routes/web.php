@@ -1279,6 +1279,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('order/store/website', [OrderController::class, 'storeWebsiteList'])->name('order.storeWebsiteList');
 
     Route::get('order/invoices', [OrderController::class, 'viewAllInvoices']);
+    Route::get('order/invoices/saveLater', [OrderController::class, 'saveLaterCreate']);
+    Route::get('order/invoices/saveLaterList', [OrderController::class, 'saveLaterList']);
+    Route::get('order/invoices/ViewsaveLaterList/{id}', [OrderController::class, 'ViewsaveLaterList']);
     Route::post('order/create-product', [OrderController::class, 'createProduct'])->name('order.create.product');
 
     Route::get('order/{id}/edit-invoice', [OrderController::class, 'editInvoice'])->name('order.edit.invoice');
@@ -2497,6 +2500,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('assets-manager/magento-dev-script-update', [AssetsManagerController::class, 'magentoDevScriptUpdate']);
     Route::post('assets-manager/userchanges/history', [AssetsManagerController::class, 'userChangesHistoryLog'])->name('assetsmanager.userchange.history');
     Route::post('assets-manager/plateform/add', [AssetsManagerController::class, 'plateFormStore'])->name('asset.manage.plateform.add');
+    Route::post('assets-manager/send/email', [AssetsManagerController::class, 'assetsManagerSendEmail'])->name('asset.manage.send.email');
+    Route::post('assets-manager/records/permission', [AssetsManagerController::class, 'assetsManagerRecordPermission'])->name('asset.manage.records.permission');
+    Route::post('assets-manager/linkuser/list', [AssetsManagerController::class, 'linkUserList'])->name('assetsmanager.linkuser.list');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);
@@ -2772,8 +2778,8 @@ Route::middleware('auth')->group(function () {
     Route::get('hubstaff/userlist', [HubstaffController::class, 'userList'])->name('hubstaff.userList');
 
 
-    Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects']);
-    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks']);    
+    Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects'])->name('time-doctor.projects');
+    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks'])->name('time-doctor.tasks');    
     Route::get('time-doctor/members', [TimeDoctorController::class, 'userList'])->name('time-doctor.members');
     Route::post('time-doctor/link_time_doctor_user', [TimeDoctorController::class, 'linkUser']);
     Route::post('time-doctor/saveuseraccount', [TimeDoctorController::class, 'saveUserAccount'])->name('time-doctor.adduser');
@@ -2824,7 +2830,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/approved/payment', [TimeDoctorActivitiesController::class, 'submitPaymentRequest'])->name('time-doctor-acitivties.payment-request.submit');
             Route::post('/add-efficiency', [TimeDoctorActivitiesController::class, 'AddEfficiency'])->name('time-doctor-acitivties.efficiency.save');
             Route::get('/task-activity', [TimeDoctorActivitiesController::class, 'taskActivity'])->name('time-doctor-acitivties.acitivties.task-activity');
-            Route::get('/userTreckTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
+            Route::get('/userTrackTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
         });
     });
     

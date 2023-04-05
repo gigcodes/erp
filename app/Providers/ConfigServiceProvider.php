@@ -16,12 +16,7 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if(Schema::hasTable('settings')){
-            $setting = Setting::where('name', 'telescope_enabled')->first();
-        }
-        
-        /* Example 1: Set Config Value in Laravel */
-        Config::set('telescope.enabled',  (!empty($setting) && $setting->val == 1 ? true : false));
+       //
     }
 
     /**
