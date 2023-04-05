@@ -36,6 +36,7 @@
                     <th>Username</th>
                     <th>Email</th>
                     <th>Send WhatsApp</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -45,6 +46,10 @@
                             <td><label for="u{{ $user->id }}"> {{ $user->name }} </label></td>
                             <td><label for="u{{ $user->id }}" > {{ $user->email }}</label></td>
                             <td>Send WhatsApp</td>
+                            <td>
+                                <button class="btn btn-xs btn-none-border show_password_history" data-id="{{ $user->id }}" data-email="{{ $user->email }}" title="Password Email History"><i class="fa fa-eye"></i></button>
+                                <button class="btn btn-xs btn-none-border send_password_email" data-id="{{ $user->id }}" data-email="{{ $user->email }}" title="Send Email" data-toggle="modal" data-target="#passwordSendEmailModal"><i class="fa fa-envelope"></i></button>
+                            </td>
                       </tr>
                     @endforeach
                 </tbody>
@@ -82,8 +87,76 @@
         </div> --}}
 
     </div>
+<div id="passwordSendEmailModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+          <form action="{{ route('password.send.email') }}" method="POST">
+            @csrf
 
+            <div class="modal-header">
+              <h4 class="modal-title">Send Email</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="value">Send To</label>
+                    <input type="email" name="email" id="email" class="form-control"  placeholder="Enter Email" required>
+                    @if ($errors->has('email'))
+                    <div class="alert alert-danger">{{$errors->first('email')}}</div>
+                    @endif
+                </div>
+                <div class="form-group">
+                    <label for="value">From Mail</label>
+                    <select class="form-control" name="from_email" id="from_email" required>
+                        @foreach ($emailAddressArr as $emailAddress)
+                        <option value="{{ $emailAddress->from_address }}">{{ $emailAddress->from_name }} - {{ $emailAddress->from_address }} </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Send</button>
+            </div>
+          </form>
+        </div>
+
+    </div>
+</div>
+
+<div id="passwordSendEmailHistoryModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Password Email History</h4>
+        </div>
+        <div class="modal-body">
+            <table class="table table-bordered table-hover" style="table-layout:fixed;">
+            <thead>
+                <th style="width:20%">Modal Type </th>
+                <th style="width:20%">To Email</th>
+                <th style="width:20%">From Email</th>
+                <th style="width:20%">Subject</th>
+                <th style="width:25%">Message</th>
+                <th style="width:25%">Error Message</th>
+                <th style="width:10%">Date</th>
+            </thead>
+            <tbody class="password-email-history">
+
+            </tbody>
+            </table>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
 
 
 
@@ -108,6 +181,32 @@
             $('#keepRenderingSort').multiselect({
                 keepRenderingSort: true
             });
+        });
+
+        $(".send_password_email").on("click", function(){
+            var email = $(this).data('email');
+            $("#email").val(email);
+        });
+
+        $(document).on("click", ".show_password_history", function() {
+            var email = $(this).data('email');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('password.email.history') }}" ,
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "email": email,
+                },
+                dataType: 'html'
+                })
+            .done(function(result) {
+                $('#passwordSendEmailHistoryModal').modal('show');
+                $('.password-email-history').html(result);
+            });
+        });
+
+        $('#from_email').select2({
+            placeholder: 'Select an Email',
         });
     </script>
 @endsection

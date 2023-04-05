@@ -3537,7 +3537,10 @@ class OrderController extends Controller
     {
         $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc');
         if(!empty($request->invoice_date)){
-            $invoices = $invoices->whereDate('invoice_date',$request->invoice_date);
+            $invoices = $invoices->whereDate('invoice_date','>=',$request->invoice_date);
+        }
+        if(!empty($request->invoice_to_date)){
+            $invoices = $invoices->whereDate('invoice_date','<=',$request->invoice_to_date);
         }
 
         if(!empty($request->invoice_number)){
@@ -3760,6 +3763,43 @@ class OrderController extends Controller
         }
     }
 
+    public function mailInvoiceMultiSelect(Request $request,$index="")
+    {
+        try {
+            $invoices = Invoice::whereIn('id', $request->invoice_id)->get();
+            foreach($invoices as $invoice) {
+                if ($invoice) {
+                    $data['invoice'] = $invoice;
+                    $data['orders'] = $invoice->orders;
+                    if ($invoice->orders) {
+                        Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
+                    }
+                } else {
+                    Invoice::where('id', $invoice->id)->update(['invoice_error_log' => 'Sorry , there is no matching order found']);
+                }
+            }
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Email sent successfully']);
+        } catch (\Exception $e) {
+            \Log::info('Sending mail issue at the ordercontroller invoice log->'.$e->getMessage());
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
+        }
+    }
+    public function GetInvoiceOrderUsers(Request $request)
+    {
+        try {
+            $customerName = Customer::select('id','name')->where('name', 'LIKE', '%'.$request->searchTerm.'%')->orderBy('id', 'desc')->groupBy('name')->get();
+            $data = array();
+            foreach ($customerName as $key => $value) {
+                $data[] = array("id"   => $value['id'],"text" => $value['name']);
+            }
+            echo json_encode($data);
+
+        } catch (\Exception $e) {
+            \Log::info('Having issue at the ordercontroller invoice log->'.$e->getMessage());
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
+        }
+    }
+    
     // public function fetchOrders() {
     //  $website = StoreWebsite::first();
     //  $magentoHelper = new MagentoHelperv2;
@@ -5158,6 +5198,16 @@ class OrderController extends Controller
         }
         // dd($result);
         return response()->json($result);
+    }
+
+    public function getInvoiceCustomerEmailSelected(Request $request){
+        $ids = explode(',',$request->ids);
+        $emails = [];
+        $invoices = Invoice::whereIn('id', $ids)->get();
+        foreach($invoices as $invoice){
+            $emails[] = ['email'=>$invoice->orders[0]->customer->email,'id'=>$invoice->id];     
+        }
+        return  $emails;
     }
 
 }

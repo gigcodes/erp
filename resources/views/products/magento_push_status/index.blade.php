@@ -6,11 +6,6 @@
     <div class="row">
 
         <div class="col-md-12 margin-tb">
-
-            <h2 class="page-heading">Magento push status ({{ $productsCount }})</h2>
-            <div class="infinite-scroll table-responsive mt-5 infinite-scroll-data">
-                @include("products.magento_push_status.list")
-
             <form method="get" id="magentoPushStatusForm">
                 <div class="row">
                     <div class="col-md-2 mt-3">
@@ -45,80 +40,17 @@
                     <div class="col-md-4 mt-3 mb-3">
                         <a class="filter-data" href="#"><i class="fa fa-search"></i></a>
                     </div>
-                    <div class="col-md-2 mt-3">
-                        <button class="btn btn-secondary float-right push-to-magento">Push to magento</button>
-                    </div>
                 </div>
             </form>
             <h2 class="page-heading">Magento push status </h2>
             <div class="infinite-scroll table-responsive mt-5 infinite-scroll-data appendDataPushMagento">
+
             </div>
             <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..."
                 style="display: none" />
         </div>
     </div>
-    <div id="conditionCheckLogModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header text-center">
-                    <h3 class="modal-title">Product conditions check logs</h3>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Message</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Date</th>
-                        </tr>
-                        </thead>
-                        <tbody id="logData">
-
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
-
-@section('scripts')
-    <script>
-        function getConditionCheckLog(pID, swId) {
-            $.ajax({
-                url: "{{ url('products/listing/conditions-check-logs/') }}" + "/" + pID + "/" + swId,
-                type: "get"
-            }).done(function(response) {
-                if (response.code = '200') {
-                    let html = '';
-                    $.each(response.data, function (key, val) {
-                        html += '<tr><td>' + val.id + '</td>' +
-                            '<td>' + val.message + '</td>' +
-                            '<td>' + val.response_status + '</td>' +
-                            '<td>' + val.created_at + '</td>' +
-                            '</tr>';
-                    });
-                    $('#logData').html(html);
-                    $('#conditionCheckLogModal').modal('show');
-                } else {
-                    toastr['error'](response.message, 'error');
-                }
-            }).fail(function(errObj) {
-                $('#loading-image').hide();
-                $("#todolistUpdateModal").hide();
-                toastr['error'](errObj.message, 'error');
-            });
-        }
-    </script>
-@endsection
-
 @push('scripts')
     <script>
         $(document).ready(function() {
@@ -131,7 +63,6 @@
                 }
             })
         })
-
         function filterFunction(field, val) {
             var fieldData = field;
             $.ajax({
@@ -157,11 +88,9 @@
                             })
                         }
                     });
-
                 }
             })
         }
-
         $("input[name='id']").keyup(function() {
             var value = $(this).val();
             filterFunction("id", value);
@@ -194,7 +123,6 @@
             var value = $(this).val();
             filterFunction('status', value);
         })
-
         $(".filter-data").on('click', function() {
             let id = $("#id").val();
             let compisition = $("#compisition").val();

@@ -81,6 +81,7 @@ class User extends Authenticatable implements JWTSubject
         'last_mail_sent_payment',
         'is_whitelisted',
         'is_task_planned',
+        'device_token',
     ];
 
     public function getIsAdminAttribute()

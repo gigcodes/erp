@@ -10,6 +10,29 @@ use Illuminate\Database\Eloquent\Model;
 
 class Email extends Model
 {
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($email) {
+            try{
+                if(isset($email->type) && !empty($email->type) && $email->type == 'incoming'){
+                    $emailCategoryId = Email::where('from', 'like', '%'.$email->from.'%')
+                        ->where('type', 'incoming')
+                        ->orderBy('created_at', 'desc')
+                        ->pluck('email_category_id')
+                        ->first();
+    
+                    if(strlen($emailCategoryId) > 0){
+                        $email->email_category_id = $emailCategoryId;
+                    }
+                }
+            }
+            catch(\Exception $e){
+
+            }
+        });
+    }
+
     /**
      * @var string
      *

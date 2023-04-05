@@ -55,7 +55,9 @@
 		    <tbody>
 		    	{{props data}}
 						<tr>
-							<td class="Website-task"title="{{:prop.id}}">{{:prop.id}}</td>
+							<td class="Website-task"title="{{:prop.id}}">{{:prop.id}}
+							<input type="checkbox" name="bulk_user_action[]" class="d-inline bulk_user_action" value="{{:prop.id}}">	
+							</td>
 							<td class="Website-task "><a class="Website-task btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a></td>
 							<td class="Website-task"title="{{:prop.hourly_rate}} {{:prop.currency}}"> {{:prop.hourly_rate}} {{:prop.currency}}</td>
 							<td class="Website-task"title="Fixed price Job">{{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Hourly Per Task {{else prop.fixed_price_user_or_job == 3}} Salaried  {{/if}}</td>

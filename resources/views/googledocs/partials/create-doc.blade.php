@@ -34,6 +34,15 @@
                     </div>
 
                     <div class="form-group">
+                        <strong>Category:</strong>
+                        <input type="text" name="doc_category" value="{{ old('doc_category') }}" class="form-control input-sm" placeholder="Document Category" required>
+
+                        @if ($errors->has('doc_category'))
+                            <div class="alert alert-danger">{{$errors->first('doc_category')}}</div>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
                         <strong>Existing Doc Id:</strong>
                         <input type="text" name="existing_doc_id" value="{{ old('existing_doc_id') }}" class="form-control input-sm" placeholder="Existing Document ID">
 

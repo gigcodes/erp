@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\CronJob;
 use App\CronJobErroLog;
+use App\DeveloperModule;
+use App\ScheduleQuery;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,9 +28,15 @@ class TasksController extends Controller
                 ->orderBy('description')
                 ->when(request('q'), function ($query) {
                     $query->where('description', 'LIKE', '%'.request('q').'%');
+                })->when(request('developer_module'), function ($query) {
+                    $query->where('developer_module_id', '=', request('developer_module'));
+                })->when(request('is_active'), function ($query) {
+                    $query->where('is_active', '=', request('is_active'));
                 })
                 ->paginate(50),
             'task' => null,
+            'queries' => ScheduleQuery::all(),
+            'developer_module' => DeveloperModule::all(),
             'commands' => Totem::getCommands(),
             'timezones' => timezone_identifiers_list(),
             'frequencies' => Totem::frequencies(),
@@ -48,7 +56,24 @@ class TasksController extends Controller
 
     public function store(TaskRequest $request)
     {
-        Task::store($request->all());
+        Task::create($request->only([
+            'description',
+            'command',
+            'parameters',
+            'timezone',
+            'developer_module_id',
+//            'type',
+            'expression',
+//            'frequencies',
+            'notification_email_address',
+            'notification_phone_number',
+            'notification_slack_webhook',
+            'dont_overlap',
+            'run_in_maintenance',
+            'run_on_one_server',
+            'auto_cleanup_num',
+            'auto_cleanup_type'
+        ]));
 
         return response()->json([
             'status' => true,
@@ -59,7 +84,7 @@ class TasksController extends Controller
     public function view(Task $task)
     {
         return response()->json([
-            'task' => $task,
+            'task' => Task::find($task->id),
             'results' => $task->results->count() > 0 ? number_format($task->results->sum('duration') / (1000 * $task->results->count()), 2) : '0',
         ]);
     }
@@ -74,9 +99,31 @@ class TasksController extends Controller
         ]);
     }
 
+
+
     public function update(TaskRequest $request, Task $task)
     {
-        $task = Task::update($request->all(), $task);
+//        dd($task);
+//        dd($request->all());
+//        $task = Task::update($request->all(), $task);
+        $task = Task::where('id', $task->id)->update($request->only([
+            'description',
+            'command',
+            'parameters',
+            'timezone',
+            'developer_module_id',
+//            'type',
+            'expression',
+//            'frequencies',
+            'notification_email_address',
+            'notification_phone_number',
+            'notification_slack_webhook',
+            'dont_overlap',
+            'run_in_maintenance',
+            'run_on_one_server',
+            'auto_cleanup_num',
+            'auto_cleanup_type'
+        ]));
 
         return response()->json([
             'status' => true,
@@ -96,7 +143,7 @@ class TasksController extends Controller
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Task Not Founf.',
+                'message' => 'Task Not Found.',
             ]);
         }
     }
@@ -155,5 +202,22 @@ class TasksController extends Controller
         ]);
 
         return $cronError;
+    }
+
+    public function queryCommand(Request $request, $name){
+        $query = ScheduleQuery::where('schedule_name' , '=', $name)->get()->toArray();
+        return $query;
+    }
+    public function enableDisableCron(Request $request){
+        if ($request->get('ids')) {
+                DB::table('crontasks')->whereIn('id', $request->get('ids'))->update([
+                    'is_active' => $request->get('active'),
+                ]);
+               $msg = $request->get('active') ? "Task enabled Successfully" : "Task disabled Successfully";
+                return response()->json([
+                'status' => true,
+                'message' => $msg,
+            ]);
+        }
     }
 }

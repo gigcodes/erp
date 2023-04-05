@@ -41,6 +41,7 @@ use App\Http\Controllers\TemplatesController;
 use App\Http\Controllers\TwilioController;
 use App\Http\Controllers\UpdateLogController;
 use App\Http\Controllers\UserLogController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\WeTransferController;
 use Illuminate\Support\Facades\Route;
 
@@ -272,6 +273,7 @@ Route::post('return-exchange-buyback/create', [\App\Http\Controllers\Api\v1\BuyB
 
 //Push Notification Api
 Route::post('notification/create', [\App\Http\Controllers\Api\v1\PushFcmNotificationController::class, 'create']);
+Route::post('notification/update-lang', [\App\Http\Controllers\Api\v1\PushFcmNotificationController::class, 'updateLang']);
 
 //Saving Not Found Brand
 Route::get('missing-brand/save', [MissingBrandController::class, 'saveMissingBrand']);
@@ -322,3 +324,4 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
     Route::post('me', [Api\v1\Auth\LoginController::class, 'me']);
 });
 // Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
+Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystemIpFromEmail']);

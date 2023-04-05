@@ -166,6 +166,7 @@ use App\Console\Commands\DevAPIReport;
 use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Schema;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 
 //use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
@@ -523,10 +524,10 @@ class Kernel extends ConsoleKernel
 
         //2020-02-17 $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
-        // Update the inventory (every fifteen minutes)
-        // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
+        // Update the inventory (Daily run cron to update stock 0 at magento store website)
+        $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
         $schedule->command('magento:get-config-value')->dailyAt('00:00')->timezone('Asia/Dubai');
-
+        
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
 
@@ -543,7 +544,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('cold-leads:move-to-customers')->daily();
 
         // send only cron run time
-        if (! env('CI')) {
+        if ((!env('CI')) && (Schema::hasTable('chat_messages'))) {
             $queueStartTime = \App\ChatMessage::getStartTime();
             $queueEndTime = \App\ChatMessage::getEndTime();
             $queueTime = \App\ChatMessage::getQueueTime();
@@ -728,6 +729,13 @@ class Kernel extends ConsoleKernel
         // Ads history Cron
         $schedule->command('social:ads-history')->dailyAt('0:00');
         $schedule->command('save:zoom-meetings')->dailyAt('23:59');
+
+
+        //Store Google Ad Reporting Data
+        $schedule->command('store:ads-reporting-data')->hourly();
+
+        //Telescope Remove Logs Every 72Hrs
+        $schedule->command('telescope:prune --hours=72')->daily();
     }
 
     /**`

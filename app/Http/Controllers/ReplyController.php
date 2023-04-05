@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
 use App\ChatbotQuestionReply;
+use App\Models\QuickRepliesPermissions;
+use App\Models\RepliesTranslatorHistory;
 use App\Reply;
 use App\ReplyCategory;
 use App\ReplyUpdateHistory;
 use App\Setting;
 use App\StoreWebsitePage;
+use App\User;
 use App\WatsonAccount;
 use App\GoogleFiletranslatorFile;
 use App\GoogleTranslate;
@@ -19,7 +22,9 @@ use App\TranslateReplies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use function GuzzleHttp\json_encode;
 use App\Jobs\ProcessTranslateReply;
+
 
 class ReplyController extends Controller
 {
@@ -167,6 +172,49 @@ class ReplyController extends Controller
         }
 
         return redirect()->route('reply.index')->with('success', 'Quick Reply Deleted successfully');
+    }
+
+    public function removepermissions(Request $request){
+        if($request->type == 'remove_permission')
+        {
+            $edit_data = QuickRepliesPermissions::where('user_id', $request->user_permission_id)->whereNotIn('lang_id',$request->edit_lang_name)->where('action','edit')->get();
+            $view_data = QuickRepliesPermissions::where('user_id', $request->user_permission_id)->whereNotIn('lang_id',$request->view_lang_name)->where('action','view')->get();
+
+            foreach($edit_data as $edit_lang)
+            {
+                $edit_lang->delete();
+            }
+
+            foreach($view_data as $view_lang)
+            {
+                $view_lang->delete();
+            }
+
+            return redirect()->back()->with('success', 'Remove Permission successfully');
+
+        }else{
+            $checkExists = QuickRepliesPermissions::where('user_id', $request->id)->get();
+            $edit_lang = [];
+            $view_lang = [];
+            foreach($checkExists as $checkExist)
+            {
+                if($checkExist->action == 'edit')
+                {
+                    $edit_lang[] = $checkExist->lang_id;
+                }
+                if($checkExist->action == 'view')
+                {
+                    $view_lang[] = $checkExist->lang_id;
+                }
+            }
+
+            $data = [
+                'edit_lang' => $edit_lang ,
+                'view_lang' => $view_lang,
+                'status' => '200',
+            ];
+            return $data;
+        }
     }
 
     public function chatBotQuestion(Request $request)
@@ -419,7 +467,6 @@ class ReplyController extends Controller
 
     }
 
-
     public function replyTranslateList(Request $request)
     {
         $storeWebsite = $request->get('store_website_id');
@@ -429,7 +476,7 @@ class ReplyController extends Controller
         ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
         ->leftJoin('reply_categories', 'reply_categories.id', 'replies.category_id')
         ->where('model', 'Store Website')->where('replies.is_flagged', '1')
-        ->select(['replies.*','replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id','translate_replies.id as id','translate_replies.translate_from','translate_replies.translate_to','translate_replies.translate_text','translate_replies.created_at','translate_replies.updated_at']);
+        ->select(['replies.*','translate_replies.status','translate_replies.replies_id as replies_id','replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id','translate_replies.id as id','translate_replies.translate_from','translate_replies.translate_to','translate_replies.translate_text','translate_replies.created_at','translate_replies.updated_at']);
 
         if ($storeWebsite > 0) {
             $replies = $replies->where('replies.store_website_id', $storeWebsite);
@@ -441,19 +488,169 @@ class ReplyController extends Controller
             });
         }
 
-        $replies = $replies->paginate(25);
+        $replies = $replies->get();
 
-        return view('reply.translate-list', compact('replies'));
+        $lang = [];
+        $original_text = [];
+        $ids = [];
+        $translate_text = [];
+        foreach ($replies as  $replie) {
+            if(!in_array($replie->replies_id ,$ids))
+            {
+                $ids[] = $replie->replies_id;
+                $translate_text[$replie->replies_id] =  [
+                    'id' => $replie->id,
+                    'website' => $replie->website,
+                    'category_name' => $replie->category_name,
+                    'translate_from' => $replie->translate_from,
+                    'original_text' => $replie->original_text,
+                    'translate_text' => [[$replie->translate_to => $replie->translate_text]],
+                    'translate_lang' => [$replie->translate_to],
+                    'translate_id' => [$replie->id],
+                    'translate_status' => [$replie->status],
+                    'created_at' => $replie->created_at,
+                    'updated_at' => $replie->updated_at,
+                ];
+            }else{
+                array_push($translate_text[$replie->replies_id]['translate_text'],[$replie->translate_to => $replie->translate_text]);
+                array_push($translate_text[$replie->replies_id]['translate_lang'], $replie->translate_to);
+                array_push($translate_text[$replie->replies_id]['translate_id'], $replie->id);
+                array_push($translate_text[$replie->replies_id]['translate_status'], $replie->status);
+            }
+
+           if(!in_array($replie->translate_to , $lang))
+           {
+                $lang[$replie->id] = $replie['translate_to'];
+           }
+        }
+
+        $replies = json_encode($translate_text);
+
+        return view('reply.translate-list', compact('replies','lang'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
-    function    show_logs(Request   $request,    \App\Models\ReplyLog  $ReplyLog){
-        
-        $data   =   $request->all();
+    public function quickRepliesPermissions(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = $request->only('user_id', 'lang_id', 'action');
+            $checkExists = QuickRepliesPermissions::where('user_id', $data['user_id'])->where('lang_id', $data['lang_id'])->where('action', $data['action'])->first();
 
-        $data   =   $ReplyLog->where('reply_id', $data['id'])->orderby('created_at','desc')->paginate(20);
-        $paginateHtml   =   $data->links()->render();
-        return response()->json(['code' => 200, 'paginate' =>$paginateHtml, 'data' => $data, 'message' => 'Logs found']);
+            if ($checkExists) {
+                return response()->json(['status' => 412]);
+            }
 
+            QuickRepliesPermissions::insert($data);
+            $data = QuickRepliesPermissions::where('user_id', \Auth::user()->id)->get();
+
+            return response()->json(['status' => 200]);
+        }
     }
 
+    public function replyTranslateUpdate(Request $request)
+    {
+        $record = TranslateReplies::find($request->record_id);
+        $oldRecord = $request->lang_id;
+        if($record)
+        {
+            $record->updated_by_user_id = !empty($request->update_by_user_id) ? $request->update_by_user_id : '';
+            $record->translate_text = !empty($request->update_record)?$request->update_record:"";
+            $record->status = 'new';
+            $record->update();
+
+            $historyData = [];
+            $historyData['translate_replies_id'] = $record->id;
+            $historyData['updated_by_user_id'] = $record->updated_by_user_id;
+            $historyData['translate_text'] = $request->update_record;
+            $historyData['status'] = 'new';
+            $historyData['lang'] = $oldRecord;
+            $historyData['created_at'] = \Carbon\Carbon::now();
+            RepliesTranslatorHistory::insert($historyData);
+
+            return redirect()->back()->with(['success' => 'Successfully Updated']);
+        }else{
+            return redirect()->back()->withErrors('Something Wrong');
+        }
+    }
+
+    public function replyTranslatehistory(Request $request)
+    {
+        $key = $request->key;
+        $language = $request->language;
+        if($request->type == 'all_view')
+        {
+            $history = RepliesTranslatorHistory::whereRaw('status is not null')->get();
+        }else{
+            $history = RepliesTranslatorHistory::where([
+                                                   'translate_replies_id' => $request->id,
+                                                   'lang' => $language,
+                                               ])->whereRaw('status is not null')->get();
+        }
+        if (count($history) > 0) {
+            foreach ($history as $key => $historyData) {
+                $history[$key]['updater'] = User::where('id', $historyData['updated_by_user_id'])->pluck('name')->first();
+                $history[$key]['approver'] = User::where('id', $historyData['approved_by_user_id'])->pluck('name')->first();
+            }
+        }
+        $html ='';
+        foreach($history as $key => $value){
+                $ar = ($value->lang == 'ar') ? $value->translate_text:'';
+                $en = ($value->lang == 'en') ? $value->translate_text:'';
+                $zh = ($value->lang == 'zh-CN') ? $value->translate_text:'';
+                $ja = ($value->lang == 'ja') ? $value->translate_text:'';
+                $ko = ($value->lang == 'ko') ? $value->translate_text:'';
+                $ur = ($value->lang == 'ur') ? $value->translate_text:'';
+                $ru = ($value->lang == 'ru') ? $value->translate_text:'';
+                $it = ($value->lang == 'it') ? $value->translate_text:'';
+                $fr = ($value->lang == 'fr') ? $value->translate_text:'';
+                $es = ($value->lang == 'es') ? $value->translate_text:'';
+                $nl = ($value->lang == 'nl') ? $value->translate_text:'';
+                $de = ($value->lang == 'de') ? $value->translate_text:'';
+
+                        $html .= '<tr><td>'.$value->id.'</td>';
+                        $html .= '<td>scrollToSeeMoreImages</td>';
+                        $html .= '<td>'.$ar.'</td>';
+                        $html .= '<td>'.$en.'</td>';
+                        $html .= '<td>'.$zh.'</td>';
+                        $html .= '<td>'.$ja.'</td>';
+                        $html .= '<td>'.$ko.'</td>';
+                        $html .= '<td>'.$ur.'</td>';
+                        $html .= '<td>'.$ru.'</td>';
+                        $html .= '<td>'.$it.'</td>';
+                        $html .= '<td>'.$fr.'</td>';
+                        $html .= '<td>'.$es.'</td>';
+                        $html .= '<td>'.$nl.'</td>';
+                        $html .= '<td>'.$de.'</td>';
+                        $html .= '<td>'.$value->updater.'</td>';
+                        $html .= '<td>'.$value->approver.'</td>';
+                        $html .= '<td>'.$value->created_at.'</td>';
+                        $html .='</tr>';
+        }
+
+        return response()->json(['status' => 200, 'data' => $html]);
+    }
+
+    public function approvedByAdmin(Request $request)
+    {
+        $record = TranslateReplies::where('id', $request->id)->first();
+        $record['status'] = $request->status;
+        $record['approved_by_user_id'] = \Auth::user()->id;
+        $record->update();
+
+        $record_history = RepliesTranslatorHistory::where('translate_replies_id', $request->id)->where('lang',$request->lang)->orderBy('id', 'desc')->first();
+        $record_history['status'] = $request->status;
+        $record_history['approved_by_user_id'] = \Auth::user()->id;
+        $record_history->update();
+
+        function show_logs(Request   $request,    \App\Models\ReplyLog  $ReplyLog){
+
+            $data   =   $request->all();
+
+            $data   =   $ReplyLog->where('reply_id', $data['id'])->orderby('created_at','desc')->paginate(20);
+            $paginateHtml   =   $data->links()->render();
+            return response()->json(['code' => 200, 'paginate' =>$paginateHtml, 'data' => $data, 'message' => 'Logs found']);
+
+        }
+      
+        return response()->json(['status' => 200]);
+    }
 }
