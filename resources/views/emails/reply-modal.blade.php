@@ -1,13 +1,23 @@
     <div class="modal-body">
         <input type="hidden" id="reply_email_id" name="reply_email_id" value="{{ $email['id'] }}" />
 
+        <button type="button" class="btn btn-primary btn-sm pull-right mb-2" data-reply-add-receiver-btn>Add Receiver</button>
+
+        <div class="form-group">
+            <input type="text" id="reply_receiver_email" name="receiver_email" value="{{ $email->to }}" style="width: 100%;" readonly>
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="reply_subject" name="reply_subject" value="{{ $email->subject }}" style="width: 100%;">
+        </div>
+
         <div class="form-group">
             <textarea id="reply-message" name="message" class="form-control reply-message-textarea" rows="3" placeholder="Reply..."></textarea>
-        <div class="message-to-reply">
-            <blockquote style="margin:15px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
-            <iframe src="{{url('/email/email-frame', [$email['id']])}}" id="replyFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('replyFrame');"></iframe>
-            </blockquote>
-        </div>
+            <div class="message-to-reply">
+                <blockquote style="margin:15px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
+                    <iframe src="{{url('/email/email-frame', [$email['id']])}}" id="replyFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('replyFrame');"></iframe>
+                </blockquote>
+            </div>
         </div>
     </div>
     <div class="modal-footer">

@@ -448,6 +448,65 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
 
+    <!-- email-search Modal-->
+    <div id="menu-email-search-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg"  role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Search</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-flex" id="search-bar">
+                                <input type="text" value="" name="search" id="menu_email_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="Email Search" type="button" class="email_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important;" id="emailNameTable">
+                                    <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Sender</th>
+                                        <th>Receiver</th>
+                                        <th>Subject</th>
+                                        <th>Body</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="email_search_result">
+                                        @php
+                                            $userEmails = \App\Email::where('type', 'incoming')->orderBy('created_at', 'desc')->limit(5)->get();
+                                        @endphp
+                                        @foreach ($userEmails as $key => $userEmail)
+                                            <tr>
+                                                <td>{{ Carbon\Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s') }}</td>
+                                                <td>{{ substr($userEmail->from, 0,  20) }} {{strlen($userEmail->from) > 20 ? '...' : '' }}</td>
+                                                <td>{{ substr($userEmail->to, 0,  15) }} {{strlen($userEmail->to) > 10 ? '...' : '' }}</td>
+                                                <td>{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td>{{ substr($userEmail->message, 0,  25) }} {{strlen($userEmail->message) > 20 ? '...' : '' }}</td>
+                                                <td> 
+                                                    <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
+                                                        <i class="fa fa-copy"></i>
+                                                </a></td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="menu-sopupdate" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -3480,6 +3539,10 @@ if (!empty($notifications)) {
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
                             <li>
+                                <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <a title="Create Google Doc" type="button" data-toggle="modal" data-target="#createGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -3502,6 +3565,10 @@ if (!empty($notifications)) {
                             <li>
                                 <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Email Search" type="button" class="quick-icon menu-email-search" style="padding: 0px 1px;"><span><i
+                                                class="fa fa-envelope fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
                                 <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
@@ -4028,6 +4095,7 @@ if (!empty($notifications)) {
         </div>
         @include('googledocs.partials.create-doc')
         @include('googledocs.partials.search-doc')
+        @include('passwords.search-password')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -4590,7 +4658,7 @@ if (!empty($notifications)) {
 
     @endif
     <div id="system-request" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg" style="width: 1000px; max-width: 1000px;">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -4619,27 +4687,34 @@ if (!empty($notifications)) {
                         @endphp
                         <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
                         <div>
-                            <select class="form-control col-md-3 ml-3" name="user_id" id="ipusers">
-                                <option>Select user</option>
+                            <select class="form-control col-md-2 ml-3" name="user_id" id="ipusers">
+                                <option value="">Select user</option>
                                 @foreach ($userLists as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
                                 <option value="other">Other</option>
                             </select>
                             <input type="text" name="other_user_name" id="other_user_name"
-                                class="form-control col-md-3 ml-3" style="display:none;" placeholder="other name">
-                        </div>
-                        <input type="text" name="ip_comment" class="form-control col-md-3 ml-3"
+                                class="form-control col-md-2 ml-3" style="display:none;" placeholder="other name">
+                            <input type="text" name="ip_comment" class="form-control col-md-2 ml-3"
                             placeholder="Add comment...">
+                        </div>
+                        
                         <button class="btn-success btn addIp ml-3 mb-5">Add</button>
-                        <table class="table table-bordered" id="userAllIps">
+                        <button class="btn-warning btn bulkDeleteIp ml-3 mb-5">Delete All IPs</button>
+                        <table class="table table-bordered">
+                            <thead>
                             <tr>
                                 <th>Index</th>
                                 <th>IP</th>
                                 <th>User</th>
+                                <th>Source</th>
                                 <th>Comment</th>
                                 <th>Action</th>
                             </tr>
+                            </thead>
+                            <tbody id="userAllIps">
+                            </tbody>
                             <!-- @if (!empty($final_array)) @foreach (array_reverse($final_array) as $values)
                                     <tr>
                                         <td>{{ isset($values[0]) ? $values[0] : '' }}</td>
@@ -4885,6 +4960,11 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
+    $(document).on("click", ".menu-email-search", function(e) {
+        e.preventDefault();
+        $("#menu-email-search-model").modal("show");
+    });
+
     $(document).on("click", ".sop_search_menu", function(e) {
         let $this = $('#menu_sop_search').val();
         var q = $this;
@@ -4905,6 +4985,35 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
+                toastr['success']('Data updated successfully', 'success');
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
+    $(document).on("click", ".email_search_menu", function(e) {
+        let $this = $('#menu_email_search').val();
+        var q = $this;
+        $.ajax({
+            url: '{{route('menu.email.search')}}',
+            type: 'GET',
+            data: {
+                search: q,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                $('.email_search_result').empty();
+                $('.email_search_result').append(response);
                 toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
@@ -5494,7 +5603,15 @@ if (!empty($notifications)) {
     $(document).on("click", ".addIp", function(e) {
         e.preventDefault();
         if ($('input[name="add-ip"]').val() != '') {
-            $.ajax({
+            if ($('#ipusers').val() === '') {
+                alert('Please select User OR Other from list.');
+            }
+            else if($('#ipusers').val() === 'other' && $('input[name="other_user_name"]').val()==='')
+            {
+                alert('Please enter other name.');
+            }
+            else{
+                $.ajax({
                 url: '/users/add-system-ip',
                 type: 'GET',
                 data: {
@@ -5518,6 +5635,8 @@ if (!empty($notifications)) {
                     toastr["Error"]("An error occured!");
                 }
             });
+            }
+            
         } else {
             alert('please enter IP');
         }
@@ -5699,7 +5818,34 @@ if (!empty($notifications)) {
             }
         });
     });
-
+    $(document).on("click", ".bulkDeleteIp", function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        if(confirm('Are you sure you want to perform this Action?') == false)
+        {
+            return false;
+        }
+        $.ajax({
+            url: '/users/bulk-delete-system-ip',
+            type: 'GET',
+            data: {
+                _token: "{{ csrf_token() }}",
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(result) {
+                $("#userAllIps").empty();
+                $("#loading-image").hide();
+                toastr["success"]("IPs Deteted successfully");
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
     function loadUsersList() {
         var t = "";
         var ip = "";
@@ -5712,7 +5858,7 @@ if (!empty($notifications)) {
             dataType: 'json',
             success: function(result) {
                 // console.log(result.data);
-                t += '<option>Select user</option>';
+                t += '<option value="">Select user</option>';
                 $.each(result.data, function(i, j) {
                     t += '<option value="' + i + '">' + j + '</option>'
                 });
@@ -5724,7 +5870,8 @@ if (!empty($notifications)) {
                     ip += '<tr>';
                     ip += '<td> ' + v.index_txt + ' </td>';
                     ip += '<td> ' + v.ip + '</td>';
-                    // ip += '<td>' + v.user.name ? v.user.name : v.other_user_name + '</td>';
+                    ip += '<td>' +( (v.user!=null) ? v.user.name : v.other_user_name )+ '</td>';
+                    ip += '<td> ' + v.source + '</td>';
                     ip += '<td>' + v.notes + '</td>';
                     ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v
                         .id + '">Delete</button></td>';

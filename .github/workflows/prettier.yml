@@ -1,0 +1,27 @@
+name: Prettier Code Formatter
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: node install
+        run: npm install -g npm@latest
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Prettier Install
+        run: npm install --save-dev --save-exact prettier
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  

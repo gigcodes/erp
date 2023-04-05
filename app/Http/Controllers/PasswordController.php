@@ -205,7 +205,7 @@ class PasswordController extends Controller
             $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
         }
 
-        return redirect()->route('password.index')->withSuccess($successMessage);
+        return redirect()->back()->withSuccess($successMessage);
     }
 
     /**
@@ -357,6 +357,34 @@ class PasswordController extends Controller
     }
 
     /**
+
+     * Search data of passwords.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $subject
+     * @return \Illuminate\Http\Response
+     */
+    public function passwordsSearch(Request $request)
+    {
+        $subject = $request->subject;
+        $data = Password::where('website', 'LIKE', '%'.$subject.'%')->orderby('website', 'asc')->get();
+        $users = User::orderBy('name', 'asc')->get();
+        $password_remark = PasswordRemark::get();
+        return view('passwords.data', [
+            'passwords' => $data,
+            'users' => $users,
+            'password_remark' => $password_remark
+        ]);
+    }
+
+    public function passwordsShowEditdata(Request $request)
+    {
+        $data = Password::where('id', $request->password_id)->first();
+        $pass = Crypt::decrypt($data->password);
+        return response()->json(['code' => 200, 'data' => $data, 'pass' => $pass]);
+    }
+    
+     /**
      * Send email to given emailId
      *
      * @param  \Illuminate\Http\Request  $request

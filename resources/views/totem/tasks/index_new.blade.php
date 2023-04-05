@@ -7,6 +7,71 @@
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
 <style>
+    #ckbCheckAll{
+        height: 12px !important;
+        margin-left: 6px !important;
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    /* Hide default HTML checkbox */
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
 .ajax-loader{
     position: fixed;
     left: 0;
@@ -84,7 +149,7 @@ table tr td {
 }
 </style>
 @endsection
-
+<?php /*print_r($developer_module); */?>
 @section('large_content')
     <script src="/js/jquery.jscroll.min.js"></script>
 
@@ -105,10 +170,10 @@ table tr td {
                         </button>
                     </div>
                 </div>
-            </h2>
         </div>
         <div class="col-12 pl-2" style="padding-left:0px;">
             <div >
+
                 <form class="form-inline" action="" method="GET">
                     <div class="form-group col-md-2 pd-3">
                         <input list="tasks-lists" style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
@@ -118,6 +183,22 @@ table tr td {
                             @endforeach
                         </datalist>
                     </div>
+                    <div class="form-group col-md-2 pd-3">
+                        <select name="developer_module" id="developer_module" class="form-control">
+                            <option value="">Select Module</option>
+                            @foreach($developer_module as  $module)
+                                <option {{ isset($_REQUEST['developer_module']) && $_REQUEST['developer_module']  == $module->id ? 'selected' : '' }} value="{{$module->id}}">{{$module->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2 pd-3">
+                        <select name="is_active" id="is_active" class="form-control">
+                            <option value="">Select Status</option>
+                            <option value="1" {{ isset($_REQUEST['is_active']) && $_REQUEST['is_active']  == "1" ? 'selected' : '' }} >Active</option>
+                            <option value="0" {{ isset($_REQUEST['is_active']) && $_REQUEST['is_active']  == "0" ? 'selected' : '' }} >In Active</option>
+
+                        </select>
+                    </div>
                     <div class="form-group col-md-1 pd-3">
                         <button type="submit" class="btn btn-image ml-0"><img src="{{asset('images/filter.png')}}" /></button>
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
@@ -126,7 +207,7 @@ table tr td {
                 </form> 
             </div>
         </div>
-    </div>	
+    </div>
 
 
 
@@ -136,22 +217,33 @@ table tr td {
 	        <div class="table-responsive mt-2">
                 <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
+                    <span>Select All</span><input type="checkbox" id="ckbCheckAll"/>
+                    <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
+                    <button id="disableAllData" class="btn btn-danger enable-disable" cron-status="0" >Disable</button>
                         <tr>
-                            <th width="2%">#</th>
-                            <th width="5%">Description</th> 
-                            <th width="8%">Average Runtime</th>
-                            <th width="5%">Last Run</th>
-                            <th width="5%">Next Run</th>
-                            <th width="5%">Frequencies</th>
-                            <th width="5%">Action</th> 
-                        </tr>    
+                            <th width="2%"></th>
+                            <th width="2%" class="tablesorter-header category">#</th>
+                            <th width="5%" class="tablesorter-header category" >Description</th>
+                            <th width="5%" class="tablesorter-header category" >Module</th>
+                            <th width="8%" class="tablesorter-header category">Average Runtime</th>
+                            <th width="5%" class="tablesorter-header category">Last Run</th>
+                            <th width="5%" class="tablesorter-header category">Next Run</th>
+                            <th width="5%" class="tablesorter-header category">Frequencies</th>
+                            <th width="5%">Action</th>
+                            <th width="5%" class="">Enable & Disable</th>
+
+                        </tr>
                     </thead>
                     <tbody>
                             @foreach($tasks as $key => $task)
                             <tr class="{{$task->is_active ? '' : 'red' }}">
+                                <td style="text-align: center;vertical-align: middle;"><input style="height:15px;" type="checkbox" data-id="{{$task->id}}" class="checkBoxClass" id="checkbox{{$task->id}}"/></td>
                                 <td>{{$task->id}}</td>
-                                <td>
+                                <td >
                                         {{Str::limit($task->description, 30)}}
+                                </td>
+                                <td>
+                                    {{$task->developer_module_id ? $developer_module->find($task->developer_module_id)->name : ''}}
                                 </td>
                                 <td>
                                     {{ number_format(  $task->averageRuntime / 1000 , 2 ) }} seconds
@@ -181,19 +273,24 @@ table tr td {
                                         <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
                                     @endif
                                     <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$task->id}}" title="task status" data-active="{{$task->is_active}}"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
 
                                     <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-schedule" href="#" data-id="{{$task->command}}" title="See Cron query and description"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                 </td>
+                                <td>
+                                    <label class="switch">
+                                        <input class="active-task" data-id="{{$task->id}}" data-active="{{$task->is_active}}" {{$task->is_active ? "checked" : ""}} type="checkbox">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
                             </tr>
                             @endforeach
                     </tbody>
                 </table>
                 @if(!count($tasks))
-                <h5 class="text-center">No Tasks found</h5> 
+                <h5 class="text-center">No Tasks found</h5>
                 @endif
 	        </div>
         </div>
@@ -429,7 +526,15 @@ table tr td {
                                 <p class="d-none"></p>
                                 @endforeach
                             </select>
-                        </div> 
+                        </div>
+                        <div class="form-group">
+                            <label>Module</label><i class="fa fa-info-circle" title="Select a module"></i>
+                            <select id="developer_module_id" name="developer_module_id" class="form-control select2" placeholder="Select a module">
+                                @foreach($developer_module as  $module)
+                                    <option value="{{$module->id}}">{{$module->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label>Type</label><i class="fa fa-info-circle" title="Choose whether to define a cron expression or to add frequencies"></i><br>
                             <label>
@@ -556,29 +661,74 @@ table tr td {
 
 @endsection
 @section('scripts')
-
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
-    $('ul.pagination').hide();
-    $(function() {
-        $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').hide();
+    // $('ul.pagination').hide();
+     $(function() {
+         $(".table").tablesorter();
+    //     $('.infinite-scroll').jscroll({
+    //         autoTrigger: true,
+    //         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+    //         padding: 2500,
+    //         nextSelector: '.pagination li.active + li a',
+    //         contentSelector: 'div.infinite-scroll',
+    //         callback: function() {
+    //             $('ul.pagination').hide();
+    //             setTimeout(function(){
+    //                 $('ul.pagination').first().remove();
+    //             }, 2000);
+    //             $(".select-multiple").select2();
+    //             initialize_select2();
+    //         }
+    //     });
+     });
+
+    $('#command').select2({
+        dropdownParent: $('#addEditTaskModal')
+    });
+    $("#ckbCheckAll").click(function () {
+        $(".checkBoxClass").prop('checked', $(this).prop('checked'));
+    });
+    $(".enable-disable").click(function () {
+        let type = $(this).attr('cron-status')
+        var selectedIds = []
+        $(".checkBoxClass:checked").each(function () {
+            selectedIds.push($(this).attr('data-id'))
+        })
+        if(selectedIds.length == 0){
+            toastr['error']('Please select at least one task to enable   ');
+        return;
+        }
+        $.ajax({
+            type: "POST",
+            url: "/totem/tasks/enable-disable",
+            beforeSend : function() {
+                $(".ajax-loader").show();
+            },
+            dataType : "json",
+            data:{
+                ids:selectedIds,
+                active: type,
+                _token: "{{ csrf_token() }}",
+            },
+            success: function (response) {
+                if(response.status){
+                    toastr['success'](response.message);
+                }else{
+                    toastr['error'](response.message);
+                }
                 setTimeout(function(){
-                    $('ul.pagination').first().remove();
-                }, 2000);
-                $(".select-multiple").select2();
-                initialize_select2();
+                    window.location.reload(1);
+                }, 1000);
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
             }
         });
     });
-
-    $('#command').select2({
+    $('#developer_module_id').select2({
         dropdownParent: $('#addEditTaskModal')
     });
 
@@ -588,18 +738,6 @@ table tr td {
         $(this).attr('data-id', '');
         $('#addEditTaskModal .modal-title').html('Create task');
         $('.freq').html('<tr><td class="default_td">No Frequencies Found</td></tr>');
-    });
-
-    $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').first().remove();
-                $(".select-multiple").select2();
-            }
     });
 
     $(document).on("click",".view-task",function(e) {
@@ -693,7 +831,7 @@ table tr td {
         for(let i=0; i< results.length; i++){ 
             html_content += '<tr>'; 
             html_content += '<td>' + results[i].ran_at + '</td>';
-            html_content += '<td>' + (results[i].duration / 1000 , 2).toFixed(2) + ' seconds</td>';
+            html_content += '<td>' + (results[i].duration / 1000).toFixed(2) + ' seconds</td>';
             html_content += `<td id="show-result" data-output="${results[i].result}"><i class="fa fa-info-circle"></i></td>`;
             html_content += '</tr>';
         }
@@ -959,7 +1097,7 @@ table tr td {
             url: "/totem/tasks/"+$(this).data('id'),  
             dataType : "json",
             success: function (response) {
-                let task_fields = response  .task;
+                let task_fields = response.task;
                 for (var key in task_fields) {
                     if($(`input[name="${key}"]`).length != 0){
                         $(`input[name="${key}"]`).val(task_fields[key]);
