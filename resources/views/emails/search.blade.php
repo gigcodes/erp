@@ -65,8 +65,11 @@
       @endforeach
     </select>
   </td>
+  <td>
+    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn({{ $email->id }})"><i class="fa fa-arrow-down"></i></button>
+  </td>
 </tr>
-<tr>
+<tr class="action-btn-tr-{{ $email->id }} d-none">
   <th>Action</th>
   <td colspan="11">
     @if($email->type != "incoming")

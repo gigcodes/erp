@@ -190,6 +190,7 @@
         <th width="1%">Draft</th>
         <th width="6%">Error <br> Message</th>
         <th width="8%">Category</th>
+        <th width="8%">Action</th>
       </tr>
     </thead>
     <tbody>
@@ -1557,5 +1558,9 @@
     event.preventDefault();
     $('.labeling-form input[name="id"]').val($(this).data('id'));
   })
+
+  function Showactionbtn(id){
+    $(".action-btn-tr-"+id).toggleClass('d-none')
+  }
 </script>
 @endsection
