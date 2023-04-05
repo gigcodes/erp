@@ -364,6 +364,8 @@ Route::get('send_auto_emails', [Marketing\MailinglistController::class, 'sendAut
 
 Route::get('textcurl', [Marketing\MailinglistController::class, 'textcurl']);
 Route::get('totem/query-command/{name}', [TasksController::class, 'queryCommand']);
+Route::get('totem/cron-history/{name}', [TasksController::class, 'cronHistory']);
+
 //Route::get('unused_category', 'TestingController@Demo');
 
 Route::get('/test/dummydata', [TestingController::class, 'testingFunction']);
@@ -4564,6 +4566,8 @@ Route::middleware('auth')->prefix('totem')->group(function () {
         Route::get('{task}/development-task', [TasksController::class, 'developmentTask'])->name('totem.task.developmentTask');
         Route::post('{task}/get-error', [TasksController::class, 'totemCommandError'])->name('totem.task.get-error');
         Route::post('enable-disable', [TasksController::class, 'enableDisableCron'])->name('totem.task.enable-disable');
+        Route::post('assign-users', [TasksController::class, 'assignUsers'])->name('totem.task.assign-users');
+        Route::post('bulk-assign', [TasksController::class, 'bulkAssign'])->name('totem.task.bulk-assign');
     });
 });
 

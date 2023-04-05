@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\CronActivity;
 use App\CronJob;
 use App\CronJobErroLog;
 use App\DeveloperModule;
 use App\ScheduleQuery;
+use App\User;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +38,7 @@ class TasksController extends Controller
                 ->paginate(50),
             'task' => null,
             'queries' => ScheduleQuery::all(),
+            'users' => User::all(),
             'developer_module' => DeveloperModule::all(),
             'commands' => Totem::getCommands(),
             'timezones' => timezone_identifiers_list(),
@@ -206,6 +209,17 @@ class TasksController extends Controller
 
     public function queryCommand(Request $request, $name){
         $query = ScheduleQuery::where('schedule_name' , '=', $name)->get()->toArray();
+
+        return $query;
+    }
+    public function cronHistory(Request $request, $name){
+        $query = CronActivity::where('cron_id', '=', $name)->get()->map(function(CronActivity $cronActivity){
+            return [
+                'assign_by_name' => $cronActivity->assignBy->name,
+                'assign_to_name' => $cronActivity->assignTo->name,
+            ];
+        });
+
         return $query;
     }
     public function enableDisableCron(Request $request){
@@ -219,5 +233,40 @@ class TasksController extends Controller
                 'message' => $msg,
             ]);
         }
+    }
+    public function assignUsers(Request $request){
+        foreach ($request->get('users_id') as $userId) {
+            $cron = new CronActivity();
+            $cron->assign_by_id = \Auth::user()->id;
+            $cron->cron_id = $request->get('task-id');
+            $cron->assign_to_id = $userId;
+            $cron->save();
+                 }
+        return response()->json([
+            'status' => true,
+            'message' => "Cron assign succesfully",
+        ]);
+    }
+
+    public function bulkAssign(Request $request){
+        $crons = DB::table('crontasks')->get()->toArray();
+        $cron_ids = [];
+        foreach ($crons as $cron){
+            $cron_ids[] = $cron->id;
+        }
+        foreach ($request->get('users_id') as $userId) {
+            foreach ($cron_ids as $cron_id){
+                $cron = new CronActivity();
+                $cron->assign_by_id = \Auth::user()->id;
+                $cron->cron_id = $cron_id;
+                $cron->assign_to_id = $userId;
+                $cron->save();
+            }
+        }
+        return response()->json([
+            'status' => true,
+            'message' => "Cron assign succesfully",
+        ]);
+
     }
 }

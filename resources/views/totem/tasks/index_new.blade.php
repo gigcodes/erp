@@ -144,9 +144,7 @@ table tr td {
     background: #fff;
     color: #757575;
 }
-.select2-container {
-    width: 100% !important;
-}
+
 </style>
 @endsection
 <?php /*print_r($developer_module); */?>
@@ -203,8 +201,26 @@ table tr td {
                         <button type="submit" class="btn btn-image ml-0"><img src="{{asset('images/filter.png')}}" /></button>
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
                     </div>
-
-                </form> 
+                    <div class="form-group col-md-1 pd-3" style="display: flex">
+                    <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
+                        <button id="disableAllData" class="btn btn-danger enable-disable" cron-status="0" >Disable</button>
+                    </div>
+                    <div class="form-group" style="display: flex; border: 1px solid; padding: 0 10px; border-radius: 4px; margin-left: 10px">
+                        <div>
+                            <form class="post-assign-cron">
+                                @csrf
+                                <input type="hidden" name="bulk_assign"/>
+                                <select class="js-select2" multiple="multiple" name="users_id[]" >
+                                    @foreach ($users as $key => $userData)
+                                        <option data-badge="" value="{{ $userData->id }}">
+                                            {{ $userData->name }}</option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        </div>
+                            <div><button class="btn btn-primary user_submit_btn" bulk-assign="1">Grant Access</button></div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -218,10 +234,9 @@ table tr td {
                 <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
                     <span>Select All</span><input type="checkbox" id="ckbCheckAll"/>
-                    <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
-                    <button id="disableAllData" class="btn btn-danger enable-disable" cron-status="0" >Disable</button>
-                        <tr>
-                            <th width="2%"></th>
+                    <tr>
+                            <th width="2%">
+                            </th>
                             <th width="2%" class="tablesorter-header category">#</th>
                             <th width="5%" class="tablesorter-header category" >Description</th>
                             <th width="5%" class="tablesorter-header category" >Module</th>
@@ -278,6 +293,10 @@ table tr td {
                                     <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-schedule" href="#" data-id="{{$task->command}}" title="See Cron query and description"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image show-cron-history" href="#" data-id="{{$task->id}}" title="Show cron assign history"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+
+                                    <a style="padding:1px;" class="btn d-inline btn-image assign-user" href="#" assing-id="{{$task->users_ids}}" task-id="{{$task->id}}" title="Assign user"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+
                                 </td>
                                 <td>
                                     <label class="switch">
@@ -410,6 +429,33 @@ table tr td {
     </div>
     </div>
 
+    <div class="modal fade" id="view_assign_user" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
+        <form class="post-assign-cron">
+            @csrf
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Assign Cron to User</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <input type="hidden" id="taskId" name="task-id"/>
+                <select class="js-select2" multiple="multiple" name="users_id[]" >
+                        @foreach ($users as $key => $userData)
+                            <option data-badge="" value="{{ $userData->id }}">
+                                {{ $userData->name }}</option>
+                        @endforeach
+                    </select>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default user_submit_btn">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            </div>
+        </form>
+    </div>
+
     <div class="modal fade" id="view_command_query" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -442,6 +488,36 @@ table tr td {
         </div>
     </div>
 
+    <div class="modal fade" id="view_cron_assign_history" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">COMMAND ASSIGN HISTORY</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+                            <thead>
+                            <tr>
+                                <th width="5%">Assign By</th>
+                                <th width="5%">Assign To</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="view_execution_error" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
         <div class="modal-dialog modal-lg" role="document">
@@ -661,10 +737,84 @@ table tr td {
 
 @endsection
 @section('scripts')
+    <style>
+        .select2-container{ width: 100% !important; padding: 10px}
+        .select2-results__option {
+            padding-right: 20px;
+            vertical-align: middle;
+        }
+        .select2-results__option:before {
+            content: "";
+            display: inline-block;
+            position: relative;
+            height: 20px;
+            width: 20px;
+            border: 2px solid #e9e9e9;
+            border-radius: 4px;
+            background-color: #fff;
+            margin-right: 20px;
+            vertical-align: middle;
+        }
+        .select2-results__option[aria-selected=true]:before {
+            font-family:fontAwesome;
+            content: "\f00c";
+            color: #fff;
+            background-color: #f77750;
+            border: 0;
+            display: inline-block;
+            padding-left: 3px;
+        }
+
+        .select2-selection .select2-selection--multiple:after {
+            content: 'hhghgh';
+        }
+        /* select with icons badges single*/
+        .select-icon .select2-selection__placeholder .badge {
+            display: none;
+        }
+        .select-icon .placeholder {
+            display: none;
+        }
+        .select-icon .select2-results__option:before,
+        .select-icon .select2-results__option[aria-selected=true]:before {
+            display: none !important;
+            /* content: "" !important; */
+        }
+        .select-icon  .select2-search--dropdown {
+            display: none;
+        }
+    </style>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="/js/jquery.jscroll.min.js"></script>
-<script type="text/javascript"> 
+<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+
+<script type="text/javascript">
+    $(".js-select2").select2({
+        closeOnSelect : false,
+        placeholder : "Select user",
+        allowHtml: true,
+        allowClear: true,
+        tags: true,
+    });
+    $('.icons_select2').select2({
+        templateSelection: iformat,
+        templateResult: iformat,
+        allowHtml: true,
+        placeholder: "Placeholder",
+        dropdownParent: $( '.select-icon' ),//обавили класс
+        allowClear: true,
+        multiple: false
+    });
+    function iformat(icon, badge,) {
+        var originalOption = icon.element;
+        var originalOptionBadge = $(originalOption).data('badge');
+        return $('<span><i class="fa ' + $(originalOption).data('icon') + '"></i> ' + icon.text + '<span class="badge">' + originalOptionBadge + '</span></span>');
+    }
     // $('ul.pagination').hide();
      $(function() {
          $(".table").tablesorter();
@@ -867,6 +1017,37 @@ table tr td {
         });
     });
 
+    $(document).on("click",".show-cron-history",function(e) {
+        $.ajax({
+            type: "GET",
+            url: "cron-history/"+$(this).data('id'),
+            success: function (response) {
+                console.log(response, "response")
+                var html_content = response.map(r => {
+                    return `<tr><td>${r.assign_by_name}</td><td>${r.assign_to_name}</td></tr>`
+                }).join('');
+
+                if(response.length == 0){
+                    html_content += '<tr class="text-center"><td colspan="3"><h5>' + 'No Data to show.' + '</h5></td></tr>';
+                }
+                $("#view_cron_assign_history tbody").html(html_content);
+                $('#view_cron_assign_history').modal('show');
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });
+
+
+    $(document).on("click",".assign-user",function(e) {
+        $('#taskId').val($(this).attr('task-id'));
+        console.log($(this).attr('assing-id'))
+        console.log($(this).attr('task-id'))
+        $('#view_assign_user').modal('show');
+
+
+    });
 
     $(document).on("click","#show-result",function(e) {
         let results = $(this).attr('data-output'); 
@@ -1059,6 +1240,105 @@ table tr td {
                 toastr['error'](errors.message);
             }
         });
+
+    });
+    $('.user_submit_btn').click(function(){
+        let type = $(this).attr('bulk-assign');
+        if (!type){
+            const form_data =  $('.post-assign-cron').serialize();
+            $.ajax({
+                type: "POST",
+                url: '/totem/tasks/assign-users',
+                data: form_data,
+                dataType : "json",
+                success: function (response) {
+                    if(response.status){
+                        toastr['success']('Cron assigned Succesfully.');
+                    }else{
+                        toastr['error']('Something went wrong!');
+                    }
+                    setTimeout(function(){
+                        window.location.reload(1);
+                    }, 1000);
+                },
+                error: function (response) {
+                    if(response.status == 200){
+                        toastr['success']('Task Created Successfully.');
+                        setTimeout(function(){
+                            window.location.reload(1);
+                        }, 1000);
+                    }else{
+                        debugger;
+                        let errors = response.responseJSON.errors;
+                        let error = '';
+                        for (var key in errors) {
+                            if($(`input[name="${key}"]`).length == 0){
+                                error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                                $(`select[name="${key}"]`).parent().after(error);
+                            }else{
+                                error = `<p class="error" style="color:red">${errors[key][0]}</p>`;
+                                $(`input[name="${key}"]`).after(error);
+                            }
+                            if(key == 'frequencies'){
+                                error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                                $('.frequencies').after(error);
+                            }
+                        }
+                        toastr['error'](error);
+                    }
+                    toastr['error'](errors.message);
+                }
+            });
+
+        }
+        else {
+            const form_data =  $('.post-assign-cron').serialize();
+            console.log(form_data);
+            $.ajax({
+                type: "POST",
+                url: '/totem/tasks/bulk-assign',
+                data: form_data,
+                dataType : "json",
+                success: function (response) {
+                    if(response.status){
+                        toastr['success']('Cron assigned Succesfully.');
+                    }else{
+                        toastr['error']('Something went wrong!');
+                    }
+                    setTimeout(function(){
+                        window.location.reload(1);
+                    }, 1000);
+                },
+                error: function (response) {
+                    if(response.status == 200){
+                        toastr['success']('Task Created Successfully.');
+                        setTimeout(function(){
+                            window.location.reload(1);
+                        }, 1000);
+                    }else{
+                        debugger;
+                        let errors = response.responseJSON.errors;
+                        let error = '';
+                        for (var key in errors) {
+                            if($(`input[name="${key}"]`).length == 0){
+                                error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                                $(`select[name="${key}"]`).parent().after(error);
+                            }else{
+                                error = `<p class="error" style="color:red">${errors[key][0]}</p>`;
+                                $(`input[name="${key}"]`).after(error);
+                            }
+                            if(key == 'frequencies'){
+                                error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                                $('.frequencies').after(error);
+                            }
+                        }
+                        toastr['error'](error);
+                    }
+                    toastr['error'](errors.message);
+                }
+            });
+
+        }
 
     });
 
