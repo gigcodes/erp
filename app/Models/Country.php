@@ -12,6 +12,6 @@ class Country extends Model
     public $fillable = [
         'name',
         'code',
-        'is_active',
+        // 'is_active',
     ];
 }
