@@ -1,7 +1,7 @@
     <div class="modal-body">
         <input type="hidden" id="reply_email_id" name="reply_email_id" value="{{ $email['id'] }}" />
 
-        <button type="button" class="btn btn-primary btn-sm pull-right mb-2" data-reply-receiver-btn>Add Receiver</button>
+        <button type="button" class="btn btn-primary btn-sm pull-right mb-2" data-reply-add-receiver-btn>Add Receiver</button>
 
         <div class="form-group">
             <input type="text" id="reply_receiver_email" name="receiver_email" value="{{ $email->to }}" style="width: 100%;" readonly>

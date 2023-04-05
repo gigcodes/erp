@@ -1510,7 +1510,11 @@ class EmailController extends Controller
     }
 
     public function getCategoryMappings(){
-        $userEmails = Email::where('type', 'incoming')->orderBy('created_at', 'desc')->paginate(10);
+        $userEmails = Email::where('type', 'incoming')
+            ->where('email_category_id', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->groupBy('from')
+            ->paginate(10);
 
          //Get All Category
          $email_categories = DB::table('email_category')->get();

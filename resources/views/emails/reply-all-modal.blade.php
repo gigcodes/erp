@@ -1,14 +1,14 @@
 <div class="modal-body">
-        <input type="hidden" id="reply_all_email_id" name="reply_all_email_id" value="{{ $email['id'] }}" style="display: none;"/>
+        <input type="hidden" id="reply_all_email_id" name="reply_all_email_id" value="{{ $email['id'] }}"/>
 
-        <button type="button" class="btn btn-primary btn-sm pull-right mb-2" style="display: none;" data-reply-all-receiver-btn>Add Receiver</button>
+        <button type="button" class="btn btn-primary btn-sm pull-right mb-2" data-reply-all-add-receiver-btn>Add Receiver</button>
 
         <div class="form-group">
-            <input type="text" id="reply_all_receiver_email" name="receiver_all_email" value="{{ $email->to }}" style="width: 100%; display: none;" readonly>
+            <input type="text" id="reply_all_receiver_email" name="receiver_all_email" value="{{ $email->to }}" style="width: 100%;" readonly>
         </div>
 
         <div class="form-group">
-            <input type="text" id="reply_all_subject" name="reply_all_subject" value="{{ $email->subject }}" style="width: 100%; display: none;">
+            <input type="text" id="reply_all_subject" name="reply_all_subject" value="{{ $email->subject }}" style="width: 100%;">
         </div>
 
         <div class="form-group">

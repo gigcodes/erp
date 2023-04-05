@@ -605,8 +605,36 @@
             <table class="table">
               <tbody id="replyReceiverEmailBody">
                   <tr id="reply_receiver_email_row_id_1">
-                    <td><input type="email" id="reply_receiver_email_id_1"  name="receiver_emails[]" class="form-control" required></td>
-                    <td><button type="button" class="btn btn-primary" data-add-receiver-email-btn><i class="fa fa-plus"></i></button></td>
+                    <td><input type="email" id="reply_receiver_email_id_1"  name="reply_receiver_emails[]" class="form-control" required></td>
+                    <td><button type="button" class="btn btn-primary" data-reply-add-receiver-email-btn><i class="fa fa-plus"></i></button></td>
+                  </tr>
+              </tbody>
+            </table>
+
+            <button class="btn btn-primary" type="submit">Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="addReceiverReplyAllModal" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Add Receiver Email</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form action="#" method="post" id="addReceiverReplyAllForm">
+          @csrf
+
+          <div class="table-responsive">
+            <table class="table">
+              <tbody id="replyAllReceiverEmailBody">
+                  <tr id="reply_all_receiver_email_row_id_1">
+                    <td><input type="email" id="reply_all_receiver_email_id_1"  name="reply_all_receiver_emails[]" class="form-control" required></td>
+                    <td><button type="button" class="btn btn-primary" data-reply-all-add-receiver-email-btn><i class="fa fa-plus"></i></button></td>
                   </tr>
               </tbody>
             </table>
@@ -651,25 +679,25 @@
 
   $('.select2-search__field').css('width', '100%')
 
-  $(document).on('click', '[data-reply-receiver-btn]', function (){
-    $('[row-receiver-items]').remove();
+  $(document).on('click', '[data-reply-add-receiver-btn]', function (){
+    $('.reply-row-receiver-items').remove();
     
     $('#addReceiverReplyModal').modal('show');
   });
 
-  var receiverCount = 1;
+  var replyReceiverCount = 1;
 
-  $(document).on('click', '[data-add-receiver-email-btn]', function (){
-    receiverCount += 1;
-    var receiverHtml = '<tr class="row-receiver-items" id="reply_receiver_email_row_id_'+receiverCount+'">';
-    receiverHtml += '<td><input type="email" id="reply_receiver_email_id_'+receiverCount+'" name="receiver_emails[]" class="form-control" required></td>';
-    receiverHtml += '<td><button type="button" class="btn btn-danger" data-remove-receiver-email-btn row-id="'+receiverCount+'"><i class="fa fa-close"></i></button></td>';
+  $(document).on('click', '[data-reply-add-receiver-email-btn]', function (){
+    replyReceiverCount += 1;
+    var receiverHtml = '<tr class="reply-row-receiver-items" id="reply_receiver_email_row_id_'+replyReceiverCount+'">';
+    receiverHtml += '<td><input type="email" id="reply_receiver_email_id_'+replyReceiverCount+'" name="reply_receiver_emails[]" class="form-control" required></td>';
+    receiverHtml += '<td><button type="button" class="btn btn-danger" data-reply-remove-receiver-email-btn row-id="'+replyReceiverCount+'"><i class="fa fa-close"></i></button></td>';
     receiverHtml += '</tr>';
 
     $('#replyReceiverEmailBody').append(receiverHtml);
   });
 
-  $(document).on('click', '[data-remove-receiver-email-btn]', function (){
+  $(document).on('click', '[data-reply-remove-receiver-email-btn]', function (){
     var rowId = Number($(this).attr('row-id'));
 
     $('#reply_receiver_email_row_id_'+rowId).remove();
@@ -681,7 +709,7 @@
 
     var receiverEmails = [];
 
-    $("input[name='receiver_emails[]']").each(function (){
+    $("input[name='reply_receiver_emails[]']").each(function (){
       var receiverEmail = $(this).val();
 
       receiverEmails.push(receiverEmail);
@@ -707,6 +735,67 @@
     
     $('#addReceiverReplyModal').modal('hide');
   });
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  $(document).on('click', '[data-reply-all-add-receiver-btn]', function (){
+    $('.reply-all-row-receiver-items').remove();
+    
+    $('#addReceiverReplyAllModal').modal('show');
+  });
+
+  var replyAllReceiverCount = 1;
+
+  $(document).on('click', '[data-reply-all-add-receiver-email-btn]', function (){
+    replyAllReceiverCount += 1;
+    var receiverHtml = '<tr class="reply-all-row-receiver-items" id="reply_all_receiver_email_row_id_'+replyAllReceiverCount+'">';
+    receiverHtml += '<td><input type="email" id="reply_all_receiver_email_id_'+replyAllReceiverCount+'" name="reply_all_receiver_emails[]" class="form-control" required></td>';
+    receiverHtml += '<td><button type="button" class="btn btn-danger" data-reply-all-remove-receiver-email-btn row-id="'+replyAllReceiverCount+'"><i class="fa fa-close"></i></button></td>';
+    receiverHtml += '</tr>';
+
+    $('#replyAllReceiverEmailBody').append(receiverHtml);
+  });
+
+  $(document).on('click', '[data-reply-all-remove-receiver-email-btn]', function (){
+    var rowId = Number($(this).attr('row-id'));
+
+    $('#reply_all_receiver_email_row_id_'+rowId).remove();
+  });
+
+  //option A
+  $("#addReceiverReplyAllForm").submit(function(e){
+    e.preventDefault();
+
+    var receiverEmails = [];
+
+    $("input[name='reply_all_receiver_emails[]']").each(function (){
+      var receiverEmail = $(this).val();
+
+      receiverEmails.push(receiverEmail);
+    });
+
+    var currentReceiverEmails = $('#reply_all_receiver_email').val();
+    var currentReceiverEmailsArr = currentReceiverEmails.split('');
+
+    if(currentReceiverEmailsArr[0] == '['){
+      currentReceiverEmails = currentReceiverEmails.replace(/'/g, '"');
+      currentReceiverEmails = JSON.parse(currentReceiverEmails);
+    }else{
+      currentReceiverEmails = currentReceiverEmails.split(',');
+    }
+
+    if(receiverEmails.length > 0){
+      $.each(receiverEmails, function (k, v){
+        currentReceiverEmails.push(v);
+      });
+    }
+
+    $('#reply_all_receiver_email').val("[" + currentReceiverEmails.map(value => `"${value}"`).join(',') + "]");
+    
+    $('#addReceiverReplyAllModal').modal('hide');
+  });
+
+  /////////////////////////////////////////////////////////////////////////////
 
   $(document).on('click', '.expand-row', function() {
       var selection = window.getSelection();
