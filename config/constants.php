@@ -56,5 +56,9 @@ return [
     'product_check_py' => env('PRODUCT_CHECK_PY'),
 
     /** website root access */
-    'WEBSITES_LOGS_FOLDER' => 'storage/websites'
+    'WEBSITES_LOGS_FOLDER' => 'storage/websites',
+    'AVAILABLE_TIMEZONES' => [
+        'Asia/Dubai' => 'Asia/Dubai',
+        'Asia/Kolkata' => 'Asia/Kolkata'
+    ]
 ];
