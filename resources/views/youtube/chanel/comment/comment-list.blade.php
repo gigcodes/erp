@@ -84,83 +84,78 @@
 </style>
 @endsection
 @section('content')
+                 <h2 class="text-center">Comment List</h2>
 
-<div class="container mt-5">
+                <table class="table table-bordered">
+                      {{--  <thead>
+                        <tr>
+                            <th>Comment List</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>    --}}
+                    <tbody>
+                        @foreach($comments as $value)
 
-            <div class="row  d-flex justify-content-center">
+                        <tr>
+                                <td>
+                                    <div class="container mt-5">
+                                        <div class="row  d-flex justify-content-center">
+                                                <div class="card p-3">
 
-                <div class="col-md-8">
-                @if(count($comments) > 0)
-                    @foreach($comments as $value)
-                                    {{--  <div class="headings d-flex justify-content-between align-items-center mb-3">
-                                        <h5>Unread comments(6)</h5>
+                                                            <div class="d-flex justify-content-between align-items-center">
 
-                                        <div class="buttons">
+                                                                <div class="user d-flex flex-row align-items-center">
+                                                                
+                                                                    <span><small class="font-weight-bold text-primary">{{$value['authorDisplayName']}}</small> <small class="font-weight-bold">{{$value['textOriginal']}}</small></span>
+                                                                </div>
 
-                                            <span class="badge bg-white d-flex flex-row align-items-center">
-                                                <span class="text-primary">Comments "ON"</span>
-                                                <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked>
-                                                
-                                                </div>
-                                            </span>
+                                                                <small>{{date('d-m-Y H:i:s a', strtotime($value['publishedAt']))}}</small>
+
+                                                            </div>
                                             
-                                        </div>
-                                        
-                                    </div>  --}}
-
-
-
-                                        <div class="card p-3">
-
-                                            <div class="d-flex justify-content-between align-items-center">
-
-                                        <div class="user d-flex flex-row align-items-center">
-
-                                            {{--  <img src="https://i.imgur.com/hczKIze.jpg" width="30" class="user-img rounded-circle mr-2">  --}}
-                                            <span><small class="font-weight-bold text-primary">{{$value['authorDisplayName']}}</small> <small class="font-weight-bold">{{$value['textOriginal']}}</small></span>
-                                            
-                                        </div>
-
-
-                                        <small>{{date('d-m-Y H:i:s a', strtotime($value['publishedAt']))}}</small>
-
-                                        </div>
-
-                        {{--  
-                                            <div class="action d-flex justify-content-between mt-2 align-items-center">
-
-                                                <div class="reply px-4">
-                                                    <small>Remove</small>
-                                                    <span class="dots"></span>
-                                                    <small>Reply</small>
-                                                    <span class="dots"></span>
-                                                    <small>Translate</small>
-                                                
                                                 </div>
+                                            </div> 
+                                        </div>   
+                                </td> 
+                        </tr>
 
-                                                <div class="icons align-items-center">
-
-                                                    <i class="fa fa-star text-warning"></i>
-                                                    <i class="fa fa-check-circle-o check-icon"></i>
-                                                    
-                                                </div>
-                                                
-                                            </div>  --}}
-
-
-                        
-                    </div>
                         @endforeach
+                    </tbody>
+                   
+                 </table>
+{{--  
+                  <tbody>
+                     @if(count($comments) > 0)
+                        @foreach($comments as $value)
+                        <div class="container mt-5">
+                        <div class="row  d-flex justify-content-center">
+                                  
+                                    <tr>
+                                                <div class="card p-3">
 
-                  @else
-                    <h4 class="Text-danger text-center jumbotron">No Comment..</h4>
-                  @endif      
-                </div>
-                
-            </div>
+                                                    <div class="d-flex justify-content-between align-items-center">
+
+                                                        <div class="user d-flex flex-row align-items-center">
+                                                           
+                                                            <span><small class="font-weight-bold text-primary">{{$value['authorDisplayName']}}</small> <small class="font-weight-bold">{{$value['textOriginal']}}</small></span>
+                                                        </div>
+
+
+                                                        <small>{{date('d-m-Y H:i:s a', strtotime($value['publishedAt']))}}</small>
+
+                                                    </div>
+                                    
+                                                </div> 
+                    
+                                    </tr>
+                        </div>
             
-        </div>
+                        </div>
+                        @endforeach
+                         @else
+                        <h4 class="Text-danger text-center jumbotron">No Comment..</h4>
+                        @endif 
+                    </tbody>  --}}
 
 @endsection
 

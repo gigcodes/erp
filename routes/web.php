@@ -352,12 +352,22 @@ use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
 
 Auth::routes();
+
+Route::prefix('youtube')->middleware('auth')->group(function () {
+Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
+Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
+Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
+Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
+Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
+});
 Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
 Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
 Route::get('/GetChanelData', [YoutubeController::class, 'GetChanelData'])->name('GetChanelData');
 Route::get('/chanelList', [YoutubeController::class, 'chanelList'])->name('chanelList');
 Route::get('/videoList/{chanelId}/{websiteId}', [YoutubeController::class, 'VideoListByChanelId'])->name('videoList');
 Route::get('/commentList/{websiteId}/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+// Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
 
 
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');

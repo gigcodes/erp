@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Jobs;
+
+use Carbon\Carbon;
+use Illuminate\Bus\Queueable;
+use App\Library\Youtube\Helper;
+use App\Models\YoutubeChannel;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
+
+class FetchYoutubeChannelData implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $inputs;
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct($inputs)
+    {
+        $this->inputs = $inputs;
+        $refreshToken = $inputs['oauth2_refresh_token'];
+      
+        // this id is a Which is Create a New Data for create channel.
+        $id = $inputs['id'];
+        $youTubeChanelData = YoutubeChannel::where('id',$id)->first();
+        $accessToken = Helper::getAccessTokenFromRefreshToken($refreshToken, $id);
+        $getChannelData = Helper::getChanelData($accessToken, $id);
+        $youTubeChanelData->subscribe_count = !empty($getChannelData['statistics']['subscriberCount']) ? $getChannelData['statistics']['subscriberCount']: null;
+        $youTubeChanelData->video_count = !empty($getChannelData['statistics']['videoCount']) ? $getChannelData['statistics']['videoCount']: null;
+        $youTubeChanelData->chanelId =  !empty($getChannelData['id']) ? $getChannelData['id']: null;
+        $youTubeChanelData->chanel_name =  !empty($getChannelData['snippet']['title']) ? $getChannelData['snippet']['title']: null;
+        $youTubeChanelData->save();
+        
+        $videoIds = Helper::getVideoAndInsertDB($id, $accessToken, $youTubeChanelData->chanelId);
+        // $commentAdd = Helper::getCommentAndInsertInDB($id, $videoIds, $accessToken, $youTubeChanelData->chanelId);
+
+       
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        
+    }
+}

@@ -9,6 +9,8 @@
 
     <table class="table table-bordered">
     <thead>
+    <h4 style="text-align:center">Chanel List</h4>
+    <br>
       <tr>
         
         <th>Name</th>
