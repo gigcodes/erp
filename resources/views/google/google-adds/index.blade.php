@@ -360,8 +360,8 @@
                     },
                     success: function (response) {
                         var tbaleData = '';
-                        if (response.length > 0) {
-
+                        if (response.status == 'success') {
+                            response = response.data;
                             $.each(response,function(index,data){
                                 tbaleData += `<tr>
                                     <td>${data.keyword}</td>
@@ -372,7 +372,7 @@
                             });
                             $('#keyword_table_data').html(tbaleData);
                         }else{
-
+                            toastr['error'](response.message, 'Error');
                         }
                         // toastr['success']('Priority successfully update!!', 'success');
                         // $('#priority_model').modal('hide');
@@ -430,7 +430,8 @@
                     },
                     success: function (response) {
                         var tbaleData = '';
-                        if (response.length > 0) {
+                        response = response.data;
+                        if (response.status == 'success') {
 
                             $.each(response,function(index,data){
                                 tbaleData += `<tr>
@@ -442,7 +443,7 @@
                             });
                             $('#keyword_table_data').html(tbaleData);
                         }else{
-
+                            toastr['error'](response.message, 'Error');
                         }
                         // toastr['success']('Priority successfully update!!', 'success');
                         // $('#priority_model').modal('hide');
