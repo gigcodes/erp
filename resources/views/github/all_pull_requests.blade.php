@@ -47,31 +47,6 @@
             });
         }
     }
-
-    function githubActionResult(repositoryId, pullRequestNumber) {
-        $.ajax({
-            headers : {
-                'Accept' : 'application/json',
-                'Content-Type' : 'application/json',
-                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-            },
-            type: "get",
-            url: '/github/repos/'+repositoryId+'/github-action',
-            dataType: "json",
-            success: function (response) {
-                if(response.status) {
-                    toastr['success']('Pull request has been closed successfully!');
-                    window.location.reload();
-                }else{
-                    errorMessage = response.error ? response.error : 'Something went wrong please try again later!';
-                    toastr['error'](errorMessage);
-                }
-            },
-            error: function () {
-                toastr['error']('Could not change module!');
-            }
-        });
-    }
 </script>
 <style>
     #pull-request-table_filter {
