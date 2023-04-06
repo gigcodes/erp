@@ -20,16 +20,19 @@ use App\Helpers\GoogleAdsHelper;
 
 use App\Http\Controllers\GoogleCampaignsController;
 
+use Exception;
+
 class GoogleCampaignLocationController extends Controller
 {
     public function getAccountDetail($campaignId)
     {
-        $campaignDetail = GoogleAdsCampaign::where('google_campaign_id', $campaignId)->where('channel_type','SEARCH')->first();
+        $campaignDetail = GoogleAdsCampaign::with('account')->where('google_campaign_id', $campaignId)->where('channel_type','SEARCH')->first();
         if ($campaignDetail->exists() > 0) {
             return [
                 'account_id' => $campaignDetail->account_id,
                 'campaign_name' => $campaignDetail->campaign_name,
                 'google_customer_id' => $campaignDetail->google_customer_id,
+                'google_map_api_key' => $campaignDetail->account->google_map_api_key,
             ];
         } else {
             abort(404, 'Invalid account!');
@@ -41,6 +44,7 @@ class GoogleCampaignLocationController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $campaign_name = $acDetail['campaign_name'];
+        $google_map_api_key = $acDetail['google_map_api_key'];
 
         $where = array(
                     'adgroup_google_campaign_id' => $campaignId,
@@ -72,7 +76,14 @@ class GoogleCampaignLocationController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('google_campaign_location.index', ['locations' => $locations, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'account_id' => $account_id, 'campaign_name' => $campaign_name]);
+        return view('google_campaign_location.index', [
+                                                        'locations' => $locations,
+                                                        'totalNumEntries' => $totalEntries,
+                                                        'campaignId' => $campaignId,
+                                                        'account_id' => $account_id,
+                                                        'campaign_name' => $campaign_name,
+                                                        'google_map_api_key' => $google_map_api_key
+                                                    ]);
     }
 
     // create location
@@ -234,25 +245,31 @@ class GoogleCampaignLocationController extends Controller
         $location = GoogleCampaignLocation::where($where)->firstOrFail();
 
         try {
-            // Generate a refreshable OAuth2 credential for authentication.
-            $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
-            // Creates campaign criterion resource name.
-            $campaignCriterionResourceName =
-                ResourceNames::forCampaignCriterion($customerId, $campaignId, $locationId);
+            try {
+                // Generate a refreshable OAuth2 credential for authentication.
+                $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
-            // Constructs an operation that will remove the language with the specified resource name.
-            $campaignCriterionOperation = new CampaignCriterionOperation();
-            $campaignCriterionOperation->setRemove($campaignCriterionResourceName);
+                // Creates campaign criterion resource name.
+                $campaignCriterionResourceName =
+                    ResourceNames::forCampaignCriterion($customerId, $campaignId, $locationId);
 
-            // Issues a mutate request to remove the campaign criterion.
-            $campaignCriterionServiceClient = $googleAdsClient->getCampaignCriterionServiceClient();
-            $response = $campaignCriterionServiceClient->mutateCampaignCriteria(
-                $customerId,
-                [$campaignCriterionOperation]
-            );
+                // Constructs an operation that will remove the language with the specified resource name.
+                $campaignCriterionOperation = new CampaignCriterionOperation();
+                $campaignCriterionOperation->setRemove($campaignCriterionResourceName);
 
-            $removedCampaignCriterion = $response->getResults()[0];
+                // Issues a mutate request to remove the campaign criterion.
+                $campaignCriterionServiceClient = $googleAdsClient->getCampaignCriterionServiceClient();
+                $response = $campaignCriterionServiceClient->mutateCampaignCriteria(
+                    $customerId,
+                    [$campaignCriterionOperation]
+                );
+
+                $removedCampaignCriterion = $response->getResults()[0];
+                
+            } catch (Exception $e) {
+                
+            }
 
             // Insert google ads log 
             $input = array(
