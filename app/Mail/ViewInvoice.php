@@ -114,6 +114,8 @@ class ViewInvoice extends Mailable
         $pdf->loadHtml($html);
         $pdf->render();
         if(array_key_exists('savePDF',$this->param)){
+            $path = public_path().'/pdf';
+            \File::isDirectory($path) or \File::makeDirectory($path, 0777, true, true);
             $file = time().'invoice.pdf';
             file_put_contents('pdf/'.$file, $pdf->output());
             return $file;
