@@ -129,6 +129,9 @@ class SettingController extends Controller
     {
         $setting = Setting::where('name', 'telescope_enabled')->first();
 
+       
+
+        
         return view('setting.telescope', compact('setting'));
     }
 
@@ -143,7 +146,13 @@ class SettingController extends Controller
         }
 
         $setting->val = $request->telescope_enabled;
-        $setting->save();
+        $setting->save();      
+
+        \Storage::disk('public')->put('telescope.json', json_encode(
+            [
+                'telescope_enabled' => (!empty($setting) && $setting->val == 1 ? 1 : 0)
+            ]
+        ));
 
         return redirect()->back()->with('success', 'Success! Telescope setting has been updated.');
     }

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\InvoiceLater;
 use App\AutoReply;
 use App\CallBusyMessage;
 use App\CallBusyMessageStatus;
@@ -3595,6 +3595,72 @@ class OrderController extends Controller
         return view('orders.invoices.index', compact('invoices', 'duty_shipping','invoiceNumber','customerName','websiteName'));
     }
 
+    public function saveLaterCreate(Request $request){
+        $invoice = Invoice::with('orders.duty_tax')->where('id', $request->invoiceId)->first();
+        $invoices = Invoice::with('orders.order_product', 'orders.customer')->where('id',$request->invoiceId)->orderBy('id', 'desc')->get();
+        if ($invoice) {
+            $data['invoice'] = $invoice;
+            $data['orders'] = $invoice->orders;
+            $data['buyerDetails'] = $invoice->orders[0]->customer;
+            $data['savePDF'] = true;
+            if ($invoice->orders) {
+                $viewInvoice = new ViewInvoice($data);
+                $file = $viewInvoice->download();
+                $invoice = new InvoiceLater();
+                $invoice->invoice_id = $request->invoiceId;
+                $invoice->invoice_number = $request->invoiceNumber;
+                $invoice->file_name = $file;
+                $invoice->created_at  = date('Y-m-d H:i:s');
+                $invoice->updated_at  = date('Y-m-d H:i:s');
+                $invoice->save();
+            }
+        }
+    }
+    public function saveLaterList(Request $request){
+        $autoDeleteDays = config('constants.PRINT_LATER_AUTO_DELETE_DAYS');
+        InvoiceLater::where('created_at', '<', Carbon::now()->subDays($autoDeleteDays))->delete();
+        $invoiceList = new InvoiceLater();
+        if($request->has('from_date') && !empty($request->from_date)){
+            $invoiceList = $invoiceList->where('created_at', '>=', $request->from_date.' 00:00:00');
+        }
+        if($request->has('to_date') && !empty($request->to_date)){
+            $invoiceList = $invoiceList->where('created_at', '<=', $request->to_date.' 23:59:59');
+        }
+        $invoiceList = $invoiceList->paginate(20);
+        $ids = $invoiceList->pluck('invoice_id')->toArray();
+        $invoices = Invoice::with('orders.order_product', 'orders.customer')->whereIn('id',$ids)->get();
+        $invoice_array = $invoices->toArray();
+        
+        $invoice_id = array_column($invoice_array, 'id');
+        $orders_array = Order::whereIn('invoice_id', $invoice_id)->get();
+
+        $duty_shipping = [];
+        foreach ($orders_array as $key => $order) {
+            $website_code_data = $order->duty_tax;
+            if ($website_code_data != null) {
+                $product_qty = count($order->order_product);
+                $code = $website_code_data->website_code->code;
+                $duty_countries = $website_code_data->website_code->duty_of_country;
+                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
+                $duty_amount = ($duty_countries->default_duty * $product_qty);
+                $shipping_amount = ($shipping_countries->price * $product_qty);  
+            } 
+        }
+        $invoiceNumber = Invoice::orderBy('id', 'desc')->select('id','invoice_number')->get();
+        $customerName = Customer::select('id','name')->orderBy('id', 'desc')->groupBy('name')->get();
+        $websiteName = StoreWebsite::select('id','website')->orderBy('id', 'desc')->groupBy('website')->get();
+        return view('orders.invoices.saveLaterInvoice', compact('invoiceList','invoices', 'duty_shipping','invoiceNumber','customerName','websiteName'));
+    }
+
+    public function ViewsaveLaterList(Request $request,$id){
+        $invoice = InvoiceLater::where('invoice_id',$id)->first();
+        if(!empty($invoice)){
+            
+            return \Response::make(file_get_contents(base_path().'/public/pdf/'.$invoice->file_name), 200, [
+                'content-type'=>'application/pdf',
+            ]);
+        }
+    }
     public function addInvoice($id)
     {
         $firstOrder = Order::find($id);
