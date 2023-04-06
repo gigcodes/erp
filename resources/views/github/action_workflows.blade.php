@@ -16,7 +16,7 @@
         $.each(response, function(key, value) {
             html += "<tr>";
             html += "<td>" + value.name + "</td>";
-            html += "<td>" + moment(value.created_at).format('DD-M H:mm') + "</td>";
+            html += "<td>" + moment(value.created_at).format('YYYY-MM-DD HH:mm:ss') + "</td>";
             html += "<td>" + value.conclusion + "</td>";
             html += "<td>" + value.failure_reason + "</td>";
             html += "</tr>";
@@ -37,9 +37,10 @@
                 }, 
                 beforeSend: function() {
                     isApiCall = false;
-                    let loaderImg = `{{url('images/pre-loader.gif')}}`;
-                    let loadingIcon = `<div id="loading-image" style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url(${loaderImg}) 50% 50% no-repeat;"></div>`;
-                    $(document).find("#action-workflows").append(loadingIcon);
+                    // let loaderImg = `{{url('images/pre-loader.gif')}}`;
+                    // let loadingIcon = `<div id="loading-image" style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url(${loaderImg}) 50% 50% no-repeat;"></div>`;
+                    // $(document).find("#action-workflows").append(loadingIcon);
+                    $(document).find('#action-workflows .loader-section').show();
                     pageNum = pageNum + 1;
                 }
             }).done(function(response) {
@@ -48,7 +49,7 @@
     
                     var li = getActionHtml(response.workflow_runs);
                     $("#action-workflows table tbody").append(li);
-                    $(document).find("#loading-image").remove();
+                    $(document).find('#action-workflows .loader-section').hide();
                     isApiCall = true;
     
                     // $("#action-workflows").find("#loading-image").remove();
@@ -76,9 +77,10 @@
     };
     $(document).ready(function() {
         $('#action-workflow-table').DataTable({
-            "paging": false
-            , "ordering": true
-            , "info": false
+            "paging": false, 
+            "ordering": true, 
+            "info": false,
+            "searching": false
         });
     });
 
@@ -147,10 +149,7 @@
         </div>
         @endif
         @endif
-    </div>
-    <div class="text-left pl-5">
-        <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&pull_only=1">Deploy ERP Master</a>
-        <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&composer=true&pull_only=1">Deploy ERP Master + Composer</a>
+        <h3 class="text-center">Github Actions</h3>
     </div>
 </div>
 
@@ -175,6 +174,8 @@
             @endforeach
         </tbody>
     </table>
-
+    <div class="loader-section">
+        <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
+    </div>
 </div>
 @endsection
