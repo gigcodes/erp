@@ -3493,6 +3493,9 @@ Route::middleware('auth')->group(function () {
         Route::get('delete', [PageNotesController::class, 'delete'])->name('deletePageNote');
         Route::get('records', [PageNotesController::class, 'records'])->name('pageNotesRecords');
         Route::get('/', [PageNotesController::class, 'index'])->name('pageNotes.viewList');
+        Route::get('get-value', [PageNotesController::class, 'getValue'])->name('page-notes.getValue');
+
+        Route::post('create-note', [PageNotesController::class, 'createNote'])->name('page-notes.createNote');
     });
     Route::prefix('instruction-notes')->group(function () {
         Route::post('create', [PageNotesController::class, 'instructionCreate'])->name('instructionCreate');

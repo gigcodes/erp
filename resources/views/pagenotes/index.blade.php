@@ -306,10 +306,12 @@
   <script type="text/javascript">
       $(document).on('click','.page-note-popup',function(){
           $('#pageNotesModal').modal('show');
-          $('#pageNotesModal p').text($(this).data('log_message'));
+          $('#pageNotesModal p').html($(this).data('log_message'));
       })
       
     $(document).ready(function() {
+        $('#create_note').richText();
+
       //START - Purpose : Comment Code - DEVTASK-4289
 
       // $('.datatable').DataTable({
@@ -346,7 +348,7 @@
 
   //START - Purpose : Add editor , scroll - DEVTASK-4289
   $('#erp-notes').on('show.bs.modal', function() {
-    $('#note').richText();
+    $('#edit_note').richText();
   });
 
   $('.pagenote-scroll').jscroll({
@@ -364,8 +366,8 @@
   });
   //END - DEVTASK-4289
 
-  $(document).on('click', '.editor_edit', function () {
-
+    $(document).on('click', '.editor_edit', function () {
+        // return;
        var $this = $(this);
         $.ajax({
             type: "GET",

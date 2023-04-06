@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\GoogleAnalyticData;
+use App\PageNotes;
 use App\Setting;
 use App\User;
 use Carbon\Carbon;
@@ -191,14 +192,68 @@ class PageNotesController extends Controller
 
     public function notesCreate(Request $request)
     {
-        \App\PageNotes::create([
-            'url' => $request->url,
-            'category_id' => $request->category,
-            'note' => $request->data,
-            'title' => $request->title,
-            'user_id' => \Auth::user()->id,
+        $this->validate($request, [
+            "url" => "required",
+            "category_id" => "required",
+            "note" => "required",
+            "title" => "required"
         ]);
+        try {
+    
+            \App\PageNotes::create([
+                'url' => $request->url,
+                'category_id' => $request->category_id,
+                'note' => $request->note,
+                'title' => $request->title,
+                'user_id' => \Auth::user()->id,
+            ]);
+            // return response()->json(['code' => 200, 'message' => 'Notes Added Successfully.']);
+            return redirect()->back()->withSuccess('Notes Added Successfully.');
+            
+        } catch (\Exception $e) {
+            // return response()->json(['code' => 200, 'message' => $e->getMessage()]);
+            return redirect()->back()->withError($e->getMessage());
+        }
 
-        return response()->json(['code' => 200, 'message' => 'Notes Added Successfully.']);
+    }
+
+    public function getValue(Request $request)
+    {
+        // dd($request->all());
+        if(isset($request->url) && isset($request->category_id)){
+            $pageNote = PageNotes::where([
+                "url" => $request->url ?? null,
+                "category_id" => $request->category_id ?? null
+            ])->first();
+            
+            if($pageNote) {
+                return response()->json(['code' => 200, 'data' => $pageNote->note, 'title' => $pageNote->title]);
+            } else {
+                return response()->json(['code' => 200, 'data' => "", 'title' => '']);
+            }
+        } else {
+            return response()->json(['code' => 200, 'data' => "", 'title' => '']);
+        }
+
+    }
+
+    public function createNote(Request $request)
+    {
+        $pageNote = PageNotes::where([
+            "url" => $request->url ?? null,
+            "category_id" => $request->category_id ?? null
+        ])->first();
+        if (! $pageNote) {
+            $pageNote = new PageNotes;
+            $pageNote->category_id = $request->category_id;
+        }
+
+        $pageNote->url = $request->url ?? "";
+        $pageNote->title = $request->title ?? "";
+        $pageNote->note = $request->note ?? "";
+        $pageNote->user_id = \Auth::user()->id;
+        $pageNote->save();
+
+        return response()->json(['code' => 200, 'data' => []]);
     }
 }

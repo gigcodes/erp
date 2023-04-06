@@ -3472,6 +3472,9 @@ if (!empty($notifications)) {
                                             class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
+                                <a class="takenote-button quick-icon" href="#" title="Add note"><span><i class="fa fa-sticky-note-o fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
                                 <a class="daily-planner-button quick-icon" target="__blank"
                                     href="{{ route('dailyplanner.index') }}">
                                     <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
@@ -5768,6 +5771,10 @@ if (!empty($notifications)) {
         $("#quick-instruction-modal").modal("show");
         //$('.help-button-wrapper').toggleClass('expanded');
         //$('.instruction-notes-list-rt').toggleClass('dis-none');
+    });
+    
+    $('.takenote-button').on('click', function() {
+        $("#takenote-modal").modal("show");
     });
 
     //START - Purpose : Open Modal - DEVTASK-4289
