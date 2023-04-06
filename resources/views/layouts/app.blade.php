@@ -3246,6 +3246,9 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('settings/telescope') }}">Manage Telescope </a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('telescope/dashboard') }}">View Telescope Dashboard</a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown dropdown-submenu">

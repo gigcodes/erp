@@ -141,6 +141,7 @@
                     <div class="row">
                         <form class="form-inline message-search-handler" method="post">
                             <div class="col">
+                                @if (auth()->user()->isAdmin())
                                 <div class="form-group">
                                     <a class="btn btn-secondary addToWhitelist" href="javascript:;" onclick="whitelistValueBulkUpdate(1)">Add to Whitelist</a>
                                 </div>
@@ -150,6 +151,7 @@
                                 <div class="form-group">
                                     <a class="btn btn-secondary removeFromWhitelist" href="javascript:;" onclick="whitelistValueBulkUpdate(2)">Remove All From Whitelist</a>
                                 </div>
+                                @endif
                                 <div class="form-group">
                                     <?php echo Form::text('keyword', request('keyword'), ['class' =>
                                     'form-control data-keyword', 'placeholder' => 'Enter keyword', 'list'=>'name-lists']); ?>
