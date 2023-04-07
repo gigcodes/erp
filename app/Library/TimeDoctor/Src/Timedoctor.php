@@ -362,7 +362,7 @@ class Timedoctor
     public function sendBulkInvitation($company_id, $access_token, $data)
     {
         try{
-            $url = 'https://api2.timedoctor.com/api/1.1/invitations?company='.$company_id.'&token='.$access_token;
+            $url = 'https://api2.timedoctor.com/api/1.0/invitations/bulk?company='.$company_id.'&token='.$access_token;
             $httpClient = new Client();
             $response = $httpClient->post(
                 $url,
