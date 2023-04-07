@@ -99,6 +99,6 @@ class PushPageToMagento implements ShouldQueue
 
     public function tags()
     {
-        return ['PushCategorySeoToMagento', $this->category->id];
+        return ['PushPageToMagento', $this->page->id];
     }
 }
