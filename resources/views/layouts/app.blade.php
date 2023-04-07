@@ -2919,6 +2919,14 @@ if (!empty($notifications)) {
                                                         href="{{ url('/github/repos') }}">Repositories</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/branches') }}">Branches</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/actions') }}">Actions</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
                                                     <a class="dropdown-item" href="{{ url('/github/users') }}">Users</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
