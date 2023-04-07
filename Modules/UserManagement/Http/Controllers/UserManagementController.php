@@ -2497,22 +2497,23 @@ class UserManagementController extends Controller
             <tr>
                 <th width="5%">ID</th>
                 <th width="5%" style="word-break: break-all;">User</th>
-                <th width="20%" style="word-break: break-all;">From/To Date</th>
-                <th width="15%" style="word-break: break-all;">Start/End Time</th>
-                <th width="30%" style="word-break: break-all;">Available Days</th>
-                <th width="10%" style="word-break: break-all;">Lunch Time</th>
-                <th width="15%">Created at</th>
+                <th width="15%" style="word-break: break-all;">From/To Date</th>
+                <th width="13%" style="word-break: break-all;">Start/End Time</th>
+                <th width="25%" style="word-break: break-all;">Available Days</th>
+                <th width="13%" style="word-break: break-all;">Lunch Time</th>
+                <th width="13%">Created at</th>
             </tr>
         </thead>';
         if ($list->count()) {
             foreach ($list as $single) {
+                $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from. ' - ' . $single->lunch_time_to: "-";
                 $html[] = '<tr>
                     <td>'.$single->id.'</td>
                     <td>'.$single->username.'</td>
                     <td>'.$single->from.' - '.$single->to.'</td>
                     <td>'.$single->start_time.' - '.$single->end_time.'</td>
                     <td>'.(str_replace(',', ', ', $single->date) ?: '-').'</td>
-                    <td>'.($single->lunch_time ?: '-').'</td>
+                    <td>'.$lunch_time.'</td>
                     <td>'.$single->created_at.'</td>
                 </tr>';
             }

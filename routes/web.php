@@ -352,6 +352,7 @@ use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\MailBoxController;
 
 Auth::routes();
+
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
 Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
@@ -3888,6 +3889,9 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/repos/{name}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
         Route::get('/repos/{id}/branches', [Github\RepositoryController::class, 'getRepositoryDetails']);
         Route::get('/repos/{id}/pull-request', [Github\RepositoryController::class, 'listPullRequests']);
+        Route::post('/repos/{id}/pull-request/{pr}/close', [Github\RepositoryController::class, 'closePullRequestFromRepo']);
+        Route::get('/repos/{id}/actions', [Github\RepositoryController::class, 'actionWorkflows']);
+        Route::get('/repos/{id}/github-actions', [Github\RepositoryController::class, 'ajaxActionWorkflows']);
         Route::get('/repos/{id}/branch/merge', [Github\RepositoryController::class, 'mergeBranch']);
         Route::get('/repos/{id}/deploy', [Github\RepositoryController::class, 'deployBranch']);
         Route::post('/add_user_to_repo', [Github\UserController::class, 'addUserToRepository']);
@@ -3908,6 +3912,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
+        
     });
 });
 

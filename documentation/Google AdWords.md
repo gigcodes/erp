@@ -7,7 +7,7 @@ The account module is the representation of the Google Ads account, which provid
 
 ## Account
 The account module store the configuration information to access Google Ads API for manage campaign, ads group and ads.
- - **Create:** It can be created by adding data in the create form. User have to enter account name, store website, notes, google adwords client account email, google adwords client account password, google adwords manager account customer id, google adwords manager account email, google adwords manager account password, google adwords manager account developer token, oauth2 client id, oauth2 client secret, oauth2 refresh token, and choose status. 
+ - **Create:** It can be created by adding data in the create form. User have to enter account name, store website, notes, google adwords client account email, google adwords client account password, google adwords manager account customer id, google adwords manager account email, google adwords manager account password, google adwords manager account developer token, oauth2 client id, oauth2 client secret, oauth2 refresh token, google map api key, and choose status. 
  - **Edit:** An edit option is available in this module to edit the all data that we entered in the creation time of the account.
  - **Delete** option will permanently delete an account.
  - **Create Campaign** option will allow to manage campaign regarding thing.
