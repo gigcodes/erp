@@ -1291,7 +1291,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                  toastr["success"]("Status updated!", "Message")
                 $('#status_update_checklist').modal('hide');
             },
-            error: function() {
+            error: function(error) {
                 toastr["error"](error.responseJSON.message);
             }
         });
