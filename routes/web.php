@@ -2584,6 +2584,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 
     Route::prefix('user-avaibility')->group(function () {
+        Route::get('search', [UserAvaibilityController::class, 'search'])->name('user-avaibility.search');
         Route::get('list', [UserAvaibilityController::class, 'index'])->name('user-avaibility.index');
         Route::post('save', [UserAvaibilityController::class, 'save'])->name('user-avaibility.save');
 
