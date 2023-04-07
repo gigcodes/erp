@@ -561,8 +561,6 @@ $(document).on('click', '.reload-page-data', function () {
 });
 
 $(document).on('click', '.copy-to-btn', function () {
-    console.log($(this));
-    console.log( $('#website-page-copy-to').val() );
     var site_urls = 'false';
     var cttitle   = 'false';
     var ctkeyword = 'false';
@@ -587,7 +585,7 @@ $(document).on('click', '.copy-to-btn', function () {
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
         data: { site_urls: site_urls,
             to_page  : $('#website-page-copy-to').val(),
-            page     : $('input[name="id"]').val(),
+            page     : $('#website-page-change').val(),
             cttitle  : cttitle,
             ctkeyword: ctkeyword,
             ctdesc   : ctdesc

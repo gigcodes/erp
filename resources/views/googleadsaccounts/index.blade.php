@@ -314,6 +314,20 @@
                         </div>
                     </fieldset>
 
+
+                    <fieldset>
+                        <legend class="lagend">Google Map</legend>
+                        <div class="form-group row mt-2">
+                            <label for="google_map_api_key" class="col-sm-2 col-form-label">API Key</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="google_map_api_key" name="google_map_api_key" placeholder="API key">
+                                @if ($errors->has('google_map_api_key'))
+                                    <span class="text-danger">{{$errors->first('google_map_api_key')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </fieldset>
+
                     <div class="form-group row">
                         <label for="status" class="col-sm-2 col-form-label">Status</label>
                         <div class="col-sm-6">
@@ -507,6 +521,19 @@
                         </div>
                     </fieldset>
 
+                    <fieldset>
+                        <legend class="lagend">Google Map</legend>
+                        <div class="form-group row mt-2">
+                            <label for="google_map_api_key" class="col-sm-2 col-form-label">API Key</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="edit_google_map_api_key" name="google_map_api_key" placeholder="API key">
+                                @if ($errors->has('google_map_api_key'))
+                                    <span class="text-danger">{{$errors->first('google_map_api_key')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </fieldset>
+
                     <div class="form-group row">
                         <label for="status" class="col-sm-2 col-form-label">Status</label>
                         <div class="col-sm-10">
@@ -627,6 +654,7 @@
                 $('#edit_oauth2_client_id').val(data.oauth2_client_id);
                 $('#edit_oauth2_client_secret').val(data.oauth2_client_secret);
                 $('#edit_oauth2_refresh_token').val(data.oauth2_refresh_token);
+                $('#edit_google_map_api_key').val(data.google_map_api_key);
 
                 $('#EditModal').show();
             }

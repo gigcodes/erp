@@ -448,65 +448,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
 
-    <!-- email-search Modal-->
-    <div id="menu-email-search-model" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg"  role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Email Search</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="d-flex" id="search-bar">
-                                <input type="text" value="" name="search" id="menu_email_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
-                                <a title="Email Search" type="button" class="email_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
-                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
-                            </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="table-responsive mt-3">
-                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important;" id="emailNameTable">
-                                    <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Sender</th>
-                                        <th>Receiver</th>
-                                        <th>Subject</th>
-                                        <th>Body</th>
-                                        <th>Action</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="email_search_result">
-                                        @php
-                                            $userEmails = \App\Email::where('type', 'incoming')->orderBy('created_at', 'desc')->limit(5)->get();
-                                        @endphp
-                                        @foreach ($userEmails as $key => $userEmail)
-                                            <tr>
-                                                <td>{{ Carbon\Carbon::parse($userEmail->created_at)->format('d-m-Y H:i:s') }}</td>
-                                                <td>{{ substr($userEmail->from, 0,  20) }} {{strlen($userEmail->from) > 20 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->to, 0,  15) }} {{strlen($userEmail->to) > 10 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
-                                                <td>{{ substr($userEmail->message, 0,  25) }} {{strlen($userEmail->message) > 20 ? '...' : '' }}</td>
-                                                <td> 
-                                                    <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
-                                                        <i class="fa fa-copy"></i>
-                                                </a></td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="menu-sopupdate" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -3305,6 +3246,9 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('settings/telescope') }}">Manage Telescope </a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('telescope/dashboard') }}">View Telescope Dashboard</a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown dropdown-submenu">
@@ -3565,10 +3509,6 @@ if (!empty($notifications)) {
                             <li>
                                 <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
                                                 class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
-                            </li>
-                            <li>
-                                <a title="Email Search" type="button" class="quick-icon menu-email-search" style="padding: 0px 1px;"><span><i
-                                                class="fa fa-envelope fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
                                 <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
@@ -4960,11 +4900,6 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
-    $(document).on("click", ".menu-email-search", function(e) {
-        e.preventDefault();
-        $("#menu-email-search-model").modal("show");
-    });
-
     $(document).on("click", ".sop_search_menu", function(e) {
         let $this = $('#menu_sop_search').val();
         var q = $this;
@@ -4985,35 +4920,6 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
-                toastr['success']('Data updated successfully', 'success');
-            },
-            error: function() {
-                $("#loading-image").hide();
-                toastr["Error"]("An error occured!");
-            }
-        });
-    });
-
-    $(document).on("click", ".email_search_menu", function(e) {
-        let $this = $('#menu_email_search').val();
-        var q = $this;
-        $.ajax({
-            url: '{{route('menu.email.search')}}',
-            type: 'GET',
-            data: {
-                search: q,
-            },
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            // dataType: 'json',
-            beforeSend: function() {
-                $("#loading-image").show();
-            },
-            success: function(response) {
-                $("#loading-image").hide();
-                $('.email_search_result').empty();
-                $('.email_search_result').append(response);
                 toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
