@@ -224,7 +224,7 @@ class PageNotesController extends Controller
             $pageNote = PageNotes::where([
                 "url" => $request->url ?? null,
                 "category_id" => $request->category_id ?? null
-            ])->first();
+            ])->orderBy('id', 'desc')->first();
             
             if($pageNote) {
                 return response()->json(['code' => 200, 'data' => $pageNote->note, 'title' => $pageNote->title]);
@@ -242,7 +242,7 @@ class PageNotesController extends Controller
         $pageNote = PageNotes::where([
             "url" => $request->url ?? null,
             "category_id" => $request->category_id ?? null
-        ])->first();
+        ])->orderBy('id', 'desc')->first();
         if (! $pageNote) {
             $pageNote = new PageNotes;
             $pageNote->category_id = $request->category_id;

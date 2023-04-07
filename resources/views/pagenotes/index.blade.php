@@ -213,6 +213,7 @@
                   <th width="8%">Category</th>
                   <th width="10%">Title</th>
                   <th width="50%">Note</th>
+                  <th width="50%">URL</th>
                   <th width="7%">User Name</th>
                   <th width="10%">Created at</th>
                   <th width="10%">Action</th>
@@ -231,6 +232,7 @@
                       <td style="word-break: break-word;">{!!$value->note !!}</td>
                   @endif
 {{--                      <p class="m-0">{!!$value->note !!}</p>--}}
+                  <td>{{$value->url}}</td>
                   <td>{{$value->name}}</td>
                   <td>{{ date('m-d  H:i', strtotime($value->created_at)) }}</td>
                   <td><a href="javascript:;" data-note-id = "{{$value->id}}" class="editor_edit btn-xs btn btn-image p-2">
