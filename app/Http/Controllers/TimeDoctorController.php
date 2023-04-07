@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Library\TimeDoctor\Src\Timedoctor;
+use stdClass;
 use Storage;
 
 class TimeDoctorController extends Controller
@@ -284,5 +285,140 @@ class TimeDoctorController extends Controller
         ]);
     }
 
-    
+    public function sendInvitations(Request $request)
+    {
+        $members = TimeDoctorAccount::where('auth_token', '!=', '')->whereNotNull('company_id')->get();
+        $users = User::all('id', 'name', 'email');
+        return view(
+            'time-doctor.create-accounts',
+            [
+                'title' => 'Create TimeDoctor Account',
+                'members' => $members,
+                'users' => $users,
+            ]
+        );
+    }
+
+    public function sendSingleInvitation(Request $request)
+    {
+        try {
+            $data = [
+                'email' => $request->email,
+                'name'  => $request->name,
+            ];
+            $userId = $request->userId;
+            $time_doctor_acount = TimeDoctorAccount::find($request->tda);
+            if ($time_doctor_acount):
+                $companyId = $time_doctor_acount->company_id;
+                $accessToken = $time_doctor_acount->auth_token; 
+                $inviteResponse = $this->timedoctor->sendSingleInvitation( $companyId, $accessToken, $data );
+                switch ($inviteResponse['code']) {
+                    case '401':
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctro Account user\'s Token ID is invalid or access is denied.']);
+                        break;
+                    case '403':
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctro Account user don\'t have permission to perform this action']);
+                        break;
+                    case '409':
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Given email is invalid.']);
+                        break;
+                    case '500':
+                    case '422':
+                    case '404':
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
+                        break;
+                    default:
+                        $lastRow = TimeDoctorAccount::create([
+                            'time_doctor_email'=> $request->email 
+                        ]);
+                        TimeDoctorMember::create([
+                            'time_doctor_user_id' => $inviteResponse['data']['time_doctor_user_id'],
+                            'time_doctor_account_id' => $lastRow->id,
+                            'email' => $request->email,
+                            'user_id' => $userId
+                        ]);
+                        return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor account created successfully']);
+                        break;
+                }
+            else:
+                return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
+            endif;
+        } catch (Exception $e) {
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function sendBulkInvitation(Request $request)
+    {
+        try {
+            $time_doctor_acount = TimeDoctorAccount::find($request->tda);
+            if ($time_doctor_acount):
+                $companyId = $time_doctor_acount->company_id;
+                $accessToken = $time_doctor_acount->auth_token; 
+                $users = User::whereIn('id',$request->ids)->get();
+                $payloadUsers = [];
+                foreach($users as $u){
+                    $obj = new stdClass;
+                    $obj->email = $u->email;
+                    $obj->name = $u->name;
+                    
+                    array_push($payloadUsers, $obj);
+                }
+
+                $bulkInvitePayload = [
+                    "users"=> $payloadUsers,
+                    "noSendEmail" => "false"
+                ];
+
+                $bulkInviteResponse = $this->timedoctor->sendBulkInvitation( $companyId, $accessToken, $bulkInvitePayload );
+                switch ($bulkInviteResponse['code']) {
+                    case '401':
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctro Account user\'s Token ID is invalid or access is denied.']);
+                        break;
+                    case '403':
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctro Account user don\'t have permission to perform this action']);
+                        break;
+                    case '409':
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Given email is invalid.']);
+                        break;
+                    case '500':
+                    case '422':
+                    case '404':
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
+                        break;
+                    default:
+                        $response = $bulkInviteResponse['data']['response']['data'];
+                        foreach($users as $u){
+                            $userId = $u->id;
+                            $email = $u->email;
+                            $time_doctor_user_id = "";
+                            foreach($response as $key => $val){
+                                if($key == $email && $val->status == 'sent') {
+                                    $time_doctor_user_id = $val->userId;
+                                }
+                            }
+
+                            if ($time_doctor_user_id != "") {
+                                $lastRow = TimeDoctorAccount::create([
+                                    'time_doctor_email'=> $email 
+                                ]);
+                                TimeDoctorMember::create([
+                                    'time_doctor_user_id' => $time_doctor_user_id,
+                                    'time_doctor_account_id' => $lastRow->id,
+                                    'email' => $email,
+                                    'user_id' => $userId
+                                ]);
+                            }
+                        }
+
+                        return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor account created successfully']);
+                        break;
+                }
+            else:
+                return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
+            endif;
+        } catch (Exception $e) {
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
+        }
+    }
 }
