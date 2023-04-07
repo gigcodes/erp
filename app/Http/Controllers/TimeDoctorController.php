@@ -314,10 +314,10 @@ class TimeDoctorController extends Controller
                 $inviteResponse = $this->timedoctor->sendSingleInvitation( $companyId, $accessToken, $data );
                 switch ($inviteResponse['code']) {
                     case '401':
-                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctro Account user\'s Token ID is invalid or access is denied.']);
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctor Account user\'s Token ID is invalid or access is denied.']);
                         break;
                     case '403':
-                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctro Account user don\'t have permission to perform this action']);
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctor Account user don\'t have permission to perform this action']);
                         break;
                     case '409':
                         return response()->json(['code' => 500, 'data' => [], 'message' => 'Given email is invalid.']);
@@ -373,10 +373,10 @@ class TimeDoctorController extends Controller
                 $bulkInviteResponse = $this->timedoctor->sendBulkInvitation( $companyId, $accessToken, $bulkInvitePayload );
                 switch ($bulkInviteResponse['code']) {
                     case '401':
-                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctro Account user\'s Token ID is invalid or access is denied.']);
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctor Account user\'s Token ID is invalid or access is denied.']);
                         break;
                     case '403':
-                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctro Account user don\'t have permission to perform this action']);
+                        return response()->json(['code' => 500, 'data' => [], 'message' => 'Time Doctor Account user don\'t have permission to perform this action']);
                         break;
                     case '409':
                         return response()->json(['code' => 500, 'data' => [], 'message' => 'Given email is invalid.']);
