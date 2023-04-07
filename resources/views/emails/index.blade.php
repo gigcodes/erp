@@ -36,7 +36,7 @@
 </div>
 <div class="row">
   <div class="col-md-12 p-0">
-    <h2 class="page-heading">Emails List ({{$totalEmail}})</h2>
+    <h2 class="page-heading">Emails List (<span id="email_list_count_id">{{$totalEmail}}</span>)</h2>
   </div>
 </div>
 @if ($message = Session::get('success'))
@@ -938,7 +938,7 @@
         $("#loading-image").hide();
           $("#email-table tbody").empty().html(response.tbody);
           $(".pagination-custom").html(response.links);
-  
+          $('#email_list_count_id').html(response.count);
       }).fail(function(errObj) {
         $("#loading-image").hide();
       });

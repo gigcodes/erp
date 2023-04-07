@@ -236,8 +236,9 @@ class GoogleCampaignsController extends Controller
 
         if ($request->get('account_id')) {
             $account_id = $request->get('account_id');
+            $account = \App\GoogleAdsAccount::findOrFail($account_id);
         } else {
-            return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
+            return redirect()->to('/google-campaigns/ads-account');
         }
         // $storagepath = $this->getstoragepath($account_id);
         
@@ -289,7 +290,13 @@ class GoogleCampaignsController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries, 'biddingStrategyTypes' => $biddingStrategyTypes, 'account_id' => $account_id]);
+        return view('googlecampaigns.index', [
+                                            'campaigns' => $campInfo,
+                                            'totalNumEntries' => $totalEntries,
+                                            'biddingStrategyTypes' => $biddingStrategyTypes,
+                                            'account_id' => $account_id,
+                                            'google_map_api_key' => $account->google_map_api_key,
+                                        ]);
         /*$adWordsServices = new AdWordsServices();
          $campInfo = $this->getCampaigns($adWordsServices, $session);
         return view('googlecampaigns.index', ['campaigns' => $campInfo['campaigns'], 'totalNumEntries' => $campInfo['totalNumEntries']]); */

@@ -79,6 +79,10 @@
     .select2.select2-container.select2-container--default {
         width: 100% !important;
     }   
+
+    div.pac-container {
+        z-index: 99999999999 !important;
+    }
 </style>
 {{--@extends('layouts.app')--}}
 {{--@section('favicon' , 'task.png')--}}
@@ -393,7 +397,7 @@
                             <div class="form-group m-0 mb-5">
                                 <label for="target_location_address" class="col-form-label">Address</label>
 
-                                <input type="text" class="form-control" id="" name="target_location_address" placeholder="Enter a place name, address or coordinates">
+                                <input type="text" class="form-control" id="target_location_address" name="target_location_address" placeholder="Enter a place name, address or coordinates">
                                 
                                {{--  <select class="form-control" id="" name="target_location_address" style="height: auto">
                                     
@@ -684,7 +688,20 @@
 {{-- Start Target Locations --}}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{@$google_map_api_key}}&libraries=places"></script>
+
 <script>
+    function gm_authFailure() {
+        toastr["error"]('Google maps failed to load!');
+    }
+    
+    function initialize() {
+      var input = document.getElementById('target_location_address');
+      new google.maps.places.Autocomplete(input);
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
     $(document).ready(function() {
         $(document).on('change', '[name="target_location"]', function(event) {
             event.preventDefault();

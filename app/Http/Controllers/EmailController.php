@@ -81,7 +81,8 @@ class EmailController extends Controller
         if(empty($category)){
             $query = $query->whereHas('category', function($q){
                 $q->whereIn('priority', ['HIGH', 'UNDEFINED']);
-            });
+            })
+            ->orWhere('email_category_id', '<=', 0);
         }
 
         //START - Purpose : Add Email - DEVTASK-18283
@@ -98,10 +99,16 @@ class EmailController extends Controller
             $trash_query = true;
             $query = $query->where('status', 'bin');
         } elseif ($type == 'draft') {
-            $query = $query->where('is_draft', 1);
+            $query = $query->where('is_draft', 1)->where('status', '<>', 'pre-send');
         } elseif ($type == 'pre-send') {
             $query = $query->where('status', 'pre-send');
-        } else {
+        } 
+        else if(!empty($request->type)){
+            $query = $query->where(function ($query) use ($type) {
+                $query->where('type', $type)->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');
+            });
+        }
+        else {
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
             });
