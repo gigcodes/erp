@@ -105,39 +105,51 @@ class WebNotificationController extends Controller
         $issue = DeveloperTask::find($issue_id);
         $userId = $issue->assigned_to;
         $users = User::get();
+        \Log::info('User from assign id--->'.json_encode($users));
         $adminIds = [];
         foreach ($users as $user) {
             if ($user->isAdmin()) {
                 $adminIds[] = $user->id;
+                \Log::info('if user is Admin--->'.json_encode($user));
+
             }
         }
         if($sendTo == 'to_developer'){
             $userId = $issue->assigned_to;
+            \Log::info('if send to developer--->'.json_encode($userId));
         }
         if ($sendTo == 'to_master') {
             if ($issue->master_user_id) {
                 $userId = $issue->master_user_id;
+                \Log::info('if send to master--->'.json_encode($userId));
+
             }
         }
 
         if ($sendTo == 'to_team_lead') {
             if ($issue->team_lead_id) {
                 $userId = $issue->team_lead_id;
+                \Log::info('if send to team lead--->'.json_encode($userId));
+
             }
         }
 
         if ($sendTo == 'to_tester') {
             if ($issue->tester_id) {
                 $userId = $issue->tester_id;
+                \Log::info('if send to tester--->'.json_encode($userId));
+
             }
         }
         if (isset($userId) && $userId){
+            \Log::info('all user Ids--->'.json_encode($userId));
             $adminIds[] = $userId;
+            \Log::info('all admin ids after adding userId to it--->'.json_encode($adminIds));
             $adminIds = array_unique($adminIds);
             if (($key = array_search(\Auth::User()->id, $adminIds)) !== false) {
                 unset($adminIds[$key]);
             }
-            \Log::info('Users ids to send notification -->'.json_encode($adminIds));
+            \Log::info('Distinct Users ids to send notification -->'.json_encode($adminIds));
             $FcmToken = NotificationToken::whereNotNull('device_token')->whereIn('user_id', $adminIds)->pluck('device_token')->all();
         }
         else {
