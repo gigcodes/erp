@@ -132,6 +132,8 @@
                             <option value="">Select Medium</option>
                             <option value="0">Whatsapp</option>
                             <option value="1">Email</option>
+                            <option value="2">Bulk notification</option>
+
                         </select>
 					</div>
 					<div class="form-group">
