@@ -26,7 +26,7 @@
         "google/cloud-bigquery": "^1.23",
         "google/cloud-translate": "^1.9",
         "google/protobuf": "3.21.5",
-        "googleads/google-ads-php": "^17.1",
+        "googleads/google-ads-php": "^19.0",
         "googleads/googleads-php-lib": "^59.0",
         "guzzlehttp/guzzle": "^6.3.1|^7.2.2",
         "intervention/image": "^2.5",
