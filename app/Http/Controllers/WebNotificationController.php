@@ -157,6 +157,7 @@ class WebNotificationController extends Controller
             $FcmToken = NotificationToken::whereNotNull('device_token')->pluck('device_token')->all();
         }
         $serverKey = env('FCM_SECRET_KEY');
+        \Log::info('if send to developer--->'.json_encode($serverKey));
         $data = [
             "registration_ids" => $FcmToken,
             "notification" => [
