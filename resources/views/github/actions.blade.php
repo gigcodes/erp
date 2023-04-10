@@ -26,53 +26,56 @@
     }
 
 
-    async function getActions({repoId, page, date = null})
-    {
+    async function getActions({
+        repoId
+        , page
+        , date = null
+    }) {
         return $.ajax({
-            type: "GET",
-            url: "",
-            async:true,
-            data: {
-                repoId: repoId,
-                page:page,
-                date: date          
-            },
-            dataType: "json",
-            success: function (response) {
+            type: "GET"
+            , url: ""
+            , async: true
+            , data: {
+                repoId: repoId
+                , page: page
+                , date: date
+            }
+            , dataType: "json"
+            , success: function(response) {
                 return response
             }
         });
     }
 
-   
 
-    
+
+
     $(document).ready(function() {
         let isApiCall = true;
         let pageNum = 1;
         let totalCount = 0;
-        
+
         async function fetchActions(data) {
             $(document).find("#action-workflows .loader-section").show();
             $(document).find("#action-workflows table tfoot").hide();
             let actions = await getActions(data);
             totalCount = actions.data.total_count;
             $(document).find('#actionCount').html(`(${totalCount})`)
-            if(actions.data.workflow_runs.length < 1 && data.page == 1) {
+            if (actions.data.workflow_runs.length < 1 && data.page == 1) {
                 $(document).find("#action-workflows table tfoot").show();
                 $(document).find("#action-workflows .loader-section").hide();
-            } else if(actions.data.workflow_runs.length < 1 && data.page > 1) {
+            } else if (actions.data.workflow_runs.length < 1 && data.page > 1) {
                 $(document).find("#action-workflows .loader-section").hide();
             }
             let htmlContent = getActionHtml(actions.data.workflow_runs);
             $(document).find("#action-workflows .loader-section").hide();
             $(document).find("#action-workflows table tbody").append(htmlContent);
         }
-        
+
         $(async function() {
             await fetchActions({
-                repoId: $(document).find("select[name=repoId]").val(),
-                page: 1
+                repoId: $(document).find("select[name=repoId]").val()
+                , page: 1
             });
         });
 
@@ -80,39 +83,38 @@
             $(document).find("#action-workflows table tbody tr").remove();
             let fromDate = $(document).find("[name=fromDate]").val();
             let endDate = $(document).find("[name=toDate]").val();
-            if(!endDate && fromDate) {
+            if (!endDate && fromDate) {
                 alert("Plase select to date.")
                 return false;
             }
             pageNum = 1;
             await fetchActions({
-                repoId: $(document).find("select[name=repoId]").val(),
-                page: 1,
-                date:(fromDate && endDate) ? `${fromDate}..${endDate}` : null
+                repoId: $(document).find("select[name=repoId]").val()
+                , page: 1
+                , date: (fromDate && endDate) ? `${fromDate}..${endDate}` : null
             });
         });
 
         $(window).on('scroll', async function() {
-        if ($(window).scrollTop() + $(window).height() >= ($(document).height() - 5)) {
-            if(isApiCall) {
-                isApiCall = false;
-                let fromDate = $(document).find("[name=fromDate]").val();
-                let endDate = $(document).find("[name=toDate]").val();
-                
-                await fetchActions({
-                    repoId: $(document).find("select[name=repoId]").val(),
-                    page: pageNum + 1,
-                    date:(fromDate && endDate) ? `${fromDate}..${endDate}` : null
-                });
-                if(totalCount > 0) {
-                    isApiCall = true;
-                }
-                pageNum = pageNum + 1;
-            }
-        }
-    });
-    })
+            if ($(window).scrollTop() + $(window).height() >= ($(document).height() - 5)) {
+                if (isApiCall) {
+                    isApiCall = false;
+                    let fromDate = $(document).find("[name=fromDate]").val();
+                    let endDate = $(document).find("[name=toDate]").val();
 
+                    await fetchActions({
+                        repoId: $(document).find("select[name=repoId]").val()
+                        , page: pageNum + 1
+                        , date: (fromDate && endDate) ? `${fromDate}..${endDate}` : null
+                    });
+                    if (totalCount > 0) {
+                        isApiCall = true;
+                    }
+                    pageNum = pageNum + 1;
+                }
+            }
+        });
+    })
 
 </script>
 <style>
@@ -133,13 +135,14 @@
 
 <div class="row">
     <div class="col-lg-12 margin-tb page-heading">
-        <h2 class="page-heading">Actions <span id="actionCount"></span> </h2>
+        <h5 class="ml-3">Actions <span id="actionCount"></span> </h2>
+        <h3 class="text-center">Github Actions</h3>
     </div>
 </div>
-<div class="row">
-    <div class="col-lg-12 margin-tb page-heading">
-        @if(session()->has('message'))
-        @php $type = Session::get('alert-type', 'info'); @endphp
+@if(session()->has('message'))
+    <div class="row">
+        <div class="col-lg-12 margin-tb page-heading">
+            @php $type = Session::get('alert-type', 'info'); @endphp
             @if($type == "info")
             <div class="alert alert-secondary">
                 {{ session()->get('message') }}
@@ -157,10 +160,9 @@
                 {{ session()->get('message') }}
             </div>
             @endif
-        @endif
-        <h3 class="text-center">Github Actions</h3>
+        </div>
     </div>
-</div>
+@endif
 
 <div class="container" style="max-width: 100%;width: 100%;" id="action-workflows">
     <div class="row mb-3">
@@ -168,7 +170,7 @@
             <label for="" class="form-label">Repository</label>
             <select name="repoId" class="form-control">
                 @foreach ($repos as $repo)
-                    <option value="{{ $repo->id }}">{{ $repo->name }}</option>
+                <option value="{{ $repo->id }}">{{ $repo->name }}</option>
                 @endforeach
             </select>
         </div>
@@ -190,10 +192,10 @@
                 <th style="width:10% !important;">Failure Reason</th>
             </tr>
         </thead>
-        <tbody> 
+        <tbody>
         </tbody>
         <tfoot style="display: none">
-            <td colspan="4" >
+            <td colspan="4">
                 <h5 class="text-center text-bold">No Data Found</h5>
             </td>
         </tfoot>

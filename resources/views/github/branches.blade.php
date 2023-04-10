@@ -106,12 +106,13 @@
 
 <div class="row">
     <div class="col-lg-12 margin-tb page-heading">
-        <h2 class="page-heading">Branches <span id="branchCount"></span></h2>
+        <h5 class="ml-5">Branches <span id="branchCount"></span></h5>
+        <h3 class="text-center">Github Branches</h3>
     </div>
 </div>
+@if(session()->has('message'))
 <div class="row">
     <div class="col-lg-12 margin-tb page-heading">
-        @if(session()->has('message'))
         @php $type = Session::get('alert-type', 'info'); @endphp
             @if($type == "info")
             <div class="alert alert-secondary">
@@ -130,10 +131,10 @@
                 {{ session()->get('message') }}
             </div>
             @endif
-        @endif
-        <h3 class="text-center">Github Branches</h3>
+            
+        </div>
     </div>
-</div>
+@endif
 
 <div class="container" style="max-width: 100%;width: 100%;" id="branch-section">
     <div class="row mb-3">
