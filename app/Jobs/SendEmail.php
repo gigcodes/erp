@@ -129,8 +129,9 @@ class SendEmail implements ShouldQueue
             $email->is_draft = 0;
             $email->status = 'send';
         } catch (\Exception $e) {
-            $email->is_draft = 1;
+            $email->is_draft = 0;
             $email->error_message = $e->getMessage();
+            $email->save();
 
             \Log::info('Issue fom SendEmail '.$e->getMessage());
             //\Log::info("Issue fom SendEmail ");

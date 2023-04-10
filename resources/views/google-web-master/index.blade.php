@@ -73,7 +73,7 @@
 				<input name="GOOGLE_CLIENT_SECRET" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT SECRET (required)"> 
 				<input name="GOOGLE_CLIENT_KEY" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT KEY"> 
 				<input name="GOOGLE_CLIENT_APPLICATION_NAME" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT APPLICATION_NAME (required)"> 
-				<input name="GOOGLE_CLIENT_MULTIPLE_KEYS" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT MULTIPLE KEYS">  
+				<input name="GOOGLE_CLIENT_MULTIPLE_KEYS" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT MULTIPLE KEYS (required)">  
 				<button type="submit" class="btn btn-secondary m-3 float-right">Submit</button>  
 			</form>
         </div>
@@ -420,6 +420,7 @@
 									<th>S.N</th>
 									<th>Name</th>
 									<th>Description</th>
+									<th>Created At</th>
 								
 								</tr>
 							</thead>
@@ -428,8 +429,8 @@
 								<tr>
 								<td>{{$log->id}}</td>
 								<td>{{$log->log_name}}</td>
-								
 								<td>{{$log->description}}</td>
+								<td>{{$log->created_at}}</td>
 								
 								</tr>
 
@@ -468,6 +469,7 @@
 									<th>Name</th>
 									<th>Status</th>
 									<th>Description</th>
+									<th>Created At</th>
 								
 								</tr>
 							</thead>
@@ -479,6 +481,7 @@
 								<td>{{$log->name}}</td>
 								<td>{{$log->status}}</td>
 								<td>{{$log->message}}</td>
+								<td>{{$log->created_at}}</td>
 								
 								</tr>
 
@@ -514,6 +517,7 @@
 								<tr>
 									<th>#</th>
 									<th>Log</th>
+									<th>Created At</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -522,6 +526,7 @@
 								<tr>
 								<td>{{$history->id}}</td>
 								<td>{{$history->log}}</td>
+								<td>{{$history->created_at}}</td>
 								<td><button class="btn btn-secondary btn-xs re-submit-site" data-id="{{$history->website_store_views_id}}" title="Re-submit"> <i class="fa fa-refresh"></i></button></td>
 								
 								</tr>
