@@ -100,6 +100,7 @@ class WebNotificationController extends Controller
 //    }
     public static function sendWebNotification2($sendTo, $issue_id, $title, $body)
     {
+        \Log::info('Notification process start');
         $url = 'https://fcm.googleapis.com/fcm/send';
         $issue = DeveloperTask::find($issue_id);
         $userId = $issue->assigned_to;
@@ -136,9 +137,11 @@ class WebNotificationController extends Controller
             if (($key = array_search(\Auth::User()->id, $adminIds)) !== false) {
                 unset($adminIds[$key]);
             }
+            \Log::info('Users ids to send notification -->'.json_encode($adminIds));
             $FcmToken = NotificationToken::whereNotNull('device_token')->whereIn('user_id', $adminIds)->pluck('device_token')->all();
         }
         else {
+            \Log::info('No user Id selected in else block  -->');
             $FcmToken = NotificationToken::whereNotNull('device_token')->pluck('device_token')->all();
         }
         $serverKey = env('FCM_SECRET_KEY');
@@ -150,32 +153,38 @@ class WebNotificationController extends Controller
             ]
         ];
         $encodedData = json_encode($data);
+        \Log::info('Data object -->'.$encodedData);
 
         $headers = [
             'Authorization:key=' . $serverKey,
             'Content-Type: application/json',
         ];
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        // Disabling SSL Certificate support temporarly
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
-        // Execute post
-        $result = curl_exec($ch);
-        if ($result === FALSE) {
-            die('Curl failed: ' . curl_error($ch));
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            // Disabling SSL Certificate support temporarly
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
+            // Execute post
+            $result = curl_exec($ch);
+            if ($result === FALSE) {
+                die('Curl failed: ' . curl_error($ch));
+            }
+            \Log::info('Notification Process success -->'.json_encode($result));
+            // Close connection
+            curl_close($ch);
+            // FCM response
+            return;
         }
-        // Close connection
-        curl_close($ch);
-        // FCM response
-        return;
+        catch (\Exception $e){
+            \Log::error('Error sending notification -->'.$e->getMessage());
+        }
+
     }
 
 }
