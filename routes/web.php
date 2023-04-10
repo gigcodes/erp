@@ -3884,6 +3884,7 @@ Route::post('/model/name/update', [ModelNameController::class, 'update'])->middl
 
 Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
     Route::prefix('github')->group(function () {
+        Route::resource('/organizations', Github\OrganizationController::class);
         Route::get('/repos', [Github\RepositoryController::class, 'listRepositories']);
         Route::get('/repos/{name}/users', [Github\UserController::class, 'listUsersOfRepository']);
         Route::get('/repos/{name}/users/add', [Github\UserController::class, 'addUserToRepositoryForm']);
@@ -3912,7 +3913,8 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
-        
+        Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');
+        Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
     });
 });
 
@@ -4458,6 +4460,7 @@ Route::middleware('auth')->group(function () {
     // DEV MANISH
     Route::get('google-keyword-search', [GoogleAddWord\googleAddsController::class, 'index'])->name('google-keyword-search');
     Route::get('google-keyword-search-v6', [GoogleAddWord\googleAddsV6Controller::class, 'main'])->name('google-keyword-search-v6');
+    Route::get('google-keyword-search-v2', [GoogleAddWord\googleAddsController::class, 'generatekeywordidea'])->name('google-keyword-search-v2');
 
     Route::resource('google-traslation-settings', GoogleTraslationSettingsController::class);
 });
