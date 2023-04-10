@@ -128,9 +128,12 @@ trait GithubTrait
         return $data;
     }
 
-    private function getGithubActionRuns(string $repositoryId, $page=1)
+    private function getGithubActionRuns(string $repositoryId, $page = 1, $date = null)
     {
         $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs?page='.$page;
+        if(!empty($date)) {
+            $url .= "&created={$date}";
+        }
 
         try {
             $response = $this->client->get($url);
@@ -152,5 +155,17 @@ trait GithubTrait
         }
     }
 
-
+    /**
+     * For Github Branches
+     */
+    public function getGithubBranches(string $repositoryId, array $inputs)
+    {
+        $url = "https://api.github.com/repositories/{$repositoryId}/branches";
+        try {
+            $response = $this->client->get($url);
+            $githubAction = json_decode($response->getBody()->getContents());
+            return $githubAction;
+        } catch (Exception $e) {
+        }
+    }
 }
