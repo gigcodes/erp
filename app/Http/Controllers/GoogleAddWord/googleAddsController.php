@@ -29,10 +29,30 @@ use Google\AdsApi\AdWords\v201809\o\TargetingIdeaService;
 use Google\AdsApi\Common\OAuth2TokenBuilder;
 use Google\AdsApi\Common\Util\MapEntries;
 use Illuminate\Http\Request;
+use App\GoogleAdsAccount;
+use Exception;
+use GetOpt\GetOpt;
+use Google\Ads\GoogleAds\Examples\Utils\ArgumentNames;
+use Google\Ads\GoogleAds\Examples\Utils\ArgumentParser;
+use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClient;
+use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClientBuilder;
+use Google\Ads\GoogleAds\Lib\V13\GoogleAdsException;
+use Google\Ads\GoogleAds\Util\V13\ResourceNames;
+use Google\Ads\GoogleAds\V13\Enums\KeywordPlanNetworkEnum\KeywordPlanNetwork;
+use Google\Ads\GoogleAds\V13\Errors\GoogleAdsError;
+use Google\Ads\GoogleAds\V13\Services\GenerateKeywordIdeaResult;
+use Google\Ads\GoogleAds\V13\Services\KeywordAndUrlSeed;
+use Google\Ads\GoogleAds\V13\Services\KeywordSeed;
+use Google\Ads\GoogleAds\V13\Services\UrlSeed;
+use Google\ApiCore\ApiException;
+use App\Helpers\GoogleAdsHelper;
 
 class googleAddsController extends Controller
 {
     const PAGE_LIMIT = 500;
+    private const CUSTOMER_ID = 3814448311;
+    private const LANGUAGE_ID = 1000;
+    private const PAGE_URL = null;
 
     public function index(Request $request, AdWordsServices $adWordsServices)
     {
@@ -41,6 +61,7 @@ class googleAddsController extends Controller
         $locations = $this->getGooglelocations();
 
         if ($request->ajax()) {
+            return false;
             try {
                 $adGroupId = 795625088;
 
@@ -501,5 +522,156 @@ class googleAddsController extends Controller
         });
 
         return $array;
+    }
+    public function generatekeywordidea(Request $request)
+    {   
+        if (! $request->ajax()) {
+            $title = 'Google Keyword Search';
+            $languages = $this->getGoogleLanguages();
+            $locations = $this->getGooglelocations();
+            return view('google.google-adds.index', compact('languages', 'locations','title'));
+        }
+
+        if($request->ajax()){
+            ini_set('max_execution_time', -1);
+            $account_id ='3814448311'; 
+            $account = GoogleAdsAccount::where('google_customer_id',$account_id)->first();
+            if (is_null($account)) {
+                return ['status' => 'error','message' => 'Goolgle Oauth Credencial missing.'];
+            } 
+            try {
+                $clientId = $account->oauth2_client_id;
+                $clientSecret = $account->oauth2_client_secret;
+                $refreshToken = $account->oauth2_refresh_token;
+                $developerToken = $account->google_adwords_manager_account_developer_token;
+                $loginCustomerId = $account->google_adwords_manager_account_customer_id;
+
+                $oAuth2Credential = (new OAuth2TokenBuilder())
+                                    ->withClientId($clientId)
+                                    ->withClientSecret($clientSecret)
+                                    ->withRefreshToken($refreshToken)
+                                    ->build();
+
+                $googleAdsClient = (new GoogleAdsClientBuilder())
+                                    ->withDeveloperToken($developerToken)
+                                    ->withLoginCustomerId($loginCustomerId)
+                                    ->withOAuth2Credential($oAuth2Credential)
+                                    ->build();
+
+           } catch (Exception $e) { 
+                return ['status' => 'error','message' => $e->getMessage()];
+           }
+            try {
+                if ($request->location) {
+                    return $result = self::runExample($googleAdsClient, self::CUSTOMER_ID, [$request->location], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
+                } else {
+                    return $result = self::runExample($googleAdsClient, self::CUSTOMER_ID, [], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
+                }
+            } catch (GoogleAdsException $googleAdsException) {
+                return ['status' => 'error','message' =>'GoogleAdsException Request ID. '.$googleAdsException->getRequestId()];
+                printf(
+                    "Request with ID '%s' has failed.%sGoogle Ads failure details:%s",
+                    $googleAdsException->getRequestId(),
+                    PHP_EOL,
+                    PHP_EOL
+                );
+                foreach ($googleAdsException->getGoogleAdsFailure()->getErrors() as $error) {
+                    /** @var GoogleAdsError $error */
+                    printf(
+                        "\t%s: %s%s",
+                        $error->getErrorCode()->getErrorCode(),
+                        $error->getMessage(),
+                        PHP_EOL
+                    );
+                }
+                exit(1);
+            } catch (ApiException $apiException) {
+                return ['status' => 'error','message' =>'API exeception Occured. '.$apiException->getMessage()];
+                printf(
+                    "ApiException was thrown with message '%s'.%s",
+                    $apiException->getMessage(),
+                    PHP_EOL
+                );
+                exit(1);
+            }
+        }
+    }
+
+     /**
+     * Runs the example.
+     *
+     * @param  GoogleAdsClient  $googleAdsClient the Google Ads API client
+     * @param  int  $customerId the customer ID
+     * @param  int[]  $locationIds the location IDs
+     * @param  int  $languageId the language ID
+     * @param  string[]  $keywords the list of keywords to use as a seed for ideas
+     * @param  string|null  $pageUrl optional URL related to your business to use as a seed for ideas
+     */
+    // [START GenerateKeywordIdeas]
+
+    public static function runExample(GoogleAdsClient $googleAdsClient, int $customerId, array $locationIds, int $languageId, array $keywords, ?string $pageUrl)
+    {   
+        $keywordPlanIdeaServiceClient = $googleAdsClient->getKeywordPlanIdeaServiceClient();
+        // Make sure that keywords and/or page URL were specified. The request must have exactly one
+        // of urlSeed, keywordSeed, or keywordAndUrlSeed set.
+        if (empty($keywords) && is_null($pageUrl)) {
+            throw new \InvalidArgumentException(
+                'At least one of keywords or page URL is required, but neither was specified.'
+            );
+        }
+        // Specify the optional arguments of the request as a keywordSeed, urlSeed,
+        // or keywordAndUrlSeed.
+        $requestOptionalArgs = [];
+        if (empty($keywords)) {
+            // Only page URL was specified, so use a UrlSeed.
+            $requestOptionalArgs['urlSeed'] = new UrlSeed(['url' => $pageUrl]);
+        } elseif (is_null($pageUrl)) {
+            // Only keywords were specified, so use a KeywordSeed.
+            $requestOptionalArgs['keywordSeed'] = new KeywordSeed(['keywords' => $keywords]);
+        } else {
+            // Both page URL and keywords were specified, so use a KeywordAndUrlSeed.
+            $requestOptionalArgs['keywordAndUrlSeed'] =
+                new KeywordAndUrlSeed(['url' => $pageUrl, 'keywords' => $keywords]);
+        }
+
+        // Create a list of geo target constants based on the resource name of specified location
+        // IDs.
+        
+        $geoTargetConstants = array_map(function ($locationId) {
+            return ResourceNames::forGeoTargetConstant($locationId);
+        }, $locationIds);
+        
+        // Generate keyword ideas based on the specified parameters.
+        $response = $keywordPlanIdeaServiceClient->generateKeywordIdeas(
+            [
+                // Set the language resource using the provided language ID.
+                'language' => ResourceNames::forLanguageConstant($languageId),
+                'customerId' => $customerId,
+                // Add the resource name of each location ID to the request.
+                ////// 'geoTargetConstants' => $geoTargetConstants,
+                // Set the network. To restrict to only Google Search, change the parameter below to
+                // KeywordPlanNetwork::GOOGLE_SEARCH.
+                'keywordPlanNetwork' => KeywordPlanNetwork::GOOGLE_SEARCH_AND_PARTNERS,
+            ] + $requestOptionalArgs
+        );
+        
+        $finalData = [];
+        // Iterate over the results and print its detail.
+
+        foreach ($response->iterateAllElements() as $result) {
+            /** @var GenerateKeywordIdeaResult $result */
+            $translateText = '--';
+            
+            $finalData[] = [
+                'keyword' => $result->getText(),
+                'avg_monthly_searches' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getAvgMonthlySearches(),
+                'competition' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getCompetition(),
+                'low_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getLowTopOfPageBidMicros(),
+                'high_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getHighTopOfPageBidMicros(),
+                'translate_text' => $translateText
+            ];
+        }
+        $data = ['status' => 'success','data' => $finalData];
+        return $data;
     }
 }

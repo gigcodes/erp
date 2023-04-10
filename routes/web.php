@@ -4444,6 +4444,7 @@ Route::middleware('auth')->group(function () {
     // DEV MANISH
     Route::get('google-keyword-search', [GoogleAddWord\googleAddsController::class, 'index'])->name('google-keyword-search');
     Route::get('google-keyword-search-v6', [GoogleAddWord\googleAddsV6Controller::class, 'main'])->name('google-keyword-search-v6');
+    Route::get('google-keyword-search-v2', [GoogleAddWord\googleAddsController::class, 'generatekeywordidea'])->name('google-keyword-search-v2');
 
     Route::resource('google-traslation-settings', GoogleTraslationSettingsController::class);
 });
