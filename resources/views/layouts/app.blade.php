@@ -3487,6 +3487,13 @@ if (!empty($notifications)) {
                                             class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
                             </li>
                             <li>
+                                <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
+                                    <span>
+                                        <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
                                 <a title="Create Google Doc" type="button" data-toggle="modal" data-target="#createGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                             </li>
@@ -4036,6 +4043,7 @@ if (!empty($notifications)) {
         @include('googledocs.partials.create-doc')
         @include('googledocs.partials.search-doc')
         @include('passwords.search-password')
+        @include('user-management.search-user-schedule')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
