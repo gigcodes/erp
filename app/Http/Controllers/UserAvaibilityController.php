@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\UserAvaibility;
 use App\UserAvaibilityHistory;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class UserAvaibilityController extends Controller
 {
@@ -76,11 +78,13 @@ class UserAvaibilityController extends Controller
             }
 
             $errors = reqValidate(request()->all(), [
-                // 'day' => 'required',
-                // 'from' => 'required',
-                // 'to' => 'required',
-                // 'start_time' => 'required|date_format:H:i:s',
-                // 'end_time' => 'required|date_format:H:i:s',
+                'day' => 'required',
+                'from' => 'required|date_format:Y-m-d',
+                'to' => 'required|date_format:Y-m-d',
+                'lunch_time_from' => 'required|date_format:H:i:s',
+                'lunch_time_to' => 'required|date_format:H:i:s',
+                'start_time' => 'required|date_format:H:i:s',
+                'end_time' => 'required|date_format:H:i:s',
             ], [
                 'day.required' => 'Days is required, please select atleast one.',
                 'from.required' => 'From date is required.',
@@ -92,6 +96,12 @@ class UserAvaibilityController extends Controller
                 return respJson(400, $errors[0]);
             }
 
+            $to = Carbon::createFromFormat("Y-m-d", request('to'));
+            $from = Carbon::createFromFormat("Y-m-d", request('from'));
+            if ($to->lte($from)) {
+                return respJson(400, 'From date must be grater then To date');
+            }
+            
             if (request('start_time') >= request('end_time')) {
                 return respJson(400, 'Start time must be greater than end time.');
             }
@@ -199,5 +209,51 @@ class UserAvaibilityController extends Controller
         $html[] = '</table>';
 
         return implode('', $html);
+    }
+
+    /**
+     * This function is used to search the user availability from the menu shortcut
+     */
+    public function search(Request $request)
+    {
+
+        if($request->user_id) {
+            $useravaibility = UserAvaibility::where('user_id', $request->user_id)->orderBy('id', 'desc')->get();
+
+            $html = [];
+            if($useravaibility && count($useravaibility) > 0){
+                foreach ($useravaibility as $key=> $avaibility) {
+                    $lunch_time = ($avaibility->lunch_time_from && $avaibility->lunch_time_to) ? $avaibility->lunch_time_from. ' - ' . $avaibility->lunch_time_to: "-";
+                    $html[] = '<tr>
+                        <td>'.($key+1).'</td>
+                        <td>'.$avaibility->from.' - '.$avaibility->to.'</td>
+                        <td>'.$avaibility->start_time.' - '.$avaibility->end_time.'</td>
+                        <td>'.(str_replace(',', ', ', $avaibility->date) ?: '-').'</td>
+                        <td>'.$lunch_time.'</td>
+                        <td>'.$avaibility->created_at.'</td>
+                    </tr>';
+                }
+            } else {
+                $html[] = '<tr>
+                    <td colspan="6">No record found.</td>
+                </tr>';
+            }
+            
+            return response()->json([
+                "status" => 200,
+                "message" => "Schedule successfully fetched",
+                "data" => implode("", $html),
+                "addButton" => '<button type="button" class="btn btn-secondary" onclick="funUserAvailabilityAddShortcut('.$request->user_id.')">Add
+                New</button>'
+            ]);
+            
+        } else {
+            return response()->json([
+                "status" => 400,
+                "data" => "",
+                "addButton" => "",
+                "message" => "Something went wrong",
+            ]);
+        }
     }
 }

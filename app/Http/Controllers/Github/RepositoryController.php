@@ -458,8 +458,8 @@ class RepositoryController extends Controller
         return $this->githubActionResult($repositoryId,$request->page);
     }
 
-    public function githubActionResult($repositoryId, $page){
-        $githubActionRuns = $this->getGithubActionRuns($repositoryId,$page);
+    public function githubActionResult($repositoryId, $page, $date = null){
+        $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date);
         foreach($githubActionRuns->workflow_runs as $key => $runs){
             $githubActionRuns->workflow_runs[$key]->failure_reason = "";
             if($runs->conclusion == "failure"){
@@ -514,5 +514,49 @@ class RepositoryController extends Controller
     public function deployNodeScrapers()
     {
         return $this->getRepositoryDetails(231924853);
+    }
+
+    /**
+     * Githjub Branch Page
+     */
+    public function branchIndex(Request $request)
+    {
+        if($request->ajax()) {
+            $data = $this->getAjaxBranches($request);
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        }
+        $data['repos'] = GithubRepository::all();
+        return view('github.branches', $data);
+    }
+
+    public function getAjaxBranches(Request $request)
+    {
+        $branches = GithubBranchState::where('repository_id', $request->repoId)->get();
+        return $branches;
+    }
+
+    /**
+     * Github Actions Page
+     */
+    public function actionIndex(Request $request)
+    {
+        if($request->ajax()) {
+            $data = $this->getAjaxActions($request);
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        }
+        $data['repos'] = GithubRepository::all();
+        return view('github.actions', $data);
+    }
+
+    public function getAjaxActions(Request $request)
+    {
+        $data = $this->githubActionResult($request->repoId, $request->page, $request->date);
+        return $data;
     }
 }

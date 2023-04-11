@@ -17,6 +17,7 @@ All needed files are included within this file, so nothing could break if you ex
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Env Manager</h2>
                       <input id="search-input" type="text" placeholder="Search..">
+                  <h4>Total:- <div id="total"></div></h4>
                     <button type="button" id="add-new" class="btn btn-primary float-right">
                         Add New
                     </button>
@@ -184,6 +185,7 @@ All needed files are included within this file, so nothing could break if you ex
             <!--<div class="panel-heading">
               <h2 class="panel-title">{!! __('dotenv-editor::views.addnew_title') !!}</h2>
             </div>-->
+
             <div class="panel-body">
               <p>
                 Here you can add a new key-value-pair to your current .env-file.
@@ -198,6 +200,12 @@ All needed files are included within this file, so nothing could break if you ex
                   <label for="newvalue">{!! __('dotenv-editor::views.addnew_label_value') !!}</label>
                   <input type="text" name="newvalue" id="newvalue" v-model="newEntry.value" class="form-control" required>
                 </div>
+                @if(env('APP_ENV') === 'local' || env('APP_ENV') === 'staging')
+                <input type="checkbox" id="add-to-live" name="add-to-live" value="1" style="height: 12px !important;">
+                <label for="add-to-live">Add into Production .env to</label><br>
+                @endif
+                <div>
+
                 <button class="btn btn-default custom-close-modal" type="submit">
                   {!! __('dotenv-editor::views.addnew_button_add') !!}
                 </button>
@@ -422,6 +430,8 @@ All needed files are included within this file, so nothing could break if you ex
         var vm = this;
         this.loadButton = false;
         $.getJSON("/{{ $url }}/getdetails", function(items){
+          console.log(items.length);
+          $("#total").val(items.length)
           vm.entries = items;
         });
       },
@@ -438,37 +448,30 @@ All needed files are included within this file, so nothing could break if you ex
         var vm = this;
         var newkey = this.newEntry.key;
         var newvalue = this.newEntry.value;
+        var checkedValue = $('#add-to-live:checked').val();
+
         $.ajax({
-          url: "/{{ $url }}/add",
+          url: "/api/add-env",
           type: "post",
           data: {
-            _token: this.token,
+            _token: "{!! csrf_token() !!}",
             key: newkey,
-            value: newvalue
+            value: newvalue,
+            addToLive: checkedValue ? checkedValue : false
           },
-          success: function(){
-            
-            vm.entries.push({
-              key: newkey,
-              value: newvalue
-            });
-            var msg = "{{ trans('dotenv-editor::views.new_entry_added') }}";
-            vm.showAlert("success", msg);
-            vm.alertsuccess = 1;
-            $("#newkey").val("");
-            vm.newEntry.key = "";
-            vm.newEntry.value = "";
-            $("#newvalue").val("");
-            $('#newkey').focus();
-            $('#newkey').focus();
+          success: function(response){
+            console.log(response);
+            toastr["success"]("Key added successfully", "Message");
             $("#add-new-modal").modal("hide");
             
             //window.location.reload();
           },
           error: function (request, status, error) {
-              alert(request.responseText);
+            console.log('ERROR: ',error);
           }
         })
+
+
       },
       editEntry: function(entry){
         this.toEdit = {};
