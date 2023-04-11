@@ -356,6 +356,7 @@ Auth::routes();
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
 Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
+Route::get('/get-env-description', [EnvController::class, 'getDescription'])->name('get-env-description');
 
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', [CustomerController::class, 'add_customer_address']);
