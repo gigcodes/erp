@@ -95,12 +95,15 @@ All needed files are included within this file, so nothing could break if you ex
                 <th>Sr No.</th>
                   <th>{{ trans('dotenv-editor::views.overview_table_key') }}</th>
                   <th>{{ trans('dotenv-editor::views.overview_table_value') }}</th>
+                  <th style="width: 20%">Description</th>
                   <th>{{ trans('dotenv-editor::views.overview_table_options') }}</th>
                 </tr>
                 <tr v-for="(index,entry) in entries">
                   <td>@{{ index+1 }}</td>
                   <td style="word-wrap: anywhere;">@{{ entry.key }}</td>
                   <td style="word-wrap: anywhere;">@{{ entry.value }}</td>
+                  <td style="word-wrap: anywhere;">@{{ entry.description }}</td>
+
                   <td>
                     @if(auth()->user()->isAdmin() || auth()->user()->isEnvManager())
 
@@ -160,6 +163,10 @@ All needed files are included within this file, so nothing could break if you ex
               <div class="form-group">
                 <label for="editvalue">{!! trans('dotenv-editor::views.overview_edit_modal_value') !!}</label>
                 <input type="text" v-model="toEdit.value" id="editvalue" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="editdescription">New Description</label>
+                <input type="text" v-model="toEdit.description" id="editdescription" class="form-control">
               </div>
             </div>
             <div class="modal-footer">
@@ -350,6 +357,8 @@ All needed files are included within this file, so nothing could break if you ex
               <tr v-for="entry in details">
                 <td>@{{ entry.key }}</td>
                 <td>@{{ entry.value }}</td>
+                <td>@{{ entry.description }}</td>
+
               </tr>
             </table>
           </div>
@@ -443,10 +452,28 @@ All needed files are included within this file, so nothing could break if you ex
     methods: {
       loadEnv: function(){
         var vm = this;
+        var envDescription = [];
         this.loadButton = false;
+        $.ajax({
+          url: "/get-env-description",
+          type: "get",
+          success: function(response){
+            envDescription = response;
+            //window.location.reload();
+          },
+          error: function (request, status, error) {
+            console.log('ERROR: ',error);
+          }
+        })
         $.getJSON("/{{ $url }}/getdetails", function(items){
-          console.log(items.length);
-          $("#total").val(items.length)
+          for (let i = 0; i < items.length; i++) {
+            const name = items[i].key;
+            const matchingObj = envDescription.find(obj => obj.key === name);
+            if (matchingObj) {
+              items[i].description = matchingObj.description;
+            }
+          }
+          console.log(items)
           vm.entries = items;
         });
       },
@@ -485,7 +512,9 @@ All needed files are included within this file, so nothing could break if you ex
             $("#newkey").val("");
             vm.newEntry.key = "";
             vm.newEntry.value = "";
+            vm.newEntry.description = "";
             $("#newvalue").val("");
+            $("#description").val("");
             toastr["success"]("Key added successfully", "Message");
             $("#add-new-modal").modal("hide");
             
@@ -506,12 +535,14 @@ All needed files are included within this file, so nothing could break if you ex
       updateEntry: function(){
         var vm = this;
         $.ajax({
-          url: "/{{ $url }}/update",
+          url: "/api/edit-env",
           type: "post",
           data: {
             _token: this.token,
             key: vm.toEdit.key,
-            value: vm.toEdit.value
+            value: vm.toEdit.value,
+            description: vm.toEdit.description,
+            server: "{{env('APP_ENV')}}"
           },
           success: function(){
             var msg = "{{ trans('dotenv-editor::views.entry_edited') }}";

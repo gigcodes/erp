@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\EnvDescription;
+use App\ReferFriend;
 use Brotzka\DotenvEditor\DotenvEditor;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -47,4 +48,42 @@ class EnvController extends Controller
         $envDescription->save();
         return response()->json($response);
     }
+
+    public function getDescription(){
+        $envDescription = EnvDescription::all()->toArray();
+        return response()->json($envDescription);
+
+    }
+    public function editEnv(Request $request){
+        $client = new Client();
+        $env = new DotenvEditor();
+
+        $server = env('APP_ENV');
+        $url = $server === 'production' ? 'https://erpstage.theluxuryunlimited.com/api/edit-env' : 'https://erp.theluxuryunlimited.com/api/edit-env';
+        $response = [];
+        if($request->get('server') === 'production' || $request->get('server') === 'staging') {
+            $response = $client->request('POST', $url, [
+                "form_params" => [
+                    "key" => $request->get('key'),
+                    "value" => $request->get('value'),
+                    "description" => $request->get('description'),
+                    "_token" => $request->get('_token')
+                ],
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+            ]);
+            $response = (string)$response->getBody()->getContents();
+            $response = json_decode($response, true);
+        }
+        // Changes the value of the Database name and username
+        EnvDescription::where('key', $request->get('key'))->updateOrCreate(['key' => $request->get('key'),'description' => $request->get('description')]);
+
+        $env->changeEnv([
+            $request->get('key')   => $request->get('value'),
+        ]);
+        return response()->json($response);
+
+    }
+
 }
