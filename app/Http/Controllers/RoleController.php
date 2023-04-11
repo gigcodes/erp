@@ -164,23 +164,7 @@ class RoleController extends Controller
     public function search_role(Request $request)
     {
         $permission = Permission::where('name', 'LIKE', '%'.$request->search_role.'%')->get();
-<<<<<<< HEAD
-        $permission_array = explode(',', $request->permission);
-
-        $html = '<strong>Permission:</strong><br/>';
-        foreach ($permission as $k => $value) {
-            $checked = '';
-            if (in_array($value['id'], $permission_array)) {
-                $checked = 'checked';
-            }
-
-            $html .= '<label><input class="name mt-3 h-auto" name="permission[]" type="checkbox" value="'.$value['id'].'" '.$checked.'><span style="padding-left: 4px;">'.$value->name.'</span></label><br/>';
-        }
-
-        return json_encode($html);
-=======
 
         return $permission;
->>>>>>> 75f724c53 (roles in pop up)
     }
 }

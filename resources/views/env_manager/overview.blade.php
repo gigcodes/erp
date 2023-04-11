@@ -185,6 +185,7 @@ All needed files are included within this file, so nothing could break if you ex
             <!--<div class="panel-heading">
               <h2 class="panel-title">{!! __('dotenv-editor::views.addnew_title') !!}</h2>
             </div>-->
+
             <div class="panel-body">
               <p>
                 Here you can add a new key-value-pair to your current .env-file.
@@ -199,8 +200,10 @@ All needed files are included within this file, so nothing could break if you ex
                   <label for="newvalue">{!! __('dotenv-editor::views.addnew_label_value') !!}</label>
                   <input type="text" name="newvalue" id="newvalue" v-model="newEntry.value" class="form-control" required>
                 </div>
+                @if(env('APP_ENV') === 'local' || env('APP_ENV') === 'staging')
                 <input type="checkbox" id="add-to-live" name="add-to-live" value="1" style="height: 12px !important;">
                 <label for="add-to-live">Add into Production .env to</label><br>
+                @endif
                 <div>
 
                 <button class="btn btn-default custom-close-modal" type="submit">
@@ -448,7 +451,7 @@ All needed files are included within this file, so nothing could break if you ex
         var checkedValue = $('#add-to-live:checked').val();
 
         $.ajax({
-          url: "/add-env",
+          url: "/api/add-env",
           type: "post",
           data: {
             _token: "{!! csrf_token() !!}",
@@ -464,7 +467,7 @@ All needed files are included within this file, so nothing could break if you ex
             //window.location.reload();
           },
           error: function (request, status, error) {
-              alert(request.responseText);
+            console.log('ERROR: ',error);
           }
         })
 
