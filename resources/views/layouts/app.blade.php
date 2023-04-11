@@ -3411,6 +3411,16 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{url('/kb/')}}" target="_blank">Knowledge
                                             Base</a>
                                     </li>
+
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Time Doctor<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('time-doctor-acitivties.pending-payments')}}">Time Doctor Approved Timings</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
