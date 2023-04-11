@@ -44,6 +44,10 @@ class DeveloperTaskStatusChecklistSeeder extends Seeder
                 'task_status' => 'User Complete',
                 'name' => 'Check the coding standards',
             ],
+            [
+                'task_status' => 'User Complete',
+                'name' => 'PR Link',
+            ],
         ];
         foreach($checklist as $list){
             DeveloperTaskStatusChecklist::create($list);
