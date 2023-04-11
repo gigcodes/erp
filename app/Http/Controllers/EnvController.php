@@ -20,9 +20,11 @@ class EnvController extends Controller
     {
         $env = new DotenvEditor();
         $client = new Client();
+        $server = env('APP_ENV');
+        $url = $server === 'production' ? 'https://erpstage.theluxuryunlimited.com/api/add-env' : 'https://erp.theluxuryunlimited.com/api/add-env';
         $response = [];
         if($request->get('addToLive') && $request->get('addToLive') === '1'){
-            $response = $client->request('POST', 'https://erp.theluxuryunlimited.com/api/add-env', [
+            $response = $client->request('POST', $url, [
                 "form_params" => [
                     "key" => $request->get('key'),
                     "value" => $request->get('value'),

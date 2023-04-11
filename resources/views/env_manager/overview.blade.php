@@ -1,4 +1,5 @@
 @extends(config('dotenveditor.template', 'dotenv-editor::master'))
+
 {{--
 Feel free to extend your custom wrapping view.
 All needed files are included within this file, so nothing could break if you extend your own master view.
@@ -16,7 +17,7 @@ All needed files are included within this file, so nothing could break if you ex
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Env Manager</h2>
                       <input id="search-input" type="text" placeholder="Search..">
-                  <h4>Total:- <div id="total"></div></h4>
+                  <div style="display: flex; font-weight: 500;"><div>Total:-</div><div id="total">@{{ entries.length > 0 ? entries.length : '' }}</div></div>
                   @if(auth()->user()->isAdmin() || auth()->user()->isEnvManager())
                     <button type="button" id="add-new" class="btn btn-primary float-right">
                         Add New
@@ -111,7 +112,9 @@ All needed files are included within this file, so nothing could break if you ex
                   title="{{ trans('dotenv-editor::views.overview_table_popover_delete') }}">
                   <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                 </a>
-                      @endif
+                    @endif
+
+                    <div @click="copyData(entry)" style="cursor: pointer">Copy</div>
               </td>
             </tr>
           </table>
@@ -208,10 +211,13 @@ All needed files are included within this file, so nothing could break if you ex
                   <label for="newkey">Description</label>
                   <input type="text" name="description" id="description" v-model="newEntry.description" class="form-control" required>
                 </div>
-                @if(env('APP_ENV') === 'local' || env('APP_ENV') === 'staging')
+                @if(env('APP_ENV') === 'production')
                 <input type="checkbox" id="add-to-live" name="add-to-live" value="1" style="height: 12px !important;">
-                <label for="add-to-live">Add into Production .env to</label><br>
-                @endif
+                <label for="add-to-live">Add into Staging .env to</label><br>
+                @elseif(env('APP_ENV') === 'staging')
+              <input type="checkbox" id="add-to-live" name="add-to-live" value="1" style="height: 12px !important;">
+              <label for="add-to-live">Add into Production .env to</label><br>
+                  @endif
                 <div>
 
                 <button class="btn btn-default custom-close-modal" type="submit">
@@ -472,6 +478,14 @@ All needed files are included within this file, so nothing could break if you ex
           },
           success: function(response){
             console.log(response);
+            vm.entries.push({
+              key: newkey,
+              value: newvalue
+            });
+            $("#newkey").val("");
+            vm.newEntry.key = "";
+            vm.newEntry.value = "";
+            $("#newvalue").val("");
             toastr["success"]("Key added successfully", "Message");
             $("#add-new-modal").modal("hide");
             
@@ -545,6 +559,11 @@ All needed files are included within this file, so nothing could break if you ex
               alert(request.responseText);
           }
         })
+      },
+      copyData: function(entry){
+        let copyObj = entry.key +' : '+ entry.value
+        navigator.clipboard.writeText(copyObj);
+        toastr["success"]("Copy successfully", "Message");
       },
       deleteEntry: function(){
         var entry = this.toDelete;
