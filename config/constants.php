@@ -61,5 +61,19 @@ return [
     'AVAILABLE_TIMEZONES' => [
         'Asia/Dubai' => 'Asia/Dubai',
         'Asia/Kolkata' => 'Asia/Kolkata'
+    ],
+    'google_indexing_state_enum' => [
+        'INDEXING_STATE_UNSPECIFIED' => 'Unknown indexing status.',
+        'INDEXING_ALLOWED' => 'Indexing allowed.',
+        'BLOCKED_BY_META_TAG' => "Indexing not allowed, 'noindex' detected in 'robots' meta tag.",
+        'BLOCKED_BY_HTTP_HEADER' => "Indexing not allowed, 'noindex' detected in 'X-Robots-Tag' http header.",
+        'BLOCKED_BY_ROBOTS_TXT' => 'Reserved, no longer in use.',
+    ],
+    'google_verdict_enum' => [
+        'VERDICT_UNSPECIFIED' => 'Unknown verdict.',
+        'PASS' => 'Equivalent to "Valid" for the page or item in Search Console.',
+        'PARTIAL' => "Reserved, no longer in use.",
+        'FAIL' => 'Equivalent to "Error" or "Invalid" for the page or item in Search Console.',
+        'NEUTRAL' => 'Equivalent to "Excluded" for the page or item in Search Console.',
     ]
 ];

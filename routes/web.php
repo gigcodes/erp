@@ -504,6 +504,7 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
     Route::get('get-site-submit-hitory', [GoogleWebMasterController::class, 'getSiteSubmitHitory'])->name('googlewebmaster.get.history');
     Route::post('re-submit-site', [GoogleWebMasterController::class, 'ReSubmitSiteToWebmaster'])->name('googlewebmaster.re-submit.site.webmaster');
     Route::get('submit-site', [GoogleWebMasterController::class, 'SubmitSiteToWebmaster'])->name('googlewebmaster.submit.site.webmaster');
+    Route::post('delete-site', [GoogleWebMasterController::class, 'deleteSiteFromWebmaster'])->name('googlewebmaster.delete.site.webmaster');
     Route::get('get-access-token', [GoogleWebMasterController::class, 'googleLogin'])->name('googlewebmaster.get-access-token');
     Route::get('/index', [GoogleWebMasterController::class, 'index'])->name('googlewebmaster.index');
 

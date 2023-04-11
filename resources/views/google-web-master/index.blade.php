@@ -298,11 +298,11 @@
 									@endif
 									</a>
 								</th>
-									
+									<th>Indexed</th>
+									<th>Not Indexed Reason</th>
+									<th>Mobile Useable</th>
+									<th>Enhancements</th>
 									<th>Date</th>
-
-
-							
 								</tr>
 							</thead>
 							<tbody>
@@ -321,7 +321,11 @@
 								<td>{{$row->ctr}}</td>
 								<td>{{$row->position}}</td>
 								<td>{{$row->impressions}}</td>
-								<td>{{$row->date}}</td>
+								<td>{{$row->indexed ? 'Yes' : 'No'}}</td>
+								<td>{{!$row->indexed ? $row->not_indexed_reason : 'NA'}}</td>
+								<td>{{$row->mobile_usable ? 'Yes' : 'No'}}</td>
+								<td>{{$row->enhancements ? $row->enhancements : 'NA'}}</td>
+								<td>{{isset($row->date) ? $row->date : $row->created_at}}</td>
 								</tr>
 								@endforeach
 								<tr>
@@ -388,7 +392,7 @@
 										</div>
 									</div>
 								</td>
-								<td>Push | Down | Delete</td>
+								<td class="delete_site cursor-pointer" data-id="{{$site->id}}">Delete</td>
 							</tr>
 						@endforeach
 					</tbody>
@@ -635,13 +639,13 @@
 						t += `<tr><td>`+v.id+`</td>`;
 						t += `<td>`+v.GOOGLE_CLIENT_ID+`</td>`;
 						t += `<td>`+v.GOOGLE_CLIENT_APPLICATION_NAME+`</td>`;
-						t += `<td>
-									<span>
-										<a href="/googlewebmaster/accounts/connect/${v.id}">Connect</a>
-									</span>
-							</td>`;
+						t += `<td><span><a href="/googlewebmaster/accounts/connect/${v.id}">Connect</a></span></td></tr>`;
+						t += `<tr class="font-weight-bold"><td colspan="4">Connected Google Accounts</td></tr>`
 						$.each(v.mails,function(kk,vv) {
-							t += `<tr><td colspan="1">${vv.google_account}</td><td colspan="2"></td><td><a href="/googlewebmaster/accounts/disconnect/${vv.id}">Disconnect</a></td></tr>`;
+							t += `<tr>`;
+							t += `<td colspan="3">${vv.google_account}</td>`;
+							t += `<td><a href="/googlewebmaster/accounts/disconnect/${vv.id}">Disconnect</a></td>`;
+							t += `</tr>`;
 						})
 					});
 					if( t == '' ){
@@ -655,6 +659,32 @@
 			error: function (){
 				btn.prop('disabled',false);
 				toastr['error']('Something went wrong', 'Error');
+			}
+		});
+	});
+
+	$(document).on('click','.delete_site',function(){
+		var id = $(this).data('id');
+		var $this = $(this);
+		$.ajax({
+			method: "POST",
+			url: "{{ route('googlewebmaster.delete.site.webmaster') }}",
+			data: {
+				"_token": "{{ csrf_token() }}",
+				id:id
+			},
+			success: function(response){
+				if (response.status == true) {
+					$this.closest('tr').remove();
+					toastr.success('Site Deleted Successfully')
+				}
+				if (response.code == 200) {
+					toastr.success(response.message)
+					setTimeout(function(){
+						location.reload();
+					}, 1000);
+
+				}
 			}
 		});
 	});
