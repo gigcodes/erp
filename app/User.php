@@ -223,6 +223,15 @@ class User extends Authenticatable implements JWTSubject
 
         return false;
     }
+    public function isEnvManager()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+        if (in_array('env-manager', $roles)) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * We can use this function to give same page rights like admin

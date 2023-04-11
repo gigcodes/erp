@@ -51,11 +51,12 @@
                         <tr>
                             <th width="10%">Date</th>
                             <th width="10%">User</th>
+                            <th width="10%">Working time</th>
                             <th width="10%">TimeDoctor Tracked</th>
                             <th width="10%">Hours Tracked With Task ID</th>
                             <th width="10%">Hours Tracked Without Task ID</th>
                             <th width="10%">Task id</th>
-                            <th width="10">Approved Hours</th>
+                            <th width="10%">Approved Hours</th>
                             <th width="10%" title="Time Diffrent">Time Diffrent</th>
                             <th width="10%">Tot Hours</th>
                             <th width="10%">Activity Levels</th>                            
@@ -66,6 +67,13 @@
                             <td class="expand-row-msg Website-task" data-name="userName" data-id="{{$index}}">
                                 <span class="show-short-userName-{{$index}}">{{ Str::limit($user['userName'], 5, '..')}}</span>
                                 <span style="word-break:break-all;" class="show-full-userName-{{$index}} hidden Website-task">{{$user['userName']}}</span>
+                            </td>
+                            <td>
+                                @if (isset($user['working_time']) && $user['working_time'] != 0)
+                                    {{number_format(($user['working_time']) / 60,2,".",",")}}
+                                @else
+                                    -
+                                @endif
                             </td>
                             <td>
                                 {{number_format($user['time_doctor_tracked_hours'] / 60,2,".",",")}}

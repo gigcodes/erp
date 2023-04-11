@@ -29,10 +29,30 @@ use Google\AdsApi\AdWords\v201809\o\TargetingIdeaService;
 use Google\AdsApi\Common\OAuth2TokenBuilder;
 use Google\AdsApi\Common\Util\MapEntries;
 use Illuminate\Http\Request;
+use App\GoogleAdsAccount;
+use Exception;
+use GetOpt\GetOpt;
+use Google\Ads\GoogleAds\Examples\Utils\ArgumentNames;
+use Google\Ads\GoogleAds\Examples\Utils\ArgumentParser;
+use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClient;
+use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClientBuilder;
+use Google\Ads\GoogleAds\Lib\V13\GoogleAdsException;
+use Google\Ads\GoogleAds\Util\V13\ResourceNames;
+use Google\Ads\GoogleAds\V13\Enums\KeywordPlanNetworkEnum\KeywordPlanNetwork;
+use Google\Ads\GoogleAds\V13\Errors\GoogleAdsError;
+use Google\Ads\GoogleAds\V13\Services\GenerateKeywordIdeaResult;
+use Google\Ads\GoogleAds\V13\Services\KeywordAndUrlSeed;
+use Google\Ads\GoogleAds\V13\Services\KeywordSeed;
+use Google\Ads\GoogleAds\V13\Services\UrlSeed;
+use Google\ApiCore\ApiException;
+use App\Helpers\GoogleAdsHelper;
 
 class googleAddsController extends Controller
 {
     const PAGE_LIMIT = 500;
+    private const CUSTOMER_ID = 3814448311;
+    private const LANGUAGE_ID = 1000;
+    private const PAGE_URL = null;
 
     public function index(Request $request, AdWordsServices $adWordsServices)
     {
@@ -41,173 +61,180 @@ class googleAddsController extends Controller
         $locations = $this->getGooglelocations();
 
         if ($request->ajax()) {
-            $adGroupId = 795625088;
+            return false;
+            try {
+                $adGroupId = 795625088;
 
-            $keyword = $request->keyword;
-            $location = $request->location;
-            $language = $request->language;
-            $network = $request->network;
-            $product = $request->product;
-            $gender = $request->gender;
-
-            $google_search = ($request->google_search == 'true') ? true : false;
-            $search_network = ($request->search_network == 'true') ? true : false;
-            $content_network = ($request->content_network == 'true') ? true : false;
-            $partner_search_network = ($request->partner_search_network == 'true') ? true : false;
-
-            $oAuth2Credential = (new OAuth2TokenBuilder())
-                ->fromFile(storage_path('adsapi_php.ini'))
-                ->build();
-
-            $session = (new AdWordsSessionBuilder())
-                   ->fromFile(storage_path('adsapi_php.ini'))
-                   ->withOAuth2Credential($oAuth2Credential)
-                   ->build();
-
-            $targetingIdeaService = $adWordsServices->get($session, TargetingIdeaService::class);
-
-            // Create selector.
-            $selector = new TargetingIdeaSelector();
-            $selector->setRequestType(RequestType::IDEAS);
-            $selector->setIdeaType(IdeaType::KEYWORD);
-            $selector->setRequestedAttributeTypes(
-                [
-                    AttributeType::KEYWORD_TEXT,
-                    AttributeType::SEARCH_VOLUME,
-                    AttributeType::AVERAGE_CPC,
-                    AttributeType::COMPETITION,
-                    AttributeType::CATEGORY_PRODUCTS_AND_SERVICES,
-                    AttributeType::EXTRACTED_FROM_WEBPAGE,
-                    AttributeType::IDEA_TYPE,
-                    AttributeType::TARGETED_MONTHLY_SEARCHES,
-                ]
-            );
-
-            $paging = new Paging();
-            $paging->setStartIndex(0);
-            $paging->setNumberResults(10);
-            $selector->setPaging($paging);
-
-            $searchParameters = [];
-            // Create related to query search parameter.
-            $relatedToQuerySearchParameter = new RelatedToQuerySearchParameter();
-            $relatedToQuerySearchParameter->setQueries(
-                [
-                    $keyword,
-                ]
-            );
-            $searchParameters[] = $relatedToQuerySearchParameter;
-            if (! empty($language)) {
-                // Create language search parameter (optional).
-                // The ID can be found in the documentation:
-                // https://developers.google.com/adwords/api/docs/appendix/languagecodes
-                $languageParameter = new LanguageSearchParameter();
-                $listLanguages = $languageParameter->getLanguages();
-                $english = new Language();
-                $english->setId($language);
-                $languageParameter->setLanguages([$english]);
-                $searchParameters[] = $languageParameter;
-            }
-
-            // Create network search parameter (optional).
-            $networkSetting = new NetworkSetting();
-            $networkSetting->setTargetGoogleSearch($google_search);
-            $networkSetting->setTargetSearchNetwork($search_network);
-            $networkSetting->setTargetContentNetwork($content_network);
-            $networkSetting->setTargetPartnerSearchNetwork($partner_search_network);
-
-            $networkSearchParameter = new NetworkSearchParameter();
-            $networkSearchParameter->setNetworkSetting($networkSetting);
-            $searchParameters[] = $networkSearchParameter;
-
-            // Optional: Set additional criteria for filtering estimates.
-            // See http://code.google.com/apis/adwords/docs/appendix/countrycodes.html
-            // for a detailed list of country codes.
-            // Set targeting criteria. Only locations and languages are supported.
-
-            if (! empty($location)) {
-                // Create language search parameter (optional).
-                // The ID can be found in the documentation:
-                // https://developers.google.com/adwords/api/docs/appendix/languagecodes
-
-                $locationParameter = new LocationSearchParameter();
-                $listLocation = $locationParameter->getLocations();
-                $unitedStates = new Location();
-                $unitedStates->setId($location);
-                $locationParameter->setLocations([$unitedStates]);
-                $searchParameters[] = $locationParameter;
-            }
-            if (! empty($gender)) {
-                // Optional: Use an existing ad group to generate ideas.
-                if (! empty($adGroupId)) {
-                    $seedAdGroupIdSearchParameter = new SeedAdGroupIdSearchParameter();
-                    $seedAdGroupIdSearchParameter->setAdGroupId($adGroupId);
-                    $searchParameters[] = $seedAdGroupIdSearchParameter;
-                }
-
-                $genderTarget = new Gender();
-                // ID for "male" criterion. The IDs can be found here:
-                // https://developers.google.com/adwords/api/docs/appendix/genders
-                $genderTarget->setId($gender);
-                $genderBiddableAdGroupCriterion = new BiddableAdGroupCriterion();
-                $genderBiddableAdGroupCriterion->setAdGroupId($adGroupId);
-                $genderBiddableAdGroupCriterion->setCriterion($genderTarget);
-
-                // Create an ad group criterion operation and add it to the list.
-                $genderBiddableAdGroupCriterionOperation = new AdGroupCriterionOperation();
-                $genderBiddableAdGroupCriterionOperation->setOperand(
-                    $genderBiddableAdGroupCriterion
+                $keyword = $request->keyword;
+                $location = $request->location;
+                $language = $request->language;
+                $network = $request->network;
+                $product = $request->product;
+                $gender = $request->gender;
+    
+                $google_search = ($request->google_search == 'true') ? true : false;
+                $search_network = ($request->search_network == 'true') ? true : false;
+                $content_network = ($request->content_network == 'true') ? true : false;
+                $partner_search_network = ($request->partner_search_network == 'true') ? true : false;
+    
+                $oAuth2Credential = (new OAuth2TokenBuilder())
+                    ->fromFile(storage_path('adsapi_php.ini'))
+                    ->build();
+                
+                $session = (new AdWordsSessionBuilder())
+                       ->fromFile(storage_path('adsapi_php.ini'))
+                       ->withOAuth2Credential($oAuth2Credential)
+                       ->build();
+    
+                $targetingIdeaService = $adWordsServices->get($session, TargetingIdeaService::class);
+    
+                // Create selector.
+                $selector = new TargetingIdeaSelector();
+                $selector->setRequestType(RequestType::IDEAS);
+                $selector->setIdeaType(IdeaType::KEYWORD);
+                $selector->setRequestedAttributeTypes(
+                    [
+                        AttributeType::KEYWORD_TEXT,
+                        AttributeType::SEARCH_VOLUME,
+                        AttributeType::AVERAGE_CPC,
+                        AttributeType::COMPETITION,
+                        AttributeType::CATEGORY_PRODUCTS_AND_SERVICES,
+                        AttributeType::EXTRACTED_FROM_WEBPAGE,
+                        AttributeType::IDEA_TYPE,
+                        AttributeType::TARGETED_MONTHLY_SEARCHES,
+                    ]
                 );
-                $genderBiddableAdGroupCriterionOperation->setOperator(Operator::ADD);
-
-                $searchParameters[] = $genderBiddableAdGroupCriterionOperation;
-            }
-
-            $selector->setSearchParameters($searchParameters);
-            $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
-
-            // Get keyword ideas.
-            $page = $targetingIdeaService->get($selector);
-
-            // Print out some information for each targeting idea.
-            $entries = $page->getEntries();
-            $finalData = [];
-            if ($entries !== null) {
-                foreach ($entries as $targetingIdea) {
-                    $data = MapEntries::toAssociativeArray($targetingIdea->getData());
-                    $keyword = $data[AttributeType::KEYWORD_TEXT]->getValue();
-                    $searchVolume = ($data[AttributeType::SEARCH_VOLUME]->getValue() !== null)
-                        ? $data[AttributeType::SEARCH_VOLUME]->getValue() : 0;
-                    $averageCpc = $data[AttributeType::AVERAGE_CPC]->getValue();
-                    $competition = $data[AttributeType::COMPETITION]->getValue();
-                    $categoryIds = ($data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue() === null)
-                        ? $categoryIds = ''
-                        : implode(
-                            ', ',
-                            $data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue()
-                        );
-                    $extractedFromWebpage = $data[AttributeType::EXTRACTED_FROM_WEBPAGE]->getValue();
-                    $ideaType = $data[AttributeType::IDEA_TYPE]->getValue();
-                    $tragetedMonthlySearches = $data[AttributeType::TARGETED_MONTHLY_SEARCHES]->getValue();
-
-                    $finalData[] = [
-                        'keyword' => $keyword,
-                        'searchVolume' => $searchVolume,
-                        'averageCpc' => ($averageCpc === null) ? 0 : $averageCpc->getMicroAmount(),
-                        'competition' => $competition,
-                        'categoryIds' => $categoryIds,
-                        'extractedFromWebpage' => $extractedFromWebpage,
-                        'ideaType' => $ideaType,
-                        'tragetedMonthlySearches' => $tragetedMonthlySearches,
-                    ];
+    
+                $paging = new Paging();
+                $paging->setStartIndex(0);
+                $paging->setNumberResults(10);
+                $selector->setPaging($paging);
+    
+                $searchParameters = [];
+                // Create related to query search parameter.
+                $relatedToQuerySearchParameter = new RelatedToQuerySearchParameter();
+                $relatedToQuerySearchParameter->setQueries(
+                    [
+                        $keyword,
+                    ]
+                );
+                $searchParameters[] = $relatedToQuerySearchParameter;
+                if (! empty($language)) {
+                    // Create language search parameter (optional).
+                    // The ID can be found in the documentation:
+                    // https://developers.google.com/adwords/api/docs/appendix/languagecodes
+                    $languageParameter = new LanguageSearchParameter();
+                    $listLanguages = $languageParameter->getLanguages();
+                    $english = new Language();
+                    $english->setId($language);
+                    $languageParameter->setLanguages([$english]);
+                    $searchParameters[] = $languageParameter;
                 }
+    
+                // Create network search parameter (optional).
+                $networkSetting = new NetworkSetting();
+                $networkSetting->setTargetGoogleSearch($google_search);
+                $networkSetting->setTargetSearchNetwork($search_network);
+                $networkSetting->setTargetContentNetwork($content_network);
+                $networkSetting->setTargetPartnerSearchNetwork($partner_search_network);
+    
+                $networkSearchParameter = new NetworkSearchParameter();
+                $networkSearchParameter->setNetworkSetting($networkSetting);
+                $searchParameters[] = $networkSearchParameter;
+    
+                // Optional: Set additional criteria for filtering estimates.
+                // See http://code.google.com/apis/adwords/docs/appendix/countrycodes.html
+                // for a detailed list of country codes.
+                // Set targeting criteria. Only locations and languages are supported.
+    
+                if (! empty($location)) {
+                    // Create language search parameter (optional).
+                    // The ID can be found in the documentation:
+                    // https://developers.google.com/adwords/api/docs/appendix/languagecodes
+    
+                    $locationParameter = new LocationSearchParameter();
+                    $listLocation = $locationParameter->getLocations();
+                    $unitedStates = new Location();
+                    $unitedStates->setId($location);
+                    $locationParameter->setLocations([$unitedStates]);
+                    $searchParameters[] = $locationParameter;
+                }
+                if (! empty($gender)) {
+                    // Optional: Use an existing ad group to generate ideas.
+                    if (! empty($adGroupId)) {
+                        $seedAdGroupIdSearchParameter = new SeedAdGroupIdSearchParameter();
+                        $seedAdGroupIdSearchParameter->setAdGroupId($adGroupId);
+                        $searchParameters[] = $seedAdGroupIdSearchParameter;
+                    }
+    
+                    $genderTarget = new Gender();
+                    // ID for "male" criterion. The IDs can be found here:
+                    // https://developers.google.com/adwords/api/docs/appendix/genders
+                    $genderTarget->setId($gender);
+                    $genderBiddableAdGroupCriterion = new BiddableAdGroupCriterion();
+                    $genderBiddableAdGroupCriterion->setAdGroupId($adGroupId);
+                    $genderBiddableAdGroupCriterion->setCriterion($genderTarget);
+    
+                    // Create an ad group criterion operation and add it to the list.
+                    $genderBiddableAdGroupCriterionOperation = new AdGroupCriterionOperation();
+                    $genderBiddableAdGroupCriterionOperation->setOperand(
+                        $genderBiddableAdGroupCriterion
+                    );
+                    $genderBiddableAdGroupCriterionOperation->setOperator(Operator::ADD);
+    
+                    $searchParameters[] = $genderBiddableAdGroupCriterionOperation;
+                }
+    
+                $selector->setSearchParameters($searchParameters);
+                $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
+    
+                // Get keyword ideas.
+                $page = $targetingIdeaService->get($selector);
+    
+                // Print out some information for each targeting idea.
+                $entries = $page->getEntries();
+                $finalData = [];
+                if ($entries !== null) {
+                    foreach ($entries as $targetingIdea) {
+                        $data = MapEntries::toAssociativeArray($targetingIdea->getData());
+                        $keyword = $data[AttributeType::KEYWORD_TEXT]->getValue();
+                        $searchVolume = ($data[AttributeType::SEARCH_VOLUME]->getValue() !== null)
+                            ? $data[AttributeType::SEARCH_VOLUME]->getValue() : 0;
+                        $averageCpc = $data[AttributeType::AVERAGE_CPC]->getValue();
+                        $competition = $data[AttributeType::COMPETITION]->getValue();
+                        $categoryIds = ($data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue() === null)
+                            ? $categoryIds = ''
+                            : implode(
+                                ', ',
+                                $data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue()
+                            );
+                        $extractedFromWebpage = $data[AttributeType::EXTRACTED_FROM_WEBPAGE]->getValue();
+                        $ideaType = $data[AttributeType::IDEA_TYPE]->getValue();
+                        $tragetedMonthlySearches = $data[AttributeType::TARGETED_MONTHLY_SEARCHES]->getValue();
+    
+                        $finalData[] = [
+                            'keyword' => $keyword,
+                            'searchVolume' => $searchVolume,
+                            'averageCpc' => ($averageCpc === null) ? 0 : $averageCpc->getMicroAmount(),
+                            'competition' => $competition,
+                            'categoryIds' => $categoryIds,
+                            'extractedFromWebpage' => $extractedFromWebpage,
+                            'ideaType' => $ideaType,
+                            'tragetedMonthlySearches' => $tragetedMonthlySearches,
+                        ];
+                    }
+                }
+    
+                if (empty($entries)) {
+                    echo "No related keywords were found.\n";
+                }
+                // echo "<pre>"; print_r($finalData); die;
+                $data = ['status' => 'success','data' => $finalData];
+                return $data;
+            } catch (\Exception $th) {
+                
+                return ['status' => 'error','message' => $th->getMessage()];
             }
-
-            if (empty($entries)) {
-                echo "No related keywords were found.\n";
-            }
-            // echo "<pre>"; print_r($finalData); die;
-            return $finalData;
         } else {
             return view('google.google-adds.index', compact('title', 'languages', 'locations'));
         }
@@ -495,5 +522,156 @@ class googleAddsController extends Controller
         });
 
         return $array;
+    }
+    public function generatekeywordidea(Request $request)
+    {   
+        if (! $request->ajax()) {
+            $title = 'Google Keyword Search';
+            $languages = $this->getGoogleLanguages();
+            $locations = $this->getGooglelocations();
+            return view('google.google-adds.index', compact('languages', 'locations','title'));
+        }
+
+        if($request->ajax()){
+            ini_set('max_execution_time', -1);
+            $account_id ='3814448311'; 
+            $account = GoogleAdsAccount::where('google_customer_id',$account_id)->first();
+            if (is_null($account)) {
+                return ['status' => 'error','message' => 'Goolgle Oauth Credencial missing.'];
+            } 
+            try {
+                $clientId = $account->oauth2_client_id;
+                $clientSecret = $account->oauth2_client_secret;
+                $refreshToken = $account->oauth2_refresh_token;
+                $developerToken = $account->google_adwords_manager_account_developer_token;
+                $loginCustomerId = $account->google_adwords_manager_account_customer_id;
+
+                $oAuth2Credential = (new OAuth2TokenBuilder())
+                                    ->withClientId($clientId)
+                                    ->withClientSecret($clientSecret)
+                                    ->withRefreshToken($refreshToken)
+                                    ->build();
+
+                $googleAdsClient = (new GoogleAdsClientBuilder())
+                                    ->withDeveloperToken($developerToken)
+                                    ->withLoginCustomerId($loginCustomerId)
+                                    ->withOAuth2Credential($oAuth2Credential)
+                                    ->build();
+
+           } catch (Exception $e) { 
+                return ['status' => 'error','message' => $e->getMessage()];
+           }
+            try {
+                if ($request->location) {
+                    return $result = self::runExample($googleAdsClient, self::CUSTOMER_ID, [$request->location], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
+                } else {
+                    return $result = self::runExample($googleAdsClient, self::CUSTOMER_ID, [], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
+                }
+            } catch (GoogleAdsException $googleAdsException) {
+                return ['status' => 'error','message' =>'GoogleAdsException Request ID. '.$googleAdsException->getRequestId()];
+                printf(
+                    "Request with ID '%s' has failed.%sGoogle Ads failure details:%s",
+                    $googleAdsException->getRequestId(),
+                    PHP_EOL,
+                    PHP_EOL
+                );
+                foreach ($googleAdsException->getGoogleAdsFailure()->getErrors() as $error) {
+                    /** @var GoogleAdsError $error */
+                    printf(
+                        "\t%s: %s%s",
+                        $error->getErrorCode()->getErrorCode(),
+                        $error->getMessage(),
+                        PHP_EOL
+                    );
+                }
+                exit(1);
+            } catch (ApiException $apiException) {
+                return ['status' => 'error','message' =>'API exeception Occured. '.$apiException->getMessage()];
+                printf(
+                    "ApiException was thrown with message '%s'.%s",
+                    $apiException->getMessage(),
+                    PHP_EOL
+                );
+                exit(1);
+            }
+        }
+    }
+
+     /**
+     * Runs the example.
+     *
+     * @param  GoogleAdsClient  $googleAdsClient the Google Ads API client
+     * @param  int  $customerId the customer ID
+     * @param  int[]  $locationIds the location IDs
+     * @param  int  $languageId the language ID
+     * @param  string[]  $keywords the list of keywords to use as a seed for ideas
+     * @param  string|null  $pageUrl optional URL related to your business to use as a seed for ideas
+     */
+    // [START GenerateKeywordIdeas]
+
+    public static function runExample(GoogleAdsClient $googleAdsClient, int $customerId, array $locationIds, int $languageId, array $keywords, ?string $pageUrl)
+    {   
+        $keywordPlanIdeaServiceClient = $googleAdsClient->getKeywordPlanIdeaServiceClient();
+        // Make sure that keywords and/or page URL were specified. The request must have exactly one
+        // of urlSeed, keywordSeed, or keywordAndUrlSeed set.
+        if (empty($keywords) && is_null($pageUrl)) {
+            throw new \InvalidArgumentException(
+                'At least one of keywords or page URL is required, but neither was specified.'
+            );
+        }
+        // Specify the optional arguments of the request as a keywordSeed, urlSeed,
+        // or keywordAndUrlSeed.
+        $requestOptionalArgs = [];
+        if (empty($keywords)) {
+            // Only page URL was specified, so use a UrlSeed.
+            $requestOptionalArgs['urlSeed'] = new UrlSeed(['url' => $pageUrl]);
+        } elseif (is_null($pageUrl)) {
+            // Only keywords were specified, so use a KeywordSeed.
+            $requestOptionalArgs['keywordSeed'] = new KeywordSeed(['keywords' => $keywords]);
+        } else {
+            // Both page URL and keywords were specified, so use a KeywordAndUrlSeed.
+            $requestOptionalArgs['keywordAndUrlSeed'] =
+                new KeywordAndUrlSeed(['url' => $pageUrl, 'keywords' => $keywords]);
+        }
+
+        // Create a list of geo target constants based on the resource name of specified location
+        // IDs.
+        
+        $geoTargetConstants = array_map(function ($locationId) {
+            return ResourceNames::forGeoTargetConstant($locationId);
+        }, $locationIds);
+        
+        // Generate keyword ideas based on the specified parameters.
+        $response = $keywordPlanIdeaServiceClient->generateKeywordIdeas(
+            [
+                // Set the language resource using the provided language ID.
+                'language' => ResourceNames::forLanguageConstant($languageId),
+                'customerId' => $customerId,
+                // Add the resource name of each location ID to the request.
+                ////// 'geoTargetConstants' => $geoTargetConstants,
+                // Set the network. To restrict to only Google Search, change the parameter below to
+                // KeywordPlanNetwork::GOOGLE_SEARCH.
+                'keywordPlanNetwork' => KeywordPlanNetwork::GOOGLE_SEARCH_AND_PARTNERS,
+            ] + $requestOptionalArgs
+        );
+        
+        $finalData = [];
+        // Iterate over the results and print its detail.
+
+        foreach ($response->iterateAllElements() as $result) {
+            /** @var GenerateKeywordIdeaResult $result */
+            $translateText = '--';
+            
+            $finalData[] = [
+                'keyword' => $result->getText(),
+                'avg_monthly_searches' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getAvgMonthlySearches(),
+                'competition' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getCompetition(),
+                'low_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getLowTopOfPageBidMicros(),
+                'high_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getHighTopOfPageBidMicros(),
+                'translate_text' => $translateText
+            ];
+        }
+        $data = ['status' => 'success','data' => $finalData];
+        return $data;
     }
 }
