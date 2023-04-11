@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\EnvDescription;
 use Brotzka\DotenvEditor\DotenvEditor;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -38,6 +39,10 @@ class EnvController extends Controller
         $env->addData([
             $request->get('key') => $request->get('value'),
         ]);
+        $envDescription = new EnvDescription();
+        $envDescription->key = $request->get('key');
+        $envDescription->description = $request->get('description');
+        $envDescription->save();
         return response()->json($response);
     }
 }

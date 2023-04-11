@@ -1,5 +1,4 @@
 @extends(config('dotenveditor.template', 'dotenv-editor::master'))
-
 {{--
 Feel free to extend your custom wrapping view.
 All needed files are included within this file, so nothing could break if you extend your own master view.
@@ -18,9 +17,11 @@ All needed files are included within this file, so nothing could break if you ex
                     <h2 class="page-heading">Env Manager</h2>
                       <input id="search-input" type="text" placeholder="Search..">
                   <h4>Total:- <div id="total"></div></h4>
+                  @if(auth()->user()->isAdmin() || auth()->user()->isEnvManager())
                     <button type="button" id="add-new" class="btn btn-primary float-right">
                         Add New
                     </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -100,6 +101,8 @@ All needed files are included within this file, so nothing could break if you ex
                   <td style="word-wrap: anywhere;">@{{ entry.key }}</td>
                   <td style="word-wrap: anywhere;">@{{ entry.value }}</td>
                   <td>
+                    @if(auth()->user()->isAdmin() || auth()->user()->isEnvManager())
+
                     <a href="javascript:;" @click="editEntry(entry)"
                     title="{{ trans('dotenv-editor::views.overview_table_popover_edit') }}">
                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
@@ -108,6 +111,7 @@ All needed files are included within this file, so nothing could break if you ex
                   title="{{ trans('dotenv-editor::views.overview_table_popover_delete') }}">
                   <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                 </a>
+                      @endif
               </td>
             </tr>
           </table>
@@ -199,6 +203,10 @@ All needed files are included within this file, so nothing could break if you ex
                 <div class="form-group">
                   <label for="newvalue">{!! __('dotenv-editor::views.addnew_label_value') !!}</label>
                   <input type="text" name="newvalue" id="newvalue" v-model="newEntry.value" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label for="newkey">Description</label>
+                  <input type="text" name="description" id="description" v-model="newEntry.description" class="form-control" required>
                 </div>
                 @if(env('APP_ENV') === 'local' || env('APP_ENV') === 'staging')
                 <input type="checkbox" id="add-to-live" name="add-to-live" value="1" style="height: 12px !important;">
@@ -408,7 +416,8 @@ All needed files are included within this file, so nothing could break if you ex
       ],
       newEntry: {
         key: "",
-        value: ""
+        value: "",
+        description: ""
       },
       details: {},
       currentBackup: {
@@ -448,6 +457,7 @@ All needed files are included within this file, so nothing could break if you ex
         var vm = this;
         var newkey = this.newEntry.key;
         var newvalue = this.newEntry.value;
+        var newDescription = this.newEntry.description;
         var checkedValue = $('#add-to-live:checked').val();
 
         $.ajax({
@@ -457,6 +467,7 @@ All needed files are included within this file, so nothing could break if you ex
             _token: "{!! csrf_token() !!}",
             key: newkey,
             value: newvalue,
+            description: newDescription,
             addToLive: checkedValue ? checkedValue : false
           },
           success: function(response){
