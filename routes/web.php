@@ -349,7 +349,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\GoogleCampaignLocationController;
-
+use App\Http\Controllers\MailBoxController;
 
 Auth::routes();
 
@@ -1370,6 +1370,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/category', [EmailController::class, 'category']);
     Route::post('email/status', [EmailController::class, 'status']);
     Route::post('email/update_email', [EmailController::class, 'updateEmail']);
+    Route::resource('mailbox', MailBoxController::class);
 
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
