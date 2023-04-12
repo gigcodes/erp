@@ -129,7 +129,6 @@ class RepositoryController extends Controller
 
             $branch = $request->branch;
             $composerupdate = request('composer', false);
-            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
             $cmd = 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/'.$repository->name.'/deploy_branch.sh '.$branch.' '.$composerupdate.' 2>&1';
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
