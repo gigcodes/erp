@@ -110,6 +110,16 @@ class ProductEnhancementController extends Controller
             ], 400);
         }
 
+        //sets initial status pending for finalApproval in product status histroy 
+        $data = [
+            'product_id' => $product->id,
+            'old_status' => $product->status_id,
+            'new_status' => StatusHelper::$finalApproval,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        \App\ProductStatusHistory::addStatusToProduct($data); 
+
         // Check if product is being enhanced
         if ($product->status_id != StatusHelper::$isBeingEnhanced) {
             \Log::channel('productUpdates')->debug('Received enhanced files for '.$product->id.' but the status is not '.StatusHelper::$isBeingEnhanced.' but '.$product->status_id);

@@ -20,5 +20,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PaymentReceiptSeeder::class);
         $this->call(TeamSeeder::class);
         $this->call(SettingsUpdate::class);
+        $this->call(ScheduleQuerySeeder::class);
     }
 }

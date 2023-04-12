@@ -20,6 +20,8 @@ class UserAvaibilityHistory extends Model
         'start_time',
         'end_time',
         'lunch_time',
+        'lunch_time_from',
+        'lunch_time_to',
         'created_at',
     ];
 

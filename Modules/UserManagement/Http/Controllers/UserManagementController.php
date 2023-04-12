@@ -18,6 +18,7 @@ use App\PermissionRequest;
 use App\Role;
 use App\Task;
 use App\Team;
+use App\TeamUser;
 use App\User;
 use App\UserAvaibility;
 use App\UserAvaibilityHistory;
@@ -283,6 +284,7 @@ class UserManagementController extends Controller
     public function records(Request $request)
     {
         $user = new User;
+        $isWhitelist = $request->is_whitelisted==1?1:0;
         if (! Auth::user()->isAdmin()) {
             $user = $user->where('users.id', Auth::user()->id);
         }
@@ -299,6 +301,9 @@ class UserManagementController extends Controller
                     ->orWhere('users.name', 'like', '%'.$request->keyword.'%')
                     ->orWhere('users.phone', 'like', '%'.$request->keyword.'%');
             });
+        }
+        if ($request->is_whitelisted) {
+            $user = $user->where('users.is_whitelisted', $isWhitelist);
         }
 
         $user = $user->select(['users.*', 'hubstaff_activities.starts_at'])
@@ -1210,7 +1215,7 @@ class UserManagementController extends Controller
     public function submitTeam($id, Request $request)
     {
         $user = User::find($id);
-        $isLeader = Team::where('user_id', $id)->first();
+        $isLeader = Team::where('user_id', $id)->orWhere('second_lead_id',$request->second_lead)->first();
         if ($isLeader) {
             return response()->json([
                 'code' => 500,
@@ -1228,7 +1233,15 @@ class UserManagementController extends Controller
         $team = new Team;
         $team->name = $request->name;
         $team->user_id = $id;
+        $team->second_lead_id = $request->second_lead;
         $team->save();
+
+        $team_user = TeamUser::where('team_id',$team->id)->where('user_id',$team->second_lead)->first();
+        if(!empty($team_user))
+        {
+            $team_user->delete();
+        }
+
         if (Auth::user()->hasRole('Admin')) {
             $members = $request->input('members');
             if ($members) {
@@ -1268,15 +1281,21 @@ class UserManagementController extends Controller
     {
         $team = Team::where('user_id', $id)->first();
         $team->user;
-        $team->members = $team->users()->pluck('name', 'id');
+        $team->members = $team->users()->where('users.id', '!=', $team->second_lead_id)->pluck('name', 'users.id');
         $totalMembers = $team->users()->count();
 
-        $users = User::where('id', '!=', $id)->where('is_active', 1)->get()->pluck('name', 'id');
+        $users = User::where('id', '!=', $id)->where('id', '!=', $team->second_lead_id)->where('is_active', 1)->get()->pluck('name', 'id');
+
+        if(!empty($team->second_lead_id))
+        {
+            $second_users = User::where('id',$team->second_lead_id)->first();
+        }
 
         return response()->json([
             'code' => 200,
             'team' => $team,
             'users' => $users,
+            'second_users' => !empty($second_users->name)?$second_users->name:'',
             'totalMembers' => $totalMembers,
         ]);
     }
@@ -1304,8 +1323,15 @@ class UserManagementController extends Controller
     {
         $team = Team::find($id);
 
+        $team_user = TeamUser::where('team_id',$team->id)->where('user_id',$request->second_lead)->first();
+
+        if(!empty($team_user))
+        {
+            $team_user->delete();
+        }
+
         if (Auth::user()->hasRole('Admin')) {
-            $team->update(['name' => $request->name]);
+            $team->update(['name' => $request->name , 'second_lead_id' => $request->second_lead]);
             $members = $request->input('members');
             if ($members) {
                 $team->users()->detach();
@@ -2471,22 +2497,23 @@ class UserManagementController extends Controller
             <tr>
                 <th width="5%">ID</th>
                 <th width="5%" style="word-break: break-all;">User</th>
-                <th width="20%" style="word-break: break-all;">From/To Date</th>
-                <th width="15%" style="word-break: break-all;">Start/End Time</th>
-                <th width="30%" style="word-break: break-all;">Available Days</th>
-                <th width="10%" style="word-break: break-all;">Lunch Time</th>
-                <th width="15%">Created at</th>
+                <th width="15%" style="word-break: break-all;">From/To Date</th>
+                <th width="13%" style="word-break: break-all;">Start/End Time</th>
+                <th width="25%" style="word-break: break-all;">Available Days</th>
+                <th width="13%" style="word-break: break-all;">Lunch Time</th>
+                <th width="13%">Created at</th>
             </tr>
         </thead>';
         if ($list->count()) {
             foreach ($list as $single) {
+                $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from. ' - ' . $single->lunch_time_to: "-";
                 $html[] = '<tr>
                     <td>'.$single->id.'</td>
                     <td>'.$single->username.'</td>
                     <td>'.$single->from.' - '.$single->to.'</td>
                     <td>'.$single->start_time.' - '.$single->end_time.'</td>
                     <td>'.(str_replace(',', ', ', $single->date) ?: '-').'</td>
-                    <td>'.($single->lunch_time ?: '-').'</td>
+                    <td>'.$lunch_time.'</td>
                     <td>'.$single->created_at.'</td>
                 </tr>';
             }
@@ -2518,6 +2545,20 @@ class UserManagementController extends Controller
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+    public function whitelistBulkUpdate(Request $request)
+    {
+        //remove all users from whitelist
+        if($request->action == 2)
+        {
+            User::where('is_whitelisted', 1)->update(['is_whitelisted' => 0]);
+        }
+        //add or remove selected users from whitelist
+        else
+        {
+            $whitelistValue = $request->action==1?1:0;
+            User::whereIn('id', $request->users)->update(['is_whitelisted' => $whitelistValue]);
         }
     }
 }

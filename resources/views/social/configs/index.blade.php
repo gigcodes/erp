@@ -52,8 +52,22 @@
                     </form>
                 </div>
                 <div class="pull-right">
+                
+                  <!-- <button type="button" class="btn btn-secondary" id="fb_redirect">Login Facebook</button> -->
+                  <a href="https://www.facebook.com/dialog/oauth?client_id=559475859451724&redirect_uri=https://erpstage.theluxuryunlimited.com/social/config/fbtokenback&scope=instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,instagram_manage_messages,manage_pages,pages_manage_posts,pages_show_list" style="
+    padding: 7px;
+    background-color: #6c757d;
+    color: #fff;
+    border-radius: 4px;
+    margin-left: 5px;
+    display: inline-block;
+    vertical-align: middle;
+">Login Facebook/Insta</a>
+                </div>
+                <div class="pull-right">
                   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</button>
                 </div>
+                
             </div>
         </div>
 
@@ -121,6 +135,41 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
       <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+        
+        $('#fb_redirect').click(function()
+        {
+            alert('yuuuuu');
+
+            $.ajax({
+                url:'{{route("social.config.fbtoken")}}',
+                dataType:'json',
+                data:{
+                    token:token,
+                },
+                success:function(result){
+                    if(result){
+                        $("#loading-image").hide();
+                        let html = `<option value="">-----Select Adsets-----</option>`;
+                        if(result){
+                            console.log("come toadsets adsets ");
+                            console.log(result);
+                            $.each(result,function(key,value){
+                                html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                            });
+                        }
+                        $('#adset_id').html(html);
+                    
+                    }else{
+                        $("#loading-image").hide();
+                        alert("token Expired");
+                    }
+                },
+                error:function(exx){
+
+                }
+            });
+
+        });
      //   $('#adset_id').click(function()
         $('#token').focusout(function()
        
@@ -194,9 +243,59 @@
         // });
 
 
-    function changesocialConfig(config_id) {
-      //  alert("ter");
-        $("#ConfigEditModal"+ config_id +"" ).modal('show');
+        function changesocialConfig(config) {
+        $("#ConfigEditModal"+ config.id +"" ).modal('show');
+
+        let token = $("#edit_token").val();
+
+        if(!token){
+                alert('please enter token first');
+            }
+            src = "{{ route('social.config.adsmanager') }}";
+            $.ajax({
+                url:'{{route("social.config.adsmanager")}}',
+                dataType:'json',
+                data:{
+                    token:token,
+                },
+                success:function(result){
+                    //console.log(result);
+                    if(result){
+                        $("#loading-image").hide();
+                        let htmledit = `<option value="">-----Select Ad-Manager-Account-----</option>`;
+                        if(result){
+                            console.log("come toadsets adsets ");
+                            console.log(result);
+                            $.each(result,function(key,value){
+                                console.log("-----------dieedit",value.name);
+                                if(config.ads_manager){
+                                    if(value.id == config.ads_manager){
+                                        htmledit +=  `<option value="${value.id}" selected>${value.name}</option>`;
+                                    }else{
+                                        htmledit += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                    }
+                                    
+                                }else{
+                                    htmledit += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                }
+                                
+
+                                
+                            });
+                            $('.adsmanager').html(htmledit);
+                        }
+                        
+                    
+                    }else{
+                        $("#loading-image").hide();
+                        alert("token Expired");
+                    }
+                },
+                error:function(exx){
+
+                }
+            });
+
     }
     
     function deleteConfig(config_id) {

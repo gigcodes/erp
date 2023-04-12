@@ -26,3 +26,6 @@
     </ul>
   </div>
 @endif
+
+<div class="alert alert-danger hidden unauthorised">
+</div>

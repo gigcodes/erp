@@ -371,6 +371,7 @@ class EmailDataExtractionController extends Controller
         $emailsLog = \App\Email::create([
             'model_id' => $email->id,
             'model_type' => \App\Email::class,
+            'type' => $email->type,
             'from' => $email->from,
             'to' => $email->to,
             'subject' => $email->subject,

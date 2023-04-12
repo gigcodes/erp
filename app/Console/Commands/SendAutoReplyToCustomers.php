@@ -175,7 +175,8 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractCompositions(): array
     {
-        $compositions = Compositions::all();
+        // $compositions = Compositions::all();
+        $compositions = [];
         $message = $this->activeMessage;
 
         $compositionsFound = [];

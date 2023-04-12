@@ -20,6 +20,7 @@ class VerifyCsrfToken extends Middleware
         //        'api/instagram/post',
         'duty/v1/calculate',
         'hubstaff/linkuser',
+        'time-doctor/link_time_doctor_user',
         'calendar',
         'calendar/*',
         'api/wetransfer-file-store',

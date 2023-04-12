@@ -83,7 +83,6 @@ class BrandController extends Controller
             });
             /*}*/
         }
-
         $keyword = request('keyword');
         if (! empty($keyWord)) {
             $brands->where(function ($q) use ($keyWord) {
@@ -105,7 +104,7 @@ class BrandController extends Controller
         if ($developers) {
             foreach ($developers as $_developer) {
                 if ($_developer->singleBrandTask) {
-                    $alldevs[$_developer->singleBrandTask->assignedUser->id] = $_developer->singleBrandTask->assignedUser->name;
+                    $alldevs[!empty($_developer->singleBrandTask->assignedUser)?$_developer->singleBrandTask->assignedUser->id:""] = !empty($_developer->singleBrandTask->assignedUser)?$_developer->singleBrandTask->assignedUser->name:"";
                 }
             }
         }
@@ -498,12 +497,12 @@ class BrandController extends Controller
                 $toBrand->references = implode(',', array_unique($mReference));
                 $toBrand->save();
                 $fromBrand->delete();
-                Activity::create([
+                /*Activity::create([
                     'subject_type' => 'Brand',
                     'subject_id' => $fromBrand->id,
                     'causer_id' => Auth::user()->id,
                     'description' => Auth::user()->name.' has merged '.$fromBrand->name.' to '.$toBrand->name,
-                ]);
+                ]);*/
 
                 return response()->json(['code' => 200, 'data' => []]);
             }
@@ -558,12 +557,12 @@ class BrandController extends Controller
             } else {
                 return response()->json(['message' => 'Brand unmerged successfully'], 200);
             }
-            Activity::create([
+            /*Activity::create([
                 'subject_type' => 'Brand',
                 'subject_id' => $fromBrand->id,
                 'causer_id' => Auth::user()->id,
                 'description' => Auth::user()->name.' has unmerged '.$fromBrand->name.' to '.$request->brand_name,
-            ]);
+            ]);*/
 
             return response()->json(['message' => 'Brand unmerged successfully',  'data' => []], 200);
         }

@@ -58,6 +58,7 @@ class SocialWebhookController extends Controller
      */
     public function webhook(Request $request)
     {
+        SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook => Request Body', ['data' => 'comming']);
         $data = json_decode($request->getContent(), true);
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook => Request Body', ['data' => $data]);
 

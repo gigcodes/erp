@@ -1,3 +1,18 @@
+# Flow1 Jobs
+1. `PushProductOnlyJob`: This job used to get single products, find all store websites and send in second job.
+2. `PushToMagento`: Second job created for each store website, and check basic conditions.
+3. `MagentoServiceJob`: It check all conditions and call Magento's rest API to push single product on single store website.
+    
+# Flow2 jobs
+## Condition Checking from final approved pages
+1. `Flow2ConditionCheckProductOnly`: This job used to get single products, find all store websites and send in second job
+2. `Flow2ConditionCheckBasic`: Second job created for each store website, and check basic conditions.
+3. `Flow2ConditionCheckAll`: It is checking all conditions and save status of all-conditions-checked in db-table
+
+## Push Product from condition checked page
+1. `Flow2PushProductOnlyJob`: This job used to get single products, find all store websites and send in second job.
+2. `Flow2PushToMagento`: Second job created for each store website, and call Magento's rest API to push single product on single store website.
+
 # Product Push Flow 1
 
 ## Product Push Journey
@@ -9,17 +24,20 @@ The product push journey starts from `pushProduct` function in the `ProductContr
     - `status_id` is `9`: *(9 represents the final approval status of a product)*
     - Grouped by `brand` and `category`
     - Default data fetching `limit` has set to `100`, this will be replaced if the `no_of_product` parameter has value
-2. ### Get store websites:
-   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteName` which returns the and array with list of store website ids which has these products. The flow to get the store website ids as follows:
-
+    - After product selection, it will pass all the selected products to in `pushproductonly` queue. Also passed `product`, total product(`no_of_product`) and current product order(`product_index`) to find them in Horizon and to be make all jobs are completed. Each queue well dispatched by `PushProductOnlyJob`.
+2. ### PushProductOnlyJob:
+    - This job is to get store websites by tag that have the same category & brand of the product and check if it must exist in the store_website table.
+    - **How work tag functionality:**
+        - This functionality is used get parent store website with all child website by using tag group.
+    - Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteNameByTag` which returns the and array with list of store websites which has these products. The flow to get the store website ids as follows:
     - **Get store website category:** Selected products will be looped to fetch all store categories from the `store_website_categories` which has a valid `remote_id` and which matches to the each product's `category_id`.
         - **Get store website ids from store website brands:** Fetched store website categories will be looped to get all the store website brands from the `store_website_brands` table. This will returns all the brands which matches the `store_website_id` of the each category and matches `brand_id` of each product get looped and which has a valid `magento_value`. The brands get from this steps will again loop to make an array (`$websiteArray`) of store websites ids.
         - **Get store website ids from the products which are landing page products:**  if a product has an entry in `landing_page_products` table, that will be checked here as first step. Then get all store websites which has `o-labels` string in the `title` and `cropper_color` is not `null`. This store websites will be looped and will be pushed to `$websiteArray` if it is not already exists.
 
-   After these steps `$websiteArray` with all store websites of each products will be returned.
+   After these steps it will return store websites from `store_websites` table with checking specified store website ids(`$websiteArray`) and groupping data by `tag_id` column.
 3. ### Start push to magento:
     - Loops the store websites and checks each website are exists. If the website doesn't exist, the error will be logged to `product_push_error_logs`.
-    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **waiting**.
+    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **initialization**.
     - A log will be added to `product_push_error_logs` table with necessary details like `request_data`, `response_data` and `response_status`.
     - At this stage, a queue will be created and product push job will be added to the queue.
 4.  ### Product push flow:
@@ -134,23 +152,25 @@ The product push condition check starts from `processProductsConditionsCheck` fu
     - `status_id` is `9`: *(9 represents the final approval status of a product)*
     - Grouped by `brand` and `category`
     - Default data fetching `limit` has set to `100`, this will be replaced if the `no_of_product` parameter has value
-2. **Setting `is_conditions_checked` flag as 1**
+    - After product selection, it will pass all the selected products to in `conditioncheckonly` queue. Also passed `product`, total product(`no_of_product`) and current product order(`product_index`) to find them in Horizon and to be make all jobs are completed. Each queue well dispatched by `ConditionCheckOnlyJob`.
+2. ### ConditionCheckOnlyJob:
+   - This job is to get store websites by tag that have the same category & brand of the product and check if it must exist in the store_website table.
+   - **Setting `is_conditions_checked` flag as 1**
    - Product conditions check started and is_conditions_checked set as 1
-3. ### Get store websites:
-   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteName` which returns the and array with list of store website ids which has these products. The flow to get the store website ids as follows:
+   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteNameByTag` which returns the and array with list of store websites which has these products. The flow to get the store website ids as follows:
 
     - **Get store website category:** Selected products will be looped to fetch all store categories from the `store_website_categories` which has a valid `remote_id` and which matches to the each product's `category_id`.
         - **Get store website ids from store website brands:** Fetched store website categories will be looped to get all the store website brands from the `store_website_brands` table. This will returns all the brands which matches the `store_website_id` of the each category and matches `brand_id` of each product get looped and which has a valid `magento_value`. The brands get from this steps will again loop to make an array (`$websiteArray`) of store websites ids.
         - **Get store website ids from the products which are landing page products:**  if a product has an entry in `landing_page_products` table, that will be checked here as first step. Then get all store websites which has `o-labels` string in the `title` and `cropper_color` is not `null`. This store websites will be looped and will be pushed to `$websiteArray` if it is not already exists.
 
-   After these steps `$websiteArray` with all store websites of each products will be returned.
-4. ### Start push to magento:
+   After these steps it will return store websites from `store_websites` table with checking specified store website ids(`$websiteArray`) and groupping data by `tag_id` column.
+3. ### Start to condition check:
     - Loops the store websites and checks each website are exists. If the website doesn't exist, the error will be logged to `product_push_error_logs`.
-    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **waiting**.
+    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **initialization**.
     - A log will be added to `product_push_error_logs` table with necessary details like `request_data`, `response_data` and `response_status`.
     - At this stage, a queue will be created and product push job will be added to the queue.
-5.  ### Product push condition check flow:
-    - The product push condition check flow starts from the `PushToMagento` job. As the first step of the job, product and website passed from the `pushProduct` function will be assigned to the `$product` and `$website` respectively.
+4.  ### Product push condition check flow:
+    - The product push condition check flow starts from the `ConditionCheckFirstJob` job. As the first step of the job, product and website passed from the `processProductsConditionsCheck` function will be assigned to the `$product` and `$website` respectively.
     - push to magento Conditions with `status` is `1` will be fetched from the `push_to_magento_conditions` table and assigned to `$conditionsWithIds` variable and then it will convert as array and will assign to `$conditions`.
     - Push to magento Conditions with `upteam_status` is `1` will be fetched from the `push_to_magento_conditions` table and assigned to `$upteamconditionsWithIds` variable and then it will convert as array and will assign to `$upteamconditions`.
     - Parent of the product's category will find and assign to `$topParent` variable with the `getTopParent` function in the `ProductHelper`.  Here the parent of the product will be fetched from the `categories` table.
@@ -188,7 +208,7 @@ The product push condition check starts from `processProductsConditionsCheck` fu
             - Check if the product has images or not. if the `check_if_images_exists` exists in the `$condition` or `$upteamconditions` this check will perform.
             - If the `check_if_images_exists` condition exists and the images are not found for this product,  the product push flow will stop and will add a log with `sync_status` as `image_not_found` and `message` as `Image(s) is needed for push product`.
     - If these checks done the product push process will move to MagentoService for further steps.
-6.  ### Product push condition check flow with MagentoService:
+5.  ### Product push condition check flow with MagentoService:
     - Here multiple checks of the product push will perform in the `pushProduct` function. A new row  will be inserted in to the `product_push_journey` along with the condition checked and status of the check`is_checked` as `1` for all the processes in this function.
         - **Condition Check 4 - Website token validation:**
             - Checks if the website has a valid token. If exists, the flow will continue, else the product push flow stop at this step and necessary logs will be updated.
@@ -205,7 +225,7 @@ The product push condition check starts from `processProductsConditionsCheck` fu
             - Checks if the product has a valid  product category
         - **Condition Check 9 - Product reference assignment:**
             - If the `assign_product_references` exists in `$conditions`, then the reference will be assigned
-7.  ### Product push condition check flow with assignOperations:
+6.  ### Product push condition check flow with assignOperations:
     - Here, gets all the default data and will be assigned to each variable for further calculations. A new row  will be inserted in to the `product_push_journey` along with the condition checked and status of the check`is_checked` as `1` for all the processes in this function.  Data fetches in this function as follows,
         - **Get all website ids** and assigns to `$this->websiteIds`. In `getWebsiteIds` function checks if this product has a row in the `customer_charities`, if exists, then the websites data belongs to that row will be returned from `customer_charity_website_stores` else website data will be fetched from the `store_websites` table.
         - **Get all website attributes** and assigns to `$this->websiteAttributes`. In `getWebsiteAttributes` function, it returns all the website attributes which belongs to the store website from the `store_website_attributes` table.
@@ -234,29 +254,31 @@ The product push conditions checked starts from `pushProductsToMagento` function
     - `status_id` is `153`: *(153 represents the product conditions checked status of a product)*
     - Grouped by `brand` and `category`
     - Default data fetching `limit` has set to `100`, this will be replaced if the `no_of_product` parameter has value
-2. **Setting `is_push_attempted` flag as 1**
+    - After product selection, it will pass all the selected products to in `pushproductflow2only` queue. Also passed `product`, total product(`no_of_product`) and current product order(`product_index`) to find them in Horizon and to be make all jobs are completed. Each queue well dispatched by `PushProductFlow2OnlyJob`.
+2. ### PushProductFlow2OnlyJob:
+    - This job is to get store websites by tag that have the same category & brand of the product and check if it must exist in the store_website table.
+   - **Setting `is_push_attempted` flag as 1**
    - Product push attempted started and is_push_attempted set as 1
-3. ### Get store websites:
-   Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteName` which returns the and array with list of store website ids which has these products. The flow to get the store website ids as follows:
+   - Store websites which are has the these products will identified in this step. For that the **ids** of  product that fetched in the **Products selection**  will be sent to `ProductHelper::getStoreWebsiteNameByTag` which returns the and array with list of store websites which has these products. The flow to get the store website ids as follows:
 
     - **Get store website category:** Selected products will be looped to fetch all store categories from the `store_website_categories` which has a valid `remote_id` and which matches to the each product's `category_id`.
         - **Get store website ids from store website brands:** Fetched store website categories will be looped to get all the store website brands from the `store_website_brands` table. This will returns all the brands which matches the `store_website_id` of the each category and matches `brand_id` of each product get looped and which has a valid `magento_value`. The brands get from this steps will again loop to make an array (`$websiteArray`) of store websites ids.
         - **Get store website ids from the products which are landing page products:**  if a product has an entry in `landing_page_products` table, that will be checked here as first step. Then get all store websites which has `o-labels` string in the `title` and `cropper_color` is not `null`. This store websites will be looped and will be pushed to `$websiteArray` if it is not already exists.
 
-   After these steps `$websiteArray` with all store websites of each products will be returned.
-4. ### Start push to magento:
+   After these steps it will return store websites from `store_websites` table with checking specified store website ids(`$websiteArray`) and groupping data by `tag_id` column.
+3. ### Start push to magento:
     - Loops the store websites and checks each website are exists. If the website doesn't exist, the error will be logged to `product_push_error_logs`.
-    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **waiting**.
+    - if the website exists, a log will be added to the `log_list_magentos` table with the `product_id`, `message`, `store_website_id`, `sync_status`, `languages` and `user_id`. At this point the `sync_status` is **initialization**.
     - A log will be added to `product_push_error_logs` table with necessary details like `request_data`, `response_data` and `response_status`.
     - At this stage, a queue will be created and product push job will be added to the queue.
 
-5.  ### Product push conditions checked flow:
-    - The product push flow starts from the `PushToMagentoJob` job. As the first step of the job, product and website passed from the `assignOperation` function will be assigned to the `$product` and `$website` respectively.
+4.  ### Product push conditions checked flow:
+    - The product push flow starts from the `ProductPushFlow2Job` job. As the first step of the job, product and website passed from the `assignOperation` function will be assigned to the `$product` and `$website` respectively.
     - push to magento Conditions with `status` is `1` will be fetched from the `push_to_magento_conditions` table and assigned to `$conditionsWithIds` variable and then it will convert as array and will assign to `$conditions`.
     - Push to magento Conditions with `upteam_status` is `1` will be fetched from the `push_to_magento_conditions` table and assigned to `$upteamconditionsWithIds` variable and then it will convert as array and will assign to `$upteamconditions`.
     - Parent of the product's category will find and assign to `$topParent` variable with the `getTopParent` function in the `ProductHelper`.  Here the parent of the product will be fetched from the `categories` table.
 
-6.  ### Product push conditions checked flow with assignOperations:
+5.  ### Product push conditions checked flow with assignOperations:
     - Here, gets all the default data and will be assigned to each variable for further calculations. A new row  will be inserted in to the `product_push_journey` along with the condition checked and status of the check`is_checked` as `1` for all the processes in this function.  Data fetches in this function as follows,
         - **Get all website ids** and assigns to `$this->websiteIds`. In `getWebsiteIds` function checks if this product has a row in the `customer_charities`, if exists, then the websites data belongs to that row will be returned from `customer_charity_website_stores` else website data will be fetched from the `store_websites` table.
         - **Get all website attributes** and assigns to `$this->websiteAttributes`. In `getWebsiteAttributes` function, it returns all the website attributes which belongs to the store website from the `store_website_attributes` table.
@@ -275,7 +297,7 @@ The product push conditions checked starts from `pushProductsToMagento` function
         -  **Gets store color** from the `store_website_colors` table and assigns to `$this->storeColor`.
         - **Gets pricing**  of the product from the `products` table and `store_website_product_prices` table and assigns to `$this->prices`.
 
-7. ### Product push conditions checked flow with assignProductOperation:
+6. ### Product push conditions checked flow with assignProductOperation:
     - The final stage of the product push happens in this function.
     - As the first step, it checks the product push type and define if it's a single product push or configurable product with children push:
         - If the `push_type` of the product's category is `0` and not `NULL` then it's single product push. The `$pushSingle` variable will set as `true`.
@@ -300,3 +322,18 @@ The product push conditions checked starts from `pushProductsToMagento` function
         - If push type is `configurable`, product images will be added to product in `_pushProduct` function. Here `configurable` is products with multiple size options. 
         - If push type is `simple_configurable`, product visibility will set as `1`. Here `simple_configurable` is products with one size option.
         - After this step it will follow the same steps of single product push.
+## Magento push status
+- This functionlity is used to view listing pushed product in magento.
+- The product push status check starts from `magentoPushStatusForMagentoCheck` function in the `ProductController`.
+-  pushed products will fetch from the `products` table with the following conditions:
+    - checking status `pushToMagento`(11) or `inMagento`(12)
+    - `is_push_attempted` is `1`
+    - `isUploaded` is `0`
+    - Default data fetching `limit` has set to `10`
+ - **Filter**
+    - There are eight filter provided in top of the page,filters are Product Id, Product Name,Brand, Category, Composition, Color, Price,Status
+    - When click on search icon button then it will apply filter and getting data.
+ - **Listing**
+    - After getting pushed product data then it will display in table grid.
+    
+    

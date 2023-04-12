@@ -62,6 +62,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name',
         'email',
+        'gmail',
         'phone',
         'password',
         'responsible_user',
@@ -79,6 +80,8 @@ class User extends Authenticatable implements JWTSubject
         'last_mail_sent_payment',
         'is_whitelisted',
         'is_task_planned',
+        'device_token',
+        'timezone',
     ];
 
     public function getIsAdminAttribute()
@@ -215,6 +218,15 @@ class User extends Authenticatable implements JWTSubject
     {
         $roles = $this->roles->pluck('name')->toArray();
         if (in_array('Admin', $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+    public function isEnvManager()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+        if (in_array('env-manager', $roles)) {
             return true;
         }
 

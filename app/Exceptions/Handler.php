@@ -50,6 +50,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if($exception instanceof \Symfony\Component\ErrorHandler\Error\FatalError){
+            return response()->json(['status' => 'failed', 'message' => 'Please check Fatal Error.. => '.$exception->getMessage(),'code'=>$exception->getCode()],500);
+        }
         if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
             return response()->json(['User have not permission for this page access.']);
         }

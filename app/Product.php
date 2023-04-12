@@ -7,6 +7,7 @@ namespace App;
  */
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
@@ -131,12 +132,15 @@ class Product extends Model
             $newCatID = $product->category;
             $oldCatID = $product->getOriginal('category');
 
+            $productData = ProductStatusHistory::where('product_id', $product->id)->get();
+
             if ($oldCatID != $newCatID && $newCatID > 1) {
                 \DB::table('products')->where('id', $product->id)->update(['status_id' => StatusHelper::$autoCrop]);
                 $data = [
                     'product_id' => $product->id,
                     'old_status' => $product->status_id,
                     'new_status' => StatusHelper::$autoCrop,
+                    'pending_status' => 0,
                     'created_at' => date('Y-m-d H:i:s'),
                 ];
                 \App\ProductStatusHistory::addStatusToProduct($data);
@@ -149,6 +153,7 @@ class Product extends Model
                     'product_id' => $product->id,
                     'old_status' => $old_status_id,
                     'new_status' => $new_status_id,
+                    'pending_status' => 0,
                     'created_at' => date('Y-m-d H:i:s'),
                 ];
                 \App\ProductStatusHistory::addStatusToProduct($data);
@@ -168,6 +173,7 @@ class Product extends Model
                     'product_id' => $model->id,
                     'old_status' => $model->status_id,
                     'new_status' => $model->status_id,
+                    'pending_status' => 0,
                     'created_at' => date('Y-m-d H:i:s'),
                 ];
                 \App\ProductStatusHistory::addStatusToProduct($data);
@@ -616,6 +622,11 @@ class Product extends Model
     public function suppliers_info()
     {
         return $this->hasMany(\App\ProductSupplier::class);
+    }
+
+    public function attribute_histories()
+    {
+        return $this->hasMany(\App\ProductUpdatedAttributeHistory::class,'product_id','id')->groupBy('attribute_name');
     }
 
     public function private_views()
@@ -1241,6 +1252,56 @@ class Product extends Model
     {
         $parentcate = ($this->category > 0 && $this->categories) ? $this->categories->parent_id : null;
 
+         // sets initial status pending for requestForExternalScraper in product status histroy
+        $request_external_scraper_status_data = [
+            'product_id' => $this->id,
+            'old_status' => $this->status_id,
+            'new_status' => StatusHelper::$requestForExternalScraper,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        \App\ProductStatusHistory::addStatusToProduct($request_external_scraper_status_data);
+
+         // sets initial status pending for unknownColor in product status histroy
+         $unknown_color_status = [
+            'product_id' => $this->id,
+            'old_status' => $this->status_id,
+            'new_status' => StatusHelper::$unknownColor,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        \App\ProductStatusHistory::addStatusToProduct($unknown_color_status);
+
+        // sets initial status pending for unknownComposition in product status histroy
+        $unknown_composition_status = [
+            'product_id' => $this->id,
+            'old_status' => $this->status_id,
+            'new_status' => StatusHelper::$unknownComposition,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        \App\ProductStatusHistory::addStatusToProduct($unknown_composition_status);
+
+         // sets initial status pending for unknownMeasurement in product status histroy
+         $unknown_measurement_status = [
+            'product_id' => $this->id,
+            'old_status' => $this->status_id,
+            'new_status' => StatusHelper::$unknownMeasurement,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        \App\ProductStatusHistory::addStatusToProduct($unknown_measurement_status);
+
+         // sets initial status pending for unknownMeasurement in product status histroy
+         $unknown_size_status = [
+            'product_id' => $this->id,
+            'old_status' => $this->status_id,
+            'new_status' => StatusHelper::$unknownSize,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        \App\ProductStatusHistory::addStatusToProduct($unknown_size_status);
+
         if (empty($this->name)
             || $this->name == '..'
             || empty($this->short_description)
@@ -1740,5 +1801,10 @@ class Product extends Model
     public function isCharity()
     {
         return CustomerCharity::where('product_id', $this->id)->first() ? true : false;
+    }
+
+    public function scopeStatus(Builder $query, int $status): void
+    {
+        $query->where('status_id',$status);
     }
 }

@@ -17,23 +17,49 @@
 @endsection
 
 @section('content')
+    <div class="mt-3 col-md-12">
     <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+        <img id="loading-image" src="{{asset('/images/pre-loader.gif')}}" style="display:none;"/>
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Google Ads Logs</h2>
-            <div class="pull-right mr-4">
-                <button type="button" class="btn btn-image refresh-table" title="Refresh"><img src="/images/resend2.png" /></button>
-                <a href="{{ route('googleadsaccount.index') }}" class="custom-button btn">Back</a>
-            </div>
 
+            <div class="pull-left">
+                <form action="{{route('googleadslogs.index')}}" method="get">
+
+                    <div class="col-md-3 pl-0 pr-1">
+                        <select class="browser-default custom-select" id="type" name="type" style="height: auto">
+                            <option value="">Type</option>
+                            <option value="SUCCESS" {{(request()->get('type')=='SUCCESS')?'selected':''}}>SUCCESS</option>
+                            <option value="ERROR" {{(request()->get('type')=='ERROR')?'selected':''}}>ERROR</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 pr-2">
+                        <input name="user_name" type="text" class="form-control" value="{{isset($_GET['user_name'])?$_GET['user_name']:''}}" placeholder="User Name" id="user_name">
+                    </div>
+
+                    <div class="col-md-2 pr-1">
+                        <input name="module" type="text" class="form-control" value="{{isset($_GET['module'])?$_GET['module']:''}}" placeholder="Module Name" id="module">
+                    </div>
+
+                    <div class="col-md-2 pr-1">
+                        <input name="message" type="text" class="form-control" value="{{isset($_GET['message'])?$_GET['message']:''}}" placeholder="Message" id="message">
+                    </div>
+
+                    <div class="col-md-2 pr-1">
+                        <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
+                        <a href="{{route('googleadslogs.index')}}" type="button" class="btn btn-image refresh-table" title="Refresh"><img src="{{asset('/images/resend2.png')}}" /></a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     @include('partials.flash_messages')
 
-    <div class="mt-3 col-md-12">
+
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>

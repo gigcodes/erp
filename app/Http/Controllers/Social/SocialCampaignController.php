@@ -13,6 +13,7 @@ use Facebook\Facebook;
 use Illuminate\Http\Request;
 use Response;
 use Session;
+use App\Helpers\SocialHelper;
 
 class SocialCampaignController extends Controller
 {
@@ -48,10 +49,7 @@ class SocialCampaignController extends Controller
         $websites = \App\StoreWebsite::select('id', 'title')->get();
 
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
-
-
-
-
+        
         if(!empty($request->date))
         {
             $campaigns->where('created_at', 'LIKE', '%'.$request->date.'%');
@@ -169,14 +167,14 @@ class SocialCampaignController extends Controller
         
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-        $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
-        //$this->ad_acc_id = 'act_723851186073937';
+        //$this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
+        $this->ad_acc_id = $config->ads_manager;
         
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
                       //      dd($data);
-                    $this->ad_acc_id = $config->ads_manager; 
+                    //$this->ad_acc_id = $config->ads_manager; 
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
                     $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/campaigns';
@@ -368,8 +366,9 @@ class SocialCampaignController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $fb->get('/me/adaccounts', $token);
-            
+            // $response = $fb->get('/me/adaccounts', $token); //Old
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token); //New using graph API
+            $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error

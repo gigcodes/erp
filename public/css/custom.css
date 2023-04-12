@@ -2489,7 +2489,21 @@ table {
   background-color: #28a745 !important;
   color: #ffffff !important;
 }
-
+.custom-select2 .select2-container--default {
+  width: 100% !important;
+}
+.custom-select2 .select2-container .select2-selection--multiple .select2-selection__rendered {
+  display: block;
+}
+.quick-description {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+  max-width: 140px;
+  height: 1.2em;
+  white-space: nowrap;
+}
 .zabbix .modal-body{
   max-height: 500px;
   overflow-y: scroll;
@@ -2756,6 +2770,20 @@ button.show-task-history{
 .add-json{
   margin-top: -5px;
   margin-left: 10px
+}
+
+.twilio-manage-tones audio {
+  height: 30px;
+  margin: 10px 0;
+}
+
+.reserved-calls-table table tbody tr td,
+.missed-call-table table tbody tr td {
+  word-break: break-all;
+}
+
+#passwordSendEmailModal .select2.select2-container.select2-container--default, #assetsPermissionModal .select2.select2-container.select2-container--default{
+  width: 100% !important;
 }
 
 @media (min-width: 992px){

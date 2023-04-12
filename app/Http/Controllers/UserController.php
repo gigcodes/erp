@@ -115,11 +115,12 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
+            'gmail' => 'sometimes|nullable|email',
             'phone' => 'sometimes|nullable|integer|unique:users,phone',
             'password' => 'required|same:confirm-password',
             'hourly_rate' => 'numeric',
             'currency' => 'string',
-
+            'timezone' => 'required',
         ]);
 
         $input = $request->all();
@@ -243,6 +244,7 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
+            'gmail' => 'sometimes|nullable|email',
             'phone' => 'sometimes|nullable|integer|unique:users,phone,'.$id,
             'password' => 'same:confirm-password',
             'roles' => 'required',
@@ -692,6 +694,7 @@ class UserController extends Controller
                 'user_id' => $request->user_id ?? null,
                 'other_user_name' => $request->other_user_name ?? null,
                 'notes' => $request->comment ?? null,
+                'source' => 'system',
             ]);
 
             $userID = $request->user_id ?? null;
@@ -699,6 +702,8 @@ class UserController extends Controller
             if ($userID) {
                 $user = \App\User::find($userID);
                 if ($user) {
+                    $user->is_whitelisted = 1;
+                    $user->save();
                     $params = [];
                     $params['user_id'] = $userID;
                     $params['message'] = 'Your ip address '.$request->ip.'  whitelist request has been approved';
@@ -719,10 +724,17 @@ class UserController extends Controller
     {
         if ($request->usersystemid) {
             $row = UserSysyemIp::where('id', $request->usersystemid)->first();
-
+            $userID = $row->user_id ?? null;
             shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f delete -n '.$row->index ?? '');
 
             $row->delete();
+            if ($userID) {
+                $user = \App\User::find($userID);
+                if ($user) {
+                    $user->is_whitelisted = 0;
+                    $user->save();
+                }
+            }
 
             return response()->json(['code' => 200, 'data' => 'Success']);
         }
@@ -765,11 +777,14 @@ class UserController extends Controller
                                 'user_id' => $chatMessage->erp_user ?? $chatMessage->user_id,
                                 'other_user_name' => $request->other_user_name ?? null,
                                 'notes' => 'Added from chat messages',
+                                'source' => 'message',
                             ]);
 
                             if ($userID) {
                                 $user = \App\User::find($userID);
                                 if ($user) {
+                                    $user->is_whitelisted = 1;
+                                    $user->save();
                                     $params = [];
                                     $params['user_id'] = $userID;
                                     $params['message'] = 'Your ip address '.$value.'  whitelist request has been approved';
@@ -790,5 +805,58 @@ class UserController extends Controller
         }
 
         return response()->json(['code' => 500, 'message' => 'Message record not found!']);
+    }
+    public function bulkDeleteSystemIp(Request $request)
+    {
+        try{
+            $systemIps = UserSysyemIp::get();
+            if(!empty($systemIps))
+            {
+                foreach($systemIps as $systemIp)
+                {
+                    $userID = $systemIp->user_id ?? null;
+                    shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f delete -n '.$systemIp->index ?? '');
+                    $systemIp->delete();
+                    if ($userID) {
+                        $user = \App\User::find($userID);
+                        if ($user) {
+                            $user->is_whitelisted = 0;
+                            $user->save();
+                        }
+                    }
+                }
+                return response()->json(['code' => 200, 'data' => 'Success']);
+            }
+        } catch (\Throwable $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+    public function addSystemIpFromEmail(Request $request)
+    {
+        if($request->email)
+        {
+            $user = \App\User::where('email',$request->email)->first();
+            if(!empty($user))
+            {
+                UserSysyemIp::create([
+                    'index_txt' => $request->index_txt ?? 'null',
+                    'ip' => $request->ip,
+                    'user_id' => $user->id ?? null,
+                    'notes' => $request->comment ?? null,
+                    'source' => 'email',
+                ]);  
+                $user->is_whitelisted = 1;
+                $user->save(); 
+                $params = [];
+                $params['user_id'] = $user->id;
+                $params['message'] = 'Your ip address '.$request->ip.'  whitelist request has been approved';
+                // send chat message
+                $chat_message = \App\ChatMessage::create($params);
+                // send
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+            }
+            return response()->json(['code' => 200, 'data' => 'Success']);
+        }
+        return response()->json(['code' => 500, 'data' => 'Error occured!']);
     }
 }

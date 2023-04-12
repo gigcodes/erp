@@ -59,6 +59,8 @@ class GoogleAdsCampaign extends Model
         'ad_rotation',
         'campaign_response',
         'status',
+        'app_id',
+        'app_store',
     ];
 
     const CAHANNEL_TYPE = [
@@ -79,4 +81,19 @@ class GoogleAdsCampaign extends Model
         'DISPLAY_SMART_CAMPAIGN' => 'Display smart campaign',
         'DISPLAY_GMAIL_AD' => 'Display gmail ad',
     ];
+
+    public function googleAccount()
+    {
+        return $this->belongsTo(GoogleAdsAccount::class,'account_id');
+    }
+    
+    public function account()
+    {
+        return $this->hasOne(\App\GoogleAdsAccount::class, 'id', 'account_id');
+    }
+
+    public function target_languages()
+    {
+        return $this->hasMany(\App\Models\GoogleCampaignTargetLanguage::class, 'adgroup_google_campaign_id', 'google_campaign_id');
+    }
 }

@@ -61,8 +61,8 @@
 	</form>
 	<?php $typeBtn = $logBtn->type ?? '';?>
 	<button type='button' class='btn custom-button float-right mr-3 truncate'>Truncate Log</button>
-	<a href="/database-log/enable" class="btn custom-button float-right mr-3 " style="@if ($typeBtn == 'Enable')  background-color: #28a745 !important; @endif">Enabled</a>
-	<a href="/database-log/disable" class="btn custom-button float-right mr-3 "  style="@if ($typeBtn == 'Disable') background-color: #ffc107 !important; @endif">Disable</a>
+	<a href="/admin/database-log/enable" class="btn custom-button float-right mr-3 " style="@if ($typeBtn == 'Enable')  background-color: #28a745 !important; @endif">Enabled</a>
+	<a href="/admin/database-log/disable" class="btn custom-button float-right mr-3 "  style="@if ($typeBtn == 'Disable') background-color: #ffc107 !important; @endif">Disable</a>
 	<button style='padding:3px;' type='button' class='btn custom-button float-right mr-3 history' data-toggle='modal' data-target='#slow_loh_history_model'>Log History</button>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
@@ -118,6 +118,9 @@
 				@endforeach
 			</tbody>
 		</table>
+		<div class="d-flex justify-content-center">
+			{!! $databaseLogs->links() !!}
+		</div>
 	</div>
 
 	<div id="chat-list-history" class="modal fade" role="dialog">
@@ -227,7 +230,7 @@
 	});
 	$(document).on('click', '.truncate', function (e) {
 		$.ajax({
-			url: BASE_URL + "/database-log/truncate",
+			url: BASE_URL + "/admin/database-log/truncate",
 			method: "get",
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

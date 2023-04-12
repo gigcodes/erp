@@ -42,7 +42,6 @@ class ChatMessagesController extends Controller
         $limit = $request->get('limit', 3);
         $loadAttached = $request->get('load_attached', 0);
         $loadAllMessages = $request->get('load_all', 0);
-
         // Get object (customer, vendor, etc.)
         switch ($request->object) {
             case 'customer':
@@ -126,10 +125,12 @@ class ChatMessagesController extends Controller
                 $object = TestSuites::find($request->object_id);
                 //dd($object);
                 break;
+            case 'timedoctor':
+                $object = User::find($request->object_id);
+                break;
             default:
                 $object = Customer::find($request->object);
         }
-
         // Set raw where query
         $rawWhere = "(message!='' or media_url!='')";
 
@@ -153,7 +154,6 @@ class ChatMessagesController extends Controller
         }
 
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
-
         if ($request->object == 'SOP') {
             $chatMessages = ChatMessage::where('sop_user_id', $object->id);
         }
@@ -180,6 +180,10 @@ class ChatMessagesController extends Controller
 
         if ($request->keyword != null) {
             $chatMessages = $chatMessages->where('message', 'like', '%'.$request->keyword.'%'); //Purpose - solve issue for search message , Replace form whereDate to where - DEVTASK-4020
+        }
+
+        if ($request->object == 'timedoctor') {
+            $chatMessages = ChatMessage::where('time_doctor_activity_user_id', $object->id);
         }
 
         $chatMessages = $chatMessages->skip($skip)->take($limit);
@@ -278,7 +282,6 @@ class ChatMessagesController extends Controller
                 }
             }
             // Create empty media array
-
             $media = [];
             $mediaWithDetails = [];
             $productId = null;
@@ -351,7 +354,6 @@ class ChatMessagesController extends Controller
             } else {
                 $textMessage = htmlentities($chatMessage->message);
             }
-            //dd($object);
             $isOut = ($chatMessage->number != $object->phone) ? true : false;
             //check for parent message
             $textParent = null;
@@ -459,8 +461,8 @@ class ChatMessagesController extends Controller
                     'sop_category' => @$sopdata->category,
                     'sop_content' => @$sopdata->content,
                     'inout' => ($isOut) ? 'out' : 'in',
-                    'sendBy' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites') ? User::where('id', $chatMessage->sent_to_user_id)->value('name') : (($isOut) ? 'ERP' : $objectname),
-                    'sendTo' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites') ? User::where('id', $chatMessage->user_id)->value('name') : (($isOut) ? $object->name : 'ERP'),
+                    'sendBy' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites' || $request->object == 'developer_task') ? User::where('id', $chatMessage->sent_to_user_id)->value('name') : (($isOut) ? 'ERP' : $objectname),
+                    'sendTo' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites' || $request->object == 'developer_task') ? User::where('id', $chatMessage->user_id)->value('name') : (($isOut) ? $object->name : 'ERP'),
                     'message' => $textMessage,
                     'parentMessage' => $textParent,
                     'media_url' => $chatMessage->media_url,

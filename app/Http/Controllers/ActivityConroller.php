@@ -392,14 +392,14 @@ class ActivityConroller extends Controller
 
     public static function create($subject_id, $subject_type, $description)
     {
-        $activity = new Activity();
+        /*$activity = new Activity();
 
         $activity->create([
             'subject_id' => $subject_id,
             'subject_type' => $subject_type,
             'causer_id' => \Auth::id() ?? 0,
             'description' => $description,
-        ]);
+        ]);*/
     }
 
     public function getStartAndEndDateByWeek($week_range)

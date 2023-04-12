@@ -188,14 +188,13 @@
                     </div>
 
                     @if (auth()->user()->isReviwerLikeAdmin())
-                        <div class="col-md-2 pd-sm">
-                            <select class="form-control globalSelect2" data-ajax="{{ route('development.userslist') }}" multiple name="assigned_to[]" id="assigned_to" data-placeholder="Search Users By Name">
-                                <option value="">Assigned To</option>
-                                @if($userslist)
-                                    @foreach ($userslist as $id => $user)
-                                        <option value="{{ $user['id'] }}" selected>{{ $user['name'] }}</option>
-                                    @endforeach
-                                @endif
+                        <div class="col-md-2 pd-sm custom-select2">
+                            <select class="w-100 js-example-basic-multiple js-states"
+                                id="assigned_to" multiple="multiple" name="assigned_to[]" data-placeholder="Search Users By Name">
+                                @foreach ($users as $id => $user)
+                                    <option @if($request->get('assigned_to')){{ (in_array($id, $request->get('assigned_to'))) ? 'selected' : '' }}@endif
+                                            value="{{ $id }}">{{ $user }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-2 pd-sm">
@@ -718,6 +717,18 @@
                 }
             });
 
+        });
+
+        $(document).on('change', '#time_doctor_account', function(){
+            var account_id = $(this).val();
+            var url = "{{ route('select2.time_doctor_projects_ajax') }}"+"?account_id="+account_id;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response) {
+                    $("#time_doctor_project").html(response);
+                }
+            });
         });
     </script>
 
@@ -1906,6 +1917,6 @@
                 });
         }
 
-
+    $("#assigned_to").select2();
     </script>
 @endsection

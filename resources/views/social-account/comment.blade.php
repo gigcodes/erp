@@ -13,6 +13,14 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+        table {
+table-layout: fixed !important;
+}
+
+table tr td {
+max-width: 100% !important;
+overflow-x: auto !important;
+}
 
     </style>
 @endsection
@@ -31,13 +39,14 @@
         </div>
 
     </div>
-    <input id="config-id" class="config-id" type="hidden" value="{{ $post->social_config_id }}">
+    <input id="config-id" class="config-id" type="hidden" value="{{ $post->social_config_id ?? '' }}">
     <div class="mt-3">
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Comment</th>
+                    <th width="5%">ID</th>
+                    <th>Comment Original</th>
+                    <th>Comment With Translation</th>
                     <th>Reply</th>
                     <th>User</th>
                     <th>Created At</th>
@@ -50,30 +59,41 @@
                         <td style="width:50%">
                             <div style="word-break: break-word;">
                                 @if ($value->message) {{ $value->message }} @else <small class="text-secondary">(No caption added)</small> @endif
+                                <!-- @if ($value->translation) {{ $value->translation }} @else <small class="text-secondary">(No caption added)</small> @endif -->
                             </div>
                             @if ($value->photo)
                                 <img src="{{ $value->photo }}" width="100" alt="{{ $value->message }}">
                             @endif
                         </td>
+                        <td style="width:50%">
+                            <div style="word-break: break-word;">
+                                <!-- @if ($value->message) {{ $value->message }} @else <small class="text-secondary">(No caption added)</small> @endif -->
+                                @if ($value->translation) {{ $value->translation }} @else <small class="text-secondary">(No caption added)</small> @endif
+                            </div>
+                            @if ($value->photo)
+                                <img src="{{ $value->photo }}" width="100" alt="{{ $value->message }}">
+                            @endif
+                        </td>
+                     
                         <td class="message-input p-0 pt-2 pl-3">
-                        <div class="cls_textarea_subbox">
-                            <div class="btn-toolbar" role="toolbar">
-                                <div class="w-75">
-                                    <textarea rows="1"
-                                        class="form-control quick-message-field cls_quick_message addToAutoComplete"
-                                        name="message" placeholder="Message" id="textareaBox_{{ $value->comment_id }}"
-                                        data-customer-id="{{ $value->comment_id }}"></textarea>
-                                </div>
-                                <div class="w-25 pl-2" role="group" aria-label="First group">
-                                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image send-message1"
-                                        data-id="textareaBox_{{ $value->comment_id }}">
-                                        <img src="/images/filled-sent.png">
-                                    </button>
-                                   
+                            <div class="cls_textarea_subbox">
+                                <div class="btn-toolbar" role="toolbar">
+                                    <div class="w-75">
+                                        <textarea rows="1"
+                                            class="form-control quick-message-field cls_quick_message addToAutoComplete"
+                                            name="message" placeholder="Message" id="textareaBox_{{ $value->comment_id }}"
+                                            data-customer-id="{{ $value->comment_id }}"></textarea>
+                                    </div>
+                                    <div class="w-25 pl-2" role="group" aria-label="First group">
+                                        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image send-message1"
+                                            data-id="textareaBox_{{ $value->comment_id }}">
+                                            <img src="/images/filled-sent.png">
+                                        </button>
+                                    
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </td>
+                        </td>
 
                         <td>{{ $value->user->name }}</td>
                         <td>{{ $value->time }}</td>

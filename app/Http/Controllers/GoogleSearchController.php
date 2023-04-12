@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\HashTag;
+use App\InstagramPosts;
 use App\Setting;
 use Illuminate\Http\Request;
 
@@ -319,41 +320,41 @@ class GoogleSearchController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return array of search results
      */
-//    private function getFilteredGoogleSearchResults(Request $request) {
-//        $sortBy = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
-//        $orderBy = ($request->input('orderby') == '') ? 'DESC' : $request->input('orderby');
-//
-//        // Base query
-//        $instagramPosts = InstagramPosts::orderBy($sortBy, $orderBy)
-//            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
-//            ->select(['instagram_posts.*','hash_tags.hashtag']);
-//
-//        //Pick google search result from DB
-//        $instagramPosts->where('source', '=', 'google');
-//
-//        // Apply hashtag filter
-//        if (!empty($request->hashtag)) {
-//            $instagramPosts->where('hash_tags.hashtag', $request->hashtag);
-//        }
-//
-//        // Apply location filter
-//        if (!empty($request->location)) {
-//            $instagramPosts->where('location', 'LIKE', '%' . $request->location . '%');
-//        }
-//
-//        // Apply post filter
-//        if (!empty($request->post)) {
-//            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
-//        }
-//
-//        // Apply posted at filter
-//        if (!empty($request->date)) {
-//            $instagramPosts->where('posted_at', date('Y-m-d H:i:s', strtotime($request->date)));
-//        }
-//
-//        // Return google search results
-//        return $instagramPosts;
-//    }
+    private function getFilteredGoogleSearchResults(Request $request) {
+        $sortBy = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
+        $orderBy = ($request->input('orderby') == '') ? 'DESC' : $request->input('orderby');
+
+        // Base query
+        $instagramPosts = InstagramPosts::orderBy($sortBy, $orderBy)
+            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
+            ->select(['instagram_posts.*','hash_tags.hashtag']);
+
+        //Pick google search result from DB
+        $instagramPosts->where('source', '=', 'google');
+
+        // Apply hashtag filter
+        if (!empty($request->hashtag)) {
+            $instagramPosts->where('hash_tags.hashtag', $request->hashtag);
+        }
+
+        // Apply location filter
+        if (!empty($request->location)) {
+            $instagramPosts->where('location', 'LIKE', '%' . $request->location . '%');
+        }
+
+        // Apply post filter
+        if (!empty($request->post)) {
+            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
+        }
+
+        // Apply posted at filter
+        if (!empty($request->date)) {
+            $instagramPosts->where('posted_at', date('Y-m-d H:i:s', strtotime($request->date)));
+        }
+
+        // Return google search results
+        return $instagramPosts;
+    }
 
     /**
      * function to call google scraper

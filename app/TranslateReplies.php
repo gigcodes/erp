@@ -15,14 +15,26 @@ class TranslateReplies extends Model
      *
      * @var array
      */
+    protected $table = 'translate_replies';
+
     protected $fillable = [
         'replies_id',
         'translate_from',
         'translate_to',
         'translate_text',
-		'translate_text',
-		'created_by'
+        'status',
+        'updated_by_user_id',
+        'approved_by_user_id',
+        'created_by',
+        'updated_by',
     ];
+
+
+
+
+
+
+
 
     
 }

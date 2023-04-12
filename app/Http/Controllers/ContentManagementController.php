@@ -12,13 +12,19 @@ use App\StoreSocialContent;
 use App\StoreSocialContentCategory;
 use App\StoreSocialContentHistory;
 use App\StoreSocialContentMilestone;
+use App\Social\SocialConfig;
 use App\StoreSocialContentReview;
 use App\StoreSocialContentStatus;
 use App\StoreWebsite;
 use App\Task;
+use App\Helpers\SocialHelper;
+use App\Social\SocialPost;
+use App\Social\SocialPostLog;
 use App\User;
+use CURLFile;
 use Auth;
 use Crypt;
+use Illuminate\Support\Facades\Http;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -83,12 +89,89 @@ class ContentManagementController extends Controller
         return response()->json(['random' => $random, 'image_path' => $path, 'status' => true]);
     }
 
+    public function pagePost(Request $request){
+        $imageUrl = $request["imageurl"];
+        $query = SocialConfig::where('store_website_id',$request["websiteId"])->get();
+        
+        return view('content-management.select-page', compact('query','imageUrl'));
+
+    }
+
     public function viewAddSocialAccount()
     {
         $websites = StoreWebsite::whereNull('deleted_at')->get();
 
         return view('content-management.add-social-account', compact('websites'));
     }
+
+    public function postSocialAccount(Request $request)
+    {
+        if(isset($request["store_website_id"])){
+            $post = new SocialPost;
+            $post->config_id = $request["store_website_id"];
+            $post->caption = $request["message"];
+            $post->post_body = '';
+            $post->post_by = Auth::user()->id;
+            $post->save();
+
+            $config = SocialConfig::find($request["store_website_id"]);
+            
+            $message = $request["message"];
+            try {
+
+                $access_token = $config->page_token;
+                $page_id = $config->page_id;
+                $source = $request["imageurl"];
+                $image_upload_url = 'https://graph.facebook.com/'.$page_id.'/photos';
+            
+                
+                    $fbImage = [
+                    'access_token' =>$access_token, 
+                    //   'url' => 'https://i.pinimg.com/736x/0f/36/31/0f3631cab4db579656cfa612cce7dca0.jpg', 
+                    'url' => $source, 
+                    'caption' => $message, 
+                ];
+
+                    $response = SocialHelper::curlPostRequest($image_upload_url,$fbImage);
+                    $response = json_decode($response);
+                    
+                    if (isset($response->error->message)) {
+                        $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
+                    }else{
+                        
+                        $post->posted_on = $request->input('date');
+                        $post->status = 1;
+                        if (isset($response->post_id)) {
+                            $post->ref_post_id = $response->post_id;
+                        }
+                        $post->save();
+                        $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
+                    }
+
+            } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
+                \Log::info($e); // handle exception
+                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
+            }
+        }
+        
+                                
+        return redirect()->back();
+    }
+    
+    public function socialPostLog($config_id, $post_id, $platform, $title, $description)
+    {
+        $Log = new SocialPostLog();
+        $Log->config_id = $config_id;
+        $Log->post_id = $post_id;
+        $Log->platform = $platform;
+        $Log->log_title = $title;
+        $Log->log_description = $description;
+        $Log->modal = 'SocialPost';
+        $Log->save();
+
+        return true;
+    }
+
 
     public function addSocialAccount(Request $request)
     {

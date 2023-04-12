@@ -10,6 +10,29 @@ use Illuminate\Database\Eloquent\Model;
 
 class Email extends Model
 {
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($email) {
+            try{
+                if(isset($email->type) && !empty($email->type) && $email->type == 'incoming'){
+                    $emailCategoryId = Email::where('from', 'like', '%'.$email->from.'%')
+                        ->where('type', 'incoming')
+                        ->orderBy('created_at', 'desc')
+                        ->pluck('email_category_id')
+                        ->first();
+    
+                    if(strlen($emailCategoryId) > 0){
+                        $email->email_category_id = $emailCategoryId;
+                    }
+                }
+            }
+            catch(\Exception $e){
+
+            }
+        });
+    }
+
     /**
      * @var string
      *
@@ -54,5 +77,28 @@ class Email extends Model
     public function category()
     {
         return $this->belongsTo(EmailCategory::class, 'email_category_id', 'id');
+    }
+
+    public static function emailModelTypeList()
+    {
+        return [
+            '' => '-- Model Type --',
+            'App\Affiliates' => 'Affiliates',
+            'App\Contact' => 'Contact',
+            'App\Coupon' => 'Coupon',
+            'App\CouponCodeRules' => 'Coupon Code Rules',
+            'App\Customer' => 'Customer',
+            'App\CustomerCharity' => 'Customer Charity',
+            'App\Email' => 'Email',
+            'App\ErpLeads' => 'ErpLeads',
+            'App\GiftCard' => 'GiftCard',
+            'App\Order' => 'Order',
+            'App\ReturnExchange' => 'ReturnExchange',
+            'App\ScrapInfluencer' => 'ScrapInfluencer',
+            'App\Supplier' => 'Supplier',
+            'App\Tickets' => 'Tickets',
+            'App\User' => 'User',
+            'App\Vendor' => 'Vendor',
+        ];
     }
 }

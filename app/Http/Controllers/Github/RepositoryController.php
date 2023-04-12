@@ -116,7 +116,6 @@ class RepositoryController extends Controller
                         ]),
                     ]
                 );
-                echo 'done';
                 //Artisan::call('github:load_branch_state');
                 if ($source == 'master') {
                     $this->updateBranchState($repoId, $destination);
@@ -180,7 +179,7 @@ class RepositoryController extends Controller
         }
 
         return redirect(url('/github/pullRequests'))->with([
-            'message' => print_r($allOutput, true),
+            'message' => print_r($result, true),
             'alert-type' => 'success',
         ]);
     }
@@ -221,7 +220,7 @@ class RepositoryController extends Controller
     private function updateBranchState($repoId, $branchName)
     {
         $comparison = $this->compareRepoBranches($repoId, $branchName);
-
+        \Log::info("Add entry to GithubBranchState");
         GithubBranchState::updateOrCreate(
             [
                 'repository_id' => $repoId,
@@ -300,7 +299,7 @@ class RepositoryController extends Controller
         $pull_request_id = $request->task_id;
 
         $url = 'https://api.github.com/repositories/'.$id.'/merges';
-
+        
         try {
             $this->client->post(
                 $url,
@@ -311,7 +310,6 @@ class RepositoryController extends Controller
                     ]),
                 ]
             );
-            echo 'done';
             //Artisan::call('github:load_branch_state');
             if ($source == 'master') {
                 $this->updateBranchState($id, $destination);
@@ -335,7 +333,7 @@ class RepositoryController extends Controller
             \Log::info(print_r($allOutput, true));
 
             // Used to reset php cache after merge.
-            opcache_reset();
+            // opcache_reset();
 
             $sqlIssue = false;
             if (! empty($allOutput) && is_array($allOutput)) {
@@ -444,12 +442,52 @@ class RepositoryController extends Controller
         ]);
     }
 
+    public function closePullRequestFromRepo($repositoryId, $pullRequestNumber){
+        return $this->closePullRequest($repositoryId, $pullRequestNumber);
+    }
+
+    public function actionWorkflows(Request $request, $repositoryId){
+        $githubActionRuns = $this->githubActionResult($repositoryId,$request->page);
+        return view('github.action_workflows', [
+            'githubActionRuns' => $githubActionRuns,
+            'repositoryId' => $repositoryId
+        ]);
+    }
+
+    public function ajaxActionWorkflows(Request $request, $repositoryId){
+        return $this->githubActionResult($repositoryId,$request->page);
+    }
+
+    public function githubActionResult($repositoryId, $page, $date = null){
+        $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date);
+        foreach($githubActionRuns->workflow_runs as $key => $runs){
+            $githubActionRuns->workflow_runs[$key]->failure_reason = "";
+            if($runs->conclusion == "failure"){
+                $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId,$runs->id);
+                foreach($githubActionRunJobs->jobs as $job){
+                    foreach($job->steps as $step){
+                        if($step->conclusion == "failure"){
+                            $githubActionRuns->workflow_runs[$key]->failure_reason = $step->name;
+                        }
+                    }
+                }
+            }
+        }
+        return $githubActionRuns;
+    }
+
     public function listAllPullRequests()
     {
         $repositories = GithubRepository::all(['id', 'name']);
         $allPullRequests = [];
         foreach ($repositories as $repository) {
             $pullRequests = $this->getPullRequests($repository->id);
+            foreach($pullRequests as $key =>  $pullRequest){
+                //Need to execute the detail API as we require the mergeable_state which is only return in the PR detail API.
+                $pr = $this->getPullRequestDetail($repository->id,$pullRequest['id']);
+                $pullRequests[$key]['mergeable_state'] = $pr['mergeable_state'];
+                $pullRequests[$key]['conflict_exist'] = $pr['mergeable_state'] == "dirty" ? true : false;
+            }
             $pullRequests = array_map(
                 function ($pullRequest) use ($repository) {
                     $pullRequest['repository'] = $repository;
@@ -476,5 +514,49 @@ class RepositoryController extends Controller
     public function deployNodeScrapers()
     {
         return $this->getRepositoryDetails(231924853);
+    }
+
+    /**
+     * Githjub Branch Page
+     */
+    public function branchIndex(Request $request)
+    {
+        if($request->ajax()) {
+            $data = $this->getAjaxBranches($request);
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        }
+        $data['repos'] = GithubRepository::all();
+        return view('github.branches', $data);
+    }
+
+    public function getAjaxBranches(Request $request)
+    {
+        $branches = GithubBranchState::where('repository_id', $request->repoId)->get();
+        return $branches;
+    }
+
+    /**
+     * Github Actions Page
+     */
+    public function actionIndex(Request $request)
+    {
+        if($request->ajax()) {
+            $data = $this->getAjaxActions($request);
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        }
+        $data['repos'] = GithubRepository::all();
+        return view('github.actions', $data);
+    }
+
+    public function getAjaxActions(Request $request)
+    {
+        $data = $this->githubActionResult($request->repoId, $request->page, $request->date);
+        return $data;
     }
 }

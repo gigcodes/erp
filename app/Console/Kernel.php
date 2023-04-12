@@ -23,6 +23,7 @@ use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\CreateScrapedProducts;
 use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\DailyHubstaffActivityLevel;
+use App\Console\Commands\DailyTimeDoctorActivityLevel;
 use App\Console\Commands\DatabaseLogCron;
 use App\Console\Commands\DeleteChatMessages;
 use App\Console\Commands\DeleteGnbProducts;
@@ -57,6 +58,14 @@ use App\Console\Commands\IncrementFrequencyWhatsappConfig;
 use App\Console\Commands\InfluencerDescription;
 //use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\InsertPleskEmail;
+
+use App\Console\Commands\IosUsageReport;
+use App\Console\Commands\IosAdsReport;
+use App\Console\Commands\IosSalesReport;
+use App\Console\Commands\IosSubscriptionReport;
+use App\Console\Commands\IosPaymentsReport;
+use App\Console\Commands\IosRatingsReport;
+
 use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\MagentoReportLog;
 use App\Console\Commands\MagentoSettingAddUpdate;
@@ -152,9 +161,13 @@ use App\Console\Commands\ZabbixProblemImport;
 use App\Console\Commands\ZabbixStore;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\ZoomMeetingRecordings;
+use App\Console\Commands\SaveZoomMeetingRecordings;
+use App\Console\Commands\DevAPIReport;
+use App\Console\Commands\CreateMailBoxes;
 use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Schema;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 
 //use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
@@ -223,6 +236,7 @@ class Kernel extends ConsoleKernel
         TwilioCallLogs::class,
         ZoomMeetingRecordings::class,
         ZoomMeetingDeleteRecordings::class,
+        SaveZoomMeetingRecordings::class,
         FlagCustomersIfTheyHaveAComplaint::class,
         MakeKeywordAndCustomersIndex::class,
         GetMostUsedWordsInCustomerMessages::class,
@@ -267,6 +281,7 @@ class Kernel extends ConsoleKernel
         //SendEventNotificationBefore30min::class,
         AccountHubstaffActivities::class,
         DailyHubstaffActivityLevel::class,
+        DailyTimeDoctorActivityLevel::class,
         EmailExcelImporter::class,
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
@@ -321,6 +336,8 @@ class Kernel extends ConsoleKernel
         SendQueuedMessages::class,
         DatabaseLogCron::class,
         TwillioMessagesCommand::class,
+        DevAPIReport::class,
+        CreateMailBoxes::class,
     ];
 
     /**
@@ -343,6 +360,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('command:twillio_messages')->everyMinute(); // Send twlio message to store website customers
 
         $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');
+
+        $schedule->command('fetch:all_emails')->dailyAt('02:00');
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
 
@@ -507,10 +526,10 @@ class Kernel extends ConsoleKernel
 
         //2020-02-17 $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
-        // Update the inventory (every fifteen minutes)
-        // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
+        // Update the inventory (Daily run cron to update stock 0 at magento store website)
+        $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
         $schedule->command('magento:get-config-value')->dailyAt('00:00')->timezone('Asia/Dubai');
-
+        
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
 
@@ -527,7 +546,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('cold-leads:move-to-customers')->daily();
 
         // send only cron run time
-        if (! env('CI')) {
+        if ((!env('CI')) && (Schema::hasTable('chat_messages'))) {
             $queueStartTime = \App\ChatMessage::getStartTime();
             $queueEndTime = \App\ChatMessage::getEndTime();
             $queueTime = \App\ChatMessage::getQueueTime();
@@ -654,6 +673,15 @@ class Kernel extends ConsoleKernel
         //daily cron for checking due date and add to cashflow
         $schedule->command('assetsmanagerduedate:pay')->daily();
 
+         //daily cron for checking Ios Report
+        $schedule->command('IosUsageReport:check')->daily();
+        $schedule->command('IosSalesReport:check')->daily();
+        $schedule->command('IosRatingsReport:check')->daily();
+        $schedule->command('IosAdsReport:check')->daily();
+        $schedule->command('IosPaymentsReport:check')->daily();
+        $schedule->command('IosSubscriptionReport:check')->daily();
+
+
         //for adding due date in asset manager
         $schedule->command('assetsmanagerpayment:cron Daily')->daily();
         $schedule->command('assetsmanagerpayment:cron Weekly')->weekly();
@@ -696,8 +724,23 @@ class Kernel extends ConsoleKernel
         // Database log Cron
         $schedule->command('databaselog:cron')->dailyAt('0:00');
 
+
+        //Developer Reporting API Cron
+        $schedule->command('DevAPIReport:check')->hourly();
+
         // Ads history Cron
         $schedule->command('social:ads-history')->dailyAt('0:00');
+        $schedule->command('save:zoom-meetings')->dailyAt('23:59');
+
+
+        //Store Google Ad Reporting Data
+        $schedule->command('store:ads-reporting-data')->hourly();
+
+        //Telescope Remove Logs Every 72Hrs
+        $schedule->command('telescope:prune --hours=72')->daily();
+
+        //Creating mailboxes from emails table
+        $schedule->command('email:create-mail-boxes')->everyFiveMinutes();
     }
 
     /**`

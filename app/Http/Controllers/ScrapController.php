@@ -365,7 +365,7 @@ class ScrapController extends Controller
             $scrapedProduct->color = $colorForScrapedProducts;
             $scrapedProduct->composition = $compositionForScrapedProducts;
             $scrapedProduct->material_used = $compositionForScrapedProducts;
-            $scrapedProduct->supplier = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
+            $scrapedProduct->supplier_id = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
             $scrapedProduct->country = isset($requestedProperties['country']) ? $requestedProperties['country'] : null;
             $scrapedProduct->size = (isset($requestedProperties['sizes']) && is_array($requestedProperties['sizes'])) ? implode(',', $requestedProperties['sizes']) : null;
             if ($request->get('size_system') != '') {
@@ -413,13 +413,13 @@ class ScrapController extends Controller
             $scrapedProduct->color = $colorForScrapedProducts;
             $scrapedProduct->composition = $compositionForScrapedProducts;
             $scrapedProduct->material_used = $compositionForScrapedProducts;
-            $scrapedProduct->supplier = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
+            $scrapedProduct->supplier_id = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
             $scrapedProduct->country = isset($requestedProperties['country']) ? $requestedProperties['country'] : null;
             $scrapedProduct->size = (isset($requestedProperties['sizes']) && is_array($requestedProperties['sizes'])) ? implode(',', $requestedProperties['sizes']) : null;
             if ($request->get('size_system') != '') {
                 $scrapedProduct->size_system = $request->get('size_system');
             }
-            $scrapedProduct->save();
+            $scrapedProduct->save();    
         }
 
         //Saving to Log Scrapper
@@ -810,6 +810,17 @@ class ScrapController extends Controller
         // Find product
         $product = Product::find($receivedJson->id);
 
+        if($product){
+         // sets initial status pending for Finished external Scraper	
+          $pending_finished_external_scraper = [
+            'product_id' => $product->id,
+            'old_status' => $product->status_id,
+            'new_status' => StatusHelper::$externalScraperFinished,
+            'pending_status' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($pending_finished_external_scraper);
+        }
         // Get brand
         $brand = Brand::where('name', $receivedJson->brand)->first();
         // No brand found?
@@ -862,8 +873,6 @@ class ScrapController extends Controller
             $scrapedProduct->validated = 1;
             $scrapedProduct->save();
         }
-
-        //dd($scrapedProduct);
 
         // Return false if no product is found
         if ($product == null) {
@@ -1023,6 +1032,17 @@ class ScrapController extends Controller
             // Save
             $product->status_id = StatusHelper::$externalScraperFinished;
             $product->save();
+
+           // sets initial status pending for Finished external Scraper	
+            $finished_external_scraper = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$externalScraperFinished,
+                'pending_status' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($finished_external_scraper);
+                    
 
             // Check if we have images
             $product->attachImagesToProduct($receivedJson->images);
@@ -1948,8 +1968,28 @@ class ScrapController extends Controller
 
             ->get()
             ->toArray();
+        if($products){
+            foreach ($products as $value) {
+                $scrap_status_data = [
+                    'product_id' => $value['id'],
+                    'old_status' => StatusHelper::$requestForExternalScraper,
+                    'new_status' => StatusHelper::$sendtoExternalScraper,
+                    'pending_status' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ];
+                \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            }
+        }
         foreach ($products as $value) {
             Product::where('id', $value['id'])->update(['status_id' => StatusHelper::$sendtoExternalScraper]);
+            $scrap_status_data = [
+                'product_id' => $value['id'],
+                'old_status' => StatusHelper::$requestForExternalScraper,
+                'new_status' => StatusHelper::$sendtoExternalScraper,
+                'pending_status' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
         }
 
         return response()->json($products);

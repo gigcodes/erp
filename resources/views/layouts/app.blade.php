@@ -46,6 +46,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
     <script src="{{siteJs('site.js')}}" defer></script>
+    <script>var BASE_URL = "{{config('app.url')}}";</script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
@@ -53,7 +54,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
    <style type="text/css">
         .select2-container--open{
             z-index:9999999
@@ -224,7 +225,55 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/global_custom.css') }}">
     @yield("styles")
-
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: '{{env('FCM_API_KEY')}}',
+            authDomain: '{{env('FCM_AUTH_DOMAIN')}}',
+            projectId: '{{env('FCM_PROJECT_ID')}}',
+            storageBucket: '{{env('FCM_STORAGE_BUCKET')}}',
+            messagingSenderId: '{{env('FCM_MESSAGING_SENDER_ID')}}',
+            appId: '{{env('FCM_APP_ID')}}',
+            measurementId: '{{env('FCM_MEASUREMENT_ID')}}'
+        };
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+        messaging
+            .requestPermission()
+            .then(function () {
+                return messaging.getToken()
+            })
+            .then(function (response) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: '{{ route("store.token") }}',
+                    type: 'POST',
+                    data: {
+                        token: response
+                    },
+                    dataType: 'JSON',
+                    success: function (response) {
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    },
+                });
+            }).catch(function (error) {
+            alert(error);
+        });
+        messaging.onMessage(function (payload) {
+            const title = payload.notification.title;
+            const options = {
+                body: payload.notification.body,
+                icon: payload.notification.icon,
+            };
+            new Notification(title, options);
+        });
+    </script>
     <script>
     window.Laravel = '{{!!json_encode(['
     csrfToken '=>csrf_token(),'
@@ -319,6 +368,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         /*padding-right: 30px;*/
     }
 
+    .time_doctor_project_section,
+    .time_doctor_account_section{
+        display: none;
+    }
+
     /*.navbar-brand{*/
     /*    margin-right: 20px;*/
     /*}*/
@@ -342,8 +396,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="d-flex" id="search-bar">
-                                <input type="text" value="" name="search" class="form-control sop_search" placeholder="Search Here.." style="width: 30%;">
-{{--                                <button title="Sop Search" type="button" class="btn btn-xs search-button" style="padding: 0px 1px;"><span><i class="fa fa-search" aria-hidden="true"></i></span></button>--}}
+                                <input type="text" value="" name="search" id="menu_sop_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="Sop Search" type="button" class="sop_search_menu btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
                             </div>
                         </div>
                         <div class="col-lg-12">
@@ -720,6 +775,10 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item"
                                                     href="{{ action('\App\Http\Controllers\AttributeReplacementController@index') }}">Attribute
                                                     Replacement</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\UnknownAttributeProductController@index') }}">Incorrect Attributes</a>
+                                                <a class="dropdown-item"
+                                                    href="{{ action('\App\Http\Controllers\CropRejectedController@index') }}">Crop Rejected<br>Final Approval Images</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -770,6 +829,7 @@ if (!empty($notifications)) {
                                                     Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New
                                                     Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.out-of-stock') }}">Sold Out Products</a>    
                                                 <a class="dropdown-item"
                                                     href="{{ route('listing.history.index') }}">Product Listing
                                                     history</a>
@@ -1512,6 +1572,10 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
+                                        Meeting List</a>
+                                </li>                                
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -2034,6 +2098,31 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+
+                               
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-users')}}">Usage</a>
+                                            <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sales')}}">Sales</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-sub')}}">Subscription</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-ads')}}">Ads</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-rate')}}">Ratings</a>
+                                                 <a class="dropdown-item"
+                                                href="{{route('appconnect.app-pay')}}">Payments</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                              
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>Google<span
@@ -2053,6 +2142,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.search.results')}}">Search Results</a>
                                                 </li>
+                                               
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2075,7 +2165,30 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                v-pre>Developer API<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.developer-api.crash')}}">Crash Report</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.anr')}}">ANR Report</a>
+                                                </li>
+                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{route('google.developer-api.logs')}}">Logs</a>
+                                                </li>
+                                            
+                                            </ul>
+                                        </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('google-drive.new') }}">Google Drive</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2090,8 +2203,33 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google
-                                        AdWords</a>
+                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="width: fit-content !important;">
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.index')}}">Google AdWords Account</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.campaignslist')}}">Google Campaign</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.adsgroupslist')}}">Google Ads groups</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.adslist')}}">Google Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googlecampaigns.displayads')}}">Google Responsive Display Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadsaccount.appadlist')}}">Google App Ads</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadreport.index')}}">Google Ads Report</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('googleadslogs.index')}}">Google Ads Logs</a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social
@@ -2119,6 +2257,12 @@ if (!empty($notifications)) {
                                 aria-haspopup="true" aria-expanded="false">Social <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.config.index')}}">Social Config</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{route('social.post.grid')}}">Social Posts Grid</a>
+                                </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2775,6 +2919,14 @@ if (!empty($notifications)) {
                                                         href="{{ url('/github/repos') }}">Repositories</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/branches') }}">Branches</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/actions') }}">Actions</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
                                                     <a class="dropdown-item" href="{{ url('/github/users') }}">Users</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
@@ -2842,6 +2994,44 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+
+                                        <!-- time doctor -->
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" v-pre>Time Doctor<span
+                                                    class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor.members') }}">Time Doctor Members</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/projects') }}">Time Doctor Projects</a>
+                                                </li>
+
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor/tasks') }}">Time Doctor Tasks</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/notification') }}">Time Doctor Activity
+                                                        Notification</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('time-doctor-activities/activities') }}">Time Doctor Activities</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">Time Doctor User
+                                                        Track Time</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -2854,7 +3044,7 @@ if (!empty($notifications)) {
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('database.states') }}">States</a>
+                                                        href="{{ route('database.states') }}">Query Process List</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -2943,6 +3133,7 @@ if (!empty($notifications)) {
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ url('sop') }}">SOP</a>
                                         </li>
+                                        <li>
                                         <a class="dropdown-item"
                                             href="{{ route('gtmetrix.error.index.list') }}">GTMetrix Error log</a>
                                 </li>
@@ -2966,8 +3157,14 @@ if (!empty($notifications)) {
                             <li  class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{route('csvTranslator.list')}}">Csv translator</a>
                             </li>
+                            <li  class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('reply.replyTranslateList')}}">Reply Translate List</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
                             </li>
                             <li class="nav-item dropdown dropdown-submenu">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
@@ -3024,10 +3221,10 @@ if (!empty($notifications)) {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('database.states') }}">Database
-                                            States</a>
+                                        Query Process List</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
+                                        <a class="dropdown-item" href="{{ url('admin/database-log') }}">Database Log</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage
@@ -3051,7 +3248,14 @@ if (!empty($notifications)) {
                                             Directory manager</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('sentry-log') }}">Sentry Log</a>
                                         <a class="dropdown-item" href="{{ route('development.tasksSummary') }}">Developer Task Summary</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('settings/telescope') }}">Manage Telescope </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('telescope/dashboard') }}">View Telescope Dashboard</a>
                                     </li>
                                 </ul>
                             </li>
@@ -3265,6 +3469,9 @@ if (!empty($notifications)) {
                                             </li>
                                         </ul>
                                     </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a class="dropdown-item" href="{{ url('learning') }}">Learning Menu</a>
+                                    </li>
                                 </ul>
                             </li>
                             </ul>
@@ -3283,6 +3490,25 @@ if (!empty($notifications)) {
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
                             @if (Auth::user()->hasRole('Admin'))
+                            <li>
+                                <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
+                                    <span>
+                                        <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a title="Create Google Doc" type="button" data-toggle="modal" data-target="#createGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="Search Google Doc" type="button" data-toggle="modal" data-target="#SearchGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
+                                            class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
                             <li>
                                 <a title="Quick Dev Task" type="button" class="quick-icon menu-show-dev-task" style="padding: 0px 1px;"><span><i
                                             class="fa fa-tasks fa-2x" aria-hidden="true"></i></span></a>
@@ -3822,7 +4048,10 @@ if (!empty($notifications)) {
                 </div>
             </div>
         </div>
-
+        @include('googledocs.partials.create-doc')
+        @include('googledocs.partials.search-doc')
+        @include('passwords.search-password')
+        @include('user-management.search-user-schedule')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -4385,7 +4614,7 @@ if (!empty($notifications)) {
 
     @endif
     <div id="system-request" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg" style="width: 1000px; max-width: 1000px;">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -4414,27 +4643,34 @@ if (!empty($notifications)) {
                         @endphp
                         <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
                         <div>
-                            <select class="form-control col-md-3 ml-3" name="user_id" id="ipusers">
-                                <option>Select user</option>
+                            <select class="form-control col-md-2 ml-3" name="user_id" id="ipusers">
+                                <option value="">Select user</option>
                                 @foreach ($userLists as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
                                 <option value="other">Other</option>
                             </select>
                             <input type="text" name="other_user_name" id="other_user_name"
-                                class="form-control col-md-3 ml-3" style="display:none;" placeholder="other name">
-                        </div>
-                        <input type="text" name="ip_comment" class="form-control col-md-3 ml-3"
+                                class="form-control col-md-2 ml-3" style="display:none;" placeholder="other name">
+                            <input type="text" name="ip_comment" class="form-control col-md-2 ml-3"
                             placeholder="Add comment...">
+                        </div>
+                        
                         <button class="btn-success btn addIp ml-3 mb-5">Add</button>
-                        <table class="table table-bordered" id="userAllIps">
+                        <button class="btn-warning btn bulkDeleteIp ml-3 mb-5">Delete All IPs</button>
+                        <table class="table table-bordered">
+                            <thead>
                             <tr>
                                 <th>Index</th>
                                 <th>IP</th>
                                 <th>User</th>
+                                <th>Source</th>
                                 <th>Comment</th>
                                 <th>Action</th>
                             </tr>
+                            </thead>
+                            <tbody id="userAllIps">
+                            </tbody>
                             <!-- @if (!empty($final_array)) @foreach (array_reverse($final_array) as $values)
                                     <tr>
                                         <td>{{ isset($values[0]) ? $values[0] : '' }}</td>
@@ -4680,11 +4916,11 @@ if (!empty($notifications)) {
         $("#menu-sop-search-model").modal("show");
     });
 
-    $(document).on("keyup", ".sop_search", function(e) {
-        let $this = $(this);
-        var q = $this.val();
+    $(document).on("click", ".sop_search_menu", function(e) {
+        let $this = $('#menu_sop_search').val();
+        var q = $this;
         $.ajax({
-            url: '{{env('app_url')}}sop/search-ajax',
+            url: '{{route('menu.sop.search')}}',
             type: 'GET',
             data: {
                 search: q,
@@ -4700,6 +4936,7 @@ if (!empty($notifications)) {
                 $("#loading-image").hide();
                 $('.sop_search_result').empty();
                 $('.sop_search_result').append(response);
+                toastr['success']('Data updated successfully', 'success');
             },
             error: function() {
                 $("#loading-image").hide();
@@ -4867,7 +5104,7 @@ if (!empty($notifications)) {
         $(mini).toggleClass('hidden');
     });
 
-    $(document).on('click', '.send-message-open-menu', function (event) {
+    $(document).on('click', '.send-message-open-quick-menu', function (event) {
         var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
         var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
         let issueId = textBox.attr('data-id');
@@ -5022,6 +5259,7 @@ if (!empty($notifications)) {
                     $(thiss).siblings('input').val('');
                     $('#getMsg' + task_id).val('');
                     $('#menu_confirmMessageModal').modal('hide');
+                    toastr["success"]("Message sent successfully!", "Message");
                     if (cached_suggestions) {
                         suggestions = JSON.parse(cached_suggestions);
                         if (suggestions.length == 10) {
@@ -5287,7 +5525,15 @@ if (!empty($notifications)) {
     $(document).on("click", ".addIp", function(e) {
         e.preventDefault();
         if ($('input[name="add-ip"]').val() != '') {
-            $.ajax({
+            if ($('#ipusers').val() === '') {
+                alert('Please select User OR Other from list.');
+            }
+            else if($('#ipusers').val() === 'other' && $('input[name="other_user_name"]').val()==='')
+            {
+                alert('Please enter other name.');
+            }
+            else{
+                $.ajax({
                 url: '/users/add-system-ip',
                 type: 'GET',
                 data: {
@@ -5311,6 +5557,8 @@ if (!empty($notifications)) {
                     toastr["Error"]("An error occured!");
                 }
             });
+            }
+            
         } else {
             alert('please enter IP');
         }
@@ -5492,7 +5740,34 @@ if (!empty($notifications)) {
             }
         });
     });
-
+    $(document).on("click", ".bulkDeleteIp", function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        if(confirm('Are you sure you want to perform this Action?') == false)
+        {
+            return false;
+        }
+        $.ajax({
+            url: '/users/bulk-delete-system-ip',
+            type: 'GET',
+            data: {
+                _token: "{{ csrf_token() }}",
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(result) {
+                $("#userAllIps").empty();
+                $("#loading-image").hide();
+                toastr["success"]("IPs Deteted successfully");
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
     function loadUsersList() {
         var t = "";
         var ip = "";
@@ -5505,7 +5780,7 @@ if (!empty($notifications)) {
             dataType: 'json',
             success: function(result) {
                 // console.log(result.data);
-                t += '<option>Select user</option>';
+                t += '<option value="">Select user</option>';
                 $.each(result.data, function(i, j) {
                     t += '<option value="' + i + '">' + j + '</option>'
                 });
@@ -5517,7 +5792,8 @@ if (!empty($notifications)) {
                     ip += '<tr>';
                     ip += '<td> ' + v.index_txt + ' </td>';
                     ip += '<td> ' + v.ip + '</td>';
-                    // ip += '<td>' + v.user.name ? v.user.name : v.other_user_name + '</td>';
+                    ip += '<td>' +( (v.user!=null) ? v.user.name : v.other_user_name )+ '</td>';
+                    ip += '<td> ' + v.source + '</td>';
                     ip += '<td>' + v.notes + '</td>';
                     ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v
                         .id + '">Delete</button></td>';
@@ -6092,6 +6368,17 @@ if (!\Auth::guest()) {
             toastr['error'](response.responseJSON.message);
 
         });
+    });
+
+    $(document).on('change', '.task_for', function(e) {
+        var getTask = $(this).val();
+        if(getTask == 'time_doctor'){
+            $('.time_doctor_project_section').show();
+            $('.time_doctor_account_section').show();
+        } else {
+            $('.time_doctor_project_section').hide();
+            $('.time_doctor_account_section').hide();
+        }
     });
 
     $(document).on("click", ".save-task-window", function(e) {

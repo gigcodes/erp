@@ -58,7 +58,7 @@
                     <td id="description">{{$value->account_sid}}</td>
                     <td id="description">{{$value->call_sid}}</td>
                     <td id="description">{{$value->error_code}}</td>
-                    <td id="description">{{$value->message_text}}</td>
+                    <td id="description">{{urldecode($value->message_text)}}</td>
                     <td id="description">{{$value->message_date}}</td>
                     <td>
 						<a data-route="{{route('delete.twilio.error')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>

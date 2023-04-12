@@ -50,6 +50,9 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
 use Response;
 use Storage;
+use App\Library\TimeDoctor\Src\Timedoctor;
+use App\Models\DeveloperTaskStatusChecklist;
+use App\Models\DeveloperTaskStatusChecklistRemarks;
 
 class DevelopmentController extends Controller
 {
@@ -508,7 +511,7 @@ class DevelopmentController extends Controller
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
         $statusList = Cache::remember('task_status_select_name', 60 * 60 * 24 * 7, function () {
-            return TaskStatus::select('name')->pluck('name', 'name')->toArray();
+          return TaskStatus::select('name')->pluck('name', 'name')->toArray();
         });
 
         /*$statusList = array_merge([
@@ -611,6 +614,11 @@ class DevelopmentController extends Controller
             return GithubRepository::all();
         });
 
+        $checkList = [];
+        $checkListArray = DeveloperTaskStatusChecklist::select("id","name","task_status")->get()->toArray();
+        foreach($checkListArray as $list){
+            $checkList[$list['task_status']][] = $list;
+        }
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
         if (request()->ajax()) {
@@ -620,6 +628,7 @@ class DevelopmentController extends Controller
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
+            'checkList' => $checkList,
             'modules' => $modules,
             'request' => $request,
             'title' => $title,
@@ -1022,6 +1031,8 @@ class DevelopmentController extends Controller
             $userslist = User::whereIn('id', $request->get('assigned_to'))->get();
         }
 
+        $time_doctor_projects = \App\TimeDoctor\TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name')->get()->toArray();
+
         if (request()->ajax()) {
             return view('development.partials.summarydatas', [
                 'issues' => $issues,
@@ -1051,6 +1062,7 @@ class DevelopmentController extends Controller
             'countInProgress' => $countInProgress,
             'statusList' => $statusList,
             'userslist' => $userslist,
+            'time_doctor_projects' => $time_doctor_projects
             // 'languages' => $languages
         ]);
     }
@@ -1837,6 +1849,91 @@ class DevelopmentController extends Controller
         return false;
     }
 
+    public function timeDoctorActions($type, $task, $projectId, $accountId, $assignTo)
+    {
+        $check_entry = 0;
+        $project_data = [];
+        $project_data['time_doctor_project'] = $projectId;
+        $project_data['time_doctor_task_name'] = $task['subject'];
+        $project_data['time_doctor_task_description'] = $task['task'];
+
+        if ($type == 'DEVTASK') {
+            $message = '#DEVTASK-'.$task->id.' => '.$task->subject;
+            $assignedToId = $assignTo;
+        } elseif ($type == 'TASK') {
+            $message = '#TASK-'.$task->id.' => '.$task->task_subject.'. '.$task->task_details;
+            $assignedToId = $assignTo;
+        } else {
+            return false;
+        }
+
+        // $assignUsersData = \App\TimeDoctor\TimeDoctorMember::where('user_id', $assignedToId)->get();
+        $assignUsersData = \App\TimeDoctor\TimeDoctorAccount::find( $accountId );        
+
+        $timedoctor = Timedoctor::getInstance();        
+
+        $companyId = $assignUsersData->company_id;
+        $accessToken = $assignUsersData->auth_token;
+
+        $taskSummary = substr($message, 0, 200);            
+        if (env('PRODUCTION', true)) {                
+            $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );
+        } else {
+            $projectId = '#TASK-3';
+            $timeDoctorUserId = 406; //for local system
+            $timeDoctorTaskId = 34543; //for local system
+        }
+
+        if( $timeDoctorTaskId != ''){                   
+            if ($timeDoctorTaskId) {
+                $task->time_doctor_task_id = $timeDoctorTaskId;
+                $task->save();
+
+                $time_doctor_task = new \App\TimeDoctor\TimeDoctorTask();
+                $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
+                $time_doctor_task->project_id = $projectId;
+                $time_doctor_task->time_doctor_project_id = $projectId;
+                $time_doctor_task->summery = $message;
+                $time_doctor_task->save();
+                return true;
+            }
+        }
+        
+        return false;
+        /*foreach($assignUsersData as $assignedUser){
+            $companyId = $assignedUser->account_detail->company_id;
+            $accessToken = $assignedUser->account_detail->auth_token;
+            $taskSummary = substr($message, 0, 200);            
+            if (env('PRODUCTION', true)) {                
+                $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );
+            } else {
+                $projectId = '#TASK-3';
+                $timeDoctorUserId = 406; //for local system
+                $timeDoctorTaskId = 34543; //for local system
+            }
+            //$timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
+            if( $timeDoctorTaskId != ''){                
+                if ($timeDoctorTaskId) {
+                    $task->time_doctor_task_id = $timeDoctorTaskId;
+                    $task->save();
+
+                    $time_doctor_task = new \App\TimeDoctor\TimeDoctorTask();
+                    $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
+                    $time_doctor_task->project_id = $projectId;
+                    $time_doctor_task->time_doctor_project_id = $projectId;
+                    $time_doctor_task->summery = $message;
+                    $time_doctor_task->save();
+                    $check_entry = 1;
+                }
+            }
+        }
+        
+        if($check_entry == 1){
+            return true;
+        }
+        return false;*/
+    }
+
     /**
      * return branch name or false
      */
@@ -2133,29 +2230,33 @@ class DevelopmentController extends Controller
             $taskSummery = '#TASK-'.$task->id.' => '.$summary;
         }
 
-        $hubstaffTaskId = '';
-        if (env('PRODUCTION', true)) {
-            $hubstaffTaskId = $this->createHubstaffTask(
-                $taskSummery,
-                $hubstaffUserId,
-                $hubstaff_project_id
-            );
+        if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
+            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['time_doctor_account'], $data['assigned_to']);
         } else {
-            $hubstaff_project_id = '#TASK-3';
-            $hubstaffUserId = 406; //for local system
-            $hubstaffTaskId = 34543; //for local system
-        }
+            $hubstaffTaskId = '';
+            if (env('PRODUCTION', true)) {
+                $hubstaffTaskId = $this->createHubstaffTask(
+                    $taskSummery,
+                    $hubstaffUserId,
+                    $hubstaff_project_id
+                );
+            } else {
+                $hubstaff_project_id = '#TASK-3';
+                $hubstaffUserId = 406; //for local system
+                $hubstaffTaskId = 34543; //for local system
+            }
 
-        if ($hubstaffTaskId) {
-            $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->save();
+            if ($hubstaffTaskId) {
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->save();
 
-            $task = new HubstaffTask();
-            $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->project_id = $hubstaff_project_id;
-            $task->hubstaff_project_id = $hubstaff_project_id;
-            $task->summary = $task->task;
-            $task->save();
+                $task = new HubstaffTask();
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->project_id = $hubstaff_project_id;
+                $task->hubstaff_project_id = $hubstaff_project_id;
+                $task->summary = $task->task;
+                $task->save();
+            }
         }
 
         return $task;
@@ -3106,6 +3207,38 @@ class DevelopmentController extends Controller
             if ($issue->status == DeveloperTask::DEV_TASK_STATUS_DONE) {
                 $issue->actual_end_date = date('Y-m-d H:i:s');
             }
+            if ($issue->status == DeveloperTask::DEV_TASK_STATUS_USER_COMPLETE) {
+
+                if(isset($request->checklist)){
+                    $statusMsg = "Status has been updated : From ".$old_status." To ".DeveloperTask::DEV_TASK_STATUS_USER_COMPLETE."\n";
+                    $msg = "";
+                    foreach($request->checklist as $key => $list){
+                        $checkList = DeveloperTaskStatusChecklist::find($key);
+                        if(!empty($checkList)){
+                            DeveloperTaskStatusChecklistRemarks::create([
+                                'user_id' => Auth::id(),
+                                'task_id' => $issue->id,
+                                'developer_task_status_checklist_id' => $key,
+                                'remark' => $list
+                            ]);
+                            $msg .= $checkList['name']." => ".$list."\n";
+                        }
+                    }
+
+                    $message = !empty($msg) ? $statusMsg.$msg : "";
+
+                    if(!empty($message)){
+                        ChatMessage::create([
+                            'user_id' => Auth::user()->id,
+                            'developer_task_id' => $issue->id,
+                            'sent_to_user_id' => $issue->user_id,
+                            'message' => $message,
+                            'status' => 2,
+                            'approved' => 1,
+                        ]);
+                    }
+                }
+            }
 
             $issue->save();
         }
@@ -3759,56 +3892,65 @@ class DevelopmentController extends Controller
     {
         $task = DeveloperTask::find($request->id);
         if ($task) {
-            if ($request->type == 'developer') {
-                $user_id = $task->assigned_to;
-            } elseif ($request->type == 'tester') {
-                $user_id = $task->tester_id;
-            } else {
-                $user_id = $task->master_user_id;
-            }
-            // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-            $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-
-            $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
-
-            $hubstaffUserId = null;
-            if ($assignedUser) {
-                $hubstaffUserId = $assignedUser->hubstaff_user_id;
-            }
-            $taskSummery = '#DEVTASK-'.$task->id.' => '.$task->subject;
-            // $hubstaffUserId = 901839;
-            if ($hubstaffUserId) {
-                $hubstaffTaskId = $this->createHubstaffTask(
-                    $taskSummery,
-                    $hubstaffUserId,
-                    $hubstaff_project_id
-                );
-            } else {
-                return response()->json([
-                    'message' => 'Hubstaff member not found',
-                ], 500);
-            }
-            if ($hubstaffTaskId) {
+            if($request->task_for == "hubstaff"){
                 if ($request->type == 'developer') {
-                    $task->hubstaff_task_id = $hubstaffTaskId;
+                    $user_id = $task->assigned_to;
                 } elseif ($request->type == 'tester') {
-                    $task->tester_hubstaff_task_id = $hubstaffTaskId;
+                    $user_id = $task->tester_id;
                 } else {
-                    $task->lead_hubstaff_task_id = $hubstaffTaskId;
+                    $user_id = $task->master_user_id;
                 }
-                $task->save();
+                // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+                $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+                $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
+
+                $hubstaffUserId = null;
+                if ($assignedUser) {
+                    $hubstaffUserId = $assignedUser->hubstaff_user_id;
+                }
+                $taskSummery = '#DEVTASK-'.$task->id.' => '.$task->subject;
+                // $hubstaffUserId = 901839;
+                if ($hubstaffUserId) {
+                    $hubstaffTaskId = $this->createHubstaffTask(
+                        $taskSummery,
+                        $hubstaffUserId,
+                        $hubstaff_project_id
+                    );
+                } else {
+                    return response()->json([
+                        'message' => 'Hubstaff member not found',
+                    ], 500);
+                }
+                if ($hubstaffTaskId) {
+                    if ($request->type == 'developer') {
+                        $task->hubstaff_task_id = $hubstaffTaskId;
+                    } elseif ($request->type == 'tester') {
+                        $task->tester_hubstaff_task_id = $hubstaffTaskId;
+                    } else {
+                        $task->lead_hubstaff_task_id = $hubstaffTaskId;
+                    }
+                    $task->save();
+                } else {
+                    return response()->json([
+                        'message' => 'Hubstaff task not created',
+                    ], 500);
+                }
+                if ($hubstaffTaskId) {
+                    $task = new HubstaffTask();
+                    $task->hubstaff_task_id = $hubstaffTaskId;
+                    $task->project_id = $hubstaff_project_id;
+                    $task->hubstaff_project_id = $hubstaff_project_id;
+                    $task->summary = $taskSummery;
+                    $task->save();
+                }
             } else {
-                return response()->json([
-                    'message' => 'Hubstaff task not created',
-                ], 500);
-            }
-            if ($hubstaffTaskId) {
-                $task = new HubstaffTask();
-                $task->hubstaff_task_id = $hubstaffTaskId;
-                $task->project_id = $hubstaff_project_id;
-                $task->hubstaff_project_id = $hubstaff_project_id;
-                $task->summary = $taskSummery;
-                $task->save();
+                $timeDoctorTaskId = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                if (!$timeDoctorTaskId) {
+                    return response()->json([
+                        'message' => 'Time Doctor task not created',
+                    ], 500);
+                } 
             }
 
             return response()->json([
