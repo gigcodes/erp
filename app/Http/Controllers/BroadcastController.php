@@ -68,7 +68,6 @@ class BroadcastController extends Controller
         //Create broadcast
         //$broadcast = \App\BroadcastMessage::create(['name'=>$request->name]);
         $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id' => $request->id, 'name' => $request->name, 'message' => $request->message]);
-
         if (count($data)) {
             foreach ($data as $key => $item) {
                 if ($item->type == 'App\Http\Controllers\App\Vendor') {
@@ -139,6 +138,7 @@ class BroadcastController extends Controller
                     $params = [
                         'sending_time' => $request->get('sending_time', ''),
                         'user_id' => \Auth::id(),
+                        'message' => $request->message,
                         'phone' => null,
                         'type' => 'message_all',
                         'data' => json_encode($sendingData),
@@ -147,7 +147,6 @@ class BroadcastController extends Controller
                         'broadcast_numbers_id' => $broadcastnumber->id,
                     ];
                     $chat_message = \App\ChatMessage::create($params);
-
                     $custRequest = new Request();
                     $custRequest->setMethod('POST');
                     $custRequest->request->add(['messageId' => $chat_message->id,'subject'=> $request->name ]);
