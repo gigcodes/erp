@@ -29,7 +29,7 @@ class AddUrlInspectColumnToGoogleSearchAnalyticsTable extends Migration
      */
     public function down()
     {
-        Schema::table('google_docs', function (Blueprint $table) {
+        Schema::table('google_search_analytics', function (Blueprint $table) {
             $table->dropColumn('indexed');
             $table->dropColumn('not_indexed');
             $table->dropColumn('not_indexed_reason');
