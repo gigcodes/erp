@@ -179,7 +179,7 @@ class RepositoryController extends Controller
         }
 
         return redirect(url('/github/pullRequests'))->with([
-            'message' => print_r($allOutput, true),
+            'message' => print_r($result, true),
             'alert-type' => 'success',
         ]);
     }
