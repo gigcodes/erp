@@ -59,8 +59,8 @@
 
         </tr>
       </thead>
-      @foreach($members as $member)
       <tbody>
+      @foreach($members as $member)
         <tr>
           <td style="vertical-align:middle;">{{ $member->hubstaff_user_id }}</td>
           <td style="vertical-align:middle;">{{ $member->email }}</td>
@@ -81,8 +81,8 @@
           </td>
 
         </tr>
-      </tbody>
       @endforeach
+      </tbody>
     </table>
     <br>
     <hr>

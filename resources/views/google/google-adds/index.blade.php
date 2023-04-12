@@ -187,7 +187,7 @@
                         </div>
                     </div>
                     <!-- Search Network -->
-                    <div class="col-md-3 pd-2">
+                    {{-- <div class="col-md-3 pd-2">
                         <div class="form-group cls_task_subject border">
                             <h5>Search Network</h5>
                             <div class="tablesorter-header-inner">
@@ -207,10 +207,10 @@
                                 <label>Partner Search Network</label>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
                 <!-- FILTERS -->
-                <div class="row">
+                {{-- <div class="row">
                     <div class="col-xs-12 col-md-2 pd-2">
                         <div class="form-group">
                             <select name="filter_by_brand" id="filter_by_brand" class="form-control input-sm">
@@ -245,7 +245,7 @@
                             </select>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </form>
         </div>
     </div>
@@ -290,10 +290,10 @@
                             <thead>
                             <tr>
                                 <th>Kewords</th>
-                                <th>Avg. Search Volume</th>
+                                <th>Avg. monthly searches</th>
                                 <th>Competition</th>
-                                <th>For Ads Costing ( averageCpc )</th>
-                                <!-- <th>Category Ids</th> -->
+                                <th>Top of page bid (low range)</th>
+                                <th>Top of page bid (high range)</th>
                             </tr>
                             </thead>
                             <tbody class="pending-row-render-view infinite-scroll-pending-inner" id="keyword_table_data">
@@ -321,7 +321,7 @@
         $(document).ready(function(){
             var keywordSearch = null;
             $(document).on('keyup','#keyword_search',function(){
-                var networkCheck = true;
+               /*  var networkCheck = true;
                 if ( $('#google_search').is(":checked") ) {
                     networkCheck = false;
                 }
@@ -337,21 +337,22 @@
                 if (networkCheck == true) {
                     toastr['error']('Atleast one network option should be selected!!', 'Error');
                     return false;
-                }
+                } */
 
                 keywordSearch = $.ajax({
-                    url: "{{route('google-keyword-search')}}",
+                    url: "{{route('google-keyword-search-v2')}}",
                     type: 'GET',
                     data: {
                         keyword:$('#keyword_search').val(),
                         location:$('#keyword_location').val(),
                         language:$('#keyword_language').val(),
-                        network:$('#keyword_network').val(),
+
+                        /* network:$('#keyword_network').val(),
                         gender:$('#filter_by_gender').val(),
                         google_search:($('#google_search').is(":checked"))? true : false,
                         search_network:($('#search_network').is(":checked"))? true : false,
                         content_network:($('#content_network').is(":checked"))? true : false,
-                        partner_search_network:($('#partner_search_network').is(":checked"))? true : false,
+                        partner_search_network:($('#partner_search_network').is(":checked"))? true : false, */
                     },
                     beforeSend : function(){
                         if(keywordSearch != null) {
@@ -360,19 +361,21 @@
                     },
                     success: function (response) {
                         var tbaleData = '';
-                        if (response.length > 0) {
-
+                        $('#keyword_table_data').html(tbaleData);
+                        if (response.status == 'success') {
+                            response = response.data;
                             $.each(response,function(index,data){
                                 tbaleData += `<tr>
                                     <td>${data.keyword}</td>
-                                    <td>${data.searchVolume}</td>
+                                    <td>${data.avg_monthly_searches}</td>
                                     <td>${data.competition}</td>
-                                    <td>${data.averageCpc}</td>
+                                    <td>${data.low_top}</td>
+                                    <td>${data.high_top}</td>
                                 </tr>`;
                             });
                             $('#keyword_table_data').html(tbaleData);
                         }else{
-
+                            toastr['error'](response.message, 'Error');
                         }
                         // toastr['success']('Priority successfully update!!', 'success');
                         // $('#priority_model').modal('hide');
@@ -391,7 +394,7 @@
                     return false;
                 }
 
-                var networkCheck = true;
+               /*  var networkCheck = true;
                 if ( $('#google_search').is(":checked") ) {
                     networkCheck = false;
                 }
@@ -407,21 +410,22 @@
                 if (networkCheck == true) {
                     toastr['error']('Atleast one network option should be selected!!', 'Error');
                      return false;
-                }
+                } */
 
                 keywordSearch = $.ajax({
-                    url: "{{route('google-keyword-search')}}",
+                    url: "{{route('google-keyword-search-v2')}}",
                     type: 'GET',
                     data: {
                         keyword:$('#keyword_search').val(),
                         location:$('#keyword_location').val(),
                         language:$('#keyword_language').val(),
-                        network:$('#keyword_network').val(),
-                        gender:$('#filter_by_gender').val(),
-                        google_search:($('#google_search').is(":checked"))? true : false,
+
+                        /* network:$('#keyword_network').val(), */
+                        /* gender:$('#filter_by_gender').val(), */
+                       /*  google_search:($('#google_search').is(":checked"))? true : false,
                         search_network:($('#search_network').is(":checked"))? true : false,
                         content_network:($('#content_network').is(":checked"))? true : false,
-                        partner_search_network:($('#partner_search_network').is(":checked"))? true : false,
+                        partner_search_network:($('#partner_search_network').is(":checked"))? true : false, */
                     },
                     beforeSend : function(){
                         if(keywordSearch != null) {
@@ -430,19 +434,21 @@
                     },
                     success: function (response) {
                         var tbaleData = '';
-                        if (response.length > 0) {
+                        response = response.data;
+                        if (response.status == 'success') {
 
                             $.each(response,function(index,data){
                                 tbaleData += `<tr>
                                     <td>${data.keyword}</td>
-                                    <td>${data.searchVolume}</td>
+                                    <td>${data.avg_monthly_searches}</td>
                                     <td>${data.competition}</td>
-                                    <td>${data.averageCpc}</td>
+                                    <td>${data.low_top}</td>
+                                    <td>${data.high_top}</td>
                                 </tr>`;
                             });
                             $('#keyword_table_data').html(tbaleData);
                         }else{
-
+                            toastr['error'](response.message, 'Error');
                         }
                         // toastr['success']('Priority successfully update!!', 'success');
                         // $('#priority_model').modal('hide');

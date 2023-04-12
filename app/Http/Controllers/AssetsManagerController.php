@@ -14,6 +14,10 @@ use App\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Email;
+use Auth;
+use App\ChatMessage;
+use App\AssetManagerLinkUser;
 
 class AssetsManagerController extends Controller
 {
@@ -44,7 +48,12 @@ class AssetsManagerController extends Controller
         $assets = $assets->leftJoin('store_websites', 'store_websites.id', 'assets_manager.website_id')
                 ->leftJoin('asset_plate_forms AS apf', 'apf.id', 'assets_manager.asset_plate_form_id')
                 ->leftJoin('email_addresses As ea', 'ea.id', 'assets_manager.email_address_id')
-                ->leftJoin('whatsapp_configs AS wc', 'wc.id', 'assets_manager.whatsapp_config_id');
+                ->leftJoin('whatsapp_configs AS wc', 'wc.id', 'assets_manager.whatsapp_config_id')
+                ->leftJoin('assets_manager_link_user as linkuser', 'linkuser.asset_manager_id', 'assets_manager.id');
+
+        if(!Auth::user()->hasRole('Admin')){
+            $assets->where('assets_manager.created_by', Auth::user()->id)->orWhere('linkuser.user_id', Auth::user()->id);
+        }
 
         if (! empty($search)) {
             $assets = $assets->where(function ($q) use ($search) {
@@ -80,11 +89,10 @@ class AssetsManagerController extends Controller
             $assets = $assets->where('assets_manager.purchase_type', $whatsapp_config_id);
         }
         // $assets = $assets->orderBy("due_date", "ASC");
-        //dd($assets->get());
-        $assetsIds = $assets->select('assets_manager.id')->get()->toArray();
-        $assets = $assets->select('assets_manager.*', 'store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
-        $assets = $assets->orderBy('assets_manager.due_date', 'asc')->paginate(25);
 
+        $assetsIds = $assets->select('assets_manager.id')->get()->toArray();
+        $assets = $assets->select(\DB::raw('DISTINCT assets_manager.*, linkuser.asset_manager_id'), 'store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
+        $assets = $assets->orderBy('assets_manager.due_date', 'asc')->paginate(25);
         $websites = StoreWebsite::all();
         $plateforms = AssetPlateForm::all();
         $emailAddress = EmailAddress::all();
@@ -154,6 +162,7 @@ class AssetsManagerController extends Controller
         $data['asset_plate_form_id'] = $request->asset_plate_form_id;
         $data['email_address_id'] = $request->email_address_id;
         $data['whatsapp_config_id'] = $request->whatsapp_config_id;
+        $data['created_by'] = Auth::user()->id;
         $insertData = AssetsManager::create($data);
         if ($request->input('payment_cycle') == 'One time') {
             //create entry in table cash_flows
@@ -494,4 +503,120 @@ class AssetsManagerController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+
+    /**
+     * Send email to given emailId
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function assetsManagerSendEmail(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'user_name' => 'required',
+                'from_email' => 'required',
+            ]);
+            $assetsmanager = AssetsManager::where('id', $request->assets_manager_id)->first();
+            $usersdetails = User::where('id', $request->user_name)->first();
+            $newPassword = Str::random(12);
+            $message =  '';
+            $message .= '<center><h4>Assets Manager Details <h4></center>'. '<br>';
+            $message .= 'Name = '. $assetsmanager->name . '<br>';
+            $message .= 'Capacity = '. $assetsmanager->capacity . '<br>';
+            $message .= 'Password = '. $assetsmanager->password . '<br>';
+            $message .= 'Provider Name = '. $assetsmanager->provider_name . '<br>';
+            $message .= 'Asset Type = '. $assetsmanager->asset_type . '<br>';
+            $message .= 'Category = '. $assetsmanager->category->cat_name . '<br>';
+            $message .= 'Purchase Type = '. $assetsmanager->purchase_type . '<br>';
+            $message .= 'Payment Cycle = '. $assetsmanager->payment_cycle . '<br>';
+            $message .= 'Amount = '. $assetsmanager->amount . '<br>';
+            $message .= 'Currency = '. $assetsmanager->currency . '<br>';
+            $message .= 'Ip = '. $assetsmanager->ip . '<br>';
+            $message .= 'Ip Name = '. $assetsmanager->ip_name . '<br>';
+
+            //Store data in chat_message table.
+            $params = [
+                'number' => $usersdetails->phone,
+                'user_id' => Auth::user()->id,
+                'message' => $message,
+            ];
+
+            ChatMessage::create($params);
+
+            // Store data in email table
+            $from_address = isset($request->from_email) && $request->from_email != ''  ? $request->from_email : config('env.MAIL_FROM_ADDRESS');
+
+            $email = Email::create([
+                'model_id' => '',
+                'model_type' => \App\AssetsManager::class,
+                'from' => $from_address,
+                'to' => $usersdetails->email,
+                'subject' => 'Assets Manager',
+                'message' => $message,
+                'template' => 'reset-password',
+                'status' => 'pre-send',
+                'store_website_id' => null,
+            ]);
+
+            // Send email
+            \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
+            \Session::flash('success', 'Assets manager email send successfully');
+        } catch (\Throwable $th) {
+            $emails = Email::latest('created_at')->first();
+            $emails->error_message = $th->getMessage();
+            $emails->save();
+            \Session::flash('error', $th->getMessage());
+        }
+        return redirect()->back();
+    }
+
+    /**
+     * Assets manager record permission
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function assetsManagerRecordPermission(Request $request)
+    {
+        //Delete existing records
+        $existsRec = AssetManagerLinkUser::select(\DB::raw('group_concat( id) as linkId'))->where("asset_manager_id", $request->assets_manager_id)->first();
+        if(!empty($existsRec->linkId))
+        {
+            AssetManagerLinkUser::whereIn('id', explode(",",$existsRec->linkId))->delete();
+        }
+
+        //Insert new records
+        $assetManagerLinkArr = [];
+        if(isset($request->user_name))
+        {
+            foreach ($request->user_name as $key => $value) {
+                $assetManagerLinkArr[] = [ 'user_id' => $value, 'asset_manager_id' => $request->assets_manager_id];
+            }
+            AssetManagerLinkUser::insert($assetManagerLinkArr);
+            if(!empty($existsRec->linkId))
+            {
+                \Session::flash('success', 'Permission updated successfully');
+            }else{
+                \Session::flash('success', 'Permission added successfully');
+            } 
+        }else{
+            \Session::flash('success', 'Permission removed successfully');
+        }
+        
+        return redirect()->back();
+    }
+
+     /**
+     * Assets manager link users Ids
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function linkUserList(Request $request)
+    {
+        $linkuser = AssetManagerLinkUser::select( \DB::raw('group_concat(DISTINCT user_id) as userids'))->distinct()->where('asset_manager_id', $request->asset_id)->first();
+        return response()->json(['code' => 200, 'data' => $linkuser, 'message' => 'Assets manager data link user data fetch successfully']);
+    }
+    
 }

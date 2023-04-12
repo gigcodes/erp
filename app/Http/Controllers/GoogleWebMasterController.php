@@ -41,7 +41,7 @@ class GoogleWebMasterController extends Controller
 
         $logs = Activity::where('log_name', 'v3_sites')->orWhere('log_name', 'v3_search_analytics')->latest()->paginate(Setting::get('pagination'), ['*'], 'logs_per_page');
         $webmaster_logs = WebmasterLog::paginate(Setting::get('pagination'), ['*'], 'webmaster_logs_per_page');
-        $site_submit_history = WebsiteStoreViewsWebmasterHistory::paginate(Setting::get('pagination'), ['*'], 'history_per_page');
+        $site_submit_history = WebsiteStoreViewsWebmasterHistory::latest()->paginate(Setting::get('pagination'), ['*'], 'history_per_page');
 
         $SearchAnalytics = new GoogleSearchAnalytics;
 
@@ -134,7 +134,8 @@ class GoogleWebMasterController extends Controller
             redirect()->route('googlewebmaster.get-access-token');
         }
 
-        $google_keys = explode(',', \config('google.GOOGLE_CLIENT_MULTIPLE_KEYS'));
+        // $google_keys = explode(',', \config('google.GOOGLE_CLIENT_MULTIPLE_KEYS'));
+        $google_keys = explode(',', $request->session()->get('GOOGLE_CLIENT_MULTIPLE_KEYS'));
         $token = $request->session()->get('token');
         foreach ($google_keys as $google_key) {
             if ($google_key) {
@@ -169,7 +170,6 @@ class GoogleWebMasterController extends Controller
                 if (curl_errno($curl)) {
                     $error_msg = curl_error($curl);
                 }
-
                 curl_close($curl);
 
                 if (isset($error_msg)) {
@@ -267,7 +267,6 @@ class GoogleWebMasterController extends Controller
             foreach ($record as $col => $val) {
                 $rowData = $rowData->where($col, $val);
             }
-
             if (! $rowData->first()) {
                 $here = GoogleSearchAnalytics::create($record);
                 $this->searchAnalyticsCreated++;
@@ -387,7 +386,7 @@ class GoogleWebMasterController extends Controller
                     'log' => isset($response->error->message) ? $value['website'].'/'.$value['code'].' - '.$response->error->message : $value['website'].'/'.$value['code'].' - '.'Error',
                 ];
 
-                WebsiteStoreViewsWebmasterHistory::insert($history);
+                WebsiteStoreViewsWebmasterHistory::create($history);
 
                 \Log::info('Request URL::'.$url_for_sites);
                 \Log::info('Request Token::'.$token);
@@ -467,7 +466,7 @@ class GoogleWebMasterController extends Controller
                             'website_store_views_id' => $fetchStores->id,
                             'log' => isset($response->error->message) ? $response->error->message : 'Error',
                         ];
-                        WebsiteStoreViewsWebmasterHistory::insert($history);
+                        WebsiteStoreViewsWebmasterHistory::create($history);
 
                         return response()->json(['code' => 400, 'message' => $response->error->message]);
                     } else {
@@ -546,7 +545,6 @@ class GoogleWebMasterController extends Controller
         $id = \Cache::get('google_client_account_id');
 
         $GoogleClientAccounts = GoogleClientAccount::get();
-
         foreach ($GoogleClientAccounts as $GoogleClientAccount) {
             $refreshToken = GoogleClientAccountMail::where('google_client_account_id', $GoogleClientAccount->id)->first();
 
@@ -564,6 +562,7 @@ class GoogleWebMasterController extends Controller
 
             $token = $this->client->getAccessToken();
             $request->session()->put('token', $token);
+            $request->session()->put('GOOGLE_CLIENT_MULTIPLE_KEYS', $GoogleClientAccount->GOOGLE_CLIENT_MULTIPLE_KEYS);
             //echo"<pre>";print_r($token);die;
             if (empty($token)) {
                 continue;

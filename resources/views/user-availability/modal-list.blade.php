@@ -85,7 +85,28 @@
           </div>
 
           <hr />
-
+                   
+          <div class="row">
+            <div class="{{$cls_1}}">
+              <label>From Lunch Time:</label>
+              <div class="form-group">
+                <div class='input-group date cls-timepicker'>
+                  <input type="text" class="form-control" name="lunch_time_from" value="" required />
+                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+              </div>
+            </div>
+            <div class="{{$cls_2}}">
+              <label>To Lunch Time:</label>
+              <div class="form-group">
+                <div class='input-group date cls-timepicker'>
+                  <input type="text" class="form-control" name="lunch_time_to" value="" required />
+                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div class="row">
             <div class="col-md-4">
               <label>Start Time:</label>
@@ -101,15 +122,6 @@
               <div class="form-group">
                 <div class='input-group date cls-timepicker'>
                   <input type="text" class="form-control" name="end_time" value="" required />
-                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <label>Lunch Time:</label>
-              <div class="form-group">
-                <div class='input-group date cls-timepicker'>
-                  <input type="text" class="form-control" name="lunch_time" value="" />
                   <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                 </div>
               </div>

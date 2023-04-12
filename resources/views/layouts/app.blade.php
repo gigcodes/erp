@@ -2932,6 +2932,14 @@ if (!empty($notifications)) {
                                                         href="{{ url('/github/repos') }}">Repositories</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/branches') }}">Branches</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/actions') }}">Actions</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
                                                     <a class="dropdown-item" href="{{ url('/github/users') }}">Users</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
@@ -3009,29 +3017,29 @@ if (!empty($notifications)) {
                                                 aria-labelledby="navbarDropdown">
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('time-doctor.members') }}">Members</a>
+                                                        href="{{ route('time-doctor.members') }}">Time Doctor Members</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor/projects') }}">Projects</a>
+                                                        href="{{ url('time-doctor/projects') }}">Time Doctor Projects</a>
                                                 </li>
 
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor/tasks') }}">Tasks</a>
+                                                        href="{{ url('time-doctor/tasks') }}">Time Doctor Tasks</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor-activities/notification') }}">Activity
-                                                        Notofication</a>
+                                                        href="{{ url('time-doctor-activities/notification') }}">Time Doctor Activity
+                                                        Notification</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor-activities/activities') }}">Activities</a>
+                                                        href="{{ url('time-doctor-activities/activities') }}">Time Doctor Activities</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">User
+                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">Time Doctor User
                                                         Track Time</a>
                                                 </li>
                                             </ul>
@@ -3258,6 +3266,9 @@ if (!empty($notifications)) {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('settings/telescope') }}">Manage Telescope </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('telescope/dashboard') }}">View Telescope Dashboard</a>
                                     </li>
                                 </ul>
                             </li>
@@ -3495,6 +3506,13 @@ if (!empty($notifications)) {
                             <li>
                                 <a title="Search Password" type="button" data-toggle="modal" data-target="#searchPassswordModal" class="quick-icon" style="padding: 0px 1px;"><span><i
                                             class="fa fa-key fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
+                                    <span>
+                                        <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
+                                    </span>
+                                </a>
                             </li>
                             <li>
                                 <a title="Create Google Doc" type="button" data-toggle="modal" data-target="#createGoogleDocModal" class="quick-icon" style="padding: 0px 1px;"><span><i
@@ -4046,6 +4064,7 @@ if (!empty($notifications)) {
         @include('googledocs.partials.create-doc')
         @include('googledocs.partials.search-doc')
         @include('passwords.search-password')
+        @include('user-management.search-user-schedule')
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">

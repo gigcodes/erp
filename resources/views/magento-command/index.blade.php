@@ -554,6 +554,10 @@
             }
         }).fail(function (errObj) {
             $('#loading-image').hide();
+            if (errObj?.responseJSON?.message) {
+              toastr['error'](errObj.responseJSON.message, 'error');
+              return;
+            }
             toastr['error'](errObj.message, 'error');
         });
     });

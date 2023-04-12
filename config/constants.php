@@ -56,5 +56,10 @@ return [
     'product_check_py' => env('PRODUCT_CHECK_PY'),
 
     /** website root access */
-    'WEBSITES_LOGS_FOLDER' => 'storage/websites'
+    'WEBSITES_LOGS_FOLDER' => 'storage/websites',
+    'PRINT_LATER_AUTO_DELETE_DAYS' => 15,
+    'AVAILABLE_TIMEZONES' => [
+        'Asia/Dubai' => 'Asia/Dubai',
+        'Asia/Kolkata' => 'Asia/Kolkata'
+    ]
 ];
