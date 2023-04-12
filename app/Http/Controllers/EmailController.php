@@ -111,7 +111,7 @@ class EmailController extends Controller
         else {
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
-            })->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');;
+            });
         }
         if ($email_model_type)
         {
@@ -180,10 +180,6 @@ class EmailController extends Controller
             });
         }
 
-        $query =  $query->where(function ($query)  {
-            $query->whereNull('email_box_id');
-        });
-
         if ($admin == 1) {
             $query = $query->orderByDesc('created_at');
             $emails = $query->paginate(30)->appends(request()->except(['page']));
@@ -247,7 +243,7 @@ class EmailController extends Controller
         // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
         $digita_platfirms = DigitalMarketingPlatform::all();
         
-        $totalEmail = Email::whereNull('email_box_id')->count();
+        $totalEmail = Email::count();
 
         return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_status' => $email_status, 'email_categories' => $email_categories, 'emailModelTypes' => $emailModelTypes, 'reports' => $reports, 'digita_platfirms' => $digita_platfirms, 'receiver' => $receiver, 'from' => $from, 'totalEmail' => $totalEmail])->with('i', ($request->input('page', 1) - 1) * 5);
     }
@@ -884,13 +880,8 @@ class EmailController extends Controller
 
             $file = file_get_contents($downloadURL);
 
-            \Storage::put($filename, $file);
-
-            $storagePath = \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
-
-            $path = $storagePath.'/'.$filename;
-
-            $get = \Storage::get($filename);
+            file_put_contents(storage_path('app/files/email-attachments/'.$filename),  $file);
+            $path = 'email-attachments/'.$filename;
 
             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                 if (strpos($filename, '.zip') !== false) {
@@ -900,7 +891,7 @@ class EmailController extends Controller
                 if (strpos($filename, '.xls') !== false || strpos($filename, '.xlsx') !== false) {
                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                         $excel = $supplier;
-                        ErpExcelImporter::excelFileProcess($path, $filename, '');
+                        ErpExcelImporter::excelFileProcess($filename, $excel, '');
                     }
                 }
             }
