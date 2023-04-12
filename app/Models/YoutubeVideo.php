@@ -13,6 +13,7 @@ class YoutubeVideo extends Model
         'media_id',
         'title',
         'description',
+        'view_count',
         'like_count',
         'dislike_count',
         'comment_count',

@@ -84,45 +84,40 @@
 </style>
 @endsection
 @section('content')
+
+
+                @if(count($commentsList) > 0) 
                  <h2 class="text-center">Comment List</h2>
-
+                 
                 <table class="table table-bordered">
-                      {{--  <thead>
+               
+                      <thead>
                         <tr>
-                            <th>Comment List</th>
-                            <th>Action</th>
+                            <th>Commnet</th>
+                            <th>Like Count</th>
+                            <th>Create Date & Time</th>
                         </tr>
-                    </thead>    --}}
+                    </thead>
+                      
                     <tbody>
-                        @foreach($comments as $value)
+                        @foreach($commentsList as $value)
 
                         <tr>
-                                <td>
-                                    <div class="container mt-5">
-                                        <div class="row  d-flex justify-content-center">
-                                                <div class="card p-3">
-
-                                                            <div class="d-flex justify-content-between align-items-center">
-
-                                                                <div class="user d-flex flex-row align-items-center">
-                                                                
-                                                                    <span><small class="font-weight-bold text-primary">{{$value['authorDisplayName']}}</small> <small class="font-weight-bold">{{$value['textOriginal']}}</small></span>
-                                                                </div>
-
-                                                                <small>{{date('d-m-Y H:i:s a', strtotime($value['publishedAt']))}}</small>
-
-                                                            </div>
-                                            
-                                                </div>
-                                            </div> 
-                                        </div>   
-                                </td> 
+                                <td>{{$value->title}}</td>
+                                <td>{{$value->like_count}}</td>
+                                <td>{{date('d-m-Y H:i:s a', strtotime($value->create_time))}}</td>
                         </tr>
 
                         @endforeach
                     </tbody>
+
                    
                  </table>
+                    {{ $commentsList->links() }}
+
+                    @else
+                    <h4 class="Text-danger text-center jumbotron">Comments Not Available...</h4>
+                    @endif
 {{--  
                   <tbody>
                      @if(count($comments) > 0)

@@ -2285,7 +2285,7 @@ if (!empty($notifications)) {
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/youtube/add-chanel">Create Chanel</a>
-                                            <a class="dropdown-item" href="#">Post Videos</a>
+                                          
                                             
                                         </li>
                                     </ul>

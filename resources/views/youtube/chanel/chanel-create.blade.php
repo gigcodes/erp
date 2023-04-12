@@ -93,6 +93,8 @@
                     <td>{{$googleadsac->created_at}}</td>
                     <td>
                         <button type="button" onclick="editaccount('{{$googleadsac->id}}')" class="btn-image" data-toggle="modal" data-target="#EditModal"><img src="{{asset('/images/edit.png')}}"></button>
+                        <button type="button" class="btn-image btn-primary"><a style="color:#fff" href="video-upload/{{$googleadsac->id}}">PostVideo</a></button>
+                        <button type="button" class="btn-image btn-primary"><a style="color:#fff" href="list-video/{{$googleadsac->id}}">ListVideo</a></button>
 
                         @if(Auth::user()->hasRole('Admin'))
                         {!! Form::open(['method' => 'DELETE','route' => ['googleadsaccount.deleteGoogleAdsAccount', $googleadsac->id],'style'=>'display:inline']) !!}
@@ -258,7 +260,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="EditModalLabel">Edit Ads Account</h5>
+                <h5 class="modal-title" id="EditModalLabel">Edit Channel</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
@@ -365,6 +367,73 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="PostVideoModal"  role="dialog" style="z-index: 3000;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="EditModalLabel">Post Video</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {{csrf_field()}}
+                    
+                    <input type="hidden" name="channelId" id="channelId" val="">
+
+                    <fieldset>
+                         <legend class="lagend">Post video</legend>
+                        
+
+                        <div class="form-group row">
+                            <label for="title" class="col-sm-2 col-form-label">Title</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" required="required" id="title_youtube" name="title" placeholder="title">
+                                @if ($errors->has('title'))
+                                    <span class="text-danger">{{$errors->first('title')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                         <div class="form-group row">
+                            <label for="youtubeVideo" class="col-sm-2 col-form-label">Upload Video</label>
+                            <div class="col-sm-10">
+                                <input type="file" class="form-control" required="required" id="uploadVideo" name="uploadVideo" placeholder="uploadVideo">
+                                @if ($errors->has('uploadVideo'))
+                                    <span class="text-danger">{{$errors->first('title')}}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                    </fieldset>
+
+
+
+                    <div class="form-group row">
+                        <label for="status" class="col-sm-2 col-form-label">Status</label>
+                        <div class="col-sm-10">
+                            <select class="browser-default custom-select" required="required" id="edit_status" name="status" style="height: auto">
+                                <option value="ENABLED">ENABLED</option>
+                                <option value="DISABLED">DISABLED</option>
+                            </select>
+                            @if ($errors->has('status'))
+                                <span class="text-danger">{{$errors->first('status')}}</span>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="float-right ml-2" data-dismiss="modal" aria-label="Close">Close</button>
+                    <button type="submit" class="mb-2 float-right">Update</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -436,6 +505,29 @@
             alert('No response from server');
         });
     }
+
+    function renderChanelId(chanelId)
+    {
+       $('#PostVideoModal #channelId').val(chanelId);
+    }
+
+     {{--  function postVideo() {
+       var id = $('#PostVideoModal #channelId')
+        $('#PostVideoModal').hide();
+        var url = "{{ route('youtubeaccount.uploadVideo', ":id") }}";
+        url = url.replace(':id', id);
+        $.ajax({
+            method: "GET",
+            url: url,
+            dataType: "json",
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            success: function (data) {
+               
+               
+            }
+        });
+    }  --}}
+    
 
     function editaccount(id) {
         $('#EditModal').hide();

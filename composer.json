@@ -122,7 +122,8 @@
     "extra": {
         
              "google/apiclient-services": [
-            "Playdeveloperreporting"
+            "Playdeveloperreporting",
+            "YouTube"
             
         ]
         
