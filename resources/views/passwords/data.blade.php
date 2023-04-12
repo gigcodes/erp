@@ -70,7 +70,6 @@
         var thiss = $(this);
         var password_id = $(this).data('password_id');
         var remark = $(`.remark_pop`+password_id).val();
-        console.log(remark, password_id);
         $.ajax({
             type: "POST",
             url: passGetRemark,
@@ -86,7 +85,6 @@
                 $("#loading-image").show();
             }
         }).done(function (response) {
-            console.log(response, "response");
             if(response.code == 200) {
                 $("#loading-image").hide();
                 if (remark == ''){
@@ -131,7 +129,6 @@
                 $("#loading-image").show();
             }
         }).done(function (response) {
-            console.log(response, "response");
             if(response.code == 200) {
                 $("#loading-image").hide();
                 if (remark == ''){
