@@ -348,7 +348,6 @@ use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
-<<<<<<< HEAD
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
 
@@ -369,22 +368,20 @@ Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('y
 Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
 Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
 });
-Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
-Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
-Route::get('/GetChanelData', [YoutubeController::class, 'GetChanelData'])->name('GetChanelData');
-Route::get('/chanelList', [YoutubeController::class, 'chanelList'])->name('chanelList');
-Route::get('/videoList/{chanelId}/{websiteId}', [YoutubeController::class, 'VideoListByChanelId'])->name('videoList');
+// Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
+// Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
+// Route::get('/GetChanelData', [YoutubeController::class, 'GetChanelData'])->name('GetChanelData');
+// Route::get('/chanelList', [YoutubeController::class, 'chanelList'])->name('chanelList');
+// Route::get('/videoList/{chanelId}/{websiteId}', [YoutubeController::class, 'VideoListByChanelId'])->name('videoList');
 
 // Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
 
 
-=======
 use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\MailBoxController;
 
 Auth::routes();
 
->>>>>>> 521d1d1c7a51e6a4d811ffff21201380adedb296
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
 Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
