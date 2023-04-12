@@ -51,6 +51,7 @@ use Response;
 use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorTask;
 use App\Library\TimeDoctor\Src\Timedoctor;
+use App\Models\Tasks\TaskHistoryForStartDate;
 
 class TaskModuleController extends Controller
 {
@@ -4634,14 +4635,25 @@ class TaskModuleController extends Controller
     public function slotAssign()
     {
         try {
-            $newValue = request('date').' '.substr(request('slot'), 0, 2).':00:00';
+            // $newValue = request('date').' '.substr(request('slot'), 0, 2).':00:00';
+            $newValue = request('date').' '.request('slot').':00';
             if ($id = isDeveloperTaskId(request('taskId'))) {
                 if ($single = DeveloperTask::find($id)) {
+
+                    if(!empty($single->estimate_date) || !empty($single->start_date)) {
+                        throw new Exception("You already have updated your estimate date.");
+                    }
+                    if(empty($single->estimate_minutes) || $single->estimate_minutes == null || $single->estimate_minutes == "") {
+                        throw new Exception("Update your estimate time first.");
+                    }
+
                     $oldValue = $single->start_date;
                     if ($oldValue == $newValue) {
                         return respJson(400, 'No change in time slot.');
                     }
                     $single->start_date = $newValue;
+                    $single->estimate_date = date('Y-m-d H:i:00', strtotime($single->start_date." +$single->estimate_minutes minute"));
+
                     $single->save();
                     $single->updateHistory('start_date', $oldValue, $newValue);
 
@@ -4649,7 +4661,22 @@ class TaskModuleController extends Controller
                 }
             } elseif ($id = isRegularTaskId(request('taskId'))) {
                 if ($single = Task::find($id)) {
-                    $single->updateStartDate($newValue);
+                    
+                    if(!empty($single->due_date) || !empty($single->start_date)) {
+                        throw new Exception("You already have updated your estimate date.");
+                    }
+                    
+                    if(empty($single->approximate) || $single->approximate == null || $single->approximate == "" || $single->approximate == 0) {
+                        throw new Exception("Update your estimate time first.");
+                    }
+                    $oldValue = $single->start_date;
+                    
+                    $single->start_date = $newValue;
+                    $single->due_date = date('Y-m-d H:i:00', strtotime($single->start_date." +$single->approximate minute"));
+
+                    $single->save();
+
+                    TaskHistoryForStartDate::historySave($single->id, $oldValue, $newValue, 0);
 
                     return respJson(200, 'Time slot updated successfully.');
                 }
@@ -4657,7 +4684,7 @@ class TaskModuleController extends Controller
 
             return respJson(404, 'No task found.');
         } catch(\Throwable $th) {
-            return respException($th);
+            return response()->json(["message" => $th->getMessage()], 500);
         }
     }
 
@@ -4694,18 +4721,22 @@ class TaskModuleController extends Controller
     public function taskUpdateStartDate()
     {
         if ($new = request('value')) {
-            if ($task = Task::find(request('task_id'))) {
-                if ($task->assign_to == Auth::user()->id) {
-                    $params['message'] = 'Estimated Start Datetime: '.$new;
-                    $params['user_id'] = Auth::user()->id;
-                    $params['task_id'] = $task->id;
-                    $params['approved'] = 1;
-                    $params['status'] = 2;
-                    ChatMessage::create($params);
+            try {
+                if ($task = Task::find(request('task_id'))) {
+                    if ($task->assign_to == Auth::user()->id) {
+                        $params['message'] = 'Estimated Start Datetime: '.$new;
+                        $params['user_id'] = Auth::user()->id;
+                        $params['task_id'] = $task->id;
+                        $params['approved'] = 1;
+                        $params['status'] = 2;
+                        ChatMessage::create($params);
+                    }
+                    $task->updateStartDate($new);
+    
+                    return respJson(200, 'Successfully updated.');
                 }
-                $task->updateStartDate($new);
-
-                return respJson(200, 'Successfully updated.');
+            } catch (\Exception $e) {
+                return respJson(404, $e->getMessage());
             }
 
             return respJson(404, 'No task found.');
@@ -4717,18 +4748,22 @@ class TaskModuleController extends Controller
     public function taskUpdateDueDate()
     {
         if ($new = request('value')) {
-            if ($task = Task::find(request('task_id'))) {
-                if ($task->assign_to == Auth::user()->id) {
-                    $params['message'] = 'Estimated End Datetime: '.$new;
-                    $params['user_id'] = Auth::user()->id;
-                    $params['task_id'] = $task->id;
-                    $params['approved'] = 1;
-                    $params['status'] = 2;
-                    ChatMessage::create($params);
+            try {
+                if ($task = Task::find(request('task_id'))) {
+                    if ($task->assign_to == Auth::user()->id) {
+                        $params['message'] = 'Estimated End Datetime: '.$new;
+                        $params['user_id'] = Auth::user()->id;
+                        $params['task_id'] = $task->id;
+                        $params['approved'] = 1;
+                        $params['status'] = 2;
+                        ChatMessage::create($params);
+                    }
+                    $task->updateDueDate($new);
+    
+                    return respJson(200, 'Successfully updated.');
                 }
-                $task->updateDueDate($new);
-
-                return respJson(200, 'Successfully updated.');
+            } catch (\Exception $e) {
+                return respJson(404, $e->getMessage());
             }
 
             return respJson(404, 'No task found.');
