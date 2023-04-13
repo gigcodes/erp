@@ -2887,6 +2887,8 @@ Route::middleware('auth')->group(function () {
     Route::post('bug-tracking/store', [BugTrackingController::class, 'store'])->name('bug-tracking.store');
     Route::get('bug-tracking/edit/{id}', [BugTrackingController::class, 'edit'])->name('bug-tracking.edit');
     Route::post('bug-tracking/update', [BugTrackingController::class, 'update'])->name('bug-tracking.update');
+    Route::post('bug-tracking/upload-file', [BugTrackingController::class, 'uploadFile'])->name('bug-tracking.upload-file');
+    Route::get('bug-tracking/files/record', [BugTrackingController::class, 'getBugFilesList'])->name('bug-tracking.files.record');
     Route::post('bug-tracking/assign_user', [BugTrackingController::class, 'assignUser'])->name('bug-tracking.assign_user');
     Route::post('bug-tracking/change_bug_type', [BugTrackingController::class, 'changeBugType'])->name('bug-tracking.change_bug_type');
     Route::post('bug-tracking/change_module_type', [BugTrackingController::class, 'changeModuleType'])->name('bug-tracking.change_module_type');

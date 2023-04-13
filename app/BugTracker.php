@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\GoogleDriveBugsUpload;
 use Illuminate\Database\Eloquent\Model;
 
 class BugTracker extends Model
@@ -48,5 +49,10 @@ class BugTracker extends Model
     {
         //return $this->hasMany(\App\ChatMessage::class, 'bug_id')->latest()->orderBy('id', 'desc')->limit(1);
         return $this->hasMany(\App\ChatMessage::class, 'bug_id');
+    }
+    
+    public function latestFile()
+    {
+        return $this->hasOne(GoogleDriveBugsUpload::class, 'bug_id')->orderBy('id', 'desc');
     }
 }

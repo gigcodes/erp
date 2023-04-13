@@ -29,11 +29,11 @@
                     <span class="text-danger">{{ $errors->first('step_to_reproduce') }}</span>
                 </div>
 
-                <div class="form-group {{ $errors->has('url') ? 'has-error' : '' }}">
+                {{-- <div class="form-group {{ $errors->has('url') ? 'has-error' : '' }}">
                     <label> ScreenShot/ Video Url </label>
                     <input class="form-control url" id="url_update" name="url" type="text">
                     <span class="text-danger">{{ $errors->first('url') }}</span>
-                </div>
+                </div> --}}
 
                 <div class="form-group" {{ $errors->has('bug_type_id') ? 'has-error' : '' }}>
                     <label> Type of Bug </label>
