@@ -3917,24 +3917,25 @@ class DevelopmentController extends Controller
                 }
             } else {
                 $timeDoctorTaskResponse = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
                 if ($timeDoctorTaskResponse['code'] != '200') {
                     $message = '';
                     switch ($timeDoctorTaskResponse['code']) {
                         case '401':
-                            $message = 'Time Doctor Account user\'s Token ID is invalid or access is denied.';
+                            $message = $errorMessages['401'];
                             break;
                         case '403':
-                            $message = 'Time Doctor Account user don\'t have permission to perform this action';
+                            $message = $errorMessages['403'];
                             break;
                         case '409':
-                            $message = 'The same resource of this type has already been registered.';
+                            $message = $errorMessages['409'];
                             break;
                         case '422':
-                            $message = 'Missing value in at least one of required parameters.';
+                            $message = $errorMessages['422'];
                             break;
                         case '500':
                         case '404':
-                            $message = 'Something went wrong';
+                            $message = $errorMessages['404'];
                             break;
                         default:
                             $message = 'Time doctor task created successfully';
