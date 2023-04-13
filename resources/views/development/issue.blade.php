@@ -1128,6 +1128,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             },
             error: function(error) {
                 toastr["error"](error.responseJSON.message);
+                $('#create-d-task-modal').modal('hide');
+                $("#loading-image").hide();
             }
         });
 

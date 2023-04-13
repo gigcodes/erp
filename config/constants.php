@@ -61,5 +61,13 @@ return [
     'AVAILABLE_TIMEZONES' => [
         'Asia/Dubai' => 'Asia/Dubai',
         'Asia/Kolkata' => 'Asia/Kolkata'
+    ],
+    'TIME_DOCTOR_API_RESPONSE_MESSAGE' => [
+        '401' => 'Time Doctor Account user\'s Token ID is invalid or access is denied.',
+        '403' => 'Time Doctor Account user don\'t have permission to perform this action',
+        '409' => 'The same resource of this type has already been registered.',
+        '422' => 'Missing value in at least one of required parameters.',
+        '404' => 'Something went wrong',
+        '500' => 'Something went wrong'
     ]
 ];
