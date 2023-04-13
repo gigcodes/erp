@@ -349,6 +349,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\GoogleCampaignLocationController;
+use App\Http\Controllers\Seo;
 
 
 Auth::routes();
@@ -4807,6 +4808,18 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::post('/execute-horizon', [RedisQueueController::class, 'executeHorizon'])->name('redisQueue.executeHorizon');
     Route::get('/command-logs/{id}', [RedisQueueController::class, 'commandLogs'])->name('redisQueue.commandLogs');
     Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
+});
+
+Route::prefix('seo')->middleware('auth')->group(function() {
+    Route::prefix('content')->group(function() {
+        Route::get('', [Seo\ContentController::class, 'index'])->name('seo.content.index');
+        Route::get('create', [Seo\ContentController::class, 'create'])->name('seo.content.create');
+        Route::post('store', [Seo\ContentController::class, 'store'])->name('seo.content.store');
+        Route::get('{id}/edit', [Seo\ContentController::class, 'edit'])->name('seo.content.edit');
+        Route::post('{id}/update', [Seo\ContentController::class, 'update'])->name('seo.content.update');
+        Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
+
+    });
 });
 
 // Task Summary::
