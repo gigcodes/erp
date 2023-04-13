@@ -2507,6 +2507,9 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('uicheck.translation') }}">U I
                                                 Languages</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('site-development.store-website-category') }}">Store Website Category</a>
+                                        </li>
                                     </ul>
                                 </li>
 
