@@ -125,6 +125,7 @@ class AssetsManagerController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
+            'link' => 'required',
             'asset_type' => 'required',
             'start_date' => 'required',
             'category_id' => 'required',
@@ -162,6 +163,7 @@ class AssetsManagerController extends Controller
         $data['asset_plate_form_id'] = $request->asset_plate_form_id;
         $data['email_address_id'] = $request->email_address_id;
         $data['whatsapp_config_id'] = $request->whatsapp_config_id;
+        $data['link'] = $request->get('link');
         $data['created_by'] = Auth::user()->id;
         $insertData = AssetsManager::create($data);
         if ($request->input('payment_cycle') == 'One time') {
@@ -225,6 +227,7 @@ class AssetsManagerController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
+            'link' => 'required',
             'asset_type' => 'required',
             'start_date' => 'required',
             'category_id' => 'required',
@@ -274,7 +277,7 @@ class AssetsManagerController extends Controller
         $data['asset_plate_form_id'] = $request->asset_plate_form_id;
         $data['email_address_id'] = $request->email_address_id;
         $data['whatsapp_config_id'] = $request->whatsapp_config_id;
-
+        $data['link'] = $request->get('link');
         //dd($data);
         AssetsManager::find($id)->update($data);
 

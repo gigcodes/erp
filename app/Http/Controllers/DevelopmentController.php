@@ -51,6 +51,8 @@ use Plank\Mediable\Media;
 use Response;
 use Storage;
 use App\Library\TimeDoctor\Src\Timedoctor;
+use App\Models\DeveloperTaskStatusChecklist;
+use App\Models\DeveloperTaskStatusChecklistRemarks;
 
 class DevelopmentController extends Controller
 {
@@ -509,7 +511,7 @@ class DevelopmentController extends Controller
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
         $statusList = Cache::remember('task_status_select_name', 60 * 60 * 24 * 7, function () {
-            return TaskStatus::select('name')->pluck('name', 'name')->toArray();
+          return TaskStatus::select('name')->pluck('name', 'name')->toArray();
         });
 
         /*$statusList = array_merge([
@@ -612,6 +614,11 @@ class DevelopmentController extends Controller
             return GithubRepository::all();
         });
 
+        $checkList = [];
+        $checkListArray = DeveloperTaskStatusChecklist::select("id","name","task_status")->get()->toArray();
+        foreach($checkListArray as $list){
+            $checkList[$list['task_status']][] = $list;
+        }
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
         if (request()->ajax()) {
@@ -621,6 +628,7 @@ class DevelopmentController extends Controller
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
+            'checkList' => $checkList,
             'modules' => $modules,
             'request' => $request,
             'title' => $title,
@@ -1846,8 +1854,8 @@ class DevelopmentController extends Controller
         $check_entry = 0;
         $project_data = [];
         $project_data['time_doctor_project'] = $projectId;
-        $project_data['time_doctor_task_name'] = $task['subject'];
-        $project_data['time_doctor_task_description'] = $task['task'];
+        $project_data['time_doctor_task_name'] = $task['subject'] ?? "";
+        $project_data['time_doctor_task_description'] = $task['task'] ?? "";
 
         if ($type == 'DEVTASK') {
             $message = '#DEVTASK-'.$task->id.' => '.$task->subject;
@@ -1867,16 +1875,20 @@ class DevelopmentController extends Controller
         $companyId = $assignUsersData->company_id;
         $accessToken = $assignUsersData->auth_token;
 
-        $taskSummary = substr($message, 0, 200);            
-        if (env('PRODUCTION', true)) {                
-            $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );
+        $taskSummary = substr($message, 0, 200);
+        if (env('PRODUCTION', true)) {
+            $timeDoctorTaskId = '';
+            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data);
+            if (!empty($timeDoctorTaskResponse['data'])) {
+                $timeDoctorTaskId = $timeDoctorTaskResponse['data']['id'];
+            }
         } else {
             $projectId = '#TASK-3';
             $timeDoctorUserId = 406; //for local system
             $timeDoctorTaskId = 34543; //for local system
         }
 
-        if( $timeDoctorTaskId != ''){                   
+        if ($timeDoctorTaskId != '') {
             if ($timeDoctorTaskId) {
                 $task->time_doctor_task_id = $timeDoctorTaskId;
                 $task->save();
@@ -1887,43 +1899,10 @@ class DevelopmentController extends Controller
                 $time_doctor_task->time_doctor_project_id = $projectId;
                 $time_doctor_task->summery = $message;
                 $time_doctor_task->save();
-                return true;
             }
         }
-        
-        return false;
-        /*foreach($assignUsersData as $assignedUser){
-            $companyId = $assignedUser->account_detail->company_id;
-            $accessToken = $assignedUser->account_detail->auth_token;
-            $taskSummary = substr($message, 0, 200);            
-            if (env('PRODUCTION', true)) {                
-                $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );
-            } else {
-                $projectId = '#TASK-3';
-                $timeDoctorUserId = 406; //for local system
-                $timeDoctorTaskId = 34543; //for local system
-            }
-            //$timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
-            if( $timeDoctorTaskId != ''){                
-                if ($timeDoctorTaskId) {
-                    $task->time_doctor_task_id = $timeDoctorTaskId;
-                    $task->save();
 
-                    $time_doctor_task = new \App\TimeDoctor\TimeDoctorTask();
-                    $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
-                    $time_doctor_task->project_id = $projectId;
-                    $time_doctor_task->time_doctor_project_id = $projectId;
-                    $time_doctor_task->summery = $message;
-                    $time_doctor_task->save();
-                    $check_entry = 1;
-                }
-            }
-        }
-        
-        if($check_entry == 1){
-            return true;
-        }
-        return false;*/
+        return $timeDoctorTaskResponse;
     }
 
     /**
@@ -3199,6 +3178,38 @@ class DevelopmentController extends Controller
             if ($issue->status == DeveloperTask::DEV_TASK_STATUS_DONE) {
                 $issue->actual_end_date = date('Y-m-d H:i:s');
             }
+            if ($issue->status == DeveloperTask::DEV_TASK_STATUS_USER_COMPLETE) {
+
+                if(isset($request->checklist)){
+                    $statusMsg = "Status has been updated : From ".$old_status." To ".DeveloperTask::DEV_TASK_STATUS_USER_COMPLETE."\n";
+                    $msg = "";
+                    foreach($request->checklist as $key => $list){
+                        $checkList = DeveloperTaskStatusChecklist::find($key);
+                        if(!empty($checkList)){
+                            DeveloperTaskStatusChecklistRemarks::create([
+                                'user_id' => Auth::id(),
+                                'task_id' => $issue->id,
+                                'developer_task_status_checklist_id' => $key,
+                                'remark' => $list
+                            ]);
+                            $msg .= $checkList['name']." => ".$list."\n";
+                        }
+                    }
+
+                    $message = !empty($msg) ? $statusMsg.$msg : "";
+
+                    if(!empty($message)){
+                        ChatMessage::create([
+                            'user_id' => Auth::user()->id,
+                            'developer_task_id' => $issue->id,
+                            'sent_to_user_id' => $issue->user_id,
+                            'message' => $message,
+                            'status' => 2,
+                            'approved' => 1,
+                        ]);
+                    }
+                }
+            }
 
             $issue->save();
         }
@@ -3905,11 +3916,34 @@ class DevelopmentController extends Controller
                     $task->save();
                 }
             } else {
-                $timeDoctorTaskId = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
-                if (!$timeDoctorTaskId) {
+                $timeDoctorTaskResponse = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
+                if ($timeDoctorTaskResponse['code'] != '200') {
+                    $message = '';
+                    switch ($timeDoctorTaskResponse['code']) {
+                        case '401':
+                            $message = $errorMessages['401'];
+                            break;
+                        case '403':
+                            $message = $errorMessages['403'];
+                            break;
+                        case '409':
+                            $message = $errorMessages['409'];
+                            break;
+                        case '422':
+                            $message = $errorMessages['422'];
+                            break;
+                        case '500':
+                        case '404':
+                            $message = $errorMessages['404'];
+                            break;
+                        default:
+                            $message = 'Time doctor task created successfully';
+                            break;
+                    }
                     return response()->json([
-                        'message' => 'Time Doctor task not created',
-                    ], 500);
+                        'message' => $message,
+                    ], $timeDoctorTaskResponse['code']);
                 } 
             }
 

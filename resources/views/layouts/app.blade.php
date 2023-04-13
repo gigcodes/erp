@@ -3004,29 +3004,29 @@ if (!empty($notifications)) {
                                                 aria-labelledby="navbarDropdown">
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('time-doctor.members') }}">Members</a>
+                                                        href="{{ route('time-doctor.members') }}">Time Doctor Members</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor/projects') }}">Projects</a>
+                                                        href="{{ url('time-doctor/projects') }}">Time Doctor Projects</a>
                                                 </li>
 
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor/tasks') }}">Tasks</a>
+                                                        href="{{ url('time-doctor/tasks') }}">Time Doctor Tasks</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor-activities/notification') }}">Activity
-                                                        Notofication</a>
+                                                        href="{{ url('time-doctor-activities/notification') }}">Time Doctor Activity
+                                                        Notification</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ url('time-doctor-activities/activities') }}">Activities</a>
+                                                        href="{{ url('time-doctor-activities/activities') }}">Time Doctor Activities</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">User
+                                                        href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">Time Doctor User
                                                         Track Time</a>
                                                 </li>
                                             </ul>

@@ -36,7 +36,7 @@
 </div>
 <div class="row">
   <div class="col-md-12 p-0">
-    <h2 class="page-heading">Emails List ({{$totalEmail}})</h2>
+    <h2 class="page-heading">Mailbox (<span id="email_list_count_id">{{$totalEmail}}</span>)</h2>
   </div>
 </div>
 @if ($message = Session::get('success'))
@@ -51,7 +51,7 @@
 @endif
 <div class="row">
   <div class="col-lg-12 margin-tb">
-    <div class="pull-right mt-3">
+    <!-- <div class="pull-right mt-3">
       <button type="button" class="btn  custom-button" data-toggle="modal" data-target="#statusModel">Create Status</button>
       <button type="button" class="btn  custom-button" data-toggle="modal" data-target="#getCronEmailModal">Cron Email</button>
       <button type="button" class="btn  custom-button" data-toggle="modal" data-target="#createEmailCategorytModal">Create Category</button>
@@ -69,30 +69,34 @@
     </div>
     <div class="pull-left mt-3" style="margin-bottom:10px;margin-right:5px;">
       <button type="button" class="btn custom-button bulk-dlt" onclick="bulkAction(this,'delete');">Bulk Delete</button>
-    </div>
-    <div class="pull-left " style="margin-left:50px;">
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item <?php echo (request('type') == 'incoming' && request('seen') == '1') ? 'active' : '' ?>" >
-          <!-- Purpose : Add Turnary -  DEVTASK-18283 -->
-          <a class="nav-link" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true" onclick="load_data('incoming',1)">Read</a>
-        </li>
-        <li class="nav-item <?php echo ((request('type') == 'incoming' && request('seen') == '0') || empty(request('type'))) ? 'active' : '' ?>">
-          <a class="nav-link" id="unread-tab" data-toggle="tab" href="#unread" role="tab" aria-controls="unread" aria-selected="false" onclick="load_data('incoming',0)">Unread</a>
-        </li>
-        <li class="nav-item <?php echo (request('type') == 'outgoing' && request('seen') == 'both') ? 'active' : '' ?>">
-          <!-- Purpose : Add Turnary -  DEVTASK-18283 -->
-          <a class="nav-link" id="sent-tab" data-toggle="tab" href="#sent" role="tab" aria-controls="sent" aria-selected="false" onclick="load_data('outgoing','both')">Sent</a>
-        </li>
-        <li class="nav-item <?php echo (request('type') == 'bin' && request('seen') == 'both') ? 'active' : '' ?>">
-          <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('bin','both')">Trash</a>
-        </li>
-        <li class="nav-item <?php echo (request('type') == 'draft' && request('seen') == 'both') ? 'active' : '' ?>">
-          <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('draft','both')">Draft</a>
-        </li>
-        <li class="nav-item <?php echo (request('type') == 'pre-send' && request('seen') == 'both') ? 'active' : '' ?>">
-          <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('pre-send','both')">Queue</a>
-        </li>
-      </ul>
+    </div> -->
+
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-md-5 col-sm-5">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item <?php echo (request('type') == 'incoming' && request('seen') == '1') ? 'active' : '' ?>" >
+            <!-- Purpose : Add Turnary -  DEVTASK-18283 -->
+            <a class="nav-link" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true" onclick="load_data('incoming',1)">Read</a>
+          </li>
+          <li class="nav-item <?php echo ((request('type') == 'incoming' && request('seen') == '0') || empty(request('type'))) ? 'active' : '' ?>">
+            <a class="nav-link" id="unread-tab" data-toggle="tab" href="#unread" role="tab" aria-controls="unread" aria-selected="false" onclick="load_data('incoming',0)">Unread</a>
+          </li>
+          <li class="nav-item <?php echo (request('type') == 'outgoing' && request('seen') == 'both') ? 'active' : '' ?>">
+            <!-- Purpose : Add Turnary -  DEVTASK-18283 -->
+            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#sent" role="tab" aria-controls="sent" aria-selected="false" onclick="load_data('outgoing','both')">Sent</a>
+          </li>
+          <li class="nav-item <?php echo (request('type') == 'bin' && request('seen') == 'both') ? 'active' : '' ?>">
+            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('bin','both')">Trash</a>
+          </li>
+          <li class="nav-item <?php echo (request('type') == 'draft' && request('seen') == 'both') ? 'active' : '' ?>">
+            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('draft','both')">Draft</a>
+          </li>
+          <li class="nav-item <?php echo (request('type') == 'pre-send' && request('seen') == 'both') ? 'active' : '' ?>">
+            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('pre-send','both')">Queue</a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
   <div class="col-md-12">
@@ -165,6 +169,13 @@
             @endforeach
           </select>
         </div>
+        <div class="form-group px-2 mt-4">
+          <select class="form-control email_box_select" name="email_box_id" id="email_box_id" multiple>
+            @foreach($emailBoxes as $emailBox)
+              <option value="{{ $emailBox['id'] }}">{{$emailBox['box_name']}}</option>
+            @endforeach
+          </select>
+        </div>
         <input type='hidden' class="form-control" id="type" name="type" value="" />
         <input type='hidden' class="form-control" id="seen" name="seen" value="1" />
         <button type="submit" class="btn btn-image ml-3 mt-4 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
@@ -173,7 +184,6 @@
   </div>
 </div>
 
-<a href="{{ url('email/category/mappings') }}" class="btn custom-button float-right mb-2">View Category Mappings</a>
 <div class="table-responsive mt-3" style="margin-top:20px;">
   <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
     <thead>
@@ -678,6 +688,10 @@
       placeholder:"Select Category",
   });
 
+  $('.email_box_select').select2({
+      placeholder:"Select Mailbox",
+  });
+
   $('.select2-search__field').css('width', '100%')
 
   $(document).on('click', '[data-reply-add-receiver-btn]', function (){
@@ -914,10 +928,11 @@
     var mail_box_name = $("#mail_box").val();
     var mail_box = mail_box_name.toString();
     var email_model_type = $('#email_model_type').val().toString();
+    var email_box_id = $('#email_box_id').val().toString();
   
    console.log(window.url);
       $.ajax({
-        url: 'email',
+        url: 'mailbox',
         type: 'get',
         data:{
               term:term,
@@ -929,7 +944,8 @@
   status:status,
   category:category,
               mail_box : mail_box,
-              email_model_type : email_model_type
+              email_model_type : email_model_type,
+              email_box_id : email_box_id
           },
           beforeSend: function () {
               $("#loading-image").show();
@@ -938,7 +954,7 @@
         $("#loading-image").hide();
           $("#email-table tbody").empty().html(response.tbody);
           $(".pagination-custom").html(response.links);
-  
+          $('#email_list_count_id').html(response.count);
       }).fail(function(errObj) {
         $("#loading-image").hide();
       });
