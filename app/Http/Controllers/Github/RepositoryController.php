@@ -559,4 +559,10 @@ class RepositoryController extends Controller
         $data = $this->githubActionResult($request->repoId, $request->page, $request->date);
         return $data;
     }
+
+    public function rerunGithubAction($repoId,$jobId)
+    {
+        $data = $this->rerunAction($repoId,$jobId);
+        return $data;
+    }
 }
