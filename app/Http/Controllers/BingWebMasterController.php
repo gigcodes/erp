@@ -290,6 +290,38 @@ class BingWebMasterController extends Controller
      * */
     public function deleteSiteFromWebmaster(Request $request)
     {
+        $delete = false;
+        $site = BingSite::find($request->id);
+        if ($site) {
+            $bing_acc = BingClientAccountMail::with('bing_client_account')->get();
+            foreach ($bing_acc as $bing_ac) {
+                if ($bing_ac['bing_client_refresh_token'] == null) {
+                    continue;
+                }
+                $this->bingToken = $this->getAccessToken($bing_ac->id);
+                if (!empty($this->bingToken)) {
+                    $response = $this->getDataFromBing('RemoveSite', ['siteUrl' => $site->site_url], 'POST');
+                    if (isset($response->d) && $response->d == null) {
+                        $delete = true;
+                        break;
+                    } else {
+                        $this->createLog(isset($response->error->message) ? $response->error->message : 'Error', 'Delete Site', 'Error');
+                        return response()->json(['code' => 400, 'message' => 'Bing Access token not found']);
+                    }
+                } else {
+                    $this->createLog('Bing Access token not found', 'Delete Site', 'Error');
+                    return response()->json(['code' => 400, 'message' => 'Bing Access token not found']);
+                }
+            }
+            if ($delete) {
+                $site->delete();
+                $this->createLog('Site Deleted Successfully', 'Delete Site');
+                return response()->json(['code' => 200, 'message' => 'Site Deleted successfully']);
+            }
+        } else {
+            $this->createLog('No Data Found', 'Delete Site');
+            return response()->json(['code' => 400, 'message' => 'No record found']);
+        }
     }
 
     /*
@@ -351,6 +383,7 @@ class BingWebMasterController extends Controller
             CURLOPT_CUSTOMREQUEST => $request_type,
             CURLOPT_HTTPHEADER => [
                 'authorization: Bearer ' . $this->bingToken,
+                'Content-Type: application/json'
             ]
         ]);
 
