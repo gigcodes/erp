@@ -75,5 +75,10 @@ return [
         'PARTIAL' => "Reserved, no longer in use.",
         'FAIL' => 'Equivalent to "Error" or "Invalid" for the page or item in Search Console.',
         'NEUTRAL' => 'Equivalent to "Excluded" for the page or item in Search Console.',
+    ],
+    'bing_site_role_enum' => [
+        0 => 'Administrator',
+        1 => 'ReadOnly',
+        2 => 'ReadWrite'
     ]
 ];

@@ -350,6 +350,7 @@ use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\MailBoxController;
+use App\Http\Controllers\BingWebMasterController;
 
 Auth::routes();
 
@@ -516,6 +517,17 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
     Route::get('/accounts/disconnect/{id}', [GoogleWebMasterController::class, 'disconnectAccount'])->name('googlewebmaster.account.disconnect');
     Route::get('/get-account-notifications', [GoogleWebMasterController::class, 'getAccountNotifications'])->name('googlewebmaster.get.account.notifications');
     Route::get('/all-records', [GoogleWebMasterController::class, 'allRecords'])->name('googlewebmaster.get.records');
+});
+//Bing web master routes
+Route::prefix('bing-webmaster')->middleware('auth')->group(function () {
+    Route::get('/index', [BingWebMasterController::class, 'index'])->name('bingwebmaster.index');
+    Route::post('/add-account', [BingWebMasterController::class, 'addAccount'])->name('bingwebmaster.account.add');
+    Route::get('/get-accounts', [BingWebMasterController::class, 'getAccounts'])->name('bingwebmaster.get.accounts');
+    Route::get('/accounts/connect/{id}', [BingWebMasterController::class, 'connectAccount'])->name('bingwebmaster.account.connect');
+    Route::get('get-access-token', [BingWebMasterController::class, 'bingLogin'])->name('bingwebmaster.get-access-token');
+    Route::get('/accounts/disconnect/{id}', [BingWebMasterController::class, 'disconnectAccount'])->name('bingwebmaster.account.disconnect');
+    Route::get('/all-records', [BingWebMasterController::class, 'allRecords'])->name('bingwebmaster.get.records');
+    Route::post('delete-site', [BingWebMasterController::class, 'deleteSiteFromWebmaster'])->name('bingwebmaster.delete.site.webmaster');
 });
 Route::prefix('product')->middleware('auth')->group(function () {
     Route::get('manual-crop/assign-products', [Products\ManualCroppingController::class, 'assignProductsToUser']);
@@ -1311,7 +1323,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/update-customer-address', [OrderController::class, 'updateCustomerInvoiceAddress'])->name('order.update.customer.address');
     Route::get('order/{id}/mail-invoice', [OrderController::class, 'mailInvoice'])->name('order.mail.invoice');
     Route::get('order/{id}/get-invoice-customer-email', [OrderController::class, 'getInvoiceCustomerEmail'])->name('get.invoice.customer.email');
-   
+
     Route::get('order/get-invoice-customer-email-selected', [OrderController::class, 'getInvoiceCustomerEmailSelected']);
     Route::get('order/mail-invoice-multi-select', [OrderController::class, 'mailInvoiceMultiSelect']);
     Route::get('order/get-order-invoice-users', [OrderController::class, 'GetInvoiceOrderUsers']);
@@ -1354,8 +1366,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::put('email/{id}/mark-as-read', [EmailController::class, 'markAsRead']);
     Route::post('email/{id}/excel-import', [EmailController::class, 'excelImporter']);
     Route::post('email/{id}/get-file-status', [EmailController::class, 'getFileStatus']);
-   
-    
+
+
     Route::resource('email', EmailController::class);
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
@@ -2784,7 +2796,7 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects'])->name('time-doctor.projects');
-    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks'])->name('time-doctor.tasks');    
+    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks'])->name('time-doctor.tasks');
     Route::get('time-doctor/members', [TimeDoctorController::class, 'userList'])->name('time-doctor.members');
     Route::post('time-doctor/link_time_doctor_user', [TimeDoctorController::class, 'linkUser']);
     Route::post('time-doctor/saveuseraccount', [TimeDoctorController::class, 'saveUserAccount'])->name('time-doctor.adduser');
@@ -2838,7 +2850,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/userTrackTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
         });
     });
-    
+
 
     /***
      * use for Postman
@@ -3859,7 +3871,7 @@ Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDevelop
 Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
 Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
-	
+
      Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
@@ -4474,7 +4486,7 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 // DEV MANISH
 //System size
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');    
+    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
