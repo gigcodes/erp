@@ -349,7 +349,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\GoogleCampaignLocationController;
-
+use App\Http\Controllers\MailBoxController;
 
 Auth::routes();
 
@@ -505,6 +505,7 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
     Route::get('get-site-submit-hitory', [GoogleWebMasterController::class, 'getSiteSubmitHitory'])->name('googlewebmaster.get.history');
     Route::post('re-submit-site', [GoogleWebMasterController::class, 'ReSubmitSiteToWebmaster'])->name('googlewebmaster.re-submit.site.webmaster');
     Route::get('submit-site', [GoogleWebMasterController::class, 'SubmitSiteToWebmaster'])->name('googlewebmaster.submit.site.webmaster');
+    Route::post('delete-site', [GoogleWebMasterController::class, 'deleteSiteFromWebmaster'])->name('googlewebmaster.delete.site.webmaster');
     Route::get('get-access-token', [GoogleWebMasterController::class, 'googleLogin'])->name('googlewebmaster.get-access-token');
     Route::get('/index', [GoogleWebMasterController::class, 'index'])->name('googlewebmaster.index');
 
@@ -1369,6 +1370,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/category', [EmailController::class, 'category']);
     Route::post('email/status', [EmailController::class, 'status']);
     Route::post('email/update_email', [EmailController::class, 'updateEmail']);
+    Route::resource('mailbox', MailBoxController::class);
 
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');

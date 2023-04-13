@@ -11575,4 +11575,7 @@ overflow-x: hidden !important;
 .custom-checkbox input[type="checkbox"]:checked + label:after{
     opacity: 1;
 }
+.cursor-pointer {
+    cursor: pointer;
+}
 

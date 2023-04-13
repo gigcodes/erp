@@ -161,6 +161,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 @include("development.partials.upload-document-modal")
 @include("partials.plain-modal")
 
+@include("development.partials.status-update-check-list")
 @include("development.partials.meeting-time-modal")
 @include("development.partials.time-tracked-modal")
 @include("development.partials.add-status-modal")
@@ -1247,21 +1248,56 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         let id = task_id;
         let status = $(obj).val();
         let self = this;
+        let checkList = {!! json_encode($checkList) !!};
+        
+        if(status == ""){
+            return;
+        }
 
+        if(checkList[status]){
+            $("#status_checklist").html(" to mark task as "+status);
+            $("#checklist_issue_id").val(id);
+            $("#checklist_is_resolved").val(status);
+            let html = "";
+            $.each(checkList[status], function( index, value ) {
+                html += "<tr>";
+                html += "<td>"+value.name+"</td>";
+                html += "<td><textarea required class='form-control' name='checklist["+value.id+"]'></textarea></td>";
+                html += "</tr>";
+                $(".show_checklist").html(html);
+            });
+            $("#status_update_checklist").modal("show");
+        }else{
+            $.ajax({
+                url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'resolveIssue'])}}",
+                data: {
+                    issue_id: id,
+                    is_resolved: status,
+                },
+                success: function() {
+                    toastr["success"]("Status updated!", "Message")
+                },
+                error: function(error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
+    }
+
+    $(document).on('submit', '#statusUpdateChecklistForm', function(e) {
+        e.preventDefault();
         $.ajax({
             url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'resolveIssue'])}}",
-            data: {
-                issue_id: id,
-                is_resolved: status,
-            },
-            success: function() {
-                toastr["success"]("Status updated!", "Message")
+            data: $(this).serialize(),
+            success: function(response) {
+                 toastr["success"]("Status updated!", "Message")
+                $('#status_update_checklist').modal('hide');
             },
             error: function(error) {
                 toastr["error"](error.responseJSON.message);
             }
         });
-    }
+    });
 
     console.log($('#filecount'));
 
