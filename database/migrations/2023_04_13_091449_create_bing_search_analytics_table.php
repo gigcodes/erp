@@ -26,7 +26,7 @@ class CreateBingSearchAnalyticsTable extends Migration
             $table->float('crawl_requests')->nullable();
             $table->float('crawl_errors')->nullable();
             $table->float('index_pages')->nullable();
-            $table->string('crawl_information')->nullable();
+            $table->text('crawl_information')->nullable();
             $table->string('keywords')->nullable();
             $table->string('pages')->nullable();
             $table->foreign('site_id')->references('id')->on('bing_sites')->cascadeOnDelete()->cascadeOnUpdate();
