@@ -3143,57 +3143,54 @@ class TaskModuleController extends Controller
             return false;
         }
 
-        /*$assignUsersData = TimeDoctorMember::where('user_id', $assignedToId)->get();        */
         $assignUsersData = \App\TimeDoctor\TimeDoctorAccount::find( $accountId );
+        if ($assignUsersData && $assignUsersData->company_id && $assignUsersData->auth_token) {
+            $timedoctor = Timedoctor::getInstance();
+            $companyId = $assignUsersData->company_id;
+            $accessToken = $assignUsersData->auth_token;
 
-        $timedoctor = Timedoctor::getInstance();
-        $companyId = $assignUsersData->company_id;
-        $accessToken = $assignUsersData->auth_token;
+            $taskSummary = substr($message, 0, 200);
+            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data);
+            $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
+            switch ($timeDoctorTaskResponse['code']) {
+                case '401':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['401']];
+                    break;
+                case '403':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['403']];
+                    break;
+                case '409':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['409']];
+                    break;
+                case '422':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['422']];
+                    break;
+                case '500':
+                case '404':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['404']];
+                    break;
+                default:
+                    $timeDoctorTaskId = $timeDoctorTaskResponse['data']['id'];
+                    if ($timeDoctorTaskId) {
+                        $task->time_doctor_task_id = $timeDoctorTaskId;
+                        $task->save();
 
-        $taskSummary = substr($message, 0, 200);                        
-        $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
-        if( $timeDoctorTaskId != ''){                   
-            if ($timeDoctorTaskId) {
-                $task->time_doctor_task_id = $timeDoctorTaskId;
-                $task->save();
-
-                $time_doctor_task = new TimeDoctorTask();
-                $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
-                $time_doctor_task->project_id = $projectId;
-                $time_doctor_task->time_doctor_project_id = $projectId;
-                $time_doctor_task->summery = $message;
-                $time_doctor_task->save();
-                return true;
+                        $time_doctor_task = new TimeDoctorTask();
+                        $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
+                        $time_doctor_task->project_id = $projectId;
+                        $time_doctor_task->time_doctor_project_id = $projectId;
+                        $time_doctor_task->summery = $message;
+                        $time_doctor_task->save();
+                    }
+                    return ['code' => 200, 'data' => [], 'message' => 'Time doctor task created successfully'];
+                    break;
             }
+        } else {
+            return false;
         }
+
 
         return false;
-        
-        /*foreach($assignUsersData as $assignedUser){
-            $companyId = $assignedUser->account_detail->company_id;
-            $accessToken = $assignedUser->account_detail->auth_token;
-            $taskSummary = substr($message, 0, 200);                        
-            $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
-            if( $timeDoctorTaskId != ''){                   
-                if ($timeDoctorTaskId) {
-                    $task->time_doctor_task_id = $timeDoctorTaskId;
-                    $task->save();
-
-                    $time_doctor_task = new TimeDoctorTask();
-                    $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
-                    $time_doctor_task->project_id = $projectId;
-                    $time_doctor_task->time_doctor_project_id = $projectId;
-                    $time_doctor_task->summery = $message;
-                    $time_doctor_task->save();
-                    $check_entry = 1;
-                }
-            }
-        }        
-        
-        if($check_entry == 1){
-            return true;
-        }
-        return false;*/
     }
 
     //START - Purpose : Set Remined , Revise - DEVTASK-4354
@@ -3919,12 +3916,10 @@ class TaskModuleController extends Controller
                     $task->save();
                 }
             } else {
-                $timeDoctorTaskId = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
-                if (!$timeDoctorTaskId) {
-                    return response()->json([
-                        'message' => 'Time Doctor task not created',
-                    ], 500);
-                } 
+                $timeDoctorTaskResponse = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                return response()->json([
+                    'message' => $timeDoctorTaskResponse['message'],
+                ], $timeDoctorTaskResponse['code']);
             }
 
             return response()->json(

@@ -36,7 +36,7 @@
 </div>
 <div class="row">
   <div class="col-md-12 p-0">
-    <h2 class="page-heading">Emails List (<span id="email_list_count_id">{{$totalEmail}}</span>)</h2>
+    <h2 class="page-heading">Emails List ({{$totalEmail}})</h2>
   </div>
 </div>
 @if ($message = Session::get('success'))
@@ -174,7 +174,6 @@
 </div>
 
 <a href="{{ url('email/category/mappings') }}" class="btn custom-button float-right mb-2">View Category Mappings</a>
-<a href="{{ url('mailbox') }}" class="btn custom-button float-right mb-2 mr-2">View Mailbox</a>
 <div class="table-responsive mt-3" style="margin-top:20px;">
   <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
     <thead>
@@ -939,7 +938,7 @@
         $("#loading-image").hide();
           $("#email-table tbody").empty().html(response.tbody);
           $(".pagination-custom").html(response.links);
-          $('#email_list_count_id').html(response.count);
+  
       }).fail(function(errObj) {
         $("#loading-image").hide();
       });

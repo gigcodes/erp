@@ -1854,8 +1854,8 @@ class DevelopmentController extends Controller
         $check_entry = 0;
         $project_data = [];
         $project_data['time_doctor_project'] = $projectId;
-        $project_data['time_doctor_task_name'] = $task['subject'];
-        $project_data['time_doctor_task_description'] = $task['task'];
+        $project_data['time_doctor_task_name'] = $task['subject'] ?? "";
+        $project_data['time_doctor_task_description'] = $task['task'] ?? "";
 
         if ($type == 'DEVTASK') {
             $message = '#DEVTASK-'.$task->id.' => '.$task->subject;
@@ -1875,16 +1875,20 @@ class DevelopmentController extends Controller
         $companyId = $assignUsersData->company_id;
         $accessToken = $assignUsersData->auth_token;
 
-        $taskSummary = substr($message, 0, 200);            
-        if (env('PRODUCTION', true)) {                
-            $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );
+        $taskSummary = substr($message, 0, 200);
+        if (env('PRODUCTION', true)) {
+            $timeDoctorTaskId = '';
+            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data);
+            if (!empty($timeDoctorTaskResponse['data'])) {
+                $timeDoctorTaskId = $timeDoctorTaskResponse['data']['id'];
+            }
         } else {
             $projectId = '#TASK-3';
             $timeDoctorUserId = 406; //for local system
             $timeDoctorTaskId = 34543; //for local system
         }
 
-        if( $timeDoctorTaskId != ''){                   
+        if ($timeDoctorTaskId != '') {
             if ($timeDoctorTaskId) {
                 $task->time_doctor_task_id = $timeDoctorTaskId;
                 $task->save();
@@ -1895,43 +1899,10 @@ class DevelopmentController extends Controller
                 $time_doctor_task->time_doctor_project_id = $projectId;
                 $time_doctor_task->summery = $message;
                 $time_doctor_task->save();
-                return true;
             }
         }
-        
-        return false;
-        /*foreach($assignUsersData as $assignedUser){
-            $companyId = $assignedUser->account_detail->company_id;
-            $accessToken = $assignedUser->account_detail->auth_token;
-            $taskSummary = substr($message, 0, 200);            
-            if (env('PRODUCTION', true)) {                
-                $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );
-            } else {
-                $projectId = '#TASK-3';
-                $timeDoctorUserId = 406; //for local system
-                $timeDoctorTaskId = 34543; //for local system
-            }
-            //$timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
-            if( $timeDoctorTaskId != ''){                
-                if ($timeDoctorTaskId) {
-                    $task->time_doctor_task_id = $timeDoctorTaskId;
-                    $task->save();
 
-                    $time_doctor_task = new \App\TimeDoctor\TimeDoctorTask();
-                    $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
-                    $time_doctor_task->project_id = $projectId;
-                    $time_doctor_task->time_doctor_project_id = $projectId;
-                    $time_doctor_task->summery = $message;
-                    $time_doctor_task->save();
-                    $check_entry = 1;
-                }
-            }
-        }
-        
-        if($check_entry == 1){
-            return true;
-        }
-        return false;*/
+        return $timeDoctorTaskResponse;
     }
 
     /**
@@ -3945,11 +3916,34 @@ class DevelopmentController extends Controller
                     $task->save();
                 }
             } else {
-                $timeDoctorTaskId = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
-                if (!$timeDoctorTaskId) {
+                $timeDoctorTaskResponse = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
+                if ($timeDoctorTaskResponse['code'] != '200') {
+                    $message = '';
+                    switch ($timeDoctorTaskResponse['code']) {
+                        case '401':
+                            $message = $errorMessages['401'];
+                            break;
+                        case '403':
+                            $message = $errorMessages['403'];
+                            break;
+                        case '409':
+                            $message = $errorMessages['409'];
+                            break;
+                        case '422':
+                            $message = $errorMessages['422'];
+                            break;
+                        case '500':
+                        case '404':
+                            $message = $errorMessages['404'];
+                            break;
+                        default:
+                            $message = 'Time doctor task created successfully';
+                            break;
+                    }
                     return response()->json([
-                        'message' => 'Time Doctor task not created',
-                    ], 500);
+                        'message' => $message,
+                    ], $timeDoctorTaskResponse['code']);
                 } 
             }
 
