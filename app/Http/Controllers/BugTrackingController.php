@@ -13,9 +13,8 @@ use App\BugType;
 use App\BugUserHistory;
 use App\ChatMessage;
 use App\DeveloperTask;
-use App\Jobs\UploadGoogleDriveBugs;
+use App\GoogleScreencast;
 use App\Jobs\UploadGoogleDriveScreencast;
-use App\Models\GoogleDriveBugsUpload;
 use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
@@ -1539,7 +1538,7 @@ class BugTrackingController extends Controller
             foreach($data['file'] as $file)
             {
                 DB::transaction(function () use ($file,$data) {
-                    $googleScreencast = new GoogleDriveBugsUpload();
+                    $googleScreencast = new GoogleScreencast();
                     $googleScreencast->file_name = $file->getClientOriginalName();
                     $googleScreencast->extension = $file->extension();
                     $googleScreencast->user_id = Auth::id();
@@ -1556,8 +1555,7 @@ class BugTrackingController extends Controller
                     $googleScreencast->file_creation_date = $data['file_creation_date'];
                     // $googleScreencast->developer_task_id = $data['task_id'];
                     $googleScreencast->save();
-                    UploadGoogleDriveBugs::dispatchNow($googleScreencast,$file);
-                    
+                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast,$file);
                 });
             }
             
@@ -1576,7 +1574,7 @@ class BugTrackingController extends Controller
         try {
             $result = [];
             if(isset($request->bug_id)) {
-                $result = GoogleDriveBugsUpload::where('bug_id', $request->bug_id)->orderBy('id', 'desc')->get();
+                $result = GoogleScreencast::where('bug_id', $request->bug_id)->orderBy('id', 'desc')->get();
                 if(isset($result) && count($result) > 0) {
                     $result = $result->toArray();   
                 }
