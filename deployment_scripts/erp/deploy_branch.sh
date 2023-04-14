@@ -18,6 +18,7 @@ else
 	echo $BRANCH_NAME;
 	if [ ! -z $COMPOSER_UPDATE ] && [ $COMPOSER_UPDATE  == "true" ]
 	then
+		echo "Composer update"
 		composer update
 	else 
 		echo "Finished" 
