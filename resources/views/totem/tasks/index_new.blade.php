@@ -201,15 +201,20 @@ table tr td {
                         <button type="submit" class="btn btn-image ml-0"><img src="{{asset('images/filter.png')}}" /></button>
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
                     </div>
+
+
+                </form>
+                @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
                     <div class="form-group col-md-1 pd-3" style="display: flex">
-                    <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
-                        <button id="disableAllData" class="btn btn-danger enable-disable" cron-status="0" >Disable</button>
+                        <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
+                        <button id="disableAllData" class="btn btn-danger m-2 enable-disable" cron-status="0" >Disable</button>
                     </div>
-                    <div class="form-group" style="display: flex; border: 1px solid; padding: 0 10px; border-radius: 4px; margin-left: 10px">
+                    <div class="form-group" style="display: flex; border: 1px solid; padding: 0 10px; border-radius: 4px; margin-left: 10px; width: fit-content; margin-left: 170px">
                         <div>
-                            <form class="post-assign-cron">
+                            <form class="post-assign-cron" action="" method="POST">
                                 @csrf
-                                <input type="hidden" name="bulk_assign"/>
+                                <h4 class="modal-title">Assign Cron to User</h4>
+                                <input type="hidden" id="taskId" name="task-id"/>
                                 <select class="js-select2" multiple="multiple" name="users_id[]" >
                                     @foreach ($users as $key => $userData)
                                         <option data-badge="" value="{{ $userData->id }}">
@@ -218,9 +223,9 @@ table tr td {
                                 </select>
                             </form>
                         </div>
-                            <div><button class="btn btn-primary user_submit_btn" bulk-assign="1">Grant Access</button></div>
+                        <div style="margin-top: 35px"><button class="btn btn-primary grant_button" bulk-assign="1">Grant Access</button></div>
                     </div>
-                </form>
+                @endif
             </div>
         </div>
     </div>
@@ -233,10 +238,14 @@ table tr td {
 	        <div class="table-responsive mt-2">
                 <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
+                    @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
                     <span>Select All</span><input type="checkbox" id="ckbCheckAll"/>
+                    @endif
                     <tr>
+                        @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
                             <th width="2%">
                             </th>
+                        @endif
                             <th width="2%" class="tablesorter-header category">#</th>
                             <th width="5%" class="tablesorter-header category" >Description</th>
                             <th width="5%" class="tablesorter-header category" >Module</th>
@@ -245,14 +254,18 @@ table tr td {
                             <th width="5%" class="tablesorter-header category">Next Run</th>
                             <th width="5%" class="tablesorter-header category">Frequencies</th>
                             <th width="5%">Action</th>
+                        @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
                             <th width="5%" class="">Enable & Disable</th>
+                            @endif
 
                         </tr>
                     </thead>
                     <tbody>
                             @foreach($tasks as $key => $task)
                             <tr class="{{$task->is_active ? '' : 'red' }}">
+                                @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
                                 <td style="text-align: center;vertical-align: middle;"><input style="height:15px;" type="checkbox" data-id="{{$task->id}}" class="checkBoxClass" id="checkbox{{$task->id}}"/></td>
+                                @endif
                                 <td>{{$task->id}}</td>
                                 <td >
                                         {{Str::limit($task->description, 30)}}
@@ -294,16 +307,19 @@ table tr td {
                                     <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-schedule" href="#" data-id="{{$task->command}}" title="See Cron query and description"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image show-cron-history" href="#" data-id="{{$task->id}}" title="Show cron assign history"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
-
+                                    @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
                                     <a style="padding:1px;" class="btn d-inline btn-image assign-user" href="#" assing-id="{{$task->users_ids}}" task-id="{{$task->id}}" title="Assign user"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+                                        @endif
 
                                 </td>
+                                @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
                                 <td>
                                     <label class="switch">
                                         <input class="active-task" data-id="{{$task->id}}" data-active="{{$task->is_active}}" {{$task->is_active ? "checked" : ""}} type="checkbox">
                                         <span class="slider round"></span>
                                     </label>
                                 </td>
+                                    @endif
                             </tr>
                             @endforeach
                     </tbody>
@@ -1242,10 +1258,11 @@ table tr td {
         });
 
     });
-    $('.user_submit_btn').click(function(){
+    $('.grant_button').click(function(){
         let type = $(this).attr('bulk-assign');
         if (!type){
             const form_data =  $('.post-assign-cron').serialize();
+            return;
             $.ajax({
                 type: "POST",
                 url: '/totem/tasks/assign-users',
