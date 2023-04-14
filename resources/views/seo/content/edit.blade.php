@@ -7,7 +7,7 @@
 <div class="container-fluid">
     <div class="card mt-3">
         <div class="card-header">
-            <h3 class="text-center">Seo Process</h3>
+            <h3 class="text-center">Edit SEO Content</h3>
             <hr>
         </div>
         <div class="card-body">
@@ -28,7 +28,7 @@
 
                 <div class="row">
                     <section class="keywordSec">
-                        <div class="col-12 mb-1">
+                        <div class="col-8 mb-1">
                             <div class="row">
                                 <label class="col form-label">Keywords</label>
                                 <div class="col-2">

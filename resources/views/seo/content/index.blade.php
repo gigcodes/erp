@@ -9,7 +9,7 @@
     <div class="card mt-3">
         <div class="card-header">
             <div class="d-flex">
-                <h3 class="text-center col">Seo Process</h3>
+                <h3 class="text-center col">SEO Content</h3>
                 <div class="mt-5 mr-5">
                     @if($auth->hasRole(['Admin', 'User']))
                         <a href="{{route('seo.content.create')}}" class="btn btn-primary">Add new</a>

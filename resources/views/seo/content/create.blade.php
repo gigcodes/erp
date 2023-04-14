@@ -7,7 +7,7 @@ $auth = auth()->user();
 <div class="container-fluid">
     <div class="card mt-3">
         <div class="card-header">
-            <h3 class="text-center">Seo Process</h3>
+            <h3 class="text-center">Add SEO Content </h3>
             <hr>
         </div>
         <div class="card-body">
