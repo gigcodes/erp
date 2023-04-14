@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Permission;
+use App\Role;
 use Illuminate\Database\Seeder;
 
 class SeoProcessSeeder extends Seeder
@@ -13,6 +15,38 @@ class SeoProcessSeeder extends Seeder
      */
     public function run()
     {
+        $seoRole = Role::create([
+            'name' => 'Seo Head',
+            'guard_name' => 'web',
+        ]);
 
+        $permissions = [
+            [
+                'name' => 'seo-create',
+                'guard_name' => 'web',
+                'route' => 'seo-create',
+                'is_active' => 1,
+            ],
+            [
+                'name' => 'seo-content',
+                'guard_name' => 'web',
+                'route' => 'seo-content',
+                'is_active' => 1,
+            ],
+            [
+                'name' => 'seo-show',
+                'guard_name' => 'web',
+                'route' => 'seo-show',
+                'is_active' => 1,
+            ],
+            [
+                'name' => 'seo-edit',
+                'guard_name' => 'web',
+                'route' => 'seo-edit',
+                'is_active' => 1,
+            ],
+        ];
+
+        Permission::insert($permissions);
     }
 }
