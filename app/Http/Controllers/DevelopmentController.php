@@ -1878,7 +1878,7 @@ class DevelopmentController extends Controller
         $taskSummary = substr($message, 0, 200);
         if (env('PRODUCTION', true)) {
             $timeDoctorTaskId = '';
-            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data);
+            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data, $task->id, $type);
             if (!empty($timeDoctorTaskResponse['data'])) {
                 $timeDoctorTaskId = $timeDoctorTaskResponse['data']['id'];
             }
@@ -2202,7 +2202,7 @@ class DevelopmentController extends Controller
         }
 
         if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
-            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['time_doctor_account'], $data['assigned_to']);
+            $this->timeDoctorActions('DEVTASK', $task, $data['time_doctor_project'], $data['time_doctor_account'], $data['assigned_to']);
         } else {
             $hubstaffTaskId = '';
             if (env('PRODUCTION', true)) {
@@ -3916,7 +3916,7 @@ class DevelopmentController extends Controller
                     $task->save();
                 }
             } else {
-                $timeDoctorTaskResponse = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                $timeDoctorTaskResponse = $this->timeDoctorActions('DEVTASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
                 $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
                 if ($timeDoctorTaskResponse['code'] != '200') {
                     $message = '';

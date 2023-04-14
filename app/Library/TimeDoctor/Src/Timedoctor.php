@@ -159,7 +159,7 @@ class Timedoctor
         }
     }
 
-    public function createGeneralTask($company_id, $access_token,$project_data){
+    public function createGeneralTask($company_id, $access_token,$project_data, $task_id, $type){
         try{
             $url = 'https://api2.timedoctor.com/api/1.0/tasks?company='.$company_id.'&token='.$access_token;
             $httpClient = new Client();
@@ -190,6 +190,8 @@ class Timedoctor
                 'response' => $response->getBody()->getContents(),
                 'user_id' => \Auth::user()->id,
                 'response_code' => $responseCode,
+                'dev_task_id' => $type == "DEVTASK" ? $task_id : null,
+                'task_id' => $type == "TASK" ? $task_id : null
             ]);
             return ['code' => $responseCode, 'data' => ['id' => $parsedResponse->data->id], 'message' => $response->getReasonPhrase()];
 
@@ -205,6 +207,8 @@ class Timedoctor
                 'response' => $e->getMessage(),
                 'user_id' => \Auth::user()->id,
                 'response_code' => $responseCode,
+                'dev_task_id' => $type == "DEVTASK" ? $task_id : null,
+                'task_id' => $type == "TASK" ? $task_id : null
             ]);
             return ['code' => $responseCode, 'data' => [], 'message' => $e->getMessage()];
         }

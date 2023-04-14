@@ -3029,6 +3029,10 @@ if (!empty($notifications)) {
                                                         href="{{ route('time-doctor-acitivties.acitivties.userTreckTime') }}">Time Doctor User
                                                         Track Time</a>
                                                 </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('time-doctor.task_creation_logs') }}">Time Doctor Task Creation Logs</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         

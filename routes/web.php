@@ -2800,6 +2800,11 @@ Route::middleware('auth')->group(function () {
     Route::post('time-doctor/get_task_by_id', [TimeDoctorController::class, 'getTasksById'])->name('time-doctor.get-task-detail');
     Route::post('time-doctor/update_task_by_id', [TimeDoctorController::class, 'updateTasksById'])->name('time-doctor.update-task-by-id');
 
+    Route::prefix('time-doctor/task-creation-logs')->group(function () {
+        Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
+        Route::get('/records', [TimeDoctorController::class, 'listTaskCreationLogs'])->name('time-doctor.task_creation_logs.records');
+    });
+    
     Route::prefix('time-doctor-activities')->group(function () {
         Route::get('/report', [TimeDoctorActivitiesController::class, 'activityReport'])->name('time-doctor-activtity.report');
         Route::get('/report-download', [TimeDoctorActivitiesController::class, 'activityReportDownload'])->name('time-doctor-activity-report.download');
