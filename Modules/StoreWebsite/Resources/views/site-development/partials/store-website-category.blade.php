@@ -3,7 +3,11 @@
 @section('title', $title)
 
 @section('content')
-
+@php
+$isAdmin = auth()->user()->isAdmin();
+$isHod = auth()->user()->hasRole('HOD of CRM');
+$hasSiteDevelopment = auth()->user()->hasRole('Site-development');
+@endphp
 <div class="row">
     <div class="col-md-12">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
@@ -11,6 +15,24 @@
 </div>
 @if(!empty($categories))
 <div class="row" id="common-page-layout">
+    <div class="col-lg-12 margin-tb">
+        <form>
+            {{-- @if ($pagination)
+                <input type="hidden"  name="pagination" value="{{$pagination}}">
+            @endif
+            @if ($page)
+                <input type="hidden"  name="page" value="{{$page}}">
+            @endif --}}
+        <div class="form-group col-lg-2">
+            {{ Form::select('show', ['' => '- Show all -', '0' => 'Not Mapped only', '1' => 'Mapped only'] , $show, ['class' => 'form-control select2']) }}
+        </div>
+        <div class="form-group col-lg-1" style="margin: 7px 0 0 0">
+            <button type="submit" class="btn btn-sm btn-image btn-search-record" style="float:left">
+                <img src="/images/send.png" style="cursor: nwse-resize; width: 16px;">
+            </button>
+        </div>
+        </form>
+    </div>
     <div class="col-lg-12 margin-tb">
         <div class="col-md-12">
             <div class="col-md-12 margin-tb">
@@ -23,18 +45,20 @@
                         <th>Master Category</th>
                       </tr>
                     </thead>
-                    @foreach($categories as $category)
-                    <tbody>
-                      <tr>
-                        <td style="vertical-align:middle;">{{ $category->id }}</td>
-                        <td style="vertical-align:middle;">{{ $category->title }}</td>
-                        <td style="vertical-align:middle;">{{ $category->website }}</td>
-                        <td style="vertical-align:middle;">
-                            {{ Form::select('site_development_master_category_id', ['' => '- Select-'] + $masterCategories, null, ['class' => 'select2 globalSelect2 master_category_id','data-websiteid'=>$category->website_id, 'data-site' => $category->site_development_id ,'data-category' => $category->id, 'data-title' => $category->title]) }}    
-                        </td>
-                      </tr>
-                    </tbody>
-                    @endforeach
+                    @if ($isAdmin || $isHod || $hasSiteDevelopment)
+                        @foreach($categories as $category)
+                        <tbody>
+                        <tr>
+                            <td style="vertical-align:middle;">{{ $category->id }}</td>
+                            <td style="vertical-align:middle;">{{ $category->title }}</td>
+                            <td style="vertical-align:middle;">{{ $category->website }}</td>
+                            <td style="vertical-align:middle;">
+                                {{ Form::select('site_development_master_category_id', ['' => '- Select-'] + $masterCategories, $category->site_development_master_category_id, ['class' => 'select2 globalSelect2 master_category_id','data-websiteid'=>$category->website_id, 'data-site' => $category->site_development_id ,'data-category' => $category->id, 'data-title' => $category->title]) }}    
+                            </td>
+                        </tr>
+                        </tbody>
+                        @endforeach
+                    @endif
                   </table>
             </div>
         </div>
