@@ -103,7 +103,7 @@
                   <span class="show-short-usage-{{$asset->id}}">{{ Str::limit($asset->usage, 9, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
                 </td>
-                  <td>{{ $asset->link }}</td>
+                  <td><a href="{{ $asset->link }}" target="_blank">{{ $asset->link }}</a></td>
                   <td>{{ $asset->created_by }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
