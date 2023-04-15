@@ -356,4 +356,54 @@ class Timedoctor
         }
         return $activities;
     }
+
+    public function sendSingleInvitation($company_id, $access_token, $data=[])
+    {
+        try{
+            $url = 'https://api2.timedoctor.com/api/1.1/invitations?company='.$company_id.'&token='.$access_token;
+            $httpClient = new Client();
+            $response = $httpClient->post(
+                $url,
+                [
+                    RequestOptions::HEADERS => [                    
+                        'Content-Type' => 'application/json',
+                    ],
+
+                    RequestOptions::BODY => json_encode([
+                        'email' => $data['email'] ?? "",
+                        'name' => $data['name'] ?? "",
+                        'role' => $data['role'] ?? "",
+                        'employeeId' => $data['employeeId'] ?? "",
+                        'noSendEmail' => $data['noSendEmail'] ?? "false",
+                    ]),
+                ]
+            );
+            $parsedResponse = json_decode($response->getBody()->getContents());
+            return ['code' => $response->getStatusCode(), 'data' => ['time_doctor_user_id' => $parsedResponse->data->userId], 'message'=> $response->getReasonPhrase()];
+        } catch (\Exception $e) {
+            return ['code' => $e->getCode(),'data' => [], 'message'=> $e->getMessage()];
+        }
+    }
+
+    public function sendBulkInvitation($company_id, $access_token, $data)
+    {
+        try{
+            $url = 'https://api2.timedoctor.com/api/1.0/invitations/bulk?company='.$company_id.'&token='.$access_token;
+            $httpClient = new Client();
+            $response = $httpClient->post(
+                $url,
+                [
+                    RequestOptions::HEADERS => [                    
+                        'Content-Type' => 'application/json',
+                    ],
+
+                    RequestOptions::BODY => json_encode($data),
+                ]
+            );
+            $parsedResponse = json_decode($response->getBody()->getContents());
+            return ['code' => $response->getStatusCode(), 'data' => ['response'=> $parsedResponse], 'message'=> $response->getReasonPhrase()];
+        } catch (\Exception $e) {
+            return ['code' => $e->getCode(), 'data' => [],'message'=> $e->getMessage()];
+        }
+    }
 }
