@@ -829,7 +829,7 @@ if (!empty($notifications)) {
                                                     Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New
                                                     Inventory List</a>
-                                                <a class="dropdown-item" href="{{ route('productinventory.out-of-stock') }}">Sold Out Products</a>    
+                                                <a class="dropdown-item" href="{{ route('productinventory.out-of-stock') }}">Sold Out Products</a>
                                                 <a class="dropdown-item"
                                                     href="{{ route('listing.history.index') }}">Product Listing
                                                     history</a>
@@ -1575,7 +1575,7 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
                                         Meeting List</a>
-                                </li>                                
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -2099,7 +2099,7 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
 
-                               
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>App Store<span
@@ -2121,7 +2121,7 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
-                              
+
 
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
@@ -2142,7 +2142,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.search.results')}}">Search Results</a>
                                                 </li>
-                                               
+
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2182,7 +2182,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item"
                                                         href="{{route('google.developer-api.logs')}}">Logs</a>
                                                 </li>
-                                            
+
                                             </ul>
                                         </li>
                                     </ul>
@@ -2198,6 +2198,18 @@ if (!empty($notifications)) {
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googlewebmaster.index')}}">Sites</a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>Bing Web Master<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('bingwebmaster.index')}}">Sites</a>
                                         </li>
 
                                     </ul>
@@ -2643,7 +2655,7 @@ if (!empty($notifications)) {
                                                         href="{{ route('bug-tracking.website') }}">Bug Tracking Summary</a>
                                                 </li>
                                             </ul>
-                                        </li>                                       
+                                        </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
                                         </li>
@@ -3031,7 +3043,7 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
-                                        
+
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -3294,7 +3306,7 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource
                                             Center</a>
                                     </li>
-                                    @endif 
+                                    @endif
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>Product<span
@@ -3303,7 +3315,7 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                             </li>
-                                           
+
                                             <li class="nav-item dropdown">
 
                                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
@@ -4655,7 +4667,7 @@ if (!empty($notifications)) {
                             <input type="text" name="ip_comment" class="form-control col-md-2 ml-3"
                             placeholder="Add comment...">
                         </div>
-                        
+
                         <button class="btn-success btn addIp ml-3 mb-5">Add</button>
                         <button class="btn-warning btn bulkDeleteIp ml-3 mb-5">Delete All IPs</button>
                         <table class="table table-bordered">
@@ -4741,7 +4753,7 @@ if (!empty($notifications)) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
 
-    
+
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
         CKEDITOR.replace('content');
@@ -5558,7 +5570,7 @@ if (!empty($notifications)) {
                 }
             });
             }
-            
+
         } else {
             alert('please enter IP');
         }
