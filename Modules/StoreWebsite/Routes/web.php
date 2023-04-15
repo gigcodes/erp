@@ -257,8 +257,10 @@ Route::group([
     });
     Route::group(['prefix' => 'page'], function () {
         Route::get('/', [PageController::class, 'index'])->name('store-website.page.index');
+        Route::get('/review-translate/{language?}', [PageController::class, 'reviewTranslate'])->name('store-website.page.review.translate');
         Route::get('/meta-title-keywords', [PageController::class, 'pageMetaTitleKeywords'])->name('store-website.page.keywords');
         Route::get('/records', [PageController::class, 'records'])->name('store-website.page.records');
+        Route::get('/getReviewTranslateRecords', [PageController::class, 'getReviewTranslateRecords'])->name('store-website.page.review.translate.records');
         Route::post('save', [PageController::class, 'store'])->name('store-website.page.save');
         Route::get('/{id}/edit', [PageController::class, 'edit'])->name('store-website.page.edit');
         Route::get('/{id}/delete', [PageController::class, 'delete'])->name('store-website.page.delete');
