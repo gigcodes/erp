@@ -129,7 +129,6 @@ class RepositoryController extends Controller
 
             $branch = $request->branch;
             $composerupdate = request('composer', false);
-            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
             $cmd = 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/'.$repository->name.'/deploy_branch.sh '.$branch.' '.$composerupdate.' 2>&1';
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
@@ -179,7 +178,7 @@ class RepositoryController extends Controller
         }
 
         return redirect(url('/github/pullRequests'))->with([
-            'message' => print_r($allOutput, true),
+            'message' => print_r($result, true),
             'alert-type' => 'success',
         ]);
     }
@@ -458,8 +457,8 @@ class RepositoryController extends Controller
         return $this->githubActionResult($repositoryId,$request->page);
     }
 
-    public function githubActionResult($repositoryId, $page){
-        $githubActionRuns = $this->getGithubActionRuns($repositoryId,$page);
+    public function githubActionResult($repositoryId, $page, $date = null){
+        $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date);
         foreach($githubActionRuns->workflow_runs as $key => $runs){
             $githubActionRuns->workflow_runs[$key]->failure_reason = "";
             if($runs->conclusion == "failure"){
@@ -500,9 +499,6 @@ class RepositoryController extends Controller
             $allPullRequests = array_merge($allPullRequests, $pullRequests);
         }
 
-        //echo print_r($allPullRequests, true);
-
-        //exit;
         return view(
             'github.all_pull_requests',
             [
@@ -514,5 +510,55 @@ class RepositoryController extends Controller
     public function deployNodeScrapers()
     {
         return $this->getRepositoryDetails(231924853);
+    }
+
+    /**
+     * Githjub Branch Page
+     */
+    public function branchIndex(Request $request)
+    {
+        if($request->ajax()) {
+            $data = $this->getAjaxBranches($request);
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        }
+        $data['repos'] = GithubRepository::all();
+        return view('github.branches', $data);
+    }
+
+    public function getAjaxBranches(Request $request)
+    {
+        $branches = GithubBranchState::where('repository_id', $request->repoId)->get();
+        return $branches;
+    }
+
+    /**
+     * Github Actions Page
+     */
+    public function actionIndex(Request $request)
+    {
+        if($request->ajax()) {
+            $data = $this->getAjaxActions($request);
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        }
+        $data['repos'] = GithubRepository::all();
+        return view('github.actions', $data);
+    }
+
+    public function getAjaxActions(Request $request)
+    {
+        $data = $this->githubActionResult($request->repoId, $request->page, $request->date);
+        return $data;
+    }
+
+    public function rerunGithubAction($repoId,$jobId)
+    {
+        $data = $this->rerunAction($repoId,$jobId);
+        return $data;
     }
 }

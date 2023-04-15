@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Library\TimeDoctor\Src\Timedoctor;
+use App\UserAvaibility;
 
 class TimeDoctorActivitiesController extends Controller
 {
@@ -2153,6 +2154,32 @@ class TimeDoctorActivitiesController extends Controller
 
         $userTrack = [];
         foreach ($activities as $activity) {
+            
+            $userSchedule = UserAvaibility::where("user_id", $activity->system_user_id)
+                ->whereDate("from", "<=", $activity->date)
+                ->whereDate("to", ">=", $activity->date)
+                ->orderBy('id', 'desc')->limit(1)->first();
+
+            $workingTime = 0;
+            if($userSchedule) {
+                // calculating the working hour for a perticular date
+                try {
+                    $start = Carbon::parse($userSchedule->start_time);
+                    $end = Carbon::parse($userSchedule->end_time);
+                    $workingTime = $end->diffInMinutes($start);
+    
+                    $lunch_start = Carbon::parse($userSchedule->lunch_time_from);
+                    $lunch_end = Carbon::parse($userSchedule->lunch_time_to);
+                    
+                    if(($lunch_start->gte($start) && $lunch_start->lte($end)) && ($lunch_end->gte($start) && $lunch_end->lte($end))) {
+                        $lunchTime = $lunch_end->diffInMinutes($lunch_start);
+                        $workingTime = $workingTime - $lunchTime;
+                    }
+                } catch (\Exception $e) {
+                    $workingTime = 0;
+                }
+            }
+
             $userTrack[] = [
                 'date' => $activity->date,
                 'user_id' => $activity->user_id,
@@ -2166,6 +2193,7 @@ class TimeDoctorActivitiesController extends Controller
                 'total_hours' => $activity->tracked,
                 'activity_levels' => $activity->overall / $activity->tracked * 100,
                 'overall' => $activity->overall,
+                'working_time' => $workingTime,
             ];
         }
 

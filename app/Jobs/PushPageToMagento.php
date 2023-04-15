@@ -15,6 +15,8 @@ class PushPageToMagento implements ShouldQueue
 
     protected $page;
 
+    protected $updatedBy;
+
     public $tries = 5;
 
     public $backoff = 5;
@@ -24,10 +26,11 @@ class PushPageToMagento implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($page)
+    public function __construct($page,$updatedBy)
     {
         // Set product and website
         $this->page = $page;
+        $this->updatedBy = $updatedBy;
     }
 
     /**
@@ -78,6 +81,7 @@ class PushPageToMagento implements ShouldQueue
                         'active' => $page->active,
                         'platform_id' => $page->platform_id,
                         'page_id' => $page->id,
+                        'updated_by' => optional($this->updatedBy)->id,
                     ];
 
                     if (! empty($stores)) {
@@ -99,6 +103,6 @@ class PushPageToMagento implements ShouldQueue
 
     public function tags()
     {
-        return ['PushCategorySeoToMagento', $this->category->id];
+        return ['PushPageToMagento', $this->page->id];
     }
 }

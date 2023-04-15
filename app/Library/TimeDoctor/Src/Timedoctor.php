@@ -5,6 +5,7 @@ use App\TimeDoctor\TimeDoctorAccount;
 use App\TimeDoctor\TimeDoctorProject;
 use App\TimeDoctor\TimeDoctorTask;
 use App\TimeDoctor\TimeDoctorMember;
+use App\TimeDoctor\TimeDoctorLog;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
@@ -146,7 +147,7 @@ class Timedoctor
                 ]
             );
 
-            $parsedResponse = json_decode($response->getBody());            
+            $parsedResponse = json_decode($response->getBody()->getContents());           
             if($response->getStatusCode() == 200){
                 return true;
             } else {
@@ -158,7 +159,7 @@ class Timedoctor
         }
     }
 
-    public function createGeneralTask($company_id, $access_token,$project_data){
+    public function createGeneralTask($company_id, $access_token,$project_data, $task_id, $type){
         try{
             $url = 'https://api2.timedoctor.com/api/1.0/tasks?company='.$company_id.'&token='.$access_token;
             $httpClient = new Client();
@@ -177,14 +178,39 @@ class Timedoctor
                 ]
             );
 
-            $parsedResponse = json_decode($response->getBody());
-            if($response->getStatusCode() == 200){
-                return $parsedResponse->data->id;                
-            } else {
-                return false;
-            }
-        } catch (Exception $e) {
-            return false;
+            $parsedResponse = json_decode($response->getBody()->getContents());
+            $responseCode = $response->getStatusCode();
+            TimeDoctorLog::create([
+                'url' => $url,
+                'payload' => json_encode([
+                    'project' =>  ['id' => $project_data['time_doctor_project'], "weight" => 0],
+                    'name' => $project_data['time_doctor_task_name'],
+                    'description' => $project_data['time_doctor_task_description'],
+                ]),
+                'response' => $response->getBody()->getContents(),
+                'user_id' => \Auth::user()->id,
+                'response_code' => $responseCode,
+                'dev_task_id' => $type == "DEVTASK" ? $task_id : null,
+                'task_id' => $type == "TASK" ? $task_id : null
+            ]);
+            return ['code' => $responseCode, 'data' => ['id' => $parsedResponse->data->id], 'message' => $response->getReasonPhrase()];
+
+        } catch (\Exception $e) {
+            $responseCode = $e->getCode();
+            TimeDoctorLog::create([
+                'url' => $url,
+                'payload' => json_encode([
+                    'project' =>  ['id' => $project_data['time_doctor_project'], "weight" => 0],
+                    'name' => $project_data['time_doctor_task_name'],
+                    'description' => $project_data['time_doctor_task_description'],
+                ]),
+                'response' => $e->getMessage(),
+                'user_id' => \Auth::user()->id,
+                'response_code' => $responseCode,
+                'dev_task_id' => $type == "DEVTASK" ? $task_id : null,
+                'task_id' => $type == "TASK" ? $task_id : null
+            ]);
+            return ['code' => $responseCode, 'data' => [], 'message' => $e->getMessage()];
         }
     }
 

@@ -17,7 +17,7 @@
         "bugsnag/bugsnag-laravel": "^2.20",
         "commerceguys/guzzle-oauth2-plugin": "*",
         "doctrine/dbal": "^2.13",
-        "dompdf/dompdf": "^0.8.3",
+        "dompdf/dompdf": "1.0.2",
         "facebook/graph-sdk": "~5.0",
         "facebook/php-business-sdk": "^12.0.0",
         "fruitcake/laravel-cors": "^2.0",
@@ -26,7 +26,7 @@
         "google/cloud-bigquery": "^1.23",
         "google/cloud-translate": "^1.9",
         "google/protobuf": "3.21.5",
-        "googleads/google-ads-php": "^17.1",
+        "googleads/google-ads-php": "^19.0",
         "googleads/googleads-php-lib": "^59.0",
         "guzzlehttp/guzzle": "^6.3.1|^7.2.2",
         "intervention/image": "^2.5",
@@ -181,7 +181,11 @@
         },
         "github-oauth": {
 
-        }
+        },
+        "platform": {
+            "ext-pcntl": "8.0",
+            "ext-posix": "8.0"
+          }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

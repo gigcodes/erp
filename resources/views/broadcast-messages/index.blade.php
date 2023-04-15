@@ -132,6 +132,8 @@
                             <option value="">Select Medium</option>
                             <option value="0">Whatsapp</option>
                             <option value="1">Email</option>
+                            <option value="2">Bulk notification</option>
+
                         </select>
 					</div>
 					<div class="form-group">
@@ -154,7 +156,7 @@
 </div>
 
 <div id="add_type" class="modal fade" role="dialog">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-lg">
 
 		<!-- Modal content-->
 		<div class="modal-content">
@@ -201,7 +203,7 @@
 				</div>
 			</form>
 		
-            <div class="table-responsive" style="margin-top:20px;overflow-x: auto !important;">
+            <div class="table-responsive" style="margin-top:20px;overflow-x: auto !important; padding: 0 10px">
                 <table class="table table-bordered text-nowrap" id="massage-table">
                     <thead>
                         <tr>
