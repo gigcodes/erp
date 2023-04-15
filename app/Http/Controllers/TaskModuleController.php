@@ -3056,7 +3056,7 @@ class TaskModuleController extends Controller
         }
 
         if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
-            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assigned_to']);
+            $this->timeDoctorActions('DEVTASK', $task, $data['time_doctor_project'], $data['assigned_to']);
         } else {
             $hubstaffTaskId = '';
             if (env('PRODUCTION', true)) {
@@ -3150,7 +3150,7 @@ class TaskModuleController extends Controller
             $accessToken = $assignUsersData->auth_token;
 
             $taskSummary = substr($message, 0, 200);
-            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data);
+            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data, $task->id, $type);
             $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
             switch ($timeDoctorTaskResponse['code']) {
                 case '401':
