@@ -543,7 +543,7 @@ class Product extends Model
         }
 
         // Set price to rounded finalPrice
-        $priceEur = round($priceEur);
+        $priceEur = (strlen($priceEur) > 0 ? round($priceEur) : 1);
 
         // Check if the euro to rupee rate is set
         if (! empty($brand->euro_to_inr)) {

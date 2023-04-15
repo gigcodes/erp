@@ -40,15 +40,15 @@ class GoogleWebMasterController extends Controller
         $sites = Site::select('id', 'site_url')->get();
 
         $logs = Activity::where('log_name', 'v3_sites')->orWhere('log_name', 'v3_search_analytics')->latest()->paginate(Setting::get('pagination'), ['*'], 'logs_per_page');
-        $webmaster_logs = WebmasterLog::paginate(Setting::get('pagination'), ['*'], 'webmaster_logs_per_page');
-        $site_submit_history = WebsiteStoreViewsWebmasterHistory::paginate(Setting::get('pagination'), ['*'], 'history_per_page');
+        $webmaster_logs = WebmasterLog::latest()->paginate(Setting::get('pagination'), ['*'], 'webmaster_logs_per_page');
+        $site_submit_history = WebsiteStoreViewsWebmasterHistory::latest()->paginate(Setting::get('pagination'), ['*'], 'history_per_page');
 
         $SearchAnalytics = new GoogleSearchAnalytics;
 
         $devices = $SearchAnalytics->select('device')->where('device', '!=', null)->groupBy('device')->orderBy('device', 'asc')->get();
 
         $countries = $SearchAnalytics->select('country')->where('country', '!=', null)->groupBy('country')->orderBy('country', 'asc')->get();
-
+        $SearchAnalytics = $SearchAnalytics->orderBy('id', 'desc');
         if ($request->site) {
             $SearchAnalytics = $SearchAnalytics->where('site_id', $request->site);
         }
@@ -90,7 +90,7 @@ class GoogleWebMasterController extends Controller
 
         $sitesData = $SearchAnalytics->paginate(Setting::get('pagination'));
 
-        // echo '<pre>';print_r($sitesData->toArray());die;
+//         echo '<pre>';print_r($webmaster_logs);die;
 
         return view('google-web-master/index', compact('getSites', 'sitesData', 'sites', 'request', 'devices', 'countries', 'logs', 'webmaster_logs', 'site_submit_history'));
     }
@@ -133,59 +133,44 @@ class GoogleWebMasterController extends Controller
         if (! (isset($request->session()->get('token')['access_token']))) {
             redirect()->route('googlewebmaster.get-access-token');
         }
+        $this->googleToken = $request->session()->get('token')['access_token'];
+        $url_for_sites = 'https://www.googleapis.com/webmasters/v3/sites';
+        $curl = curl_init();
+        //replace website name with code coming form site list
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url_for_sites,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => [
+                'authorization: Bearer '.$this->googleToken,
 
-        $google_keys = explode(',', \config('google.GOOGLE_CLIENT_MULTIPLE_KEYS'));
-        $token = $request->session()->get('token');
-        foreach ($google_keys as $google_key) {
-            if ($google_key) {
-                $this->apiKey = $google_key;
-                //$this->apiKey='';
+            ],
+        ]);
 
-                $this->googleToken = $request->session()->get('token')['access_token'];
+        $response = curl_exec($curl);
+        $response = json_decode($response);
 
-                $url_for_sites = 'https://www.googleapis.com/webmasters/v3/sites?key='.$this->apiKey.'<br>';
+        if (curl_errno($curl)) {
+            $error_msg = curl_error($curl);
+        }
+        curl_close($curl);
 
-                // die;
+        if (isset($error_msg)) {
+            $this->curl_errors_array[] = ['key' => $this->googleToken, 'error' => $error_msg, 'type' => 'site_list'];
+            activity('v3_sites')->log($error_msg);
+        }
 
-                $curl = curl_init();
-                //replace website name with code coming form site list
-                curl_setopt_array($curl, [
-                    CURLOPT_URL => $url_for_sites,
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'GET',
-                    CURLOPT_HTTPHEADER => [
-                        'authorization: Bearer '.$this->googleToken,
+        if (isset($response->error->message)) {
+            $this->curl_errors_array[] = ['key' => $this->googleToken, 'error' => $response->error->message, 'type' => 'site_list'];
+            activity('v3_sites')->log($response->error->message);
+        }
 
-                    ],
-                ]);
-
-                $response = curl_exec($curl);
-                $response = json_decode($response);
-
-                if (curl_errno($curl)) {
-                    $error_msg = curl_error($curl);
-                }
-
-                curl_close($curl);
-
-                if (isset($error_msg)) {
-                    $this->curl_errors_array[] = ['key' => $google_key, 'error' => $error_msg, 'type' => 'site_list'];
-                    activity('v3_sites')->log($error_msg);
-                }
-
-                if (isset($response->error->message)) {
-                    $this->curl_errors_array[] = ['key' => $google_key, 'error' => $response->error->message, 'type' => 'site_list'];
-                    activity('v3_sites')->log($response->error->message);
-                }
-
-                if (isset($response->siteEntry) && count($response->siteEntry)) {
-                    $this->updateSites($response->siteEntry);
-                }
-            }
+        if (isset($response->siteEntry) && count($response->siteEntry)) {
+            $this->updateSites($response->siteEntry);
         }
 
         return ['status' => 1, 'sitesUpdated' => $this->sitesUpdated, 'sitesCreated' => $this->sitesCreated, 'searchAnalyticsCreated' => $this->searchAnalyticsCreated, 'success' => $this->sitesUpdated.' of sites are updated.', 'error' => count($this->curl_errors_array).' error found in this request.', 'error_message' => $this->curl_errors_array[0]['error'] ?? ''];
@@ -247,13 +232,14 @@ class GoogleWebMasterController extends Controller
         $response = $this->googleResultForAnaylist($siteUrl, $params);
 
         if (isset($response->rows) && count($response->rows)) {
-            $this->updateSearchAnalytics($response->rows, $siteID);
+            $this->updateSearchAnalytics($response->rows, $siteID, $siteUrl);
         }
     }
 
-    public function updateSearchAnalytics($rows, $siteID)
+    public function updateSearchAnalytics($rows, $siteID, $siteUrl)
     {
-        foreach ($rows as $row) {
+        $indexData = [];
+        foreach ($rows as $key => $row) {
             $record = ['clicks' => $row->clicks, 'impressions' => $row->impressions, 'position' => $row->position, 'ctr' => $row->ctr, 'site_id' => $siteID];
 
             $record['country'] = $row->keys[0];
@@ -261,18 +247,91 @@ class GoogleWebMasterController extends Controller
             $record['page'] = $row->keys[2];
             $record['query'] = $row->keys[3];
             $record['date'] = $row->keys[4];
+            if ($key === 0) {
+                $response = $this->googleResultForPageInspections($row->keys[2], $siteUrl);
+                if (! empty($response) && isset($response->inspectionResult)) {
+                    $inspectionResult = $response->inspectionResult;
+                    $indexData['indexed'] = $inspectionResult->indexStatusResult->verdict === 'PASS';
+                    $indexData['not_indexed'] = $inspectionResult->indexStatusResult->verdict !== 'PASS';
+                    $indexData['not_indexed_reason'] = $inspectionResult->indexStatusResult->verdict !== 'PASS' ?
+                        ($inspectionResult->indexStatusResult->indexingState !== 'INDEXING_ALLOWED' ? config('constants.google_indexing_state_enum')[$inspectionResult->indexStatusResult->indexingState]: config('constants.google_verdict_enum')[$inspectionResult->indexStatusResult->verdict])
+                        : '-';
+                    $indexData['mobile_usable'] = isset($inspectionResult->mobileUsabilityResult) ? $inspectionResult->mobileUsabilityResult->verdict === 'PASS' : false;
+                    $enhancements = [];
+                    if (isset($inspectionResult->richResultsResult) && $inspectionResult->richResultsResult->verdict !== 'PASS') {
+                        foreach ($inspectionResult->richResultsResult->detectedItems as $items) {
+                            $enhancements[$items->richResultType] = [];
+                            foreach ($items->items as $item) {
+                                if (isset($item->issues)) {
+                                    foreach ($item->issues as $issue) {
+                                        $enhancements[] = $issue->issueMessage;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $indexData['enhancements'] = implode(",", $enhancements);
+                }
+            }
+
+            $record = array_merge($record, $indexData);
 
             $rowData = new GoogleSearchAnalytics;
 
             foreach ($record as $col => $val) {
                 $rowData = $rowData->where($col, $val);
             }
-
             if (! $rowData->first()) {
                 $here = GoogleSearchAnalytics::create($record);
                 $this->searchAnalyticsCreated++;
             }
         }
+    }
+
+    public function googleResultForPageInspections($pageUrl, $siteUrl)
+    {
+        $params = ["inspectionUrl" => $pageUrl, "siteUrl" => $siteUrl];
+        $url = 'https://searchconsole.googleapis.com/v1/urlInspection/index:inspect';
+
+        $curl = curl_init();
+        //replace website name with code coming form site list
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode($params),
+            CURLOPT_HTTPHEADER => [
+                'authorization: Bearer '.$this->googleToken,
+                'Content-Type:application/json',
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+
+        $response = json_decode($response);
+
+        if (isset($response->error->message)) {
+            $this->curl_errors_array[] = ['siteUrl' => $pageUrl, 'error' => $response->error->message, 'type' => 'url_inspections'];
+
+            activity('v3_url_inspections')->log($response->error->message);
+        }
+
+        if (curl_errno($curl)) {
+            $error_msg = curl_error($curl);
+        }
+        curl_close($curl);
+
+        if (isset($error_msg)) {
+            $this->curl_errors_array[] = ['siteUrl' => $pageUrl, 'error' => $error_msg, 'type' => 'url_inspections'];
+
+            activity('v3_url_inspections')->log($error_msg);
+        }
+
+        return $response;
     }
 
     public function googleResultForAnaylist($siteUrl, $params)
@@ -387,7 +446,7 @@ class GoogleWebMasterController extends Controller
                     'log' => isset($response->error->message) ? $value['website'].'/'.$value['code'].' - '.$response->error->message : $value['website'].'/'.$value['code'].' - '.'Error',
                 ];
 
-                WebsiteStoreViewsWebmasterHistory::insert($history);
+                WebsiteStoreViewsWebmasterHistory::create($history);
 
                 \Log::info('Request URL::'.$url_for_sites);
                 \Log::info('Request Token::'.$token);
@@ -467,7 +526,7 @@ class GoogleWebMasterController extends Controller
                             'website_store_views_id' => $fetchStores->id,
                             'log' => isset($response->error->message) ? $response->error->message : 'Error',
                         ];
-                        WebsiteStoreViewsWebmasterHistory::insert($history);
+                        WebsiteStoreViewsWebmasterHistory::create($history);
 
                         return response()->json(['code' => 400, 'message' => $response->error->message]);
                     } else {
@@ -546,14 +605,13 @@ class GoogleWebMasterController extends Controller
         $id = \Cache::get('google_client_account_id');
 
         $GoogleClientAccounts = GoogleClientAccount::get();
-
         foreach ($GoogleClientAccounts as $GoogleClientAccount) {
             $refreshToken = GoogleClientAccountMail::where('google_client_account_id', $GoogleClientAccount->id)->first();
 
             // $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = '1//0cUsEThSeeU-1CgYIARAAGAwSNwF-L9Irzg0ANYiSFNvpHvNr0d3BaXU9mGOH2alV3w0AH6LFuOtpN8uidPbnhSKJaP9KtAra6bU';
             //  $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
 
-            if ($refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] == null) {
+            if (!$refreshToken || $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] == null) {
                 continue;
             }
 
@@ -564,16 +622,14 @@ class GoogleWebMasterController extends Controller
 
             $token = $this->client->getAccessToken();
             $request->session()->put('token', $token);
+            $request->session()->put('GOOGLE_CLIENT_MULTIPLE_KEYS', $GoogleClientAccount->GOOGLE_CLIENT_MULTIPLE_KEYS);
             //echo"<pre>";print_r($token);die;
             if (empty($token)) {
                 continue;
             }
 
-            $google_oauthV2 = new \Google_Service_Oauth2($this->client);
-
             if ($this->client->getAccessToken()) {
                 $details = $this->updateSitesData($request);
-                //echo"<pre>";print_r($token);die;
                 $curl = curl_init();
                 curl_setopt_array($curl, [
                     CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/',
@@ -728,11 +784,106 @@ class GoogleWebMasterController extends Controller
             'user_name' => Auth::user()->name,
             'name' => 'Disconnect Account',
             'status' => 'Success',
-            'message' => $access_token,
+            'message' => $access_token || 'Already Revoked',
         ]);
 
         $mail_acc->delete();
 
         return redirect()->route('googlewebmaster.index')->with('success', 'Account disconnected successfully!');
+    }
+
+    /*
+     * This functions deletes the sites from google webmaster
+     * */
+    public function deleteSiteFromWebmaster(Request $request) {
+        if (! empty($request->id)) {
+            $delete = false;
+            $site = GoogleWebMasters::find($request->id);
+            if ($site) {
+                $websiter = urlencode(utf8_encode($site->sites));
+                $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/'.$websiter;
+
+                $google_acc = GoogleClientAccountMail::with('google_client_account')->get();
+
+                foreach ($google_acc as $google_ac) {
+                    if ($google_ac['GOOGLE_CLIENT_REFRESH_TOKEN'] == null) {
+                        continue;
+                    }
+                    $this->client = new \Google_Client();
+                    $this->client->setClientId($google_ac->google_client_account->GOOGLE_CLIENT_ID);
+                    $this->client->setClientSecret($google_ac->google_client_account->GOOGLE_CLIENT_SECRET);
+                    $this->client->refreshToken($google_ac->GOOGLE_CLIENT_REFRESH_TOKEN);
+
+                    $token = $this->client->getAccessToken();
+                    $request->session()->put('token', $token);
+                    if ($token) {
+                        $curl = curl_init();
+                        //replace website name with code coming form site list
+                        curl_setopt_array($curl, [
+                            CURLOPT_URL => $url_for_sites,
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_ENCODING => '',
+                            CURLOPT_MAXREDIRS => 10,
+                            CURLOPT_TIMEOUT => 30,
+                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST => 'DELETE',
+                            CURLOPT_HTTPHEADER => [
+                                'Accept: application/json',
+                                'Content-length: 0',
+                                'authorization: Bearer '.$token['access_token'],
+                            ],
+                        ]);
+                        $response = curl_exec($curl);
+                        $response = json_decode($response);
+
+                        if (curl_errno($curl)) {
+                            $error_msg = curl_error($curl);
+                        }
+
+                        curl_close($curl);
+
+                        if (! empty($response)) {
+                            \App\WebmasterLog::create([
+                                'user_name' => Auth::user()->name,
+                                'name' => 'Delete Site',
+                                'status' => 'Error',
+                                'message' => isset($response->error->message) ? $response->error->message : 'Error',
+                            ]);
+                            return response()->json(['code' => 400, 'message' => 'Invalid Token']);
+                        } else {
+                            $delete = true;
+                            break;
+                        }
+                    } else {
+                        \App\WebmasterLog::create([
+                            'user_name' => Auth::user()->name,
+                            'name' => 'Delete Site',
+                            'status' => 'Error',
+                            'message' => 'GOOGLE_CLIENT_ACCESS_TOKEN not found.',
+                        ]);
+
+                        return response()->json(['code' => 400, 'message' => 'GOOGLE_CLIENT_ACCESS_TOKEN not found']);
+                    }
+                }
+                if ($delete) {
+                    $site->delete();
+                    \App\WebmasterLog::create([
+                        'user_name' => Auth::user()->name,
+                        'name' => 'Delete Site',
+                        'status' => 'Success',
+                        'message' => 'Site Deleted Successfully',
+                    ]);
+                    return response()->json(['code' => 200, 'message' => 'Site Deleted successfully']);
+                }
+            } else {
+                \App\WebmasterLog::create([
+                    'user_name' => Auth::user()->name,
+                    'name' => 'Delete Site',
+                    'status' => 'Success',
+                    'message' => 'No Data Found',
+                ]);
+                return response()->json(['code' => 400, 'message' => 'No record found']);
+            }
+        }
     }
 }

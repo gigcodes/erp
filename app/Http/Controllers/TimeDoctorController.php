@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use stdClass;
+use App\TimeDoctor\TimeDoctorLog;
 use Storage;
 
 class TimeDoctorController extends Controller
@@ -494,4 +495,76 @@ class TimeDoctorController extends Controller
             return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
     }
+    /**
+     * This function will retrive the log which are logged while ceating the account
+     */
+    public function taskCreationLogs(Request $request)
+    {
+        try {
+            $responseCode = TimeDoctorLog::distinct()->get('response_code')->pluck('response_code');
+            $filterUsers = TimeDoctorLog::with('user')->distinct()->get('user_id')->pluck('user.name', 'user.id');
+
+            $developerTask = TimeDoctorLog::distinct()->whereNotNull("dev_task_id")->get('dev_task_id')->pluck('dev_task_id');
+            $generalTask = TimeDoctorLog::distinct()->whereNotNull("task_id")->get('task_id')->pluck('task_id');
+            return view('time-doctor.task-creation-logs', compact('responseCode', 'filterUsers', 'generalTask', 'developerTask'));
+            
+        } catch (Exception $e) {
+            
+            return view('time-doctor.task-creation-logs');
+        }
+    }
+
+    public function listTaskCreationLogs(Request $request)
+    {
+        try {
+            $logs = TimeDoctorLog::query()->with(['user']);
+
+            if($request->search_url) {
+                $logs->where("url", "like", "%$request->search_url%");
+            }
+
+            if(isset($request->response_code) && !empty($request->response_code)) {
+                $logs->whereIn("response_code", $request->response_code);
+            }
+
+            if(isset($request->search_users) && !empty($request->search_users)) {
+                $logs->whereIn("user_id", $request->search_users);
+            }
+
+            $dev_task = [];
+            $general_task = [];
+            if(isset($request->search_tasks) && !empty($request->search_tasks)){
+                foreach ($request->search_tasks as $key => $task) {
+                    if(str_contains($task, "DEVTASK-")) {
+                        array_push($dev_task, trim($task, "DEVTASK-"));
+                    } else {
+                        array_push($general_task, trim($task, "TASK-"));
+                    }
+                }
+            }
+
+            $logs->where(function($query) use ($dev_task, $general_task) {
+                if(!empty($dev_task)) {
+                    $query->orWhereIn("dev_task_id", $dev_task);
+                }
+    
+                if(!empty($general_task)) {
+                    $query->orWhereIn("task_id", $general_task);
+                }
+            });
+
+            $logs = $logs->paginate(20);
+            return response()->json([
+                "tbody" => view('time-doctor.task-creation-logs-list', compact("logs"))->render(),
+                "pagination" => $logs->links()->render()
+            ]);
+        } catch (Exception $e) {
+            $logs = [];
+            return response()->json([
+                "tbody" => view('time-doctor.task-creation-logs-list', compact("logs"))->render(),
+                "pagination" => ""
+            ]);
+        }
+    }
+    
 }
