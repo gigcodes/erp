@@ -63,6 +63,8 @@
               <th width="3%">Location</th>
               <th width="5%">Usage</th>
                 <th width="10%">Link</th>
+                <th width="10%">IP</th>
+
                 <th width="5%">Created By</th>
               <th width="5%">Action</th>
             </tr>
@@ -104,6 +106,8 @@
                   <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
                 </td>
                   <td><a href="{{ $asset->link }}" target="_blank">{{ $asset->link }}</a></td>
+                  <td>{{ $asset->ip }}</td>
+
                   <td>{{ $asset->created_by }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
