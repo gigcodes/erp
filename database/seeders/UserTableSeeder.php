@@ -11,7 +11,7 @@ class UserTableSeeder extends Seeder
 {
     public function run()
     {
-        $input_roles = $this->command->ask('Enter roles in comma separate format.', 'Admin,Selectors,Searchers,ImageCropers,Supervisors,Listers,Approvers,Inventory,Attribute,Sales,crm,message,Activity,user,Social Creator,Social Manager,HOD of CRM,Developer,Office Boy,Review,Delivery Coordinator,Products Lister,social-facebook-test,Vendor,Customer Care');
+        $input_roles = $this->command->ask('Enter roles in comma separate format.', 'Admin,Selectors,Searchers,ImageCropers,Supervisors,Listers,Approvers,Inventory,Attribute,Sales,crm,message,Activity,user,Social Creator,Social Manager,HOD of CRM,Developer,Office Boy,Review,Delivery Coordinator,Products Lister,social-facebook-test,Vendor,Customer Care,Seo Head,env-manager,cron-manager,asset-manager');
         $permissions = [
             'role-list',
             'role-create',

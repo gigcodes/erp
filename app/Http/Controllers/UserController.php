@@ -120,7 +120,7 @@ class UserController extends Controller
             'password' => 'required|same:confirm-password',
             'hourly_rate' => 'numeric',
             'currency' => 'string',
-
+            'timezone' => 'required',
         ]);
 
         $input = $request->all();

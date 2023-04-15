@@ -109,6 +109,7 @@ class GoogleAdsAccountController extends Controller
             'oauth2_client_id' => 'required',
             'oauth2_client_secret' => 'required',
             'oauth2_refresh_token' => 'required',
+            'google_map_api_key' => 'required',
         ]);
 
         try {
@@ -187,6 +188,7 @@ class GoogleAdsAccountController extends Controller
             'oauth2_client_id' => 'required',
             'oauth2_client_secret' => 'required',
             'oauth2_refresh_token' => 'required',
+            'google_map_api_key' => 'required',
         ]);
 
         try {

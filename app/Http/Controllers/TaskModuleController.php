@@ -51,6 +51,7 @@ use Response;
 use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorTask;
 use App\Library\TimeDoctor\Src\Timedoctor;
+use App\Models\Tasks\TaskHistoryForStartDate;
 
 class TaskModuleController extends Controller
 {
@@ -3056,7 +3057,7 @@ class TaskModuleController extends Controller
         }
 
         if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
-            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assigned_to']);
+            $this->timeDoctorActions('DEVTASK', $task, $data['time_doctor_project'], $data['assigned_to']);
         } else {
             $hubstaffTaskId = '';
             if (env('PRODUCTION', true)) {
@@ -3143,57 +3144,54 @@ class TaskModuleController extends Controller
             return false;
         }
 
-        /*$assignUsersData = TimeDoctorMember::where('user_id', $assignedToId)->get();        */
         $assignUsersData = \App\TimeDoctor\TimeDoctorAccount::find( $accountId );
+        if ($assignUsersData && $assignUsersData->company_id && $assignUsersData->auth_token) {
+            $timedoctor = Timedoctor::getInstance();
+            $companyId = $assignUsersData->company_id;
+            $accessToken = $assignUsersData->auth_token;
 
-        $timedoctor = Timedoctor::getInstance();
-        $companyId = $assignUsersData->company_id;
-        $accessToken = $assignUsersData->auth_token;
+            $taskSummary = substr($message, 0, 200);
+            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data, $task->id, $type);
+            $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
+            switch ($timeDoctorTaskResponse['code']) {
+                case '401':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['401']];
+                    break;
+                case '403':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['403']];
+                    break;
+                case '409':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['409']];
+                    break;
+                case '422':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['422']];
+                    break;
+                case '500':
+                case '404':
+                    return ['code' => 500, 'data' => [], 'message' => $errorMessages['404']];
+                    break;
+                default:
+                    $timeDoctorTaskId = $timeDoctorTaskResponse['data']['id'];
+                    if ($timeDoctorTaskId) {
+                        $task->time_doctor_task_id = $timeDoctorTaskId;
+                        $task->save();
 
-        $taskSummary = substr($message, 0, 200);                        
-        $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
-        if( $timeDoctorTaskId != ''){                   
-            if ($timeDoctorTaskId) {
-                $task->time_doctor_task_id = $timeDoctorTaskId;
-                $task->save();
-
-                $time_doctor_task = new TimeDoctorTask();
-                $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
-                $time_doctor_task->project_id = $projectId;
-                $time_doctor_task->time_doctor_project_id = $projectId;
-                $time_doctor_task->summery = $message;
-                $time_doctor_task->save();
-                return true;
+                        $time_doctor_task = new TimeDoctorTask();
+                        $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
+                        $time_doctor_task->project_id = $projectId;
+                        $time_doctor_task->time_doctor_project_id = $projectId;
+                        $time_doctor_task->summery = $message;
+                        $time_doctor_task->save();
+                    }
+                    return ['code' => 200, 'data' => [], 'message' => 'Time doctor task created successfully'];
+                    break;
             }
+        } else {
+            return false;
         }
+
 
         return false;
-        
-        /*foreach($assignUsersData as $assignedUser){
-            $companyId = $assignedUser->account_detail->company_id;
-            $accessToken = $assignedUser->account_detail->auth_token;
-            $taskSummary = substr($message, 0, 200);                        
-            $timeDoctorTaskId = $timedoctor->createGeneralTask( $companyId, $accessToken, $project_data );            
-            if( $timeDoctorTaskId != ''){                   
-                if ($timeDoctorTaskId) {
-                    $task->time_doctor_task_id = $timeDoctorTaskId;
-                    $task->save();
-
-                    $time_doctor_task = new TimeDoctorTask();
-                    $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
-                    $time_doctor_task->project_id = $projectId;
-                    $time_doctor_task->time_doctor_project_id = $projectId;
-                    $time_doctor_task->summery = $message;
-                    $time_doctor_task->save();
-                    $check_entry = 1;
-                }
-            }
-        }        
-        
-        if($check_entry == 1){
-            return true;
-        }
-        return false;*/
     }
 
     //START - Purpose : Set Remined , Revise - DEVTASK-4354
@@ -3919,12 +3917,10 @@ class TaskModuleController extends Controller
                     $task->save();
                 }
             } else {
-                $timeDoctorTaskId = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
-                if (!$timeDoctorTaskId) {
-                    return response()->json([
-                        'message' => 'Time Doctor task not created',
-                    ], 500);
-                } 
+                $timeDoctorTaskResponse = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                return response()->json([
+                    'message' => $timeDoctorTaskResponse['message'],
+                ], $timeDoctorTaskResponse['code']);
             }
 
             return response()->json(
@@ -4634,14 +4630,25 @@ class TaskModuleController extends Controller
     public function slotAssign()
     {
         try {
-            $newValue = request('date').' '.substr(request('slot'), 0, 2).':00:00';
+            // $newValue = request('date').' '.substr(request('slot'), 0, 2).':00:00';
+            $newValue = request('date').' '.request('slot').':00';
             if ($id = isDeveloperTaskId(request('taskId'))) {
                 if ($single = DeveloperTask::find($id)) {
+
+                    if(!empty($single->estimate_date) || !empty($single->start_date)) {
+                        throw new Exception("You already have updated your estimate date.");
+                    }
+                    if(empty($single->estimate_minutes) || $single->estimate_minutes == null || $single->estimate_minutes == "") {
+                        throw new Exception("Update your estimate time first.");
+                    }
+
                     $oldValue = $single->start_date;
                     if ($oldValue == $newValue) {
                         return respJson(400, 'No change in time slot.');
                     }
                     $single->start_date = $newValue;
+                    $single->estimate_date = date('Y-m-d H:i:00', strtotime($single->start_date." +$single->estimate_minutes minute"));
+
                     $single->save();
                     $single->updateHistory('start_date', $oldValue, $newValue);
 
@@ -4649,7 +4656,22 @@ class TaskModuleController extends Controller
                 }
             } elseif ($id = isRegularTaskId(request('taskId'))) {
                 if ($single = Task::find($id)) {
-                    $single->updateStartDate($newValue);
+                    
+                    if(!empty($single->due_date) || !empty($single->start_date)) {
+                        throw new Exception("You already have updated your estimate date.");
+                    }
+                    
+                    if(empty($single->approximate) || $single->approximate == null || $single->approximate == "" || $single->approximate == 0) {
+                        throw new Exception("Update your estimate time first.");
+                    }
+                    $oldValue = $single->start_date;
+                    
+                    $single->start_date = $newValue;
+                    $single->due_date = date('Y-m-d H:i:00', strtotime($single->start_date." +$single->approximate minute"));
+
+                    $single->save();
+
+                    TaskHistoryForStartDate::historySave($single->id, $oldValue, $newValue, 0);
 
                     return respJson(200, 'Time slot updated successfully.');
                 }
@@ -4657,7 +4679,7 @@ class TaskModuleController extends Controller
 
             return respJson(404, 'No task found.');
         } catch(\Throwable $th) {
-            return respException($th);
+            return response()->json(["message" => $th->getMessage()], 500);
         }
     }
 
@@ -4694,18 +4716,22 @@ class TaskModuleController extends Controller
     public function taskUpdateStartDate()
     {
         if ($new = request('value')) {
-            if ($task = Task::find(request('task_id'))) {
-                if ($task->assign_to == Auth::user()->id) {
-                    $params['message'] = 'Estimated Start Datetime: '.$new;
-                    $params['user_id'] = Auth::user()->id;
-                    $params['task_id'] = $task->id;
-                    $params['approved'] = 1;
-                    $params['status'] = 2;
-                    ChatMessage::create($params);
+            try {
+                if ($task = Task::find(request('task_id'))) {
+                    if ($task->assign_to == Auth::user()->id) {
+                        $params['message'] = 'Estimated Start Datetime: '.$new;
+                        $params['user_id'] = Auth::user()->id;
+                        $params['task_id'] = $task->id;
+                        $params['approved'] = 1;
+                        $params['status'] = 2;
+                        ChatMessage::create($params);
+                    }
+                    $task->updateStartDate($new);
+    
+                    return respJson(200, 'Successfully updated.');
                 }
-                $task->updateStartDate($new);
-
-                return respJson(200, 'Successfully updated.');
+            } catch (\Exception $e) {
+                return respJson(404, $e->getMessage());
             }
 
             return respJson(404, 'No task found.');
@@ -4717,18 +4743,22 @@ class TaskModuleController extends Controller
     public function taskUpdateDueDate()
     {
         if ($new = request('value')) {
-            if ($task = Task::find(request('task_id'))) {
-                if ($task->assign_to == Auth::user()->id) {
-                    $params['message'] = 'Estimated End Datetime: '.$new;
-                    $params['user_id'] = Auth::user()->id;
-                    $params['task_id'] = $task->id;
-                    $params['approved'] = 1;
-                    $params['status'] = 2;
-                    ChatMessage::create($params);
+            try {
+                if ($task = Task::find(request('task_id'))) {
+                    if ($task->assign_to == Auth::user()->id) {
+                        $params['message'] = 'Estimated End Datetime: '.$new;
+                        $params['user_id'] = Auth::user()->id;
+                        $params['task_id'] = $task->id;
+                        $params['approved'] = 1;
+                        $params['status'] = 2;
+                        ChatMessage::create($params);
+                    }
+                    $task->updateDueDate($new);
+    
+                    return respJson(200, 'Successfully updated.');
                 }
-                $task->updateDueDate($new);
-
-                return respJson(200, 'Successfully updated.');
+            } catch (\Exception $e) {
+                return respJson(404, $e->getMessage());
             }
 
             return respJson(404, 'No task found.');

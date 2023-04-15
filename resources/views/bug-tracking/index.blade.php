@@ -132,9 +132,9 @@ table{border-collapse: collapse;}
 									<div class="form-group" style="width: 200px;margin-bottom: 10px;">
 										<input name="summary" type="text" class="form-control" placeholder="Search Summary" id="bug-summary" data-allow-clear="true" />
 									</div>
-									<div class="form-group m-1" style="width: 200px;">
+									{{-- <div class="form-group m-1" style="width: 200px;">
 										<input name="url" type="text" class="form-control" placeholder="Search Url" id="bug-url" data-allow-clear="true" />
-									</div>									
+									</div>									 --}}
                 <div class="form-group cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$website = request('website');
@@ -589,6 +589,103 @@ table{border-collapse: collapse;}
 		</div>
 	</div>
 
+	<div id="uploadeBugsScreencastModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+	
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Upload Screencast/File to Google Drive</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+	
+				<form action="{{ route('bug-tracking.upload-file') }}" method="POST" enctype="multipart/form-data">
+					@csrf
+					<input type="hidden" name="bug_id" id="bug_id">
+					<div class="modal-body">						
+						<div class="form-group">
+							<strong>Upload File</strong>
+							<input type="file" name="file[]" id="fileInput" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple required>
+							@if ($errors->has('file'))
+								<div class="alert alert-danger">{{$errors->first('file')}}</div>
+							@endif
+						</div>
+						<div class="form-group">
+							<strong>File Creation Date:</strong>
+							<input type="date" name="file_creation_date" value="{{ old('file_creation_date') }}" class="form-control input-sm" placeholder="Drive Date" required>
+						</div>
+						@if(auth()->user()->isAdmin())
+							<div class="form-group custom-select2 read_user">
+								<label>Read Permission for Users
+								</label>
+								<select class="w-100 js-example-basic-multiple js-states" id="id_label_multiple_user_read" multiple="multiple" name="file_read[]">
+									@foreach($permission_users as $val)
+									<option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
+									@endforeach
+								</select>
+							</div>
+							<div class="form-group custom-select2 write_user">
+								<label>Write Permission for Users
+								</label>
+								<select class="w-100 js-example-basic-multiple js-states" id="id_label_multiple_user_write" multiple="multiple" name="file_write[]">
+									@foreach($permission_users as $val)
+									<option value="{{$val->gmail}}" class="form-control">{{$val->name}}</option>
+									@endforeach
+								</select>
+						</div>
+						@endif
+						<div class="form-group">
+								<label>Remarks:</label>
+								<textarea id="remarks" name="remarks" rows="4" cols="64" value="{{ old('remarks') }}" placeholder="Remarks" required class="form-control"></textarea>
+	
+								@if ($errors->has('remarks'))
+									<div class="alert alert-danger">{{$errors->first('remarks')}}</div>
+								@endif
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-secondary">Upload</button>
+					</div>
+				</form>
+			</div>
+	
+		</div>
+	</div>
+
+	<div id="displayBugsUpload" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-xl">
+	
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Google Drive Bug files</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+	
+				<div class="modal-body">
+					<div class="table-responsive mt-3">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Filename</th>
+									<th>File Creation Date</th>
+									<th>URL</th>
+									<th>Remarks</th>
+								</tr>
+							</thead>
+							<tbody id="googleDriveBugData">
+								
+							</tbody>
+						</table>
+					</div>
+				 </div>
+
+
+			</div>
+	
+		</div>
+	</div>
 
 	<div id="bugtrackingShowFullTextModel" class="modal fade" role="dialog">
 		<div class="modal-dialog modal-lg">
@@ -609,9 +706,23 @@ table{border-collapse: collapse;}
 				</div>
 			</div>
 		</div>
+	</div>
 		
 		
 	<script>
+		@if($errors->any())
+			@php
+				$error = $errors->all()
+			@endphp
+			toastr["error"]("{{$error[0] ?? 'Something went wrong.'}}");
+		@endif
+			
+		@if ($message = Session::get('success'))
+			toastr["success"]("{{$message}}");
+		@endif
+		@if ($message = Session::get('error'))
+			toastr["error"]("{{$message}}");
+		@endif
 	
 		var page_bug = 0; 
 		var total_limit_bug = 19;
@@ -634,6 +745,8 @@ table{border-collapse: collapse;}
 			baseUrl: "<?php echo url("/"); ?>"
 		});
         $(document).ready(function () {
+            $('.js-example-basic-multiple').select2();
+
             {{--$(".btn-edit-template").click(function (event) {--}}
             {{--    var id = $(this).data('id');--}}
             {{--    $.ajax({--}}
@@ -790,14 +903,14 @@ table{border-collapse: collapse;}
 	
 	
 		$(document).on('click', '.expand-row-msg', function() {
-			$('#bugtrackingShowFullTextModel').modal('toggle');
-			$(".bugtrackingmanShowFullTextBody").html("");
-			var id = $(this).data('id');
-			var name = $(this).data('name');
-			var full = '.expand-row-msg .show-full-' + name + '-' + id;
-			var fullText = $(full).html();
-			console.log(id,name,fullText,full)
-			$(".bugtrackingmanShowFullTextBody").html(fullText.replaceAll("\n", "<br>"));
+			// $('#bugtrackingShowFullTextModel').modal('toggle');
+			// $(".bugtrackingmanShowFullTextBody").html("");
+			// var id = $(this).data('id');
+			// var name = $(this).data('name');
+			// var full = '.expand-row-msg .show-full-' + name + '-' + id;
+			// var fullText = $(full).html();
+			// console.log(id,name,fullText,full)
+			// $(".bugtrackingmanShowFullTextBody").html(fullText.replaceAll("\n", "<br>"));
 		});
 		$(document).on("click",".btn-copy-url",function() {
 			var url = $(this).data('id');
@@ -1246,6 +1359,32 @@ table{border-collapse: collapse;}
 		}
 
 		
+		$(document).ready(function () {
+			$(document).on("click", ".upload-bugs-files-button", function (e) {
+				e.preventDefault();
+				let bug_id = $(this).data("bug_id");
+				$("#uploadeBugsScreencastModal #bug_id").val(bug_id || 0);
+				$("#uploadeBugsScreencastModal").modal("show")
+			});
 
+			$(document).on("click", ".view-bugs-files-button", function (e) {
+				e.preventDefault();
+				let bug_id = $(this).data("bug_id");
+				$.ajax({
+					type: "get",
+					url: "{{route('bug-tracking.files.record')}}",
+					data: {
+						bug_id
+					},
+					success: function (response) {
+						$("#googleDriveBugData").html(response.data);
+						$("#displayBugsUpload").modal("show")
+					},
+					error: function (response) {
+
+					}
+				});
+			});
+		});
 	</script>
 @endsection

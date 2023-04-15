@@ -4316,7 +4316,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
 
         if ($message->message != '') {
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'user-feedback-hrTicket' || $context == 'SOP-Data' || $context == 'timedoctor') {
+            if ($context == 'supplier' ||$context == 'customer' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'user-feedback-hrTicket' || $context == 'SOP-Data' || $context == 'timedoctor') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4350,7 +4350,7 @@ class WhatsAppController extends FindByNumberController
                 }
                 if ($context == 'customer') {
                     $supplierDetails = Customer::find($message->supplier_id);
-                    $language = $supplierDetails->language;
+                    $language =isset($supplierDetails) && $supplierDetails ? $supplierDetails->language : "";
                     if ($language != null) {
                         $result = TranslationHelper::translate('en', $language, $message->message);
                         $message->message = $result;
@@ -4423,12 +4423,17 @@ class WhatsAppController extends FindByNumberController
 
                 if ($is_mail == 1) {
                     $sendResult = $this->sendemail($message, $model_id, $model_class, $toemail, $chat_id, $subject);
+                }if ($is_mail == 2) {
+                    WebNotificationController::sendBulkNotification($message->user_id,$subject, $message->message);
                 } else {
                     $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
                 }
             } else {
                 if ($is_mail == 1) {
                     $sendResult = $this->sendemail($message, $model_id, $model_class, $toemail, $chat_id);
+                }
+                if ($is_mail == 2) {
+                    WebNotificationController::sendBulkNotification($message->user_id,$subject, $message->message);
                 } else {
                     $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
                 }

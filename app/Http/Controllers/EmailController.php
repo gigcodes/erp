@@ -99,10 +99,16 @@ class EmailController extends Controller
             $trash_query = true;
             $query = $query->where('status', 'bin');
         } elseif ($type == 'draft') {
-            $query = $query->where('is_draft', 1);
+            $query = $query->where('is_draft', 1)->where('status', '<>', 'pre-send');
         } elseif ($type == 'pre-send') {
             $query = $query->where('status', 'pre-send');
-        } else {
+        } 
+        else if(!empty($request->type)){
+            $query = $query->where(function ($query) use ($type) {
+                $query->where('type', $type)->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');
+            });
+        }
+        else {
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
             });
@@ -874,13 +880,8 @@ class EmailController extends Controller
 
             $file = file_get_contents($downloadURL);
 
-            \Storage::put($filename, $file);
-
-            $storagePath = \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
-
-            $path = $storagePath.'/'.$filename;
-
-            $get = \Storage::get($filename);
+            file_put_contents(storage_path('app/files/email-attachments/'.$filename),  $file);
+            $path = 'email-attachments/'.$filename;
 
             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                 if (strpos($filename, '.zip') !== false) {
@@ -890,7 +891,7 @@ class EmailController extends Controller
                 if (strpos($filename, '.xls') !== false || strpos($filename, '.xlsx') !== false) {
                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                         $excel = $supplier;
-                        ErpExcelImporter::excelFileProcess($path, $filename, '');
+                        ErpExcelImporter::excelFileProcess($filename, $excel, '');
                     }
                 }
             }

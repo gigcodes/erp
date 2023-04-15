@@ -44,6 +44,7 @@ use App\Http\Controllers\UserLogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WeTransferController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EnvController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +70,8 @@ Route::post('mailinglist/add', [Api\v1\MailinglistController::class, 'add']);
  **/
 Route::post('fetch-credit-balance', [CustomerController::class, 'fetchCreditBalance']);
 Route::post('deduct-credit', [CustomerController::class, 'deductCredit']);
+Route::post('add-env', [EnvController::class, 'addEnv'])->name('add-env');
+Route::post('edit-env', [EnvController::class, 'editEnv'])->name('edit-env');
 
 Route::post('add-credit', [CustomerController::class, 'addCredit']);
 

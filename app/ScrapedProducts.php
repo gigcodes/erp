@@ -63,6 +63,7 @@ class ScrapedProducts extends Model
 
     public function bulkScrapeImport($arrBulkJson = [], $isExcel = 0, $nextExcelStatus = 2)
     {
+        ini_set('max_execution_time', 300);
         // Check array
         if (! is_array($arrBulkJson) || count($arrBulkJson) == 0) {
             // return false
@@ -80,112 +81,117 @@ class ScrapedProducts extends Model
 
         // Loop over array
         foreach ($arrBulkJson as $json) {
-            // Excel?
-            if ($isExcel == 1) {
-                // No title set? Continue to the next, it's probably the nextExcelStatus field
-                if (! isset($json->title)) {
-                    continue;
+            try{
+                // Excel?
+                if ($isExcel == 1) {
+                    // No title set? Continue to the next, it's probably the nextExcelStatus field
+                    if (! isset($json->title)) {
+                        continue;
+                    }
+
+                    // Set an empty title (space) to make sure the product is processed
+                    $json->title = empty($json->title) ? ' ' : $json->title;
                 }
 
-                // Set an empty title (space) to make sure the product is processed
-                $json->title = empty($json->title) ? ' ' : $json->title;
+                // Check for required values
+                if (
+                    ! empty($json->title) &&
+                    ! empty($json->sku) &&
+                    ! empty($json->brand_id)
+                ) {
+                    // Set possible alternate SKU
+                    $ourSku = ProductHelper::getSku($json->sku);
+
+                    // Create new scraped product if product doesn't exist
+                    $scrapedProduct = ScrapedProducts::whereIn('sku', [$json->sku, $ourSku])->where('website', $json->website)->first();
+
+                    // Get brand name
+                    $brand = Brand::find($json->brand_id);
+                    $brandName = $brand->name;
+
+                    // Existing product
+                    if ($scrapedProduct) {
+                        // Update scraped product
+                        $scrapedProduct->is_excel = $isExcel;
+                        $scrapedProduct->properties = $json->properties;
+                        $scrapedProduct->original_sku = $json->sku;
+                        $scrapedProduct->is_sale = $json->is_sale;
+                        $scrapedProduct->properties = $json->properties;
+                        $scrapedProduct->description = $json->description;
+                        $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
+                        $scrapedProduct->save();
+
+                        // Add to scrap statistics
+                        // $scrapStatistics = new ScrapStatistics();
+                        // $scrapStatistics->supplier = $json->website;
+                        // $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
+                        // $scrapStatistics->brand = $brandName;
+                        // $scrapStatistics->url = $json->url;
+                        // $scrapStatistics->description = $json->sku;
+                        // $scrapStatistics->save();
+
+                        // Create the product
+                        $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
+                        if (is_array($productsCreatorResult)) {
+                            if ($productsCreatorResult['product_created'] == 1) {
+                                $createdProductCount++;
+                            } elseif ($productsCreatorResult['product_updated'] == 1) {
+                                $updatedProductCount++;
+                            }
+                        }
+                    } else {
+                        // Add new scraped product
+                        $scrapedProduct = new ScrapedProducts();
+                        $scrapedProduct->brand_id = $json->brand_id;
+                        $scrapedProduct->sku = $ourSku;
+                        $scrapedProduct->original_sku = $json->sku;
+                        $scrapedProduct->website = $json->website;
+                        $scrapedProduct->title = $json->title;
+                        $scrapedProduct->description = $json->description;
+                        $scrapedProduct->images = $json->images;
+                        $scrapedProduct->price = (strlen($json->price) > 0 ? $json->price : 0);
+                        $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
+                        if ($json->sku != 'N/A') {
+                            $scrapedProduct->has_sku = 1;
+                        }
+                        $scrapedProduct->is_price_updated = 1;
+                        $scrapedProduct->url = $json->url;
+                        $scrapedProduct->is_sale = $json->is_sale;
+                        $scrapedProduct->properties = $json->properties;
+                        $scrapedProduct->save();
+
+                        // Add to scrap statistics
+                        // $scrapStatistics = new ScrapStatistics();
+                        // $scrapStatistics->supplier = $json->website;
+                        // $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
+                        // $scrapStatistics->brand = $brandName;
+                        // $scrapStatistics->url = $json->url;
+                        // $scrapStatistics->description = $json->sku;
+                        // $scrapStatistics->save();
+
+                        // Create the product
+                        $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
+                        if (is_array($productsCreatorResult)) {
+                            if ($productsCreatorResult['product_created'] == 1) {
+                                $createdProductCount++;
+                            } elseif ($productsCreatorResult['product_updated'] == 1) {
+                                $updatedProductCount++;
+                            }
+                        }
+                    }
+
+                    // Product created successfully
+                    if ($productsCreatorResult) {
+                        // Add or update supplier / inventory
+                        SupplierInventory::firstOrCreate(['supplier' => $json->website, 'sku' => $ourSku, 'inventory' => $json->stock]);
+
+                        // Update count
+                        $count++;
+                    }
+                }
             }
-
-            // Check for required values
-            if (
-                ! empty($json->title) &&
-                ! empty($json->sku) &&
-                ! empty($json->brand_id)
-            ) {
-                // Set possible alternate SKU
-                $ourSku = ProductHelper::getSku($json->sku);
-
-                // Create new scraped product if product doesn't exist
-                $scrapedProduct = ScrapedProducts::whereIn('sku', [$json->sku, $ourSku])->where('website', $json->website)->first();
-
-                // Get brand name
-                $brand = Brand::find($json->brand_id);
-                $brandName = $brand->name;
-
-                // Existing product
-                if ($scrapedProduct) {
-                    // Update scraped product
-                    $scrapedProduct->is_excel = $isExcel;
-                    $scrapedProduct->properties = $json->properties;
-                    $scrapedProduct->original_sku = $json->sku;
-                    $scrapedProduct->is_sale = $json->is_sale;
-                    $scrapedProduct->properties = $json->properties;
-                    $scrapedProduct->description = $json->description;
-                    $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
-                    $scrapedProduct->save();
-
-                    // Add to scrap statistics
-                    // $scrapStatistics = new ScrapStatistics();
-                    // $scrapStatistics->supplier = $json->website;
-                    // $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
-                    // $scrapStatistics->brand = $brandName;
-                    // $scrapStatistics->url = $json->url;
-                    // $scrapStatistics->description = $json->sku;
-                    // $scrapStatistics->save();
-
-                    // Create the product
-                    $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
-                    if (is_array($productsCreatorResult)) {
-                        if ($productsCreatorResult['product_created'] == 1) {
-                            $createdProductCount++;
-                        } elseif ($productsCreatorResult['product_updated'] == 1) {
-                            $updatedProductCount++;
-                        }
-                    }
-                } else {
-                    // Add new scraped product
-                    $scrapedProduct = new ScrapedProducts();
-                    $scrapedProduct->brand_id = $json->brand_id;
-                    $scrapedProduct->sku = $ourSku;
-                    $scrapedProduct->original_sku = $json->sku;
-                    $scrapedProduct->website = $json->website;
-                    $scrapedProduct->title = $json->title;
-                    $scrapedProduct->description = $json->description;
-                    $scrapedProduct->images = $json->images;
-                    $scrapedProduct->price = $json->price;
-                    $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
-                    if ($json->sku != 'N/A') {
-                        $scrapedProduct->has_sku = 1;
-                    }
-                    $scrapedProduct->is_price_updated = 1;
-                    $scrapedProduct->url = $json->url;
-                    $scrapedProduct->is_sale = $json->is_sale;
-                    $scrapedProduct->properties = $json->properties;
-                    $scrapedProduct->save();
-
-                    // Add to scrap statistics
-                    // $scrapStatistics = new ScrapStatistics();
-                    // $scrapStatistics->supplier = $json->website;
-                    // $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
-                    // $scrapStatistics->brand = $brandName;
-                    // $scrapStatistics->url = $json->url;
-                    // $scrapStatistics->description = $json->sku;
-                    // $scrapStatistics->save();
-
-                    // Create the product
-                    $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
-                    if (is_array($productsCreatorResult)) {
-                        if ($productsCreatorResult['product_created'] == 1) {
-                            $createdProductCount++;
-                        } elseif ($productsCreatorResult['product_updated'] == 1) {
-                            $updatedProductCount++;
-                        }
-                    }
-                }
-
-                // Product created successfully
-                if ($productsCreatorResult) {
-                    // Add or update supplier / inventory
-                    SupplierInventory::firstOrCreate(['supplier' => $json->website, 'sku' => $ourSku, 'inventory' => $json->stock]);
-
-                    // Update count
-                    $count++;
-                }
+            catch(\Exception $e){
+                
             }
         }
 
