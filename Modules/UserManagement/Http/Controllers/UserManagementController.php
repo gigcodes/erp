@@ -2004,6 +2004,8 @@ class UserManagementController extends Controller
                     \DB::raw('ua.start_time AS uaStTime'),
                     \DB::raw('ua.end_time AS uaEnTime'),
                     \DB::raw('ua.lunch_time AS uaLunchTime'),
+                    \DB::raw('ua.lunch_time_from AS lunch_time_from'),
+                    \DB::raw('ua.lunch_time_to AS lunch_time_to'),
                 ]);
                 $users = $q->get();
                 $count = $users->count();
@@ -2029,7 +2031,7 @@ class UserManagementController extends Controller
 
                             $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
                             $availableDates = UserAvaibility::getAvailableDates($single->uaFrom, $single->uaTo, $single->uaDays, $filterDatesOnly);
-                            $availableSlots = UserAvaibility::dateWiseHourlySlots($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime);
+                            $availableSlots = UserAvaibility::dateWiseHourlySlotsV2($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime, $single);
 
                             $userArr[] = [
                                 'id' => $single->id,
@@ -2068,13 +2070,16 @@ class UserManagementController extends Controller
                         if ($tasksInProgress) {
                             foreach ($tasksInProgress as $task) {
                                 $task->st_date = date('Y-m-d H:i:00', strtotime($task->st_date));
-                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date.' + '.$task->est_minutes.'minutes'));
-                                if ($task->en_date <= date('Y-m-d H:i:s')) {
-                                    $task->en_date = date('Y-m-d H:i:00', strtotime('+1 hour'));
-                                    $task->est_minutes = 60;
-                                } else {
-                                    // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
+                                
+                                if(!isset($task->en_date)) {
+                                    $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date.' + '.$task->est_minutes.'minutes'));
                                 }
+                                // if ($task->en_date <= date('Y-m-d H:i:s')) {
+                                //     $task->en_date = date('Y-m-d H:i:00', strtotime('+1 hour'));
+                                //     $task->est_minutes = 60;
+                                // } else {
+                                //     // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
+                                // }
 
                                 $tasksArr[$task->assigned_to][$task->status2][] = [
                                     'id' => $task->id,
@@ -2107,15 +2112,17 @@ class UserManagementController extends Controller
                     if ($isPrint) {
                         _p($tasksArr);
                     }
+                    // dd($tasksArr);
 
                     // Arrange tasks on users slots
                     foreach ($userArr as $k1 => $user) {
-                        $userTasks = isset($tasksArr[$user['id']]) && count($tasksArr[$user['id']]) ? $tasksArr[$user['id']] : [];
+                        $userTasksArr = isset($tasksArr[$user['id']]) && count($tasksArr[$user['id']]) ? $tasksArr[$user['id']] : [];
                         if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
                             foreach ($user['availableSlots'] as $date => $slots) {
                                 foreach ($slots as $k2 => $slot) {
-                                    if ($slot['type'] == 'AVL') {
-                                        $res = $this->slotIncreaseAndShift($slot, $userTasks);
+                                    if ($slot['type'] == 'AVL' || $slot['slot_type'] == 'AVL') {
+                                        $res = $this->slotIncreaseAndShift($slot, $userTasksArr);
+                                        // dd($res, $userTasks);
 
                                         $userTasks = $res['userTasks'] ?? [];
                                         $slot['taskIds'] = $res['taskIds'] ?? [];
@@ -2142,6 +2149,7 @@ class UserManagementController extends Controller
                         if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
                             foreach ($user['availableSlots'] as $date => $slots) {
                                 $divSlots = [];
+                                // dd($slots);
                                 foreach ($slots as $slot) {
                                     $title = '';
                                     $class = '';
@@ -2150,9 +2158,24 @@ class UserManagementController extends Controller
                                         ' - ',
                                         date('H:i', strtotime($slot['en'])),
                                     ];
-                                    if ($slot['type'] == 'AVL') {
-                                        if ($slot['taskIds'] ?? []) {
-                                            $display[] = ' ('.implode(', ', array_keys($slot['taskIds'])).')';
+                                    if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END']) && $slot['slot_type'] != "PAST") {
+                                        $ut_array = [];
+                                        if (isset($slot['userTasks'])) {
+                                            foreach ($slot['userTasks'] as $ut) {
+                                                array_push($ut_array, $ut['typeId']); 
+                                                // foreach ($ut as $t) {
+                                                //     dd($ut);
+                                                // }
+                                            }
+                                        }
+                                        // $generalTaskID = [];
+                                        // if (isset($slot['taskIds'])) {
+                                        //     $generalTaskID = array_keys($slot['taskIds']);
+                                        // }
+                                        $developerTaskID = $ut_array;
+                                        if (!empty($developerTaskID)) {
+                                            
+                                            $display[] = ' ('.implode(", ", $developerTaskID).')';
 
                                             $title = [];
                                             foreach ($slot['taskIds'] as $taskId => $taskRow) {
@@ -2161,16 +2184,50 @@ class UserManagementController extends Controller
                                             $title = implode(PHP_EOL, $title);
                                         } else {
                                             $class = 'text-secondary';
-                                            $display[] = ' <a href="javascript:void(0);" data-user_id="'.$user['id'].'" data-date="'.$date.'" data-slot="'.date('H:i', strtotime($slot['st'])).'" onclick="funSlotAssignModal(this);" >(AVL)</a>';
+                                            $display[] = ' <a href="javascript:void(0);" data-user_id="'.$user['id'].'" data-date="'.$date.'" data-slot="'.date('H:i', strtotime($slot['new_st'] ?? $slot['st'])).'" onclick="funSlotAssignModal(this);" >(AVL)</a>';
+                                        }
+                                        if ($slot['type'] == "SMALL-LUNCH") {
+                                            $display[] = "<br>Lunch time (".date('H:i', strtotime($slot['lunch_time']['from']))."-".date('H:i', strtotime($slot['lunch_time']['to'])).")";
+                                        }
+                                        elseif ($slot['type'] == "LUNCH-START") {
+                                            $display[] = '<br>Lunch start at: '.date('H:i', strtotime($slot['lunch_time']['from']));
+                                        }
+                                        elseif ($slot['type'] == "LUNCH-END") {
+                                            $display[] = "<br>Lunch end at: ".date('H:i', strtotime($slot['lunch_time']['to']));
                                         }
                                         // $title
                                         $display = implode('', $display);
-                                    } elseif (in_array($slot['type'], ['PAST', 'LUNCH'])) {
+                                    } elseif (in_array($slot['slot_type'], ['PAST', 'LUNCH'])) {
                                         $title = 'Not Available';
                                         $class = 'text-secondary';
-                                        $display[] = ' ('.$slot['type'].')';
+                                        $display[] = ' ('.$slot['slot_type'].')';
+                                        $display = '<s>'.implode('', $display).'</s>';
+                                    } 
+                                    // elseif ($slot['type'] == "SMALL-LUNCH") {
+                                    //     $title = 'LUNCH';
+                                    //     $class = 'text-secondary';
+                                    //     $display[] = ' ('.$slot['type'].')';
+                                    //     $display = '<s>'.implode('', $display).'</s>';
+                                    // }
+                                    elseif ($slot['type'] == "FULL-LUNCH") {
+                                        $title = 'LUNCH';
+                                        $class = 'text-secondary';
+                                        $display[] = ' (LUNCH)';
                                         $display = '<s>'.implode('', $display).'</s>';
                                     }
+                                    // elseif ($slot['type'] == "LUNCH-START") {
+                                    //     dd($slot);
+                                    //     $title = 'LUNCH';
+                                    //     $class = 'text-secondary';
+                                    //     $display[] = ' ('.$slot['type'].')';
+                                    //     $display = '<s>'.implode('', $display).'</s>';
+                                    // }
+                                    // elseif ($slot['type'] == "LUNCH-END") {
+                                    //     $title = 'LUNCH';
+                                    //     $class = 'text-secondary';
+                                    //     $display[] = ' ('.$slot['type'].')';
+                                    //     $display = '<s>'.implode('', $display).'</s>';
+                                    // }
 
                                     $divSlots[] = '<div class="div-slot '.$class.'" title="'.$title.'" >'.$display.'</div>';
                                 }
@@ -2248,34 +2305,49 @@ class UserManagementController extends Controller
         $checkDates = 0;
 
         $taskIds = [];
+        $userTasks = [];
 
         if ($tasks) {
             if ($list = ($tasks['IN_PROGRESS'] ?? [])) {
                 foreach ($list as $k => $task) {
-                    if ($slot['mins'] > 0 && $task['mins'] > 0) {
-                        if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
-                            $taskMins = $task['mins'];
-                            $slotMins = $slot['mins'];
+                    $SlotStart = Carbon::parse($slot['st']);
+                    $SlotEnd = Carbon::parse($slot['en']);
+                    $TaskStart = Carbon::parse($task['stDate']);
+                    $TaskEnd = Carbon::parse($task['enDate']);
 
-                            if ($taskMins >= $slotMins) {
-                                $slot['mins'] = 0;
-                                $task['mins'] -= $slotMins;
-                                $taskIds[$task['typeId']] = $task;
-                            } else {
-                                $task['mins'] = 0;
-                                $slot['mins'] -= $taskMins;
-                                $taskIds[$task['typeId']] = $task;
-                            }
-
-                            $list[$k] = $task;
-                            if ($task['mins'] <= 0) {
-                                unset($list[$k]);
-                            }
-                            if ($slot['mins'] <= 0) {
-                                break;
-                            }
-                        }
+                    if(
+                        ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                        ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                    ) {
+                        array_push($userTasks, $task);
+                    } elseif($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                        array_push($userTasks, $task);
                     }
+
+                    // if ($slot['mins'] > 0 && $task['mins'] > 0) {
+                    //     if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
+                    //         $taskMins = $task['mins'];
+                    //         $slotMins = $slot['mins'];
+
+                    //         if ($taskMins >= $slotMins) {
+                    //             $slot['mins'] = 0;
+                    //             $task['mins'] -= $slotMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         } else {
+                    //             $task['mins'] = 0;
+                    //             $slot['mins'] -= $taskMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         }
+
+                    //         $list[$k] = $task;
+                    //         if ($task['mins'] <= 0) {
+                    //             unset($list[$k]);
+                    //         }
+                    //         if ($slot['mins'] <= 0) {
+                    //             break;
+                    //         }
+                    //     }
+                    // }
                 }
                 $list = array_values($list);
                 $tasks['IN_PROGRESS'] = $list;
@@ -2283,39 +2355,55 @@ class UserManagementController extends Controller
 
             if ($list = ($tasks['PLANNED'] ?? [])) {
                 foreach ($list as $k => $task) {
-                    if ($slot['mins'] > 0 && $task['mins'] > 0) {
-                        if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
-                            $taskMins = $task['mins'];
-                            $slotMins = $slot['mins'];
 
-                            if ($taskMins >= $slotMins) {
-                                $slot['mins'] = 0;
-                                $task['mins'] -= $slotMins;
-                                $taskIds[$task['typeId']] = $task;
-                            } else {
-                                $task['mins'] = 0;
-                                $slot['mins'] -= $taskMins;
-                                $taskIds[$task['typeId']] = $task;
-                            }
+                    $SlotStart = Carbon::parse($slot['st']);
+                    $SlotEnd = Carbon::parse($slot['en']);
+                    $TaskStart = Carbon::parse($task['stDate']);
+                    $TaskEnd = Carbon::parse($task['enDate']);
 
-                            $list[$k] = $task;
-                            if ($task['mins'] <= 0) {
-                                unset($list[$k]);
-                            }
-                            if ($slot['mins'] <= 0) {
-                                break;
-                            }
-                        }
+                    if(
+                        ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                        ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                    ) {
+                        array_push($userTasks, $task);
+                    } elseif($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                        array_push($userTasks, $task);
                     }
+
+
+                    // if ($slot['mins'] > 0 && $task['mins'] > 0) {
+                    //     if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
+                    //         $taskMins = $task['mins'];
+                    //         $slotMins = $slot['mins'];
+
+                    //         if ($taskMins >= $slotMins) {
+                    //             $slot['mins'] = 0;
+                    //             $task['mins'] -= $slotMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         } else {
+                    //             $task['mins'] = 0;
+                    //             $slot['mins'] -= $taskMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         }
+
+                    //         $list[$k] = $task;
+                    //         if ($task['mins'] <= 0) {
+                    //             unset($list[$k]);
+                    //         }
+                    //         if ($slot['mins'] <= 0) {
+                    //             break;
+                    //         }
+                    //     }
+                    // }
                 }
                 $list = array_values($list);
                 $tasks['PLANNED'] = $list;
             }
         }
-
+        // print_r($userTasks);
         return [
             'taskIds' => $taskIds ?? [],
-            'userTasks' => $tasks ?? [],
+            'userTasks' => $userTasks ?? [],
         ];
     }
 
@@ -2354,6 +2442,7 @@ class UserManagementController extends Controller
                     assign_to AS assigned_to, 
                     task_subject AS title, 
                     start_date AS st_date, 
+                    due_date AS en_date, 
                     COALESCE(approximate, 0) AS est_minutes, 
                     status,
                     (
@@ -2383,6 +2472,7 @@ class UserManagementController extends Controller
                     assigned_to AS assigned_to, 
                     subject AS title, 
                     start_date AS st_date, 
+                    estimate_date AS en_date, 
                     COALESCE(estimate_minutes, 0) AS est_minutes, 
                     status,
                     (

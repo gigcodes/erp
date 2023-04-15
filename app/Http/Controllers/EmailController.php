@@ -880,13 +880,8 @@ class EmailController extends Controller
 
             $file = file_get_contents($downloadURL);
 
-            \Storage::put($filename, $file);
-
-            $storagePath = \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
-
-            $path = $storagePath.'/'.$filename;
-
-            $get = \Storage::get($filename);
+            file_put_contents(storage_path('app/files/email-attachments/'.$filename),  $file);
+            $path = 'email-attachments/'.$filename;
 
             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                 if (strpos($filename, '.zip') !== false) {
@@ -896,7 +891,7 @@ class EmailController extends Controller
                 if (strpos($filename, '.xls') !== false || strpos($filename, '.xlsx') !== false) {
                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                         $excel = $supplier;
-                        ErpExcelImporter::excelFileProcess($path, $filename, '');
+                        ErpExcelImporter::excelFileProcess($filename, $excel, '');
                     }
                 }
             }

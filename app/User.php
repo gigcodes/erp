@@ -233,6 +233,16 @@ class User extends Authenticatable implements JWTSubject
         return false;
     }
 
+    public function isCronManager()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+        if (in_array('cron-manager', $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * We can use this function to give same page rights like admin
      */

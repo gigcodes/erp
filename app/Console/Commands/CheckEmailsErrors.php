@@ -61,28 +61,8 @@ class CheckEmailsErrors extends Command
             $imap->connect();
 
             $inbox = $imap->getFolder('INBOX');
-            $email_addresses = [
-                'Mailer-Daemon@se1.mailspamprotection.com',
-                'Mailer-Daemon@se2.mailspamprotection.com',
-                'Mailer-Daemon@se3.mailspamprotection.com',
-                'Mailer-Daemon@se4.mailspamprotection.com',
-                'Mailer-Daemon@se5.mailspamprotection.com',
-                'Mailer-Daemon@se6.mailspamprotection.com',
-                'Mailer-Daemon@se7.mailspamprotection.com',
-                'Mailer-Daemon@se8.mailspamprotection.com',
-                'Mailer-Daemon@se9.mailspamprotection.com',
-                'Mailer-Daemon@se10.mailspamprotection.com',
-                'Mailer-Daemon@se11.mailspamprotection.com',
-                'Mailer-Daemon@se12.mailspamprotection.com',
-                'Mailer-Daemon@se13.mailspamprotection.com',
-                'Mailer-Daemon@se14.mailspamprotection.com',
-                'Mailer-Daemon@se15.mailspamprotection.com',
-                'Mailer-Daemon@se16.mailspamprotection.com',
-                'Mailer-Daemon@se17.mailspamprotection.com',
-                'Mailer-Daemon@se18.mailspamprotection.com',
-                'Mailer-Daemon@se19.mailspamprotection.com',
-                'Mailer-Daemon@se20.mailspamprotection.com',
-            ];
+
+            $email_addresses = config('app.failed_email_addresses');
 
             foreach ($email_addresses as $address) {
                 $emails = $inbox->messages()->where('from', $address);

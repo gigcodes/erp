@@ -156,10 +156,10 @@
     <div class="col-lg-4 col-12">
       <button type="button" class="btn btn-secondary float-right-addbtn" id="add_account">+ Add Account</button>
       <button type="button" class="btn btn-secondary float-right-addbtn" id="list_account"> List Account</button>
+      <button type="button" class="btn btn-secondary float-right-addbtn" onclick="window.location.href='{{ route('time-doctor.create-account') }}'"> Create TimeDoctor Account</button>
       <button type="button" class="btn btn-danger float-right-addbtn" id="refresh_users"> Refresh Users</button>
     </div>
-    <div class="col-md-12 pr-5 pl-5">
-    
+    <div class="col-md-12 pr-5 pl-5">    
     <table class="table table-bordered" id="time-doctor-members">
       <thead>
         <tr>

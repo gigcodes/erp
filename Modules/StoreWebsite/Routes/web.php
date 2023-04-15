@@ -351,6 +351,7 @@ Route::middleware('auth')->group(function () {
                 Route::post('/', [SiteDevelopmentController::class, 'saveRemarks'])->name('site-development.saveRemarks');
             });
         });
+        Route::get('/store-website/category', [SiteDevelopmentController::class, 'storeWebsiteCategory'])->name('site-development.store-website-category');
     });
 
     Route::group(['prefix' => 'site-development-status'], function () {

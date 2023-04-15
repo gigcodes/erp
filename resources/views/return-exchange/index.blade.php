@@ -170,57 +170,58 @@
 </div>
 
 <div id="update-status-message-tpl" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-      <!-- Modal content-->
-      <div class="modal-content ">
-        <div class="modal-header ml-4 mr-4">
-            <h4 class="modal-title">Change Status</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        <form action="" id="update-status-message-tpl-frm" method="POST">
-            @csrf
-            <input type="hidden" name="order_id" id="order-id-status-tpl" value="">
-            <input type="hidden" name="order_status_id" id="order-status-id-status-tpl" value="">
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                      <div class="col-md-2">
-                          <strong>Message:</strong>
-                      </div>
-                      <div class="col-md-5">
-                        <div class="form-group">
-                          <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"style="height: 35px;"></textarea>
-                        </div>
-                      </div>
-                      <div class="col-md-2">
-                        <div class="form-group d-flex">
-                          <div class="checkbox">
-                            <label><input class="msg_platform" onclick="loadpreview(this);" type="checkbox" value="email">Email</label>
-                          </div>
-                          <div class="checkbox mt-3 ml-2">
-                            
-                            <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
-                          </div>
-                        </div>
-                </div>
-                <div class="col-md-8">
-                       <div id="preview" style="display:none">
-                             
-                       </div>
-                </div>
-                </div>
-            </div>
-            <div class="modal-footer pb-0">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn custom-button update-status-with-message">Submit</button>
-                <!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
-                <!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
-            </div>
-        </form>
-      </div>
-    </div>
-</div>
+	<div class="modal-dialog modal-lg">
+		<!-- Modal content-->
+		<div class="modal-content ">
+			<div class="modal-header ml-4 mr-4">
+				<h4 class="modal-title">Change Status</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<form action="" id="update-status-message-tpl-frm" method="POST">
+				@csrf
+				<input type="hidden" name="order_id" id="order-id-status-tpl" value="">
+				<input type="hidden" name="order_status_id" id="order-status-id-status-tpl" value="">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="col-md-2">
+								<strong>Message:</strong>
+							</div>
+							<div class="col-md-5">
+								<div class="form-group">
+									<textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"style="height: 35px;"></textarea>
+								</div>
+							</div>
+							<div class="col-md-2">
+								<div class="form-group d-flex">
+									<div class="checkbox">
+										<label><input class="msg_platform" onclick="loadpreview(this);"
+												type="checkbox" value="email">Email</label>
+									</div>
+									<div class="checkbox mt-3 ml-2">
 
+										<label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-8">
+								<div id="preview" style="display:none">
+
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer pb-0">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn custom-button update-status-with-message">Submit</button>
+						<!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
+						<!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">

@@ -1,5 +1,5 @@
 BRANCH_NAME=$1
-COMPOSER_UPDATE=$2
+COMPOSER_UPDATE="true"
 scriptPath="$(cd "$(dirname "$0")"; pwd)"
 
 if [ $BRANCH_NAME == "stage" ]
@@ -16,10 +16,15 @@ else
 	git pull --rebase
 	./artisan migrate
 	echo $BRANCH_NAME;
-	if [ ! -z $COMPOSER_UPDATE ] && [ $COMPOSER_UPDATE  == "true" ]
-	then
-		composer update
-	else 
-		echo "Finished" 
-	fi
+        if [ ! -z $COMPOSER_UPDATE ] && [ $COMPOSER_UPDATE  == "true" ]
+        then
+                composer update
+                if [ $? -eq 0 ]; then
+                        echo "Composer update sucess"
+                else
+                        echo "Composer update fail"
+                fi
+        else
+                echo "composer update parameter not found" 
+        fi
 fi

@@ -393,7 +393,8 @@ class PageController extends Controller
         $page = StoreWebsitePage::where('id', $id)->first();
 
         if ($page) {
-            \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
+            $updated_by=auth()->user();
+            \App\Jobs\PushPageToMagento::dispatch($page,$updated_by)->onQueue('magetwo');
             StoreWebsitePage::where('id', $id)->update(['is_pushed' => 1, 'is_latest_version_pushed' => 1]);
 
             return response()->json(['code' => 200, 'message' => 'Website send for push']);
@@ -660,8 +661,9 @@ class PageController extends Controller
         $pages = \App\StoreWebsitePage::where('store_website_id', $id)->get();
         activity()->causedBy(auth()->user())->log('pages pushed');
         if (! $pages->isEmpty()) {
+            $updated_by=auth()->user();
             foreach ($pages as $page) {
-                \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
+                \App\Jobs\PushPageToMagento::dispatch($page,$updated_by)->onQueue('magetwo');
             }
         }
 
