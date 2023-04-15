@@ -500,9 +500,6 @@ class RepositoryController extends Controller
             $allPullRequests = array_merge($allPullRequests, $pullRequests);
         }
 
-        //echo print_r($allPullRequests, true);
-
-        //exit;
         return view(
             'github.all_pull_requests',
             [
