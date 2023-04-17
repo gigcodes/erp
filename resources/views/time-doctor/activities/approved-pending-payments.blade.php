@@ -88,7 +88,7 @@
     <div class="modal-body">
         <div class="form-group">
             <strong>Amount:</strong>
-            <input type='text' id="pending_amount" class="form-control" name="amount" value=""/>
+            <input type='number' id="pending_amount" step="any" class="form-control" name="amount" value=""/>
             <input type='hidden' id="user_id" class="form-control" name="user_id" value=""/>
             <input type='hidden' id="starts_at" class="form-control" name="starts_at" value=""/>
 
@@ -126,9 +126,8 @@
             var user_id = $('.user_id').val();
             var starts_at = $('.starts_at').val();
             var amount = $('.total_amount').val();
-            $('#pending_amount').val(amount);
+            $('#pending_amount').val(amount).attr("max", amount);
             $('#user_id').val(user_id);
-            $('#pending_amount').val(amount);
             $('#starts_at').val(starts_at);
             $('#paymentModal').modal('show');            
             });

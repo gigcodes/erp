@@ -10,6 +10,8 @@ use App\Hubstaff\HubstaffMember;
 use App\Models\Tasks\TaskDueDateHistoryLog;
 use App\Models\Tasks\TaskHistoryForStartDate;
 use Auth;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
@@ -392,6 +394,14 @@ class Task extends Model
     {
         $old = $this->start_date;
 
+        if(isset($this->due_date) && $this->due_date != "0000-00-00 00:00:00" && isset($new)) {
+            $newStartDate = Carbon::parse($new);
+            $estimateDate = Carbon::parse($this->due_date);
+            if($newStartDate->gte($estimateDate)) {
+                throw new Exception("Start date must be less then Estimate date.");
+            }
+        }
+
         $count = TaskHistoryForStartDate::where('task_id', $this->id)->count();
         if ($count) {
             TaskHistoryForStartDate::historySave($this->id, $old, $new, 0);
@@ -405,6 +415,14 @@ class Task extends Model
     public function updateDueDate($new)
     {
         $old = $this->due_date;
+
+        if(isset($this->start_date) && $this->start_date != "0000-00-00 00:00:00" &&isset($new)) {
+            $startDate = Carbon::parse($this->start_date);
+            $newEstimateDate = Carbon::parse($new);
+            if($newEstimateDate->lte($startDate)) {
+                throw new Exception("Estimate date must be greater then start date.");
+            }
+        }
 
         $count = TaskDueDateHistoryLog::where('task_id', $this->id)->count();
         if ($count) {
