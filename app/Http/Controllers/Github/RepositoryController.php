@@ -18,6 +18,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
+
 
 class RepositoryController extends Controller
 {
@@ -107,15 +109,15 @@ class RepositoryController extends Controller
         try {
             // Merge master into branch
             if (empty($pullOnly) || $pullOnly != 1) {
-                $this->client->post(
-                    $url,
-                    [
-                        RequestOptions::BODY => json_encode([
-                            'base' => $destination,
-                            'head' => $source,
-                        ]),
-                    ]
-                );
+                // $this->client->post(
+                //     $url,
+                //     [
+                //         RequestOptions::BODY => json_encode([
+                //             'base' => $destination,
+                //             'head' => $source,
+                //         ]),
+                //     ]
+                // );
                 //Artisan::call('github:load_branch_state');
                 if ($source == 'master') {
                     $this->updateBranchState($repoId, $destination);
@@ -220,6 +222,14 @@ class RepositoryController extends Controller
     private function updateBranchState($repoId, $branchName)
     {
         $comparison = $this->compareRepoBranches($repoId, $branchName);
+        $filters = [
+            'state' => 'all',
+            'head' => config('env.GITHUB_ORG_ID').":".$branchName
+        ];
+        $pullRequests = $this->pullRequests($repoId,$filters);
+        if(!empty($pullRequests) && count($pullRequests) > 0){
+            $pullRequest = $pullRequests[0];
+        }
         \Log::info("Add entry to GithubBranchState");
         GithubBranchState::updateOrCreate(
             [
@@ -229,6 +239,7 @@ class RepositoryController extends Controller
             [
                 'repository_id' => $repoId,
                 'branch_name' => $branchName,
+                'status' => !empty($pullRequest) ? $pullRequest['state'] : "",
                 'ahead_by' => $comparison['ahead_by'],
                 'behind_by' => $comparison['behind_by'],
                 'last_commit_author_username' => $comparison['last_commit_author_username'],
@@ -388,10 +399,14 @@ class RepositoryController extends Controller
         ]);
     }
 
-    private function getPullRequests($repoId)
+    private function getPullRequests($repoId, $filters = [])
     {
+        $addedFilters = !empty($filters) ? Arr::query($filters) : "";
         $pullRequests = [];
         $url = 'https://api.github.com/repositories/'.$repoId.'/pulls?per_page=200';
+        if(!empty($addedFilters)){
+            $url .= "&".$addedFilters;
+        }
         try {
             $response = $this->client->get($url);
             $decodedJson = json_decode($response->getBody()->getContents());
@@ -400,6 +415,7 @@ class RepositoryController extends Controller
                     'id' => $pullRequest->number,
                     'title' => $pullRequest->title,
                     'number' => $pullRequest->number,
+                    'state' => $pullRequest->state,
                     'username' => $pullRequest->user->login,
                     'userId' => $pullRequest->user->id,
                     'updated_at' => $pullRequest->updated_at,

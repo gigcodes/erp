@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Arr;
 
 trait GithubTrait
 {
@@ -15,6 +16,36 @@ trait GithubTrait
             // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
             'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
+    }
+
+    private function pullRequests($repoId, $filters = [])
+    {
+        $addedFilters = !empty($filters) ? Arr::query($filters) : "";
+        $pullRequests = [];
+        $url = 'https://api.github.com/repositories/'.$repoId.'/pulls?per_page=200';
+        if(!empty($addedFilters)){
+            $url .= "&".$addedFilters;
+        }
+        try {
+            $response = $this->client->get($url);
+            $decodedJson = json_decode($response->getBody()->getContents());
+            foreach ($decodedJson as $pullRequest) {
+                $pullRequests[] = [
+                    'id' => $pullRequest->number,
+                    'title' => $pullRequest->title,
+                    'number' => $pullRequest->number,
+                    'state' => $pullRequest->state,
+                    'username' => $pullRequest->user->login,
+                    'userId' => $pullRequest->user->id,
+                    'updated_at' => $pullRequest->updated_at,
+                    'source' => $pullRequest->head->ref,
+                    'destination' => $pullRequest->base->ref,
+                ];
+            }
+        } catch (Exception $e) {
+        }
+
+        return $pullRequests;
     }
 
     private function compareRepoBranches(int $repoId, string $branchName, string $base = 'master')

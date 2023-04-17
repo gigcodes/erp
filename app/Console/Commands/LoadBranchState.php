@@ -69,6 +69,14 @@ class LoadBranchState extends Command
             foreach ($repoBranches as $repoId => $branches) {
                 foreach ($branches as $branch) {
                     $comparison = $this->compareRepoBranches($repoId, $branch);
+                     $filters = [
+                        'state' => 'all',
+                        'head' => config('env.GITHUB_ORG_ID').":".$branch
+                    ];
+                    $pullRequests = $this->pullRequests($repoId,$filters);
+                    if(!empty($pullRequests) && count($pullRequests) > 0){
+                        $pullRequest[$repoId][$branch] = $pullRequests[0];
+                    }
                     $comparisons[$repoId][$branch] = $comparison;
                 }
             }
@@ -86,6 +94,7 @@ class LoadBranchState extends Command
                             'branch_name' => $branchName,
                             'ahead_by' => $comparison['ahead_by'],
                             'behind_by' => $comparison['behind_by'],
+                            'status' => !empty($pullRequest[$repoId]) && !empty($pullRequest[$repoId][$branchName]) ? $pullRequest[$repoId][$branchName]['state'] : "",
                             'last_commit_author_username' => $comparison['last_commit_author_username'],
                             'last_commit_time' => $comparison['last_commit_time'],
                         ]
