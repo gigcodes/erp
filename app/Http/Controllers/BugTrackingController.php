@@ -1543,19 +1543,21 @@ class BugTrackingController extends Controller
                     $googleScreencast->extension = $file->extension();
                     $googleScreencast->user_id = Auth::id();
                     
-                    if (isset($data['file_read'])) {
-                        $googleScreencast->read = implode(',', $data['file_read']);
-                    }
-                    if (isset($data['file_write'])) {
-                        $googleScreencast->write = implode(',', $data['file_write']);
-                    }
+                    $googleScreencast->read = "";
+                    $googleScreencast->write = "";
+                    // if (isset($data['file_read'])) {
+                    //     $googleScreencast->read = implode(',', $data['file_read']);
+                    // }
+                    // if (isset($data['file_write'])) {
+                    //     $googleScreencast->write = implode(',', $data['file_write']);
+                    // }
 
                     $googleScreencast->bug_id = $data['bug_id'];
                     $googleScreencast->remarks = $data['remarks'];
                     $googleScreencast->file_creation_date = $data['file_creation_date'];
                     // $googleScreencast->developer_task_id = $data['task_id'];
                     $googleScreencast->save();
-                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast,$file);
+                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file, "anyone");
                 });
             }
             
