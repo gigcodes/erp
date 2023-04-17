@@ -2439,6 +2439,51 @@ if (!empty($notifications)) {
                                                 href="{{ route('store-website.page.histories') }}">Website Page
                                                 History</a>
                                         </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" v-pre="">Website Page Review Translate<span
+                                                class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="twilioDropdown">
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Arabic') }}">Arabic Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','English') }}">English Page Review Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Chinese') }}">Chinese Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Japanese') }}">Japanese Page Review Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Korean') }}">Korean Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Urdu') }}">Urdu Page Review Translate </a>
+                                                    </li>
+                                                   <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Russian') }}">Russian Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Italian') }}">Italian Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','French') }}">French Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Spanish') }}">Spanish Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','Dutch') }}">Dutch Page Review Translate </a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('store-website.page.review.translate','German') }}">German Page Review Translate </a>
+                                                    </li>
+                                                    
+                                                </ul>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
                                                 href="{{ route('store-website.product-attribute.index') }}">Product
