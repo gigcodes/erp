@@ -1157,6 +1157,7 @@ if (!empty($notifications)) {
                                 <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
                                     <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
+                                    <a class="dropdown-item" href="{{route('translation.log')}}">Translations Logs</a>
                                     <a class="dropdown-item" href="{{route('pushfcmnotification.list')}}">FCM
                                         Notifications</a>
                                 </li>

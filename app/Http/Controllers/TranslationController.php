@@ -134,16 +134,42 @@ class TranslationController extends Controller
         return redirect()->route('translation.list')
             ->with('success', 'Translation deleted successfully');
     }
+    
+    public function translateLogDelete($id)
+    {
+        $translateLog = TranslateLog::find($id);
+        $translateLog->delete();
+
+        return redirect()->route('translation.log')
+            ->with('success', 'Translation Log deleted successfully');
+    }
 
     public function translateLog(Request $request)
     {
-        $translateLog = new TranslateLog();
-        if (isset($request->id)) {
-            $translateLog = $translateLog->where('google_traslation_settings_id', $request->id);
-        }
-        $translateLog = $translateLog->orderBy('id', "desc")->get();
+        $query = TranslateLog::query();
 
-        return view('translation.log', compact('translateLog'));
+        if ($request->id) {
+            $query = $query->where('id', $request->id);
+        }
+        if ($request->search) {
+            $query = $query->where('messages', 'LIKE', '%'.$request->search.'%')
+                    ->orWhere('created_at', 'LIKE', '%'.$request->search.'%')
+                    ->orWhere('updated_at', 'LIKE', '%'.$request->search.'%');
+        } 
+
+        $data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('translation.partials.list-translation-logs', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string) $data->render(),
+                'count' => $data->total(),
+            ], 200);
+        }
+
+        return view('translation.log', compact('data'))
+            ->with('i', ($request->input('page', 1) - 1) * 5);
+
+               
     }
 
     /**
