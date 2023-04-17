@@ -4426,6 +4426,7 @@ Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('translate-logs', [TranslationController::class, 'translateLog'])->name('translation.log');
     Route::post('mark-as-resolve', [TranslationController::class, 'markAsResolve'])->name('translation.log.markasresolve');
     Route::DELETE('/delete/{id?}', [TranslationController::class, 'destroy'])->name('translation.destroy');
+    Route::DELETE('translate-logs/delete/{id?}', [TranslationController::class, 'translateLogDelete'])->name('translation.log.destroy');
     Route::get('/add', [TranslationController::class, 'create'])->name('translation.add');
     Route::get('/{id?}/edit', [TranslationController::class, 'edit'])->name('translation.edit');
     Route::post('/store', [TranslationController::class, 'store'])->name('translation.store');
