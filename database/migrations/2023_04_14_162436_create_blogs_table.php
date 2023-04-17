@@ -26,6 +26,8 @@ class CreateBlogsTable extends Migration
             $table->string('url_structure', 524)->nullable();
             $table->text('url_xml')->nullable();
             $table->dateTime('publish_blog_date')->nullable();
+            $table->tinyInteger('no_index')->nullable();
+            $table->tinyInteger('no_follow')->nullable();
             $table->dateTime('date')->nullable();
             $table->string('facebook', 256)->nullable();
             $table->dateTime('facebook_date')->nullable();

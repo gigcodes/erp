@@ -399,9 +399,12 @@ Route::get('vendors/create-cv/{id}', [VendorResumeController::class, 'create'])-
 Route::post('vendors/cv/store', [VendorResumeController::class, 'store'])->name('vendor.cv.store');
 
 Route::prefix('blog')->middleware('auth')->group(function () {
-    Route::get('/list', [BlogController::class, 'index']);
-    Route::get('/add', [BlogController::class, 'create']);
+    Route::get('/list', [BlogController::class, 'index'])->name('blog.index');
+    Route::get('/add', [BlogController::class, 'create'])->name('blog.create');
+    Route::get('/edit/{id}', [BlogController::class, 'edit'])->name('blog.edit');
     Route::post('/store', [BlogController::class, 'store'])->name('store-blog.submit');
+    Route::post('/update/{id}', [BlogController::class, 'update'])->name('update-blog.submit');
+    Route::delete('/delete/{id}', [BlogController::class, 'destroy'])->name('update-blog.delete');
 
 });
 
