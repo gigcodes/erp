@@ -14,12 +14,12 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         SocialiteWasCalled::class => [
-            'SocialiteProviders\Slack\SlackExtendSocialite@handle',
-            'SocialiteProviders\Azure\AzureExtendSocialite@handle',
-            'SocialiteProviders\Okta\OktaExtendSocialite@handle',
-            'SocialiteProviders\GitLab\GitLabExtendSocialite@handle',
-            'SocialiteProviders\Twitch\TwitchExtendSocialite@handle',
-            'SocialiteProviders\Discord\DiscordExtendSocialite@handle',
+            // 'SocialiteProviders\Slack\SlackExtendSocialite@handle',
+            // 'SocialiteProviders\Azure\AzureExtendSocialite@handle',
+            // 'SocialiteProviders\Okta\OktaExtendSocialite@handle',
+            // 'SocialiteProviders\GitLab\GitLabExtendSocialite@handle',
+            // 'SocialiteProviders\Twitch\TwitchExtendSocialite@handle',
+            // 'SocialiteProviders\Discord\DiscordExtendSocialite@handle',
         ],
     ];
 
