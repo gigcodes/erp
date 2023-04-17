@@ -4242,17 +4242,21 @@ class DevelopmentController extends Controller
     public function actionStartDateUpdate()
     {
         if ($new = request('value')) {
-            if ($single = DeveloperTask::find(request('id'))) {
-                $params['message'] = 'Estimated Start Datetime: '.$new;
-                $params['user_id'] = Auth::user()->id;
-                $params['developer_task_id'] = $single->id;
-                $params['approved'] = 1;
-                $params['status'] = 2;
-                $params['sent_to_user_id'] = $single->user_id;
-                ChatMessage::create($params);
-                $single->updateStartDate($new);
-
-                return respJson(200, 'Successfully updated.');
+            try {
+                if ($single = DeveloperTask::find(request('id'))) {
+                    $params['message'] = 'Estimated Start Datetime: '.$new;
+                    $params['user_id'] = Auth::user()->id;
+                    $params['developer_task_id'] = $single->id;
+                    $params['approved'] = 1;
+                    $params['status'] = 2;
+                    $params['sent_to_user_id'] = $single->user_id;
+                    ChatMessage::create($params);
+                    $single->updateStartDate($new);
+    
+                    return respJson(200, 'Successfully updated.');
+                }
+            } catch (\Exception $e) {
+                return respJson(404, $e->getMessage());
             }
 
             return respJson(404, 'No task found.');
@@ -4264,17 +4268,21 @@ class DevelopmentController extends Controller
     public function saveEstimateDate(Request $request)
     {
         if ($new = request('value')) {
-            if ($single = DeveloperTask::find(request('id'))) {
-                $params['message'] = 'Estimated Start Datetime: '.$new;
-                $params['user_id'] = Auth::user()->id;
-                $params['developer_task_id'] = $single->id;
-                $params['approved'] = 1;
-                $params['status'] = 2;
-                $params['sent_to_user_id'] = $single->user_id;
-                ChatMessage::create($params);
-                $single->updateEstimateDate($new);
-
-                return respJson(200, 'Successfully updated.');
+            try {
+                if ($single = DeveloperTask::find(request('id'))) {
+                    $params['message'] = 'Estimated Start Datetime: '.$new;
+                    $params['user_id'] = Auth::user()->id;
+                    $params['developer_task_id'] = $single->id;
+                    $params['approved'] = 1;
+                    $params['status'] = 2;
+                    $params['sent_to_user_id'] = $single->user_id;
+                    ChatMessage::create($params);
+                    $single->updateEstimateDate($new);
+    
+                    return respJson(200, 'Successfully updated.');
+                }
+            } catch (\Exception $e) {
+                return respJson(404, $e->getMessage());
             }
 
             return respJson(404, 'No task found.');

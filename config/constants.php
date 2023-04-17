@@ -76,6 +76,11 @@ return [
         'FAIL' => 'Equivalent to "Error" or "Invalid" for the page or item in Search Console.',
         'NEUTRAL' => 'Equivalent to "Excluded" for the page or item in Search Console.',
     ],
+    'bing_site_role_enum' => [
+        0 => 'Administrator',
+        1 => 'ReadOnly',
+        2 => 'ReadWrite'
+    ],
     'TIME_DOCTOR_API_RESPONSE_MESSAGE' => [
         '401' => 'Time Doctor Account user\'s Token ID is invalid or access is denied.',
         '403' => 'Time Doctor Account user don\'t have permission to perform this action',
