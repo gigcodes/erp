@@ -177,7 +177,7 @@
     }
 
     .down-icon {
-        float: right;
+        margin-right: 10px;
     }
 
     .padding-right {
@@ -437,20 +437,63 @@ else
                         }
                     },
                     success: function (response) {
-                        var tbaleData = '';
-                        $('#keyword_table_data').html(tbaleData);
+                        let tableData = '';
+                        $('#keyword_table_data').html(tableData);
                         if (response.status == 'success') {
                             response = response.data;
-                            $.each(response, function (index, data) {
-                                tbaleData += `<tr>
+                            if ($('#view_type').val() === 'grouped_view') {
+                                const keyword_arr = [];
+                                $('#keyword_table_header').hide();
+                                $.each(response, function (index, value) {
+                                    keyword_arr.push(index);
+                                });
+
+                                $.each(keyword_arr, function (index_key, value) {
+                                    tableData += `<tr onclick="openSubDiv(${index_key})" style="cursor: pointer">
+                                                    <i class="down-icon fa fa-angle-down" aria-hidden="true" id="angle-up-${index_key}"></i>
+                                                        <td colspan="5">${value}(${response[value].length})
+                                                    </td>
+                                                </tr>
+                                    <tr class="sub-table-div-class hidden" id="sub-table-div-${index_key}" >
+                                    <td colspan="5" style="padding: 15px">
+                                    <table width="100%">
+                                    <thead>
+                                                    <tr>
+                                                        <th>Keywords</th>
+                                                        <th>Avg. monthly searches</th>
+                                                        <th>Competition</th>
+                                                        <th>Top of page bid (low range)</th>
+                                                        <th>Top of page bid (high range)</th>
+                                                    </tr>
+                                            </thead>
+                                    <tbody>`;
+                                    $.each(response[value], function (index, data) {
+                                        tableData += `<tr>
+                                                            <td>${data.keyword}</td>
+                                                            <td>${data.avg_monthly_searches}</td>
+                                                            <td>${data.competition}</td>
+                                                            <td>${data.low_top}</td>
+                                                            <td>${data.high_top}</td>
+                                                            </tr>`;
+                                    });
+
+                                    tableData += `</tbody>
+                                    </table>
+                                    </td>
+                                    </tr>`;
+                                });
+                            } else {
+                                $.each(response,function(index,data){
+                                    tableData += `<tr>
                                     <td>${data.keyword}</td>
                                     <td>${data.avg_monthly_searches}</td>
                                     <td>${data.competition}</td>
                                     <td>${data.low_top}</td>
                                     <td>${data.high_top}</td>
                                 </tr>`;
-                            });
-                            $('#keyword_table_data').html(tbaleData);
+                                });
+                            }
+                            $('#keyword_table_data').html(tableData);
                         } else {
                             toastr['error'](response.message, 'Error');
                         }
@@ -517,9 +560,9 @@ else
 
                                 $.each(keyword_arr, function (index_key, value) {
                                     tableData += `<tr onclick="openSubDiv(${index_key})" style="cursor: pointer">
-                                                    <td colspan="5">${value}(${response[value].length})
-                                                    <i class="down-icon fa fa-angle-down" aria-hidden="true"></i>
-                                                    </td>
+                                                    <td colspan="5" style="text-transform: capitalize">
+                                                        <i class="down-icon fa fa-angle-down" aria-hidden="true" id="angle-change-${index_key}"></i>
+                                                        ${value} (${response[value].length})</td>
                                                 </tr>
                                     <tr class="sub-table-div-class hidden" id="sub-table-div-${index_key}" >
                                     <td colspan="5" style="padding: 15px">
@@ -571,9 +614,16 @@ else
             });
         });
 
+        /*show sub keyword for group view*/
         function openSubDiv(index) {
-            // $(".sub-table-div-class").hide();
-            $('#sub-table-div-' + index).toggleClass('hidden')
+            $('#sub-table-div-' + index).toggleClass('hidden');
+            if ($("#sub-table-div-" + index).hasClass('hidden')) {
+                $("#angle-change-" + index).addClass('fa-angle-down');
+                $("#angle-change-" + index).removeClass('fa-angle-up');
+            } else {
+                $("#angle-change-" + index).removeClass('fa-angle-down');
+                $("#angle-change-" + index).addClass('fa-angle-up');
+            }
         }
     </script>
     @endsection

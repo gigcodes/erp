@@ -677,11 +677,13 @@ class googleAddsController extends Controller
             ];
         }
         $data = ['status' => 'success', 'data' => $finalData];
+
+        /*Start logic group by view*/
         if ($viewType == 'grouped_view') {
             $finalArray = [];
             $alreadyGroupedStrings = [];
 
-            $skipWords = ['me', 'this', 'that', 'these', 'those'];
+            $skipWords = ['me', 'this', 'that', 'these', 'those', 'what', 'in', 'which', 'is', 'on'];
             for ($i = 0; $i < sizeof($finalData); $i++) {
                 $words1 = explode(" ", $finalData[$i]['keyword']);
                 $matchString = '';
@@ -719,11 +721,8 @@ class googleAddsController extends Controller
                     array_push($finalArray[$matchString], $finalData[$i]);
                 }
             }
-//            $finalArray['other'] = !array_key_exists($finalData[$i]['keyword'], $alreadyGroupedStrings) ? array_push($finalData['other'], $finalData[$i]) : '';
             $data = ['status' => 'success', 'data' => $finalArray];
         }
-
-
         return $data;
     }
 }
