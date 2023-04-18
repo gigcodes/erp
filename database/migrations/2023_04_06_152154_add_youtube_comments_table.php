@@ -19,8 +19,8 @@ class AddYoutubeCommentsTable extends Migration
             $table->string('video_id',128);
             $table->string('comment_id', 128);
             $table->string('title', 564)->nullable();
-            $table->int('like_count', 11)->nullable();
-            $table->int('dislike_count', 11)->nullable();
+            $table->integer('like_count', 11)->nullable();
+            $table->integer('dislike_count', 11)->nullable();
             $table->timestamp('create_time')->nullable();
             $table->timestamps();
             $table->softDeletes();

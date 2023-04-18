@@ -23,8 +23,8 @@ class AddPaidToUyoutubeChannelstable extends Migration
             $table->string('oauth2_refresh_token', 1024)->nullable();
             $table->string('chanelId', 1024)->nullable();
             $table->string('chanel_name', 256)->nullable();
-            $table->int('video_count', 11)->nullable();
-            $table->int('subscribe_count', 11)->nullable();
+            $table->integer('video_count', 11)->nullable();
+            $table->integer('subscribe_count', 11)->nullable();
             $table->timestamp('token_expire_time')->nullable();
             $table->timestamps();
             $table->softDeletes();

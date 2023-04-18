@@ -21,10 +21,10 @@ class AddYoutubeVideosTable extends Migration
             $table->string('media_id', 128);
             $table->string('title', 564)->nullable();
             $table->text('description')->nullable();
-            $table->int('like_count', 11)->nullable();
-            $table->int('view_count', 11)->nullable();
-            $table->int('dislike_count', 11)->nullable();
-            $table->int('comment_count', 11)->nullable();
+            $table->integer('like_count', 11)->nullable();
+            $table->integer('view_count', 11)->nullable();
+            $table->integer('dislike_count', 11)->nullable();
+            $table->integer('comment_count', 11)->nullable();
             $table->timestamp('create_time')->nullable();
             $table->timestamps();
             $table->softDeletes();
