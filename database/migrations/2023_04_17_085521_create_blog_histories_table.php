@@ -16,6 +16,7 @@ class CreateBlogHistoriesTable extends Migration
         Schema::create('blog_histories', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('blog_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('plaglarism', 8)->nullable();
             $table->string('internal_link', 524)->nullable();
             $table->string('external_link', 524)->nullable();

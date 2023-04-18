@@ -11,10 +11,16 @@ class BlogHistory extends Model
         'plaglarism',
         'internal_link',
         'external_link',
+        'user_id',
         'create_time',
         'no_index',
-        'no_follow',
+        'no_follow',    
         'created_at',
         'updated_at',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(\App\User::class);
+    }
 }

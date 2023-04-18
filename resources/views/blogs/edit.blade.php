@@ -86,8 +86,8 @@
                     <div class="col-md-4">
                         <label class="form-label">Select Plaglarism</label>
                         <select name="plaglarism" class="form-control">
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
+                            <option value="yes" {{ $blog->plaglarism == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option {{ $blog->plaglarism == 'no' ? 'selected' : '' }} value="no">No</option>
                         </select>
 
                          @error('plaglarism')

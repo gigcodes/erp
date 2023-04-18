@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use App\Tag;
 use App\User;
 use DataTables;
@@ -23,23 +24,65 @@ class BlogController extends Controller
         if ($request->ajax()) {
            
             $blogs = Blog::query();
-            if($request->get('user_id')){
-                $blogs->where('user_id', $request->get('user_id'));
+           
+            // if($request->get('user_id')){
+            //     $blogs->where('user_id', $request->get('user_id'));
+            // }
+            if(!empty($request->get('created_at'))){
+               
+                $blogs->whereDate('publish_blog_date', $request->get('created_at'));
             }
+
             $blogs->with('user', 'blogsTag');
+            $blogs->orderBy('id', 'desc')->toSql();
+          
+
             return Datatables::of($blogs)
                 ->addIndexColumn()
                 ->addColumn('userName', function ($row) {
                     $user = $row->user ? $row->user->name : "N/A";
                     return $user;
                 })
+                ->addColumn('no_index', function ($row) {
+                    if($row->no_index === 1) {
+                        return 'Yes';
+                    }else if($row->no_index === 0){
+                        return 'No';
+                    }else{
+                        return '';
+                    }
+                  
+                })
+                ->addColumn('no_follow', function ($row) {
+                    if($row->no_follow === 1) {
+                        return 'Yes';
+                    }else if($row->no_follow === 0){
+                        return 'No';
+                    }else{
+                        return '';
+                    }
+                })
+
+                ->addColumn('created_at', function ($row) {
+                    $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : "N/A";
+                    return $createdDate;
+                })
+                ->addColumn('publish_blog_date', function ($row) {
+                    $publishDate = $row->publish_blog_date ? Carbon::parse($row->publish_blog_date)->format('Y-m-d') : "N/A";
+                    return $publishDate;
+                    
+                })
+                
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<a href="edit/' . $row->id . '" data-id="' . $row->id . '" data-product-id="' . $row->id . '" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>&nbsp; | <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i></a>&nbsp;';
+                    $actionBtn = '<a href="edit/' . $row->id . '" data-id="' . $row->id . '" data-product-id="' . $row->id . '" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i> Edit</a>&nbsp; | 
+                    <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp; |
+                    <a href="view/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</a>&nbsp;';
                     return $actionBtn;
                 })
                 ->rawColumns(['action', 'userName'])
                 ->make(true);
         }
+        
         $users = User::get();
         return view('blogs.index', compact('users'));
     }
@@ -58,6 +101,54 @@ class BlogController extends Controller
         $tagName = implode(",", $tagName);
         $tagName = "['" . str_replace(",", "','", $tagName) . "']";
         return view('blogs.create', compact('users', 'tagName'));
+    }
+
+
+    public function viewAllHistory(Request $request)
+    {
+        if ($request->ajax()) {
+            
+            $blogsHistory = BlogHistory::query();
+            if($request->get('user_id')){
+                $blogsHistory->where('user_id', $request->get('user_id'));
+            }
+            $blogsHistory->with('user');
+            return Datatables::of($blogsHistory)
+                ->addIndexColumn()
+                ->addColumn('no_index', function ($row) {
+                    if($row->no_index === 1) {
+                        return 'Yes';
+                    }else if($row->no_index === 0){
+                        return 'No';
+                    }else{
+                        return '';
+                    }
+                  
+                })
+                ->addColumn('no_follow', function ($row) {
+                    if($row->no_follow === 1) {
+                        return 'Yes';
+                    }else if($row->no_follow === 0){
+                        return 'No';
+                    }else{
+                        return '';
+                    }
+                })
+                
+                ->addColumn('created_at', function ($row) {
+                    $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : "N/A";
+                    return $createdDate;
+                })
+                ->addColumn('userName', function ($row) {
+                    $user = $row->user ? $row->user->name : "N/A";
+                    return $user;
+                })
+                ->rawColumns(['userName'])
+                ->make(true);
+        }
+
+        $users = User::get();
+        return view('blogs.view-all-history', compact('users'));
     }
 
     /**
@@ -85,14 +176,15 @@ class BlogController extends Controller
             'bing' => 'nullable|max:256',
             'publish_blog_date' => 'date_format:Y-m-d|after:' . Carbon::now()->format('Y-m-d')
         ]);
-
+      
         $blog = Blog::create($request->all());
         if (!empty($blog)) {
             $blogId = $blog->id;
             // $tags = Tag::get();
 
             if (!empty($request->title_tag)) {
-                $titleTags = explode(",", $request->title_tag);
+                $titleTags = explode(",", str_replace(' ', '', $request->title_tag));
+               
 
                 if (!empty($titleTags)) {
                     $this->titleTag($titleTags, $blogId);
@@ -100,7 +192,7 @@ class BlogController extends Controller
             }
 
             if (!empty($request->header_tag)) {
-                $headerTags = explode(",", $request->header_tag);
+                $headerTags = explode(",", str_replace(' ','', $request->header_tag));
 
                 if (!empty($headerTags)) {
 
@@ -109,7 +201,7 @@ class BlogController extends Controller
             }
 
             if (!empty($request->italic_tag)) {
-                $italicTags = explode(",", $request->italic_tag);
+                $italicTags = explode(",", str_replace(' ','', $request->italic_tag));
 
                 if (!empty($italicTags)) {
 
@@ -118,7 +210,7 @@ class BlogController extends Controller
             }
 
             if (!empty($request->strong_tag)) {
-                $strongTags = explode(",", $request->strong_tag);
+                $strongTags = explode(",", str_replace(' ','', $request->strong_tag));
 
                 if (!empty($strongTags)) {
 
@@ -265,8 +357,32 @@ class BlogController extends Controller
 
     public function show($id)
     {
-        //
-    }
+        $blog = Blog::with('user', 'blogsTag')->where('id', $id)->first();
+
+        if(!empty($blog)){
+            $users = User::get();
+            $headerTags = $this->headerTagGetWhenEdit($id);
+            $headerTagEditValue = implode(",", $headerTags);
+            $titleTags = $this->titleTagGetWhenEdit($id);
+            $titleTagEditValue = implode(",", $titleTags);
+            $italicTags = $this->italicTagGetWhenEdit($id);
+            $italicTagEditValue = implode(",", $italicTags);
+            $strongTags = $this->strongTagGetWhenEdit($id);
+            $strongTagEditValue = implode(",", $strongTags);
+            // $titleTags = $this->titleTagGetWhenEdit($id);
+            // $headerTags = $this->headerTagGetWhenEdit($id);
+            // $italicTags = $this->italicTagGetWhenEdit($id);
+            // $strongTags = $this->strongTagGetWhenEdit($id);
+            // $userName = !empty($blog->user->name) ? $blog->user->name : '';
+            return view('blogs.show', compact('blog', 'headerTagEditValue', 'titleTagEditValue', 'italicTagEditValue', 'strongTagEditValue', 'users'));
+    
+        }
+        return abort(404);
+       
+        
+    }   
+
+  
 
     /**
      * Show the form for editing the specified resource.
@@ -279,7 +395,7 @@ class BlogController extends Controller
         $blog = Blog::where('id', $id)->first();
         if (!empty($blog)) {
             $users = User::get();
-
+            
             $headerTags = $this->headerTagGetWhenEdit($id);
             $headerTagEditValue = implode(",", $headerTags);
             $titleTags = $this->titleTagGetWhenEdit($id);
@@ -458,6 +574,7 @@ class BlogController extends Controller
             BlogHistory::create([
                 'blog_id' => $id,
                 'plaglarism' => $request->plaglarism,
+                'user_id' => !empty(Auth::user()->id) ? Auth::user()->id: null,
                 'internal_link' => $request->internal_link,
                 'external_link' => $request->external_link,
                 'create_time' => Carbon::now()->format('Y-m-d'),
@@ -468,7 +585,7 @@ class BlogController extends Controller
             if (!empty($request->title_tag)) {
 
                 $this->blogTagDeleteByType($id, 'title_tag');
-                $titleTags = explode(",", $request->title_tag);
+                $titleTags = explode(",", str_replace(' ', '', $request->title_tag));
 
                 if (!empty($titleTags)) {
                     $this->titleTag($titleTags, $id);
@@ -478,7 +595,7 @@ class BlogController extends Controller
             if (!empty($request->header_tag)) {
 
                 $this->blogTagDeleteByType($id, 'header_tag');
-                $headerTags = explode(",", $request->header_tag);
+                $headerTags = explode(",", str_replace(' ', '', $request->header_tag));
 
                 if (!empty($headerTags)) {
                     $this->headerTag($headerTags, $id);
@@ -488,7 +605,7 @@ class BlogController extends Controller
             if (!empty($request->strong_tag)) {
 
                 $this->blogTagDeleteByType($id, 'strong_tag');
-                $strongTags = explode(",", $request->strong_tag);
+                $strongTags = explode(",", str_replace(' ', '', $request->strong_tag));
 
                 if (!empty($strongTags)) {
                     $this->strongTag($strongTags, $id);
@@ -498,7 +615,7 @@ class BlogController extends Controller
             if (!empty($request->italic_tag)) {
 
                 $this->blogTagDeleteByType($id, 'italic_tag');
-                $italicTags = explode(",", $request->italic_tag);
+                $italicTags = explode(",", str_replace(' ', '', $request->italic_tag));
 
                 if (!empty($italicTags)) {
                     $this->italicTag($italicTags, $id);

@@ -2286,6 +2286,7 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/blog/add">Add Blog</a>
                                             <a class="dropdown-item" href="/blog/list">List Blog</a>
+                                             <a class="dropdown-item" href="/blog/history/list">View History</a>
                                         </li>
                                     </ul>
                                 </li>

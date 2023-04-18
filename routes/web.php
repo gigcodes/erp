@@ -405,6 +405,8 @@ Route::prefix('blog')->middleware('auth')->group(function () {
     Route::post('/store', [BlogController::class, 'store'])->name('store-blog.submit');
     Route::post('/update/{id}', [BlogController::class, 'update'])->name('update-blog.submit');
     Route::delete('/delete/{id}', [BlogController::class, 'destroy'])->name('update-blog.delete');
+    Route::get('/history/list', [BlogController::class, 'viewAllHistory'])->name('view-blog-all.history');
+    Route::get('/view/{id}', [BlogController::class, 'show'])->name('blog.view');
 
 });
 
