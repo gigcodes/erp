@@ -9,6 +9,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
+            @include('partials.flash_messages')
             <h2 class="page-heading">Scrap Google Image</h2>
             <p class="px-4">Please enter the search query that you want to save the images of.</p>
         </div>
@@ -30,7 +31,7 @@
                     </div>
                     <div class="form-group col-lg-4 col-md-6">
                         <label class="group-label" for="query">Search Text</label>
-                        <input class="form-control" type="text" id="query" name="query" placeholder="Eg: Nike, Jordan, etc">
+                        <input class="form-control" type="text" id="query" name="query" required placeholder="Eg: Nike, Jordan, etc">
                     </div>
                     <div class="form-group col-lg-4 col-md-6">
                         <label class="group-label" for="noi">Number of Results</label>
@@ -52,7 +53,6 @@
 @section('styles')
     <link rel="stylesheet" href="{{ asset('css/media-card.css') }}">
 @endsection
-
 @section('scripts')
     <script>
         var cid = null;

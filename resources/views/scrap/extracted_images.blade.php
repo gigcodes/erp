@@ -7,7 +7,7 @@
                 @if (isset($downloaded))
                 <div class="image-extracted-title mb-5">
                     <a cx href="{{ url()->previous() }}"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>
-                    <h1>Extracted Images Successful</h1>
+                    <h1>Images are Downloaded Successfully and saved on lifestyle grid.</h1>
                 </div>
                 @else
                 <div class="image-extracted-title">
