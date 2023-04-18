@@ -1097,8 +1097,10 @@ class UicheckController extends Controller
             }
 
             $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
-                DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail')
-                )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
+                DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), DB::raw("GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable")
+            )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
+
+
             $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
             $status = '';
             $devid = '';
@@ -1108,7 +1110,9 @@ class UicheckController extends Controller
 
             $siteDevelopmentStatuses = SiteDevelopmentStatus::get();
 
-            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'siteDevelopmentStatuses', 'devid', 'uicheck_id', 'site_development_categories', 'allUsers'));
+            $store_websites = StoreWebsite::get()->pluck("website", 'id');
+
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'siteDevelopmentStatuses', 'uicheck_id', 'site_development_categories', 'allUsers', 'store_websites'));
         } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
@@ -1554,6 +1558,64 @@ class UicheckController extends Controller
         } catch (\Exception $e) {
             return respJson(500, '', [
                 'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Assign a new user to website and category
+     */
+    public function assignNewUser(Request $request)
+    {
+        try {
+
+            $designSubCategory = SiteDevelopmentCategory::join("site_development_master_categories as sdmc", 'sdmc.id', 'site_development_categories.master_category_id')
+                ->where('sdmc.title', 'Design')->select('site_development_categories.id')->pluck('id');
+
+            $uiDevDatas = new UiDevice();
+            $uiDevDatas = $uiDevDatas->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
+                                    ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
+                                    ->leftJoin('uicheck_user_accesses as uua', 'ui_devices.uicheck_id', 'uua.uicheck_id')
+                                    ->leftJoin('users as u', 'u.id', 'uua.user_id')
+                                    ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
+                                    ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
+                                    ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
+
+            $uiDevDatas = $uiDevDatas->whereIn("uic.site_development_category_id", $designSubCategory)->where("sw.id", $request->website);
+            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'u.name as username','sw.website', 'sdc.title')->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->get()->pluck('uicheck_id');
+
+            if(isset($uiDevDatas) && count($uiDevDatas) > 0) {
+                foreach ($uiDevDatas as $key => $uicheck_id) {
+                    UicheckUserAccess::firstOrCreate([
+                        "user_id" => $request->user,
+                        "uicheck_id" => $uicheck_id
+                    ]);
+                }
+
+                return response()->json(["status"=> true, "message" => "User has assigned successfully"]);
+
+
+            } else {
+                return response()->json(["status"=> false, "message"=> "No existing record found."]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(["status"=> false, "message"=> "Something went wrong."]);
+        }
+    }
+
+    public function userHistory(Request $request)
+    {
+        try {
+            $userAccess = UicheckUserAccess::with('user')->where("uicheck_id", $request->uicheck_id)->orderBy('id', 'desc')->get();
+            return response()->json([
+                "status"=> true,
+                "data" => view("uicheck.user-history", compact('userAccess'))->render() 
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                "status"=> true,
+                "data" => view("uicheck.user-history")->render() 
             ]);
         }
     }
