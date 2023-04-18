@@ -3811,10 +3811,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/uicheck/create/dev/attachment', [UicheckController::class, 'saveDevDocuments'])->name('uicheck.create.dev.attachment');
     Route::get('uicheck/get/dev/attachment', [UicheckController::class, 'devListDocuments'])->name('uicheck.get.dev.attachment');
     Route::post('uicheck/dev/delete/attachment', [UicheckController::class, 'deleteDevDocument'])->name('uicheck.dev.delete.attachment');
+    Route::post('uicheck/device/status', [UicheckController::class, 'updateDeviceStatus'])->name('uicheck.device.status');
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
+        Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');

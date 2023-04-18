@@ -172,22 +172,39 @@
 					<tr>
 						{{-- <th width="10%">ID</th> --}}
 						<th width="5%">Ui Check ID</th>
-						<th width="10%">Categories</th>
-						<th width="10%">Website</th>
-						<th width="10%">User Name</th>
-						<th width="10%">Device1</th>
-						<th width="10%">Device2</th>
-						<th width="10%">Device3</th>
-						<th width="10%">Device4</th>
-						<th width="10%">Device5</th>
-						<th width="10%">Status</th>
+						<th width="8%">Categories</th>
+						<th width="8%">Website</th>
+						<th width="8%">User Name</th>
+						<th width="6%">Device1</th>
+						<th width="6%">Device2</th>
+						<th width="6%">Device3</th>
+						<th width="6%">Device4</th>
+						<th width="6%">Device5</th>
+						<th width="6%">Device6</th>
+						<th width="6%">Device7</th>
+						<th width="6%">Device8</th>
+						<th width="6%">Device9</th>
+						<th width="6%">Device10</th>
+						<th width="8%">Status</th>
 						
 					</tr>
 				</thead>
 				<tbody>
-					
 					@foreach ($uiDevDatas as $uiDevData)
-						
+						@php
+							$deviceBgColors =  array_fill(1, 10, '#ffffff');
+
+							if (isset($uiDevData->uichecks) && isset($uiDevData->uichecks->uiDevice)) {
+								foreach ($uiDevData->uichecks->uiDevice as $device) {
+									$deviceNo = $device->device_no;
+									if (isset($device->lastUpdatedHistory) && $device->lastUpdatedHistory->status != ''){
+										$color = $device->lastUpdatedHistory->stausColor->color;
+										if ($color != '')
+											$deviceBgColors[$deviceNo] = $color;
+									}
+								}
+							}
+						@endphp
 							<tr>
 								{{-- <td>{{$uiDevData->id}}</td> --}}
 								<td>{{$uiDevData->uicheck_id}}</td>
@@ -204,11 +221,16 @@
 									<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->username != '') {{$uiDevData->username}} @else   @endif</span>
 								</td>
 								
-								<td> <input type="text" name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('1', '{{$uiDevData->uicheck_id}}', '1' );"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('1','{{$uiDevData->uicheck_id}}');"></i> </td>
-								<td> <input type="text" name="uidevmessage2{{$uiDevData->uicheck_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('2', '{{$uiDevData->uicheck_id}}', '2');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('2', '{{$uiDevData->uicheck_id}}');"></i> </td>
-								<td> <input type="text" name="uidevmessage3{{$uiDevData->uicheck_id}}" class="uidevmessage3{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('3', '{{$uiDevData->uicheck_id}}', '3');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('3', '{{$uiDevData->uicheck_id}}');"></i> </td>
-								<td> <input type="text" name="uidevmessage4{{$uiDevData->uicheck_id}}" class="uidevmessage4{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('4', '{{$uiDevData->uicheck_id}}', '4');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('4', '{{$uiDevData->uicheck_id}}');"></i> </td>
-								<td> <input type="text" name="uidevmessage5{{$uiDevData->uicheck_id}}" class="uidevmessage5{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('5', '{{$uiDevData->uicheck_id}}', '5');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('5', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['1']}} !important"> <input type="text" name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('1', '{{$uiDevData->uicheck_id}}', '1');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('1', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['2']}} !important"> <input type="text" name="uidevmessage2{{$uiDevData->uicheck_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('2', '{{$uiDevData->uicheck_id}}', '2');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('2', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['3']}} !important"> <input type="text" name="uidevmessage3{{$uiDevData->uicheck_id}}" class="uidevmessage3{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('3', '{{$uiDevData->uicheck_id}}', '3');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('3', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['4']}} !important"> <input type="text" name="uidevmessage4{{$uiDevData->uicheck_id}}" class="uidevmessage4{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('4', '{{$uiDevData->uicheck_id}}', '4');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('4', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['5']}} !important"> <input type="text" name="uidevmessage5{{$uiDevData->uicheck_id}}" class="uidevmessage5{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('5', '{{$uiDevData->uicheck_id}}', '5');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('5', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['6']}} !important"> <input type="text" name="uidevmessage6{{$uiDevData->uicheck_id}}" class="uidevmessage6{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('6', '{{$uiDevData->uicheck_id}}', '6');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('6', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['7']}} !important"> <input type="text" name="uidevmessage7{{$uiDevData->uicheck_id}}" class="uidevmessage7{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('7', '{{$uiDevData->uicheck_id}}', '7');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('7', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['8']}} !important"> <input type="text" name="uidevmessage8{{$uiDevData->uicheck_id}}" class="uidevmessage8{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('8', '{{$uiDevData->uicheck_id}}', '8');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('8', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['9']}} !important"> <input type="text" name="uidevmessage9{{$uiDevData->uicheck_id}}" class="uidevmessage9{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('9', '{{$uiDevData->uicheck_id}}', '9');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('9', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td style="background-color: {{$deviceBgColors['10']}} !important"> <input type="text" name="uidevmessage10{{$uiDevData->uicheck_id}}" class="uidevmessage10{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('10', '{{$uiDevData->uicheck_id}}', '10');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('10', '{{$uiDevData->uicheck_id}}');"></i> </td>
 								
 								<?php 
 										$devid = '';
@@ -278,6 +300,7 @@
 								<th width="5%">ID</th>
 								<th width="8%">Update By</th>
 								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="15%" style="word-break: break-all;">Estimated Time</th>
 								<th width="15%" style="word-break: break-all;">Status</th>
 								<th width="15%">Created at</th>
 							</tr>
@@ -298,10 +321,10 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Task Status Color</h4>
+                <h4 class="modal-title">Status Color</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form action="{{ route('livechat.statuscolor') }}" method="POST">
+            <form action="{{ route('uicheck.statuscolor') }}" method="POST">
                 <?php echo csrf_field(); ?>
                 {{--                <div class="modal-content">--}}
                 <div class="form-group col-md-12">
@@ -312,13 +335,13 @@
                             <td class="text-center"><b>Color</b></td>
                         </tr>
                         <?php
-                        foreach ($taskstatus as $bugstatus) { ?>
+                         foreach ($siteDevelopmentStatuses as $status) { ?>
                         <tr>
-                            <td>&nbsp;&nbsp;&nbsp;<?php echo $bugstatus->name; ?></td>
-                            <td class="text-center"><?php echo $bugstatus->ticket_color; ?></td>
-                            <td class="text-center"><input type="color" name="color_name[<?php echo $bugstatus->id; ?>]" class="form-control" data-id="<?php echo $bugstatus->id; ?>" id="color_name_<?php echo $bugstatus->id; ?>" value="<?php echo $bugstatus->ticket_color; ?>" style="height:30px;padding:0px;"></td>
+                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status->name; ?></td>
+                            <td class="text-center"><?php echo $status->color; ?></td>
+                            <td class="text-center"><input type="color" name="color_name[<?php echo $status->id; ?>]" class="form-control" data-id="<?php echo $status->id; ?>" id="color_name_<?php echo $status->id; ?>" value="<?php echo $status->color; ?>" style="height:30px;padding:0px;"></td>
                         </tr>
-                        <?php } ?>
+                        <?php }  ?>
                     </table>
                 </div>
                 <div class="modal-footer">
@@ -550,6 +573,40 @@
 		var id = $(this).data("text");
 		copyToClipboard(id);
 		toastr['success']("Text copy successfully");
+	});
+
+	$(document).on("change", ".historystatus", function(e) {
+		var id = $(this).data("id");
+		var status_id = $(this).val();
+		var deviceno = $(this).data("deviceno");
+		var uicheckid = $(this).data("uicheckid");
+		if(confirm("Are you sure you want to change status?")) {
+			$.ajax({
+			url: "{{route('uicheck.device.status')}}",
+            type: 'POST',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+            dataType:"json",
+            data: { id : id, status_id:status_id},
+            beforeSend: function() {
+				$("#loading-image").show();
+            }
+          }).done(function (response) {
+            $("#loading-image").hide();
+			toastr["success"](response.message);
+
+			//update respective td background
+			var dynamicClass = '.uidevmessage' + deviceno + uicheckid;
+			$(dynamicClass).parent('td').css("background-color",response.data);
+
+			let mdl = jQuery('#modalGetDevMessageHistory');
+			mdl.modal("hide");
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {      
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		  });
+		}
 	});
 </script>
 

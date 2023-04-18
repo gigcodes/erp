@@ -1069,7 +1069,7 @@ class UicheckController extends Controller
         try {
             \DB::enableQueryLog();
             $uiDevDatas = new UiDevice();
-            $uiDevDatas = $uiDevDatas->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
+            $uiDevDatas = $uiDevDatas->with('uichecks.uiDevice.lastUpdatedHistory.stausColor')->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
                                     ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
                                     ->leftJoin('uicheck_user_accesses as uua', 'ui_devices.uicheck_id', 'uua.uicheck_id')
                                     ->leftJoin('users as u', 'u.id', 'uua.user_id')
@@ -1098,7 +1098,7 @@ class UicheckController extends Controller
 
             $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
                 DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail')
-            )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(8);
+                )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
             $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
             $status = '';
             $devid = '';
@@ -1106,10 +1106,12 @@ class UicheckController extends Controller
             $site_development_categories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
             $allUsers = User::where('is_active', '1')->get();
 
-            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories', 'allUsers'));
+            $siteDevelopmentStatuses = SiteDevelopmentStatus::get();
+
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'siteDevelopmentStatuses', 'devid', 'uicheck_id', 'site_development_categories', 'allUsers'));
         } catch (\Exception $e) {
             //dd($e->getMessage());
-            return \Redirect::back()->withErrors(['msg' => $e]);
+            return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
         }
     }
 
@@ -1389,9 +1391,16 @@ class UicheckController extends Controller
             ->where('ui_device_histories.uicheck_id', $request->uicheck_id)
             ->orderBy('id', 'desc')->get();
             //dd($getHistory);
+            $siteDevelopmentStatuses = SiteDevelopmentStatus::pluck('name','id')->toArray();
             $html = [];
             if ($getHistory->count()) {
+                $isAdmin = Auth::user()->isAdmin();
+                $loggedInUserId = Auth::user()->id;
                 foreach ($getHistory as $value) {
+                    $select = $value->status_name ?: '-';
+                    if ($isAdmin || $value->user_id == $loggedInUserId) {
+                        $select = \Form::select("site_development_status_id",["" => "-"] + $siteDevelopmentStatuses ,$value->status ?? "-" , ["class" => "form-control historystatus", "data-id" => $value->id, "data-deviceno" => $request->device_no, "data-uicheckid" => $request->uicheck_id]);
+                    }
                     $html[] = implode('', [
                         '<tr>',
                         '<td>'.($value->id ?: '-').'</td>',
@@ -1404,7 +1413,7 @@ class UicheckController extends Controller
                             <i class="fa fa-copy" data-text="'.$value->message.'"></i>
                         </td>',
                         '<td>'.($value->estimated_time ?: '-').'</td>',
-                        '<td>'.($value->status_name ?: '-').'</td>',
+                        '<td>'.($select).'</td>',
                         '<td class="cls-created-date">'.($value->created_at ?: '').'</td>',
                         '</tr>',
                     ]);
@@ -1485,6 +1494,67 @@ class UicheckController extends Controller
             return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $siteDevelopmentstatus = SiteDevelopmentStatus::find($key);
+            $siteDevelopmentstatus->color = $value;
+            $siteDevelopmentstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function updateDeviceStatus(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $statusId = $request->status_id;
+            $udh = UiDeviceHistory::find($id);
+            if($udh) {
+                $oldStatus = $udh->status;
+                $uiDeviceId = $udh->ui_devices_id;
+                $uicheckId = $udh->uicheck_id;
+                $deviceNo = $udh->device_no;
+                $message = $udh->message;
+                $estimatedTime = $udh->estimated_time;
+
+                $udh->status = $statusId == "-" ? null : $statusId;
+                $udh->save();
+                if ($udh->save()){
+                    $status = SiteDevelopmentStatus::find($statusId);
+                    UiDeviceHistory::create(
+                        [
+                            'user_id' => \Auth::user()->id ?? '',
+                            'ui_device_id' => $uiDeviceId ?? '',
+                            'uicheck_id' => $uicheckId ?? '',
+                            'device_no' => $deviceNo ?? '',
+                            'status' => $oldStatus ?? '',
+                            'estimated_time' => $estimatedTime,
+                            'message' => $message,
+                        ]
+                    );
+
+                    return respJson(200, '', [
+                        'message' => 'Status updated successfully',
+                        'data' => $status->color
+                    ]);
+                }
+                else {
+                    return respJson(500, '', [
+                        'message' => 'Something went wrong'
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            return respJson(500, '', [
+                'message' => $e->getMessage(),
+            ]);
         }
     }
 }
