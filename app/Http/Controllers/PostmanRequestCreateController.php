@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\PostmanCollection;
 use App\PostmanEditHistory;
 use App\PostmanError;
 use App\PostmanFolder;
@@ -12,9 +13,12 @@ use App\PostmanRequestCreate;
 use App\PostmanRequestHistory;
 use App\PostmanRequestJsonHistory;
 use App\PostmanResponse;
+use App\PostmanWorkspace;
 use App\Setting;
 use App\User;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class PostmanRequestCreateController extends Controller
 {
@@ -150,6 +154,18 @@ class PostmanRequestCreateController extends Controller
         $folders = PostmanFolder::paginate(15);
 
         return view('postman.folder', compact('folders'));
+    }
+    public function workspaceIndex()
+    {
+            $folders = PostmanWorkspace::paginate(15);
+
+        return view('postman.workspace', compact('folders'));
+    }
+    public function collectionindex()
+    {
+            $folders = PostmanCollection::paginate(15);
+            $workspaces = PostmanWorkspace::all();
+        return view('postman.collection', ['folders' => $folders, 'workspaces' => $workspaces]);
     }
 
     public function folderSearch(Request $request)
@@ -379,6 +395,75 @@ class PostmanRequestCreateController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+    public function workspaceStore(Request $request)
+    {
+        try {
+            $name = $request->get('workspace_name');
+            $type = $request->get('workspace_type');
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'X-Api-Key' => 'PMAK-643d0979462c650703e89519-4afc10b644799fe06295172a5a31537664',
+            ])
+                ->post('https://api.getpostman.com/workspaces', [
+                    'workspace' => [
+                        'name' => $name,
+                        'type' => $type,
+                    ]
+                ]);
+
+            if ($response->ok()) {
+                $workspace = $response->json()['workspace'];
+                $table = new PostmanWorkspace();
+                $table->workspace_id = $workspace['id'];
+                $table->workspace_name = $workspace['name'];
+                $table->save();
+                // do something with the workspace data, such as store the ID in your database
+            }
+        }
+        catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman Create Workspace Error => '.json_decode($e).' #id #'.$request->id ?? '');
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+    public function collectionStore(Request $request)
+    {
+        try {
+            $name = $request->get('collection_name');
+            $description = $request->get('collection_description');
+            $workspace_id = $request->get('workspace_id');
+            $workspace_name = PostmanWorkspace::where('workspace_id', $workspace_id)->get()->first()['workspace_name'];
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'X-Api-Key' => 'PMAK-643d0979462c650703e89519-4afc10b644799fe06295172a5a31537664',
+            ])
+                ->post('https://api.getpostman.com/collections?workspace=' . $workspace_id, [
+                    'collection' => [
+                        'item' => [],
+                        'info' => [
+                            'name' => $name,
+                            'description' => $description,
+                            'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+                        ]
+                    ]
+                ]);
+            if ($response->ok()) {
+                $collection = $response->json()['collection'];
+                $table = new PostmanCollection();
+                $table->workspace_id = $workspace_id;
+                $table->workspace_name = $workspace_name;
+                $table->collection_name = $name;
+                $table->collection_id = $collection['uid'];
+                $table->save();            // do something with the collection data, such as store the ID in your database
+            }
+        }
+        catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman Create Collection Error => '.json_decode($e).' #id #'.$request->id ?? '');
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -434,6 +519,36 @@ class PostmanRequestCreateController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+    public function workspaceEdit(PostmanWorkspace $postmanWorkspace, Request $request)
+    {
+        try {
+            $workspaceId = $request->get('id');
+            $url = "https://api.getpostman.com/workspaces/{$workspaceId}";
+            $headers = [
+                "X-Api-Key" => "PMAK-643d0979462c650703e89519-4afc10b644799fe06295172a5a31537664",
+                "Content-Type" => "application/json"
+            ];
+
+            // Set up the request body with the new workspace name
+            $body = [
+                "workspace" => [
+                    "name" => $request->get('workspace_name')
+                ]
+            ];
+
+            // Send the PUT request to update the workspace name
+            $response = Http::withHeaders($headers)->put($url, $body);
+//            $workspace = PostmanWorkspace::where('workspace_id', $request->get('id'))->update('workspace_name', $request->get('workspace_name'));
+
+            return response()->json(['code' => 200, 'data' => $workspace, 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman Edit Folder Data Error => '.json_decode($e).' #id #'.$request->id ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Edit Folder Data Error', $msg, 'postman_folders');
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -467,6 +582,34 @@ class PostmanRequestCreateController extends Controller
             \Log::error('Postman Edit Folder Data Error => '.json_decode($e).' #id #'.$request->id ?? '');
             $this->PostmanErrorLog($request->id ?? '', 'Postman Edit Folder Data Error', $msg, 'postman_folders');
 
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function workspaceDestroy(PostmanWorkspace $postmanWorkspace, Request $request)
+    {
+        try {
+            // Set up the API endpoint and headers
+            $workspaceId = $request->get('id');
+            $url = "https://api.getpostman.com/workspaces/{$workspaceId}";
+            $headers = [
+                "X-Api-Key" => "PMAK-643d0979462c650703e89519-4afc10b644799fe06295172a5a31537664"
+            ];
+
+            // Send the DELETE request to delete the workspace
+            $response = Http::withHeaders($headers)->delete($url);
+
+            // Check for errors and print the response
+            if ($response->failed()) {
+                return response()->json(['code' => 500, 'message' => "Internal server error"]);            } else {
+            }
+            $workspace = PostmanWorkspace::where('workspace_id', '=', $request->id)->delete();
+            $collection = PostmanCollection::where('workspace_id', '=', $request->id)->delete();
+            return response()->json(['code' => 200, 'data' => $workspace, 'message' => 'Deleted successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman Edit Folder Data Error => '.json_decode($e).' #id #'.$request->id ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Edit Folder Data Error', $msg, 'postman_folders');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -884,7 +1027,7 @@ class PostmanRequestCreateController extends Controller
         }',
             CURLOPT_HTTPHEADER => [
                 'Accept: application/vnd.postman.v2+json',
-                'X-API-Key: PMAK-628e2e514dda7828c6d31346-c9d017e28c87fc3ab2f27fee66118eec62',
+                'X-API-Key: PMAK-643d0979462c650703e89519-4afc10b644799fe06295172a5a31537664',
                 'Content-Type: application/json',
             ],
         ]);
@@ -941,7 +1084,7 @@ class PostmanRequestCreateController extends Controller
         }',
             CURLOPT_HTTPHEADER => [
                 'Accept: application/vnd.postman.v2+json',
-                'X-api-key: PMAK-628e2e514dda7828c6d31346-c9d017e28c87fc3ab2f27fee66118eec62',
+                'X-api-key: PMAK-643d0979462c650703e89519-4afc10b644799fe06295172a5a31537664',
                 'Content-Type: application/json',
             ],
         ]);

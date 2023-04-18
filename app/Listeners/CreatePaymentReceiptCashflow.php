@@ -29,7 +29,7 @@ class CreatePaymentReceiptCashflow
             'date' => $receipt->created_at,
             'amount' => $receipt->rate_estimated,
             'type' => 'pending',
-            'currency' => $receipt->currency,
+            'currency' => $receipt->currency ?? 1,
             'status' => 1,
             'order_status' => 'pending',
             'user_id' => $receipt->user_id,

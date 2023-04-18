@@ -174,6 +174,7 @@
 						<th width="5%">Ui Check ID</th>
 						<th width="8%">Categories</th>
 						<th width="8%">Website</th>
+						<th>Upload file</th>
 						<th width="8%">User Name</th>
 						<th width="6%">Device1</th>
 						<th width="6%">Device2</th>
@@ -215,6 +216,14 @@
 								<td class="expand-row-msg" data-name="website" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
 									<span class="show-short-website-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ Str::limit($uiDevData->website, 5, '..')}} @else   @endif</span>
 									<span style="word-break:break-all;" class="show-full-website-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->website != '') {{$uiDevData->website}} @else   @endif</span>
+								</td>
+								<td>
+									<button class="btn btn-sm upload-ui-responsive-button" type="button" title="Uploaded Files" data-ui_check_id="{{$uiDevData->uicheck_id}}">
+										<i class="fa fa-cloud-upload" aria-hidden="true"></i>
+									</button>
+									<button class="btn btn-sm view-uploaded-files-button" type="button" title="View Uploaded Files" data-ui_check_id="{{$uiDevData->uicheck_id}}">
+										<img src="/images/google-drive.png" style="cursor: nwse-resize; width: 12px;">
+									</button>
 								</td>
 								<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
 									<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 5, '..')}} @else   @endif</span>
@@ -413,6 +422,83 @@
 
     </div>
 </div>
+<div id="uploadeUiResponsiveModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Upload Screencast/File to Google Drive</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<form action="{{ route('uicheck.upload-file') }}" method="POST" enctype="multipart/form-data">
+				@csrf
+				<input type="hidden" name="ui_check_id" id="ui_check_id">
+				<div class="modal-body">						
+					<div class="form-group">
+						<strong>Upload File</strong>
+						<input type="file" name="file[]" id="fileInput" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple required>
+						@if ($errors->has('file'))
+							<div class="alert alert-danger">{{$errors->first('file')}}</div>
+						@endif
+					</div>
+					<div class="form-group">
+						<strong>File Creation Date:</strong>
+						<input type="date" name="file_creation_date" value="{{ old('file_creation_date') }}" class="form-control input-sm" placeholder="Drive Date" required>
+					</div>
+					<div class="form-group">
+							<label>Remarks:</label>
+							<textarea id="remarks" name="remarks" rows="4" cols="64" value="{{ old('remarks') }}" placeholder="Remarks" required class="form-control"></textarea>
+
+							@if ($errors->has('remarks'))
+								<div class="alert alert-danger">{{$errors->first('remarks')}}</div>
+							@endif
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-default">Upload</button>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+
+<div id="displayFileUpload" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-xl">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Google Drive Uploaded files</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="table-responsive mt-3">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Filename</th>
+								<th>File Creation Date</th>
+								<th>URL</th>
+								<th>Remarks</th>
+							</tr>
+						</thead>
+						<tbody id="fileUploadedData">
+							
+						</tbody>
+					</table>
+				</div>
+			 </div>
+
+
+		</div>
+
+	</div>
+</div>
 
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
@@ -429,6 +515,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
+
+	@if($errors->any())
+		@php
+			$error = $errors->all()
+		@endphp
+		toastr["error"]("{{$error[0] ?? 'Something went wrong.'}}");
+	@endif
+		
+	@if ($message = Session::get('success'))
+		toastr["success"]("{{$message}}");
+	@endif
+	@if ($message = Session::get('error'))
+		toastr["error"]("{{$message}}");
+	@endif
 	var urlUicheckGet = "{{ route('uicheck.get') }}";
 	var urlUicheckHistoryDates = "{{ route('uicheck.history.dates') }}";
 	var isAdmin = "{{ Auth::user()->hasRole('Admin') ? 1 : 0 }}";
@@ -608,6 +708,33 @@
 
 	jQuery(document).ready(function() {
 		applyDateTimePicker(jQuery('.cls-start-due-date'));
+
+
+		$(document).on("click", ".upload-ui-responsive-button", function (e) {
+			e.preventDefault();
+			let ui_check_id = $(this).data("ui_check_id");
+			$("#uploadeUiResponsiveModal #ui_check_id").val(ui_check_id || 0);
+			$("#uploadeUiResponsiveModal").modal("show")
+		});
+
+		$(document).on("click", ".view-uploaded-files-button", function (e) {
+			e.preventDefault();
+			let ui_check_id = $(this).data("ui_check_id");
+			$.ajax({
+				type: "get",
+				url: "{{route('uicheck.files.record')}}",
+				data: {
+					ui_check_id
+				},
+				success: function (response) {
+					$("#fileUploadedData").html(response.data);
+					$("#displayFileUpload").modal("show")
+				},
+				error: function (response) {
+					toastr['error']("Something went wrong!");
+				}
+			});
+		});
 	});
 
 	$(document).on('click', '.expand-row-msg', function() {
