@@ -1,5 +1,5 @@
 BRANCH_NAME=$1
-COMPOSER_UPDATE=$2
+COMPOSER_UPDATE="true"
 scriptPath="$(cd "$(dirname "$0")"; pwd)"
 
 if [ $BRANCH_NAME == "stage" ]

@@ -213,4 +213,19 @@ trait GithubTrait
         } catch (Exception $e) {
         }
     }
+
+
+    private function rerunAction($repository, $jobId)
+    {
+        $url = 'https://api.github.com/repos/'.getenv('GITHUB_ORG_ID')."/".$repository.'/actions/runs/'.$jobId.'/rerun-failed-jobs';
+
+        try {
+            $this->client->post($url);
+            $data['status'] = true;
+        } catch (Exception $e) {
+            $data['status'] = false;
+            $data['error'] = $e->getMessage();
+        }
+        return $data;
+    }
 }

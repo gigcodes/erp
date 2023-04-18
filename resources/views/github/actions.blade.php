@@ -16,10 +16,16 @@
         let html = "";
         $.each(response, function(key, value) {
             html += "<tr>";
-            html += "<td>" + value.name + "</td>";
+            html += `<td>
+                <blockquote class="blockquote">
+                <p class="mb-0">`+value.display_title+`</p>
+                <footer class="blockquote-footer">Commit Pushed By : `+value.head_commit.author.name+`</footer>
+                <footer class="blockquote-footer">WorkFlow: `+value.name+`</footer>
+                </blockquote></td>`;
             html += "<td>" + moment(value.created_at).format('YYYY-MM-DD HH:mm:ss') + "</td>";
             html += "<td>" + value.conclusion + "</td>";
             html += "<td>" + value.failure_reason + "</td>";
+            // html += `<td>  <button class="btn btn-sm btn-secondary" style="margin-top: 5px;" onclick="rerunAction('`+value.repository.name+`','`+value.id+`')">Rerun Action</button></td>`;
             html += "</tr>";
         });
         return html;
@@ -48,7 +54,33 @@
     }
 
 
-
+    function rerunAction(repositoryId, jobId) {
+        let result = confirm("Are you sure you want to rerun this action?");
+        if (result) {
+            $.ajax({
+                headers : {
+                    'Accept' : 'application/json',
+                    'Content-Type' : 'application/json',
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "post",
+                url: '/github/repos/'+repositoryId+'/actions/jobs/'+jobId+'/rerun',
+                dataType: "json",
+                success: function (response) {
+                    if(response.status) {
+                        toastr['success']('Action has been rerun successfully!');
+                        window.location.reload();
+                    }else{
+                        errorMessage = response.error ? response.error : 'Something went wrong.Please try again later!';
+                        toastr['error'](errorMessage);
+                    }
+                },
+                error: function () {
+                    toastr['error']('Something went wrong.Please try again later!');
+                }
+            });
+        }
+    }
 
     $(document).ready(function() {
         let isApiCall = true;
@@ -79,6 +111,8 @@
             });
         });
 
+       
+
         $(document).on('change', "select[name=repoId], [name=fromDate], [name=toDate]", async function() {
             $(document).find("#action-workflows table tbody tr").remove();
             let fromDate = $(document).find("[name=fromDate]").val();
@@ -88,6 +122,7 @@
                 return false;
             }
             pageNum = 1;
+            isApiCall = true;
             await fetchActions({
                 repoId: $(document).find("select[name=repoId]").val()
                 , page: 1
@@ -186,10 +221,11 @@
     <table class="table table-bordered action-table" style="table-layout: fixed;">
         <thead>
             <tr>
-                <th style="width:7% !important;">Name</th>
-                <th style="width:10% !important;">Executed On</th>
-                <th style="width:13% !important;">Status</th>
-                <th style="width:10% !important;">Failure Reason</th>
+                <th style="width:40% !important;">Title</th>
+                <th style="width:25% !important;">Executed On</th>
+                <th style="width:10% !important;">Status</th>
+                <th style="width:25% !important;">Failure Reason</th>
+                {{-- <th style="width:25% !important;">Action</th> --}}
             </tr>
         </thead>
         <tbody>

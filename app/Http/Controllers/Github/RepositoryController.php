@@ -132,7 +132,6 @@ class RepositoryController extends Controller
 
             $branch = $request->branch;
             $composerupdate = request('composer', false);
-            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
             $cmd = 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/'.$repository->name.'/deploy_branch.sh '.$branch.' '.$composerupdate.' 2>&1';
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
@@ -182,7 +181,7 @@ class RepositoryController extends Controller
         }
 
         return redirect(url('/github/pullRequests'))->with([
-            'message' => print_r($result, true),
+            'message' => print_r($allOutput, true),
             'alert-type' => 'success',
         ]);
     }
@@ -526,9 +525,6 @@ class RepositoryController extends Controller
             $allPullRequests = array_merge($allPullRequests, $pullRequests);
         }
 
-        //echo print_r($allPullRequests, true);
-
-        //exit;
         return view(
             'github.all_pull_requests',
             [
@@ -587,6 +583,12 @@ class RepositoryController extends Controller
     public function getAjaxActions(Request $request)
     {
         $data = $this->githubActionResult($request->repoId, $request->page, $request->date);
+        return $data;
+    }
+
+    public function rerunGithubAction($repoId,$jobId)
+    {
+        $data = $this->rerunAction($repoId,$jobId);
         return $data;
     }
 }
