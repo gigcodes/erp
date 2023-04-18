@@ -81,7 +81,7 @@
 
                 <td>{{$folder->created_at}}</td>
               <td>
-                <a class="btn btn-image edit-postman-folder-btn" data-id="{{ $folder->id }}"><img data-id="{{ $folder->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
+                <a class="btn btn-image edit-postman-folder-btn" data-id="{{ $folder->collection_id }}"><img data-id="{{ $folder->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
                 <a class="btn delete-postman-folder-btn"  data-id="{{ $folder->id }}" href="#"><img  data-id="{{ $folder->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
               </td>
             </tr>
@@ -114,7 +114,7 @@
             <div class="modal-body">
               <form id="postmanFolderform" method="post">
                 @csrf
-                <input type="hidden" id="id" name="id" value=""/>
+                <input type="hidden" id="collection_id" name="collection_id" value=""/>
                 <div class="form-row">
                   <div class="form-group col-md-12">
                     <label for="folder_name">Collection Name</label>
@@ -210,13 +210,13 @@
           }
       });
       $(document).on("click",".submit-folder-form",function(e){
-          console.log($('#postmanFolderform').serialize());
+          console.log($('#postmanFolderform').serialize(), '---->><<');
         e.preventDefault();
         var $this = $(this);
         if($('#titleUpdate').text() == 'Add')
             $("#id").val("");
         $.ajax({
-          url: "/postman/collection/create/",
+          url: "/postman/collection/create",
           type: "post",
           data:$('#postmanFolderform').serialize()
         }).done(function(response) {
@@ -242,7 +242,7 @@
         var id = $this.data('id');
         $("#id").val(id);
         $.ajax({
-          url: "/postman/folder/edit/",
+          url: "/postman/collection/edit/",
           type: "post",
           headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -260,8 +260,10 @@
                   form.find('[name="'+key+'"]').val(v);
               }      
             });
+              $("#collection_description").val(response.data.description);
+              console.log(response.data.description, '----><<')
             $('#addPostmanFolder').modal('show');
-            toastr['success']('Postman edited successfully!!!', 'success'); 
+            //toastr['success']('Postman edited successfully!!!', 'success');
             
           } else {
             toastr['error'](response.message, 'error'); 
