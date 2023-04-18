@@ -10,6 +10,7 @@ use App\GitMigrationErrorLog;
 use App\Helpers\GithubTrait;
 use App\Helpers\MessageHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeleteBranchRequest;
 use Artisan;
 use Carbon\Carbon;
 use DateTime;
@@ -109,15 +110,15 @@ class RepositoryController extends Controller
         try {
             // Merge master into branch
             if (empty($pullOnly) || $pullOnly != 1) {
-                // $this->client->post(
-                //     $url,
-                //     [
-                //         RequestOptions::BODY => json_encode([
-                //             'base' => $destination,
-                //             'head' => $source,
-                //         ]),
-                //     ]
-                // );
+                $this->client->post(
+                    $url,
+                    [
+                        RequestOptions::BODY => json_encode([
+                            'base' => $destination,
+                            'head' => $source,
+                        ]),
+                    ]
+                );
                 //Artisan::call('github:load_branch_state');
                 if ($source == 'master') {
                     $this->updateBranchState($repoId, $destination);
@@ -185,7 +186,7 @@ class RepositoryController extends Controller
             'alert-type' => 'success',
         ]);
     }
-
+    
     /**
      * Undocumented function
      *
@@ -462,6 +463,15 @@ class RepositoryController extends Controller
         return $this->closePullRequest($repositoryId, $pullRequestNumber);
     }
 
+    public function deleteBranchFromRepo($repositoryId, DeleteBranchRequest $request){
+        $response = $this->deleteBranch($repositoryId, $request->branch_name);
+        $githubBranchState = GithubBranchState::where('repository_id',$repositoryId)->where('branch_name',$request->branch_name)->first();
+        if(!empty($githubBranchState) && $response['status']){
+            $githubBranchState->delete();
+        }
+        return $response;
+    }
+
     public function actionWorkflows(Request $request, $repositoryId){
         $githubActionRuns = $this->githubActionResult($repositoryId,$request->page);
         return view('github.action_workflows', [
@@ -550,8 +560,12 @@ class RepositoryController extends Controller
 
     public function getAjaxBranches(Request $request)
     {
-        $branches = GithubBranchState::where('repository_id', $request->repoId)->get();
-        return $branches;
+
+        $branches = GithubBranchState::where('repository_id', $request->repoId)->orderBy('created_at','desc');
+        if($request->status){
+            $branches = $branches->where('status',$request->status);
+        }
+        return $branches->get();
     }
 
     /**

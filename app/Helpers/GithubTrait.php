@@ -27,7 +27,8 @@ trait GithubTrait
             $url .= "&".$addedFilters;
         }
         try {
-            $response = $this->client->get($url);
+            $client = $this->getGithubClient();
+            $response = $client->get($url);
             $decodedJson = json_decode($response->getBody()->getContents());
             foreach ($decodedJson as $pullRequest) {
                 $pullRequests[] = [
@@ -151,6 +152,19 @@ trait GithubTrait
                     'state' => "closed"
                 ]
             ]);
+            $data['status'] = true;
+        } catch (Exception $e) {
+            $data['status'] = false;
+            $data['error'] = $e->getMessage();
+        }
+        return $data;
+    }
+    private function deleteBranch(string $repositoryId, string $branchName)
+    {
+        $url = 'https://api.github.com/repositories/'.$repositoryId.'/git/refs/heads/'.$branchName;
+
+        try {
+            $this->client->delete($url);
             $data['status'] = true;
         } catch (Exception $e) {
             $data['status'] = false;
