@@ -4821,8 +4821,21 @@ Route::prefix('seo')->middleware('auth')->group(function() {
         Route::get('{id}/edit', [Seo\ContentController::class, 'edit'])->name('seo.content.edit');
         Route::post('{id}/update', [Seo\ContentController::class, 'update'])->name('seo.content.update');
         Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
-
     });
+
+    Route::prefix('company')->group(function() {
+        Route::get('', [Seo\CompanyController::class, 'index'])->name('seo.company.index');
+        Route::get('create', [Seo\CompanyController::class, 'create'])->name('seo.company.create');
+        Route::post('store', [Seo\CompanyController::class, 'store'])->name('seo.company.store');
+        Route::get('{id}/edit', [Seo\CompanyController::class, 'edit'])->name('seo.company.edit');
+        Route::post('{id}/update', [Seo\CompanyController::class, 'update'])->name('seo.company.update');
+    });
+
+    Route::prefix('company-type')->group(function() {
+        Route::get('', [Seo\CompanyTypeController::class, 'index'])->name('seo.company-type.index');
+        Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.content-type.store');
+    });
+
 });
 
 // Task Summary::
