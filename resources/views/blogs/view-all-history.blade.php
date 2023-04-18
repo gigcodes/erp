@@ -69,50 +69,50 @@
   
 
 
-        $(function() {
-           
-        var table = $('#blog-history-list').DataTable({
-        processing: true,
-        serverSide: true,
-        pageLength: 10,
-        ajax: {
-            url: "{{ route('view-blog-all.history') }}",
-            data: function (d) {
-                d.user_id = $('#userId').val()
-               
-            }
-        },
-        
-        columns: [
-            {data: 'blog_id', name: 'blog_id'},
-            {data: 'userName', name: 'userName',searchable: true},
-            {data: 'plaglarism', name: 'plaglarism', orderable: true, searchable: true},
-            {data: 'internal_link', name: 'internal_link', orderable: false},
-            {data: 'external_link', name: 'external_link', orderable: false},
-            {data: 'no_index', name: 'no_index', orderable: false},
-            {data: 'no_follow', name: 'no_follow', orderable: false},
-            {data: 'created_at', name: 'created_at', orderable: false},
-        ]
-    });
+         $(function() {
+            
+            var table = $('#blog-history-list').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 10,
+            ajax: {
+                url: "{{ route('view-blog-all.history') }}",
+                data: function (d) {
+                    d.user_id = $('#userId').val()
+                
+                }
+            },
+            
+                columns: [
+                    {data: 'blog_id', name: 'blog_id'},
+                    {data: 'userName', name: 'userName',searchable: true},
+                    {data: 'plaglarism', name: 'plaglarism', orderable: true, searchable: true},
+                    {data: 'internal_link', name: 'internal_link', orderable: false},
+                    {data: 'external_link', name: 'external_link', orderable: false},
+                    {data: 'no_index', name: 'no_index', orderable: false},
+                    {data: 'no_follow', name: 'no_follow', orderable: false},
+                    {data: 'created_at', name: 'created_at', orderable: false},
+                ]
+            });
 
         $('#userId').change(function(){
             table.draw();
         });
         
-         $('.refreshTable').click(function(){
+        $('.refreshTable').click(function(){
         
             $('#userId').val('');
            $('#blog-history-list').DataTable().ajax.reload();
         });
         
-        });
+    });
 
 
-        $(document).ready(function() {
-             $('#blog-datetime').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
+            $(document).ready(function() {
+                $('#blog-datetime').datetimepicker({
+            format: 'YYYY-MM-DD'
+            });
 
-        });
+            });
     </script>
 @endsection

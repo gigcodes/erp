@@ -22,20 +22,21 @@ class BlogController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-           
+            // \DB::enableQueryLog();
             $blogs = Blog::query();
            
-            // if($request->get('user_id')){
-            //     $blogs->where('user_id', $request->get('user_id'));
-            // }
-            if(!empty($request->get('created_at'))){
+            if($request->get('user_id')){
+                $blogs->where('user_id', $request->get('user_id'));
+            }
+            if(!empty($request->get('date'))){
                
-                $blogs->whereDate('publish_blog_date', $request->get('created_at'));
+                $blogs->whereDate('created_at', $request->get('date'));
             }
 
             $blogs->with('user', 'blogsTag');
-            $blogs->orderBy('id', 'desc')->toSql();
-          
+            $blogs = $blogs->orderBy('id', 'desc')->get();
+            \Log::info($blogs->toArray());
+            // dd(\DB::getQueryLog()); 
 
             return Datatables::of($blogs)
                 ->addIndexColumn()

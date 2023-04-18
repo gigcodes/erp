@@ -29,7 +29,7 @@
                          placeholder="Search">
                 </div>  --}}
                  <form class="form-inline" action="{{ route('blog.index') }}" method="GET">
-                 <div class="form-group col-md-2 pd-3 status-select-cls select-multiple-checkbox">
+                 <div class="form-group col-md-2 pd-3">
                   <select class="form-control" name="user_id" id="userId">
                     <option value="">Select User</option>
                       @foreach ($users as  $value)
@@ -114,42 +114,44 @@
   @endif
 
         $(function() {
-           
-        var table = $('#blog_listing').DataTable({
-        processing: true,
-        serverSide: true,
-        pageLength: 10,
-        ajax: {
-            url: "{{ route('blog.index') }}",
-            data: function (d) {
-                d.user_id = $('#userId').val(),
-                d.date = $('#created_at').val()
-               
-            }
-        },
-        
-        columns: [
-           
-            {data: 'userName', name: 'userName',searchable: true},
-            {data: 'idea', name: 'idea', orderable: true, searchable: true},
-            {data: 'keyword', name: 'keyword'},
-            {data: 'content', name: 'content'},
-            {data: 'no_index', name: 'no_index'},
-            {data: 'no_follow', name: 'no_follow'},
-            {data: 'meta_desc', name: 'meta_desc'},
-            {data: 'publish_blog_date', name: 'publish_blog_date'},
-             {data: 'created_at', name: 'created_at'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ]
-    });
+                 
+            var table = $('#blog_listing').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 10,
+              ajax: {
+                  url: "{{ route('blog.index') }}",
+                  data: function (d) {
+                      d.user_id = $('#userId').val(),
+                      d.date = $('#created_at').val()
+                    
+                  }
+              },      
+                columns: [                  
+                    {data: 'userName', name: 'userName',searchable: true},
+                    {data: 'idea', name: 'idea', orderable: true, searchable: true},
+                    {data: 'keyword', name: 'keyword'},
+                    {data: 'content', name: 'content'},
+                    {data: 'no_index', name: 'no_index'},
+                    {data: 'no_follow', name: 'no_follow'},
+                    {data: 'meta_desc', name: 'meta_desc'},
+                    {data: 'publish_blog_date', name: 'publish_blog_date'},
+                    {data: 'created_at', name: 'created_at'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                ]
+          });
 
-       
-        
          $('.refreshTable').click(function(){
-        
-            $('#userId').val('');
-           $('#blog_listing').DataTable().ajax.reload();
-        });
+            console.log("class refreshTable")
+              $('#userId').val('');
+            $('#blog_listing').DataTable().ajax.reload();
+          });
+
+          $("#BlogFilter").on("click",function(e){
+            table.draw();
+            e.preventDefault();
+          
+          });
         
         });
 
@@ -180,32 +182,13 @@
             });
         });
 
-           $(document).on("click","#BlogFilter",function(e){
-          e.preventDefault();
-          var user_id = $('#userId').val();
-          var created_at = $('#created_at').val();
-
-          $.ajax({
-              headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-              },
-              url: "list",
-              type: "GET",
-              data: {user_id : user_id, created_at : created_at}
-            }).done(function(response) {
-                
-            
-           $('#blog_listing').DataTable().ajax.reload();
-            }).fail(function(errObj) {
-            });
-        });
 
         
 
         $(document).ready(function() {
-             $('#blog-datetime').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
+              $('#blog-datetime').datetimepicker({
+          format: 'YYYY-MM-DD'
+        });
 
         });
     </script>
