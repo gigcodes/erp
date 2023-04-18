@@ -144,9 +144,11 @@
                               <form method="GET" action="/google-campaigns/{{$campaign['google_campaign_id']}}/adgroups">
                                   <button type="submit" class="btn btn-sm btn-link">Ad Groups</button>
                               </form>
-                              <form method="GET" action="/google-campaigns/{{$campaign['google_campaign_id']}}/google-campaign-location">
-                                  <button type="submit" class="btn btn-sm btn-link">Location</button>
-                              </form>
+                              @if ($campaign->type != 'remarketing')
+                                  <form method="GET" action="/google-campaigns/{{$campaign['google_campaign_id']}}/google-campaign-location">
+                                      <button type="submit" class="btn btn-sm btn-link">Location</button>
+                                  </form>
+                              @endif
                               {!! Form::open(['method' => 'DELETE','route' => ['googlecampaigns.deleteCampaign',$campaign['google_campaign_id']],'style'=>'display:inline']) !!}
                               <input type="hidden" id="delete_account_id" name="delete_account_id" value='{{$campaign->account_id}}'/>
                               <button type="submit" class="btn-image"><img src="{{asset('/images/delete.png')}}"></button>

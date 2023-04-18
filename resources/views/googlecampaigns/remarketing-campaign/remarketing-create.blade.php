@@ -191,6 +191,7 @@
                     toastr.error("Something went to wrong! Please check logs.");
                     location.reload();
                 } else {
+                    toastr.success("Campaign added successfully");
                     $('#create-remarketing-campaign').modal('hide');
                     location.reload();
                 }

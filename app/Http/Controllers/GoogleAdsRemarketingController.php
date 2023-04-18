@@ -42,7 +42,8 @@ class GoogleAdsRemarketingController extends Controller
         try {
             $insert_data = [
                 'account_id' => $request->account_id,
-                'type' => 'remarketing'
+                'type' => 'remarketing',
+                'channel_type' => 'DISPLAY',
             ];
             $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
             $google_account = GoogleAdsAccount::find($request->account_id);
@@ -169,7 +170,6 @@ class GoogleAdsRemarketingController extends Controller
             insertGoogleAdsLog($input);
             return redirect()->to('google-campaigns?account_id=' . $campaignDetails->account_id)->with('actSuccess', 'Campaign updated successfully');
         } catch (Exception $e) {
-            _p($e->getMessage());die;
             // Insert google ads log
             $input = array(
                 'type' => 'ERROR',
