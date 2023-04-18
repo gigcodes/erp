@@ -200,8 +200,9 @@
 									<span style="word-break:break-all;" class="show-full-website-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->website != '') {{$uiDevData->website}} @else   @endif</span>
 								</td>
 								<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-									<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->username != '') {{ Str::limit($uiDevData->username, 5, '..')}} @else   @endif</span>
-									<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->username != '') {{$uiDevData->username}} @else   @endif</span>
+									<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 5, '..')}} @else   @endif</span>
+									<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span>
+									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
 								</td>
 								
 								<td> <input type="text" name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('1', '{{$uiDevData->uicheck_id}}', '1' );"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('1','{{$uiDevData->uicheck_id}}');"></i> </td>
@@ -232,6 +233,65 @@
 			<div class="text-center">
 				{!! $uiDevDatas->appends(Request::except('page'))->links() !!}
 			  </div>
+		</div>
+	</div>
+</div>
+<div id="uiResponsive" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4>Assign new category to User:</h4>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+			</div>
+			<div class="modal-body" id="">
+				<div class="from-group">
+					<label for="">Select User:</label>
+					<select name="users" id="assign-new-user" class="form-control select2" style="width: 100%!important">
+						<option value="" selected disabled>-- Select a user --</option>
+						@forelse($allUsers as $key => $user)
+								<option value="{{ $user->id }}">{{ $user->name }}</option>
+						@empty
+						@endforelse
+					</select>
+				</div>
+				<div class="from-group mt-3">
+					<label for="">Select Website:</label>
+					<select name="users" id="assign-new-website" class="form-control select2" style="width: 100%!important">
+						<option value="" selected disabled>-- Select a Website --</option>
+						@forelse($store_websites as $website_id => $website_name)
+							<option value="{{ $website_id }}">{{ $website_name }}</option>
+						@empty
+						@endforelse
+					</select>
+				</div>
+				<div class="from-group mt-3">
+					<button class="btn btn-primary" id="assign_user_to_website">Assign</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="userHistoryModel" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4>User history:</h4>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+			</div>
+			<div class="modal-body">
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>User name</th>
+								<th>Timestamp</th>
+							</tr>
+						</thead>
+						<tbody id="userHistoryModelContent"></tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -551,6 +611,73 @@
 		copyToClipboard(id);
 		toastr['success']("Text copy successfully");
 	});
+
+	$(document).ready(function () {
+		$("#assign_user_to_website").click(function (e) { 
+			e.preventDefault();
+			let user = $("#assign-new-user").val()
+			let website = $("#assign-new-website").val()
+
+			if(user == null) {
+				toastr['error']("Please select user.");
+				return
+			}
+			if(website == null) {
+				toastr['error']("Please select website.");
+				return
+			}
+
+			$.ajax({
+				type: "POST",
+				url: "{{route('uicheck.assignNewuser')}}",
+				beforeSend: function () {
+                    $("#loading-image").show();
+                },
+				data: {
+					_token: "{{csrf_token()}}",
+					website,
+					user
+				},
+				success: function (response) {
+					if(response.status == true) {
+						toastr['success'](response.message, 'success');
+					} else {
+						toastr['error'](response.message, 'error');
+					}
+					$("#loading-image").hide();
+					$("#uiResponsive").modal('hide');
+				},
+				error: function (error) {
+					toastr['error']("Something went wrong", 'error');
+					$("#loading-image").hide();
+					$("#uiResponsive").modal('hide');
+				}
+			});
+		});
+	});
+
+
+	function funGetUserHistory(uicheck_id) { 
+		$.ajax({
+			type: "get",
+			url: "{{route('uicheck.userhistory')}}",
+			data: {
+				uicheck_id
+			},
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+			success: function (response) {
+				$("#userHistoryModelContent").html(response.data || "")
+				$('#userHistoryModel').modal('show');
+				$("#loading-image").hide();
+			},
+			error: function (error) {
+				toastr['error']("Something went wrong", 'error');
+				$("#loading-image").hide();
+			}
+		});
+	}
 </script>
 
 @endsection
