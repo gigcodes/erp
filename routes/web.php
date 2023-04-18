@@ -352,6 +352,7 @@ use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\MailBoxController;
 use App\Http\Controllers\BingWebMasterController;
+use App\Http\Controllers\GoogleAdsRemarketingController;
 
 Auth::routes();
 
@@ -2820,7 +2821,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
         Route::get('/records', [TimeDoctorController::class, 'listTaskCreationLogs'])->name('time-doctor.task_creation_logs.records');
     });
-    
+
     Route::prefix('time-doctor-activities')->group(function () {
         Route::get('/report', [TimeDoctorActivitiesController::class, 'activityReport'])->name('time-doctor-activtity.report');
         Route::get('/report-download', [TimeDoctorActivitiesController::class, 'activityReportDownload'])->name('time-doctor-activity-report.download');
@@ -3951,7 +3952,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
         Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
-        
+
     });
 });
 
@@ -4019,6 +4020,11 @@ Route::prefix('ads')->middleware('auth')->group(function () {
     Route::post('/savegroup', [AdsController::class, 'savegroup'])->name('ads.savegroup');
     Route::get('/getgroups', [AdsController::class, 'getgroups'])->name('ads.getgroups');
     Route::post('/adsstore', [AdsController::class, 'adsstore'])->name('ads.adsstore');
+});
+
+Route::prefix('google-remarketing-campaigns')->middleware('auth')->group(function () {
+    Route::post('create', [GoogleAdsRemarketingController::class, 'createCampaign'])->name('googleremarketingcampaigns.createCampaign');
+    Route::post('update', [GoogleAdsRemarketingController::class, 'updateCampaign'])->name('googleremarketingcampaigns.updateCampaign');
 });
 
 Route::prefix('google-campaigns')->middleware('auth')->group(function () {
