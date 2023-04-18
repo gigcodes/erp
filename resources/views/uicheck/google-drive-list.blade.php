@@ -9,6 +9,7 @@
             </td>
             <td>{{$file['remarks']}}</td>
         </tr>
+
     @empty
         <tr><td colspan="4">No record found</td></tr>
     @endforelse
