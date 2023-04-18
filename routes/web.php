@@ -2812,6 +2812,9 @@ Route::middleware('auth')->group(function () {
     Route::post('time-doctor/refresh_task_by_id', [TimeDoctorController::class, 'refreshTasksById'])->name('time-doctor.refresh-task-by-id');
     Route::post('time-doctor/get_task_by_id', [TimeDoctorController::class, 'getTasksById'])->name('time-doctor.get-task-detail');
     Route::post('time-doctor/update_task_by_id', [TimeDoctorController::class, 'updateTasksById'])->name('time-doctor.update-task-by-id');
+    Route::get('time-doctor/create-account', [TimeDoctorController::class, 'sendInvitations'])->name('time-doctor.create-account');
+    Route::post('time-doctor/send_invitation', [TimeDoctorController::class, 'sendSingleInvitation'])->name('time-doctor.send-invitation');
+    Route::post('time-doctor/send_bulk_invitation', [TimeDoctorController::class, 'sendBulkInvitation'])->name('time-doctor.send-bulk-invitation');
 
     Route::prefix('time-doctor/task-creation-logs')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
@@ -2870,10 +2873,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('postman/delete', [PostmanRequestCreateController::class, 'destroy']);
 
     Route::get('postman/folder', [PostmanRequestCreateController::class, 'folderindex']);
+    Route::get('postman/workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
+    Route::get('postman/collection', [PostmanRequestCreateController::class, 'collectionIndex']);
+
     Route::get('postman/folder/search', [PostmanRequestCreateController::class, 'folderSearch']);
     Route::post('postman/folder/create', [PostmanRequestCreateController::class, 'folderStore']);
+    Route::post('postman/workspace/create', [PostmanRequestCreateController::class, 'workspaceStore']);
+    Route::post('postman/collection/create', [PostmanRequestCreateController::class, 'collectionStore']);
     Route::post('/postman/folder/edit', [PostmanRequestCreateController::class, 'folderEdit']);
+    Route::post('/postman/workspace/edit', [PostmanRequestCreateController::class, 'workspaceEdit']);
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
+    Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
 
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
@@ -4418,6 +4428,7 @@ Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('translate-logs', [TranslationController::class, 'translateLog'])->name('translation.log');
     Route::post('mark-as-resolve', [TranslationController::class, 'markAsResolve'])->name('translation.log.markasresolve');
     Route::DELETE('/delete/{id?}', [TranslationController::class, 'destroy'])->name('translation.destroy');
+    Route::DELETE('translate-logs/delete/{id?}', [TranslationController::class, 'translateLogDelete'])->name('translation.log.destroy');
     Route::get('/add', [TranslationController::class, 'create'])->name('translation.add');
     Route::get('/{id?}/edit', [TranslationController::class, 'edit'])->name('translation.edit');
     Route::post('/store', [TranslationController::class, 'store'])->name('translation.store');

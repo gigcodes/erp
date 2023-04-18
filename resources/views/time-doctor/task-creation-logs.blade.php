@@ -8,7 +8,7 @@
     <div class="container-fluid p-0">
         <div class="row">
             <div class="col-lg-12 margin-tb">
-                <h2 class="page-heading">Google Drive Screencasts/Files</h2>
+                <h2 class="page-heading">Time Doctor task creation logs</h2>
                 <div class="pull-left">
                     <div class="form-group">
                         <div class="row">

@@ -43,7 +43,7 @@
 
 
     <div class="mt-3 col-md-12">
-      <div class="infinite-scroll">
+      <div class="infinite-scroll" style="overflow-y: auto">
         <table class="table table-bordered table-striped">
           <thead>
             <tr>
@@ -117,7 +117,7 @@
             <tr class="action-btn-tr-{{$asset->id}} d-none">
                 <td>Action</td>
                 <td colspan="15">
-                    @if(auth()->user()->hasRole('Admin'))
+                    @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('asset-manager'))
                       <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" title="Edit Assets" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
                     @endif
                     <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" title="Make Remark" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
