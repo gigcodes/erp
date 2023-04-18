@@ -13,7 +13,7 @@ class AddYoutubeVideosTable extends Migration
      */
     public function up()
     {
-        Schema::table('youtube_videos', function (Blueprint $table) {
+        Schema::create('youtube_videos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('youtube_channel_id');
             $table->string('channel_id',256);
@@ -21,10 +21,10 @@ class AddYoutubeVideosTable extends Migration
             $table->string('media_id', 128);
             $table->string('title', 564)->nullable();
             $table->text('description')->nullable();
-            $table->int('like_count', 11)->nullable();
-            $table->int('view_count', 11)->nullable();
-            $table->int('dislike_count', 11)->nullable();
-            $table->int('comment_count', 11)->nullable();
+            $table->integer('like_count')->nullable();
+            $table->integer('view_count')->nullable();
+            $table->integer('dislike_count')->nullable();
+            $table->integer('comment_count')->nullable();
             $table->timestamp('create_time')->nullable();
             $table->timestamps();
             $table->softDeletes();
