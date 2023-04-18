@@ -13,14 +13,14 @@ class AddYoutubeCommentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('youtube_comments', function (Blueprint $table) {
+        Schema::create('youtube_comments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('youtube_video_id');
             $table->string('video_id',128);
             $table->string('comment_id', 128);
             $table->string('title', 564)->nullable();
-            $table->integer('like_count', 11)->nullable();
-            $table->integer('dislike_count', 11)->nullable();
+            $table->integer('like_count')->nullable();
+            $table->integer('dislike_count')->nullable();
             $table->timestamp('create_time')->nullable();
             $table->timestamps();
             $table->softDeletes();

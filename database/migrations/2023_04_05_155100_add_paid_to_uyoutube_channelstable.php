@@ -13,7 +13,7 @@ class AddPaidToUyoutubeChannelstable extends Migration
      */
     public function up()
     {
-        Schema::table('youtube_channels', function (Blueprint $table) {
+        Schema::create('youtube_channels', function (Blueprint $table) {
             $table->id();
             $table->string('store_websites', 128)->nullable();
             $table->string('status', 32)->nullable();
@@ -23,12 +23,14 @@ class AddPaidToUyoutubeChannelstable extends Migration
             $table->string('oauth2_refresh_token', 1024)->nullable();
             $table->string('chanelId', 1024)->nullable();
             $table->string('chanel_name', 256)->nullable();
-            $table->integer('video_count', 11)->nullable();
-            $table->integer('subscribe_count', 11)->nullable();
+            $table->integer('video_count')->nullable();
+            $table->integer('subscribe_count')->nullable();
             $table->timestamp('token_expire_time')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
+
+        
     }
 
     /**
