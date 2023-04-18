@@ -40,6 +40,7 @@ class GoogleAdsAccount extends Model
         'oauth2_client_secret',
         'oauth2_refresh_token',
         'google_map_api_key',
+        'google_merchant_center_account_id'
     ];
 
     public function campaigns(): HasMany
