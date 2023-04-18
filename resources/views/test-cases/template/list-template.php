@@ -3,7 +3,7 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th width="4%">ID</th>
+		      	<th width="4%"><input type="checkbox" id="chkTaskDeleteCommon" name="chkTaskDeleteCommon" class="chkTaskDeleteCommon"> ID</th>
                 <th width="6%">Date</th>
                 <th width="7%">Name</th>
                 <th width="6%">Suite</th>
@@ -22,7 +22,7 @@
 		    <tbody class="pending-row-render-view infinite-scroll-pending-inner">
 		    	{{props data}}
 			      <tr>
-                    <td class='break'>{{:prop.id}}</td>
+                    <td class='break'><input type="checkbox" id="chkTaskChange{{>prop.id}}" name="chkTaskNameChange[]" class="chkTaskNameClsChange"  value="{{>prop.id}}"></br>{{:prop.id}}</td>
 			      	<td class='break'>{{:prop.created_at}}</td>
 			        <td class='break' >{{:prop.name}}</td>
 			        <td class='break'>{{:prop.suite}}</td>

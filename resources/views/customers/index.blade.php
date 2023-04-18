@@ -16,8 +16,6 @@
 @endif
 
 
-
-
 @section('styles')
     <style>
         .results {

@@ -348,10 +348,40 @@ use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
+use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\YoutubeController;
+
+Auth::routes();
+
+Route::prefix('youtube')->middleware('auth')->group(function () {
+Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
+Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
+Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
+Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
+Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
+Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
+
+Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
+Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
+
+Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
+Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+});
+// Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
+// Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
+// Route::get('/GetChanelData', [YoutubeController::class, 'GetChanelData'])->name('GetChanelData');
+// Route::get('/chanelList', [YoutubeController::class, 'chanelList'])->name('chanelList');
+// Route::get('/videoList/{chanelId}/{websiteId}', [YoutubeController::class, 'VideoListByChanelId'])->name('videoList');
+
+// Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+
+
 use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\MailBoxController;
 use App\Http\Controllers\BingWebMasterController;
+use App\Http\Controllers\GoogleAdsRemarketingController;
 
 Auth::routes();
 
@@ -2820,7 +2850,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
         Route::get('/records', [TimeDoctorController::class, 'listTaskCreationLogs'])->name('time-doctor.task_creation_logs.records');
     });
-    
+
     Route::prefix('time-doctor-activities')->group(function () {
         Route::get('/report', [TimeDoctorActivitiesController::class, 'activityReport'])->name('time-doctor-activtity.report');
         Route::get('/report-download', [TimeDoctorActivitiesController::class, 'activityReportDownload'])->name('time-doctor-activity-report.download');
@@ -2873,10 +2903,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('postman/delete', [PostmanRequestCreateController::class, 'destroy']);
 
     Route::get('postman/folder', [PostmanRequestCreateController::class, 'folderindex']);
+    Route::get('postman/workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
+    Route::get('postman/collection', [PostmanRequestCreateController::class, 'collectionIndex']);
+
     Route::get('postman/folder/search', [PostmanRequestCreateController::class, 'folderSearch']);
     Route::post('postman/folder/create', [PostmanRequestCreateController::class, 'folderStore']);
+    Route::post('postman/workspace/create', [PostmanRequestCreateController::class, 'workspaceStore']);
+    Route::post('postman/collection/create', [PostmanRequestCreateController::class, 'collectionStore']);
     Route::post('/postman/folder/edit', [PostmanRequestCreateController::class, 'folderEdit']);
+    Route::post('/postman/workspace/edit', [PostmanRequestCreateController::class, 'workspaceEdit']);
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
+    Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
 
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
@@ -2955,6 +2992,7 @@ Route::middleware('auth')->group(function () {
     Route::post('test-cases/add-test-cases', [TestCaseController::class, 'sendTestCases'])->name('test-cases.sendtestcases');
     Route::get('test-cases/usertest-history/{id}', [TestCaseController::class, 'usertestHistory'])->name('test-cases.usertest-history');
     Route::get('test-cases/user-teststatus-history/{id}', [TestCaseController::class, 'userteststatusHistory'])->name('test-cases.usertest-history');
+	Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
 
     Route::get('test-suites', [TestSuitesController::class, 'index'])->name('test-suites.index');
     Route::get('test-suites/records', [TestSuitesController::class, 'records'])->name('test-suites.records');
@@ -3834,15 +3872,21 @@ Route::middleware('auth')->group(function () {
     Route::post('/uicheck/create/dev/attachment', [UicheckController::class, 'saveDevDocuments'])->name('uicheck.create.dev.attachment');
     Route::get('uicheck/get/dev/attachment', [UicheckController::class, 'devListDocuments'])->name('uicheck.get.dev.attachment');
     Route::post('uicheck/dev/delete/attachment', [UicheckController::class, 'deleteDevDocument'])->name('uicheck.dev.delete.attachment');
+    Route::post('uicheck/device/status', [UicheckController::class, 'updateDeviceStatus'])->name('uicheck.device.status');
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
+        Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
         Route::post('translation/status', [UicheckController::class, 'translatorStatusChange'])->name('uicheck.translator.status');
         Route::post('get/translator/status/history', [UicheckController::class, 'translatorStatusHistory'])->name('get.translator.status.history');
+        Route::post('assign-user', [UicheckController::class, 'assignNewUser'])->name('uicheck.assignNewuser');
+        Route::get('user-history', [UicheckController::class, 'userHistory'])->name('uicheck.userhistory');
+        Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
+        Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -3942,7 +3986,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
         Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
-        
+
     });
 });
 
@@ -4010,6 +4054,11 @@ Route::prefix('ads')->middleware('auth')->group(function () {
     Route::post('/savegroup', [AdsController::class, 'savegroup'])->name('ads.savegroup');
     Route::get('/getgroups', [AdsController::class, 'getgroups'])->name('ads.getgroups');
     Route::post('/adsstore', [AdsController::class, 'adsstore'])->name('ads.adsstore');
+});
+
+Route::prefix('google-remarketing-campaigns')->middleware('auth')->group(function () {
+    Route::post('create', [GoogleAdsRemarketingController::class, 'createCampaign'])->name('googleremarketingcampaigns.createCampaign');
+    Route::post('update', [GoogleAdsRemarketingController::class, 'updateCampaign'])->name('googleremarketingcampaigns.updateCampaign');
 });
 
 Route::prefix('google-campaigns')->middleware('auth')->group(function () {
@@ -4419,6 +4468,7 @@ Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('translate-logs', [TranslationController::class, 'translateLog'])->name('translation.log');
     Route::post('mark-as-resolve', [TranslationController::class, 'markAsResolve'])->name('translation.log.markasresolve');
     Route::DELETE('/delete/{id?}', [TranslationController::class, 'destroy'])->name('translation.destroy');
+    Route::DELETE('translate-logs/delete/{id?}', [TranslationController::class, 'translateLogDelete'])->name('translation.log.destroy');
     Route::get('/add', [TranslationController::class, 'create'])->name('translation.add');
     Route::get('/{id?}/edit', [TranslationController::class, 'edit'])->name('translation.edit');
     Route::post('/store', [TranslationController::class, 'store'])->name('translation.store');
