@@ -2874,10 +2874,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('postman/delete', [PostmanRequestCreateController::class, 'destroy']);
 
     Route::get('postman/folder', [PostmanRequestCreateController::class, 'folderindex']);
+    Route::get('postman/workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
+    Route::get('postman/collection', [PostmanRequestCreateController::class, 'collectionIndex']);
+
     Route::get('postman/folder/search', [PostmanRequestCreateController::class, 'folderSearch']);
     Route::post('postman/folder/create', [PostmanRequestCreateController::class, 'folderStore']);
+    Route::post('postman/workspace/create', [PostmanRequestCreateController::class, 'workspaceStore']);
+    Route::post('postman/collection/create', [PostmanRequestCreateController::class, 'collectionStore']);
     Route::post('/postman/folder/edit', [PostmanRequestCreateController::class, 'folderEdit']);
+    Route::post('/postman/workspace/edit', [PostmanRequestCreateController::class, 'workspaceEdit']);
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
+    Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
 
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
@@ -3844,6 +3851,8 @@ Route::middleware('auth')->group(function () {
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
         Route::post('translation/status', [UicheckController::class, 'translatorStatusChange'])->name('uicheck.translator.status');
         Route::post('get/translator/status/history', [UicheckController::class, 'translatorStatusHistory'])->name('get.translator.status.history');
+        Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
+        Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -4425,6 +4434,7 @@ Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('translate-logs', [TranslationController::class, 'translateLog'])->name('translation.log');
     Route::post('mark-as-resolve', [TranslationController::class, 'markAsResolve'])->name('translation.log.markasresolve');
     Route::DELETE('/delete/{id?}', [TranslationController::class, 'destroy'])->name('translation.destroy');
+    Route::DELETE('translate-logs/delete/{id?}', [TranslationController::class, 'translateLogDelete'])->name('translation.log.destroy');
     Route::get('/add', [TranslationController::class, 'create'])->name('translation.add');
     Route::get('/{id?}/edit', [TranslationController::class, 'edit'])->name('translation.edit');
     Route::post('/store', [TranslationController::class, 'store'])->name('translation.store');

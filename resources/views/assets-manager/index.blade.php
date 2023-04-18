@@ -43,7 +43,7 @@
 
 
     <div class="mt-3 col-md-12">
-      <div class="infinite-scroll">
+      <div class="infinite-scroll" style="overflow-y: auto">
         <table class="table table-bordered table-striped">
           <thead>
             <tr>

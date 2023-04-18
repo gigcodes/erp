@@ -4,9 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GoogleScreencast extends Model
+class PostmanCollection extends Model
 {
-    protected $table = 'google_drive_screencast_upload';
+    protected $table = 'postman_collections';
 
     protected $guarded = [];
 }
