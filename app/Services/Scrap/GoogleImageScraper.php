@@ -19,11 +19,11 @@ class GoogleImageScraper extends Scraper
         // die;
 
         $c = new HtmlPageCrawler($body);
-        $imageJson = $c->filter('body')->filter('div.RAyV4b');
+        $imageJson = $c->filter('body')->filter('td.e3goi')->filter('img');
         $images = [];
 
         foreach ($imageJson as $key => $image) {
-            foreach ($image->firstChild->attributes as $att => $image) {
+            foreach ($image->attributes as $att => $image) {
                 if ($image->name == 'src') {
                     $images[] = $image->value ?? null;
                 }
@@ -34,7 +34,6 @@ class GoogleImageScraper extends Scraper
                 break;
             }
         }
-        // dd($images);
         return $images;
     }
 }
