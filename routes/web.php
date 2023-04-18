@@ -348,6 +348,35 @@ use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
+use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\YoutubeController;
+
+Auth::routes();
+
+Route::prefix('youtube')->middleware('auth')->group(function () {
+Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
+Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
+Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
+Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
+Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
+Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
+
+Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
+Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
+
+Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
+Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+});
+// Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
+// Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
+// Route::get('/GetChanelData', [YoutubeController::class, 'GetChanelData'])->name('GetChanelData');
+// Route::get('/chanelList', [YoutubeController::class, 'chanelList'])->name('chanelList');
+// Route::get('/videoList/{chanelId}/{websiteId}', [YoutubeController::class, 'VideoListByChanelId'])->name('videoList');
+
+// Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+
+
 use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\MailBoxController;
@@ -2963,6 +2992,7 @@ Route::middleware('auth')->group(function () {
     Route::post('test-cases/add-test-cases', [TestCaseController::class, 'sendTestCases'])->name('test-cases.sendtestcases');
     Route::get('test-cases/usertest-history/{id}', [TestCaseController::class, 'usertestHistory'])->name('test-cases.usertest-history');
     Route::get('test-cases/user-teststatus-history/{id}', [TestCaseController::class, 'userteststatusHistory'])->name('test-cases.usertest-history');
+	Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
 
     Route::get('test-suites', [TestSuitesController::class, 'index'])->name('test-suites.index');
     Route::get('test-suites/records', [TestSuitesController::class, 'records'])->name('test-suites.records');
@@ -3842,15 +3872,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/uicheck/create/dev/attachment', [UicheckController::class, 'saveDevDocuments'])->name('uicheck.create.dev.attachment');
     Route::get('uicheck/get/dev/attachment', [UicheckController::class, 'devListDocuments'])->name('uicheck.get.dev.attachment');
     Route::post('uicheck/dev/delete/attachment', [UicheckController::class, 'deleteDevDocument'])->name('uicheck.dev.delete.attachment');
+    Route::post('uicheck/device/status', [UicheckController::class, 'updateDeviceStatus'])->name('uicheck.device.status');
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
+        Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
         Route::post('translation/status', [UicheckController::class, 'translatorStatusChange'])->name('uicheck.translator.status');
         Route::post('get/translator/status/history', [UicheckController::class, 'translatorStatusHistory'])->name('get.translator.status.history');
+        Route::post('assign-user', [UicheckController::class, 'assignNewUser'])->name('uicheck.assignNewuser');
+        Route::get('user-history', [UicheckController::class, 'userHistory'])->name('uicheck.userhistory');
         Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
         Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
 
