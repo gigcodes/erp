@@ -348,6 +348,35 @@ use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
+use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\YoutubeController;
+
+Auth::routes();
+
+Route::prefix('youtube')->middleware('auth')->group(function () {
+Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
+Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
+Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
+Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
+Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
+Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
+
+Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
+Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
+
+Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
+Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+});
+// Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
+// Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
+// Route::get('/GetChanelData', [YoutubeController::class, 'GetChanelData'])->name('GetChanelData');
+// Route::get('/chanelList', [YoutubeController::class, 'chanelList'])->name('chanelList');
+// Route::get('/videoList/{chanelId}/{websiteId}', [YoutubeController::class, 'VideoListByChanelId'])->name('videoList');
+
+// Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+
+
 use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\MailBoxController;

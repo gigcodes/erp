@@ -2290,6 +2290,19 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>Youtube<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/youtube/add-chanel">Create Chanel</a>
+                                          
+                                            
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
                                 </li>
