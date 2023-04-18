@@ -614,7 +614,7 @@ table{border-collapse: collapse;}
 							<strong>File Creation Date:</strong>
 							<input type="date" name="file_creation_date" value="{{ old('file_creation_date') }}" class="form-control input-sm" placeholder="Drive Date" required>
 						</div>
-						@if(auth()->user()->isAdmin())
+						{{-- @if(auth()->user()->isAdmin())
 							<div class="form-group custom-select2 read_user">
 								<label>Read Permission for Users
 								</label>
@@ -633,7 +633,7 @@ table{border-collapse: collapse;}
 									@endforeach
 								</select>
 						</div>
-						@endif
+						@endif --}}
 						<div class="form-group">
 								<label>Remarks:</label>
 								<textarea id="remarks" name="remarks" rows="4" cols="64" value="{{ old('remarks') }}" placeholder="Remarks" required class="form-control"></textarea>

@@ -137,7 +137,8 @@
   </form>
   <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Postman request</button>
   <a href="/postman/folder" class="btn custom-button float-right mr-3">Add Folder</a>
-
+  <a href="/postman/workspace" class="btn custom-button float-right mr-3">Add Workspace</a>
+  <a href="/postman/collection" class="btn custom-button float-right mr-3">Add Collection</a>
 
   <div class="col-12">
     <h3>Assign Permission to User</h3>

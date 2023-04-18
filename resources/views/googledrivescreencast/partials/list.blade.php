@@ -1,3 +1,9 @@
+@php
+    $enum = [
+        "App\Uicheck" => "UICHECK-" 
+    ];
+@endphp
+
 @foreach ($data as $key => $file)
     <tr>
         <td>{{ ++$i }}</td>
@@ -8,6 +14,9 @@
             @endif
             @if ($file->bug_id)
                 #BUG-{{ $file->bug_id }}
+            @endif
+            @if (!isset($file->developer_task_id) && !isset($file->bug_id))
+                {{$enum[$file->belongable_type] ?? ""}} {{$file->belongable_id}}
             @endif
         </td>
         <td>{{ $file->file_creation_date }}</td>
