@@ -556,9 +556,10 @@ var page = {
                 var html ="";
 
                 $.each(response.data, function (i,item){
-                    console.log(item)
+                    console.log(item);
+					var created_date = $.datepicker.formatDate( "dd-M-yy", new Date(item.created_at));
                     html+="<tr>"
-                    html+=" <th>"+ item.created_at +"</th>"
+                    html+=" <th>"+ created_date +"</th>"
                     html+=" <th>"+ item.new_user +"</th>"
                     html+=" <th>"+ item.old_user +"</th>"
                     html+=" <th>"+ item.updated_by +"</th>"
@@ -586,9 +587,10 @@ var page = {
                 var html ="";
 
                 $.each(response.data, function (i,item){
-                    console.log(item)
+                    console.log(item);
+					var created_date = $.datepicker.formatDate( "dd-M-yy", new Date(item.created_at));
                     html+="<tr>"
-                    html+=" <th>"+ item.created_at +"</th>"
+                    html+=" <th>"+ created_date +"</th>"
                     html+=" <th>"+ item.new_status +"</th>"
                     html+=" <th>"+ item.old_status +"</th>"
                     html+=" <th>"+ item.updated_by +"</th>"
@@ -615,9 +617,10 @@ var page = {
                 var html ="";
 
                 $.each(response.data, function (i,item){
-                    console.log(item)
+                    console.log(item);
+					var created_date = $.datepicker.formatDate( "dd-M-yy", new Date(item.created_at));
                     html+="<tr>"
-                    html+=" <th>"+ item.created_at +"</th>"
+                    html+=" <th>"+ created_date +"</th>"
                     html+=" <th>"+ item.name +"</th>"
                     html+=" <th>"+ item.test_status_id +"</th>"
                     html+=" <th>"+ item.suite +"</th>"

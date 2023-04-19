@@ -43,7 +43,7 @@
 
 
     <div class="mt-3 col-md-12">
-      <div class="infinite-scroll">
+      <div class="infinite-scroll" style="overflow-y: auto">
         <table class="table table-bordered table-striped">
           <thead>
             <tr>
@@ -62,7 +62,10 @@
               <th width="5%">Currency</th>
               <th width="3%">Location</th>
               <th width="5%">Usage</th>
-              <th width="5%">Created By</th>
+                <th width="10%">Link</th>
+                <th width="10%">IP</th>
+
+                <th width="5%">Created By</th>
               <th width="5%">Action</th>
             </tr>
           </thead>
@@ -102,7 +105,10 @@
                   <span class="show-short-usage-{{$asset->id}}">{{ Str::limit($asset->usage, 9, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
                 </td>
-                <td>{{ $asset->created_by }}</td>
+                  <td><a href="{{ $asset->link }}" target="_blank">{{ $asset->link }}</a></td>
+                  <td>{{ $asset->ip }}</td>
+
+                  <td>{{ $asset->created_by }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
                     <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
@@ -111,7 +117,7 @@
             <tr class="action-btn-tr-{{$asset->id}} d-none">
                 <td>Action</td>
                 <td colspan="15">
-                    @if(auth()->user()->hasRole('Admin'))
+                    @if(auth()->user()->hasRole('Admin') || auth()->user()->hasRole('asset-manager'))
                       <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" title="Edit Assets" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
                     @endif
                     <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" title="Make Remark" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>

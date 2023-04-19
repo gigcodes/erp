@@ -71,6 +71,14 @@
               <div class="alert alert-danger">{{$errors->first('ip_name')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <strong>Link:</strong>
+            <input type="text" name="link"  class="form-control" value="{{ old('link') }}">
+
+            @if ($errors->has('link'))
+              <div class="alert alert-danger">{{$errors->first('link')}}</div>
+            @endif
+          </div>
           
           <div class="form-group">
             <strong>Folder Name:</strong>
@@ -440,6 +448,14 @@
             <input type="hidden" class="getUpdCount" value="0"/>
             <div class="addUpdIpName">
               <input type="text" name="ip_name" id="ip_name_ins" class="form-control" value="{{ old('ip_name') }}">
+            </div>
+            {{-- <a href="javascript:void(0);" class="updIpNamebtn">Add Name</a> --}}
+          </div>
+
+          <div class="form-group">
+            <strong>Link:</strong>
+            <div class="addUpdIpName">
+              <input type="text" name="link" id="link" class="form-control" value="{{ old('link') }}">
             </div>
             {{-- <a href="javascript:void(0);" class="updIpNamebtn">Add Name</a> --}}
           </div>

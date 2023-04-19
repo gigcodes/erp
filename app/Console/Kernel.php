@@ -163,6 +163,8 @@ use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\ZoomMeetingRecordings;
 use App\Console\Commands\SaveZoomMeetingRecordings;
 use App\Console\Commands\DevAPIReport;
+use App\Console\Commands\ChannelDataSync;
+use App\Console\Commands\CreateMailBoxes;
 use App\Http\Controllers\Marketing\MailinglistController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -336,6 +338,8 @@ class Kernel extends ConsoleKernel
         DatabaseLogCron::class,
         TwillioMessagesCommand::class,
         DevAPIReport::class,
+        ChannelDataSync::class,
+        CreateMailBoxes::class,
     ];
 
     /**
@@ -736,6 +740,14 @@ class Kernel extends ConsoleKernel
 
         //Telescope Remove Logs Every 72Hrs
         $schedule->command('telescope:prune --hours=72')->daily();
+
+        $schedule->command('channeldata-auto-sync')->dailyAt('23:58');
+        
+
+
+        //Creating mailboxes from emails table
+        $schedule->command('email:create-mail-boxes')->everyFiveMinutes();
+
     }
 
     /**`

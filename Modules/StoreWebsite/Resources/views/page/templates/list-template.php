@@ -69,6 +69,8 @@
                 <th width="10%">Site</th>
                 <th width="3%">Active</th>
                 <th width="4%">Pushed</th>
+                <th width="4%">Is Latest Version Pushed</th>
+                <th width="4%">Is Latest Version Translated</th>
                 <th width="8%">Created at</th>
                 <th width="9%">Actions</th>
               </tr>

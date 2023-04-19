@@ -58,7 +58,7 @@ class TimeDoctorActivity extends Model
 
     public static function getTrackedActivitiesBetween($start, $end, $user_id)
     {
-        return self::leftJoin('time_doctor_members', 'time_doctor_members.hubstaff_user_id', '=', 'time_doctor_activities.user_id')->whereDate('time_doctor_activities.starts_at', '>=', $start)->whereDate('time_doctor_activities.starts_at', '<=', $end)->where('time_doctor_members.user_id', $user_id)->where('time_doctor_activities.status', 1)->where('time_doctor_activities.paid', 0)
+        return self::leftJoin('time_doctor_members', 'time_doctor_members.time_doctor_user_id', '=', 'time_doctor_activities.user_id')->whereDate('time_doctor_activities.starts_at', '>=', $start)->whereDate('time_doctor_activities.starts_at', '<=', $end)->where('time_doctor_members.user_id', $user_id)->where('time_doctor_activities.status', 1)->where('time_doctor_activities.paid', 0)
         ->orderBy('time_doctor_activities.starts_at', 'asc')
         ->select('time_doctor_activities.*')
         ->get();
