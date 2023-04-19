@@ -542,28 +542,28 @@ class googleAddsController extends Controller
             if (is_null($account)) {
                 return ['status' => 'error','message' => 'Goolgle Oauth Credencial missing.'];
             } 
-            try {
-                $clientId = $account->oauth2_client_id;
-                $clientSecret = $account->oauth2_client_secret;
-                $refreshToken = $account->oauth2_refresh_token;
-                $developerToken = $account->google_adwords_manager_account_developer_token;
-                $loginCustomerId = $account->google_adwords_manager_account_customer_id;
+                try {
+                    $clientId = $account->oauth2_client_id;
+                    $clientSecret = $account->oauth2_client_secret;
+                    $refreshToken = $account->oauth2_refresh_token;
+                    $developerToken = $account->google_adwords_manager_account_developer_token;
+                    $loginCustomerId = $account->google_adwords_manager_account_customer_id;
 
-                $oAuth2Credential = (new OAuth2TokenBuilder())
-                                    ->withClientId($clientId)
-                                    ->withClientSecret($clientSecret)
-                                    ->withRefreshToken($refreshToken)
-                                    ->build();
+                    $oAuth2Credential = (new OAuth2TokenBuilder())
+                                        ->withClientId($clientId)
+                                        ->withClientSecret($clientSecret)
+                                        ->withRefreshToken($refreshToken)
+                                        ->build();
 
-                $googleAdsClient = (new GoogleAdsClientBuilder())
-                                    ->withDeveloperToken($developerToken)
-                                    ->withLoginCustomerId($loginCustomerId)
-                                    ->withOAuth2Credential($oAuth2Credential)
-                                    ->build();
+                    $googleAdsClient = (new GoogleAdsClientBuilder())
+                                        ->withDeveloperToken($developerToken)
+                                        ->withLoginCustomerId($loginCustomerId)
+                                        ->withOAuth2Credential($oAuth2Credential)
+                                        ->build();
 
-           } catch (Exception $e) {
-                return ['status' => 'error','message' => $e->getMessage()];
-           }
+               } catch (Exception $e) {
+                    return ['status' => 'error','message' => $e->getMessage()];
+               }
             try {
                 if ($request->location) {
                     return $result = self::runExample($googleAdsClient, $request->viewType ? $request->viewType : self::VIEW_TYPE,self::CUSTOMER_ID, [$request->location], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
@@ -572,31 +572,17 @@ class googleAddsController extends Controller
                 } else {
                     return $result = self::runExample($googleAdsClient, self::VIEW_TYPE,self::CUSTOMER_ID, [], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
                 }
-            } catch (GoogleAdsException $googleAdsException) {
-                return ['status' => 'error','message' =>'GoogleAdsException Request ID. '.$googleAdsException->getRequestId()];
-                printf(
-                    "Request with ID '%s' has failed.%sGoogle Ads failure details:%s",
-                    $googleAdsException->getRequestId(),
-                    PHP_EOL,
-                    PHP_EOL
-                );
-                foreach ($googleAdsException->getGoogleAdsFailure()->getErrors() as $error) {
-                    /** @var GoogleAdsError $error */
-                    printf(
-                        "\t%s: %s%s",
-                        $error->getErrorCode()->getErrorCode(),
-                        $error->getMessage(),
-                        PHP_EOL
-                    );
-                }
-                exit(1);
             } catch (ApiException $apiException) {
-                return ['status' => 'error','message' =>'API exeception Occured. '.$apiException->getMessage()];
                 printf(
                     "ApiException was thrown with message '%s'.%s",
                     $apiException->getMessage(),
                     PHP_EOL
                 );
+                $message = $apiException->getMessage();
+                if(strpos($message, 'Resource has been exhausted') >= 0) {
+                    $message = 'Google API Quota exhausted, Please check your API Quota or Try after sometime.';
+                }
+                return ['status' => 'error','message' =>$message];
                 exit(1);
             }
         }
