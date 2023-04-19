@@ -118,17 +118,17 @@
                         <input type="text" name="workspace_name" value="" class="form-control" id="workspace_name" placeholder="Enter workspace name">
                     </div>
                     <div class="form-group col-md-12">
-                        <select name="workspace_type" class="form-control">
+                        <select name="workspace_type" id="workspace_type"  class="form-control">
                             <option value="private">Private</option>
                             <option value="public">Public</option>
                             <option value="team">Team</option>
                             <option value="personal">Personal</option>
                         </select>
                     </div>
-                    <div class="form-group col-md-12">
+                    {{--<div class="form-group col-md-12">
                         <label for="folder_name">Workspace Description</label>
                         <input type="text" name="workspace_description" value="" class="form-control" id="workspace_description" placeholder="Enter workspace description">
-                    </div>
+                    </div>--}}
                 </div>
               </form> 
             </div>
@@ -212,7 +212,7 @@
         if($('#titleUpdate').text() == 'Add')
           $("#id").val("");
         $.ajax({
-          url: "/postman/workspace/create/",
+          url: "/postman/workspace/create",
           type: "post",
           data:$('#postmanFolderform').serialize()
         }).done(function(response) {
@@ -256,8 +256,10 @@
                   form.find('[name="'+key+'"]').val(v);
               }      
             });
+            $("#workspace_type").val(response.data.type);
+              $("#id").val(response.data.workspace_id);
             $('#addPostmanFolder').modal('show');
-            toastr['success']('Postman edited successfully!!!', 'success'); 
+            // toastr['success']('Postman edited successfully!!!', 'success');
             
           } else {
             toastr['error'](response.message, 'error'); 

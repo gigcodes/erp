@@ -2912,6 +2912,7 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/collection/create', [PostmanRequestCreateController::class, 'collectionStore']);
     Route::post('/postman/folder/edit', [PostmanRequestCreateController::class, 'folderEdit']);
     Route::post('/postman/workspace/edit', [PostmanRequestCreateController::class, 'workspaceEdit']);
+    Route::post('/postman/collection/edit', [PostmanRequestCreateController::class, 'collectionEdit']);
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
     Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
