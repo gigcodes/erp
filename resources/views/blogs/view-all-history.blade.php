@@ -35,16 +35,28 @@
                       @endforeach
                   </select>
                 </div>
+
+                  <div class="form-group col-md-2 pd-3 status-select-cls select-multiple-checkbox">
+                    <div class='input-group date' id='blog-datetime'>
+                    <input type='text' class="form-control" name="created_at" id="created_at" value="" />
+                    <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                    </div>
+                </div>
                 
                 <div class="form-group col-md-1 pd-3">
                    <button  class="btn btn-image ml-3 refreshTable"><i class="fa fa-history" aria-hidden="true"></i></button>
+                </div>
+                 <div class="form-group col-md-1 pd-3">
+                  <button id="BlogFilter" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                   </div>
                 <table class="table-striped table-bordered table out-of-stock-products-table"
                     id="blog-history-list">
                     <thead>
                         <tr>
                             <th>Blog Id</th>
-                            <th>UserName</th>
+                            <th>Updated By</th>
                             <th>Plaglarism</th>
                             <th>Internal Link</th>
                             <th>External Link Date</th>
@@ -78,7 +90,8 @@
             ajax: {
                 url: "{{ route('view-blog-all.history') }}",
                 data: function (d) {
-                    d.user_id = $('#userId').val()
+                    d.user_id = $('#userId').val(),
+                    d.date = $('#created_at').val()
                 
                 }
             },
@@ -95,15 +108,22 @@
                 ]
             });
 
-        $('#userId').change(function(){
-            table.draw();
-        });
+        //$('#userId').change(function(){
+          //  table.draw();
+        //});
         
         $('.refreshTable').click(function(){
         
             $('#userId').val('');
+            $('#created_at').val('');
            $('#blog-history-list').DataTable().ajax.reload();
         });
+
+         $("#BlogFilter").on("click",function(e){
+            table.draw();
+            e.preventDefault();
+          
+          });
         
     });
 

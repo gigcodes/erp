@@ -28,7 +28,7 @@
                          value="{{ isset($term) ? $term : '' }}"
                          placeholder="Search">
                 </div>  --}}
-                 <form class="form-inline" action="{{ route('blog.index') }}" method="GET">
+                
                  <div class="form-group col-md-2 pd-3">
                   <select class="form-control" name="user_id" id="userId">
                     <option value="">Select User</option>
@@ -52,7 +52,7 @@
                   <div class="form-group col-md-1 pd-3">
                   <button id="BlogFilter" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                   </div>
-                </form>
+            
                 {{--  <div class="card">
                 <div class="card-body">
                     <div class="form-group">
@@ -141,19 +141,20 @@
                 ]
           });
 
-         $('.refreshTable').click(function(){
-            console.log("class refreshTable")
-              $('#userId').val('');
-            $('#blog_listing').DataTable().ajax.reload();
-          });
+          $('.refreshTable').click(function(){
+             
+                $('#userId').val('');
+                $('#created_at').val('');
+              $('#blog_listing').DataTable().ajax.reload();
+            });
 
-          $("#BlogFilter").on("click",function(e){
-            table.draw();
-            e.preventDefault();
+            $("#BlogFilter").on("click",function(e){
+              table.draw();
+              e.preventDefault();
+            
+            });
           
           });
-        
-        });
 
 
         

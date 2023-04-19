@@ -42,7 +42,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Select user </label>
-                            <select name="user_id" class="form-control">
+                            <select name="user_id" required class="form-control">
                                 <option value="">-- Select --</option>
                                 @foreach ($users as $user)
                                 <option value="{{ $user->id }}" >{{ $user->name }}</option>
