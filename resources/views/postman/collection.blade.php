@@ -210,9 +210,20 @@
           }
       });
       $(document).on("click",".submit-folder-form",function(e){
-          console.log($('#postmanFolderform').serialize(), '---->><<');
         e.preventDefault();
         var $this = $(this);
+          if(!$("#collection_name").val()){
+              toastr['error']('Please enter collection name.', 'error');
+              return;
+          }
+          if(!$("#collection_description").val()){
+              toastr['error']('Please enter collection description.', 'error');
+              return;
+          }
+          if(!$("#workspace_id").val()){
+              toastr['error']('Please select workspace.', 'error');
+              return;
+          }
         if($('#titleUpdate').text() == 'Add')
             $("#id").val("");
         $.ajax({
@@ -220,7 +231,7 @@
           type: "post",
           data:$('#postmanFolderform').serialize()
         }).done(function(response) {
-          if(response.code = '200') {
+          if(response.code === 200) {
             $('#loading-image').hide();
             $('#addPostmanFolder').modal('hide');
             toastr['success']('Folder added successfully!!!', 'success'); 
@@ -261,7 +272,6 @@
               }      
             });
               $("#collection_description").val(response.data.description);
-              console.log(response.data.description, '----><<')
             $('#addPostmanFolder').modal('show');
             //toastr['success']('Postman edited successfully!!!', 'success');
             
