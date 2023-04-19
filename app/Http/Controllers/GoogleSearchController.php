@@ -219,56 +219,56 @@ class GoogleSearchController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return json response status
      */
-//    public function apiPost(Request $request)
-//    {
-//        // Get raw body
-//        $payLoad = $request->all();
-//
-//        $payLoad = json_decode(json_encode($payLoad), true);
-//
-//        // Process input
-//        if (count($payLoad) == 0) {
-//            return response()->json([
-//                'error' => 'Invalid json'
-//            ], 400);
-//        }
-//        else {
-//            $postedData = $payLoad['json'];
-//            // Loop over posts
-//            foreach ($postedData as $postJson) {
-//                // Set tag
-//                $tag = $postJson[ 'searchKeyword' ];
-//
-//                // Get hashtag ID
-//                //$hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
-//
-//                $keywords = HashTag::query()
-//                                ->where('hashtag', 'LIKE', $tag)
-//                                ->where('platforms_id', $this->platformsId)->first();
-//
-//                if (is_null($keywords)){
-//                    //keyword not in DB. For now skip this...
-//                }
-//                else {
-//                    // Retrieve instagram post or initiate new
-//                    $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
-//
-//                    $instagramPost->hashtag_id = $keywords->id;
-//                    $instagramPost->caption = $postJson[ 'description' ];
-//                    $instagramPost->posted_at = ($postJson[ 'crawledAt' ]) ? date('Y-m-d H:i:s', strtotime($postJson[ 'crawledAt' ])) : date('Y-m-d H:i:s');
-//                    $instagramPost->media_type = 'other';
-//                    $instagramPost->media_url = $postJson[ 'URL' ];
-//                    $instagramPost->source = 'google';
-//                    $instagramPost->save();
-//                }
-//            }
-//        }
-//
-//        // Return
-//        return response()->json([
-//            'ok'
-//        ], 200);
-//    }
+    public function apiPost(Request $request)
+    {
+        // Get raw body
+        $payLoad = $request->all();
+
+        $payLoad = json_decode(json_encode($payLoad), true);
+
+        // Process input
+        if (count($payLoad) == 0) {
+            return response()->json([
+                'error' => 'Invalid json'
+            ], 400);
+        }
+        else {
+            $postedData = $payLoad['json'];
+            // Loop over posts
+            foreach ($postedData as $postJson) {
+                // Set tag
+                $tag = $postJson[ 'searchKeyword' ];
+
+                // Get hashtag ID
+                //$hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
+
+                $keywords = HashTag::query()
+                                ->where('hashtag', 'LIKE', $tag)
+                                ->where('platforms_id', $this->platformsId)->first();
+
+                if (is_null($keywords)){
+                    //keyword not in DB. For now skip this...
+                }
+                else {
+                    // Retrieve instagram post or initiate new
+                    $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
+
+                    $instagramPost->hashtag_id = $keywords->id;
+                    $instagramPost->caption = $postJson[ 'description' ];
+                    $instagramPost->posted_at = ($postJson[ 'crawledAt' ]) ? date('Y-m-d H:i:s', strtotime($postJson[ 'crawledAt' ])) : date('Y-m-d H:i:s');
+                    $instagramPost->media_type = 'other';
+                    $instagramPost->media_url = $postJson[ 'URL' ];
+                    $instagramPost->source = 'google';
+                    $instagramPost->save();
+                }
+            }
+        }
+
+        // Return
+        return response()->json([
+            'ok'
+        ], 200);
+    }
 
     /**
      * function to get google search results
@@ -385,13 +385,13 @@ class GoogleSearchController extends Controller
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
+                CURLOPT_TIMEOUT => 50,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_HTTPHEADER => [
                     'Content-Type: application/json',
                 ],
-                CURLOPT_POSTFIELDS => "$postData",
+                CURLOPT_POSTFIELDS => $postData,
             ]);
             $response = curl_exec($curl);
             $err = curl_error($curl);
@@ -399,7 +399,7 @@ class GoogleSearchController extends Controller
 
             // Return
             // return response()->json($postData, 200);
-            return response()->json(['success - scrapping initiated'], 200);
+            return response()->json(['data' => json_decode($response), 'error' => $err], 200);
         }
     }
 
