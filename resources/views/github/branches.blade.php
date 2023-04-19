@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
-<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"> </script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap4.min.js"> </script>
 <script>
     var currentChatParams = {};
     currentChatParams.data = {
@@ -43,19 +43,20 @@
         let html = "";
         $.each(response, function(key, value) {
             html += "<tr>";
+            html += "<td></td>";
             html += "<td>" + value.branch_name + "</td>";
             html += "<td>" + value.status + "</td>";
             html += "<td>" + value.behind_by + "</td>";
             html += "<td>" + value.ahead_by + "</td>";
             html += "<td>" + value.last_commit_author_username + "</td>";
             html += "<td>" + value.last_commit_time + "</td>";
-            html += `<td style="width:10%;">
-                <div style="margin-top: 5px;">
-                    <button class="btn btn-sm btn-secondary" style="margin-top: 5px;" onclick="confirmDelete('`+value.repository_id+`','`+value.branch_name+`')">
-                        Delete Branch
-                    </button>
-                </div>
-            </td>`;
+            // html += `<td style="width:10%;">
+            //     <div style="margin-top: 5px;">
+            //         <button class="btn btn-sm btn-secondary" style="margin-top: 5px;" onclick="confirmDelete('`+value.repository_id+`','`+value.branch_name+`')">
+            //             Delete Branch
+            //         </button>
+            //     </div>
+            // </td>`;
             html += "</tr>";
         });
         return html;
@@ -87,8 +88,17 @@
             "bPaginate": false,
             "ordering": false,
             "searching": true, 
-            "search": {
-                "addClass": 'form-control input-lg col-xs-12'
+            columnDefs: [ {
+                orderable: false,
+                className: 'select-checkbox',
+                targets:   0,
+                'render': function (data, type, full, meta){
+                    return '<input type="checkbox" class="action" name="action[]" value="' + full[1]+ '">';
+                }
+            } ],
+            select: {
+                style:    'os',
+                selector: 'td:first-child'
             },
         });
     async function fetchBranches({repoId}) {
@@ -112,12 +122,36 @@
             "bPaginate": false,
             "ordering": false,
             "searching": true, 
-            "search": {
-                "addClass": 'form-control input-lg col-xs-12'
+            columnDefs: [ {
+                orderable: false,
+                className: 'select-checkbox',
+                targets:   0,
+                'render': function (data, type, full, meta){
+                    return '<input type="checkbox" class="action" name="action[]" value="' + full[1]+ '">';
+                }
+            } ],
+            select: {
+                style:    'os',
+                selector: 'td:first-child'
             },
         });
     }
     
+     $(document).on('click','#action-select-all', function(){
+      if ($("#action-select-all").is(':checked')) {
+          $('input[name="action[]"]').prop('checked', true);
+        }else{
+          $('input[name="action[]"]').prop('checked', false);
+      }
+      $length = $('input[name="action[]"]:checked').length;
+      $(".jq_selected_item").html($length+" Items Selected");
+   });
+    
+     $(document).on('click','.action', function(){
+      $length = $('input[name="action[]"]:checked').length;
+      $(".jq_selected_item").html($length+" Items Selected");
+   });
+
     $(document).ready(function() {
         $(async function() {
             await fetchBranches({
@@ -194,6 +228,20 @@
 <div class="container" style="max-width: 100%;width: 100%;" id="branch-section">
     <div class="row mb-3">
         <div class="col-md-3">
+            <!-- Single button -->
+            <label for="" class="form-label">Action on selected Item</label>
+            <div class=" form-control btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle jq_selected_item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    0 Items Selected <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#"  onclick="confirmDelete()">Delete All</a></li>
+                </ul>
+            </div>
+        </div>
+
+       
+        <div class="col-md-3">
             <label for="" class="form-label">Repository</label>
             <select name="repoId" class="form-control">
                 @foreach ($repos as $repo)
@@ -209,17 +257,19 @@
                 <option value="closed">Closed</option>
             </select>
         </div>
+        
     </div>
     <table class="table table-bordered action-table" style="table-layout: fixed;">
         <thead>
             <tr>
+
+                <th style="width:10% !important;"><input type="checkbox" name="select_all" value="1" id="action-select-all"></th>
                 <th style="width:25% !important;">Name</th>
                 <th style="width:10% !important;">Status</th>
                 <th style="width:10% !important;">Behind By</th>
                 <th style="width:10% !important;">Ahead By</th>
                 <th style="width:15% !important;">Last Commit By</th>
-                <th style="width:20% !important;">Last Commit At</th>
-                <th style="width:10% !important;">Actions</th>
+                <th style="width:15% !important;">Last Commit At</th>
             </tr>
         </thead>
         <tbody>
