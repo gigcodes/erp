@@ -2,6 +2,7 @@
 @php
     $enum = [
         "App\DeveloperTask" => "DEVTASK-",
+        "App\Task" => "TASK-",
     ];
 @endphp
 @foreach ($data as $key => $file)

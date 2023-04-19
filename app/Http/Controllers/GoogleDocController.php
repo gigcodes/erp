@@ -196,10 +196,11 @@ class GoogleDocController extends Controller
         $parameters['fields'] = "permissions(*)";
         // Call the endpoint to fetch the permissions of the file
         $permissions = $driveService->permissions->listPermissions($fileId, $parameters);
+        
         foreach ($permissions->getPermissions() as $permission){
             $permissionEmails[] = $permission['emailAddress'];
             //Remove Permission
-            if($permission['role']!='owner')
+            if($permission['role']!='owner' && ($permission['emailAddress'] != env('GOOGLE_SCREENCAST_FOLDER_OWNER_ID')))
             {
                 $driveService->permissions->delete($fileId, $permission['id']);
             }
@@ -305,6 +306,8 @@ class GoogleDocController extends Controller
     public function createDocumentOnTask(Request $request)
     {
         try {
+            $authUser = Auth::user();
+            
             $data = $this->validate($request, [
                 'doc_type'              => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
                 'doc_name'          => ['required', 'max:800'],
@@ -313,7 +316,7 @@ class GoogleDocController extends Controller
                 'task_type'      => ['required'],
             ]);
     
-            DB::transaction(function () use ($data) {
+            DB::transaction(function () use ($data, $authUser) {
                 $task = null;
                 $class = null;
     
@@ -330,8 +333,14 @@ class GoogleDocController extends Controller
                 $googleDoc->type        = $data['doc_type'];
                 $googleDoc->name        = $data['doc_name'];
                 $googleDoc->category    = $data['doc_category'];
-                $googleDoc->read = "";
-                $googleDoc->write = "";
+
+                if($authUser->isAdmin()) {
+                    $googleDoc->read = null;
+                    $googleDoc->write = null;
+                } else {
+                    $googleDoc->read = $authUser->gmail;
+                    $googleDoc->write = $authUser->gmail;
+                }
                 
                 if(isset($task) && isset($task->id)) {
                     $googleDoc->belongable_type = $class;
@@ -341,11 +350,11 @@ class GoogleDocController extends Controller
                 $googleDoc->save();
                 
                 if ($googleDoc->type === 'spreadsheet') {
-                    CreateGoogleSpreadsheet::dispatch($googleDoc, "anyone");
+                    CreateGoogleSpreadsheet::dispatch($googleDoc);
                 }
     
                 if ($googleDoc->type === 'doc' || $googleDoc->type === 'ppt' || $googleDoc->type === 'txt' || $googleDoc->type === 'xps') {
-                    CreateGoogleDoc::dispatch($googleDoc, "anyone");
+                    CreateGoogleDoc::dispatch($googleDoc);
                 }
             });
     
@@ -368,7 +377,15 @@ class GoogleDocController extends Controller
     {
         try {
             if (isset($request->task_id)) {
-                $googleDoc = GoogleDoc::where("belongable_type", DeveloperTask::class)->where("belongable_id", $request->task_id)->get();
+                $class = "";
+                if($request->task_type == "TASK") {
+                    $class = Task::class;
+                }
+                if($request->task_type == "DEVTASK") {
+                    $class = DeveloperTask::class;
+                }
+                
+                $googleDoc = GoogleDoc::where("belongable_type", $class)->where("belongable_id", $request->task_id)->get();
                 
                 return response()->json([
                     "status" => false,
