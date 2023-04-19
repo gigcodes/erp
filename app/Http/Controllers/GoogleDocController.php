@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\DeveloperTask;
 use App\GoogleDoc;
 use App\User;
 use Auth;
 use App\Jobs\CreateGoogleDoc;
 use App\Jobs\CreateGoogleSpreadsheet;
+use App\Task;
+use Exception;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
@@ -293,5 +296,92 @@ class GoogleDocController extends Controller
         $subject = $request->subject;
         $data = GoogleDoc::where('name', 'LIKE', '%'.$subject.'%')->orderBy('created_at', 'desc')->get();
         return view('googledocs.partials.list-files', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5);
+    }
+    
+
+    /**
+     * create the document on devtask
+     */
+    public function createDocumentOnTask(Request $request)
+    {
+        try {
+            $data = $this->validate($request, [
+                'doc_type'              => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
+                'doc_name'          => ['required', 'max:800'],
+                'doc_category'      => ['required', 'max:191'],
+                'task_id'      => ['required'],
+                'task_type'      => ['required'],
+            ]);
+    
+            DB::transaction(function () use ($data) {
+                $task = null;
+                $class = null;
+    
+                if($data['task_type'] == "DEVTASK") {
+                    $task = DeveloperTask::find($data["task_id"]);
+                    $class = DeveloperTask::class;
+                } 
+                if($data['task_type'] == "TASK") {
+                    $task = Task::find($data["task_id"]);
+                    $class = Task::class;
+                }
+    
+                $googleDoc              = new GoogleDoc();
+                $googleDoc->type        = $data['doc_type'];
+                $googleDoc->name        = $data['doc_name'];
+                $googleDoc->category    = $data['doc_category'];
+                $googleDoc->read = "";
+                $googleDoc->write = "";
+                
+                if(isset($task) && isset($task->id)) {
+                    $googleDoc->belongable_type = $class;
+                    $googleDoc->belongable_id = $task->id;
+                }
+                
+                $googleDoc->save();
+                
+                if ($googleDoc->type === 'spreadsheet') {
+                    CreateGoogleSpreadsheet::dispatch($googleDoc, "anyone");
+                }
+    
+                if ($googleDoc->type === 'doc' || $googleDoc->type === 'ppt' || $googleDoc->type === 'txt' || $googleDoc->type === 'xps') {
+                    CreateGoogleDoc::dispatch($googleDoc, "anyone");
+                }
+            });
+    
+            return response()->json([
+                "status"=> true,
+                "message"=> "Document created successsfuly is Created."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                "status"=> false,
+                "success"=> "Something went wrong!"
+            ]);
+        }
+    }
+
+    /**
+     * This function will list the created google document 
+     */
+    public function listDocumentOnTask(Request $request)
+    {
+        try {
+            if (isset($request->task_id)) {
+                $googleDoc = GoogleDoc::where("belongable_type", DeveloperTask::class)->where("belongable_id", $request->task_id)->get();
+                
+                return response()->json([
+                    "status" => false,
+                    "data" => view("googledocs.task-document", compact('googleDoc'))->render()
+                ]);
+            } else {
+                throw new Exception("Task ID not found");
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                "status" => false,
+                "data" => view("googledocs.task-document")->render()
+            ]);
+        }
     }
 }

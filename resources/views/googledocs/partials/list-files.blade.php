@@ -1,9 +1,21 @@
 {{--{{ dd($data) }}--}}
+@php
+    $enum = [
+        "App\DeveloperTask" => "DEVTASK-",
+    ];
+@endphp
 @foreach ($data as $key => $file)
 <tr>
     <td>{{ ++$i }}</td>
     <td>{{ $file->name }}</td>
     <td>{{ $file->category }}</td>
+    <td>
+        @if (isset($file->belongable_type))
+            {{$enum[$file->belongable_type] ?? ""}}{{$file->belongable_id}}
+        @else
+            -
+        @endif
+    </td>
     <td>{{ $file->created_at }}</td>
     <td>
         @if($file->type === 'spreadsheet')
