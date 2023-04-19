@@ -74,10 +74,17 @@ class ScrapController extends Controller
 
         if ($request->get('pinterest') === 'on') {
             $pinterestData = $this->pinterestScraper->scrapPinterestImages($q, $chip, $noi);
+            if(!is_array($pinterestData)) {
+                // Pinterest data is also coming from google
+                return redirect()->back()->with('error', 'HTML element is changed in Google.');
+            }
         }
 
         if ($request->get('google') === 'on') {
             $googleData = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
+            if(!is_array($googleData)) {
+                return redirect()->back()->with('error', 'HTML element is changed in Google.');
+            }
         }
 
         return view('scrap.extracted_images', compact('googleData', 'pinterestData'));
