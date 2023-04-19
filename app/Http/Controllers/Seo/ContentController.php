@@ -18,13 +18,15 @@ class ContentController extends Controller
 {
     private $route = "seo/content";
     private $view = "seo/content";
+    private $moduleName = "SEO Content";
 
     public function index(Request $request)
     {
         if($request->ajax()) {      
             return $this->getAjaxSeoProcess();
         }
-        return view("{$this->view}/index");
+        $data['moduleName'] = $this->moduleName;
+        return view("{$this->view}/index", $data);
     }
 
     public function create(Request $request)
@@ -35,6 +37,7 @@ class ContentController extends Controller
         $data['storeWebsites'] = StoreWebsite::select('id', 'website')->get();
         $data['seoProcessStatus'] = SeoProcessStatus::all();
         $data['users'] = User::select('id', 'name')->get();
+        $data['moduleName'] = $this->moduleName;
         return  view("$this->route/create", $data);
     }
 
@@ -72,6 +75,7 @@ class ContentController extends Controller
         $data['storeWebsites'] = StoreWebsite::select('id', 'website')->get();
         $data['seoProcessStatus'] = SeoProcessStatus::all();
         $data['users'] = User::select('id', 'name')->get();
+        $data['moduleName'] = $this->moduleName;
         return view("{$this->view}/view", $data);
     }
 
@@ -87,6 +91,7 @@ class ContentController extends Controller
         $data['storeWebsites'] = StoreWebsite::select('id', 'website')->get();
         $data['seoProcessStatus'] = SeoProcessStatus::all();
         $data['users'] = User::select('id', 'name')->get();
+        $data['moduleName'] = $this->moduleName;
         return view("{$this->view}/edit", $data);
     }
 
@@ -169,9 +174,9 @@ class ContentController extends Controller
                 $showUrl = route('seo.content.show', $val->id);
                 $actions = '';
                 if($auth->hasRole(['Admin', 'user'])) {
-                    $actions .= "<a href='{$editUrl}' class='btn btn-warning btn-sm'>Edit</a>";
+                    $actions .= "<a href='{$editUrl}' class='btn btn-secondary btn-sm'>Edit</a>";
                 }
-                $actions .= "<a href='{$showUrl}' class='btn btn-warning btn-sm ml-2'>Show</a>";
+                $actions .= "<a href='{$showUrl}' class='btn btn-secondary btn-sm ml-2'>Show</a>";
                 return $actions;
             })
             ->addColumn('user_id', function($val) {

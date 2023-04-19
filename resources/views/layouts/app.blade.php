@@ -2022,7 +2022,10 @@ if (!empty($notifications)) {
                                     <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre="">SEO<span class="caret">
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
-                                                <li class="nav-item dropdown dropdown-submenu">
+                                                <li class="nav-item dropdown dropdown-submenu">    
+                                                    @if(auth()->user()->hasRole(['Admin', 'user', 'Seo Head']))
+                                                        <a class="dropdown-item" href="{{ route('seo.content.index') }}">Content</a>
+                                                    @endif
                                                     <a class="dropdown-item" href="{{ route('seo.company.index') }}">Company</a>
                                                     <a class="dropdown-item"
                                                         href="{{ action('\App\Http\Controllers\BackLinkController@displayBackLinkDetails') }}">Back
@@ -3167,9 +3170,6 @@ if (!empty($notifications)) {
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('seo.content.index') }}">SEO Content</a>
                             </li>
                             <li class="nav-item dropdown dropdown-submenu">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"

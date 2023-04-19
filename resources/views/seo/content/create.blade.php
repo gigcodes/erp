@@ -1,16 +1,20 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    .card-remove{
+        position:absolute;
+        top:0px;
+        right:0px;
+    }
+</style>
 @php
 $auth = auth()->user();
 @endphp
+<h2 class="page-heading">Add {{ $moduleName }}</h2>
 <div class="container-fluid">
-    <div class="card mt-3">
-        <div class="card-header">
-            <h3 class="text-center">Add SEO Content </h3>
-            <hr>
-        </div>
-        <div class="card-body">
+    <div class="mt-3">
+        <div class="">
             <form action="{{ route('seo.content.store')}}" method="POST" id="seoForm" autocomplete="off"> @csrf
                 <div class="row">
                     <div class="col-md-4">
@@ -30,10 +34,8 @@ $auth = auth()->user();
                     <section class="keywordSec">
                         <div class="col-12 mb-1">
                             <div class="row">
-                                <label class="col form-label">Keywords</label>
-                                <div class="col-2">
-                                    <button type="button" class="badge btn addKeywordBtn">Add Keyword</button>
-                                </div>
+                                <label class="col form-label">Keywords <button type="button" class="badge btn addKeywordBtn"><i class="fa fa-plus" aria-hidden="true"></i>
+                                </button></label>
                             </div>
                         </div>
 
@@ -64,14 +66,17 @@ $auth = auth()->user();
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="card-remove">
+                                            <button type="button" class="mt-1 btn btn-sm kwRmBtn">
+                                                <i class="fa fa-times" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                        <div class="pb-3 px-5">
+                                            <button type="button" class="mt-1 btn btn-secondary btn-sm seoStatusBtn">Seo team status</button>
+                                            <button type="button" class="mt-1 btn btn-secondary btn-sm publishStatusBtn">Publish team status</button>
+                                        </div>
                                     </div>
-                                </td>
-                                <td>
-                                    <button type="button" class="mt-1 btn btn-primary btn-sm seoStatusBtn">Seo team status</button>
-                                    <button type="button" class="mt-1 btn btn-primary btn-sm publishStatusBtn">Publish team status</button>
-                                </td>
-                                <td>
-                                    <button type="button" class="mt-1 btn btn-danger btn-sm kwRmBtn">Remove</button>
+                                    
                                 </td>
                             </tr>
                         </table>
@@ -145,10 +150,10 @@ $auth = auth()->user();
                 </div>
 
                 <hr>
-                <div class="row mt-3">
+                <div class="row mt-3 mb-5">
                     <div class="col-md-12">
-                        <a href="{{ route('seo.content.index') }}" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <a href="{{ route('seo.content.index') }}" class="btn btn-notification">Cancel</a>
+                        <button type="submit" class="btn btn-secondary">Submit</button>
                     </div>
                 </div>
             </form>
@@ -161,7 +166,7 @@ $auth = auth()->user();
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
+                <h5 class="modal-title">Seo team status</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -170,8 +175,8 @@ $auth = auth()->user();
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary btnSave">Save changes</button>
+                <button type="button" class="btn btn-notification" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary btnSave">Save changes</button>
             </div>
         </div>
     </div>
@@ -182,7 +187,7 @@ $auth = auth()->user();
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
+                <h5 class="modal-title">Publish team status</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -200,8 +205,8 @@ $auth = auth()->user();
                 @endforeach
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary btnSave">Save changes</button>
+                <button type="button" class="btn btn-notification" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary btnSave">Save changes</button>
             </div>
         </div>
     </div>

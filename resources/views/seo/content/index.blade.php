@@ -5,19 +5,17 @@
 @php
     $auth = auth()->user();
 @endphp
+<h2 class="page-heading">{{ $moduleName }}</h2>
+
 <div class="container-fluid">
-    <div class="card mt-3">
-        <div class="card-header">
-            <div class="d-flex">
-                <h3 class="text-center col">SEO Content</h3>
-                <div class="mt-5 mr-5">
-                    @if($auth->hasRole(['Admin', 'User']))
-                        <a href="{{route('seo.content.create')}}" class="btn btn-primary">Add new</a>
-                    @endif
-                </div>
-            </div>
-            <hr>
+    <div class="d-flex justify-content-end">
+        <div class="">
+            @if($auth->hasRole(['Admin', 'User']))
+                <a href="{{route('seo.content.create')}}" class="btn btn-secondary">Add new</a>
+            @endif
         </div>
+    </div>
+    <div class="mt-3">
         <div class="card-body">
             <table class="table table-bordered" id="seoProcessTbl">
                 <thead>
