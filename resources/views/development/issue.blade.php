@@ -89,7 +89,7 @@ $priorities = [
 '3' => 'Normal'
 ];
 @endphp
-<div id="myDiv">
+<div id="myDiv" style="z-index: 999999">
     <img id="loading-image" src="/images/pre-loader.gif" style="display:none;">
 </div>
 <div class="row mb-4">
@@ -1634,17 +1634,115 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         $('#user_history_modal').modal('show');
     });
     function fetchGoogleDriveFileData(task_id) {
-			if(task_id == ''){
-				$('#googleDriveFileData').html('<tr><td>No Data Found.</td></tr>');
-				$('#driveFiles').modal('show');
-				return;
-			} else{
-				$.get(window.location.origin+"/google-drive-screencast/task-files/"+task_id, function(data, status){
-					$('#googleDriveFileData').html(data);
-					$('#driveFiles').modal('show');
-				});
-			}
-		}
+        if(task_id == ''){
+            $('#googleDriveFileData').html('<tr><td>No Data Found.</td></tr>');
+            $('#driveFiles').modal('show');
+            return;
+        } else{
+            $.get(window.location.origin+"/google-drive-screencast/task-files/"+task_id, function(data, status){
+                $('#googleDriveFileData').html(data);
+                $('#driveFiles').modal('show');
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        $(document).on('click', ".create-task-document", function () {
+            let task_id = $(this).data('id');
+            if(task_id != "") {
+                $("#task_id").val($(this).data('id'));
+                $("#taskGoogleDocModal").modal('show');
+            } else {
+                toastr["error"]("Task id not found.");
+            }
+        });
+        $(document).on('click', ".show-created-task-document", function () {
+            let task_id = $(this).data('id');
+            if(task_id != "") {
+                $.ajax({
+                    type: "GET",
+                    url: "{{route('google-docs.task.show')}}",
+                    data: {
+                        task_id,
+                        task_type: "DEVTASK"
+                    },
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                        // $("#btnCreateTaskDocument").attr('disabled', true)
+                    },
+                    success: function (response) {
+                        $("#loading-image").hide();
+                        $("#taskGoogleDocListModal tbody").html(response.data);
+                        $("#taskGoogleDocListModal").modal('show');
+                    },
+                    error: function(response) {
+                        toastr["error"]("Something went wrong!");
+                        $("#loading-image").hide();
+                    }
+                });
+            } else {
+                toastr["error"]("Task id not found.");
+            }
+        });
+        
+        $(document).on('click', "#btnCreateTaskDocument", function () {
+            let doc_type = $("#doc-type").val();
+            let doc_name = $("#doc-name").val();
+            let doc_category = $("#doc-category").val();
+            let task_id = $("#task_id").val();
+            
+            if(doc_type.trim() == "") {
+                toastr["error"]("Select document type.");
+                return
+            }
+            if(doc_name.trim() == "") {
+                toastr["error"]("Insert document name.");
+                return
+            }
+            if(doc_category.trim() == "") {
+                toastr["error"]("Insert document category.");
+                return
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "{{route('google-docs.task')}}",
+                data: {
+                    _token: "{{csrf_token()}}",
+                    doc_category,
+                    doc_type,
+                    doc_name,
+                    task_id,
+                    task_type: "DEVTASK"
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                    $("#btnCreateTaskDocument").attr('disabled', true)
+                },
+                success: function (response) {
+                    if(response.status == true) {
+                        toastr["success"](response.message);
+                    } else {
+                        toastr["error"](response.message);
+                    }
+                    $("#loading-image").hide();
+                    $("#btnCreateTaskDocument").removeAttr('disabled')
+                    $("#taskGoogleDocModal").modal('hide');
+                    $("#doc-type").val(null);
+                    $("#doc-name").val(null);
+                    $("#doc-category").val(null);
+                    $("#task_id").val(null);
+                },
+                error: function(response) {
+                    toastr["error"]("Something went wrong!");
+                    $("#loading-image").hide();
+                    $("#btnCreateTaskDocument").removeAttr('disabled')
+                }
+            });
+
+        });
+
+    });
 </script>
 @endsection
 @push('scripts')

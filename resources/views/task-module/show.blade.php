@@ -1059,6 +1059,13 @@
                                                     <button class="btn btn-image expand-row-btn-lead" data-task_id="{{ $task->id }}"><img src="/images/forward.png"></button>
                                                     <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>
 
+                                                    <button class="btn btn-image mt-2 create-task-document" title="Create document" data-id="{{$task->id}}">
+                                                        <i class="fa fa-file-text" aria-hidden="true"></i>
+                                                    </button>
+                                                    <button class="btn btn-image mt-2 show-created-task-document" title="Show created document" data-id="{{$task->id}}">
+                                                        <i class="fa fa-list" aria-hidden="true"></i>
+                                                    </button>
+
                                                 </div>
                                             </div>
                                         </td>
@@ -1519,6 +1526,81 @@
             </div>
             </form>
         </div>
+    </div>
+</div>
+<div id="taskGoogleDocModal" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Google Doc</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+
+            <form action="{{route('google-docs.task')}}" method="POST">
+                {{ csrf_field() }}
+                <input type="hidden" id="task_id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Document type:</strong>
+
+                        <select class="form-control" name="type" required id="doc-type">
+                            <option value="spreadsheet">Spreadsheet</option>
+                            <option value="doc">Doc</option>
+                            <option value="ppt">Ppt</option>
+                            <option value="xps">Xps</option>
+                            <option value="txt">Txt</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Name:</strong>
+                        <input type="text" name="doc_name" value="" class="form-control input-sm" placeholder="Document Name" required id="doc-name">
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Category:</strong>
+                        <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category">
+                    </div>
+                   
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" id="btnCreateTaskDocument">Create</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+<div id="taskGoogleDocListModal" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Google Documents list</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="5%">File Name</th>
+                        <th width="5%">Created Date</th>
+                        <th width="10%">URL</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -3605,5 +3687,104 @@
                 });
             }
         }
+
+
+        $(document).ready(function () {
+            $(document).on('click', ".create-task-document", function () {
+                let task_id = $(this).data('id');
+                if(task_id != "") {
+                    $("#task_id").val($(this).data('id'));
+                    $("#taskGoogleDocModal").modal('show');
+                } else {
+                    toastr["error"]("Task id not found.");
+                }
+            });
+
+            $(document).on('click', ".show-created-task-document", function () {
+                let task_id = $(this).data('id');
+                if(task_id != "") {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{route('google-docs.task.show')}}",
+                        data: {
+                            task_id,
+                            task_type: "TASK"
+                        },
+                        beforeSend: function() {
+                            $("#loading-image").show();
+                            // $("#btnCreateTaskDocument").attr('disabled', true)
+                        },
+                        success: function (response) {
+                            $("#loading-image").hide();
+                            $("#taskGoogleDocListModal tbody").html(response.data);
+                            $("#taskGoogleDocListModal").modal('show');
+                        },
+                        error: function(response) {
+                            toastr["error"]("Something went wrong!");
+                            $("#loading-image").hide();
+                        }
+                    });
+                } else {
+                    toastr["error"]("Task id not found.");
+                }
+            });
+            
+            $(document).on('click', "#btnCreateTaskDocument", function () {
+                let doc_type = $("#doc-type").val();
+                let doc_name = $("#doc-name").val();
+                let doc_category = $("#doc-category").val();
+                let task_id = $("#task_id").val();
+                
+                if(doc_type.trim() == "") {
+                    toastr["error"]("Select document type.");
+                    return
+                }
+                if(doc_name.trim() == "") {
+                    toastr["error"]("Insert document name.");
+                    return
+                }
+                if(doc_category.trim() == "") {
+                    toastr["error"]("Insert document category.");
+                    return
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{route('google-docs.task')}}",
+                    data: {
+                        _token: "{{csrf_token()}}",
+                        doc_category,
+                        doc_type,
+                        doc_name,
+                        task_id,
+                        task_type: "TASK"
+                    },
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                        $("#btnCreateTaskDocument").attr('disabled', true)
+                    },
+                    success: function (response) {
+                        if(response.status == true) {
+                            toastr["success"](response.message);
+                        } else {
+                            toastr["error"](response.message);
+                        }
+                        $("#loading-image").hide();
+                        $("#btnCreateTaskDocument").removeAttr('disabled')
+                        $("#taskGoogleDocModal").modal('hide');
+                        $("#doc-type").val(null);
+                        $("#doc-name").val(null);
+                        $("#doc-category").val(null);
+                        $("#task_id").val(null);
+                    },
+                    error: function(response) {
+                        toastr["error"]("Something went wrong!");
+                        $("#loading-image").hide();
+                        $("#btnCreateTaskDocument").removeAttr('disabled')
+                    }
+                });
+
+            });
+        });
     </script>
 @endsection
