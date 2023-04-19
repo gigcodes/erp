@@ -567,10 +567,8 @@ class googleAddsController extends Controller
             try {
                 if ($request->location) {
                     return $result = self::runExample($googleAdsClient, $request->viewType ? $request->viewType : self::VIEW_TYPE,self::CUSTOMER_ID, [$request->location], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
-                } elseif ($request->viewType){
-                    return $result = self::runExample($googleAdsClient, $request->viewType, self::CUSTOMER_ID, [], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
                 } else {
-                    return $result = self::runExample($googleAdsClient, self::VIEW_TYPE,self::CUSTOMER_ID, [], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
+                    return $result = self::runExample($googleAdsClient, $request->viewType ? $request->viewType : self::VIEW_TYPE,self::CUSTOMER_ID, [], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
                 }
             } catch (ApiException $apiException) {
                 printf(

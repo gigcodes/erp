@@ -248,7 +248,7 @@
 
 <div class="row">
     <div class="col-xs-12">
-        <form class="form-search-data">
+        <form class="form-search-data" id="search_keyword_form">
             <input type="hidden" name="daily_activity_date" value="">
             <input type="hidden" name="type" id="tasktype" value="pending">
             <div class="row">
@@ -439,13 +439,18 @@ else
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
     <script>
         $(document).ready(function () {
+            $('#search_keyword_form').submit(e => e.preventDefault());
             var keywordSearch = null;
             $(document).on('click', '#keyword_search_btn', function () {
-                $("#keyword_search_btn").append('<i class="fa fa-spinner ml-3"></i>');
-                $("#keyword_search_btn").attr("disabled", 'disabled');
+
+                $(this).append('<i class="fa fa-spinner ml-3"></i>');
+                $(this).attr("disabled", 'disabled');
+
                 if ($('#keyword_search').val() == '' || $('#keyword_search').val() == null) {
                     // error
                     toastr['error']('Keyword not be empty!!', 'Error');
+                    $(this).find(".fa-spinner").remove();
+                    $(this).removeAttr("disabled");
                     return false;
                 } else {
                     /*  var networkCheck = true;
@@ -484,7 +489,7 @@ else
                         beforeSend: function () {
                             if (keywordSearch != null) {
                                 keywordSearch.abort();
-                                $("#keyword_search_btn").find(".fa-spinner").remove();
+                                // $("#keyword_search_btn").find(".fa-spinner").remove();
                             }
                         },
                         success: function (response) {
@@ -501,9 +506,9 @@ else
 
                                     $.each(keyword_arr, function (index_key, value) {
                                         tableData += `<tr onclick="openSubDiv(${index_key})" style="cursor: pointer">
-                                                    <i class="down-icon fa fa-angle-down" aria-hidden="true" id="angle-up-${index_key}"></i>
-                                                        <td colspan="5">${value}(${response[value].length})
-                                                    </td>
+                                                    <td colspan="5" style="text-transform: capitalize">
+                                                        <i class="down-icon fa fa-angle-down" aria-hidden="true" id="angle-change-${index_key}"></i>
+                                                        ${value} (${response[value].length})</td>
                                                 </tr>
                                     <tr class="sub-table-div-class hidden" id="sub-table-div-${index_key}" >
                                     <td colspan="5" style="padding: 15px">
@@ -532,6 +537,7 @@ else
                                     </tr>`;
                                     });
                                 } else {
+                                    $('#keyword_table_header').show();
                                     $.each(response, function (index, data) {
                                         tableData += `<tr>
                                     <td>${data.keyword}</td>
@@ -552,6 +558,7 @@ else
                             // $('#priority_model').modal('hide');
                         },
                         error: function (response) {
+                            $("#keyword_search_btn").find(".fa-spinner").remove();
                             toastr['error'](response.message, 'Error');
                         }
                     });
