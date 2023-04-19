@@ -64,7 +64,7 @@ class GoogleAdsAccountController extends Controller
         $store_website = \App\StoreWebsite::all();
         $totalentries = $googleadsaccount->count();
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Google AdWords Account',
@@ -79,7 +79,7 @@ class GoogleAdsAccountController extends Controller
     {
         $store_website = \App\StoreWebsite::all();
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Google AdWords Account',
@@ -110,6 +110,7 @@ class GoogleAdsAccountController extends Controller
             'oauth2_client_secret' => 'required',
             'oauth2_refresh_token' => 'required',
             'google_map_api_key' => 'required',
+            'google_merchant_center_account_id' => 'required|integer',
         ]);
 
         try {
@@ -130,7 +131,7 @@ class GoogleAdsAccountController extends Controller
                 $googleadsAc->save();
             }*/
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Google AdWords Account',
@@ -142,7 +143,7 @@ class GoogleAdsAccountController extends Controller
             return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account details added successfully');
         } catch (Exception $e) {
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Google AdWords Account',
@@ -159,7 +160,7 @@ class GoogleAdsAccountController extends Controller
         $store_website = \App\StoreWebsite::all();
         $googleAdsAc = \App\GoogleAdsAccount::findOrFail($id);
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Google AdWords Account',
@@ -189,17 +190,18 @@ class GoogleAdsAccountController extends Controller
             'oauth2_client_secret' => 'required',
             'oauth2_refresh_token' => 'required',
             'google_map_api_key' => 'required',
+            'google_merchant_center_account_id' => 'required|integer',
         ]);
 
         try {
             $input = $request->all();
             $googleadsAcQuery = new \App\GoogleAdsAccount;
             $googleadsAc = $googleadsAcQuery->find($account_id);
-            
+
             /*if ($request->file('config_file_path')) {
 
                 ini_set('max_execution_time', -1);
-                
+
                 //find old one
                 if (isset($googleadsAc->config_file_path) && $googleadsAc->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id.'/'.$googleadsAc->config_file_path)) {
                     \Storage::disk('adsapi')->delete($account_id.'/'.$googleadsAc->config_file_path);
@@ -213,7 +215,7 @@ class GoogleAdsAccountController extends Controller
             $googleadsAc->fill($input);
             $googleadsAc->save();
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Google AdWords Account',
@@ -223,9 +225,9 @@ class GoogleAdsAccountController extends Controller
             insertGoogleAdsLog($input);
 
             return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account details updated successfully');
-            
+
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Google AdWords Account',
@@ -335,7 +337,7 @@ class GoogleAdsAccountController extends Controller
             return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
         }
     }
-    
+
     public function deleteGoogleAdsAccount($id)
     {
         $googleAdsAc = \App\GoogleAdsAccount::findOrFail($id);
@@ -365,11 +367,11 @@ class GoogleAdsAccountController extends Controller
                     // Issues a mutate request to remove the campaign.
                     $campaignServiceClient = $googleAdsClient->getCampaignServiceClient();
                     $response = $campaignServiceClient->mutateCampaigns($customerId, [$campaignOperation]);
-                    
+
                 } catch (Exception $e) {
-                    
+
                 }
-                
+
                 // Delete other data
                 GoogleAdGroupKeyword::where('adgroup_google_campaign_id', $campaignId)->delete();
                 GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->delete();
@@ -383,7 +385,7 @@ class GoogleAdsAccountController extends Controller
                 $campaign->delete();
             }
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Google AdWords Account',
@@ -397,7 +399,7 @@ class GoogleAdsAccountController extends Controller
             return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account deleted successfully');
 
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Google AdWords Account',

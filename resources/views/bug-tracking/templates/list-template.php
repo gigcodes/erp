@@ -53,13 +53,12 @@
 			        <td class='break'>{{:prop.expected_result}}</td>
 
 			        <td class='break expand-row-msg' data-name="url" data-id="{{:prop.id}}">
-			            <a href="{{:prop.url}}" target="_blank">
-			                <span href="" class="show-short-url-{{:prop.id}}">{{:prop.url_short}}</span>
-                            <span href="" class="show-full-url-{{:prop.id}} hidden" >{{:prop.url}}</span>
-                        </a>
-
-                        <button type="button"  class="btn btn-copy-url btn-sm" data-id="{{:prop.url}}" >
-                            <i class="fa fa-clone" aria-hidden="true"></i></button>
+						<button class="btn btn-sm upload-bugs-files-button" type="button" title="Uploaded Files" data-bug_id="{{:prop.id}}">
+							<i class="fa fa-cloud-upload" aria-hidden="true"></i>
+						</button>
+						<button class="btn btn-sm view-bugs-files-button" type="button" title="View Uploaded Files" data-bug_id="{{:prop.id}}">
+							<img src="/images/google-drive.png" style="cursor: nwse-resize; width: 12px;">
+						</button>
                      </td>
                      <td class='break'>{{:prop.created_by}}</td>
 

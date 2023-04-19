@@ -123,6 +123,7 @@ class AssetsManagerController extends Controller
      */
     public function store(Request $request)
     {
+
         $this->validate($request, [
             'name' => 'required',
             'link' => 'required',
@@ -163,8 +164,9 @@ class AssetsManagerController extends Controller
         $data['asset_plate_form_id'] = $request->asset_plate_form_id;
         $data['email_address_id'] = $request->email_address_id;
         $data['whatsapp_config_id'] = $request->whatsapp_config_id;
-        $data['link'] = $request->get('link');
         $data['created_by'] = Auth::user()->id;
+        $data['link'] = $request->get('link');
+        $data['ip'] = $request->get('ip');
         $insertData = AssetsManager::create($data);
         if ($request->input('payment_cycle') == 'One time') {
             //create entry in table cash_flows
