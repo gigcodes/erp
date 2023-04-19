@@ -180,7 +180,7 @@ class WebNotificationController extends Controller
 
     public static function sendBulkNotification($userId, $title, $body)
     {
-
+        $url = 'https://fcm.googleapis.com/fcm/send';
         $FcmToken = NotificationToken::whereNotNull('device_token')->where('user_id', $userId)->pluck('device_token')->all();
         $serverKey = env('FCM_SECRET_KEY');
         $data = [
