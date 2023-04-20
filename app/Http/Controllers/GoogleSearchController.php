@@ -45,25 +45,25 @@ class GoogleSearchController extends Controller
         if ($request->term || $request->priority) {
             if ($request->term != null && $request->priority == 'on') {
                 $keywords = HashTag::query()
-                                ->where('priority', '1')
-                                ->where('platforms_id', $this->platformsId)
-                                ->where('hashtag', 'LIKE', "%{$request->term}%")
-                                ->orderBy($sortBy, $orderBy)
-                                ->paginate(Setting::get('pagination'));
+                    ->where('priority', '1')
+                    ->where('platforms_id', $this->platformsId)
+                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->orderBy($sortBy, $orderBy)
+                    ->paginate(Setting::get('pagination'));
 
-                $queryString = 'term='.$request->term.'&priority='.$request->priority.'&';
+                $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
             } elseif ($request->priority == 'on') {
                 $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
 
-                $queryString = 'priority='.$request->priority.'&';
+                $queryString = 'priority=' . $request->priority . '&';
             } elseif ($request->term != null) {
                 $keywords = HashTag::query()
-                                ->where('hashtag', 'LIKE', "%{$request->term}%")
-                                ->where('platforms_id', $this->platformsId)
-                                ->orderBy($sortBy, $orderBy)
-                                ->paginate(Setting::get('pagination'));
+                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->where('platforms_id', $this->platformsId)
+                    ->orderBy($sortBy, $orderBy)
+                    ->paginate(Setting::get('pagination'));
 
-                $queryString = 'term='.$request->term.'&';
+                $queryString = 'term=' . $request->term . '&';
             }
         } else {
             $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
@@ -75,7 +75,7 @@ class GoogleSearchController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      *
      * Create a new hashtag entry
@@ -98,7 +98,7 @@ class GoogleSearchController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -109,7 +109,7 @@ class GoogleSearchController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -127,7 +127,7 @@ class GoogleSearchController extends Controller
     /**
      * function to set priority for keywords
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return json response with status
      */
     public function markPriority(Request $request)
@@ -216,83 +216,81 @@ class GoogleSearchController extends Controller
      *    "URL": "http://www.searchedweb2.com" }
      * ]
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return json response status
      */
-//    public function apiPost(Request $request)
-//    {
-//        // Get raw body
-//        $payLoad = $request->all();
-//
-//        $payLoad = json_decode(json_encode($payLoad), true);
-//
-//        // Process input
-//        if (count($payLoad) == 0) {
-//            return response()->json([
-//                'error' => 'Invalid json'
-//            ], 400);
-//        }
-//        else {
-//            $postedData = $payLoad['json'];
-//            // Loop over posts
-//            foreach ($postedData as $postJson) {
-//                // Set tag
-//                $tag = $postJson[ 'searchKeyword' ];
-//
-//                // Get hashtag ID
-//                //$hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
-//
-//                $keywords = HashTag::query()
-//                                ->where('hashtag', 'LIKE', $tag)
-//                                ->where('platforms_id', $this->platformsId)->first();
-//
-//                if (is_null($keywords)){
-//                    //keyword not in DB. For now skip this...
-//                }
-//                else {
-//                    // Retrieve instagram post or initiate new
-//                    $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
-//
-//                    $instagramPost->hashtag_id = $keywords->id;
-//                    $instagramPost->caption = $postJson[ 'description' ];
-//                    $instagramPost->posted_at = ($postJson[ 'crawledAt' ]) ? date('Y-m-d H:i:s', strtotime($postJson[ 'crawledAt' ])) : date('Y-m-d H:i:s');
-//                    $instagramPost->media_type = 'other';
-//                    $instagramPost->media_url = $postJson[ 'URL' ];
-//                    $instagramPost->source = 'google';
-//                    $instagramPost->save();
-//                }
-//            }
-//        }
-//
-//        // Return
-//        return response()->json([
-//            'ok'
-//        ], 200);
-//    }
+    public function apiPost(Request $request)
+    {
+        // Get raw body
+        $payLoad = $request->all();
+
+        $payLoad = json_decode(json_encode($payLoad), true);
+
+        // Process input
+        if (count($payLoad) == 0) {
+            return response()->json([
+                'error' => 'Invalid json'
+            ], 400);
+        } else {
+            $postedData = $payLoad['json'];
+            // Loop over posts
+            foreach ($postedData as $postJson) {
+                // Set tag
+                $tag = $postJson['searchKeyword'];
+
+                // Get hashtag ID
+                //$hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
+
+                $keywords = HashTag::query()
+                    ->where('hashtag', 'LIKE', $tag)
+                    ->where('platforms_id', $this->platformsId)->first();
+
+                if (is_null($keywords)) {
+                    //keyword not in DB. For now skip this...
+                } else {
+                    // Retrieve instagram post or initiate new
+                    $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson['URL']]);
+
+                    $instagramPost->hashtag_id = $keywords->id;
+                    $instagramPost->caption = $postJson['description'];
+                    $instagramPost->posted_at = ($postJson['crawledAt']) ? date('Y-m-d H:i:s', strtotime($postJson['crawledAt'])) : date('Y-m-d H:i:s');
+                    $instagramPost->media_type = 'other';
+                    $instagramPost->media_url = $postJson['URL'];
+                    $instagramPost->source = 'google';
+                    $instagramPost->save();
+                }
+            }
+        }
+
+        // Return
+        return response()->json([
+            'ok'
+        ], 200);
+    }
 
     /**
      * function to get google search results
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return data to view
      */
     public function searchResults(Request $request)
     {
         $queryString = '';
         $orderBy = 'DESC';
-        if (! empty($request->hashtag)) {
-            $queryString .= 'hashtag='.$request->hashtag.'&';
+        if (!empty($request->hashtag)) {
+            $queryString .= 'hashtag=' . $request->hashtag . '&';
         }
-        if (! empty($request->location)) {
-            $queryString .= 'location='.$request->location.'&';
+        if (!empty($request->location)) {
+            $queryString .= 'location=' . $request->location . '&';
         }
-        if (! empty($request->post)) {
-            $queryString .= 'post='.$request->post.'&';
+        if (!empty($request->post)) {
+            $queryString .= 'post=' . $request->post . '&';
         }
-        if (! empty($request->date)) {
-            $queryString .= 'date='.$request->date.'&';
+        if (!empty($request->date)) {
+            $queryString .= 'date=' . $request->date . '&';
         }
-        if (! empty($request->orderby)) {
+        if (!empty($request->orderby)) {
             $orderBy = $request->orderby;
         }
 
@@ -306,7 +304,7 @@ class GoogleSearchController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('google.search.row_results', compact('posts'))->render(),
-                'links' => (string) $posts->appends($request->all())->render(),
+                'links' => (string)$posts->appends($request->all())->render(),
             ], 200);
         }
 
@@ -317,17 +315,18 @@ class GoogleSearchController extends Controller
     /**
      * function to get google search results
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array of search results
      */
-    private function getFilteredGoogleSearchResults(Request $request) {
+    private function getFilteredGoogleSearchResults(Request $request)
+    {
         $sortBy = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
         $orderBy = ($request->input('orderby') == '') ? 'DESC' : $request->input('orderby');
 
         // Base query
         $instagramPosts = InstagramPosts::orderBy($sortBy, $orderBy)
             ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
-            ->select(['instagram_posts.*','hash_tags.hashtag']);
+            ->select(['instagram_posts.*', 'hash_tags.hashtag']);
 
         //Pick google search result from DB
         $instagramPosts->where('source', '=', 'google');
@@ -359,15 +358,14 @@ class GoogleSearchController extends Controller
     /**
      * function to call google scraper
      *
-     * @param  \Illuminate\Http\Request  $request, id of keyword to scrap
-     * @return success, failure
+     * @param \Illuminate\Http\Request $request , id of keyword to scrap
+     * @return \Illuminate\Http\JsonResponse, failure
      */
     public function callScraper(Request $request)
     {
         $id = $request->input('id');
 
         $searchKeywords = HashTag::where('id', $id)->get(['hashtag', 'id']);
-
         if (is_null($searchKeywords)) {
             // Return
             return response()->json([
@@ -381,25 +379,31 @@ class GoogleSearchController extends Controller
             // call this endpoint - /api/googleSearch
             $curl = curl_init();
             curl_setopt_array($curl, [
-                CURLOPT_URL => env('NODE_SCRAPER_SERVER').'api/googleSearch',
+                CURLOPT_URL => env('NODE_SCRAPER_SERVER') . 'api/googleSearch',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
+                CURLOPT_TIMEOUT => 50,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_HTTPHEADER => [
                     'Content-Type: application/json',
                 ],
-                CURLOPT_POSTFIELDS => "$postData",
+                CURLOPT_POSTFIELDS => $postData,
             ]);
             $response = curl_exec($curl);
             $err = curl_error($curl);
             curl_close($curl);
 
-            // Return
-            // return response()->json($postData, 200);
-            return response()->json(['success - scrapping initiated'], 200);
+            $result = null;
+            if(!empty($response)) {
+                $result = json_decode($response);
+            }
+            if (empty($err) && !empty($result) && $result->error) {
+                $err = $result->message;
+            }
+
+            return response()->json(['data' => $result, 'error' => $err], 200);
         }
     }
 
