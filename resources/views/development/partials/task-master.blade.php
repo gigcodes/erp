@@ -39,4 +39,79 @@
         <?php } ?>
     <?php } ?>
 </table>
+<div id="taskGoogleDocModal" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Google Doc</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+
+            <form action="{{route('google-docs.task')}}" method="POST">
+                {{ csrf_field() }}
+                <input type="hidden" id="task_id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Document type:</strong>
+
+                        <select class="form-control" name="type" required id="doc-type">
+                            <option value="spreadsheet">Spreadsheet</option>
+                            <option value="doc">Doc</option>
+                            <option value="ppt">Ppt</option>
+                            <option value="xps">Xps</option>
+                            <option value="txt">Txt</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Name:</strong>
+                        <input type="text" name="doc_name" value="" class="form-control input-sm" placeholder="Document Name" required id="doc-name">
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Category:</strong>
+                        <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category">
+                    </div>
+                   
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" id="btnCreateTaskDocument">Create</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+<div id="taskGoogleDocListModal" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Google Documents list</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="5%">File Name</th>
+                        <th width="5%">Created Date</th>
+                        <th width="10%">URL</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
 </div>

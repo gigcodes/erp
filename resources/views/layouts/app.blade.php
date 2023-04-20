@@ -2024,6 +2024,7 @@ if (!empty($notifications)) {
                                         aria-haspopup="true" aria-expanded="false" v-pre="">SEO<span class="caret">
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
                                                 <li class="nav-item dropdown dropdown-submenu">
+                                                    <a class="dropdown-item" href="{{ route('seo.company.index') }}">Company</a>
                                                     <a class="dropdown-item"
                                                         href="{{ action('\App\Http\Controllers\BackLinkController@displayBackLinkDetails') }}">Back
                                                         Link Details</a>
@@ -2050,6 +2051,7 @@ if (!empty($notifications)) {
                                                         Planner</a>
                                                     <a class="dropdown-item" href="{{ route('seo-tool') }}">Semrush
                                                         details</a>
+                                                    <a class="dropdown-item" href="{{ route('seo.company.index') }}">SEO Company</a>
                                                 </li>
                                             </ul>
                                 </li>
@@ -2287,6 +2289,19 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
                                             <a class="dropdown-item" href="/instagram/direct-message">Media</a>
                                             <a class="dropdown-item" href="/instagram/direct">Direct</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>Youtube<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/youtube/add-chanel">Create Chanel</a>
+                                          
+                                            
                                         </li>
                                     </ul>
                                 </li>
