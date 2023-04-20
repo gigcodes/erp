@@ -110,6 +110,11 @@ class Order extends Model
         return $this->hasMany(OrderProduct::class, 'order_id', 'id')->where('product_id', '!=', 0);
     }
 
+    public function orderStatusHistories()
+    {
+        return $this->hasMany(OrderStatusHistory::class, 'order_id', 'id');
+    }
+
     public function products()
     {
         return $this->belongsToMany(Product::class, OrderProduct::class, 'user_id', 'role_id');
