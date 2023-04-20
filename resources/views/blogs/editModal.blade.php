@@ -1,43 +1,10 @@
-@extends('layouts.app')
-@section('title', __('Update Blog'))
-@section('styles')
-@section("styles")
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-  <link rel="stylesheet" type="text/css" href="{{ asset('css/fm-tagator.css') }}">
-    <style>
-		
-		#wrapper {
-			padding: 15px;
-      margin:100px auto;
-      max-width:728px;
-		}
-		#input_tagator1 {
-			width: 300px;
-		}
-		#activate_tagator2 {
-			width: 300px;
-		}
-	</style>
-@endsection
-@endsection
-@section('scripts')
-{{--  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>  --}}
- <script type="text/javascript" src="{{ asset('js/fm-tagator.js') }}"></script>
 
-@endsection
-@section('content')
-@php
-    $auth = auth()->user();
-@endphp
 
-<div class="container-fluid">
-    <div class="card mt-3">
-        <div class="card-header">
-            <h3 class="text-center">Update Blog</h3>
-            <hr>
-        </div>
-        <div class="card-body">
-            <form action="{{ route('update-blog.submit', $blog->id) }}" method="POST" id="addBlog" autocomplete="off">
+  <script type="text/javascript" src="{{ asset('js/fm-tagator.js') }}"></script>
+    
+ 
+
+            <form action="{{ route('update-blog.submit', $blog->id) }}" method="POST" id="EditBlog" autocomplete="off">
             @csrf
             <input type="hidden" value="{{$blog->id}}" name='id'>
                 <div class="row">
@@ -80,7 +47,7 @@
                      <div class="col-md-4">
                         <label class="form-label">Content</label>
                         <br>
-                        <textarea  name="content" rows="4" cols="50">{{$blog->content}}</textarea>
+                        <textarea  name="content" rows="4" cols="25">{{$blog->content}}</textarea>
                     </div>
 
                     <div class="col-md-4">
@@ -125,7 +92,7 @@
                     <div class="col-md-4">
                         <label class="form-label">Title tag</label>
                         <br>
-                        <input id="activate_tagator2" type="text" name="title_tag" class="tagator" value="{{$titleTagEditValue}}" data-tagator-show-all-options-on-focus="true">
+                        <input id="edit_activate_tagator2" type="text" name="title_tag" class="tagator" value="{{$titleTagEditValue}}" data-tagator-show-all-options-on-focus="true">
                     </div>
 
                     <div class="col-md-4">
@@ -151,14 +118,14 @@
                     <div class="col-md-4">
                        <label class="form-label">Header tag</label>
                         <br>
-                        <input id="activate_tagator2" name="header_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true">
+                        <input id="edit_activate_tagator2" name="header_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true">
                     
                     </div>
 
                        <div class="col-md-4">
                        <label class="form-label">Italic Tag</label>
                         <br>
-                       <input id="activate_tagator2" name="italic_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true">
+                       <input id="edit_activate_tagator2" name="italic_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true">
                     
                     </div>
                     
@@ -177,7 +144,7 @@
                     <div class="col-md-4">
                        <label class="form-label">Strong Tag</label>
                         <br>
-                       <input id="activate_tagator2" name="strong_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true" >
+                       <input id="edit_activate_tagator2" name="strong_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true" >
                     
                     </div>
 
@@ -211,20 +178,17 @@
                          
                             
                             <div class="col-md-4">
-                            <button type="button" data-toggle="modal" data-target="#socialShare" class="btn btn-primary">Social Share</button>
-                            <button type="button" data-toggle="modal" data-target="#google_bingo" class="btn btn-primary">Google And Bing</button>
+                            <button type="button" data-toggle="modal" data-target="#EditsocialShare" class="btn btn-primary">Social Share</button>
+                            <button type="button" data-toggle="modal" data-target="#edit_google_bingo" class="btn btn-primary">Google And Bing</button>
                             </div>
                             <div class='col-md-4'>
                                     <label class="form-label">Publish Blog Date</label>
-                                    <div class='input-group date' id='blog-datetime'>
-                                            <input type='text' class="form-control" name="publish_blog_date" value="{{$blog->publish_blog_date}}" />
-                                            <span class="input-group-addon">
-                                            <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
-                                            
+                                    <div class='input-group date' id='edit-blog-datetime'>
+                                            <input type='date' class="form-control" name="publish_blog_date" value="{{ date('Y-m-d', strtotime($blog->publish_blog_date)) }}" />
+                                           
 
                                     </div>
-                                     @error('publish_blog_date')
+                                            @error('publish_blog_date')
                                             <div class="alert text-danger">{{ $message }}</div>
                                             @enderror
                             </div>
@@ -254,7 +218,7 @@
 
                             <div class='col-md-4'>
                                     <label class="form-label">Date</label>
-                                    <div class='input-group date' id='date'>
+                                    <div class='input-group date' id='edit_date'>
                                             <input type='text' class="form-control" name="date" value="{{$blog->date}}" />
                                             <span class="input-group-addon">
                                             <span class="glyphicon glyphicon-calendar"></span>
@@ -268,14 +232,14 @@
                 <hr>
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="pull-right btn btn-success btn-rounded btn-lg">Update Blog</button>
                         {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
                     </div>
                 </div>
 
                 <!-- Social Share -->
-                <div class="modal fade" id="socialShare" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
+                <div class="modal fade" id="EditsocialShare" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -292,7 +256,7 @@
                                     <input type='text' name="facebook"  class="form-control" value="{{$blog->facebook}}" />
                                 </div>
                                  <div class="col-md-5">
-                                     <div class='input-group date' id='facebook_date'>
+                                     <div class='input-group date' id='edit_facebook_date'>
                                     <input type='text' class="form-control" name="facebook_date" value="{{$blog->facebook_date}}" />
                                     <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
@@ -312,7 +276,7 @@
                                     <input type='text' name="instagram" class="form-control" value="{{$blog->instagram}}" />
                                 </div>
                                  <div class="col-md-5">
-                                     <div class='input-group date' id='instagram_date'>
+                                     <div class='input-group date' id='edit_instagram_date'>
                                     <input type='text' class="form-control" name="instagram_date" value="{{$blog->instagram_date}}" />
                                     <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
@@ -332,7 +296,7 @@
                                     <input type='text' name="twitter" class="form-control" value="{{$blog->twitter}}" />
                                 </div>
                                  <div class="col-md-5">
-                                     <div class='input-group date' id='twitter_date'>
+                                     <div class='input-group date' id='edit_twitter_date'>
                                     <input type='text' class="form-control" name="twitter_date" value="{{$blog->twitter_date}}" />
                                     <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
@@ -345,8 +309,8 @@
                     </div>       
             </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" onclick=socialShareClick() data-dismiss="modal">Add</button>
+                        <button type="button" class="btn btn-secondary" id="EditSharemodalClose">Close</button>
+                        <button type="button" class="btn btn-success" id="EditSharemodalClose" >Add</button>
                         {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
                     </div>
                 </div>
@@ -355,7 +319,7 @@
 
 
             <!-- Google And Bing -->
-            <div class="modal fade" id="google_bingo" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
+            <div class="modal fade" id="edit_google_bingo" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -372,7 +336,7 @@
                                                 <input type='text' name="google" class="form-control" value="{{$blog->google}}" />
                                             </div>
                                             <div class="col-md-5">
-                                                <div class='input-group date' id='google_date'>
+                                                <div class='input-group date' id='edit_google_date'>
                                                 <input type='text' class="form-control" name="google_date" value="{{$blog->google_date}}" />
                                                 <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
@@ -394,7 +358,7 @@
                                                 <input type='text' name="bing" class="form-control" value="{{$blog->bing}}" />
                                             </div>
                                             <div class="col-md-5">
-                                                <div class='input-group date' id='bing_date'>
+                                                <div class='input-group date' id='edit_bing_date'>
                                                 <input type='text' class="form-control" name="bing_date" value="{{$blog->bing_date}}" />
                                                 <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
@@ -408,8 +372,8 @@
                                 </div>       
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-success" onclick=socialShareClick() data-dismiss="modal">Add</button>
+                            <button type="button" class="btn btn-secondary" id="EditGoogleBingo">Close</button>
+                            <button type="button" class="btn btn-success"  id="EditGoogleBingo">Add</button>
                             {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
                         </div>
                     </div>
@@ -418,126 +382,3 @@
 
 
             </form>
-        </div>
-    </div>
-</div>
-
-
-
-
-
-
-
-
-<!-- Publish team status modal -->
-<div class="modal fade" id="kwPublishModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Publish team status</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    
-    $(document).ready(function() {
-
-    $('#blog-datetime').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
-    $('#facebook_date').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
-      $('#instagram_date').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
-      $('#twitter_date').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
-      $('#google_date').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
-      $('#bing_date').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
-
-      $('#date').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
-
-
-
-
-      
-        let kwRowIdCount = 1;
-        
-
-        $(function() {
-            $(document).on('click', ".kwRowSec .kwRow .seoStatusBtn", function() {
-                let $kwRow = $(this).closest('.kwRow');
-                $.ajax({
-                    type: "GET"
-                    , url: ""
-                    , data: {
-                        statusType: "SEO_STATUS"
-                        , keywordId: $($kwRow).find('.keywordId').val()
-                    }
-                    , dataType: "json"
-                    , success: function(response) {
-                        let $seoModal = $(document).find('#kwSeoModal');
-                        $($seoModal).find('.modal-body').html(response.data);
-                        $($seoModal).attr('data-rowid', `#${$kwRow.attr('id')}`)
-                        $($seoModal).modal('show');
-                        $(document).find('input, select').attr('readonly', true)
-                    }
-                });
-            })
-
-            $(document).on('hide.bs.modal', "#kwSeoModal", function() {
-                $('input', '#kwSeoModal').val('');
-                $('#kwSeoModal').attr('data-rowid', '');
-            });
-        })
-
-        $(function() {
-            $(document).on('click', ".kwRowSec .kwRow .publishStatusBtn", function() {
-                let $kwRow = $(this).closest('.kwRow');
-                $.ajax({
-                    type: "GET"
-                    , url: ""
-                    , data: {
-                        statusType: "PUBLISH_STATUS"
-                        , keywordId: $($kwRow).find('.keywordId').val()
-                    }
-                    , dataType: "json"
-                    , success: function(response) {
-                        let $publishModal = $(document).find('#kwPublishModal');
-                        $($publishModal).find('.modal-body').html(response.data);
-                        $($publishModal).attr('data-rowid', `#${$kwRow.attr('id')}`)
-                        $($publishModal).modal('show');
-                        $(document).find('input, select').attr('readonly', true)
-                    }
-                });
-            })
-        })
-
-        $(document).on('hide.bs.modal', "#kwPublishModal", function() {
-            $('input', '#kwPublishModal').val('');
-            $('#kwPublishModal').attr('data-rowid', '');
-        });
-    });
-
-</script>
-@endsection

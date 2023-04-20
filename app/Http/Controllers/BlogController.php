@@ -73,7 +73,7 @@ class BlogController extends Controller
                 })
 
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<a href="edit/' . $row->id . '" data-id="' . $row->id . '" data-product-id="' . $row->id . '" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i> Edit</a>&nbsp; | 
+                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-blog-id="' . $row->id . '" id="BlogEditModal" class="btn BlogEditData btn-warning btn-sm"><i class="fa fa-edit"></i> Edit</a>&nbsp; | 
                     <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp; |
                     <a href="view/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</a>&nbsp;';
                     return $actionBtn;
@@ -83,7 +83,12 @@ class BlogController extends Controller
         }
 
         $users = User::get();
-        return view('blogs.index', compact('users'));
+                $allTag = Tag::get()->toArray();
+        $tagName = array_column($allTag, 'tag');
+
+        $tagName = implode(",", $tagName);
+        $tagName = "['" . str_replace(",", "','", $tagName) . "']";
+        return view('blogs.index', compact('users','tagName'));
     }
 
     /**
@@ -393,6 +398,7 @@ class BlogController extends Controller
      */
     public function edit($id)
     {
+     
         $blog = Blog::where('id', $id)->first();
         if (!empty($blog)) {
             $users = User::get();
@@ -423,9 +429,12 @@ class BlogController extends Controller
             // $strongTagAll = "['" . str_replace(",", "','", $strongTagAll) . "']";
 
 
-            return view('blogs.edit', compact('blog', 'headerTagEditValue', 'titleTagEditValue', 'italicTagEditValue', 'strongTagEditValue', 'users'));
+           // return view('blogs.editModal', compact('blog', 'headerTagEditValue', 'titleTagEditValue', 'italicTagEditValue', 'strongTagEditValue', 'users'));
+            $returnHTML = view('blogs.editModal')->with('blog', $blog)->with('headerTagEditValue', $headerTagEditValue)->with('titleTagEditValue', $titleTagEditValue)->with('italicTagEditValue', $italicTagEditValue)->with('strongTagEditValue', $strongTagEditValue)->with('users', $users)->render();
+           
+            return response()->json(['status' => 'success', 'data' => ['html' => $returnHTML], 'message' => 'Blog'], 200);
         } else {
-            return abort(404);
+            return response()->json(['status' => 'error', 'data' => ['not found'], 'message' => 'Not Found!'], 400);
         }
     }
 
@@ -517,8 +526,9 @@ class BlogController extends Controller
      */
     public function update(Request $request, $id)
     {
-
+        
         $blog = Blog::where('id', $id)->first();
+      
         if (empty($blog)) {
             return redirect()->route('blog.index')->with('error', 'Blog Not Found!');
         }
@@ -537,7 +547,7 @@ class BlogController extends Controller
             'twitter' => 'nullable|max:256',
             'google' => 'nullable|max:256',
             'bing' => 'nullable|max:256',
-            'publish_blog_date' => 'nullable|date_format:Y-m-d|after:' . Carbon::now()->format('Y-m-d')
+           
         ]);
 
         $dataUpdate = [
@@ -552,7 +562,7 @@ class BlogController extends Controller
             'url_structure' => $request->url_structure,
             'url_xml' => $request->url_xml,
             'no_follow' => $request->no_follow,
-            'publish_blog_date' => $request->publish_blog_date,
+            'publish_blog_date' => Carbon::parse($request->publish_blog_date)->format('Y-m-d'),
             'no_index' => $request->no_index,
             'date' => $request->date,
             'facebook' => $request->facebook,
@@ -567,9 +577,10 @@ class BlogController extends Controller
             'bing_date' => $request->bing_date,
 
         ];
+        
         $blogUpdate = Blog::where('id', $id)->update($dataUpdate);
 
-
+        
         if ($blogUpdate) {
 
             BlogHistory::create([
@@ -624,6 +635,8 @@ class BlogController extends Controller
             }
 
             return redirect()->route('blog.index')->with('message', 'Blog has been successfully update!');
+        }else{
+            return redirect()->route('blog.index')->with('error', 'Something Went Wrong!');
         }
     }
 
