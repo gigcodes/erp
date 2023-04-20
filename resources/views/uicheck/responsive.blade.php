@@ -355,7 +355,7 @@
 	</div>
 </div>
 <div id="modalGetDevMessageHistory" class="modal fade" role="dialog" >
-	<div class="modal-dialog modal-lg">
+	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title">Ui Device Message History</h4>
