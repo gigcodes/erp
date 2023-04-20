@@ -1531,22 +1531,21 @@ class UicheckController extends Controller
                 $message = $udh->message;
                 $estimatedTime = $udh->estimated_time;
 
+                UiDeviceHistory::create(
+                    [
+                        'user_id' => \Auth::user()->id ?? '',
+                        'ui_devices_id' => $uiDeviceId ?? '',
+                        'uicheck_id' => $uicheckId ?? '',
+                        'device_no' => $deviceNo ?? '',
+                        'status' => $oldStatus ?? '',
+                        'estimated_time' => $estimatedTime,
+                        'message' => $message,
+                    ]
+                );
                 $udh->status = $statusId == "-" ? null : $statusId;
                 $udh->save();
                 if ($udh->save()){
                     $status = SiteDevelopmentStatus::find($statusId);
-                    UiDeviceHistory::create(
-                        [
-                            'user_id' => \Auth::user()->id ?? '',
-                            'ui_device_id' => $uiDeviceId ?? '',
-                            'uicheck_id' => $uicheckId ?? '',
-                            'device_no' => $deviceNo ?? '',
-                            'status' => $oldStatus ?? '',
-                            'estimated_time' => $estimatedTime,
-                            'message' => $message,
-                        ]
-                    );
-
                     return respJson(200, '', [
                         'message' => 'Status updated successfully',
                         'data' => $status->color

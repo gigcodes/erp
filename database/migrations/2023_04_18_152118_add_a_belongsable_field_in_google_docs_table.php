@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddTypeInToPostmanHistorysTable extends Migration
+class AddABelongsableFieldInGoogleDocsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class AddTypeInToPostmanHistorysTable extends Migration
      */
     public function up()
     {
-        Schema::table('postman_historys', function (Blueprint $table) {
-            $table->string('type')->nullable()->after('user_id');
+        Schema::table('google_docs', function (Blueprint $table) {
+            $table->unsignedBigInteger("belongable_id")->nullable();
+            $table->string("belongable_type")->nullable();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *
@@ -26,7 +27,8 @@ class AddTypeInToPostmanHistorysTable extends Migration
     public function down()
     {
         Schema::table('google_docs', function (Blueprint $table) {
-            //
+            $table->dropColumn("belongable_id");
+            $table->dropColumn("belongable_type");
         });
     }
 }

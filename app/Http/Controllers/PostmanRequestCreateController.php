@@ -433,7 +433,7 @@ class PostmanRequestCreateController extends Controller
             $name = $request->get('workspace_name');
             $type = $request->get('workspace_type');
             $workspace_id = $request->get('id');
-            if(isset($request->id)){
+            if($request->get('id')){
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
                     'X-API-Key' => env('X_API_Key'),
@@ -466,7 +466,10 @@ class PostmanRequestCreateController extends Controller
                     $table->type = $type;
                     $table->save();
                 }
-            }
+                return response()->json(['code' => 200, 'message' => 'successfully']);
+            }else{
+                    return response()->json(['code' => 500, 'message' => 'Something went wrong']);
+                }
         }
         catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -487,13 +490,12 @@ class PostmanRequestCreateController extends Controller
                     'Content-Type' => 'application/json',
                     'X-API-Key' => env('X_API_Key'),
                 ])->put('https://api.getpostman.com/collections/'.$collection_id, [
-                    'json' => [
-                        'collection' => [
-                            'info' => [
-                                'name' => $name,
-                                'description' => $description,
-                                'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
-                            ]
+                    'collection' => [
+                        'item' => [],
+                        'info' => [
+                            'name' => $name,
+                            'description' => $description,
+                            'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
                         ]
                     ]
                     ]);
@@ -527,6 +529,9 @@ class PostmanRequestCreateController extends Controller
                     $table->collection_id = $collection['uid'];
                     $table->save();
                 }
+                return response()->json(['code' => 200, 'message' => 'successfully']);
+            } else{
+                return response()->json(['code' => 500, 'message' => 'Something went wrong']);
             }
         }
         catch (\Exception $e) {

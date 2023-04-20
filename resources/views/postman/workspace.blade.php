@@ -175,6 +175,9 @@
     
     $(document).on("click",".openmodeladdpostmanfolder",function(e){
       $('#titleUpdate').html("Add");
+        $("#id").val("");
+        $("#workspace_name").val("");
+        $("#workspace_type").val("private");
         $('#postmanform').find("input[type=text], textarea").val("");
     });
     $(document).on("click",".delete-postman-folder-btn",function(e){
@@ -192,7 +195,6 @@
               id:id
             }
           }).done(function(response) {
-              console.log(response, "response");
             if(response.code = '200') {
               toastr['success']('Postman Workspace deleted successfully!!!', 'success');
               location.reload();
@@ -209,6 +211,14 @@
       $(document).on("click",".submit-folder-form",function(e){
         e.preventDefault();
         var $this = $(this);
+          if(!$("#workspace_name").val()){
+              toastr['error']('Please enter workspace name.', 'error');
+              return;
+          }
+          if(!$("#workspace_type").val()){
+              toastr['error']('Please select type.', 'error');
+              return;
+          }
         if($('#titleUpdate').text() == 'Add')
           $("#id").val("");
         $.ajax({
@@ -216,13 +226,13 @@
           type: "post",
           data:$('#postmanFolderform').serialize()
         }).done(function(response) {
-          if(response.code = '200') {
+          if(response.code === 200) {
             $('#loading-image').hide();
             $('#addPostmanFolder').modal('hide');
             toastr['success']('Folder added successfully!!!', 'success'); 
-            location.reload();
+           location.reload();
           } else {
-            toastr['error'](response.message, 'error'); 
+            toastr['error'](response.message, 'error');
           }
         }).fail(function(errObj) {
           $('#loading-image').hide();

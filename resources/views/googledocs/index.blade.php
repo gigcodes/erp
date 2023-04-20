@@ -87,6 +87,7 @@
                 <th>No</th>
                 <th>File Name</th>
                 <th>Category</th>
+                <th>Task</th>
                 <th>Created At</th>
                 <th>URL</th>
                 <th>Action</th>

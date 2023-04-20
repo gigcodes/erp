@@ -1546,6 +1546,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
     Route::post('task/recurring-history', [TaskModuleController::class, 'recurringHistory'])->name('task.recurringHistory');
     Route::post('task/create-multiple-task-from-shortcut-bugtrack', [TaskModuleController::class, 'createMultipleTaskFromSortcutBugtrack'])->name('task.create.multiple.task.shortcut.bugtrack');
+    Route::post('task/upload-file', [TaskModuleController::class, 'uploadFile'])->name('task.upload-file');
+    Route::get('task/files/record', [TaskModuleController::class, 'getUploadedFilesList'])->name('task.files.record');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -3966,6 +3968,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/repos/{id}/github-actions', [Github\RepositoryController::class, 'ajaxActionWorkflows']);
         Route::get('/repos/{id}/branch/merge', [Github\RepositoryController::class, 'mergeBranch']);
         Route::get('/repos/{id}/deploy', [Github\RepositoryController::class, 'deployBranch']);
+        Route::post('/repos/{id}/branch', [Github\RepositoryController::class, 'deleteBranchFromRepo']);
         Route::post('/repos/{id}/actions/jobs/{jobId}/rerun', [Github\RepositoryController::class, 'rerunGithubAction']);
         Route::post('/add_user_to_repo', [Github\UserController::class, 'addUserToRepository']);
         Route::get('/users', [Github\UserController::class, 'listOrganizationUsers']);
@@ -4864,6 +4867,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
     Route::get('{id}/edit', [GoogleDocController::class, 'edit'])->name('.edit');
     Route::post('/update', [GoogleDocController::class, 'update'])->name('.update');
+    Route::post('task', [GoogleDocController::class, 'createDocumentOnTask'])->name('.task');
+    Route::get('task/show', [GoogleDocController::class, 'listDocumentOnTask'])->name('.task.show');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
