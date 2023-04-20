@@ -10,6 +10,7 @@ use App\GitMigrationErrorLog;
 use App\Helpers\GithubTrait;
 use App\Helpers\MessageHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeleteBranchRequest;
 use Artisan;
 use Carbon\Carbon;
 use DateTime;
@@ -18,6 +19,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
+
 
 class RepositoryController extends Controller
 {
@@ -182,7 +185,7 @@ class RepositoryController extends Controller
             'alert-type' => 'success',
         ]);
     }
-
+    
     /**
      * Undocumented function
      *
@@ -219,6 +222,14 @@ class RepositoryController extends Controller
     private function updateBranchState($repoId, $branchName)
     {
         $comparison = $this->compareRepoBranches($repoId, $branchName);
+        $filters = [
+            'state' => 'all',
+            'head' => config('env.GITHUB_ORG_ID').":".$branchName
+        ];
+        $pullRequests = $this->pullRequests($repoId,$filters);
+        if(!empty($pullRequests) && count($pullRequests) > 0){
+            $pullRequest = $pullRequests[0];
+        }
         \Log::info("Add entry to GithubBranchState");
         GithubBranchState::updateOrCreate(
             [
@@ -228,6 +239,7 @@ class RepositoryController extends Controller
             [
                 'repository_id' => $repoId,
                 'branch_name' => $branchName,
+                'status' => !empty($pullRequest) ? $pullRequest['state'] : "",
                 'ahead_by' => $comparison['ahead_by'],
                 'behind_by' => $comparison['behind_by'],
                 'last_commit_author_username' => $comparison['last_commit_author_username'],
@@ -387,10 +399,14 @@ class RepositoryController extends Controller
         ]);
     }
 
-    private function getPullRequests($repoId)
+    private function getPullRequests($repoId, $filters = [])
     {
+        $addedFilters = !empty($filters) ? Arr::query($filters) : "";
         $pullRequests = [];
         $url = 'https://api.github.com/repositories/'.$repoId.'/pulls?per_page=200';
+        if(!empty($addedFilters)){
+            $url .= "&".$addedFilters;
+        }
         try {
             $response = $this->client->get($url);
             $decodedJson = json_decode($response->getBody()->getContents());
@@ -399,6 +415,7 @@ class RepositoryController extends Controller
                     'id' => $pullRequest->number,
                     'title' => $pullRequest->title,
                     'number' => $pullRequest->number,
+                    'state' => $pullRequest->state,
                     'username' => $pullRequest->user->login,
                     'userId' => $pullRequest->user->id,
                     'updated_at' => $pullRequest->updated_at,
@@ -443,6 +460,15 @@ class RepositoryController extends Controller
 
     public function closePullRequestFromRepo($repositoryId, $pullRequestNumber){
         return $this->closePullRequest($repositoryId, $pullRequestNumber);
+    }
+
+    public function deleteBranchFromRepo($repositoryId,DeleteBranchRequest $request){
+        $response = $this->deleteBranch($repositoryId, $request->branch_name);
+        $githubBranchState = GithubBranchState::where('repository_id',$repositoryId)->where('branch_name',$request->branch_name)->first();
+        if(!empty($githubBranchState) && $response['status']){
+            $githubBranchState->delete();
+        }
+        return $response;
     }
 
     public function actionWorkflows(Request $request, $repositoryId){
@@ -530,8 +556,12 @@ class RepositoryController extends Controller
 
     public function getAjaxBranches(Request $request)
     {
-        $branches = GithubBranchState::where('repository_id', $request->repoId)->get();
-        return $branches;
+
+        $branches = GithubBranchState::where('repository_id', $request->repoId)->orderBy('created_at','desc');
+        if($request->status){
+            $branches = $branches->where('status',$request->status);
+        }
+        return $branches->get();
     }
 
     /**
