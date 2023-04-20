@@ -350,32 +350,33 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('store:zabbix')->everyFiveMinutes();
-        $schedule->command('zabbix:problem')->everyFiveMinutes();
-        $schedule->command('store:zabbixhostitems')->everyFiveMinutes();
-        $schedule->command('HubstuffActivity:Command')->daily();
+        //$schedule->command('category:missing-references')->daily();
+        // $schedule->command('store:zabbix')->everyFiveMinutes();
+        // $schedule->command('zabbix:problem')->everyFiveMinutes();
+        // $schedule->command('store:zabbixhostitems')->everyFiveMinutes();
+        // $schedule->command('HubstuffActivity:Command')->daily();
 
-        $schedule->command('project:filemanagementdate')->daily();
+        // $schedule->command('project:filemanagementdate')->daily();
 
-        $schedule->command('twilio:errors')->dailyAt('01:00');
+        // $schedule->command('twilio:errors')->dailyAt('01:00');
 
-        $schedule->command('command:twillio_messages')->everyMinute(); // Send twlio message to store website customers
+        // $schedule->command('command:twillio_messages')->everyMinute(); // Send twlio message to store website customers
 
-        $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');
+        // $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');
 
-        $schedule->command('fetch:all_emails')->dailyAt('02:00');
+        // $schedule->command('fetch:all_emails')->dailyAt('02:00');
 
-        $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
+        // $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
 
-        $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
+        // $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
 
         //This command will runs every day in the night to send a message to the user to update the time...
         //$schedule->command('command:tasks-time-reminder')->dailyAt('01:00'); // status detail
         //$schedule->command('command:date_time_reminder')->dailyAt('01:00'); // status detail
 
-        $schedule->command('command:send_message')->hourly();
+        // $schedule->command('command:send_message')->hourly();
 
-        $schedule->command('websitelog')->daily(); // website log
+        // $schedule->command('websitelog')->daily(); // website log
 
         // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
@@ -388,7 +389,6 @@ class Kernel extends ConsoleKernel
         })->hourly();
 
         // Store unknown categories on a daily basis
-        //$schedule->command('category:missing-references')->daily();
 
         //This command will set the count of the words used...
         // $schedule->command('bulk-customer-message:get-most-used-keywords')->daily();
@@ -529,8 +529,8 @@ class Kernel extends ConsoleKernel
         //2020-02-17 $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
         // Update the inventory (Daily run cron to update stock 0 at magento store website)
-        $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
-        $schedule->command('magento:get-config-value')->dailyAt('00:00')->timezone('Asia/Dubai');
+        // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
+        // $schedule->command('magento:get-config-value')->dailyAt('00:00')->timezone('Asia/Dubai');
         
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
@@ -538,7 +538,7 @@ class Kernel extends ConsoleKernel
         //This command saves the twilio call logs in call_busy_messages table...
         //2020-02-17 $schedule->command('twilio:allcalls')->everyFifteenMinutes();
         // Saved zoom recordings corresponding to past meetings based on meeting id
-        $schedule->command('meeting:getrecordings')->hourly();
+        // $schedule->command('meeting:getrecordings')->hourly();
         // $schedule->command('meeting:deleterecordings')->dailyAt('07:00')->timezone('Asia/Kolkata');
 
         // Check scrapers
@@ -548,23 +548,23 @@ class Kernel extends ConsoleKernel
         // $schedule->command('cold-leads:move-to-customers')->daily();
 
         // send only cron run time
-        if ((!env('CI')) && (Schema::hasTable('chat_messages'))) {
-            $queueStartTime = \App\ChatMessage::getStartTime();
-            $queueEndTime = \App\ChatMessage::getEndTime();
-            $queueTime = \App\ChatMessage::getQueueTime();
+        // if ((!env('CI')) && (Schema::hasTable('chat_messages'))) {
+//            $queueStartTime = \App\ChatMessage::getStartTime();
+//            $queueEndTime = \App\ChatMessage::getEndTime();
+//            $queueTime = \App\ChatMessage::getQueueTime();
             // check if time both is not empty then run the cron
-            if (! empty($queueStartTime) && ! empty($queueEndTime)) {
-                if (! empty($queueTime)) {
-                    foreach ($queueTime as $no => $time) {
-                        if ($time > 0) {
-                            $allowCounter = true;
-                            $counterNo[] = $no;
-                            $schedule->command('send:queue-pending-chat-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
-                            $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
-                        }
-                    }
-                }
-            }
+//            if (! empty($queueStartTime) && ! empty($queueEndTime)) {
+//                if (! empty($queueTime)) {
+//                    foreach ($queueTime as $no => $time) {
+//                        if ($time > 0) {
+//                            $allowCounter = true;
+//                            $counterNo[] = $no;
+//                            $schedule->command('send:queue-pending-chat-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+//                            $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+//                        }
+//                    }
+//                }
+//            }
             /*if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
         {
         $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
@@ -587,7 +587,7 @@ class Kernel extends ConsoleKernel
 
         }
         }*/
-        }
+        //}
 
         // need to run this both cron every minutes
         //2020-02-17 $schedule->command('cronschedule:update')->everyMinute();
@@ -611,13 +611,13 @@ class Kernel extends ConsoleKernel
 
         //Sync customer from magento to ERP
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
-        $schedule->command('fetch-all-records:start')->dailyAt('23:59')->timezone('Asia/Kolkata');
+        // $schedule->command('fetch-all-records:start')->dailyAt('23:59')->timezone('Asia/Kolkata');
         // Github
-        $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
-        $schedule->command('google-analytics:run')->everyFifteenMinutes();
-        $schedule->command('newsletter:send')->daily();
-        $schedule->command('delete:store-website-category')->daily();
-        $schedule->command('memory_usage')->everyMinute();
+        // $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
+        // $schedule->command('google-analytics:run')->everyFifteenMinutes();
+        // $schedule->command('newsletter:send')->daily();
+        // $schedule->command('delete:store-website-category')->daily();
+        // $schedule->command('memory_usage')->everyMinute();
 
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
@@ -647,13 +647,13 @@ class Kernel extends ConsoleKernel
         // If scraper not completed, store alert
         // $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
 
-        $schedule->command('routes:sync')->hourly()->withoutOverlapping();
+        //  $schedule->command('routes:sync')->hourly()->withoutOverlapping();
 
         //$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
-        $schedule->command('send:daily-reports')->dailyAt('23:00');
+        // $schedule->command('send:daily-reports')->dailyAt('23:00');
 
         //update order way billtrack histories
-        $schedule->command('command:waybilltrack')->dailyAt('1:00');
+        // $schedule->command('command:waybilltrack')->dailyAt('1:00');
 
         //update directory manager to db
         //$schedule->command('project_directory:manager')->dailyAt("1:00");
@@ -662,92 +662,87 @@ class Kernel extends ConsoleKernel
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
 
-        $schedule->command('ScrapApi:LogCommand')->hourly();
-        $schedule->command('HubstuffActivity:Command')->daily();
-        $schedule->command('Magento-Product:Api')->cron('0 */3 * * *');
+        // $schedule->command('ScrapApi:LogCommand')->hourly();
+        // $schedule->command('HubstuffActivity:Command')->daily();
+        // $schedule->command('Magento-Product:Api')->cron('0 */3 * * *');
 
-        $schedule->command('AuthenticateWhatsapp:instance')->hourly();
+        // $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
         // $schedule->command('livechat:tickets')->everyMinute();
         // delate chat message
         //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
 
         //daily cron for checking due date and add to cashflow
-        $schedule->command('assetsmanagerduedate:pay')->daily();
+        // $schedule->command('assetsmanagerduedate:pay')->daily();
 
          //daily cron for checking Ios Report
-        $schedule->command('IosUsageReport:check')->daily();
-        $schedule->command('IosSalesReport:check')->daily();
-        $schedule->command('IosRatingsReport:check')->daily();
-        $schedule->command('IosAdsReport:check')->daily();
-        $schedule->command('IosPaymentsReport:check')->daily();
-        $schedule->command('IosSubscriptionReport:check')->daily();
+        // $schedule->command('IosUsageReport:check')->daily();
+        // $schedule->command('IosSalesReport:check')->daily();
+        // $schedule->command('IosRatingsReport:check')->daily();
+        // $schedule->command('IosAdsReport:check')->daily();
+        // $schedule->command('IosPaymentsReport:check')->daily();
+        // $schedule->command('IosSubscriptionReport:check')->daily();
 
 
         //for adding due date in asset manager
-        $schedule->command('assetsmanagerpayment:cron Daily')->daily();
-        $schedule->command('assetsmanagerpayment:cron Weekly')->weekly();
-        $schedule->command('assetsmanagerpayment:cron Yearly')->yearly();
-        $schedule->command('assetsmanagerpayment:cron Monthly')->monthly();
-        $schedule->command('assetsmanagerpayment:cron Bi-Weekly')->twiceMonthly(1, 16, '13:00');
+        // $schedule->command('assetsmanagerpayment:cron Daily')->daily();
+        // $schedule->command('assetsmanagerpayment:cron Weekly')->weekly();
+        // $schedule->command('assetsmanagerpayment:cron Yearly')->yearly();
+        // $schedule->command('assetsmanagerpayment:cron Monthly')->monthly();
+        // $schedule->command('assetsmanagerpayment:cron Bi-Weekly')->twiceMonthly(1, 16, '13:00');
 
         //cron for fcm push notifications
-        $schedule->command('fcm:send')->everyMinute();
+        // $schedule->command('fcm:send')->everyMinute();
         //cron for influencers start stop
-        $schedule->command('influencers:startstop')->hourly();
+        // $schedule->command('influencers:startstop')->hourly();
         //cron for price check api daily basis
-        $schedule->command('pricedrop:check')->daily();
+        // $schedule->command('pricedrop:check')->daily();
         // Cron for scrapper images.
-        $schedule->command('scrappersImages')->daily();
-        $schedule->command('scrappersImagesDelete')->daily();
+        // $schedule->command('scrappersImages')->daily();
+        // $schedule->command('scrappersImagesDelete')->daily();
         //cron for instagram handler daily basis
 //        $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
 
         //Cron for activity
-        $schedule->command('productActivityStore')->dailyAt('0:00');
-        $schedule->command('errorAlertMessage')->daily();
+        // $schedule->command('productActivityStore')->dailyAt('0:00');
+        // $schedule->command('errorAlertMessage')->daily();
 
-        $schedule->command('UpdateScraperDuration')->everyFifteenMinutes();
-        $schedule->command('horizon:snapshot')->everyFiveMinutes();
+        //  $schedule->command('UpdateScraperDuration')->everyFifteenMinutes();
+        // $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
         //Instagram automation command
 //        $schedule->command('InstaAutoFeedDaily')->daily();
         //cron for updating data from csv
-        $schedule->command('update-product:from-csv')->daily();
-        $schedule->command('send-instagram-message:in-queue')->everyMinute();
-        $schedule->command('ConnectGoogleClientAccounts')->hourly();
+        // $schedule->command('update-product:from-csv')->daily();
+        // $schedule->command('send-instagram-message:in-queue')->everyMinute();
+        // $schedule->command('ConnectGoogleClientAccounts')->hourly();
 
         // get python site log
-        $schedule->command('get:pythonLogs')->daily();
-        $schedule->command('command:MagentoSettingUpdates')->dailyAt('23:59')->timezone('Asia/Kolkata');
+        // $schedule->command('get:pythonLogs')->daily();
+        // $schedule->command('command:MagentoSettingUpdates')->dailyAt('23:59')->timezone('Asia/Kolkata');
 
-        $schedule->command('command:NegativeCouponResponses')->hourly();
+        // $schedule->command('command:NegativeCouponResponses')->hourly();
 
         // Database log Cron
-        $schedule->command('databaselog:cron')->dailyAt('0:00');
+        // $schedule->command('databaselog:cron')->dailyAt('0:00');
 
 
         //Developer Reporting API Cron
-        $schedule->command('DevAPIReport:check')->hourly();
+        // $schedule->command('DevAPIReport:check')->hourly();
 
         // Ads history Cron
-        $schedule->command('social:ads-history')->dailyAt('0:00');
-        $schedule->command('save:zoom-meetings')->dailyAt('23:59');
+        // $schedule->command('social:ads-history')->dailyAt('0:00');
+        // $schedule->command('save:zoom-meetings')->dailyAt('23:59');
 
 
         //Store Google Ad Reporting Data
-        $schedule->command('store:ads-reporting-data')->hourly();
+        // $schedule->command('store:ads-reporting-data')->hourly();
 
         //Telescope Remove Logs Every 72Hrs
         $schedule->command('telescope:prune --hours=72')->daily();
-
-        $schedule->command('channeldata-auto-sync')->dailyAt('23:58');
-        
-
-
+        // $schedule->command('channeldata-auto-sync')->dailyAt('23:58');
         //Creating mailboxes from emails table
-        $schedule->command('email:create-mail-boxes')->everyFiveMinutes();
-
+        //  $schedule->command('email:create-mail-boxes')->everyFiveMinutes();
     }
 
     /**`
