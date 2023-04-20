@@ -69,9 +69,9 @@ class LoadBranchState extends Command
             $comparisons = [];
             foreach ($repoBranches as $repoId => $branches) {
                 foreach ($branches as $branch) {
-                    $this->info($branch);
+                     $this->info($branch);
                     $comparison = $this->compareRepoBranches($repoId, $branch);
-                     $filters = [
+                        $filters = [
                         'state' => 'all',
                         'head' => config('env.GITHUB_ORG_ID').":".$branch
                     ];
@@ -147,6 +147,8 @@ class LoadBranchState extends Command
              * <https://api.github.com/repositories/231925646/branches?page=4>; rel="prev", <https://api.github.com/repositories/231925646/branches?page=4>; rel="last", <https://api.github.com/repositories/231925646/branches?page=1>; rel="first"
              */
             $totalPages = 1;
+            $this->info($url);
+            $this->info(json_encode($linkHeader));
             if (count($linkHeader) > 0) {
                 $lastLink = null;
                 $links = explode(',', $linkHeader[0]);
@@ -170,9 +172,11 @@ class LoadBranchState extends Command
     
                 $totalPages = intval($totalPages);
             }
-
+            $this->info("totalPages: " .$totalPages);
             $page = 1;
             while ($page <= $totalPages) {
+                 $this->info("page: " .$page);
+
                 $response = $this->githubClient->get($url.'?page='.$page);
     
                 $branches = json_decode($response->getBody()->getContents());
@@ -194,7 +198,9 @@ class LoadBranchState extends Command
                 $page++;
             }
         }catch(\Exception $e){
+            $this->info($e->getMessage());
         }
+        $this->info(json_encode($allBranchNames));
 
         return $allBranchNames;
     }

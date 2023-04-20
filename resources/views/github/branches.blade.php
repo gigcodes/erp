@@ -11,31 +11,43 @@
     , };
     var workingOn = null;
 
-    function confirmDelete(repositoryId, branchName) {
-        let result = confirm("Are you sure you want to delete this branch : "+ branchName+ "?");
-        if (result) {
-            $.ajax({
-                headers : {
-                    'Accept' : 'application/json',
-                    'Content-Type' : 'application/json',
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                type: "post",
-                url: '/github/repos/'+repositoryId+'/branch?branch_name='+branchName,
-                dataType: "json",
-                success: function (response) {
-                    if(response.status) {
-                        toastr['success']('Branch has been deleted successfully!');
-                        window.location.reload();
-                    }else{
-                        errorMessage = response.error ? response.error : 'Something went wrong please try again later!';
-                        toastr['error'](errorMessage);
+    function confirmDelete() {
+        $length = $('input:checkbox[name="action[]"]:checked').length;
+        if($length == 0){
+            toastr['error']("Please select item to delete the branch");
+        }else{
+            let result = confirm("Are you sure you want to delete these branches?");
+            if (result) {
+                $('input:checkbox[name="action[]"]:checked').each(function(){
+                    let repositoryId = $(this).data('repository-id');
+                    let branchName = $(this).val();
+                    if(repositoryId && branchName ){
+                        $.ajax({
+                            headers : {
+                                'Accept' : 'application/json',
+                                'Content-Type' : 'application/json',
+                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                            },
+                            type: "post",
+                            url: '/github/repos/'+repositoryId+'/branch?branch_name='+branchName,
+                            dataType: "json",
+                            success: function (response) {
+                                if(response.status) {
+                                    toastr['success']('Branch has been deleted successfully!');
+                                    window.location.reload();
+                                }else{
+                                    errorMessage = response.error ? response.error : 'Something went wrong please try again later!';
+                                    toastr['error'](errorMessage);
+                                }
+                            },
+                            error: function () {
+                                toastr['error']('Could not change module!');
+                            }
+                        });
                     }
-                },
-                error: function () {
-                    toastr['error']('Could not change module!');
-                }
-            });
+                    
+                });
+            }
         }
     }
 
@@ -43,7 +55,7 @@
         let html = "";
         $.each(response, function(key, value) {
             html += "<tr>";
-            html += "<td></td>";
+            html += `<td><input type="checkbox" class="action" name="action[]" data-repository-id="`+value.repository_id+`" value="` + value.branch_name+ `"></td>`;
             html += "<td>" + value.branch_name + "</td>";
             html += "<td>" + value.status + "</td>";
             html += "<td>" + value.behind_by + "</td>";
@@ -88,18 +100,6 @@
             "bPaginate": false,
             "ordering": false,
             "searching": true, 
-            columnDefs: [ {
-                orderable: false,
-                className: 'select-checkbox',
-                targets:   0,
-                'render': function (data, type, full, meta){
-                    return '<input type="checkbox" class="action" name="action[]" value="' + full[1]+ '">';
-                }
-            } ],
-            select: {
-                style:    'os',
-                selector: 'td:first-child'
-            },
         });
     async function fetchBranches({repoId}) {
         $dataTable.destroy();
@@ -122,18 +122,6 @@
             "bPaginate": false,
             "ordering": false,
             "searching": true, 
-            columnDefs: [ {
-                orderable: false,
-                className: 'select-checkbox',
-                targets:   0,
-                'render': function (data, type, full, meta){
-                    return '<input type="checkbox" class="action" name="action[]" value="' + full[1]+ '">';
-                }
-            } ],
-            select: {
-                style:    'os',
-                selector: 'td:first-child'
-            },
         });
     }
     
@@ -150,7 +138,12 @@
      $(document).on('click','.action', function(){
       $length = $('input[name="action[]"]:checked').length;
       $(".jq_selected_item").html($length+" Items Selected");
-   });
+    });
+
+    function resetActionButoonAndCheckbox(){
+        $(".jq_selected_item").html("0 Items Selected");
+        $("#action-select-all").prop('checked', false);
+    }
 
     $(document).ready(function() {
         $(async function() {
@@ -160,12 +153,14 @@
         });
 
         $(document).on('change', "select[name=repoId]", async function() {
+            resetActionButoonAndCheckbox();
             await fetchBranches({
                 repoId: $(document).find("select[name=repoId]").val(),
             });
         })
 
         $(document).on('change', "#status", async function() {
+             resetActionButoonAndCheckbox();
             await fetchBranches({
                 repoId: $(document).find("select[name=repoId]").val(),
             });
@@ -230,7 +225,7 @@
         <div class="col-md-3">
             <!-- Single button -->
             <label for="" class="form-label">Action on selected Item</label>
-            <div class=" form-control btn-group">
+            <div class="btn-group">
                 <button type="button" class="btn btn-default dropdown-toggle jq_selected_item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     0 Items Selected <span class="caret"></span>
                 </button>

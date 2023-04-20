@@ -462,7 +462,7 @@ class RepositoryController extends Controller
         return $this->closePullRequest($repositoryId, $pullRequestNumber);
     }
 
-    public function deleteBranchFromRepo($repositoryId, DeleteBranchRequest $request){
+    public function deleteBranchFromRepo(DeleteBranchRequest $request){
         $response = $this->deleteBranch($repositoryId, $request->branch_name);
         $githubBranchState = GithubBranchState::where('repository_id',$repositoryId)->where('branch_name',$request->branch_name)->first();
         if(!empty($githubBranchState) && $response['status']){

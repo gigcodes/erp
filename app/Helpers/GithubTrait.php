@@ -44,6 +44,7 @@ trait GithubTrait
                 ];
             }
         } catch (Exception $e) {
+            $this->info($e->getMessage());
         }
 
         return $pullRequests;
