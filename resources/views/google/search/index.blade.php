@@ -257,9 +257,13 @@ input:checked + .slider:before {
                 _token: "{{ csrf_token() }}"
             },            
             success: function(data) {
-                $('#runScrapper_'+id).prop('disabled', false);
-                $('#runScrapper_'+id).html(buttonCaption);
-                alert('Scapper initiated successfully');
+                if (data.error){
+                    toastr['error'](data.error);
+                } else {
+                    $('#runScrapper_'+id).prop('disabled', false);
+                    $('#runScrapper_'+id).html(buttonCaption);
+                    alert('Scrapper initiated successfully');
+                }
             }
         });
     }
