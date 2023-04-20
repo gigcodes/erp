@@ -373,12 +373,12 @@ class CouponController extends Controller
         }
     }
 
-    public function showReport($couponId, Request $request)
+    public function showReport($couponId=0, Request $request)
     {
         $start = $request->start;
         $end = $request->end;
 
-        if (isset($couponId)) {
+        if (isset($couponId) && $couponId!=0) {
             $orders = Order::where('coupon_id', $couponId)
                 ->where('order_date', '>=', Carbon::parse($start))
                 ->where('order_date', '<=', Carbon::parse($end))
@@ -507,7 +507,7 @@ class CouponController extends Controller
 
             \Log::channel('listMagento')->info(print_r([$url, $storeWebsite->api_token, json_encode($parameters), $response], true));
             if ($result != false) {
-                if (isset($result->code)) {
+                if (isset($result->code) || isset($result->message)) {
                     return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
                 }
 

@@ -9,11 +9,13 @@ use App\Contact;
 use App\DeveloperTask;
 use App\DeveloperTaskHistory;
 use App\DocumentRemark;
+use App\GoogleScreencast;
 use App\Helpers;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffTask;
+use App\Jobs\UploadGoogleDriveScreencast;
 use App\LogChatMessage;
 use App\Models\Tasks\TaskHistoryForCost;
 use App\NotificationQueue;
@@ -4871,4 +4873,77 @@ class TaskModuleController extends Controller
 
         return respJson(404, 'No task found.');
     }
+
+
+    /**
+     * Upload a task file to google drive 
+     */
+    public function uploadFile(Request $request)
+    {
+        $request->validate([
+            'file' => 'required',
+            'file_creation_date' => 'required',
+            'remarks' => 'sometimes',
+            'task_id' => 'required',
+            'file_read' => 'sometimes',
+            'file_write' => 'sometimes'
+        ]);
+
+        $data = $request->all();
+        try {
+            foreach($data['file'] as $file)
+            {
+                DB::transaction(function () use ($file,$data) {
+                    $googleScreencast = new GoogleScreencast();
+                    $googleScreencast->file_name = $file->getClientOriginalName();
+                    $googleScreencast->extension = $file->extension();
+                    $googleScreencast->user_id = Auth::id();
+                    
+                    $googleScreencast->read = "";
+                    $googleScreencast->write = "";
+
+                    $googleScreencast->remarks = $data['remarks'];
+                    $googleScreencast->file_creation_date = $data['file_creation_date'];
+
+                    $googleScreencast->belongable_id = $data['task_id'];
+                    $googleScreencast->belongable_type = Task::class;
+                    $googleScreencast->save();
+                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
+                });
+            }
+            
+            return back()->with('success', "File is Uploaded to Google Drive.");
+        } catch (Exception $e) {
+            return back()->with('error', "Something went wrong. Please try again");
+        }
+        
+    }
+
+    /**
+     * This function will return a list of files which are uploaded under uicheck class
+     */
+    public function getUploadedFilesList(Request $request)
+    {
+        try {
+            $result = [];
+            if(isset($request->task_id)) {
+                $result = GoogleScreencast::where('belongable_type', Task::class)->where('belongable_id', $request->task_id)->orderBy('id', 'desc')->get();
+                if(isset($result) && count($result) > 0) {
+                    $result = $result->toArray();   
+                }
+
+                return response()->json([
+                    "data" => view("task-module.google-drive-list", compact("result"))->render()
+                ]);
+            } else {
+                throw new Exception("Task not found");
+            }
+            
+        } catch (Exception $e) {
+            return response()->json([
+                "data" => view("task-module.google-drive-list", ["result"=> null])->render()
+            ]);
+        }
+    }
+
 }

@@ -7,6 +7,7 @@ use App\DeveloperTask;
 use App\User;
 use Auth;
 use App\Jobs\UploadGoogleDriveScreencast;
+use App\Task;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
@@ -27,11 +28,15 @@ class GoogleScreencastController extends Controller
         $data = GoogleScreencast::orderBy('id', 'desc');
         //fetch task list
         $taskList = DeveloperTask::where('task_type_id',1)->orderBy('id', 'desc');
+        $generalTask = Task::orderBy('id', 'desc');
         if(!Auth::user()->isAdmin())
         {
             $taskList = $taskList->where('user_id', Auth::id())->orWhere('assigned_to', Auth::id())->orWhere('tester_id', Auth::id())->orWhere('team_lead_id', Auth::id());
+            $generalTask = $generalTask->where('assign_to', Auth::id());
         }
         $tasks = $taskList->select('id','subject')->get();
+        $generalTask = $generalTask->select('id','task_subject as subject')->get();
+        
         $taskIds = $taskList->pluck('id');
         //print"<pre>";print_r($taskIds);exit;
         $users = User::select('id','name','email','gmail')->whereNotNull('gmail')->get();
@@ -61,7 +66,7 @@ class GoogleScreencastController extends Controller
         }
         $data = $data->get();
 
-        return view('googledrivescreencast.index', compact('data','tasks','users'))
+        return view('googledrivescreencast.index', compact('data','tasks','users', 'generalTask'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
@@ -83,7 +88,16 @@ class GoogleScreencastController extends Controller
         ]);
         foreach($data['file'] as $file)
         {
-            DB::transaction(function () use ($file,$data) {
+            $class = '';
+            
+            if(str_contains($data['task_id'], "TASK-")) {
+                $class = Task::class;
+                $data['task_id'] = trim($data['task_id'], "TASK-");
+            } else {
+                $class = DeveloperTask::class;
+            }
+            
+            DB::transaction(function () use ($file, $data, $class) {
                 $googleScreencast = new GoogleScreencast();
                 $googleScreencast->file_name = $file->getClientOriginalName();
                 $googleScreencast->extension = $file->extension();
@@ -96,7 +110,15 @@ class GoogleScreencastController extends Controller
                 }
                 $googleScreencast->remarks = $data['remarks'];
                 $googleScreencast->file_creation_date = $data['file_creation_date'];
-                $googleScreencast->developer_task_id = $data['task_id'];
+
+                if($class == "App\DeveloperTask") {
+                    $googleScreencast->developer_task_id = $data['task_id'];
+                } 
+                if($class == "App\Task") {
+                    $googleScreencast->belongable_id = $data['task_id'];
+                    $googleScreencast->belongable_type = $class;
+                }
+
                 $googleScreencast->save();
                 UploadGoogleDriveScreencast::dispatchNow($googleScreencast,$file);
                 
