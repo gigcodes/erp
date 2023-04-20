@@ -399,7 +399,7 @@ class GoogleSearchController extends Controller
             if(!empty($response)) {
                 $result = json_decode($response);
             }
-            if (empty($err) && !empty($result) && $result->error) {
+            if (empty($err) && !empty($result) && isset($result->error) ) {
                 $err = $result->message;
             }
 
