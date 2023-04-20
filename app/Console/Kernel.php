@@ -740,7 +740,7 @@ class Kernel extends ConsoleKernel
 
         //Telescope Remove Logs Every 72Hrs
         $schedule->command('telescope:prune --hours=72')->daily();
-        $schedule->command('channeldata-auto-sync')->dailyAt('23:58');
+        // $schedule->command('channeldata-auto-sync')->dailyAt('23:58');
         //Creating mailboxes from emails table
         //  $schedule->command('email:create-mail-boxes')->everyFiveMinutes();
     }
