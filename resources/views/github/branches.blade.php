@@ -34,7 +34,7 @@
                             success: function (response) {
                                 if(response.status) {
                                     toastr['success']('Branch has been deleted successfully!');
-                                    window.location.reload();
+                                    
                                 }else{
                                     errorMessage = response.error ? response.error : 'Something went wrong please try again later!';
                                     toastr['error'](errorMessage);
@@ -44,9 +44,11 @@
                                 toastr['error']('Could not change module!');
                             }
                         });
+                        
                     }
                     
                 });
+                window.location.reload();
             }
         }
     }
