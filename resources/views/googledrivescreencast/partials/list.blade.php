@@ -1,7 +1,7 @@
 @php
     $enum = [
         "App\Uicheck" => "UICHECK-",
-        "App\Task" => "TASK-",
+        "App\Task" => "TASK-"
     ];
 @endphp
 

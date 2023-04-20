@@ -359,17 +359,23 @@ table{border-collapse: collapse;}
 			</div>
 		</div>
 	</div>
-
+<style>
+#newHistoryModal .table th{
+	border-color:#ddd;
+}
+	
+</style>
 	<div id="newHistoryModal" class="modal fade" role="dialog">
-		<div class="modal-dialog modal-lg">
+		<div class="modal-dialog modal-xl">
 			<!-- Modal content-->
-			<div class="modal-content" style="width: 963px;">
+			<div class="modal-content mx-auto" style="width: 963px;">
 				<div class="modal-header">
 					<h3>Bug Tracker History</h3>
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 				</div>
+				<div class="modal-body">
 				<table class="table">
-					<tr>
+					<tr style="background-color:#3333;">
 						<th>Created At</th>						
 						<th>Type of Bug</th>
 						<th>Summary</th>
@@ -385,6 +391,7 @@ table{border-collapse: collapse;}
 
 					</tbody>
 				</table>
+				</div>
 			</div>
 		</div>
 	</div>
