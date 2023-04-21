@@ -3046,11 +3046,11 @@ class OrderController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('orders.partials.order_status', compact('orders', 'orderStatusList'))->render(),
+                'tbody' => view('orders.partials.order-status', compact('orders', 'orderStatusList'))->render(),
             ], 200);
         }
 
-        return view('orders.order_status_journey', compact('orders', 'orderStatusList'));
+        return view('orders.order-status-journey', compact('orders', 'orderStatusList'));
     }
 
     /**
