@@ -176,6 +176,8 @@ class FetchEmail implements ShouldQueue
                         }
                     }
 
+                    $mailData = explode('@',$from);
+                    $name = $mailData['0'];
                     $params = [
                         'model_id' => $model_id,
                         'model_type' => $model_type,
@@ -190,6 +192,7 @@ class FetchEmail implements ShouldQueue
                         'template' => 'customer-simple',
                         'additional_data' => json_encode(['attachment' => $attachments_array]),
                         'created_at' => $email->getDate(),
+                        'name'  => $name
                     ];
                     //                            dump("Received from: ". $email->getFrom()[0]->mail);
                     $email_id = Email::insertGetId($params);
@@ -283,6 +286,29 @@ class FetchEmail implements ShouldQueue
                                     $messageModel = \App\ChatMessage::create($params);
                                     $mailFound = true;
                                 }
+                            }
+
+                            // add entry in chat message even if email is from any other modules
+                            if(! $mailFound){
+                                $params = [
+                                    'number' => null,
+                                    'message' => $reply,
+                                    'media_url' => null,
+                                    'approved' => 0,
+                                    'status' => 0,
+                                    'contact_id' => null,
+                                    'erp_user' => null,
+                                    'supplier_id' => null,
+                                    'task_id' => null,
+                                    'dubizzle_id' => null,
+                                    'is_email' => 1,
+                                    'from_email' => $from,
+                                    'to_email' => $to,
+                                    'email_id' => $email_id,
+                                    'message_type'  => 'email'
+                                ];
+                                $messageModel = \App\ChatMessage::create($params);
+                                $mailFound = true;
                             }
                         }
                     }

@@ -7,10 +7,10 @@
         padding-right: 0px !important;
     }
     #chat-list-history tr {
-        word-break: break-word; 
+        word-break: break-word;
     }
     .reviewed_msg {
-        word-break: break-word; 
+        word-break: break-word;
     }
     .chatbot .communication{
 
@@ -49,7 +49,7 @@ padding: 3px 2px;
 @php
     $isAdmin = Auth::user()->hasRole('Admin');
     $isHod  = Auth::user()->hasRole('HOD of CRM');
-    
+
 @endphp
 <div class="table-responsive">
 <table class="table table-bordered chatbot page-template-{{ $page }}">
@@ -63,25 +63,25 @@ padding: 3px 2px;
         <th width="2%">From</th>
         <th width="2%">Shortcuts</th>
         <th width="2%">Action</th>
-       
+
     </tr>
     </thead>
     <tbody>
     <?php if (!empty($pendingApprovalMsg)) {?>
     <?php foreach ($pendingApprovalMsg as $pam) { ?>
     <tr class="customer-raw-line">
-          
+
 
         @php
 
 
 
-            $context = 'customer';
+            $context = 'email';
             $issueID = null;
             if($pam->chatBotReplychat){
-            
+
                 $reply = json_decode($pam->chatBotReplychat->reply);
-                
+
                 if(isset($reply->context)){
                     $context = $reply->context;
                     $issueID = $reply->issue_id;
@@ -91,7 +91,7 @@ padding: 3px 2px;
 
         @endphp
 
-        <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}">
+        <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}" data-email-id="{{$pam->email_id}}">
             @if($pam->supplier_id > 0)
                 @if (strlen($pam->supplier_name) > 5)
                <p data-log_message="{{ $pam->supplier_name }}" class="user-inputt p-0 m-0">{{  substr($pam->supplier_name,0,4)   }}..</p>
@@ -104,7 +104,13 @@ padding: 3px 2px;
             @if (isset($pam->taskUser) && ( strlen($pam->taskUser->name) > 5) || strlen($pam->customer_name) > 5 || $pam->vendor_id > 0 && strlen($pam->vendors_name) > 5)
             <p  data-log_message="{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}" class="user-inputt p-0 m-0">{{  ($pam->vendor_id > 0 ) ? substr($pam->vendors_name,0,6) : ( $pam->taskUser ? substr($pam->taskUser->name,0,4) : substr($pam->customer_name,0,4)  )  }}..</p>
             @else
-                <p class="p-0 m-0">{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name  : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}</p>
+
+                @if(empty($pam->vendor_id) && empty($pam->customer_id) && empty($pam->supplier_id) && empty($pam->user_id) && empty($pam->task_id) && empty($pam->developer_task_id) && empty($pam->bug_id))
+                    <p class="p-0 m-0">{{ $pam->from_name }}</p>
+                @else
+                    <p class="p-0 m-0">{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name  : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}</p>
+                @endif
+
             @endif
 
            </td>
@@ -123,12 +129,44 @@ padding: 3px 2px;
                 @if($pam->chat_read_id == 1)
                     <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                         <i class="fa fa-check-square-o text-dark"></i>
-                        
+
                     </a>
                 @else
                     <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
                         <i class="fa fa-check-square-o text-secondary"></i>
-                        
+
+                    </a>
+                @endif
+            </td>
+
+        @elseif(empty($pam->vendor_id) && empty($pam->customer_id) && empty($pam->supplier_id) && empty($pam->user_id) && empty($pam->task_id) && empty($pam->developer_task_id) && empty($pam->bug_id))
+            <td class="user-input" >{{ $pam->message }}</td>
+        @else
+            {{-- <td class="user-input" >{{ $pam->question }}
+                @if($pam->chat_read_id == 1)
+                    <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
+                        <i class="fa fa-check-square-o text-dark"></i>
+
+                    </a>
+                @else
+                    <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
+                        <i class="fa fa-check-square-o text-secondary"></i>
+
+                    </a>
+                @endif
+            </td> --}}
+
+            @if (strlen($pam->question) > 10)
+            <td   class="log-message-popup user-input" data-log_message="{!!$pam->question!!}">{{ substr($pam->question,0,15) }}...
+                @if($pam->chat_read_id == 1)
+                    <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
+                        <i class="fa fa-check-square-o text-dark"></i>
+
+                    </a>
+                @else
+                    <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
+                        <i class="fa fa-check-square-o text-secondary"></i>
+
                     </a>
                 @endif
             </td>
@@ -137,15 +175,16 @@ padding: 3px 2px;
                 @if($pam->chat_read_id == 1)
                     <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                         <i class="fa fa-check-square-o text-dark"></i>
-                        
+
                     </a>
                 @else
                     <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
                         <i class="fa fa-check-square-o text-secondary"></i>
-                        
+
                     </a>
                 @endif
             </td>
+        @endif
         @endif
 {{--            {{ $pam->question }}--}}
 
@@ -163,13 +202,13 @@ padding: 3px 2px;
             <div class=" cls_textarea_subbox">
                 <div class="btn-toolbar" role="toolbar">
                     <div class="w-75">
-                        <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message"></textarea>    
+                        <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message"></textarea>
                     </div>
                     <div class="w-25 pl-2" role="group" aria-label="First group">
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1">
                             <input name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
                         </button>
-                        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image send-message1" id="send-message_{{ $pam->id }}" data-id="{{ $pam->id }}"  data-customer-id="{{ $pam->customer_id }}">
+                        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image send-message1" id="send-message_{{ $pam->id }}" data-id="{{ $pam->id }}"  data-customer-id="{{ !empty($pam->customer_id) ? $pam->customer_id : '' }}" data-email-id={{ !empty($pam->email_id) ? $pam->email_id : ''}}>
                             <img src="/images/filled-sent.png">
                         </button>
                         @if($pam->task_id > 0 )
@@ -178,6 +217,11 @@ padding: 3px 2px;
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="developer_task" data-id="{{$pam->developer_task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                         @elseif($pam->vendor_id > 0 )
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+
+                        @elseif(empty($pam->vendor_id) && empty($pam->customer_id) && empty($pam->supplier_id) && empty($pam->user_id) && empty($pam->task_id) && empty($pam->developer_task_id) && empty($pam->bug_id))
+
+                        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="email" data-id="{{$pam->email_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+
                         @else
                         <button   type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                         <button   type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
@@ -409,7 +453,7 @@ padding: 3px 2px;
             <div class="modal-body">
             <form method="post" action="<?php echo route("chatbot.question.save"); ?>">
                 <?php echo csrf_field(); ?>
-                
+
                 <div class="modal-body">
 
                     <input type="hidden" name="chat_id"  id="chat_id">
@@ -420,24 +464,24 @@ padding: 3px 2px;
                         <div class="form-group">
                             <label for="value">From</label>
                             <input type="email" name="from_email"  id="from_email" class="form-control"  placeholder="Enter from email" required>
-                        </div> 
+                        </div>
                         <div class="form-group">
                             <label for="value">Cc</label>
                             <input type="email" name="cc_email"  id="cc_email" class="form-control"  placeholder="Enter cc">
-                        </div> 
+                        </div>
                         <div class="form-group">
                             <label for="value">Message</label>
                             <input type="email" name="message1"  id="message1" class="form-control"  placeholder="Enter cc">
-                        </div>    
+                        </div>
                 </div>
-                
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary form-edit-email-btn">Save changes</button>
                 </div>
             </form>
             </div>
-           
+
         </div>
 
     </div>
@@ -450,7 +494,7 @@ padding: 3px 2px;
     $(document).on('click','.log-message-popup',function(){
         $('#logMessageModel p').text($(this).data('log_message'));
         $('#logMessageModel').modal('show');
-        
+
     })
 
     $(document).on('click','.editmessagebcc',function(){
@@ -458,11 +502,11 @@ padding: 3px 2px;
         $('#from_email').val($(this).data('from_email'));
         $('#to_email').val($(this).data('to_email'));
         $('#cc_email').val($(this).data('cc_email'));
-        
+
         var message = $(this).closest(".cls_textarea_subbox").find("textarea").val();
         $('#message1').val(message);
         $('#editmessagebcc').modal('show');
-      
+
     })
 
     $(document).on("click",".form-edit-email-btn",function () {
@@ -479,7 +523,7 @@ padding: 3px 2px;
                 fromemail:fromemail,
                 toemail:toemail,
                 ccemail:ccemail
-               
+
             },
             success: function (response) {
                 if(response.code == 200) {
@@ -496,7 +540,7 @@ padding: 3px 2px;
         });
     });
 
-    
+
 
     $(document).on('click','.bot-reply-popup',function(){
         $('#botReply').modal('show');
@@ -562,7 +606,7 @@ padding: 3px 2px;
             url: "/chatbot/messages/resend-to-bot",
             data: {
                 chat_id : chatID
-               
+
             },
             dataType : "json",
             success: function (response) {

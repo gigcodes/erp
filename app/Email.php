@@ -21,10 +21,15 @@ class Email extends Model
                         ->orderBy('created_at', 'desc')
                         ->pluck('email_category_id')
                         ->first();
-    
+
                     if(strlen($emailCategoryId) > 0){
                         $email->email_category_id = $emailCategoryId;
                     }
+                }
+
+                if(!empty($email->from)){
+                    $explodeArray = explode('@',$email->from);
+                    $email->name = $explodeArray[0];
                 }
             }
             catch(\Exception $e){
@@ -100,5 +105,16 @@ class Email extends Model
             'App\User' => 'User',
             'App\Vendor' => 'Vendor',
         ];
+    }
+
+    public function whatsappAll($needBroadcast = false)
+    {
+        if ($needBroadcast) {
+            return $this->hasMany(\App\ChatMessage::class, 'email_id')->where(function ($q) {
+                $q->whereIn('status', ['7', '8', '9', '10'])->orWhere('group_id', '>', 0);
+            })->latest();
+        } else {
+            return $this->hasMany(\App\ChatMessage::class, 'email_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        }
     }
 }

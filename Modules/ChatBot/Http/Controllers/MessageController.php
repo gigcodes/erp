@@ -28,8 +28,9 @@ class MessageController extends Controller
             ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id')
             ->leftJoin('store_websites as sw', 'sw.id', 'c.store_website_id')
             ->leftJoin('bug_trackers  as bt', 'bt.id', 'chat_messages.bug_id')
-            ->Join('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
+            ->leftJoin('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
             ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
+            ->leftJoin('emails as e', 'e.id', 'chat_messages.email_id')
             ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id']); //Purpose : Add task_id - DEVTASK-4203
 
         if (! empty($search)) {
@@ -76,13 +77,27 @@ class MessageController extends Controller
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw('chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where (customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0 or bug_id > 0)  GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id)');
+        // $pendingApprovalMsg = $pendingApprovalMsg->whereRaw('chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages LEFT JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where ((customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0 or bug_id > 0) OR (customer_id IS NULL
+        // AND vendor_id IS NULL
+        // AND supplier_id IS NULL
+        // AND bug_id IS NULL
+        // AND task_id IS NULL
+        // AND developer_task_id IS NULL
+        // AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id)');
+
+        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw('chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages LEFT JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where ((customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0 or bug_id > 0) OR (customer_id IS NULL
+        AND vendor_id IS NULL
+        AND supplier_id IS NULL
+        AND bug_id IS NULL
+        AND task_id IS NULL
+        AND developer_task_id IS NULL
+        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id)');
 
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where('chat_messages.message', '!=', '');
         })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
             'cm1.message as answer',
-            'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', ])
+            'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name'])
             ->orderBy('cr.id', 'DESC')
             ->paginate(20);
 
@@ -111,15 +126,14 @@ class MessageController extends Controller
     public function approve()
     {
         $id = request('id');
-
+        $messageId = 0;
         if ($id > 0) {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $id]);
 
             $chatMEssage = \app\ChatMessage::find($id);
-
-            $type = 'customer';
+            $type = '';
             if ($chatMEssage->task_id > 0) {
                 $type = 'task';
             } elseif ($chatMEssage->developer_tasK_id > 0) {
@@ -130,9 +144,15 @@ class MessageController extends Controller
                 $type = 'user';
             } elseif ($chatMEssage->supplier_id > 0) {
                 $type = 'supplier';
+            } elseif($chatMEssage->customer_id > 0){
+                $type = 'customer';
+            } elseif($chatMEssage->message_type == 'email'){
+                $type = 'email';
+                $messageId = $id;
             }
 
-            app(\App\Http\Controllers\WhatsAppController::class)->approveMessage($type, $myRequest);
+
+            app(\App\Http\Controllers\WhatsAppController::class)->approveMessage($type, $myRequest,$messageId);
         }
 
         return response()->json(['code' => 200, 'message' => 'Messsage Send Successfully']);
