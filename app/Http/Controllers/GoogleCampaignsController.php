@@ -241,7 +241,7 @@ class GoogleCampaignsController extends Controller
             return redirect()->to('/google-campaigns/ads-account');
         }
         // $storagepath = $this->getstoragepath($account_id);
-        
+
 
         $query = \App\GoogleAdsCampaign::query();
         if ($request->googlecampaign_id) {
@@ -282,7 +282,7 @@ class GoogleCampaignsController extends Controller
 
         $biddingStrategyTypes = $this->getBiddingStrategyTypeArray();
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Campaign',
@@ -307,7 +307,7 @@ class GoogleCampaignsController extends Controller
     {
         $biddingStrategyTypes = $this->getBiddingStrategyTypeArray();
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Campaign',
@@ -415,11 +415,12 @@ class GoogleCampaignsController extends Controller
             }
             $campaignArray['final_url_suffix'] = $final_url_suffix;
 
-            if ($request->merchant_id) {
-                $merchant_id = $request->merchant_id;
-            } else {
-                $merchant_id = '';
-            }
+//            if ($request->merchant_id) {
+//                $merchant_id = $request->merchant_id;
+//            } else {
+//                $merchant_id = '';
+//            }
+            $merchant_id = $account->google_merchant_center_account_id;
             $campaignArray['merchant_id'] = $merchant_id;
 
             if ($request->sales_country) {
@@ -428,7 +429,7 @@ class GoogleCampaignsController extends Controller
                 $sales_country = '';
             }
             $campaignArray['sales_country'] = $sales_country;
-            
+
             // Generate a refreshable OAuth2 credential for authentication.
             $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
@@ -451,7 +452,7 @@ class GoogleCampaignsController extends Controller
                                 'start_date' => $campaign_start_date,
                                 'end_date' => $campaign_end_date,
                             );
-            
+
 
             if($channel_type == "PERFORMANCE_MAX"){
                 $campaignArr['url_expansion_opt_out'] = false;
@@ -481,8 +482,8 @@ class GoogleCampaignsController extends Controller
 
                 if($channel_sub_type == "APP_CAMPAIGN_FOR_PRE_REGISTRATION"){
                     $campaignArr['optimization_goal_setting'] = new OptimizationGoalSetting([
-                                                                        'optimization_goal_types' => [ 
-                                                                            OptimizationGoalType::APP_PRE_REGISTRATION 
+                                                                        'optimization_goal_types' => [
+                                                                            OptimizationGoalType::APP_PRE_REGISTRATION
                                                                         ]
                                                                     ]);
                 }
@@ -518,9 +519,9 @@ class GoogleCampaignsController extends Controller
             $campaignArray['google_campaign_id'] = substr($campaignResourceName, strrpos($campaignResourceName, "/") + 1);
             $campaignArray['campaign_response'] = json_encode($createdCampaign);
             \App\GoogleAdsCampaign::create($campaignArray);
-            
 
-            // Start Target Language 
+
+            // Start Target Language
             if(!empty($targetLanguages) && !@$request->all_target_languages){
                 foreach($targetLanguages as $key => $value){
                     $isAdded = self::addTargetLanguage($googleAdsClient, $customerId, $campaignArray['google_campaign_id'], $value);
@@ -534,17 +535,17 @@ class GoogleCampaignsController extends Controller
                     }
                 }
             }
-            // End Target Language 
+            // End Target Language
 
             // Start Target Location
             if(@$request->target_location == "other"){
                 if(@$request->target_location_type == "radius"){
                     $addedLocation = self::addLocationWithRadius(
-                                                        $googleAdsClient, 
-                                                        $customerId, 
-                                                        $campaignArray['google_campaign_id'], 
-                                                        @$request->target_location_address, 
-                                                        @$request->target_location_distance, 
+                                                        $googleAdsClient,
+                                                        $customerId,
+                                                        $campaignArray['google_campaign_id'],
+                                                        @$request->target_location_address,
+                                                        @$request->target_location_distance,
                                                         @$request->target_location_radius_units
                                                     );
 
@@ -581,13 +582,13 @@ class GoogleCampaignsController extends Controller
                     }
 
                     if(!empty($search)){
-                        $geoTargetConstant = self::getGeoTargetConstant($googleAdsClient, $search); 
+                        $geoTargetConstant = self::getGeoTargetConstant($googleAdsClient, $search);
 
                         if(!empty($geoTargetConstant)){
                             $addedLocation = self::addLocation(
-                                                                $googleAdsClient, 
-                                                                $customerId, 
-                                                                $campaignArray['google_campaign_id'], 
+                                                                $googleAdsClient,
+                                                                $customerId,
+                                                                $campaignArray['google_campaign_id'],
                                                                 $geoTargetConstant['location_id'],
                                                                 (@$request->is_target == 0 ? true : false)
                                                             );
@@ -613,7 +614,7 @@ class GoogleCampaignsController extends Controller
             }
             // End Target Location
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Campaign',
@@ -624,7 +625,7 @@ class GoogleCampaignsController extends Controller
 
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign created successfully');
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Campaign',
@@ -642,7 +643,7 @@ class GoogleCampaignsController extends Controller
         $biddingStrategyTypes = $this->getBiddingStrategyTypeArray();
         $campaign = \App\GoogleAdsCampaign::with('target_languages')->where('google_campaign_id', $campaignId)->firstOrFail();
 
-         // Insert google ads log 
+         // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Campaign',
@@ -716,7 +717,7 @@ class GoogleCampaignsController extends Controller
             }
             $campaignArray['maximize_clicks'] = $txt_maximize_clicks;
 
-    
+
             // Generate a refreshable OAuth2 credential for authentication.
             $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
@@ -726,7 +727,7 @@ class GoogleCampaignsController extends Controller
             // Creates a campaign.
             $campaignArr = array(
                                 'resource_name' => ResourceNames::forCampaign($customerId, $campaignId),
-                                
+
                                 'name' => $campaignName,
                                 'campaign_budget' => $budgetResourceName,
                                 'status' => self::getCampaignStatus($campaignStatus),
@@ -787,7 +788,7 @@ class GoogleCampaignsController extends Controller
             \App\GoogleAdsCampaign::whereId($campaignDetail->id)->update($campaignArray);
 
 
-            // Start Target Language 
+            // Start Target Language
             if(!empty($targetLanguages) && !@$request->all_target_languages){
                 $targetLanguageIds = [];
                 foreach($targetLanguages as $key => $value){
@@ -826,9 +827,9 @@ class GoogleCampaignsController extends Controller
                     }
                 }
             }
-            // End Target Language 
+            // End Target Language
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Campaign',
@@ -838,7 +839,7 @@ class GoogleCampaignsController extends Controller
 
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign updated successfully');
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Campaign',
@@ -854,14 +855,14 @@ class GoogleCampaignsController extends Controller
     public function deleteCampaign(Request $request, $campaignId)
     {
         try {
-            
+
             $account_id = $request->delete_account_id;
             $googleAdsCampaign = \App\GoogleAdsCampaign::where('account_id', $account_id)->where('google_campaign_id', $campaignId)->firstOrFail();
             $customerId = $googleAdsCampaign->google_customer_id;
 
             try {
                 // $storagepath = $this->getstoragepath($account_id);
-                            
+
                 // Generate a refreshable OAuth2 credential for authentication.
                 $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
@@ -876,10 +877,10 @@ class GoogleCampaignsController extends Controller
                 $campaignServiceClient = $googleAdsClient->getCampaignServiceClient();
                 $response = $campaignServiceClient->mutateCampaigns($customerId, [$campaignOperation]);
             } catch (Exception $e) {
-                
+
             }
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Campaign',
@@ -903,7 +904,7 @@ class GoogleCampaignsController extends Controller
 
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign deleted successfully');
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Campaign',
@@ -955,13 +956,13 @@ class GoogleCampaignsController extends Controller
                             'budget_resource_name' => $budgetResourceName,
                         );
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Campaign',
                         'message' => 'Create campaign budget > '. $e->getMessage(),
                     );
-            insertGoogleAdsLog($input);        
+            insertGoogleAdsLog($input);
         }
 
         return $response;
@@ -998,13 +999,13 @@ class GoogleCampaignsController extends Controller
                             'budget_resource_name' => $budgetResourceName,
                         );
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Campaign',
                         'message' => 'Update campaign budget > '. $e->getMessage(),
                     );
-            insertGoogleAdsLog($input);     
+            insertGoogleAdsLog($input);
         }
 
         return $response;
@@ -1101,13 +1102,13 @@ class GoogleCampaignsController extends Controller
     {
         // return ['MANUAL_CPC' => 'Manually set bids', 'MANUAL_CPM' => 'Viewable CPM', 'PAGE_ONE_PROMOTED' => 'Page one promoted', 'TARGET_SPEND' => 'Maximize clicks', 'TARGET_CPA' => 'Target CPA', 'TARGET_ROAS' => 'Target Roas', 'MAXIMIZE_CONVERSIONS' => 'max conv', 'MAXIMIZE_CONVERSION_VALUE' => 'Automatically maximize conversions', 'TARGET_OUTRANK_SHARE' => 'Target outrank sharing', 'NONE' => 'None', 'UNKNOWN' => 'Unknown'];
         return [
-            'MANUAL_CPC' => 'Manually set bids', 
-            'MANUAL_CPM' => 'Viewable CPM', 
-            'TARGET_SPEND' => 'Maximize clicks', 
-            'TARGET_CPA' => 'Target CPA', 
-            'TARGET_ROAS' => 'Target Roas', 
-            'MAXIMIZE_CONVERSIONS' => 'Maximise conversions', 
-            'MAXIMIZE_CONVERSION_VALUE' => 'Automatically maximize conversions', 
+            'MANUAL_CPC' => 'Manually set bids',
+            'MANUAL_CPM' => 'Viewable CPM',
+            'TARGET_SPEND' => 'Maximize clicks',
+            'TARGET_CPA' => 'Target CPA',
+            'TARGET_ROAS' => 'Target Roas',
+            'MAXIMIZE_CONVERSIONS' => 'Maximise conversions',
+            'MAXIMIZE_CONVERSION_VALUE' => 'Automatically maximize conversions',
             'UNSPECIFIED' => 'Unspecified'
         ];
     }
@@ -1243,7 +1244,7 @@ class GoogleCampaignsController extends Controller
         }
     }
 
-    //get campaign status  
+    //get campaign status
     private function getCampaignStatus($v)
     {
         switch ($v) {
@@ -1307,18 +1308,18 @@ class GoogleCampaignsController extends Controller
             );
 
             $addedCampaignCriterion = $response->getResults()[0];
-            
+
             return true;
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Campaign',
                         'message' => 'Add campaign target language > '.$campaignId.' > '. $e->getMessage(),
                     );
-            insertGoogleAdsLog($input);    
+            insertGoogleAdsLog($input);
 
-            return false;    
+            return false;
         }
     }
 
@@ -1342,18 +1343,18 @@ class GoogleCampaignsController extends Controller
             );
 
             $removedCampaignCriterion = $response->getResults()[0];
-            
+
             return true;
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Campaign',
                         'message' => 'Remove campaign target language > '.$campaignId.' > '. $e->getMessage(),
                     );
-            insertGoogleAdsLog($input);    
+            insertGoogleAdsLog($input);
 
-            return false;    
+            return false;
         }
     }
 
@@ -1389,13 +1390,13 @@ class GoogleCampaignsController extends Controller
                         );
         } catch (Exception $e) {
             $response = [];
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Campaign',
                         'message' => 'Add campaign target location > '.$campaignId.' > '. $e->getMessage(),
                     );
-            insertGoogleAdsLog($input);    
+            insertGoogleAdsLog($input);
         }
 
         return $response;
@@ -1443,13 +1444,13 @@ class GoogleCampaignsController extends Controller
                         );
         } catch (Exception $e) {
             $response = [];
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Campaign',
                         'message' => 'Add campaign target location with radius > '.$campaignId.' > '. $e->getMessage(),
                     );
-            insertGoogleAdsLog($input);    
+            insertGoogleAdsLog($input);
         }
 
         return $response;
@@ -1469,7 +1470,7 @@ class GoogleCampaignsController extends Controller
         // values for each one.
         $result = array();
         foreach ($response->getGeoTargetConstantSuggestions() as $geoTargetConstantSuggestion) {
-            
+
             $status = GeoTargetConstantStatus::name(
                     $geoTargetConstantSuggestion->getGeoTargetConstant()->getStatus()
                 );

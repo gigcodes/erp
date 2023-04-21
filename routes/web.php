@@ -350,6 +350,7 @@ use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
+use App\Http\Controllers\GoogleShoppingAdsController;
 
 Auth::routes();
 
@@ -1546,6 +1547,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
     Route::post('task/recurring-history', [TaskModuleController::class, 'recurringHistory'])->name('task.recurringHistory');
     Route::post('task/create-multiple-task-from-shortcut-bugtrack', [TaskModuleController::class, 'createMultipleTaskFromSortcutBugtrack'])->name('task.create.multiple.task.shortcut.bugtrack');
+    Route::post('task/upload-file', [TaskModuleController::class, 'uploadFile'])->name('task.upload-file');
+    Route::get('task/files/record', [TaskModuleController::class, 'getUploadedFilesList'])->name('task.files.record');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -2912,6 +2915,7 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/collection/create', [PostmanRequestCreateController::class, 'collectionStore']);
     Route::post('/postman/folder/edit', [PostmanRequestCreateController::class, 'folderEdit']);
     Route::post('/postman/workspace/edit', [PostmanRequestCreateController::class, 'workspaceEdit']);
+    Route::post('/postman/collection/edit', [PostmanRequestCreateController::class, 'collectionEdit']);
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
     Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
@@ -3965,6 +3969,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/repos/{id}/github-actions', [Github\RepositoryController::class, 'ajaxActionWorkflows']);
         Route::get('/repos/{id}/branch/merge', [Github\RepositoryController::class, 'mergeBranch']);
         Route::get('/repos/{id}/deploy', [Github\RepositoryController::class, 'deployBranch']);
+        Route::post('/repos/{id}/branch', [Github\RepositoryController::class, 'deleteBranchFromRepo']);
         Route::post('/repos/{id}/actions/jobs/{jobId}/rerun', [Github\RepositoryController::class, 'rerunGithubAction']);
         Route::post('/add_user_to_repo', [Github\UserController::class, 'addUserToRepository']);
         Route::get('/users', [Github\UserController::class, 'listOrganizationUsers']);
@@ -4126,6 +4131,14 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::get('/create', [GoogleAdGroupKeywordController::class, 'createPage'])->name('ad-group-keyword.createPage');
                     Route::post('/create', [GoogleAdGroupKeywordController::class, 'createKeyword'])->name('ad-group-keyword.craeteKeyword');
                     Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('shopping-ad')->group(function () {
+                    Route::get('/', [GoogleShoppingAdsController::class, 'index'])->name('shopping-ads.index');
+                    Route::post('/create', [GoogleShoppingAdsController::class, 'createAd'])->name('shopping-ads.createAd');
+                    Route::delete('/delete/{adId}', [GoogleShoppingAdsController::class, 'deleteAd'])->name('shopping-ads.deleteAd');
                 });
             });
         });
@@ -4863,6 +4876,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
     Route::get('{id}/edit', [GoogleDocController::class, 'edit'])->name('.edit');
     Route::post('/update', [GoogleDocController::class, 'update'])->name('.update');
+    Route::post('task', [GoogleDocController::class, 'createDocumentOnTask'])->name('.task');
+    Route::get('task/show', [GoogleDocController::class, 'listDocumentOnTask'])->name('.task.show');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
@@ -4895,8 +4910,21 @@ Route::prefix('seo')->middleware('auth')->group(function() {
         Route::get('{id}/edit', [Seo\ContentController::class, 'edit'])->name('seo.content.edit');
         Route::post('{id}/update', [Seo\ContentController::class, 'update'])->name('seo.content.update');
         Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
-
     });
+
+    Route::prefix('company')->group(function() {
+        Route::get('', [Seo\CompanyController::class, 'index'])->name('seo.company.index');
+        Route::get('create', [Seo\CompanyController::class, 'create'])->name('seo.company.create');
+        Route::post('store', [Seo\CompanyController::class, 'store'])->name('seo.company.store');
+        Route::get('{id}/edit', [Seo\CompanyController::class, 'edit'])->name('seo.company.edit');
+        Route::post('{id}/update', [Seo\CompanyController::class, 'update'])->name('seo.company.update');
+    });
+
+    Route::prefix('company-type')->group(function() {
+        Route::get('', [Seo\CompanyTypeController::class, 'index'])->name('seo.company-type.index');
+        Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.content-type.store');
+    });
+
 });
 
 // Task Summary::

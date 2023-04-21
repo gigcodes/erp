@@ -72,6 +72,10 @@
                             <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/responsive-display-ad">
                                 <button type="submit" class="btn-image">Display Ads</button>
                             </form>
+                        @elseif(in_array(@$campaign_channel_type, ["SHOPPING"]))
+                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/shopping-ad">
+                                <button type="submit" class="btn-image">Shopping Ads</button>
+                            </form>
                         @elseif(in_array(@$campaign_channel_type, ["SEARCH"]))
                             <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
                                 <button type="submit" class="btn btn-image">Ads</button>

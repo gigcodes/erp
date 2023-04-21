@@ -29,6 +29,11 @@
                                 @foreach($tasks as $task)
                                 <option value="{{$task->id}}" class="form-control">{{$task->id}}-{{$task->subject}}</option>
                                 @endforeach
+                                @if (isset($generalTask) && !empty($generalTask))
+                                    @foreach($generalTask as $task)
+                                        <option value="TASK-{{$task->id}}" class="form-control">{{$task->id}}-{{$task->subject}}</option>
+                                    @endforeach
+                                @endif
                             </select>
                     </div>
                     <div class="form-group">
