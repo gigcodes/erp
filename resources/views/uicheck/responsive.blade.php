@@ -241,7 +241,7 @@
 									</td>
 								@endif
 
-								<td>{{$allUicheckTypes[$uiDevData->uicheck_type_id]}}</td>
+								<td>{{$uiDevData->uicheck_type_id ? $allUicheckTypes[$uiDevData->uicheck_type_id] : "-"}}</td>
 							
 								<td style="background-color: {{$deviceBgColors['1']}} !important">
 									<input type="text" name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
