@@ -351,6 +351,7 @@ use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
 use App\Http\Controllers\GoogleShoppingAdsController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 
 Auth::routes();
 
@@ -4949,3 +4950,13 @@ Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
 Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
 Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
  });
+
+Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
+    Route::prefix('providers')->group(function () {
+        Route::get('', [AffiliateMarketingController::class, 'providers'])->name('affiliate-marketing.providers');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProvider'])->name('affiliate-marketing.get');
+        Route::post('create', [AffiliateMarketingController::class, 'createProvider'])->name('affiliate-marketing.createProvider');
+        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProvider'])->name('affiliate-marketing.updateProvider');
+        Route::post('delete', [AffiliateMarketingController::class, 'deleteProvider'])->name('affiliate-marketing.deleteProviders');
+    });
+});

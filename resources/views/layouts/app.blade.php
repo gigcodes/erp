@@ -2265,6 +2265,16 @@ if (!empty($notifications)) {
                                     <a class="dropdown-item" href="{{ route('logging.flow.log') }}">Flow Log
                                     </a>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                       aria-haspopup="true" aria-expanded="false" v-pre>Affiliate Marketing<span
+                                                class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('affiliate-marketing.providers')}}">Providers</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -2300,8 +2310,8 @@ if (!empty($notifications)) {
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/youtube/add-chanel">Create Chanel</a>
-                                          
-                                            
+
+
                                         </li>
                                     </ul>
                                 </li>
@@ -2497,7 +2507,7 @@ if (!empty($notifications)) {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ route('store-website.page.review.translate','German') }}">German Page Review Translate </a>
                                                     </li>
-                                                    
+
                                                 </ul>
                                         </li>
                                         <li class="nav-item">
