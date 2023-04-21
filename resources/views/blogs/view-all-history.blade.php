@@ -38,10 +38,10 @@
 
                   <div class="form-group col-md-2 pd-3 status-select-cls select-multiple-checkbox">
                     <div class='input-group date' id='blog-datetime'>
-                    <input type='text' class="form-control" name="created_at" id="created_at" value="" />
-                    <span class="input-group-addon">
+                    <input type='date' class="form-control" name="created_at" id="created_at" value="" />
+                    {{--  <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
+                    </span>  --}}
                     </div>
                 </div>
                 
@@ -97,9 +97,9 @@
             },
             
                 columns: [
-                    {data: 'blog_id', name: 'blog_id'},
-                    {data: 'userName', name: 'userName',searchable: true},
-                    {data: 'plaglarism', name: 'plaglarism', orderable: true, searchable: true},
+                    {data: 'blog_id', name: 'blog_id', orderable: false, searchable: true},
+                    {data: 'userName', name: 'userName',orderable: false, searchable: true},
+                    {data: 'plaglarism', name: 'plaglarism', orderable: false, searchable: true},
                     {data: 'internal_link', name: 'internal_link', orderable: false},
                     {data: 'external_link', name: 'external_link', orderable: false},
                     {data: 'no_index', name: 'no_index', orderable: false},

@@ -67,18 +67,74 @@ class BlogController extends Controller
                     $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : "N/A";
                     return $createdDate;
                 })
+                ->addColumn('facebook_date', function ($row) {
+                    $facebookDate = $row->facebook_date ? Carbon::parse($row->facebook_date)->format('Y-m-d') : "N/A";
+                    return $facebookDate;
+                })
+                ->addColumn('google_date', function ($row) {
+                    $googleDate = $row->google_date ? Carbon::parse($row->google_date)->format('Y-m-d') : "N/A";
+                    return $googleDate;
+                })
+                ->addColumn('instagram_date', function ($row) {
+                    $instaDate = $row->instagram_date ? Carbon::parse($row->instagram_date)->format('Y-m-d') : "N/A";
+                    return $instaDate;
+                })
+                ->addColumn('twitter_date', function ($row) {
+                    $twitterDate = $row->twitter_date ? Carbon::parse($row->twitter_date)->format('Y-m-d') : "N/A";
+                    return $twitterDate;
+                })
+                ->addColumn('bing_date', function ($row) {
+                    $bingDate = $row->bing_date ? Carbon::parse($row->bing_date)->format('Y-m-d') : "N/A";
+                    return $bingDate;
+                })
+                ->addColumn('header_tag', function ($row) {
+                    
+                    $headerTags = $this->headerTagGetWhenEdit($row->id);
+                    $headerTagEditValue = implode(",", $headerTags);
+                 
+                    return $headerTagEditValue;
+                })
+                ->addColumn('strong_tag', function ($row) {
+                    
+                    $strongTags = $this->strongTagGetWhenEdit($row->id);
+                    $strongtags = implode(",", $strongTags);
+                    
+                    return $strongtags;
+                })
+                ->addColumn('title_tag', function ($row) {
+                    
+                    $titleTags = $this->titleTagGetWhenEdit($row->id);
+                    $titleTags = implode(",", $titleTags);
+                    
+                    return $titleTags;
+                })
+                ->addColumn('italic_tag', function ($row) {
+                    
+                    $italicTags = $this->italicTagGetWhenEdit($row->id);
+                    $italicTags = implode(",", $italicTags);
+                    
+                    return $italicTags;
+                })
                 ->addColumn('publish_blog_date', function ($row) {
                     $publishDate = $row->publish_blog_date ? Carbon::parse($row->publish_blog_date)->format('Y-m-d') : "N/A";
                     return $publishDate;
                 })
+                ->addColumn('plaglarism', function ($row) {
+                    if($row->plaglarism == 'yes'){
+                        return "Yes";
+                    }elseif($row->plaglarism == 'no'){
+                        return "No";
+                    }else{
+                        return "";
+                    }
+                })
 
                 ->addColumn('action', function ($row) {
                     $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-blog-id="' . $row->id . '" id="BlogEditModal" class="btn BlogEditData btn-warning btn-sm"><i class="fa fa-edit"></i> Edit</a>&nbsp; | 
-                    <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp; |
-                    <a href="view/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</a>&nbsp;';
+                    <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
                     return $actionBtn;
                 })
-                ->rawColumns(['action', 'userName'])
+                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'header_tag', 'strong_tag','italic_tag'])
                 ->make(true);
         }
 
@@ -562,7 +618,7 @@ class BlogController extends Controller
             'url_structure' => $request->url_structure,
             'url_xml' => $request->url_xml,
             'no_follow' => $request->no_follow,
-            'publish_blog_date' => Carbon::parse($request->publish_blog_date)->format('Y-m-d'),
+            'publish_blog_date' => !empty($request->publish_blog_date) ? Carbon::parse($request->publish_blog_date)->format('Y-m-d'): '',
             'no_index' => $request->no_index,
             'date' => $request->date,
             'facebook' => $request->facebook,

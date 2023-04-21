@@ -24,6 +24,9 @@
     #edit_activate_tagator2 {
 			width: 300px;
 		}
+    #tagator_activate_tagator2, #tagator_edit_activate_tagator2{
+      width:237px !important;
+    }
     
 	</style>
 
@@ -41,7 +44,7 @@
             <hr>
             <div class="table-responsive">
             <div>
-            <a class="btn btn-bg btn-primary pull-right"  data-toggle="modal" data-target="#addBlogModal" >Add Blog <i class="fa fa-plus" aria-hidden="true"></i></a>
+            <a class="btn btn-bg btn-primary pull-right" style="color:#fff"  data-toggle="modal" data-target="#addBlogModal" >Add Blog <i class="fa fa-plus" aria-hidden="true"></i></a>
             </div>
             <div>
             <a class="btn btn-bg btn-primary pull-right" style="margin-right: 20px;" href="{{route('view-blog-all.history')}}">View History  <i class="fa fa-history" aria-hidden="true"></i></a>
@@ -66,7 +69,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Blog</h5>
+                    <h4 class="modal-title">Add Blog</h5>
                     
                 </div>
                 <div class="modal-body">
@@ -236,16 +239,20 @@
                             
                                 
                                 <div class="col-md-4">
-                                <button type="button" data-toggle="modal" data-target="#socialShare" class="btn btn-primary">Social Share</button>
-                                <button type="button" data-toggle="modal" data-target="#google_bingo" class="btn btn-primary">Google And Bing</button>
+                                    <div class="row">
+                                      <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#socialShare" class="btn btn-primary">Social Share</button></div>
+                                      <div class="col-md-5"><button type="button" data-toggle="modal" data-target="#google_bingo" class="btn btn-primary">Google And Bing</button></div>
+                                    </div>
+                               
+                                
                                 </div>
                                 <div class='col-md-4'>
                                         <label class="form-label">Publish Blog Date</label>
                                         <div class='input-group date' id='blog-datetime'>
-                                                <input type='text' class="form-control" name="publish_blog_date" value="{{old('publish_blog_date')}}" />
-                                                <span class="input-group-addon">
+                                                <input type='date' class="form-control" name="publish_blog_date" value="{{old('publish_blog_date')}}" />
+                                                {{--  <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
+                                                </span>  --}}
                                                 
 
                                         </div>
@@ -280,10 +287,10 @@
                                 <div class='col-md-4'>
                                         <label class="form-label">Date</label>
                                         <div class='input-group date' id='date'>
-                                                <input type='text' class="form-control" name="date" value="" />
-                                                <span class="input-group-addon">
+                                                <input type='date' class="form-control" name="date" value="" />
+                                                {{--  <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
+                                                </span>  --}}
                                         </div>
                                 </div>
 
@@ -318,10 +325,10 @@
                                     </div>
                                     <div class="col-md-5">
                                         <div class='input-group date' id='facebook_date'>
-                                        <input type='text' class="form-control" name="facebook_date" value="" />
-                                        <span class="input-group-addon">
+                                        <input type='date' class="form-control" name="facebook_date" value="" />
+                                        {{--  <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
-                                        </span>
+                                        </span>  --}}
                                         </div>
 
                                     </div>
@@ -338,10 +345,10 @@
                                     </div>
                                     <div class="col-md-5">
                                         <div class='input-group date' id='instagram_date'>
-                                        <input type='text' class="form-control" name="instagram_date" value="" />
-                                        <span class="input-group-addon">
+                                        <input type='date' class="form-control" name="instagram_date" value="" />
+                                        {{--  <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
-                                        </span>
+                                        </span>  --}}
                                         </div>
 
                                     </div>
@@ -358,10 +365,10 @@
                                     </div>
                                     <div class="col-md-5">
                                         <div class='input-group date' id='twitter_date'>
-                                        <input type='text' class="form-control" name="twitter_date" value="" />
-                                        <span class="input-group-addon">
+                                        <input type='date' class="form-control" name="twitter_date" value="" />
+                                        {{--  <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
-                                        </span>
+                                        </span>  --}}
                                         </div>
 
                                     </div>
@@ -370,7 +377,7 @@
                         </div>       
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss-modal="socialModal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss-modal="socialModal">Cancel</button>
                     <button type="button" class="btn btn-success"  data-dismiss-modal="socialModal">Add</button>
                     {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
                 </div>
@@ -398,10 +405,10 @@
                                 </div>
                                  <div class="col-md-5">
                                      <div class='input-group date' id='google_date'>
-                                    <input type='text' class="form-control" name="google_date" value="" />
-                                    <span class="input-group-addon">
+                                    <input type='date' class="form-control" name="google_date" value="" />
+                                    {{--  <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
+                                    </span>  --}}
                                     </div>
 
                                 </div>
@@ -420,10 +427,10 @@
                                 </div>
                                  <div class="col-md-5">
                                      <div class='input-group date' id='bing_date'>
-                                    <input type='text' class="form-control" name="bing_date" value="" />
-                                    <span class="input-group-addon">
+                                    <input type='date' class="form-control" name="bing_date" value="" />
+                                    {{--  <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
+                                    </span>  --}}
                                     </div>
 
                                 </div>
@@ -469,10 +476,10 @@
                 </div>
                 <div class="form-group col-md-2 pd-3 status-select-cls select-multiple-checkbox">
                     <div class='input-group date' id='blog-datetime'>
-                    <input type='text' class="form-control" name="created_at" id="created_at" value="" />
-                    <span class="input-group-addon">
+                    <input type='date' class="form-control" name="created_at" id="created_at" value="" />
+                    {{--  <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
+                    </span>  --}}
                     </div>
                 </div>
                   <div class="form-group col-md-1 pd-3">
@@ -495,18 +502,37 @@
                     </div>
                 </div>
             </div>  --}}
-                <table class="table-striped table-bordered table out-of-stock-products-table"
+                <table class="table-striped table-bordered table-responsive table out-of-stock-products-table"
                     id="blog_listing">
                     <thead>
                         <tr>
                           
-                            <th>userName</th>
+                            <th style="width:10px !important;">userName</th>
                             <th>Idea</th>
                             <th>Keyword</th>
                             <th>Content</th>
                              <th>No Follow</th>
                             <th>No Index</th>
                             <th>Meta Desc</th>
+                            <th>Plaglarism</th>
+                            <th>Internal Link</th>
+                            <th>External Link</th>
+                            <th>Url Structure</th>
+                            <th>Url XML</th>
+                            <th>Header Tag</th>
+                            <th>Strong Tag</th>
+                            <th>Title Tag</th>
+                            <th>Italic Tag</th>
+                            <th>Facebook</th>
+                            <th>Facebook Date</th>
+                            <th>Google</th>
+                            <th>Google Date</th>
+                            <th>Twitter</th>
+                            <th>Twitter Date</th>
+                            <th>Bing</th>
+                            <th>Bing Date</th>
+                            <th>Instagram</th>
+                            <th>Instagram Date</th>
                             <th>Publish Date</th>
                             <th>Created Date</th>
                             <th>Action</th>
@@ -517,84 +543,6 @@
                 </table>
             </div>
         </div>
-
-        <div class="modal fade" id="AddBlog" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Social Share</h5>
-                
-            </div>
-            <div class="modal-body">
-                    <div class="row mt-3">
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                  <label class="form-label">Facebook</label>
-                                </div>
-                                 <div class="col-md-3">
-                                    <input type='text' name="facebook" class="form-control" value="" />
-                                </div>
-                                 <div class="col-md-5">
-                                     <div class='input-group date' id='facebook_date'>
-                                    <input type='text' class="form-control" name="facebook_date" value="" />
-                                    <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <br>
-                            <br>
-                            
-                               <div class="col-md-12">
-                                <div class="col-md-4">
-                                  <label class="form-label">Instagram</label>
-                                </div>
-                                 <div class="col-md-3">
-                                    <input type='text' name="instagram" class="form-control" value="" />
-                                </div>
-                                 <div class="col-md-5">
-                                     <div class='input-group date' id='instagram_date'>
-                                    <input type='text' class="form-control" name="instagram_date" value="" />
-                                    <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <br>
-                            <br>
-                            
-                              <div class="col-md-12">
-                                <div class="col-md-4">
-                                  <label class="form-label">Twitter</label>
-                                </div>
-                                 <div class="col-md-3">
-                                    <input type='text' name="twitter" class="form-control" value="" />
-                                </div>
-                                 <div class="col-md-5">
-                                     <div class='input-group date' id='twitter_date'>
-                                    <input type='text' class="form-control" name="twitter_date" value="" />
-                                    <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
-                                    </div>
-
-                                </div>
-                            </div>
-                           
-                    </div>       
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" onclick=socialShareClick() data-dismiss="modal">Add</button>
-                {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
-            </div>
-        </div>
-    </div>
-</div>
 
     </div>
 @endsection
@@ -638,15 +586,35 @@
                   }
               },      
                 columns: [                  
-                    {data: 'userName', name: 'userName',searchable: true},
-                    {data: 'idea', name: 'idea', orderable: true, searchable: true},
-                    {data: 'keyword', name: 'keyword'},
-                    {data: 'content', name: 'content'},
-                    {data: 'no_index', name: 'no_index'},
-                    {data: 'no_follow', name: 'no_follow'},
-                    {data: 'meta_desc', name: 'meta_desc'},
-                    {data: 'publish_blog_date', name: 'publish_blog_date'},
-                    {data: 'created_at', name: 'created_at'},
+                    {data: 'userName', name: 'userName',orderable: false, searchable: true},
+                    {data: 'idea', name: 'idea', orderable: false, searchable: true},
+                    
+                    {data: 'keyword', name: 'keyword', orderable: false, searchable: false},
+                    {data: 'content', name: 'content', orderable: false, searchable: true},
+                    {data: 'no_index', name: 'no_index', orderable: false, searchable: false},
+                    {data: 'no_follow', name: 'no_follow', orderable: false, searchable: false},
+                    {data: 'meta_desc', name: 'meta_desc', orderable: false, searchable: true},
+                    {data: 'plaglarism', name: 'plaglarism', orderable: false, searchable: true},
+                    {data: 'internal_link', name: 'internal_link', orderable: false, searchable: true},
+                    {data: 'external_link', name: 'external_link', orderable: false, searchable: true},
+                    {data: 'url_structure', name: 'url_structure', orderable: false, searchable: true},
+                    {data: 'url_xml', name: 'url_xml', orderable: false, searchable: true},
+                    {data: 'header_tag', name: 'header_tag', orderable: false, searchable: false},
+                    {data: 'strong_tag', name: 'strong_tag', orderable: false, searchable: false},
+                    {data: 'title_tag', name: 'title_tag', orderable: false, searchable: false},
+                    {data: 'italic_tag', name: 'italic_tag', orderable: false, searchable: false},
+                    {data: 'facebook', name: 'facebook', orderable: false, searchable: true},
+                    {data: 'facebook_date', name: 'facebook_date', orderable: false, searchable: true},
+                    {data: 'google', name: 'google', orderable: false, searchable: true},
+                    {data: 'google_date', name: 'google_date', orderable: false, searchable: true},
+                    {data: 'twitter', name: 'twitter', orderable: false, searchable: true},
+                    {data: 'twitter_date', name: 'twitter_date', orderable: false, searchable: true},
+                     {data: 'bing', name: 'bing', orderable: false, searchable: true},
+                    {data: 'bing_date', name: 'bing_date', orderable: false, searchable: true},
+                    {data: 'instagram', name: 'instagram', orderable: false, searchable: true},
+                    {data: 'instagram_date', name: 'instagram_date', orderable: false, searchable: true},
+                    {data: 'publish_blog_date', name: 'publish_blog_date', orderable: false, searchable: false},
+                    {data: 'created_at', name: 'created_at', orderable: false, searchable: false},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ]
           });

@@ -178,8 +178,12 @@
                          
                             
                             <div class="col-md-4">
-                            <button type="button" data-toggle="modal" data-target="#EditsocialShare" class="btn btn-primary">Social Share</button>
-                            <button type="button" data-toggle="modal" data-target="#edit_google_bingo" class="btn btn-primary">Google And Bing</button>
+                            <div class="row">
+                                <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#EditsocialShare" class="btn btn-primary">Social Share</button></div>
+                                 <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#edit_google_bingo" class="btn btn-primary">Google And Bing</button></div>
+                            </div>
+                           
+                           
                             </div>
                             <div class='col-md-4'>
                                     <label class="form-label">Publish Blog Date</label>
@@ -219,10 +223,10 @@
                             <div class='col-md-4'>
                                     <label class="form-label">Date</label>
                                     <div class='input-group date' id='edit_date'>
-                                            <input type='text' class="form-control" name="date" value="{{$blog->date}}" />
-                                            <span class="input-group-addon">
+                                            <input type='date' class="form-control" name="date" value="{{!empty($blog->date) ? date('Y-m-d', strtotime($blog->date)): '' }}" />
+                                            {{--  <span class="input-group-addon">
                                             <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
+                                            </span>  --}}
                                     </div>
                             </div>
 
@@ -257,10 +261,10 @@
                                 </div>
                                  <div class="col-md-5">
                                      <div class='input-group date' id='edit_facebook_date'>
-                                    <input type='text' class="form-control" name="facebook_date" value="{{$blog->facebook_date}}" />
-                                    <span class="input-group-addon">
+                                    <input type='date' class="form-control" name="facebook_date" value="{{!empty($blog->facebook_date) ? date('Y-m-d', strtotime($blog->facebook_date)): '' }}" />
+                                    {{--  <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
+                                    </span>  --}}
                                     </div>
 
                                 </div>
@@ -277,10 +281,10 @@
                                 </div>
                                  <div class="col-md-5">
                                      <div class='input-group date' id='edit_instagram_date'>
-                                    <input type='text' class="form-control" name="instagram_date" value="{{$blog->instagram_date}}" />
-                                    <span class="input-group-addon">
+                                    <input type='date' class="form-control" name="instagram_date" value="{{!empty($blog->instagram_date) ? date('Y-m-d', strtotime($blog->instagram_date)): '' }}" />
+                                    {{--  <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
+                                    </span>  --}}
                                     </div>
 
                                 </div>
@@ -297,10 +301,10 @@
                                 </div>
                                  <div class="col-md-5">
                                      <div class='input-group date' id='edit_twitter_date'>
-                                    <input type='text' class="form-control" name="twitter_date" value="{{$blog->twitter_date}}" />
-                                    <span class="input-group-addon">
+                                    <input type='date' class="form-control" name="twitter_date" value="{{!empty($blog->twitter_date) ? date('Y-m-d', strtotime($blog->twitter_date)): '' }}" />
+                                    {{--  <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
+                                    </span>  --}}
                                     </div>
 
                                 </div>
@@ -337,10 +341,10 @@
                                             </div>
                                             <div class="col-md-5">
                                                 <div class='input-group date' id='edit_google_date'>
-                                                <input type='text' class="form-control" name="google_date" value="{{$blog->google_date}}" />
-                                                <span class="input-group-addon">
+                                                <input type='date' class="form-control" name="google_date" value="{{!empty($blog->google_date) ? date('Y-m-d', strtotime($blog->google_date)): '' }}" />
+                                                {{--  <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
+                                                </span>  --}}
                                                 </div>
 
                                             </div>
@@ -359,10 +363,10 @@
                                             </div>
                                             <div class="col-md-5">
                                                 <div class='input-group date' id='edit_bing_date'>
-                                                <input type='text' class="form-control" name="bing_date" value="{{$blog->bing_date}}" />
-                                                <span class="input-group-addon">
+                                                <input type='date' class="form-control" name="bing_date" value="{{!empty($blog->bingo_date) ? date('Y-m-d', strtotime($blog->bingo_date)): '' }}" />
+                                                {{--  <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
+                                                </span>  --}}
                                                 </div>
 
                                             </div>
@@ -372,7 +376,7 @@
                                 </div>       
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" id="EditGoogleBingo">Close</button>
+                            <button type="button" class="btn btn-secondary" id="EditGoogleBingo">Cancel</button>
                             <button type="button" class="btn btn-success"  id="EditGoogleBingo">Add</button>
                             {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
                         </div>
