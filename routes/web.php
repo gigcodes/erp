@@ -350,6 +350,7 @@ use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
+use App\Http\Controllers\GoogleShoppingAdsController;
 
 Auth::routes();
 
@@ -4130,6 +4131,14 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::get('/create', [GoogleAdGroupKeywordController::class, 'createPage'])->name('ad-group-keyword.createPage');
                     Route::post('/create', [GoogleAdGroupKeywordController::class, 'createKeyword'])->name('ad-group-keyword.craeteKeyword');
                     Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('shopping-ad')->group(function () {
+                    Route::get('/', [GoogleShoppingAdsController::class, 'index'])->name('shopping-ads.index');
+                    Route::post('/create', [GoogleShoppingAdsController::class, 'createAd'])->name('shopping-ads.createAd');
+                    Route::delete('/delete/{adId}', [GoogleShoppingAdsController::class, 'deleteAd'])->name('shopping-ads.deleteAd');
                 });
             });
         });
