@@ -7,6 +7,7 @@ use App\Jobs\UploadGoogleDriveScreencast;
 use App\Language;
 use App\Models\UicheckHistory;
 use App\SiteDevelopmentCategory;
+use App\SiteDevelopmentMasterCategory;
 use App\SiteDevelopmentStatus;
 /*use Illuminate\Http\Request;
 use App\SiteDevelopment;
@@ -1578,10 +1579,19 @@ class UicheckController extends Controller
     public function assignNewUser(Request $request)
     {
         try {
+            //master category id for design
+            $siteDevelopmentMasterCategory = SiteDevelopmentMasterCategory::select('id')->where('title','Design')->first();
+            $siteDevelopmentDesignMasterCategoryId = $siteDevelopmentMasterCategory->id;
+            
+            $siteDevelopmentCategoryIds = SiteDevelopmentCategory::join("site_development_master_categories as sdmc", 'sdmc.id', 'site_development_categories.master_category_id')
+                ->where('sdmc.title', 'Design')->select('site_development_categories.id')->pluck('id')->toArray();
 
-            $designSubCategory = SiteDevelopmentCategory::join("site_development_master_categories as sdmc", 'sdmc.id', 'site_development_categories.master_category_id')
-                ->where('sdmc.title', 'Design')->select('site_development_categories.id')->pluck('id');
-
+            $userId = $request->user;
+            $websiteId = $request->website;
+            foreach($siteDevelopmentCategoryIds as $siteDevelopmentCategoryId) {
+                $this->processSiteDevelopmentCategory($userId, $websiteId, $siteDevelopmentCategoryId, $siteDevelopmentDesignMasterCategoryId);
+            }
+            
             $uiDevDatas = new UiDevice();
             $uiDevDatas = $uiDevDatas->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
                                     ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
@@ -1611,6 +1621,17 @@ class UicheckController extends Controller
         } catch (\Exception $e) {
             return response()->json(["status"=> false, "message"=> "Something went wrong."]);
         }
+    }
+
+    /**
+     * Create UI Test and UI Desing type records for given site_development_category_id
+     */
+    public function processSiteDevelopmentCategory($userId, $websiteId, $siteDevelopmentCategoryId, $siteDevelopmentDesignMasterCategoryId)
+    {
+        //check for existing record 
+        // if exists then update it
+        // else insert new one
+        $currentRows = Uicheck::join();
     }
 
     public function userHistory(Request $request)
