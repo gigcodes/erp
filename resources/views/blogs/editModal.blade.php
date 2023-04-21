@@ -43,12 +43,15 @@
                 </div>
 
                 <div class="row mt-3">
-                
+                        
+                      
                      <div class="col-md-4">
                         <label class="form-label">Content</label>
                         <br>
-                        <textarea  name="content" rows="4" cols="25">{{$blog->content}}</textarea>
+                        <div> <button type="button" data-toggle="modal" data-target="#EditContentModal" class="btn btn-primary custom-button">Content</button></div>   
                     </div>
+
+
 
                     <div class="col-md-4">
                         <label class="form-label">Select Plaglarism</label>
@@ -179,8 +182,8 @@
                             
                             <div class="col-md-4">
                             <div class="row">
-                                <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#EditsocialShare" class="btn btn-primary">Social Share</button></div>
-                                 <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#edit_google_bingo" class="btn btn-primary">Google And Bing</button></div>
+                                <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#EditsocialShare" class="btn btn-primary custom-button">Social Share</button></div>
+                                 <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#edit_google_bingo" class="btn btn-primary custom-button">Google And Bing</button></div>
                             </div>
                            
                            
@@ -236,11 +239,36 @@
                 <hr>
                 <div class="row mt-3">
                     <div class="col-md-12">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="button" class="btn btn-secondary custom-button" data-dismiss="modal">Close</button>
                         <button type="submit" class="pull-right btn btn-success btn-rounded btn-lg">Update Blog</button>
                         {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
                     </div>
                 </div>
+
+
+                <!-- Edit Content Added -->
+            <div class="modal fade" id="EditContentModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
+                  <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                                  <div class="modal-header">
+                                      <h5 class="modal-title">Content</h5>
+                                      
+                                  </div>
+                                  <div class="modal-body">
+                                          
+                                     <textarea  name="content" rows="20" cols="55">{{$blog->content}}</textarea>
+                                                 
+                                  </div>     
+                                  <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" id="EditContentModalClose">Cancel</button>
+                                      <button type="button" class="btn btn-success"  id="EditContentModalClose">Add</button>
+                                      {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
+                                  </div>
+                        </div>
+                  </div>
+          
+            </div>  
+
 
                 <!-- Social Share -->
                 <div class="modal fade" id="EditsocialShare" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">

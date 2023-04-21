@@ -130,7 +130,7 @@ class BlogController extends Controller
                 })
 
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-blog-id="' . $row->id . '" id="BlogEditModal" class="btn BlogEditData btn-warning btn-sm"><i class="fa fa-edit"></i> Edit</a>&nbsp; | 
+                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-blog-id="' . $row->id . '" id="BlogEditModal" class="btn custom-button BlogEditData btn-warning btn-sm"><i class="fa fa-edit"></i> Edit</a>&nbsp;
                     <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
                     return $actionBtn;
                 })

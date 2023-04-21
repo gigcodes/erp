@@ -16,7 +16,7 @@
             <hr>
             <div class="table-responsive">
             <div>
-            <a class="btn btn-bg btn-primary pull-right" href="{{route('blog.index')}}">Blog List <i class="fa fa-list" aria-hidden="true"></i></a>
+            <a class="btn btn-bg btn-primary pull-right custom-button" href="{{route('blog.index')}}">Blog List <i class="fa fa-list" aria-hidden="true"></i></a>
             </div>
            
             <div class="table-responsive">
@@ -53,7 +53,7 @@
                   </div>
                 <table class="table-striped table-bordered table out-of-stock-products-table"
                     id="blog-history-list">
-                    <thead>
+                    <thead> 
                         <tr>
                             <th>Blog Id</th>
                             <th>Updated By</th>

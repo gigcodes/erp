@@ -27,6 +27,11 @@
     #tagator_activate_tagator2, #tagator_edit_activate_tagator2{
       width:237px !important;
     }
+    .blogTableDatalist tr td:last-child {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
     
 	</style>
 
@@ -44,10 +49,10 @@
             <hr>
             <div class="table-responsive">
             <div>
-            <a class="btn btn-bg btn-primary pull-right" style="color:#fff"  data-toggle="modal" data-target="#addBlogModal" >Add Blog <i class="fa fa-plus" aria-hidden="true"></i></a>
+            <a class="btn btn-success custom-button btn-publish mt-0 pull-right" style="color:#fff"  data-toggle="modal" data-target="#addBlogModal" >Add Blog <i class="fa fa-plus" aria-hidden="true"></i></a>
             </div>
             <div>
-            <a class="btn btn-bg btn-primary pull-right" style="margin-right: 20px;" href="{{route('view-blog-all.history')}}">View History  <i class="fa fa-history" aria-hidden="true"></i></a>
+            <a class="btn btn-success custom-button btn-publish mt-0 pull-right" style="margin-right: 20px; color:#fff" href="{{route('view-blog-all.history')}}">View History  <i class="fa fa-history" aria-hidden="true"></i></a>
             </div>
                {{--  Edit Modal popup  --}}
         <div class="modal fade" id="UpdateBlogModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">       
@@ -112,12 +117,16 @@
                     <div class="row">
                         
                       
-
-                        <div class="col-md-4">
+                       <div class="col-md-4">
                             <label class="form-label">Content</label>
                             <br>
-                            <textarea  name="content" rows="4" cols="25"></textarea>
+                             <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#ContentModal" class="btn btn-primary custom-button">Content</button></div>
+                       
+                            
+                            {{--  <textarea  name="content" rows="4" cols="25"></textarea>  --}}
                         </div>
+
+
 
                         <div class="col-md-4">
                             <label class="form-label">Select Plaglarism</label>
@@ -240,8 +249,8 @@
                                 
                                 <div class="col-md-4">
                                     <div class="row">
-                                      <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#socialShare" class="btn btn-primary">Social Share</button></div>
-                                      <div class="col-md-5"><button type="button" data-toggle="modal" data-target="#google_bingo" class="btn btn-primary">Google And Bing</button></div>
+                                      <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#socialShare" class="btn btn-secondary custom-button">Social Share</button></div>
+                                      <div class="col-md-5"><button type="button" data-toggle="modal" data-target="#google_bingo" class="btn btn-secondary custom-button">Google And Bing</button></div>
                                     </div>
                                
                                 
@@ -300,7 +309,7 @@
                     <hr>
                     <div class="row mt-3">
                         <div class="col-md-12">
-                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button type="button" class="btn btn-secondary custom-button" data-dismiss="modal">Close</button>
                             <button type="submit" class="pull-right btn btn-success btn-rounded btn-lg">Add Blog</button>
                             {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
                         </div>
@@ -386,64 +395,87 @@
     </div>
 
 
+<!-- Content Added -->
+            <div class="modal fade" id="ContentModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
+                  <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                                  <div class="modal-header">
+                                      <h5 class="modal-title">Content</h5>
+                                      
+                                  </div>
+                                  <div class="modal-body">
+                                          
+                                                  <textarea  name="content" rows="20" cols="55"></textarea>
+                                                 
+                                  </div>     
+                                  <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" id="ContentModalHide">Cancel</button>
+                                      <button type="button" class="btn btn-success"  id="ContentModalHide">Add</button>
+                                      {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
+                                  </div>
+                        </div>
+                  </div>
+          
+            </div>  
+
 <!-- Google And Bing -->
 <div class="modal fade" id="google_bingo" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Submission</h5>
-                
-            </div>
-            <div class="modal-body">
-                    <div class="row mt-3">
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                  <img src="{{ asset('social/gogole_icon.png') }}" style="width:50px; height:50px"/>
-                                </div>
-                                 <div class="col-md-3">
-                                    <input type='text' name="google" class="form-control" value="" />
-                                </div>
-                                 <div class="col-md-5">
-                                     <div class='input-group date' id='google_date'>
-                                    <input type='date' class="form-control" name="google_date" value="" />
-                                    {{--  <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>  --}}
-                                    </div>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Submission</h5>
+                        
+                    </div>
+                    <div class="modal-body">
+                            <div class="row mt-3">
+                                    <div class="col-md-12">
+                                        <div class="col-md-4">
+                                          <img src="{{ asset('social/gogole_icon.png') }}" style="width:50px; height:50px"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type='text' name="google" class="form-control" value="" />
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class='input-group date' id='google_date'>
+                                            <input type='date' class="form-control" name="google_date" value="" />
+                                            {{--  <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>  --}}
+                                            </div>
 
-                                </div>
-                            </div>
-                            <br>
-                            <br>
-                            
-                               <div class="col-md-12">
-                                <div class="col-md-4">
-                                  <label class="form-label">
-                                  <img src="{{ asset('social/Bing-Logo.png') }}" style="width:50px; height:50px"/>
-                                  </label>
-                                </div>
-                                 <div class="col-md-3">
-                                    <input type='text' name="bing" class="form-control" value="" />
-                                </div>
-                                 <div class="col-md-5">
-                                     <div class='input-group date' id='bing_date'>
-                                    <input type='date' class="form-control" name="bing_date" value="" />
-                                    {{--  <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>  --}}
+                                        </div>
                                     </div>
+                                    <br>
+                                    <br>
+                                    
+                                      <div class="col-md-12">
+                                        <div class="col-md-4">
+                                          <label class="form-label">
+                                          <img src="{{ asset('social/Bing-Logo.png') }}" style="width:50px; height:50px"/>
+                                          </label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type='text' name="bing" class="form-control" value="" />
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class='input-group date' id='bing_date'>
+                                            <input type='date' class="form-control" name="bing_date" value="" />
+                                            {{--  <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>  --}}
+                                            </div>
 
-                                </div>
-                            </div>
-                           
-                           
-                    </div>       
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss-modal="googleBingo">Close</button>
-                <button type="button" class="btn btn-success"  data-dismiss-modal="googleBingo">Add</button>
-                {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
-            </div>
+                                        </div>
+                                    </div>
+                                  
+                                  
+                            </div>       
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss-modal="googleBingo">Close</button>
+                        <button type="button" class="btn btn-success"  data-dismiss-modal="googleBingo">Add</button>
+                        {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
+                    </div>
         </div>
     </div>
 </div>
@@ -502,8 +534,8 @@
                     </div>
                 </div>
             </div>  --}}
-                <table class="table-striped table-bordered table-responsive table out-of-stock-products-table"
-                    id="blog_listing">
+                <table class="table-striped table-bordered table-responsive table blogTableDatalist"
+                    id="blog_listing" style="overflow-x: auto !important">
                     <thead>
                         <tr>
                           
@@ -671,6 +703,7 @@
          
         $('#socialShare').modal('hide');
         });
+        
 
         $("button[data-dismiss-modal=googleBingo]").click(function () {
         $('#google_bingo').modal('hide');
@@ -685,6 +718,16 @@
 
           $(document).on('click', '#EditSharemodalClose', function(e){
            $('#EditsocialShare').modal('hide');
+          });
+
+           $(document).on('click', '#EditContentModalClose', function(e){
+           $('#EditContentModal').modal('hide');
+          });
+
+          
+
+           $(document).on('click', '#ContentModalHide', function(e){
+           $('#ContentModal').modal('hide');
           });
 
            $(document).on('click', '#EditGoogleBingo', function(e){
