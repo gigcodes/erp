@@ -29,11 +29,16 @@
                                 @foreach($tasks as $task)
                                 <option value="{{$task->id}}" class="form-control">{{$task->id}}-{{$task->subject}}</option>
                                 @endforeach
+                                @if (isset($generalTask) && !empty($generalTask))
+                                    @foreach($generalTask as $task)
+                                        <option value="TASK-{{$task->id}}" class="form-control">{{$task->id}}-{{$task->subject}}</option>
+                                    @endforeach
+                                @endif
                             </select>
                     </div>
                     <div class="form-group">
                         <strong>Upload File</strong>
-                        <input type="file" name="file[]" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple>
+                        <input type="file" name="file[]" id="fileInput" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple>
                         @if ($errors->has('file'))
                             <div class="alert alert-danger">{{$errors->first('file')}}</div>
                         @endif
@@ -42,7 +47,8 @@
                         <strong>File Creation Date:</strong>
                         <input type="date" name="file_creation_date" value="{{ old('file_creation_date') }}" class="form-control input-sm" placeholder="Drive Date" required>
                     </div>
-                    <div class="form-group custom-select2">
+                        @if(auth()->user()->isAdmin())
+                    <div class="form-group custom-select2 read_user">
                         <label>Read Permission for Users
                         </label>
                         <select class="w-100 js-example-basic-multiple js-states"
@@ -52,7 +58,7 @@
                                 @endforeach
                             </select>
                     </div>
-                    <div class="form-group custom-select2">
+                    <div class="form-group custom-select2 write_user">
                         <label>Write Permission for Users
                         </label>
                         <select class="w-100 js-example-basic-multiple js-states"
@@ -62,6 +68,7 @@
                                 @endforeach
                             </select>
                     </div>
+                        @endif
                     <div class="form-group">
                             <label>Remarks:</label>
                             <textarea id="remarks" name="remarks" rows="4" cols="64" value="{{ old('remarks') }}" placeholder="Remarks"></textarea>

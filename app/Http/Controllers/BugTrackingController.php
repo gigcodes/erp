@@ -13,6 +13,8 @@ use App\BugType;
 use App\BugUserHistory;
 use App\ChatMessage;
 use App\DeveloperTask;
+use App\GoogleScreencast;
+use App\Jobs\UploadGoogleDriveScreencast;
 use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
@@ -20,6 +22,7 @@ use App\Task;
 use App\TestCase;
 use App\TestCaseHistory;
 use App\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +42,7 @@ class BugTrackingController extends Controller
         $users = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
         $filterWebsites = StoreWebsite::orderBy('website')->get();
+        $permission_users = User::select('id','name','email','gmail')->whereNotNull('gmail')->get();
 
         return view(
             'bug-tracking.index', [
@@ -51,6 +55,7 @@ class BugTrackingController extends Controller
                 'users' => $users,
                 'allUsers' => $users,
                 'filterWebsites' => $filterWebsites,
+                'permission_users'=> $permission_users
             ]
         );
     }
@@ -123,13 +128,13 @@ class BugTrackingController extends Controller
                 }
             );
         }
-        if ($keyword = request('url')) {
-            $records = $records->where(
-                function ($q) use ($keyword) {
-                    $q->where('url', 'LIKE', "%$keyword%");
-                }
-            );
-        }
+        // if ($keyword = request('url')) {
+        //     $records = $records->where(
+        //         function ($q) use ($keyword) {
+        //             $q->where('url', 'LIKE', "%$keyword%");
+        //         }
+        //     );
+        // }
         if ($keyword = request('website')) {
             $records = $records->WhereIn('website', $keyword);
         }
@@ -262,13 +267,13 @@ class BugTrackingController extends Controller
                 }
             );
         }
-        if ($keyword = request('url')) {
-            $records = $records->where(
-                function ($q) use ($keyword) {
-                    $q->where('url', 'LIKE', "%$keyword%");
-                }
-            );
-        }
+        // if ($keyword = request('url')) {
+        //     $records = $records->where(
+        //         function ($q) use ($keyword) {
+        //             $q->where('url', 'LIKE', "%$keyword%");
+        //         }
+        //     );
+        // }
         if ($keyword = request('website')) {
             $records = $records->WhereIn('website', $keyword);
         }
@@ -511,7 +516,7 @@ class BugTrackingController extends Controller
             $bug, [
                 'summary' => 'required|string',
                 'step_to_reproduce' => 'required|string',
-                'url' => 'required|string',
+                // 'url' => 'required|string',
                 'bug_type_id' => 'required|string',
                 'bug_environment_id' => 'required|string',
                 'assign_to' => 'required|string',
@@ -621,7 +626,7 @@ class BugTrackingController extends Controller
             $request, [
                 'summary' => 'required|string',
                 'step_to_reproduce' => 'required|string',
-                'url' => 'required|string',
+                // 'url' => 'required|string',
                 'bug_type_id' => 'required|string',
                 'bug_environment_id' => 'required|string',
                 'assign_to' => 'required|string',
@@ -1512,5 +1517,79 @@ class BugTrackingController extends Controller
                 'data' => $data,
             ]
         );
+    }
+
+    /**
+     * Upload a bug file to google drive 
+     */
+    public function uploadFile(Request $request)
+    {
+        $request->validate([
+            'file' => 'required',
+            'file_creation_date' => 'required',
+            'remarks' => 'sometimes',
+            'bug_id' => 'required',
+            'file_read' => 'sometimes',
+            'file_write' => 'sometimes'
+        ]);
+
+        $data = $request->all();
+        try {
+            foreach($data['file'] as $file)
+            {
+                DB::transaction(function () use ($file,$data) {
+                    $googleScreencast = new GoogleScreencast();
+                    $googleScreencast->file_name = $file->getClientOriginalName();
+                    $googleScreencast->extension = $file->extension();
+                    $googleScreencast->user_id = Auth::id();
+                    
+                    $googleScreencast->read = "";
+                    $googleScreencast->write = "";
+                    // if (isset($data['file_read'])) {
+                    //     $googleScreencast->read = implode(',', $data['file_read']);
+                    // }
+                    // if (isset($data['file_write'])) {
+                    //     $googleScreencast->write = implode(',', $data['file_write']);
+                    // }
+
+                    $googleScreencast->bug_id = $data['bug_id'];
+                    $googleScreencast->remarks = $data['remarks'];
+                    $googleScreencast->file_creation_date = $data['file_creation_date'];
+                    // $googleScreencast->developer_task_id = $data['task_id'];
+                    $googleScreencast->save();
+                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file, "anyone");
+                });
+            }
+            
+            return back()->with('success', "File is Uploaded to Google Drive.");
+        } catch (Exception $e) {
+            return back()->with('error', "Something went wrong. Please try again");
+        }
+        
+    }
+
+    /**
+     * get the list of bugs file 
+     */
+    public function getBugFilesList(Request $request)
+    {
+        try {
+            $result = [];
+            if(isset($request->bug_id)) {
+                $result = GoogleScreencast::where('bug_id', $request->bug_id)->orderBy('id', 'desc')->get();
+                if(isset($result) && count($result) > 0) {
+                    $result = $result->toArray();   
+                }
+
+                return response()->json([
+                    "data" => view("bug-tracking.google-drive-list", compact("result"))->render()
+                ]);
+            }
+            
+        } catch (Exception $e) {
+            return response()->json([
+                "data" => view("bug-tracking.google-drive-list", ["result"=> null])->render()
+            ]);
+        }
     }
 }

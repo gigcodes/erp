@@ -317,6 +317,18 @@ class TestCaseController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+	
+	public function deleteTestCases(TestCase $testCase, Request $request)
+	{
+		try {
+            TestCase::whereIn('id', $request->data)->delete();
+            return response()->json(['code' => 200, 'data' => '', 'message' => 'Deleted successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+	}
 
     public function sendMessage(Request $request)
     {

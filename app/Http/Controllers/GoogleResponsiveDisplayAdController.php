@@ -3,18 +3,12 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
-use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
-use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
-use Google\Ads\GoogleAds\Lib\V12\GoogleAdsException;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
 use Google\Ads\GoogleAds\V12\Common\AdTextAsset;
 use Google\Ads\GoogleAds\V12\Common\AdImageAsset;
 use Google\Ads\GoogleAds\V12\Common\ResponsiveDisplayAdInfo;
 use Google\Ads\GoogleAds\V12\Enums\AdGroupAdStatusEnum\AdGroupAdStatus;
-use Google\Ads\GoogleAds\V12\Enums\ServedAssetFieldTypeEnum\ServedAssetFieldType;
-use Google\Ads\GoogleAds\V12\Errors\GoogleAdsError;
 use Google\Ads\GoogleAds\V12\Resources\Ad;
 use Google\Ads\GoogleAds\V12\Resources\AdGroupAd;
 use Google\Ads\GoogleAds\V12\Services\AdGroupAdOperation;
@@ -22,8 +16,6 @@ use Google\Ads\GoogleAds\V12\Common\ImageAsset;
 use Google\Ads\GoogleAds\V12\Enums\AssetTypeEnum\AssetType;
 use Google\Ads\GoogleAds\V12\Resources\Asset;
 use Google\Ads\GoogleAds\V12\Services\AssetOperation;
-use Google\Ads\GoogleAds\V12\Services\MutateAssetResult;
-
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Illuminate\Http\Request;
 
@@ -104,7 +96,7 @@ class GoogleResponsiveDisplayAdController extends Controller
 
         $totalEntries = $adsInfo->total();
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Responsive Display Ad',
@@ -120,7 +112,7 @@ class GoogleResponsiveDisplayAdController extends Controller
     {
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Responsive Display Ad',
@@ -138,37 +130,36 @@ class GoogleResponsiveDisplayAdController extends Controller
 
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
-        //create account
-        $this->validate($request, [
-            'headline1' => 'required|max:30',
-            'headline2' => 'required|max:30',
-            'headline3' => 'required|max:30',
-            'description1' => 'required|max:90',
-            'description2' => 'required|max:90',
-            'long_headline' => 'required|max:90',
-            'business_name' => 'required|max:25',
-            'final_url' => 'required|max:200|url',
-            'marketing_images' => 'required|array|max:15',
-            'marketing_images.*' => 'mimes:jpeg,png,gif|dimensions:min_width=600,min_height=314,ratio=1.91:1',
-            'square_marketing_images' => 'required|array|max:15',
-            'square_marketing_images.*' => 'mimes:jpeg,png,gif|dimensions:min_width=300,min_height=300,ratio=1:1',
-        ]);
-
-        $acDetail = $this->getAccountDetail($campaignId);
-        $account_id = $acDetail['account_id'];
-        $customerId = $acDetail['google_customer_id'];
-
-        // $storagepath = $this->getstoragepath($account_id);
-
-        $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
-        $adStatus = $adStatuses[$request->adStatus];
-
-        $input['status'] = $adStatuses[$request->adStatus];
-        $input['adgroup_google_campaign_id'] = $campaignId;
-        $input['google_adgroup_id'] = $adGroupId;
-        $input['google_customer_id'] = $customerId;
-
         try {
+            //create account
+            $this->validate($request, [
+                'headline1' => 'required|max:30',
+                'headline2' => 'required|max:30',
+                'headline3' => 'required|max:30',
+                'description1' => 'required|max:90',
+                'description2' => 'required|max:90',
+                'long_headline' => 'required|max:90',
+                'business_name' => 'required|max:25',
+                'final_url' => 'required|max:200|url',
+                'marketing_images' => 'required|array|max:15',
+                'marketing_images.*' => 'mimes:jpeg,png,gif|dimensions:min_width=600,min_height=314,ratio=1.91:1',
+                'square_marketing_images' => 'required|array|max:15',
+                'square_marketing_images.*' => 'mimes:jpeg,png,gif|dimensions:min_width=300,min_height=300,ratio=1:1',
+            ]);
+
+            $acDetail = $this->getAccountDetail($campaignId);
+            $account_id = $acDetail['account_id'];
+            $customerId = $acDetail['google_customer_id'];
+
+            // $storagepath = $this->getstoragepath($account_id);
+
+            $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
+            $adStatus = $adStatuses[$request->adStatus];
+
+            $input['status'] = $adStatuses[$request->adStatus];
+            $input['adgroup_google_campaign_id'] = $campaignId;
+            $input['google_adgroup_id'] = $adGroupId;
+            $input['google_customer_id'] = $customerId;
 
             ini_set('max_execution_time', -1);
 
@@ -234,7 +225,7 @@ class GoogleResponsiveDisplayAdController extends Controller
                     $value['type'] = "NORMAL";
                     unset($value['google_asset_resource_name']);
                     GoogleResponsiveDisplayAdMarketingImage::create($value);
-                }   
+                }
                 foreach($squareMarketingImagesArr as $value){
                     $value['adgroup_google_campaign_id'] = $campaignId;
                     $value['google_adgroup_id'] = $adGroupId;
@@ -243,10 +234,10 @@ class GoogleResponsiveDisplayAdController extends Controller
                     $value['type'] = "SQUARE";
                     unset($value['google_asset_resource_name']);
                     GoogleResponsiveDisplayAdMarketingImage::create($value);
-                }   
+                }
             }
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Responsive Display Ad',
@@ -257,8 +248,7 @@ class GoogleResponsiveDisplayAdController extends Controller
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/responsive-display-ad')->with('actSuccess', 'Ads created successfully');
         } catch (Exception $e) {
-
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Responsive Display Ad',
@@ -284,7 +274,7 @@ class GoogleResponsiveDisplayAdController extends Controller
         try {
             // Generate a refreshable OAuth2 credential for authentication.
             $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
-            
+
             // Creates ad group ad resource name.
             $adGroupAdResourceName = ResourceNames::forAdGroupAd($customerId, $adGroupId, $adId);
 
@@ -303,7 +293,7 @@ class GoogleResponsiveDisplayAdController extends Controller
 
             $ad = GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->where('google_adgroup_id', $adGroupId)->where('google_ad_id', $adId)->first();
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Responsive Display Ad',
@@ -312,15 +302,15 @@ class GoogleResponsiveDisplayAdController extends Controller
                     );
 
             GoogleResponsiveDisplayAdMarketingImage::where('google_responsive_display_ad_id', $ad->id)->delete();
-            
+
             $ad->delete();
-            
+
             insertGoogleAdsLog($input);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/responsive-display-ad')->with('actSuccess', 'Ads deleted successfully');
         } catch (Exception $e) {
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Responsive Display Ad',
@@ -344,7 +334,7 @@ class GoogleResponsiveDisplayAdController extends Controller
         try {
             $record = GoogleResponsiveDisplayAd::where('adgroup_google_campaign_id', $campaignId)->where('google_adgroup_id', $adGroupId)->where('google_ad_id', $adId)->first();
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Responsive Display Ad',
@@ -357,7 +347,7 @@ class GoogleResponsiveDisplayAdController extends Controller
             return view('google_responsive_display_ad.view', compact('record', 'campaignId', 'adGroupId', 'account_id'));
         } catch (Exception $e) {
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Responsive Display Ad',
@@ -382,11 +372,11 @@ class GoogleResponsiveDisplayAdController extends Controller
     private function createAdImageAsset(string $text)
     {
         $adImageAsset = new AdImageAsset(['asset' => $text]);
-        
+
         return $adImageAsset;
     }
 
-    //get ad status  
+    //get ad status
     private function getAdStatus($v)
     {
         switch ($v) {
@@ -443,13 +433,13 @@ class GoogleResponsiveDisplayAdController extends Controller
                             'asset_resource_name' => $imageAssetResourceName,
                         );
         } catch (Exception $e) {
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Responsive Display Ad',
                         'message' => 'Upload marketing image > '. $e->getMessage(),
                     );
-            insertGoogleAdsLog($input);     
+            insertGoogleAdsLog($input);
         }
 
         return $response;

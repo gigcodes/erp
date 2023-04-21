@@ -68,7 +68,8 @@ padding: 3px 2px;
     </thead>
     <tbody>
     <?php if (!empty($pendingApprovalMsg)) {?>
-    <?php foreach ($pendingApprovalMsg as $pam) { ?>
+
+    <?php foreach ($pendingApprovalMsg as $index =>$pam) { ?>
     <tr class="customer-raw-line">
 
 
@@ -229,6 +230,7 @@ padding: 3px 2px;
                         @if($pam->is_email==1 )
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image editmessagebcc"  data-to_email="{{$pam->to_email}}" data-from_email="{{$pam->from_email}}" data-id="{{$pam->id}}" data-cc_email="{{$pam->cc_email}}" data-all="1" title=""><i class="fa fa-edit"></i></button>
                         @endif
+                        <button type="button" style="font-size: 16px" data-id="{{$pam->id}}" class="btn btn-sm m-0 p-0 mr-1 speech-button"  id="speech-button_{{$pam->id}}"><i class="fa fa-microphone" aria-hidden="true"></i></button>
                     </div>
                 </div>
             </div>
@@ -490,6 +492,24 @@ padding: 3px 2px;
 
 
 <script type="text/javascript">
+    $(document).on('click','.speech-button',function(e){
+        const speechInput = document.querySelector('#message_'+ $(this).attr("data-id"));
+        var recognition = new webkitSpeechRecognition()
+        recognition.interimResults = true;
+
+        /* start voice */
+        recognition.start();
+
+        /* convert voice to text*/
+        recognition.addEventListener('result', (event) => {
+            speechInput.value = event.results[0][0].transcript;
+        });
+
+        /* stop voice */
+        recognition.addEventListener('end', () => {
+            recognition.stop();
+        });
+    })
 
     $(document).on('click','.log-message-popup',function(){
         $('#logMessageModel p').text($(this).data('log_message'));

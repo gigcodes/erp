@@ -25,8 +25,19 @@ class TasksController extends Controller
 
     public function index()
     {
+        $userCronIds = CronActivity::where('assign_to_id', \Auth::User()->id)->pluck('cron_id')->all();
+
         return view('totem.tasks.index_new', [
-            'tasks' => Task::with('frequencies')
+            'tasks' => auth()->user()->isAdmin() || auth()->user()->isCronManager() ? Task::with('frequencies')
+                ->orderBy('description')
+                ->when(request('q'), function ($query) {
+                    $query->where('description', 'LIKE', '%'.request('q').'%');
+                })->when(request('developer_module'), function ($query) {
+                    $query->where('developer_module_id', '=', request('developer_module'));
+                })->when(request('is_active'), function ($query) {
+                    $query->where('is_active', '=', request('is_active'));
+                })
+                ->paginate(50) : Task::with('frequencies')->whereIn('id', $userCronIds)
                 ->orderBy('description')
                 ->when(request('q'), function ($query) {
                     $query->where('description', 'LIKE', '%'.request('q').'%');

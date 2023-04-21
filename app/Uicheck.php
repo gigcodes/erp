@@ -51,4 +51,9 @@ class Uicheck extends Model
             ]);
         }
     }
+
+    public function uiDevice()
+    {
+        return $this->hasMany(UiDevice::class, 'uicheck_id', 'id');
+    }
 }

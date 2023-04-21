@@ -15,6 +15,8 @@ class PushPageToMagento implements ShouldQueue
 
     protected $page;
 
+    protected $updatedBy;
+
     public $tries = 5;
 
     public $backoff = 5;
@@ -24,10 +26,11 @@ class PushPageToMagento implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($page)
+    public function __construct($page,$updatedBy)
     {
         // Set product and website
         $this->page = $page;
+        $this->updatedBy = $updatedBy;
     }
 
     /**
@@ -46,47 +49,61 @@ class PushPageToMagento implements ShouldQueue
             $website = $page->storeWebsite;
 
             if ($website) {
-                if ($website->website_source) {
-                    // assign the stores  column
-                    $fetchStores = \App\WebsiteStoreView::where('website_store_views.name', $page->name)
-                        ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
-                        ->join('websites as w', 'w.id', 'ws.website_id')
-                        ->where('w.store_website_id', $page->store_website_id)
-                        ->select('website_store_views.*')
-                        ->get();
+                $storeWebsite   =   new \App\StoreWebsite();
+                if((isset($website->tag_id) && $website->tag_id != "") ){
+                    $allWebsites=$storeWebsite->where('tag_id', $website->tag_id )->get();
+                } else {
+                    $allWebsites=$storeWebsite->where("id",  $page->store_website_id)->get();
+                }
+                
+                if(!empty($allWebsites)){
+                    foreach ($allWebsites as $websitekey => $website) {
+                        //\Log::info("Store Website Data");
+                        //\Log::info(print_r([$website->id,$website->website,$website->tag_id],true));
+                        if ($website->website_source) {
+                            // assign the stores  column
+                            $fetchStores = \App\WebsiteStoreView::where('website_store_views.name', $page->name)
+                                ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
+                                ->join('websites as w', 'w.id', 'ws.website_id')
+                                ->where('w.store_website_id', $page->store_website_id)
+                                ->select('website_store_views.*')
+                                ->get();
 
-                    $stores = array_filter(explode(',', $page->stores));
+                            $stores = array_filter(explode(',', $page->stores));
 
-                    if (! $fetchStores->isEmpty()) {
-                        foreach ($fetchStores as $fetchStore) {
-                            $stores[] = $fetchStore->code;
-                        }
-                    }
+                            if (! $fetchStores->isEmpty()) {
+                                foreach ($fetchStores as $fetchStore) {
+                                    $stores[] = $fetchStore->code;
+                                }
+                            }
 
-                    $page->stores = implode(',', $stores);
-                    $page->save();
+                            $page->stores = implode(',', $stores);
+                            $page->save();
 
-                    $params = [];
-                    $params['page'] = [
-                        'identifier' => $page->url_key,
-                        'title' => $page->title,
-                        'meta_title' => $page->meta_title,
-                        'meta_keywords' => $page->meta_keywords,
-                        'meta_description' => $page->meta_description,
-                        'content_heading' => $page->content_heading,
-                        'content' => $page->content,
-                        'active' => $page->active,
-                        'platform_id' => $page->platform_id,
-                        'page_id' => $page->id,
-                    ];
+                            $params = [];
+                            $params['page'] = [
+                                'identifier' => $page->url_key,
+                                'title' => $page->title,
+                                'meta_title' => $page->meta_title,
+                                'meta_keywords' => $page->meta_keywords,
+                                'meta_description' => $page->meta_description,
+                                'content_heading' => $page->content_heading,
+                                'content' => $page->content,
+                                'active' => $page->active,
+                                'platform_id' => $page->platform_id,
+                                'page_id' => $page->id,
+                                'updated_by' => optional($this->updatedBy)->id,
+                            ];
 
-                    if (! empty($stores)) {
-                        foreach ($stores as $s) {
-                            $params['page']['store'] = $s;
-                            $id = MagentoHelper::pushWebsitePage($params, $website);
-                            if (! empty($id) && is_numeric($id)) {
-                                $page->platform_id = $id;
-                                $page->save();
+                            if (! empty($stores)) {
+                                foreach ($stores as $s) {
+                                    $params['page']['store'] = $s;
+                                    $id = MagentoHelper::pushWebsitePage($params, $website);
+                                    if (! empty($id) && is_numeric($id)) {
+                                        $page->platform_id = $id;
+                                        $page->save();
+                                    }
+                                }
                             }
                         }
                     }
