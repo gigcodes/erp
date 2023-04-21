@@ -1099,7 +1099,11 @@ class UicheckController extends Controller
                 $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);
             }
 
-            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
+            if ($request->type != '') {
+                $uiDevDatas = $uiDevDatas->where('uic.uicheck_type_id', $request->type);
+            }
+
+            $uiDevDatas = $uiDevDatas->select('ui_devices.*','uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
                 DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), DB::raw("GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable")
             )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
 
@@ -1114,8 +1118,9 @@ class UicheckController extends Controller
             $siteDevelopmentStatuses = SiteDevelopmentStatus::get();
 
             $store_websites = StoreWebsite::get()->pluck("website", 'id');
-
-            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'siteDevelopmentStatuses', 'uicheck_id', 'site_development_categories', 'allUsers', 'store_websites'));
+            $allUicheckTypes = UicheckType::get()->pluck("name", 'id')->toArray();
+           
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'siteDevelopmentStatuses', 'uicheck_id', 'site_development_categories', 'allUsers', 'store_websites', 'allUicheckTypes'));
         } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
@@ -1125,11 +1130,14 @@ class UicheckController extends Controller
     public function responseDeviceStatusChange(Request $request)
     {
         try {
+            $old_status = null;
             $uiDevDatas = UiDevice::where('id', $request->id)
                     ->where('device_no', $request->device_no)
-                    ->where('uicheck_id', $request->uicheck_id)
-                    ->update(['status' => $request->status]);
-            if ($uiDevDatas == 0) {
+                    ->where('uicheck_id', $request->uicheck_id)->first();
+            if($uiDevDatas) {
+                $old_status = $uiDevDatas->status;
+                $uiDevDatas->update(['status' => $request->status]);
+            } else {
                 UiDevice::create([
                     'user_id' => \Auth::user()->id,
                     'device_no' => $request->device_no,
@@ -1139,7 +1147,7 @@ class UicheckController extends Controller
                 ]);
             }
 
-            $this->uicheckResponsiveUpdateHistory($request);
+            $this->uicheckResponsiveUpdateHistory($request, $old_status);
 
             return response()->json(['code' => 200, 'message' => 'Status updated succesfully']);
         } catch (\Exception $e) {
@@ -1147,7 +1155,7 @@ class UicheckController extends Controller
         }
     }
 
-    public function uicheckResponsiveUpdateHistory($data)
+    public function uicheckResponsiveUpdateHistory($data, $old_status=3)
     {
         try {
             $data['user_id'] = \Auth::user()->id ?? '';
@@ -1159,7 +1167,7 @@ class UicheckController extends Controller
                     'uicheck_id' => $data->uicheck_id ?? '',
                     'device_no' => $data->device_no ?? '',
                     'status' => $data->status ?? '',
-                    'old_status' => $data->old_status ?? '',
+                    'old_status' => $old_status ?? '',
                 ]
             );
         } catch (\Exception $e) {
@@ -1538,7 +1546,7 @@ class UicheckController extends Controller
                     UiDeviceHistory::create(
                         [
                             'user_id' => \Auth::user()->id ?? '',
-                            'ui_device_id' => $uiDeviceId ?? '',
+                            'ui_devices_id' => $uiDeviceId ?? '',
                             'uicheck_id' => $uicheckId ?? '',
                             'device_no' => $deviceNo ?? '',
                             'status' => $oldStatus ?? '',

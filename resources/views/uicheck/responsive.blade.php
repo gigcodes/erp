@@ -117,6 +117,13 @@
 							</select>
 						</div>
 					</div>
+
+					<div class="col-md-2">
+						<div class="form-group">
+							{{Form::select('type', [''=>'Select a type']+$allUicheckTypes, request('type') ?? '', array('class'=>'form-control select2'))}}
+						</div>
+					</div>
+
 					<div class="col-md-2">
 						<div class="form-group">
 							<?php 
@@ -157,8 +164,6 @@
 		<div class="col-md-2">
 			@if (Auth::user()->isAdmin())
 				<button class="btn btn-xs btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
-			@endif
-			@if (Auth::user()->isAdmin())
 				<button class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
 			@endif
 		</div>
@@ -175,7 +180,10 @@
 						<th width="8%">Categories</th>
 						<th width="8%">Website</th>
 						<th>Upload file</th>
-						<th width="8%">User Name</th>
+						@if (Auth::user()->isAdmin())
+							<th width="8%">User Name</th>
+						@endif
+						<th>Type</th>
 						<th width="6%">Device1</th>
 						<th width="6%">Device2</th>
 						<th width="6%">Device3</th>
@@ -225,11 +233,14 @@
 										<img src="/images/google-drive.png" style="cursor: nwse-resize; width: 12px;">
 									</button>
 								</td>
-								<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-									<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 5, '..')}} @else   @endif</span>
-									<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span>
-									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
-								</td>
+								@if (Auth::user()->isAdmin())
+									<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+										<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 5, '..')}} @else   @endif</span>
+										<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span>
+										<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
+									</td>
+								@endif
+								<td>{{$allUicheckTypes[$uiDevData->uicheck_type_id]}}</td>
 								
 								<td style="background-color: {{$deviceBgColors['1']}} !important"> <input type="text" name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('1', '{{$uiDevData->uicheck_id}}', '1');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('1', '{{$uiDevData->uicheck_id}}');"></i> </td>
 								<td style="background-color: {{$deviceBgColors['2']}} !important"> <input type="text" name="uidevmessage2{{$uiDevData->uicheck_id}}" class="uidevmessage2{{$uiDevData->uicheck_id}}" style="margin-top: 0px;width:75% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('2', '{{$uiDevData->uicheck_id}}', '2');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetDevHistory('2', '{{$uiDevData->uicheck_id}}');"></i> </td>
@@ -840,7 +851,7 @@
 		});
 	});
 
-
+	@if (Auth::user()->isAdmin())
 	function funGetUserHistory(uicheck_id) { 
 		$.ajax({
 			type: "get",
@@ -862,6 +873,7 @@
 			}
 		});
 	}
+	@endif
 </script>
 
 @endsection
