@@ -1104,6 +1104,15 @@ class UicheckController extends Controller
                 $uiDevDatas = $uiDevDatas->where('uic.uicheck_type_id', $request->type);
             }
 
+            if ($request->website != '') {
+                $uiDevDatas = $uiDevDatas->where('uic.website_id', $request->website);
+            }
+
+            if ($request->user != '') {
+                // $uiDevDatas = $uiDevDatas->whereIn('u.id', [$request->user]);
+                $uiDevDatas = $uiDevDatas->where('ui_devices.user_id', $request->user);
+            }
+
             $uiDevDatas = $uiDevDatas->select('ui_devices.*','uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
                 DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), DB::raw("GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable")
             )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
@@ -1574,26 +1583,17 @@ class UicheckController extends Controller
     }
 
     /**
-     * Assign a new user to website and category
+     * Assign a new user to website
      */
-    public function assignNewUser(Request $request)
+    public function addNewUser(Request $request)
     {
         try {
-            //master category id for design
-            $siteDevelopmentMasterCategory = SiteDevelopmentMasterCategory::select('id')->where('title','Design')->first();
-            $siteDevelopmentDesignMasterCategoryId = $siteDevelopmentMasterCategory->id;
-            
-            $siteDevelopmentCategoryIds = SiteDevelopmentCategory::join("site_development_master_categories as sdmc", 'sdmc.id', 'site_development_categories.master_category_id')
-                ->where('sdmc.title', 'Design')->select('site_development_categories.id')->pluck('id')->toArray();
+            $oldUserId = $request->oldUserId;
+            $newUserId = $request->newUserId;
+            $websiteId = $request->websiteId;
 
-            $userId = $request->user;
-            $websiteId = $request->website;
-            foreach($siteDevelopmentCategoryIds as $siteDevelopmentCategoryId) {
-                $this->processSiteDevelopmentCategory($userId, $websiteId, $siteDevelopmentCategoryId, $siteDevelopmentDesignMasterCategoryId);
-            }
-            
             $uiDevDatas = new UiDevice();
-            $uiDevDatas = $uiDevDatas->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
+            $uiDevDatas = $uiDevDatas->with('uichecks.uiDevice.lastUpdatedHistory.stausColor')->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
                                     ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
                                     ->leftJoin('uicheck_user_accesses as uua', 'ui_devices.uicheck_id', 'uua.uicheck_id')
                                     ->leftJoin('users as u', 'u.id', 'uua.user_id')
@@ -1601,23 +1601,48 @@ class UicheckController extends Controller
                                     ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
                                     ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
 
-            $uiDevDatas = $uiDevDatas->whereIn("uic.site_development_category_id", $designSubCategory)->where("sw.id", $request->website);
-            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'u.name as username','sw.website', 'sdc.title')->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->get()->pluck('uicheck_id');
+            $uiDevDatas = $uiDevDatas->where('uic.website_id', $websiteId);
+            $uiDevDatas = $uiDevDatas->whereIn('u.id', [$oldUserId]);
 
-            if(isset($uiDevDatas) && count($uiDevDatas) > 0) {
-                foreach ($uiDevDatas as $key => $uicheck_id) {
-                    UicheckUserAccess::firstOrCreate([
-                        "user_id" => $request->user,
-                        "uicheck_id" => $uicheck_id
-                    ]);
-                }
+            $uiDevDatas = $uiDevDatas->select('ui_devices.*','uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
+                            DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), DB::raw("GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable")
+                        )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->get();
 
-                return response()->json(["status"=> true, "message" => "User has assigned successfully"]);
-
-
-            } else {
-                return response()->json(["status"=> false, "message"=> "No existing record found."]);
+            foreach($uiDevDatas as $uiRow) {
+                $user = UicheckUserAccess::firstOrNew(
+                    ['user_id' => $newUserId, 'uicheck_id' => $uiRow->uicheck_id],
+                    ['user_id' => $newUserId, 'uicheck_id' => $uiRow->uicheck_id]
+                );
+                 
+                $user->save();
             }
+
+            return response()->json(["status"=> true, "message" => "User has assigned successfully"]);
+        } catch (\Exception $e) {
+            return response()->json(["status"=> false, "message"=> "Something went wrong."]);
+        }
+    }
+
+    /**
+     * Assign a new user to website and category
+     */
+    public function assignNewUser(Request $request)
+    {
+        try {
+            // //master category id for design
+            // $siteDevelopmentMasterCategory = SiteDevelopmentMasterCategory::select('id')->where('title','Design')->first();
+            // $siteDevelopmentDesignMasterCategoryId = $siteDevelopmentMasterCategory->id;
+            
+            // $siteDevelopmentCategoryIds = SiteDevelopmentCategory::join("site_development_master_categories as sdmc", 'sdmc.id', 'site_development_categories.master_category_id')
+            //     ->where('sdmc.title', 'Design')->select('site_development_categories.id')->pluck('id')->toArray();
+
+            // $userId = $request->user;
+            // $websiteId = $request->website;
+            // foreach($siteDevelopmentCategoryIds as $siteDevelopmentCategoryId) {
+            //     $this->processSiteDevelopmentCategory($userId, $websiteId, $siteDevelopmentCategoryId, $siteDevelopmentDesignMasterCategoryId);
+            // }
+            
+            return response()->json(["status"=> true, "message" => "User has assigned successfully"]);
         } catch (\Exception $e) {
             return response()->json(["status"=> false, "message"=> "Something went wrong."]);
         }
