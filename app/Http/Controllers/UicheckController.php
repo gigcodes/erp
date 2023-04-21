@@ -1539,22 +1539,21 @@ class UicheckController extends Controller
                 $message = $udh->message;
                 $estimatedTime = $udh->estimated_time;
 
+                UiDeviceHistory::create(
+                    [
+                        'user_id' => \Auth::user()->id ?? '',
+                        'ui_devices_id' => $uiDeviceId ?? '',
+                        'uicheck_id' => $uicheckId ?? '',
+                        'device_no' => $deviceNo ?? '',
+                        'status' => $oldStatus ?? '',
+                        'estimated_time' => $estimatedTime,
+                        'message' => $message,
+                    ]
+                );
                 $udh->status = $statusId == "-" ? null : $statusId;
                 $udh->save();
                 if ($udh->save()){
                     $status = SiteDevelopmentStatus::find($statusId);
-                    UiDeviceHistory::create(
-                        [
-                            'user_id' => \Auth::user()->id ?? '',
-                            'ui_devices_id' => $uiDeviceId ?? '',
-                            'uicheck_id' => $uicheckId ?? '',
-                            'device_no' => $deviceNo ?? '',
-                            'status' => $oldStatus ?? '',
-                            'estimated_time' => $estimatedTime,
-                            'message' => $message,
-                        ]
-                    );
-
                     return respJson(200, '', [
                         'message' => 'Status updated successfully',
                         'data' => $status->color
@@ -1641,17 +1640,42 @@ class UicheckController extends Controller
             'file_creation_date' => 'required',
             'remarks' => 'sometimes',
             'ui_check_id' => 'required',
+            'device_no' => 'required',
             'file_read' => 'sometimes',
             'file_write' => 'sometimes'
         ]);
         
         $data = $request->all();
+        // dd($data);
         try {
             $uiCheck = Uicheck::find($request->ui_check_id);
-            // dd($uiCheck);
+            
+
+            $uiDevData = UiDevice::where('uicheck_id', '=', $request->ui_check_id)->where('device_no', '=', $request->device_no)->first();
+            // dd($uiDevData);
+            $uiDev['user_id'] = \Auth::user()->id;
+            $uiDev['device_no'] = $request->device_no;
+            $uiDev['uicheck_id'] = $request->ui_check_id;
+            $uiDev['message'] = "New File uploaded";
+            if ($request->uidevdatetime) {
+                $uiDev['estimated_time'] = date('H:i:s', strtotime($request->uidevdatetime));
+            }
+            $uiDevid = $uiDevData->id ?? '';
+            if ($uiDevid == '') {
+                $uiDevs = UiDevice::create($uiDev);
+                $uiData = UiDevice::where('id', $uiDevs->id)->first();
+            } else {
+                $uiData = $uiDevData;
+                $uiLans = UiDevice::where('id', $uiDevData->id)->update($uiDev);
+            }
+
+            $uiDev['ui_devices_id'] = $uiData->id;
+            $deviceHistory = UiDeviceHistory::create($uiDev);
+
+
             foreach($data['file'] as $file)
             {
-                DB::transaction(function () use ($file,$data, $uiCheck) {
+                DB::transaction(function () use ($file,$data, $uiCheck, $uiData, $deviceHistory) {
                     $googleScreencast = new GoogleScreencast();
                     $googleScreencast->file_name = $file->getClientOriginalName();
                     $googleScreencast->extension = $file->extension();
@@ -1662,11 +1686,17 @@ class UicheckController extends Controller
 
                     $googleScreencast->remarks = $data['remarks'];
                     $googleScreencast->file_creation_date = $data['file_creation_date'];
-                    $googleScreencast->belongable_id = $uiCheck->id;
-                    $googleScreencast->belongable_type = Uicheck::class;
+                    $googleScreencast->belongable_id = $uiData->id; //Ui device Id
+                    $googleScreencast->belongable_type = UiDevice::class;
                     $googleScreencast->save();
 
-                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file, "anyone");
+                    UploadGoogleDriveScreencast::dispatchNow(
+                        $googleScreencast, $file, "anyone", 
+                        [
+                            UiDevice::class => $uiData->id,
+                            UiDeviceHistory::class => $deviceHistory->id 
+                        ]
+                    );
                 });
             }
             
@@ -1683,16 +1713,27 @@ class UicheckController extends Controller
     public function getUploadedFilesList(Request $request)
     {
         try {
-            $result = [];
-            if(isset($request->ui_check_id)) {
-                $result = GoogleScreencast::where('belongable_type', Uicheck::class)->where('belongable_id', $request->ui_check_id)->orderBy('id', 'desc')->get();
-                if(isset($result) && count($result) > 0) {
-                    $result = $result->toArray();   
-                }
+            $class = null; 
+            if(isset($request->device_no)) {
+                $class = UiDevice::class;
+            }
 
-                return response()->json([
-                    "data" => view("uicheck.google-drive-list", compact("result"))->render()
-                ]);
+            $device = UiDevice::where("uicheck_id", $request->ui_check_id)->where("device_no", $request->device_no)->first();
+
+            if(isset($device)) {
+                $result = [];
+                if(isset($request->ui_check_id)) {
+                    $result = GoogleScreencast::where('belongable_type', $class)->where('belongable_id', $device->id)->orderBy('id', 'desc')->get();
+                    if(isset($result) && count($result) > 0) {
+                        $result = $result->toArray();   
+                    }
+    
+                    return response()->json([
+                        "data" => view("uicheck.google-drive-list", compact("result"))->render()
+                    ]);
+                }
+            } else {
+                throw new Exception("Device not found");
             }
             
         } catch (Exception $e) {

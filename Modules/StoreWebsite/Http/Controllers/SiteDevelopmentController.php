@@ -1252,7 +1252,9 @@ class SiteDevelopmentController extends Controller
         $page = $request->page;
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
-        $categories = SiteDevelopmentCategory::select('site_development_categories.id','site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website')
+        $categories = SiteDevelopmentCategory::select('site_development_categories.id','site_developments.site_development_master_category_id', 'site_development_categories.title', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website',
+            DB::raw('count(site_developments.id) as cnt')
+            )
             ->joinSub($site_dev, 'site_dev', function ($join) {
                 $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
             })->join('site_developments', function ($q) use($show) {
@@ -1264,13 +1266,36 @@ class SiteDevelopmentController extends Controller
                     $q->where('site_developments.site_development_master_category_id', null);
                 }
             })->join('store_websites', 'store_websites.id', '=', 'site_developments.website_id')
-            ->orderBy('website', 'asc')
-            ->orderBy('title', 'asc');
+            ->groupBy('site_development_categories.id')
+            // ->orderBy('website', 'asc')
+            ->orderBy('site_development_categories.id', 'desc');
         $categories = $categories->paginate(25);
         
         $title = 'Store website Category';
         
         return view('storewebsite::site-development.partials.store-website-category', compact('show', 'masterCategories', 'categories', 'title', 'pagination', 'page'));
+    }
+
+    public function updateMasterCategory(Request $request)
+    {
+        SiteDevelopmentCategory::where(['id' => $request->category])->update(['master_category_id'=> $request->text]);
+        SiteDevelopment::where(['site_development_category_id' => $request->category])->update(['site_development_master_category_id' => $request->text]);
+
+        return response()->json(['code' => 200, 'messages' => 'Master Category Saved Sucessfully']);
+    }
+
+    public function updateBulkMasterCategory(Request $request)
+    {
+        $categories = $request->categories;
+        $masterCategoryId = $request->master_category_id;
+        if(count($categories)) {
+            foreach($categories as $categoryId) {
+                SiteDevelopmentCategory::where(['id' => $categoryId])->update(['master_category_id'=> $masterCategoryId]);
+                SiteDevelopment::where(['site_development_category_id' => $categoryId])->update(['site_development_master_category_id' => $masterCategoryId]);
+            }
+        }
+
+        return response()->json(['code' => 200, 'messages' => 'Master Categories Saved Sucessfully']);
     }
 
 }
