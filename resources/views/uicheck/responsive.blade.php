@@ -117,6 +117,13 @@
 							</select>
 						</div>
 					</div>
+
+					<div class="col-md-2">
+						<div class="form-group">
+							{{Form::select('type', [''=>'Select a type']+$allUicheckTypes, request('type') ?? '', array('class'=>'form-control select2'))}}
+						</div>
+					</div>
+
 					<div class="col-md-2">
 						<div class="form-group">
 							<?php 
@@ -156,9 +163,12 @@
 		</div>
 		<div class="col-md-2">
 			@if (Auth::user()->isAdmin())
+				@php
+					if(request('website') && request('website') != '' && request('user') && request('user') != ''){
+						echo '<i class="btn btn-s fa fa-plus addUsers" title="Add user to records" data-toggle="modal" data-target="#addUsers"></i>';
+					}
+				@endphp
 				<button class="btn btn-xs btn-secondary my-3"  data-toggle="modal" data-target="#uiResponsive"> UI Responsive</button>&nbsp;
-			@endif
-			@if (Auth::user()->isAdmin())
 				<button class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>&nbsp;
 			@endif
 		</div>
@@ -175,7 +185,10 @@
 						<th width="8%">Categories</th>
 						<th width="8%">Website</th>
 						{{-- <th>Upload file</th> --}}
-						<th width="8%">User Name</th>
+						@if (Auth::user()->isAdmin())
+							<th width="8%">User Name</th>
+						@endif
+						<th>Type</th>
 						<th width="6%">Device1</th>
 						<th width="6%">Device2</th>
 						<th width="6%">Device3</th>
@@ -225,11 +238,15 @@
 										<img src="/images/google-drive.png" style="cursor: nwse-resize; width: 12px;">
 									</button>
 								</td> --}}
-								<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-									<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 5, '..')}} @else   @endif</span>
-									<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span>
-									<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
-								</td>
+								@if (Auth::user()->isAdmin())
+									<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+										<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_accessable != '') {{ Str::limit($uiDevData->user_accessable, 5, '..')}} @else   @endif</span>
+										<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_accessable != '') {{$uiDevData->user_accessable}} @else   @endif</span>
+										<i class="btn btn-xs fa fa-info-circle devHistorty" onclick="funGetUserHistory({{$uiDevData->uicheck_id}});"></i>
+									</td>
+								@endif
+
+								<td>{{$uiDevData->uicheck_type_id ? $allUicheckTypes[$uiDevData->uicheck_type_id] : ''}}</td>
 							
 								<td style="background-color: {{$deviceBgColors['1']}} !important">
 									<input type="text" name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1{{$uiDevData->uicheck_id}}" style="margin-top: 0px; width: 75% !important;" />
@@ -317,6 +334,7 @@
 		</div>
 	</div>
 </div>
+@if (Auth::user()->isAdmin())
 <div id="uiResponsive" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -352,6 +370,35 @@
 		</div>
 	</div>
 </div>
+
+<div id="addUsers" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4>Add another user to records:</h4>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+			</div>
+			<div class="modal-body" id="">
+				<div class="from-group">
+					<input type="hidden" name="website_id" id="website_id" value="{{request('website')}}" />
+					<input type="hidden" name="old_user_id" id="old_user_id" value="{{request('user')}}" />
+					<label for="">Select User:</label>
+					<select name="new_user_id" id="new_user_id" class="form-control select2" style="width: 100%!important">
+						<option value="" selected disabled>-- Select a user --</option>
+						@forelse($allUsers as $key => $user)
+							<option value="{{ $user->id }}">{{ $user->name }}</option>
+						@empty
+						@endforelse
+					</select>
+				</div>
+				<div class="from-group mt-3">
+					<button class="btn btn-primary" id="add_user_to_website">Add</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@endif
 <div id="userHistoryModel" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -888,6 +935,50 @@
 					}
 					$("#loading-image").hide();
 					$("#uiResponsive").modal('hide');
+
+					window.location.assign("{{route('uicheck.responsive')}}?website=" + website + "&user=" + user);
+				},
+				error: function (error) {
+					toastr['error']("Something went wrong", 'error');
+					$("#loading-image").hide();
+					$("#uiResponsive").modal('hide');
+				}
+			});
+		});
+
+		$("#add_user_to_website").click(function (e) { 
+			e.preventDefault();
+			let oldUserId = $("#old_user_id").val()
+			let websiteId = $("#website_id").val()
+			let newUserId = $("#new_user_id").val()
+
+			if(newUserId == null) {
+				toastr['error']("Please select user.");
+				return
+			}
+
+			$.ajax({
+				type: "POST",
+				url: "{{route('uicheck.addNewuser')}}",
+				beforeSend: function () {
+                    $("#loading-image").show();
+                },
+				data: {
+					_token: "{{csrf_token()}}",
+					oldUserId,
+					newUserId,
+					websiteId
+				},
+				success: function (response) {
+					if(response.status == true) {
+						toastr['success'](response.message, 'success');
+					} else {
+						toastr['error'](response.message, 'error');
+					}
+					$("#loading-image").hide();
+					$("#uiResponsive").modal('hide');
+
+					location.reload();
 				},
 				error: function (error) {
 					toastr['error']("Something went wrong", 'error');
@@ -898,7 +989,7 @@
 		});
 	});
 
-
+	@if (Auth::user()->isAdmin())
 	function funGetUserHistory(uicheck_id) { 
 		$.ajax({
 			type: "get",
@@ -920,6 +1011,7 @@
 			}
 		});
 	}
+	@endif
 </script>
 
 @endsection
