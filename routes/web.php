@@ -4954,9 +4954,17 @@ Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfil
 Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
     Route::prefix('providers')->group(function () {
         Route::get('', [AffiliateMarketingController::class, 'providers'])->name('affiliate-marketing.providers');
-        Route::get('{id}', [AffiliateMarketingController::class, 'getProvider'])->name('affiliate-marketing.get');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProvider'])->name('affiliate-marketing.getProvider');
         Route::post('create', [AffiliateMarketingController::class, 'createProvider'])->name('affiliate-marketing.createProvider');
         Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProvider'])->name('affiliate-marketing.updateProvider');
         Route::post('delete', [AffiliateMarketingController::class, 'deleteProvider'])->name('affiliate-marketing.deleteProviders');
+    });
+
+    Route::prefix('provider-sites')->group(function () {
+        Route::get('', [AffiliateMarketingController::class, 'providerSites'])->name('affiliate-marketing.providerSites');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProviderSite'])->name('affiliate-marketing.getProviderSite');
+        Route::post('create', [AffiliateMarketingController::class, 'createProviderSite'])->name('affiliate-marketing.createProviderSite');
+        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProviderSite'])->name('affiliate-marketing.updateProviderSite');
+        Route::post('delete', [AffiliateMarketingController::class, 'deleteProviderSite'])->name('affiliate-marketing.deleteProviderSite');
     });
 });

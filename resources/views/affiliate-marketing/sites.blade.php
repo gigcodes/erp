@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Affiliate Marketing')
+@section('title', 'Affiliate Marketing Sites')
 @section('styles')
     <style type="text/css">
         #loading-image {
@@ -27,10 +27,11 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
+
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">
-                Affiliates providers (<span id="affiliate_count">{{ $providers->total() }}</span>)
+                Affiliates Providers Sites (<span id="affiliate_count"></span>)
             </h2>
             <div class="pull-left">
                 <form action="{{route('affiliate-marketing.providers')}}">
@@ -58,7 +59,7 @@
                 </form>
             </div>
             <div class="col-md-2 pl-0 float-right">
-                <button data-toggle="modal" data-target="#create-provider" type="button"
+                <button data-toggle="modal" data-target="#add-site-provider" type="button"
                         class="float-right mb-3 btn-secondary">New Provider
                 </button>
             </div>
@@ -72,23 +73,28 @@
             <thead>
             <tr>
                 <th>No</th>
-                <th>Name</th>
-                <th>Status</th>
+                <th>Store Website</th>
+                <th>Url</th>
+                <th>Provider</th>
+                <th>API Key</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-            @foreach ($providers as $key => $affiliate)
+            @foreach ($providerSites as $key => $value)
                 <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $affiliate->provider_name }}</td>
-                    <td>{{ $affiliate->status ? 'Active': 'Inactive' }}</td>
+                    <td>{{ $value->storeWebsite->title }}</td>
+                    <td>{{ $value->storeWebsite->website }}</td>
+                    <td>{{ $value->provider->provider_name}}</td>
+                    <td>{{ $value->api_key }}</td>
+                    <td>{{ $value->status ? 'Active': 'Inactive' }}</td>
                     <td>
-                        <button type="button" data-toggle="modal" data-target="#create-provider"
-                                onclick="editData('{!! $affiliate->id !!}')"
+                        <button type="button" data-toggle="modal" data-target="#add-site-provider"
+                                onclick="editData('{!! $value->id !!}')"
                                 class="btn btn-image"><img src="/images/edit.png"></button>
-                        {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.deleteProviders'],'style'=>'display:inline']) !!}
-                        <input type="hidden" value="{{$affiliate->id}}" name="id">
+                        {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.deleteProviderSite'],'style'=>'display:inline']) !!}
+                        <input type="hidden" value="{{$value->id}}" name="id">
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
                     </td>
@@ -97,25 +103,49 @@
             </tbody>
         </table>
     </div>
-    {!! $providers->render() !!}
+    {{--    {!! $providerSites->render() !!}--}}
 
-    <div class="modal fade" id="create-provider" role="dialog" style="z-index: 3000;">
+    <div class="modal fade" id="add-site-provider" role="dialog" style="z-index: 3000;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="col-md-12">
                     <div class="page-header" style="width: 69%">
-                        <h2>Create Affiliate Provider</h2>
+                        <h2>Add Site to Provider</h2>
                     </div>
-                    <form id="create-provider-form" method="POST"
-                          action="{{route('affiliate-marketing.createProvider')}}">
+                    <form id="add-site-provider-form" method="POST"
+                          action="{{route('affiliate-marketing.createProviderSite')}}">
                         {{csrf_field()}}
                         <div class="form-group row">
-                            <label for="headline1" class="col-sm-2 col-form-label">Provider name</label>
+                            <label for="headline1" class="col-sm-2 col-form-label">Select Provider</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="provider_name" name="provider_name"
-                                       placeholder="Provider name" value="{{ old('provider_name') }}">
-                                @if ($errors->has('provider_name'))
-                                    <span class="text-danger">{{$errors->first('provider_name')}}</span>
+                                <select class="browser-default custom-select" id="status" name="affiliates_provider_id"
+                                        style="height: auto">
+                                    <option value="">Select provider from list</option>
+                                    @foreach ($providers as $key => $affiliate)
+                                        <option value="{{$affiliate->id}}">{{$affiliate->provider_name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="headline1" class="col-sm-2 col-form-label">Select Site</label>
+                            <div class="col-sm-10">
+                                <select class="browser-default custom-select" id="status" name="store_website_id"
+                                        style="height: auto">
+                                    <option value="">Select site from list</option>
+                                    @foreach ($storeWebsites as $key => $site)
+                                        <option value="{{$site->id}}">{{$site->title}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="headline1" class="col-sm-2 col-form-label">API Key</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="api_key" name="api_key"
+                                       placeholder="API Key" value="{{ old('api_key') }}">
+                                @if ($errors->has('api_key'))
+                                    <span class="text-danger">{{$errors->first('api_key')}}</span>
                                 @endif
                             </div>
                         </div>
@@ -153,44 +183,38 @@
         @endif
 
         if (showPopup) {
-            $('#create-provider').modal('show');
+            $('#add-site-provider').modal('show');
         }
 
-        $('#create-provider').on('show.bs.modal', function () {
-            $('#create-provider .page-header h2').text('Create Affiliate Provider');
-            $('#create-provider-form').attr('action', "{{ route('affiliate-marketing.createProvider') }}");
-            $('#create-provider-form button[type="submit"]').text('Create');
-        })
-
-        $('#create-provider').on('hidden.bs.modal', function () {
-            $('#create-provider-form').get(0).reset();
+        $('#add-site-provider').on('show.bs.modal', function () {
+            $('#add-site-provider-form').attr('action', "{{ route('affiliate-marketing.createProviderSite') }}");
+            $('#add-site-provider-form button[type="submit"]').text('Create');
         })
 
         function editData(id) {
-            let url = "{{ route('affiliate-marketing.getProvider', [":id"]) }}";
+            let url = "{{ route('affiliate-marketing.getProviderSite', [":id"]) }}";
             url = url.replace(':id', id);
             $.ajax({
                 url,
                 type: 'GET',
-                params: {id},
+                params: { id },
                 beforeSend: function () {
                     $("#loading-image").show();
                 },
                 success: function (response) {
-                    debugger;
                     $("#loading-image").hide();
                     if (!response.status) {
                         toastr["error"](response.message);
-                        $('#create-provider').modal('hide');
+                        $('#add-site-provider').modal('hide');
                     } else {
-                       // $('#create-provider-form').attr('action', "{{ route('affiliate-marketing.createProvider') }}");
-                        let url = "{{ route('affiliate-marketing.updateProvider', [":id"]) }}";
+                        let url = "{{ route('affiliate-marketing.updateProviderSite', [":id"]) }}";
                         url = url.replace(':id', id);
-                        $('#create-provider-form').attr('action', url);
-                        $('#create-provider-form button[type="submit"]').text('Update');
-                        $('#create-provider .page-header h2').text('Update Affiliate Provider');
-                        $('#create-provider-form [name="provider_name"]').val(response.data.provider_name);
-                        $('#create-provider-form [name="status"]').val(response.data.status ? 'true' : 'false');
+                        $('#add-site-provider-form').attr('action', url);
+                        $('#add-site-provider-form button[type="submit"]').text('Update');
+                        $('#add-site-provider-form [name="api_key"]').val(response.data.api_key);
+                        $('#add-site-provider-form [name="affiliates_provider_id"]').val(response.data.affiliates_provider_id);
+                        $('#add-site-provider-form [name="store_website_id"]').val(response.data.store_website_id);
+                        $('#add-site-provider-form [name="status"]').val(response.data.status ? 'true' : 'false');
                     }
                 }
             })
