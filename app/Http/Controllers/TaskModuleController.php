@@ -9,11 +9,13 @@ use App\Contact;
 use App\DeveloperTask;
 use App\DeveloperTaskHistory;
 use App\DocumentRemark;
+use App\GoogleScreencast;
 use App\Helpers;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffTask;
+use App\Jobs\UploadGoogleDriveScreencast;
 use App\LogChatMessage;
 use App\Models\Tasks\TaskHistoryForCost;
 use App\NotificationQueue;
@@ -51,6 +53,7 @@ use Response;
 use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorTask;
 use App\Library\TimeDoctor\Src\Timedoctor;
+use App\Models\Tasks\TaskHistoryForStartDate;
 
 class TaskModuleController extends Controller
 {
@@ -3056,7 +3059,7 @@ class TaskModuleController extends Controller
         }
 
         if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
-            $this->timeDoctorActions('TASK', $task, $data['time_doctor_project'], $data['assigned_to']);
+            $this->timeDoctorActions('DEVTASK', $task, $data['time_doctor_project'], $data['assigned_to']);
         } else {
             $hubstaffTaskId = '';
             if (env('PRODUCTION', true)) {
@@ -3150,7 +3153,7 @@ class TaskModuleController extends Controller
             $accessToken = $assignUsersData->auth_token;
 
             $taskSummary = substr($message, 0, 200);
-            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data);
+            $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data, $task->id, $type);
             $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
             switch ($timeDoctorTaskResponse['code']) {
                 case '401':
@@ -4629,14 +4632,25 @@ class TaskModuleController extends Controller
     public function slotAssign()
     {
         try {
-            $newValue = request('date').' '.substr(request('slot'), 0, 2).':00:00';
+            // $newValue = request('date').' '.substr(request('slot'), 0, 2).':00:00';
+            $newValue = request('date').' '.request('slot').':00';
             if ($id = isDeveloperTaskId(request('taskId'))) {
                 if ($single = DeveloperTask::find($id)) {
+
+                    if(!empty($single->estimate_date) || !empty($single->start_date)) {
+                        throw new Exception("You already have updated your estimate date.");
+                    }
+                    if(empty($single->estimate_minutes) || $single->estimate_minutes == null || $single->estimate_minutes == "") {
+                        throw new Exception("Update your estimate time first.");
+                    }
+
                     $oldValue = $single->start_date;
                     if ($oldValue == $newValue) {
                         return respJson(400, 'No change in time slot.');
                     }
                     $single->start_date = $newValue;
+                    $single->estimate_date = date('Y-m-d H:i:00', strtotime($single->start_date." +$single->estimate_minutes minute"));
+
                     $single->save();
                     $single->updateHistory('start_date', $oldValue, $newValue);
 
@@ -4644,7 +4658,22 @@ class TaskModuleController extends Controller
                 }
             } elseif ($id = isRegularTaskId(request('taskId'))) {
                 if ($single = Task::find($id)) {
-                    $single->updateStartDate($newValue);
+                    
+                    if(!empty($single->due_date) || !empty($single->start_date)) {
+                        throw new Exception("You already have updated your estimate date.");
+                    }
+                    
+                    if(empty($single->approximate) || $single->approximate == null || $single->approximate == "" || $single->approximate == 0) {
+                        throw new Exception("Update your estimate time first.");
+                    }
+                    $oldValue = $single->start_date;
+                    
+                    $single->start_date = $newValue;
+                    $single->due_date = date('Y-m-d H:i:00', strtotime($single->start_date." +$single->approximate minute"));
+
+                    $single->save();
+
+                    TaskHistoryForStartDate::historySave($single->id, $oldValue, $newValue, 0);
 
                     return respJson(200, 'Time slot updated successfully.');
                 }
@@ -4652,7 +4681,7 @@ class TaskModuleController extends Controller
 
             return respJson(404, 'No task found.');
         } catch(\Throwable $th) {
-            return respException($th);
+            return response()->json(["message" => $th->getMessage()], 500);
         }
     }
 
@@ -4689,18 +4718,22 @@ class TaskModuleController extends Controller
     public function taskUpdateStartDate()
     {
         if ($new = request('value')) {
-            if ($task = Task::find(request('task_id'))) {
-                if ($task->assign_to == Auth::user()->id) {
-                    $params['message'] = 'Estimated Start Datetime: '.$new;
-                    $params['user_id'] = Auth::user()->id;
-                    $params['task_id'] = $task->id;
-                    $params['approved'] = 1;
-                    $params['status'] = 2;
-                    ChatMessage::create($params);
+            try {
+                if ($task = Task::find(request('task_id'))) {
+                    if ($task->assign_to == Auth::user()->id) {
+                        $params['message'] = 'Estimated Start Datetime: '.$new;
+                        $params['user_id'] = Auth::user()->id;
+                        $params['task_id'] = $task->id;
+                        $params['approved'] = 1;
+                        $params['status'] = 2;
+                        ChatMessage::create($params);
+                    }
+                    $task->updateStartDate($new);
+    
+                    return respJson(200, 'Successfully updated.');
                 }
-                $task->updateStartDate($new);
-
-                return respJson(200, 'Successfully updated.');
+            } catch (\Exception $e) {
+                return respJson(404, $e->getMessage());
             }
 
             return respJson(404, 'No task found.');
@@ -4712,18 +4745,22 @@ class TaskModuleController extends Controller
     public function taskUpdateDueDate()
     {
         if ($new = request('value')) {
-            if ($task = Task::find(request('task_id'))) {
-                if ($task->assign_to == Auth::user()->id) {
-                    $params['message'] = 'Estimated End Datetime: '.$new;
-                    $params['user_id'] = Auth::user()->id;
-                    $params['task_id'] = $task->id;
-                    $params['approved'] = 1;
-                    $params['status'] = 2;
-                    ChatMessage::create($params);
+            try {
+                if ($task = Task::find(request('task_id'))) {
+                    if ($task->assign_to == Auth::user()->id) {
+                        $params['message'] = 'Estimated End Datetime: '.$new;
+                        $params['user_id'] = Auth::user()->id;
+                        $params['task_id'] = $task->id;
+                        $params['approved'] = 1;
+                        $params['status'] = 2;
+                        ChatMessage::create($params);
+                    }
+                    $task->updateDueDate($new);
+    
+                    return respJson(200, 'Successfully updated.');
                 }
-                $task->updateDueDate($new);
-
-                return respJson(200, 'Successfully updated.');
+            } catch (\Exception $e) {
+                return respJson(404, $e->getMessage());
             }
 
             return respJson(404, 'No task found.');
@@ -4836,4 +4873,77 @@ class TaskModuleController extends Controller
 
         return respJson(404, 'No task found.');
     }
+
+
+    /**
+     * Upload a task file to google drive 
+     */
+    public function uploadFile(Request $request)
+    {
+        $request->validate([
+            'file' => 'required',
+            'file_creation_date' => 'required',
+            'remarks' => 'sometimes',
+            'task_id' => 'required',
+            'file_read' => 'sometimes',
+            'file_write' => 'sometimes'
+        ]);
+
+        $data = $request->all();
+        try {
+            foreach($data['file'] as $file)
+            {
+                DB::transaction(function () use ($file,$data) {
+                    $googleScreencast = new GoogleScreencast();
+                    $googleScreencast->file_name = $file->getClientOriginalName();
+                    $googleScreencast->extension = $file->extension();
+                    $googleScreencast->user_id = Auth::id();
+                    
+                    $googleScreencast->read = "";
+                    $googleScreencast->write = "";
+
+                    $googleScreencast->remarks = $data['remarks'];
+                    $googleScreencast->file_creation_date = $data['file_creation_date'];
+
+                    $googleScreencast->belongable_id = $data['task_id'];
+                    $googleScreencast->belongable_type = Task::class;
+                    $googleScreencast->save();
+                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
+                });
+            }
+            
+            return back()->with('success', "File is Uploaded to Google Drive.");
+        } catch (Exception $e) {
+            return back()->with('error', "Something went wrong. Please try again");
+        }
+        
+    }
+
+    /**
+     * This function will return a list of files which are uploaded under uicheck class
+     */
+    public function getUploadedFilesList(Request $request)
+    {
+        try {
+            $result = [];
+            if(isset($request->task_id)) {
+                $result = GoogleScreencast::where('belongable_type', Task::class)->where('belongable_id', $request->task_id)->orderBy('id', 'desc')->get();
+                if(isset($result) && count($result) > 0) {
+                    $result = $result->toArray();   
+                }
+
+                return response()->json([
+                    "data" => view("task-module.google-drive-list", compact("result"))->render()
+                ]);
+            } else {
+                throw new Exception("Task not found");
+            }
+            
+        } catch (Exception $e) {
+            return response()->json([
+                "data" => view("task-module.google-drive-list", ["result"=> null])->render()
+            ]);
+        }
+    }
+
 }

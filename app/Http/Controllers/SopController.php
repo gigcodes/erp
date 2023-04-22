@@ -20,12 +20,12 @@ class SopController extends Controller
         $users = User::all();
         // $users = User::limit(10)->get();
         $usersop = Sop::with(['purchaseProductOrderLogs', 'user']);
-
-        if ($request->search) {
-            $usersop = $usersop->where('name', 'like', '%'.$request->search.'%')->orWhere('content', 'like', '%'.$request->search.'%');
+        if ($request->get('search')) {
+            $usersop = $usersop->where('name', 'like', '%'.$request->get('search').'%')
+                               ->orWhere('content', 'like', '%'.$request->get('search').'%');
         }
 
-        $usersop = $usersop->limit(10)->paginate(10);
+        $usersop = $usersop->limit(25)->paginate(25);
 
         $total_record = $usersop->total();
         $category_result = SopCategory::all();

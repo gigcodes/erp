@@ -529,6 +529,7 @@ function getHourlySlots($stTime, $enTime)
             if ($enSlot > $enTime) {
                 $enSlot = $enTime;
             }
+            $enSlot = date('Y-m-d H:i:00', strtotime($enSlot.' -1 minute'));
             $return[] = [
                 'st' => $stSlot,
                 'en' => $enSlot,

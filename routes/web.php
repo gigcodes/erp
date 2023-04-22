@@ -348,9 +348,41 @@ use App\Http\Controllers\AppConnect\AppConnectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
+use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\YoutubeController;
+use App\Http\Controllers\GoogleShoppingAdsController;
+
+Auth::routes();
+
+Route::prefix('youtube')->middleware('auth')->group(function () {
+Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
+Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
+Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
+Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
+Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
+Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
+
+Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
+Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
+
+Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
+Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+});
+// Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
+// Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
+// Route::get('/GetChanelData', [YoutubeController::class, 'GetChanelData'])->name('GetChanelData');
+// Route::get('/chanelList', [YoutubeController::class, 'chanelList'])->name('chanelList');
+// Route::get('/videoList/{chanelId}/{websiteId}', [YoutubeController::class, 'VideoListByChanelId'])->name('videoList');
+
+// Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+
+
 use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\MailBoxController;
+use App\Http\Controllers\BingWebMasterController;
+use App\Http\Controllers\GoogleAdsRemarketingController;
 
 Auth::routes();
 
@@ -517,6 +549,17 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
     Route::get('/accounts/disconnect/{id}', [GoogleWebMasterController::class, 'disconnectAccount'])->name('googlewebmaster.account.disconnect');
     Route::get('/get-account-notifications', [GoogleWebMasterController::class, 'getAccountNotifications'])->name('googlewebmaster.get.account.notifications');
     Route::get('/all-records', [GoogleWebMasterController::class, 'allRecords'])->name('googlewebmaster.get.records');
+});
+//Bing web master routes
+Route::prefix('bing-webmaster')->middleware('auth')->group(function () {
+    Route::get('/index', [BingWebMasterController::class, 'index'])->name('bingwebmaster.index');
+    Route::post('/add-account', [BingWebMasterController::class, 'addAccount'])->name('bingwebmaster.account.add');
+    Route::get('/get-accounts', [BingWebMasterController::class, 'getAccounts'])->name('bingwebmaster.get.accounts');
+    Route::get('/accounts/connect/{id}', [BingWebMasterController::class, 'connectAccount'])->name('bingwebmaster.account.connect');
+    Route::get('get-access-token', [BingWebMasterController::class, 'bingLogin'])->name('bingwebmaster.get-access-token');
+    Route::get('/accounts/disconnect/{id}', [BingWebMasterController::class, 'disconnectAccount'])->name('bingwebmaster.account.disconnect');
+    Route::get('/all-records', [BingWebMasterController::class, 'allRecords'])->name('bingwebmaster.get.records');
+    Route::post('delete-site', [BingWebMasterController::class, 'deleteSiteFromWebmaster'])->name('bingwebmaster.delete.site.webmaster');
 });
 Route::prefix('product')->middleware('auth')->group(function () {
     Route::get('manual-crop/assign-products', [Products\ManualCroppingController::class, 'assignProductsToUser']);
@@ -1312,7 +1355,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/update-customer-address', [OrderController::class, 'updateCustomerInvoiceAddress'])->name('order.update.customer.address');
     Route::get('order/{id}/mail-invoice', [OrderController::class, 'mailInvoice'])->name('order.mail.invoice');
     Route::get('order/{id}/get-invoice-customer-email', [OrderController::class, 'getInvoiceCustomerEmail'])->name('get.invoice.customer.email');
-   
+
     Route::get('order/get-invoice-customer-email-selected', [OrderController::class, 'getInvoiceCustomerEmailSelected']);
     Route::get('order/mail-invoice-multi-select', [OrderController::class, 'mailInvoiceMultiSelect']);
     Route::get('order/get-order-invoice-users', [OrderController::class, 'GetInvoiceOrderUsers']);
@@ -1355,8 +1398,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::put('email/{id}/mark-as-read', [EmailController::class, 'markAsRead']);
     Route::post('email/{id}/excel-import', [EmailController::class, 'excelImporter']);
     Route::post('email/{id}/get-file-status', [EmailController::class, 'getFileStatus']);
-   
-    
+
+
     Route::resource('email', EmailController::class);
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
@@ -1504,6 +1547,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
     Route::post('task/recurring-history', [TaskModuleController::class, 'recurringHistory'])->name('task.recurringHistory');
     Route::post('task/create-multiple-task-from-shortcut-bugtrack', [TaskModuleController::class, 'createMultipleTaskFromSortcutBugtrack'])->name('task.create.multiple.task.shortcut.bugtrack');
+    Route::post('task/upload-file', [TaskModuleController::class, 'uploadFile'])->name('task.upload-file');
+    Route::get('task/files/record', [TaskModuleController::class, 'getUploadedFilesList'])->name('task.files.record');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -2785,7 +2830,7 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects'])->name('time-doctor.projects');
-    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks'])->name('time-doctor.tasks');    
+    Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks'])->name('time-doctor.tasks');
     Route::get('time-doctor/members', [TimeDoctorController::class, 'userList'])->name('time-doctor.members');
     Route::post('time-doctor/link_time_doctor_user', [TimeDoctorController::class, 'linkUser']);
     Route::post('time-doctor/saveuseraccount', [TimeDoctorController::class, 'saveUserAccount'])->name('time-doctor.adduser');
@@ -2800,6 +2845,14 @@ Route::middleware('auth')->group(function () {
     Route::post('time-doctor/refresh_task_by_id', [TimeDoctorController::class, 'refreshTasksById'])->name('time-doctor.refresh-task-by-id');
     Route::post('time-doctor/get_task_by_id', [TimeDoctorController::class, 'getTasksById'])->name('time-doctor.get-task-detail');
     Route::post('time-doctor/update_task_by_id', [TimeDoctorController::class, 'updateTasksById'])->name('time-doctor.update-task-by-id');
+    Route::get('time-doctor/create-account', [TimeDoctorController::class, 'sendInvitations'])->name('time-doctor.create-account');
+    Route::post('time-doctor/send_invitation', [TimeDoctorController::class, 'sendSingleInvitation'])->name('time-doctor.send-invitation');
+    Route::post('time-doctor/send_bulk_invitation', [TimeDoctorController::class, 'sendBulkInvitation'])->name('time-doctor.send-bulk-invitation');
+
+    Route::prefix('time-doctor/task-creation-logs')->group(function () {
+        Route::get('/', [TimeDoctorController::class, 'taskCreationLogs'])->name('time-doctor.task_creation_logs');
+        Route::get('/records', [TimeDoctorController::class, 'listTaskCreationLogs'])->name('time-doctor.task_creation_logs.records');
+    });
 
     Route::prefix('time-doctor-activities')->group(function () {
         Route::get('/report', [TimeDoctorActivitiesController::class, 'activityReport'])->name('time-doctor-activtity.report');
@@ -2839,7 +2892,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/userTrackTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
         });
     });
-    
+
 
     /***
      * use for Postman
@@ -2853,10 +2906,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('postman/delete', [PostmanRequestCreateController::class, 'destroy']);
 
     Route::get('postman/folder', [PostmanRequestCreateController::class, 'folderindex']);
+    Route::get('postman/workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
+    Route::get('postman/collection', [PostmanRequestCreateController::class, 'collectionIndex']);
+
     Route::get('postman/folder/search', [PostmanRequestCreateController::class, 'folderSearch']);
     Route::post('postman/folder/create', [PostmanRequestCreateController::class, 'folderStore']);
+    Route::post('postman/workspace/create', [PostmanRequestCreateController::class, 'workspaceStore']);
+    Route::post('postman/collection/create', [PostmanRequestCreateController::class, 'collectionStore']);
     Route::post('/postman/folder/edit', [PostmanRequestCreateController::class, 'folderEdit']);
+    Route::post('/postman/workspace/edit', [PostmanRequestCreateController::class, 'workspaceEdit']);
+    Route::post('/postman/collection/edit', [PostmanRequestCreateController::class, 'collectionEdit']);
     Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
+    Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
     Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
 
     Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
@@ -2888,6 +2949,8 @@ Route::middleware('auth')->group(function () {
     Route::post('bug-tracking/store', [BugTrackingController::class, 'store'])->name('bug-tracking.store');
     Route::get('bug-tracking/edit/{id}', [BugTrackingController::class, 'edit'])->name('bug-tracking.edit');
     Route::post('bug-tracking/update', [BugTrackingController::class, 'update'])->name('bug-tracking.update');
+    Route::post('bug-tracking/upload-file', [BugTrackingController::class, 'uploadFile'])->name('bug-tracking.upload-file');
+    Route::get('bug-tracking/files/record', [BugTrackingController::class, 'getBugFilesList'])->name('bug-tracking.files.record');
     Route::post('bug-tracking/assign_user', [BugTrackingController::class, 'assignUser'])->name('bug-tracking.assign_user');
     Route::post('bug-tracking/change_bug_type', [BugTrackingController::class, 'changeBugType'])->name('bug-tracking.change_bug_type');
     Route::post('bug-tracking/change_module_type', [BugTrackingController::class, 'changeModuleType'])->name('bug-tracking.change_module_type');
@@ -2933,6 +2996,7 @@ Route::middleware('auth')->group(function () {
     Route::post('test-cases/add-test-cases', [TestCaseController::class, 'sendTestCases'])->name('test-cases.sendtestcases');
     Route::get('test-cases/usertest-history/{id}', [TestCaseController::class, 'usertestHistory'])->name('test-cases.usertest-history');
     Route::get('test-cases/user-teststatus-history/{id}', [TestCaseController::class, 'userteststatusHistory'])->name('test-cases.usertest-history');
+	Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
 
     Route::get('test-suites', [TestSuitesController::class, 'index'])->name('test-suites.index');
     Route::get('test-suites/records', [TestSuitesController::class, 'records'])->name('test-suites.records');
@@ -3812,15 +3876,22 @@ Route::middleware('auth')->group(function () {
     Route::post('/uicheck/create/dev/attachment', [UicheckController::class, 'saveDevDocuments'])->name('uicheck.create.dev.attachment');
     Route::get('uicheck/get/dev/attachment', [UicheckController::class, 'devListDocuments'])->name('uicheck.get.dev.attachment');
     Route::post('uicheck/dev/delete/attachment', [UicheckController::class, 'deleteDevDocument'])->name('uicheck.dev.delete.attachment');
+    Route::post('uicheck/device/status', [UicheckController::class, 'updateDeviceStatus'])->name('uicheck.device.status');
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
+        Route::post('statuscolor', [UicheckController::class, 'statuscolor'])->name('uicheck.statuscolor');
         Route::post('responsive/status', [UicheckController::class, 'responseDeviceStatusChange'])->name('uicheck.responsive.status');
         Route::post('get/responsive/status/history', [UicheckController::class, 'responseDeviceStatusHistory'])->name('get.responsive.status.history');
         Route::get('translation', [UicheckController::class, 'responseTranslatorPage'])->name('uicheck.translation');
         Route::post('translation/status', [UicheckController::class, 'translatorStatusChange'])->name('uicheck.translator.status');
         Route::post('get/translator/status/history', [UicheckController::class, 'translatorStatusHistory'])->name('get.translator.status.history');
+        Route::post('assign-user', [UicheckController::class, 'assignNewUser'])->name('uicheck.assignNewuser');
+        Route::get('user-history', [UicheckController::class, 'userHistory'])->name('uicheck.userhistory');
+        Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
+        Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
+        Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -3860,7 +3931,7 @@ Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDevelop
 Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
 Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
-	
+
      Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
@@ -3899,6 +3970,8 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/repos/{id}/github-actions', [Github\RepositoryController::class, 'ajaxActionWorkflows']);
         Route::get('/repos/{id}/branch/merge', [Github\RepositoryController::class, 'mergeBranch']);
         Route::get('/repos/{id}/deploy', [Github\RepositoryController::class, 'deployBranch']);
+        Route::post('/repos/{id}/branch', [Github\RepositoryController::class, 'deleteBranchFromRepo']);
+        Route::post('/repos/{id}/actions/jobs/{jobId}/rerun', [Github\RepositoryController::class, 'rerunGithubAction']);
         Route::post('/add_user_to_repo', [Github\UserController::class, 'addUserToRepository']);
         Route::get('/users', [Github\UserController::class, 'listOrganizationUsers']);
         Route::get('/users/{userId}', [Github\UserController::class, 'userDetails']);
@@ -3919,6 +3992,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
         Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
+
     });
 });
 
@@ -3988,6 +4062,11 @@ Route::prefix('ads')->middleware('auth')->group(function () {
     Route::post('/adsstore', [AdsController::class, 'adsstore'])->name('ads.adsstore');
 });
 
+Route::prefix('google-remarketing-campaigns')->middleware('auth')->group(function () {
+    Route::post('create', [GoogleAdsRemarketingController::class, 'createCampaign'])->name('googleremarketingcampaigns.createCampaign');
+    Route::post('update', [GoogleAdsRemarketingController::class, 'updateCampaign'])->name('googleremarketingcampaigns.updateCampaign');
+});
+
 Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::get('/', [GoogleCampaignsController::class, 'index'])->name('googlecampaigns.index');
     Route::get('/list', [GoogleCampaignsController::class, 'campaignslist'])->name('googlecampaigns.campaignslist');
@@ -4053,6 +4132,14 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::get('/create', [GoogleAdGroupKeywordController::class, 'createPage'])->name('ad-group-keyword.createPage');
                     Route::post('/create', [GoogleAdGroupKeywordController::class, 'createKeyword'])->name('ad-group-keyword.craeteKeyword');
                     Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('shopping-ad')->group(function () {
+                    Route::get('/', [GoogleShoppingAdsController::class, 'index'])->name('shopping-ads.index');
+                    Route::post('/create', [GoogleShoppingAdsController::class, 'createAd'])->name('shopping-ads.createAd');
+                    Route::delete('/delete/{adId}', [GoogleShoppingAdsController::class, 'deleteAd'])->name('shopping-ads.deleteAd');
                 });
             });
         });
@@ -4395,6 +4482,7 @@ Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('translate-logs', [TranslationController::class, 'translateLog'])->name('translation.log');
     Route::post('mark-as-resolve', [TranslationController::class, 'markAsResolve'])->name('translation.log.markasresolve');
     Route::DELETE('/delete/{id?}', [TranslationController::class, 'destroy'])->name('translation.destroy');
+    Route::DELETE('translate-logs/delete/{id?}', [TranslationController::class, 'translateLogDelete'])->name('translation.log.destroy');
     Route::get('/add', [TranslationController::class, 'create'])->name('translation.add');
     Route::get('/{id?}/edit', [TranslationController::class, 'edit'])->name('translation.edit');
     Route::post('/store', [TranslationController::class, 'store'])->name('translation.store');
@@ -4475,7 +4563,7 @@ Route::post('add_content', [EmailContentHistoryController::class, 'store'])->nam
 // DEV MANISH
 //System size
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');    
+    Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
@@ -4789,6 +4877,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
     Route::get('{id}/edit', [GoogleDocController::class, 'edit'])->name('.edit');
     Route::post('/update', [GoogleDocController::class, 'update'])->name('.update');
+    Route::post('task', [GoogleDocController::class, 'createDocumentOnTask'])->name('.task');
+    Route::get('task/show', [GoogleDocController::class, 'listDocumentOnTask'])->name('.task.show');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {

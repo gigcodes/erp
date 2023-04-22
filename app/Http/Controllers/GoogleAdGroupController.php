@@ -67,6 +67,7 @@ class GoogleAdGroupController extends Controller
                 'campaign_name' => $campaignDetail->campaign_name,
                 'google_customer_id' => $campaignDetail->google_customer_id,
                 'campaign_channel_type' => $campaignDetail->channel_type,
+                'type' => $campaignDetail->type,
             ];
         } else {
             abort(404, 'Invalid account!');
@@ -88,6 +89,7 @@ class GoogleAdGroupController extends Controller
         $campaign_account_id = $acDetail['account_id'];
         $campaign_name = $acDetail['campaign_name'];
         $campaign_channel_type = $acDetail['campaign_channel_type'];
+        $campaign_type = $acDetail['type'];
 
         $query = \App\GoogleAdsGroup::query();
 
@@ -120,7 +122,7 @@ class GoogleAdGroupController extends Controller
 
         $totalEntries = $adGroups->total();
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Ad Group',
@@ -128,7 +130,7 @@ class GoogleAdGroupController extends Controller
                 );
         insertGoogleAdsLog($input);
 
-        return view('googleadgroups.index', ['adGroups' => $adGroups, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'campaign_name' => $campaign_name, 'campaign_account_id' => $campaign_account_id, 'campaign_channel_type' => $campaign_channel_type]);
+        return view('googleadgroups.index', ['adGroups' => $adGroups, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId, 'campaign_name' => $campaign_name, 'campaign_account_id' => $campaign_account_id, 'campaign_channel_type' => $campaign_channel_type, 'type' => $campaign_type]);
     }
 
     // getting all Ad Groups of specific campaign
@@ -184,7 +186,7 @@ class GoogleAdGroupController extends Controller
         $campaign_name = $acDetail['campaign_name'];
         $campaign_channel_type = $acDetail['campaign_channel_type'];
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Ad Group',
@@ -203,10 +205,11 @@ class GoogleAdGroupController extends Controller
         $campaign_name = $acDetail['campaign_name'];
         $customerId = $acDetail['google_customer_id'];
         $campaign_channel_type = $acDetail['campaign_channel_type'];
+        $campaign_type = $acDetail['type'];
 
         $rules = array('adGroupName' => 'required|max:55');
-        if($campaign_channel_type != 'MULTI_CHANNEL'){
-            $rules['microAmount'] = 'required';              
+        if($campaign_channel_type != 'MULTI_CHANNEL' && $campaign_type != 'remarketing'){
+            $rules['microAmount'] = 'required';
         }
 
         $this->validate($request, $rules);
@@ -217,7 +220,9 @@ class GoogleAdGroupController extends Controller
             // $adRotationModes = ['UNKNOWN', 'OPTIMIZE', 'ROTATE_FOREVER'];
             $addgroupArray = [];
             $adGroupName = $request->adGroupName;
-            $microAmount = $request->microAmount * 1000000;
+            if ($request->has('microAmount')) {
+                $microAmount = $request->microAmount * 1000000;
+            }
             $adGroupStatus = $adGroupStatusArr[$request->adGroupStatus];
 
             // $storagepath = $this->getstoragepath($account_id);
@@ -241,7 +246,7 @@ class GoogleAdGroupController extends Controller
                                 'status' => self::getAdGroupStatus($adGroupStatus),
                             );
 
-            if($campaign_channel_type != 'MULTI_CHANNEL'){
+            if($campaign_channel_type != 'MULTI_CHANNEL' && $campaign_type != 'remarketing'){
                 $addgroupArr['cpc_bid_micros'] = $microAmount;
             }
 
@@ -260,7 +265,7 @@ class GoogleAdGroupController extends Controller
             $addedAdGroup = $response->getResults()[0];
             $adGroupResourceName = $addedAdGroup->getResourceName();
             $adGroupId = substr($adGroupResourceName, strrpos($adGroupResourceName, "/") + 1);
-            
+
             $addgroupArray['google_adgroup_id'] = $adGroupId;
             $addgroupArray['adgroup_response'] = json_encode($addedAdGroup);
             \App\GoogleAdsGroup::create($addgroupArray);
@@ -269,7 +274,7 @@ class GoogleAdGroupController extends Controller
             $keywords = $request->suggested_keywords;
 
             if(!empty($keywords)){
-                
+
                 ini_set('max_execution_time', -1);
 
                 $keywordArr = array_slice(explode(",", $keywords), 0, 80);
@@ -280,7 +285,7 @@ class GoogleAdGroupController extends Controller
                     $keywordInfo = new KeywordInfo([
                         'text' => $keyword,
                         'match_type' => KeywordMatchType::EXACT
-                    ]);  
+                    ]);
 
                     // Constructs an ad group criterion using the keyword text info above.
                     $adGroupCriterion = new AdGroupCriterion([
@@ -326,7 +331,7 @@ class GoogleAdGroupController extends Controller
             }
             // End keyword
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Ad Group',
@@ -338,7 +343,7 @@ class GoogleAdGroupController extends Controller
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup added successfully');
         } catch (Exception $e) {
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Ad Group',
@@ -393,7 +398,7 @@ class GoogleAdGroupController extends Controller
         ]; */
         $adGroup = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->firstOrFail();
 
-        // Insert google ads log 
+        // Insert google ads log
         $input = array(
                     'type' => 'SUCCESS',
                     'module' => 'Ad Group',
@@ -413,10 +418,11 @@ class GoogleAdGroupController extends Controller
         $campaign_name = $acDetail['campaign_name'];
         $customerId = $acDetail['google_customer_id'];
         $campaign_channel_type = $acDetail['campaign_channel_type'];
+        $campaign_type = $acDetail['type'];
 
         $rules = array('adGroupName' => 'required|max:55');
-        if($campaign_channel_type != 'MULTI_CHANNEL'){
-            $rules['cpcBidMicroAmount'] = 'required';              
+        if($campaign_channel_type != 'MULTI_CHANNEL' && $campaign_type != 'remarketing'){
+            $rules['cpcBidMicroAmount'] = 'required';
         }
 
         $this->validate($request, $rules);
@@ -427,7 +433,9 @@ class GoogleAdGroupController extends Controller
             $adGroupStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
             $adGroupId = $request->adGroupId;
             $adGroupName = $request->adGroupName;
-            $cpcBidMicroAmount = $request->cpcBidMicroAmount * 1000000;
+            if ($request->has('cpcBidMicroAmount')) {
+                $cpcBidMicroAmount = $request->cpcBidMicroAmount * 1000000;
+            }
             $adGroupStatus = $adGroupStatusArr[$request->adGroupStatus];
 
             $addgroupArray['ad_group_name'] = $adGroupName;
@@ -443,10 +451,10 @@ class GoogleAdGroupController extends Controller
                                 'name' => $adGroupName,
                                 'status' => self::getAdGroupStatus($adGroupStatus),
                             );
-            if($campaign_channel_type != 'MULTI_CHANNEL'){
+            if($campaign_channel_type != 'MULTI_CHANNEL' && $campaign_type != 'remarketing'){
                 $addgroupArr['cpc_bid_micros'] = $cpcBidMicroAmount;
             }
-            
+
             $adGroup = new AdGroup($addgroupArr);
 
             $adGroupOperation = new AdGroupOperation();
@@ -465,7 +473,7 @@ class GoogleAdGroupController extends Controller
 
             $adGroupUpdate = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->where('adgroup_google_campaign_id', $campaignId)->update($addgroupArray);
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Ad Group',
@@ -477,7 +485,7 @@ class GoogleAdGroupController extends Controller
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup updated successfully');
         } catch (Exception $e) {
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Ad Group',
@@ -521,7 +529,7 @@ class GoogleAdGroupController extends Controller
 
             $removedAdGroup = $response->getResults()[0];
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'SUCCESS',
                         'module' => 'Ad Group',
@@ -544,7 +552,7 @@ class GoogleAdGroupController extends Controller
             return redirect('google-campaigns/'.$campaignId.'/adgroups')->with('actSuccess', 'Adsgroup deleted successfully');
         } catch (Exception $e) {
 
-            // Insert google ads log 
+            // Insert google ads log
             $input = array(
                         'type' => 'ERROR',
                         'module' => 'Ad Group',
@@ -572,14 +580,14 @@ class GoogleAdGroupController extends Controller
 
         // Generate a refreshable OAuth2 credential for authentication.
         $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
-        
+
         $customerId = $googleAdsClient->getLoginCustomerId();
-        
+
         $campaignResourceName = ResourceNames::forCampaign($customerId, $campaignId);
 
         $pageUrl = $request->scanurl;
         $keywordPlanIdeaServiceClient = $googleAdsClient->getKeywordPlanIdeaServiceClient();
-        
+
         $requestOptionalArgs = [];
         $keywordsArr = [];
         $locationIds = [];
@@ -599,15 +607,15 @@ class GoogleAdGroupController extends Controller
                                     'customerId' => $customerId,
                                     'geoTargetConstants' => $geoTargetConstants,
                                     'keywordPlanNetwork' => KeywordPlanNetwork::GOOGLE_SEARCH_AND_PARTNERS
-                                ] + $requestOptionalArgs 
+                                ] + $requestOptionalArgs
                             );
-            
+
             foreach ($response->iterateAllElements() as $result) {
                 array_push($keywordsArr, $result->getText());
             }
 
             $keywordsArr = array_slice($keywordsArr, 0, 40);
-        } 
+        }
 
         unset($requestOptionalArgs['keywordAndUrlSeed']);
         if (!empty($pageUrl)) {
@@ -615,16 +623,16 @@ class GoogleAdGroupController extends Controller
         } else if(!empty($keywords)) {
             $requestOptionalArgs['keywordSeed'] = new KeywordSeed(['keywords' => $keywords]);
         }
-        
+
         $response = $keywordPlanIdeaServiceClient->generateKeywordIdeas([
                                 'language' => ResourceNames::forLanguageConstant($languageId),
                                 'page_size' => 1,
                                 'customerId' => $customerId,
                                 'geoTargetConstants' => $geoTargetConstants,
                                 'keywordPlanNetwork' => KeywordPlanNetwork::GOOGLE_SEARCH_AND_PARTNERS
-                            ] + $requestOptionalArgs 
+                            ] + $requestOptionalArgs
                         );
-        
+
         foreach ($response->iterateAllElements() as $result) {
             array_push($keywordsArr, $result->getText());
         }
@@ -633,8 +641,8 @@ class GoogleAdGroupController extends Controller
 
         return response()->json(['count' => count($keywordsArr), 'result' => $keywordsArr]);
     }
-    
-    //get ad group status  
+
+    //get ad group status
     private function getAdGroupStatus($v)
     {
         switch ($v) {

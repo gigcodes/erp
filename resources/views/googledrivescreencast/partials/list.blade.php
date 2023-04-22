@@ -1,8 +1,26 @@
+@php
+    $enum = [
+        "App\Uicheck" => "UICHECK-",
+        "App\UiDevice" => "UIDEVICE-",
+        "App\Task" => "TASK-"
+    ];
+@endphp
+
 @foreach ($data as $key => $file)
     <tr>
         <td>{{ ++$i }}</td>
         <td>{{ $file->file_name }}</td>
-        <td>#DEVTASK-{{ $file->developer_task_id }}</td>
+        <td>
+            @if (isset($file->developer_task_id))
+                #DEVTASK-{{ $file->developer_task_id }}
+            @endif
+            @if ($file->bug_id)
+                #BUG-{{ $file->bug_id }}
+            @endif
+            @if (!isset($file->developer_task_id) && !isset($file->bug_id))
+                {{$enum[$file->belongable_type] ?? ""}}{{$file->belongable_id}}
+            @endif
+        </td>
         <td>{{ $file->file_creation_date }}</td>
         <td>
                 <input class="fileUrl" type="text" value="{{env('GOOGLE_DRIVE_FILE_URL').$file->google_drive_file_id}}/view?usp=share_link" />

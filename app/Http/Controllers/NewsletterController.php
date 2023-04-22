@@ -53,7 +53,7 @@ class NewsletterController extends Controller
             $records = $records->whereDate('newsletters.sent_at', '=', $sent_at);
         }
 
-        $records = $records->groupBy('newsletters.id')->select(['newsletters.*', 'u.name as updated_by', 'm.name as mailinglist_name'])->latest()->paginate();
+        $records = $records->groupBy('newsletters.id')->select(['newsletters.*', 'u.name as updated_by_name', 'm.name as mailinglist_name'])->latest()->paginate();
 
         $store_websites = StoreWebsite::where('website_source', '=', 'shopify')->get();
 

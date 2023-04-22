@@ -15,16 +15,21 @@ class UploadGoogleDriveScreencast
     use Dispatchable, SerializesModels;
 
     private $googleScreencast;
+    private $uploadedFile;
+    private $permissionForAll = null;
+    private $updatable = null;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(GoogleScreencast $googleScreencast, $uploadedFile)
+    public function __construct(GoogleScreencast $googleScreencast, $uploadedFile, $permissionForAll = null, $updatable = null)
     {
         $this->googleScreencast = $googleScreencast;
         $this->uploadedFile = $uploadedFile;
+        $this->permissionForAll = $permissionForAll;
+        $this->updatable = $updatable;
     }
 
     /**
@@ -42,9 +47,13 @@ class UploadGoogleDriveScreencast
         try {
             $createFile = $this->uploadScreencast(env('GOOGLE_SCREENCAST_FOLDER'), $this->googleScreencast->read, $this->googleScreencast->write);
             $screencastId = $createFile->id;
-
+            
             $this->googleScreencast->google_drive_file_id = $screencastId;
             $this->googleScreencast->save();
+            
+            if($this->updatable != null) {
+                $this->updateData($this->updatable, $screencastId);
+            }
         } catch (Exception $e) {
             echo 'Message: '.$e->getMessage();
             dd($e);
@@ -70,43 +79,84 @@ class UploadGoogleDriveScreencast
                 'fields' => 'id,parents,mimeType'));
             $index = 1;
             $driveService->getClient()->setUseBatch(true);
-            $batch = $driveService->createBatch();
-            $googleFileUsersRead = explode(',', $googleFileUsersRead);
-
-            foreach ($googleFileUsersRead as $email) {
+            
+            if($this->permissionForAll == "anyone") {
+                $batch = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
-                    'type' => 'user',
-                    'role' => 'reader',
-                    'emailAddress' => $email,
+                    'type' => 'anyone',
+                    'role' => 'reader'
                 ]);
-
                 $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
                 $batch->add($request, 'user'.$index);
-                $index++;
-            }
-            $results = $batch->execute();
+                $results = $batch->execute();
 
-            $batch = $driveService->createBatch();
-            $googleFileUsersWrite = explode(',', $googleFileUsersWrite);
-
-            foreach ($googleFileUsersWrite as $email) {
+                $batch = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
-                    'type' => 'user',
-                    'role' => 'writer',
-                    'emailAddress' => $email,
+                    'type' => 'anyone',
+                    'role' => 'writer'
                 ]);
-
                 $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
                 $batch->add($request, 'user'.$index);
-                $index++;
+                $results = $batch->execute();
+                
+            } else {
+                $batch = $driveService->createBatch();
+                $googleFileUsersRead = explode(',', $googleFileUsersRead);
+                foreach ($googleFileUsersRead as $email) {
+                    $userPermission = new Drive\Permission([
+                        'type' => 'user',
+                        'role' => 'reader',
+                        'emailAddress' => $email,
+                    ]);
+    
+                    $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
+                    $batch->add($request, 'user'.$index);
+                    $index++;
+                }
+                $results = $batch->execute();
+    
+                $batch = $driveService->createBatch();
+                $googleFileUsersWrite = explode(',', $googleFileUsersWrite);
+    
+                foreach ($googleFileUsersWrite as $email) {
+                    $userPermission = new Drive\Permission([
+                        'type' => 'user',
+                        'role' => 'writer',
+                        'emailAddress' => $email,
+                    ]);
+    
+                    $request = $driveService->permissions->create($file->id, $userPermission, ['fields' => 'id']);
+                    $batch->add($request, 'user'.$index);
+                    $index++;
+                }
+                $results = $batch->execute();
             }
-            $results = $batch->execute();
     
             return $file;
         } catch(Exception $e) {
             echo "Error Message: ".$e;
         } 
 
+    }
+
+    public function updateData($data = [], $file_id)
+    {
+        try {
+            foreach ($data as $class => $id) {
+                $model = $class::find($id);
+                
+                switch ($class) {
+                    case 'App\UiDevice':
+                    case 'App\UiDeviceHistory':
+                        $model->message = env('GOOGLE_DRIVE_FILE_URL').$file_id."/view?usp=share_link";
+                        $model->save();
+                        break;
+                    
+                    default:
+                        break;
+                }
+            }
+        } catch (Exception $e) {}
     }
     
 }
