@@ -14,7 +14,7 @@ class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
     public function up()
     {
         Schema::table('github_repositories', function (Blueprint $table) {
-            $table->index('github_organizations_id');
+            //$table->index('github_organizations_id');
         });
     }
 
