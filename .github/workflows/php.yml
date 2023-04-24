@@ -27,7 +27,6 @@ jobs:
         uses: php-actions/composer@v4
         with:
           ssh_key: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
-          ssh_key_pub: ${{ secrets.ERP_PUBLIC_KEY }}
       - name: "Run laravel pint"
         run: ./vendor/bin/pint
       - name: "Push the changes to Git"
