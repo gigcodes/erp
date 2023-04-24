@@ -3258,6 +3258,9 @@ if (!empty($notifications)) {
                                         <a class="dropdown-item" href="{{ url('development/change-user') }}">Change
                                             User</a>
                                     </li>
+                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('development/document/list') }}">Document Upload List</a>
+                                    </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item"
                                             href="{{ action('\App\Http\Controllers\NewDevTaskController@index') }}">Devtask Planner</a>

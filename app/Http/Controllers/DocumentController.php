@@ -2,24 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
-use App\Contact;
-use App\Document;
-use App\DocumentCategory;
-use App\DocumentHistory;
-use App\DocumentRemark;
-use App\DocumentSendHistory;
-use App\Email;
-use App\EmailAddress;
-use App\Mails\Manual\DocumentEmail;
-use App\Setting;
-use App\User;
-use App\Vendor;
 use Auth;
-use finfo;
-use Illuminate\Http\Request;
 use Mail;
+use finfo;
 use Storage;
+use App\Task;
+use App\User;
+use App\Email;
+use App\ApiKey;
+use App\Vendor;
+use App\Contact;
+use App\Setting;
+use App\Document;
+use App\EmailAddress;
+use App\DocumentRemark;
+use App\DocumentHistory;
+use App\DocumentCategory;
+use App\DocumentSendHistory;
+use Illuminate\Http\Request;
+use App\DeveloperTaskDocument;
+use App\Mails\Manual\DocumentEmail;
+use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
@@ -92,6 +95,77 @@ class DocumentController extends Controller
             'emailAddresses' => $emailAddresses,
         ]);
     }
+
+
+    public function documentList(Request $request)
+    {
+      
+        
+        $developertask = DB::table("developer_task_documents")->select("subject", "description", "developer_task_id", "developer_task_documents.created_at", "mediables.tag as tag", "media.disk as disk","media.directory as directory", "media.filename as filename", "media.extension as extension","users.name as username")
+         ->join('mediables', 'mediables.mediable_id', '=', 'developer_task_documents.id')
+         ->join('users', 'users.id', '=', 'developer_task_documents.created_by')
+         ->join('media', 'media.id', '=', 'mediables.media_id')
+         ->where('mediables.mediable_type', 'App\DeveloperTaskDocument');
+         
+        if ($request->task_subject && $request->task_subject != null) {
+            $developertask = $developertask->where('subject', 'LIKE',  "%$request->task_subject%");
+        }
+        if (!empty($request->user_id)) {
+            $developertask = $developertask->where('developer_task_documents.created_by', $request->user_id);
+            
+        }
+        if (!empty($request->term_id)) {
+            $developertask = $developertask->where('developer_task_documents.developer_task_id', $request->term_id);
+            
+        }
+         if (!empty($request->date)) {
+            $developertask = $developertask->whereDate('developer_task_documents.created_at', $request->date);
+            
+        }
+         
+         
+
+        $uploadDocData = DB::table("tasks")->select("task_details as description", "task_subject as subject", "tasks.id as developer_task_id","tasks.created_at","mediables.tag as tag", "media.disk as disk", "media.directory as directory","media.filename as filename","media.extension as extension","users.name as username")
+                ->join('mediables', 'mediables.mediable_id', '=', 'tasks.id')
+                ->join('users', 'users.id', '=', 'tasks.assign_from')
+                ->join('media', 'media.id', '=', 'mediables.media_id')
+                ->where('mediables.mediable_type', 'App\Task');
+
+                if ($request->task_subject && $request->task_subject != null) {
+                    $uploadDocData = $uploadDocData->where('tasks.task_subject', 'LIKE',  "%$request->task_subject%");
+                }
+                if (!empty($request->user_id)) {
+                    $uploadDocData= $uploadDocData->where('tasks.assign_from', $request->user_id);
+                    
+                }
+                if (!empty($request->term_id)) {
+                    $uploadDocData= $uploadDocData->where('tasks.id', $request->term_id);
+                    
+                }
+                 if (!empty($request->date)) {
+                    $uploadDocData= $uploadDocData->whereDate('tasks.created_at', $request->date);
+                    
+                }       
+                $uploadDocData = $uploadDocData->union($developertask);
+                
+                $uploadDocData = $uploadDocData->paginate(5);
+
+         $users = User::get();       
+
+
+
+          return view('development.documentList', compact('uploadDocData','users'));      
+
+    //                 $developertaskDoc =  DeveloperTaskDocument::select("subject", "description", "developer_task_id", "created_at")->with(['media']);
+    //                 $taskDoc = Task::select("task_details as description", "task_subject as subject", "id as developer_task_id","created_at")->with(['media']);
+   
+    //     $merged = $developertaskDoc->merge($taskDoc)->get();
+    
+    //    $data = $taskDoc->merge($developertaskDoc)->paginate(10);
+    //    dd($data);
+       
+  
+     }
 
     /**
      * Show the form for creating a new resource.
