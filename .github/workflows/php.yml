@@ -11,20 +11,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Clone Laravel package 1
-        run: |
-          git clone https://github.com/MMMagento/erp-excel-importer.git vendor/seo2websites/erp-excel-importer
-          echo "Laravel package 1 cloned"
-        env:
-          GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
-      - name: Clone Laravel package 2
-        run: |
-          git clone https://github.com/MMMagento/google-vision.git vendor/seo2websites/google-vision
-          echo "Laravel package 2 cloned"
-        env:
-          GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
+      # - name: Clone Laravel package 1
+      #   run: |
+      #     git clone https://github.com/MMMagento/erp-excel-importer.git vendor/seo2websites/erp-excel-importer
+      #     echo "Laravel package 1 cloned"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
+      # - name: Clone Laravel package 2
+      #   run: |
+      #     git clone https://github.com/MMMagento/google-vision.git vendor/seo2websites/google-vision
+      #     echo "Laravel package 2 cloned"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
       - name: Install composer dependencies
-        uses: php-actions/composer@v4
+        uses: php-actions/composer@v6
         with:
           ssh_key: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
       - name: "Run laravel pint"
