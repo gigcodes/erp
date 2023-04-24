@@ -274,10 +274,18 @@ class BrandController extends Controller
     }
     */
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * Function for fetch brand list using AJAX request
+     */
     public function show(Request $request) {
-        $search_key = $request->get('search', '');
-        $brand_list = Brand::where('name', 'LIKE', '%'.$search_key.'%')->take(20)->get();
-        return response()->json(['success' => true,'data'=> $brand_list]);
+        if($request->ajax()) {
+            $search_key = $request->get('search', '');
+            $brand_list = Brand::where('name', 'LIKE', '%'.$search_key.'%')->take(20)->get();
+            return response()->json(['success' => true,'data'=> $brand_list]);
+        }
+        return redirect()->route('brand.index');
     }
 
     public function destroy(Brand $brand)

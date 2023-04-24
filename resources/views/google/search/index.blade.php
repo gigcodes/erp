@@ -389,7 +389,7 @@
         $(document).ready(function () {
             $('.select-multiple').select2({width: '100%'});
 
-            /*VARIENT JAVASCRIPT*/
+            /*POSTFIX JAVASCRIPT DATATABLE*/
             $('#variant_list_table').DataTable({
                 "processing": true,
                 "serverSide": true,
@@ -472,7 +472,7 @@
                 });
             }
 
-            /*VARIENT JAVASCRIPT END*/
+            /*POSTFIX JAVASCRIPT END*/
 
             function callScraper(id) {
                 var buttonCaption = $('#runScrapper_' + id).html();
@@ -498,7 +498,11 @@
                 });
             }
 
+            /* KEYWORD TABLE DATATABLE SCRIPT START */
             const keywordListTable = $('#keyword-list-table').DataTable({
+                "language": {
+                    searchPlaceholder: "Search Keyword"
+                },
                 "processing": true,
                 "serverSide": true,
                 "ordering": true,
@@ -558,6 +562,7 @@
                 }
             });
         }
+        /* KEYWORD TABLE DATATABLE SCRIPT END */
 
         function generateString(e) {
             const formData = $('#generate-keyword-string-form').serializeArray();
