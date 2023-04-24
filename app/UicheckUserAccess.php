@@ -13,4 +13,15 @@ class UicheckUserAccess extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    public static function provideAccess($uicheck_id, $user_id)
+    {
+        try {
+            UicheckUserAccess::updateOrCreate([
+                'user_id' => $user_id,
+                'uicheck_id' => $uicheck_id,
+            ],[]);
+        } catch (\Exception $e) {}
+    }
+
 }
