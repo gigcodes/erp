@@ -61,7 +61,7 @@
                 </span>  --}}
               </div>
             </div>
-            <div class="pl-0 pt-2"><button class="btn btn-image"><a href="{{ route('development.document.list') }}" <i class="fa fa-refresh" aria-hidden="true"></i></a></button></div>
+            <div class="pl-0 pt-2"><button class="btn btn-image"><a style="color:#212529" href="{{ route('development.document.list') }}" <i class="fa fa-refresh" aria-hidden="true"></i></a></button></div>
             <div class="pl-0 pt-2"><button type="submit" class="btn btn-image"><img src="{{asset('/images/search.png')}}" /></button></div>
           </div>
         </form>
