@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIndex1InCustomersTable extends Migration
+class AddIndexOnDoNotDisturbInCustomersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +14,8 @@ class AddIndex1InCustomersTable extends Migration
     public function up()
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->index('phone');
-            $table->index('whatsapp_number');
-            $table->index('shoe_size');
-            $table->index('clothing_size');
-            $table->index('address');
-            $table->index('city');
+            $table->index('do_not_disturb');
+            $table->index('deleted_at');
         });
     }
 

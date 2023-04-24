@@ -1,4 +1,4 @@
-name: Laravel Pint
+name: Laravel-Pint
 
 on:
   push:
@@ -10,15 +10,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: "Composer Install"
-        run: composer install
+      - name: Install composer dependencies
+        uses: php-actions/composer@v4
+        with:
+          ssh_key: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
       - name: "Run laravel pint"
         run: ./vendor/bin/pint
       - name: "Push the changes to Git"
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Apply Laravel Pint changes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-       
-          
