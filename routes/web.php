@@ -2245,6 +2245,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('language/delete', [LanguageController::class, 'delete'])->name('language.delete');
 
     // Documents Manager
+    Route::get('development/document/list', [DocumentController::class, 'documentList'])->name('development.document.list');
     Route::get('documents', [DocumentController::class, 'index'])->name('document.index');
     Route::get('documents-email', [DocumentController::class, 'email'])->name('document.email');
     Route::post('document/store', [DocumentController::class, 'store'])->name('document.store');
