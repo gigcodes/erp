@@ -53,18 +53,18 @@ class FetchAllEmails extends Command
             'start_time' => Carbon::now(),
         ]);
 //        old code
-//        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
-//
-//        foreach ($emailAddresses as $emailAddress) {
-//            FetchEmail::dispatch($emailAddress)->onQueue('email');
-//        }
+        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
+
+        foreach ($emailAddresses as $emailAddress) {
+            FetchEmail::dispatch($emailAddress)->onQueue('email');
+        }
 
         // new code added for optimising
-        EmailAddress::orderBy('id', 'asc')->chunk(100, function ($emailAddresses) {
-            foreach ($emailAddresses as $emailAddress) {
-                FetchEmail::dispatch($emailAddress)->onQueue('email');
-            }
-        });
+//        EmailAddress::orderBy('id', 'asc')->chunk(100, function ($emailAddresses) {
+//            foreach ($emailAddresses as $emailAddress) {
+//                FetchEmail::dispatch($emailAddress)->onQueue('email');
+//            }
+//        });
 
         $report->update(['end_time' => Carbon::now()]);
     }
