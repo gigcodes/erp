@@ -153,9 +153,12 @@ class DocumentController extends Controller
                 
                 $uploadDocData = $uploadDocData->paginate(50);
 
-          $users = User::get();       
+          $users = User::get();
+          $totalCount = $uploadDocData->count();
+         
+        
 
-          return view('development.documentList', compact('uploadDocData','users')); 
+          return view('development.documentList', compact('uploadDocData','users', 'totalCount')); 
        
   
      }

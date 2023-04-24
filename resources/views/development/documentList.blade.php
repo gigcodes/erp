@@ -16,7 +16,7 @@
 <div class="col-md-12">
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Tasks List</h2>
+            <h2 class="page-heading">Document List({{$totalCount}})</h2>
             {{-- <div class="pull-left">
 
             </div>
@@ -77,7 +77,7 @@
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
             <tr>
-              <th width="5%">Id</th>
+              <th width="5%">Devtask Id</th>
               <th width="10%">Subject</th>
               <th width="10%">Description</th>
               <th width="10%">Document Link</th>
@@ -98,7 +98,7 @@
             $link = asset($value->disk.'/'.$value->directory.'/'.$value->filename.'.'.$value->extension);
             
             @endphp
-            <a href="{{$link}}" target="_blank">Click here</a></td>
+            <a style="color:#212529" href="{{$link}}" target="_blank">Click here</a></td>
           
             <td>{{$value->username}}</td>
             <td>{{$value->created_at}}</td>
