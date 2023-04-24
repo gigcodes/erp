@@ -10,10 +10,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
+          repository: MMMagento/erp-excel-importer
       - name: "Set SSH key"
         run: |
           eval `ssh-agent -s`
-          echo "ssh-add - <<< '${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}'"
+          ssh-add - <<< '${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}'
       - name: "Composer Install"
         run: composer install
       - name: "Run laravel pint"
