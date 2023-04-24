@@ -155,7 +155,7 @@ input:checked + .slider:before {
                     Add Variant
                 </button>
                 <!-- Button Generate Keyword Strings -->
-                <button type="button" class="btn btn-primary" onclick="generateString()">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#generateStringModal">
                     Generate Strings
                 </button>
 
@@ -205,7 +205,7 @@ input:checked + .slider:before {
             </div>
         </div>
     </div>
-<!-- add variants modal -->
+<!-- Add variants modal -->
 <div class="modal fade " id="addVariantModal" tabindex="-1" role="dialog" aria-labelledby="addVariantModal" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -247,6 +247,56 @@ input:checked + .slider:before {
         </div>
     </div>
 </div>
+
+<!-- Generate Strings modal -->
+<div class="modal fade " id="generateStringModal" tabindex="-1" role="dialog" aria-labelledby="generateStringModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Generate String</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+<!--                    <div class="row">-->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <strong>Brand:</strong>
+                                <select class="form-control w-100 select-multiple" name="brand[]" multiple="multiple" data-placeholder=" Select brand">
+                                    @foreach($brandList as $key => $brand)
+                                    <option value="{{ $key }}" >{{ $brand }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+<!--                    </div>-->
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="name">Select Category</label>
+                            {!! $new_category_selection !!}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="name">Select Variants</label>
+<!--                            {!! $new_category_selection !!}-->
+
+                            <select class="form-control w-100 select-multiple" name="variants[]" data-placeholder=" Select variant" multiple>
+                                @foreach($variants as $key => $variant)
+                                <option value="{{ $key }}" >{{ $variant }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('styles')
@@ -258,6 +308,8 @@ input:checked + .slider:before {
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script>
     $(document).ready(function() {
+        $('.select-multiple').select2({width: '100%'});
+
         $(".checkbox").change(function() {
             id = $(this).val();
                
@@ -302,6 +354,8 @@ input:checked + .slider:before {
         $('#variant_list_table').DataTable({
             "processing": true,
             "serverSide": true,
+            "ordering": true,
+            "searching":true,
             "ajax": "{{ route('list.keyword.variant') }}",
             "columns": [
                 { "data": null},

@@ -15,4 +15,9 @@ class KeywordSearchVariants extends Model
     public $fillable = [
         'keyword'
     ];
+
+    public static function list()
+    {
+        return self::pluck('keyword', 'id')->toArray();
+    }
 }
