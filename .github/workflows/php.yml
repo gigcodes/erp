@@ -13,7 +13,7 @@ jobs:
       - name: "Set SSH key"
         run: |
           eval `ssh-agent -s`
-          ssh-add - <<< '${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}'
+          echo "ssh-add - <<< '${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}'"
       - name: "Composer Install"
         run: composer install
       - name: "Run laravel pint"
