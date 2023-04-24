@@ -12,6 +12,7 @@ use App\Setting;
 use Google\Service\AndroidPublisher\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Yajra\DataTables\DataTables;
 
 //use App\InstagramPosts;
 
@@ -54,12 +55,11 @@ class GoogleSearchController extends Controller
                     ->where('priority', '1')
                     ->where('platforms_id', $this->platformsId)
                     ->where('hashtag', 'LIKE', "%{$request->term}%")
-                    ->orderBy($sortBy, $orderBy)
-                    ->paginate(Setting::get('pagination'));
+                    ->orderBy($sortBy, $orderBy);
 
                 $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
             } elseif ($request->priority == 'on') {
-                $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+                $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
 
                 $queryString = 'priority=' . $request->priority . '&';
             } elseif ($request->term != null) {
@@ -72,12 +72,18 @@ class GoogleSearchController extends Controller
                 $queryString = 'term=' . $request->term . '&';
             }
         } else {
-            $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+            $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
         }
 
-//        $brandList = Brand::list();
-        $new_category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
+        if($request->ajax()) {
+            return DataTables::of($keywords->get())
+                ->addIndexColumn()
+                ->make(true);
+//            return response()->json(['success'=> true, 'data'=>$keywords]);
+        }
 
+        $keywords = $keywords->paginate(Setting::get('pagination'));
+        $new_category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
         $variants = KeywordSearchVariants::list();
         return view('google.search.index', compact('keywords', 'queryString', 'orderBy', 'variants', 'new_category_selection'));
     }
@@ -122,7 +128,7 @@ class GoogleSearchController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request,$id)
     {
         if (is_numeric($id)) {
             $hash = HashTag::findOrFail($id);
@@ -131,7 +137,10 @@ class GoogleSearchController extends Controller
             HashTag::where('hashtag', $id)->delete();
         }
 
-        return redirect()->back()->with('message', 'Keyword has been deleted successfuly!');
+        if($request->ajax()) {
+            return response()->json(['success'=> true, 'message' => 'Keyword has been deleted successfully!']);
+        }
+        return redirect()->back()->with('message', 'Keyword has been deleted successfully!');
     }
 
     /**
@@ -426,36 +435,24 @@ class GoogleSearchController extends Controller
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', '-1');
 
-        $brand_list = Brand::select('name', 'id')->get()->toArray();
-        $category_list_with_variant = Category::getCategoryHierarchySting();
-        return response()->json(['success' => true, 'data' => $category_list_with_variant], 200);
-        // Define the arrays
-        $array1 = $brand_list;  // array with 8000 records
-        $array2 = $category_list_with_variant; // array with 400 records
+        $data = $request->post('data');
+        $brand_list = $data['brand'];
+        $category_list = $data['category'];
+        $variants_list = $data['variants'];
 
-        // Define the chunk size for each array
-        $chunkSize1 = 300;
-        $chunkSize2 = 100;
+        $category_list = Category::whereIn('id', $category_list)->get()->toArray();
 
-        // Loop over the chunks of the first array
-        for ($i = 0; $i < count($array1); $i += $chunkSize1) {
-            $chunk1 = array_slice($array1, $i, $chunkSize1);
-
-            // Loop over the chunks of the second array
-            for ($j = 0; $j < count($array2); $j += $chunkSize2) {
-                $chunk2 = array_slice($array2, $j, $chunkSize2);
-                $string_arr = [];
-                // Loop over the combinations   of the current chunks
-                foreach ($chunk1 as $value1) {
-                    foreach ($chunk2 as $value2) {
-                        $string_arr['hashtag'] = $value1['name'] . ' ' . $value2->combined_string;
-                        $string_arr['platforms_id'] = $this->platformsId;
-                        $string_arr['rating'] = 8;
-                        $string_arr['created_at'] = $string_arr['updated_at'] = date('Y-m-d h:i:s');
-                        $insertA_arr[] = $string_arr;
-                    }
-                    if(count($insertA_arr) > 0) {
-                        HashTag::insertOrIgnore($insertA_arr);
+        $string_arr = [];
+        foreach ($brand_list as $val1) {
+            foreach ($category_list as $val2) {
+                foreach ($variants_list as $val3) {
+                    $string_arr['hashtag'] = $val1 .' '. $val2['title'] .' '. $val3;
+                    $string_arr['platforms_id'] = $this->platformsId;
+                    $string_arr['rating'] = 8;
+                    $string_arr['created_at'] = $string_arr['updated_at'] = date('Y-m-d h:i:s');
+                    $check_exist = HashTag::where('hashtag', $string_arr['hashtag'])->count();
+                    if($check_exist <= 0) {
+                        HashTag::insert($string_arr);
                     }
                 }
             }

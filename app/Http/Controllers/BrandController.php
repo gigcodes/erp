@@ -275,8 +275,9 @@ class BrandController extends Controller
     */
 
     public function show(Request $request) {
-        $brand_list = Brand::getAll();
-        return response()->json(['items', $brand_list]);
+        $search_key = $request->get('search', '');
+        $brand_list = Brand::where('name', 'LIKE', '%'.$search_key.'%')->take(20)->get();
+        return response()->json(['success' => true,'data'=> $brand_list]);
     }
 
     public function destroy(Brand $brand)
