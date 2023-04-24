@@ -230,6 +230,7 @@ padding: 3px 2px;
                         @if($pam->is_email==1 )
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image editmessagebcc"  data-to_email="{{$pam->to_email}}" data-from_email="{{$pam->from_email}}" data-id="{{$pam->id}}" data-cc_email="{{$pam->cc_email}}" data-all="1" title=""><i class="fa fa-edit"></i></button>
                         @endif
+                        <div id="fa_microphone_slash_{{$pam->id}}" style="display: none" ><i class="fa fa-microphone-slash" aria-hidden="true"></i></div>
                         <button type="button" style="font-size: 16px" data-id="{{$pam->id}}" class="btn btn-sm m-0 p-0 mr-1 speech-button"  id="speech-button_{{$pam->id}}"><i class="fa fa-microphone" aria-hidden="true"></i></button>
                     </div>
                 </div>
@@ -499,6 +500,12 @@ padding: 3px 2px;
 
         /* start voice */
         recognition.start();
+        if(speechInput){
+            var microphoneSlash = document.getElementById('fa_microphone_slash_'+$(this).attr("data-id"));
+            var microphone = document.getElementById('speech-button_'+$(this).attr("data-id"));
+            microphone.style.display = "none";
+            microphoneSlash.style.display = "block";
+        }
 
         /* convert voice to text*/
         recognition.addEventListener('result', (event) => {
@@ -508,6 +515,8 @@ padding: 3px 2px;
         /* stop voice */
         recognition.addEventListener('end', () => {
             recognition.stop();
+            microphone.style.display = "block";
+            microphoneSlash.style.display = "none";
         });
     })
 

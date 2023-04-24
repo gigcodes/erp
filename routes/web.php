@@ -350,6 +350,7 @@ use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
+use App\Http\Controllers\GoogleShoppingAdsController;
 
 Auth::routes();
 
@@ -380,6 +381,7 @@ Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideo
 use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\MailBoxController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BingWebMasterController;
 use App\Http\Controllers\GoogleAdsRemarketingController;
 
@@ -428,6 +430,19 @@ Route::get('criteria/get/{id}', [PositionController::class, 'list'])->name('get.
 
 Route::get('vendors/create-cv/{id}', [VendorResumeController::class, 'create'])->name('vendors.create.cv');
 Route::post('vendors/cv/store', [VendorResumeController::class, 'store'])->name('vendor.cv.store');
+
+Route::prefix('blog')->middleware('auth')->group(function () {
+    Route::get('/list', [BlogController::class, 'index'])->name('blog.index');
+    Route::get('/add', [BlogController::class, 'create'])->name('blog.create');
+    Route::get('/edit/{id}', [BlogController::class, 'edit'])->name('blog.edit');
+    Route::post('/store', [BlogController::class, 'store'])->name('store-blog.submit');
+    Route::post('/update/{id}', [BlogController::class, 'update'])->name('update-blog.submit');
+    Route::delete('/delete/{id}', [BlogController::class, 'destroy'])->name('update-blog.delete');
+    Route::get('/history/list', [BlogController::class, 'viewAllHistory'])->name('view-blog-all.history');
+    Route::get('/view/{id}', [BlogController::class, 'show'])->name('blog.view');
+
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('discount-sale-price', [DiscountSalePriceController::class, 'index']);
     Route::delete('discount-sale-price/{id}', [DiscountSalePriceController::class, 'delete']);
@@ -569,6 +584,8 @@ Route::prefix('product')->middleware('auth')->group(function () {
     Route::post('store-website-description', [ProductController::class, 'storeWebsiteDescription'])->name('product.store.website.description');
     Route::post('test', [ProductController::class, 'test'])->name('product.test.template');
 });
+
+
 Route::prefix('logging')->middleware('auth')->group(function () {
     Route::any('list/api/logs', [LaravelLogController::class, 'apiLogs'])->name('api-log-list');
     Route::any('list/api/logs/generate-report', [LaravelLogController::class, 'generateReport'])->name('api-log-list-generate-report');
@@ -3074,6 +3091,8 @@ Route::middleware('auth')->group(function () {
 Route::get('instagram/logs', [InstagramPostsController::class, 'instagramUserLogs'])->name('instagram.logs');
 Route::post('instagram/history', [InstagramPostsController::class, 'history'])->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', [HashtagController::class, 'addmailinglist']);
+
+
 Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('inbox', [SocialAccountController::class, 'inbox'])->name('social.direct-message');
     Route::post('send-message', [SocialAccountController::class, 'sendMessage'])->name('social.message.send');
@@ -3890,6 +3909,7 @@ Route::middleware('auth')->group(function () {
         Route::get('user-history', [UicheckController::class, 'userHistory'])->name('uicheck.userhistory');
         Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
         Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
+        Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -4130,6 +4150,14 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::get('/create', [GoogleAdGroupKeywordController::class, 'createPage'])->name('ad-group-keyword.createPage');
                     Route::post('/create', [GoogleAdGroupKeywordController::class, 'createKeyword'])->name('ad-group-keyword.craeteKeyword');
                     Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('shopping-ad')->group(function () {
+                    Route::get('/', [GoogleShoppingAdsController::class, 'index'])->name('shopping-ads.index');
+                    Route::post('/create', [GoogleShoppingAdsController::class, 'createAd'])->name('shopping-ads.createAd');
+                    Route::delete('/delete/{adId}', [GoogleShoppingAdsController::class, 'deleteAd'])->name('shopping-ads.deleteAd');
                 });
             });
         });

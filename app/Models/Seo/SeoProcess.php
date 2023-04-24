@@ -15,6 +15,8 @@ class SeoProcess extends Model
 
     protected $fillable = [
         'website_id',
+        'word_count',
+        'suggestion',
         'user_id',
         'price',
         'is_price_approved',
@@ -30,7 +32,21 @@ class SeoProcess extends Model
      */
     public function keywords()
     {
-        return $this->hasMany(SeoKeyword::class, 'seo_process_id');
+        return $this->hasMany(SeoProcessKeyword::class, 'seo_process_id');
+    }
+
+    public function seoChecklist()
+    {
+        return $this->hasMany(SeoProcessRemark::class, 'seo_process_id')->whereHas('processStatus', function($query) {
+            $query->where('type', 'seo_approval');
+        });
+    }
+
+    public function publishChecklist()
+    {
+        return $this->hasMany(SeoProcessRemark::class, 'seo_process_id')->whereHas('processStatus', function($query) {
+            $query->where('type', 'publish');
+        });
     }
 
     public function website()
@@ -41,6 +57,11 @@ class SeoProcess extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function seoStatus()
+    {
+        return $this->belongsTo(SeoProcessStatus::class, 'seo_process_status_id');
     }
     
 }

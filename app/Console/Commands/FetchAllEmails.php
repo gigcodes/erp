@@ -62,7 +62,7 @@ class FetchAllEmails extends Command
         // new code added for optimising
         EmailAddress::orderBy('id', 'asc')->chunk(100, function ($emailAddresses) {
             foreach ($emailAddresses as $emailAddress) {
-                FetchEmail::dispatch($emailAddress)->onQueue('email')->queue();
+                FetchEmail::dispatch($emailAddress)->onQueue('email');
             }
         });
 
