@@ -273,6 +273,12 @@ class BrandController extends Controller
         return redirect()->route('brand.index')->with('success', 'Brand updated successfully');
     }
     */
+
+    public function show(Request $request) {
+        $brand_list = Brand::getAll();
+        return response()->json(['items', $brand_list]);
+    }
+
     public function destroy(Brand $brand)
     {
         $brand->scrapedProducts()->delete();

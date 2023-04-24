@@ -979,6 +979,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     //  Route::resource('activity','ActivityConroller');
 
+    Route::get('brand/list', [BrandController::class, 'show'])->name('brand.list'); //Purpose : upload logo - DEVTASK-4278
     Route::get('brand/get_all_images', [BrandController::class, 'get_all_images'])->name('brand.get_all_images'); //Purpose : upload logo - DEVTASK-4278
     Route::get('brand/logo_data', [BrandController::class, 'fetchlogos'])->name('brand.logo_data'); //Purpose : Get Brand Logo - DEVTASK-4278
     Route::post('brand/uploadlogo', [BrandController::class, 'uploadlogo'])->name('brand.uploadlogo'); //Purpose : upload logo - DEVTASK-4278
@@ -3883,6 +3884,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [KeywordVariantController::class, 'index'])->name('list.keyword.variant');
         Route::delete('/{id}', [KeywordVariantController::class, 'delete'])->name('delete.keyword.variant');
     });
+
+    Route::get('brand/search', [GoogleSearchController::class, 'searchBrand1'])->name('search.brand');
+
     Route::prefix('uicheck')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');

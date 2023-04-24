@@ -75,11 +75,11 @@ class GoogleSearchController extends Controller
             $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
         }
 
-        $brandList = Brand::list();
+//        $brandList = Brand::list();
         $new_category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
 
         $variants = KeywordSearchVariants::list();
-        return view('google.search.index', compact('keywords', 'queryString', 'orderBy', 'brandList', 'variants', 'new_category_selection'));
+        return view('google.search.index', compact('keywords', 'queryString', 'orderBy', 'variants', 'new_category_selection'));
     }
 
     /**

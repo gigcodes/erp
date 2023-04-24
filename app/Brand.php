@@ -182,4 +182,24 @@ class Brand extends Model
     // {
     //     return $this->belongsToMany(CategorySegment::class,'category_segment_discounts','category_segment_id','brand_id')->withPivot('amount');
     // }
+
+    public static function searchBrand1($keyWord)
+    {
+        // Get all Brands
+        $brands = self::where('name', 'LIKE', '%'.strtolower($keyWord).'%');
+
+        // Create empty array to store brands
+        $brandsArray = [];
+
+        // Loop over brands
+        foreach ($brands as $brand) {
+            $brandsArray[$brand->id] = $brand->name;
+        }
+
+        // Sort array
+        asort($brandsArray);
+
+        // Return brands array
+        return $brandsArray;
+    }
 }

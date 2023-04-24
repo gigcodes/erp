@@ -264,11 +264,8 @@ input:checked + .slider:before {
                         <div class="col-md-6">
                             <div class="form-group">
                                 <strong>Brand:</strong>
-                                <select class="form-control w-100 select-multiple" name="brand[]" multiple="multiple" data-placeholder=" Select brand">
-                                    @foreach($brandList as $key => $brand)
-                                    <option value="{{ $key }}" >{{ $brand }}</option>
-                                    @endforeach
-                                </select>
+                                <?php echo Form::select("brand", [], null, ["class" => "form-control brand-list", 'id' => 'brand-list']); ?>
+                                <span class="product-title-show"></span>
                             </div>
                         </div>
 <!--                    </div>-->
@@ -452,5 +449,18 @@ input:checked + .slider:before {
             }
         });
     }
+
+    $('#brand-list').select2({
+        width: '100%',
+        ajax: {
+            url: '{{ route("brand.list") }}',
+            processResults: function (data) {
+                // Transforms the top-level key of the response object from 'items' to 'results'
+                return {
+                    results: data.items
+                };
+            }
+        }
+    });
     </script>
 @endsection
