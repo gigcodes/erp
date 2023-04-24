@@ -359,17 +359,23 @@ table{border-collapse: collapse;}
 			</div>
 		</div>
 	</div>
-
+<style>
+#newHistoryModal .table th{
+	border-color:#ddd;
+}
+	
+</style>
 	<div id="newHistoryModal" class="modal fade" role="dialog">
-		<div class="modal-dialog modal-lg">
+		<div class="modal-dialog modal-xl">
 			<!-- Modal content-->
-			<div class="modal-content" style="width: 963px;">
+			<div class="modal-content mx-auto" style="width: 963px;">
 				<div class="modal-header">
 					<h3>Bug Tracker History</h3>
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 				</div>
+				<div class="modal-body">
 				<table class="table">
-					<tr>
+					<tr style="background-color:#3333;">
 						<th>Created At</th>						
 						<th>Type of Bug</th>
 						<th>Summary</th>
@@ -385,6 +391,7 @@ table{border-collapse: collapse;}
 
 					</tbody>
 				</table>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -607,7 +614,7 @@ table{border-collapse: collapse;}
 							<strong>File Creation Date:</strong>
 							<input type="date" name="file_creation_date" value="{{ old('file_creation_date') }}" class="form-control input-sm" placeholder="Drive Date" required>
 						</div>
-						@if(auth()->user()->isAdmin())
+						{{-- @if(auth()->user()->isAdmin())
 							<div class="form-group custom-select2 read_user">
 								<label>Read Permission for Users
 								</label>
@@ -626,7 +633,7 @@ table{border-collapse: collapse;}
 									@endforeach
 								</select>
 						</div>
-						@endif
+						@endif --}}
 						<div class="form-group">
 								<label>Remarks:</label>
 								<textarea id="remarks" name="remarks" rows="4" cols="64" value="{{ old('remarks') }}" placeholder="Remarks" required class="form-control"></textarea>

@@ -50,6 +50,12 @@ return [
         'redirect' => 'http://localhost/sololux-erp/auth/twitter/callback',
     ],
 
+    'youtube' => [
+        'client_id' => env('YOUTUBE_CLIENT_ID'),
+        'client_secret' => env('YOUTUBE_CLIENT_SECRET'),
+        'redirect' => env('YOUTUBE_REDIRECT_URI'),
+    ],
+
     'twilio' => [
         /**
          * Taken from the environment

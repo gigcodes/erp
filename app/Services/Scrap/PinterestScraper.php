@@ -11,32 +11,38 @@ class PinterestScraper extends Scraper
         'https://www.pinterest.com/search/?q={query_string}&rs=rs&eq=',
     ];
 
-    public function scrapPinterestImages($q, $chip_value, $outputCount): array
+    public function scrapPinterestImages($q, $chip_value, $outputCount)
     {
         $query = str_replace('{query_string}', $q, self::GOOGLE_IMAGE_SEARCH_URL[0]);
         $query = str_replace('{chip_value}', $chip_value, $query);
         $body = $this->getContent($query);
 
         $c = new HtmlPageCrawler($body);
-        // $imageJson = $c->filter('body')->filter('div.rg_meta');
-        $imageJson = $c->filter('body')->filter('div.RAyV4b');
-
-        $images = [];
-
-        foreach ($imageJson as $key => $image) {
-            // $item = json_decode($image->firstChild->data, true);
-            foreach ($image->firstChild->attributes as $att => $image) {
-                if ($image->name == 'src') {
-                    $images[] = $image->value ?? null;
-                }
-            }
-            // $images[] = $item['ou'];
-
-            if ($key + 1 >= $outputCount) {
-                break;
-            }
+        if($c->filter('body')->filter('td.gvhng')->getInnerHtml()) {
+            return redirect()->back()->with('error', 'No any images found on google');
         }
 
-        return $images;
+        // check if google html page has td with id "e3goi"
+        $google_div_id = 'td.e3goi';
+        if($c->filter('body')->filter($google_div_id)->getInnerHtml()) {
+            $imageJson = $c->filter('body')->filter($google_div_id)->filter('img');
+            $images = [];
+
+            foreach ($imageJson as $key => $image) {
+                foreach ($image->attributes as $att => $image) {
+                    if ($image->name == 'src') {
+                        $images[] = $image->value ?? null;
+                    }
+                }
+
+                if ($key + 1 >= $outputCount) {
+                    break;
+                }
+            }
+
+            return $images;
+        } else {
+            return false;
+        }
     }
 }

@@ -6,20 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Seo\SeoProcessStatus;
 
-class SeoKeywordRemark extends Model
+class SeoProcessRemark extends Model
 {
     use HasFactory;
-    protected $table = 'seo_keyword_remarks';
-    
+    protected $table = 'seo_process_remarks';
+    public $timestamps = false;
     protected $fillable = [
-        'seo_keywords_id',
+        'seo_process_id',
         'seo_process_status_id',
-        'remarks',
-    ];
-
-    protected $hidden = [
-        'created_at',
-        'updated_at'
+        'remark',
+        'index',
     ];
 
     /**

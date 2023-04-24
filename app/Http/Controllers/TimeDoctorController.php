@@ -461,14 +461,16 @@ class TimeDoctorController extends Controller
                         return response()->json(['code' => 500, 'data' => [], 'message' => 'Something went wrong']);
                         break;
                     default:
-                        $response = $bulkInviteResponse['data']['response']['data'];
+                        $response = $bulkInviteResponse['data']['response']->data;
                         foreach($users as $u){
                             $userId = $u->id;
                             $email = $u->email;
                             $time_doctor_user_id = "";
                             foreach($response as $key => $val){
-                                if($key == $email && $val->status == 'sent') {
-                                    $time_doctor_user_id = $val->userId;
+                                foreach($val as $k => $v){
+                                    if($k == $email && $v->status == 'sent') {
+                                        $time_doctor_user_id = $v->userId;
+                                    }
                                 }
                             }
 

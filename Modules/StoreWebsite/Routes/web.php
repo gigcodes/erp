@@ -352,6 +352,8 @@ Route::middleware('auth')->group(function () {
             });
         });
         Route::get('/store-website/category', [SiteDevelopmentController::class, 'storeWebsiteCategory'])->name('site-development.store-website-category');
+        Route::post('/store-website/category/save', [SiteDevelopmentController::class, 'updateMasterCategory'])->name('site-development.update-category');
+        Route::post('/store-website/category/savebulk', [SiteDevelopmentController::class, 'updateBulkMasterCategory'])->name('site-development.update-category-bulk');
     });
 
     Route::group(['prefix' => 'site-development-status'], function () {

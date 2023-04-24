@@ -67,7 +67,7 @@
             <h2 class="page-heading">Orders List ({{$totalOrders}})</h2>
         </div>
            <div class="col-10" style="padding-left:0px;">
-            <div >
+            <div>
             <form class="form-inline" action="{{ route('order.index') }}" method="GET">
                 <div class="form-group col-md-3 pd-3">
                   <input style="width:100%;" name="term" type="text" class="form-control"
@@ -111,7 +111,7 @@
                   </div>
                   </div>
                    <div class="form-group col-md-1 pd-3">
-                <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+                  <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                   </div>
               </form>
             </div>
