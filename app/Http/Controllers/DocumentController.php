@@ -107,6 +107,7 @@ class DocumentController extends Controller
          ->join('media', 'media.id', '=', 'mediables.media_id')
          ->where('mediables.mediable_type', 'App\DeveloperTaskDocument');
          
+         
         if ($request->task_subject && $request->task_subject != null) {
             $developertask = $developertask->where('subject', 'LIKE',  "%$request->task_subject%");
         }
@@ -122,6 +123,7 @@ class DocumentController extends Controller
             $developertask = $developertask->whereDate('developer_task_documents.created_at', $request->date);
             
         }
+        $developertask = $developertask->orderBy('developer_task_documents.id', 'desc');
          
          
 
@@ -145,10 +147,11 @@ class DocumentController extends Controller
                  if (!empty($request->date)) {
                     $uploadDocData= $uploadDocData->whereDate('tasks.created_at', $request->date);
                     
-                }       
+                }   
+                $uploadDocData = $uploadDocData->orderBy('tasks.id', 'desc');    
                 $uploadDocData = $uploadDocData->union($developertask);
                 
-                $uploadDocData = $uploadDocData->paginate(5);
+                $uploadDocData = $uploadDocData->paginate(50);
 
          $users = User::get();       
 
