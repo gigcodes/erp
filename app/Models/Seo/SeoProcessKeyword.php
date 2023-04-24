@@ -5,18 +5,16 @@ namespace App\Models\Seo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SeoKeyword extends Model
+class SeoProcessKeyword extends Model
 {
     use HasFactory;
 
-    protected $table = 'seo_keywords';
+    protected $table = 'seo_process_keywords';
+    public $timestamps = false;
     protected $fillable = [
         'seo_process_id',
-        'keyword',
-        'value',
-        'content',
-        'word_count',
-        'status'
+        'name',
+        'index',
     ];
 
 
