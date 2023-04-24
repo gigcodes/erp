@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Validator;
 use Mail;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use Webklex\PHPIMAP\ClientManager;
+use App\ModelColor;
 
 class EmailController extends Controller
 {
@@ -102,7 +103,7 @@ class EmailController extends Controller
             $query = $query->where('is_draft', 1)->where('status', '<>', 'pre-send');
         } elseif ($type == 'pre-send') {
             $query = $query->where('status', 'pre-send');
-        } 
+        }
         else if(!empty($request->type)){
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');
@@ -158,7 +159,7 @@ class EmailController extends Controller
                 });
             }
         }
-        
+
         if (! empty($mailbox)) {
             $mailbox = explode(',', $request->mail_box);
             $query = $query->where(function ($query) use ($mailbox) {
@@ -217,7 +218,7 @@ class EmailController extends Controller
 
         //Get List of model types
         $emailModelTypes = Email::emailModelTypeList();
-        
+
         //Get All Category
         $email_categories = DB::table('email_category')->get();
 
@@ -242,10 +243,11 @@ class EmailController extends Controller
         // dont load any data, data will be loaded by tabs based on ajax
         // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
         $digita_platfirms = DigitalMarketingPlatform::all();
-        
-        $totalEmail = Email::count();
 
-        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_status' => $email_status, 'email_categories' => $email_categories, 'emailModelTypes' => $emailModelTypes, 'reports' => $reports, 'digita_platfirms' => $digita_platfirms, 'receiver' => $receiver, 'from' => $from, 'totalEmail' => $totalEmail])->with('i', ($request->input('page', 1) - 1) * 5);
+        $totalEmail = Email::count();
+        $modelColors = ModelColor::whereIn('model_name',['customer','vendor','supplier','user'])->limit(10)->get();
+
+        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_status' => $email_status, 'email_categories' => $email_categories, 'emailModelTypes' => $emailModelTypes, 'reports' => $reports, 'digita_platfirms' => $digita_platfirms, 'receiver' => $receiver, 'from' => $from, 'totalEmail' => $totalEmail,'modelColors' => $modelColors])->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function platformUpdate(Request $request)
@@ -410,7 +412,7 @@ class EmailController extends Controller
     {
         $email = Email::find($id);
 
-        return view('emails.reply-modal', compact('email'));    
+        return view('emails.reply-modal', compact('email'));
     }
 
      /**
@@ -423,7 +425,7 @@ class EmailController extends Controller
     {
         $email = Email::find($id);
 
-        return view('emails.reply-all-modal', compact('email'));    
+        return view('emails.reply-all-modal', compact('email'));
     }
 
     /**
@@ -544,7 +546,7 @@ class EmailController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
     }
-    
+
     /**
      * Handle the email forward
      *
@@ -1194,7 +1196,7 @@ class EmailController extends Controller
 
                 EmailRunHistories::create($historyParam);
                 $report->update(['end_time' => Carbon::now()]);
-                
+
             } catch (\Exception $e) {
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
@@ -1211,7 +1213,7 @@ class EmailController extends Controller
         {
             session()->flash('danger', "Some address failed to synchronize.For more details: please check Email Run History for following Email Addresses: ".implode(", ",$failedEmailAddresses));
 
-            return redirect('/email');   
+            return redirect('/email');
         }
         else
         {
@@ -1484,7 +1486,7 @@ class EmailController extends Controller
 
         return $response;
     }
-    
+
     public function ajaxsearch(Request $request)
     {
         $searchEmail = $request->get('search');
@@ -1521,6 +1523,69 @@ class EmailController extends Controller
          //Get All Category
          $email_categories = DB::table('email_category')->get();
 
-        return view('emails.category.mappings', compact('userEmails', 'email_categories'));        
+        return view('emails.category.mappings', compact('userEmails', 'email_categories'));
+    }
+
+    // DEVTASK - 23369
+    public function assignModel(Request $request){
+        $model_type = "";
+        $model = "";
+        if($request->model_name == 'customer'){
+            $model_type = "\App\Customer";
+            $model = new \App\Customer;
+            $model_name = "Customer";
+        }elseif($request->model_name == 'vendor'){
+            $model_type = "\App\Vendor";
+            $model = new \App\Vendor;
+            $model_name = "Vendor";
+        }elseif($request->model_name == 'supplier'){
+            $model_type = "\App\Supplier";
+            $model = new \App\Supplier;
+            $model_name = "Supplier";
+        }else {
+            $model_type = "\App\User";
+            $model = new \App\User;
+            $model_name = "User";
+        }
+
+        $email = Email::where('id',$request->email_id)->first();
+        $email->is_unknow_module = 0;
+        $email->model_type = $model_name;
+        $email->save();
+
+        $userExist = $model::where('email',$email->from)->first();
+
+        if(empty($userExist)){
+            if($request->model_name == 'supplier'){
+                $model::create([
+                    'email' => $email->from
+                ]);
+            }else{
+                $model::create([
+                    'name'  => explode('@',$email->from)[0],
+                    'email' => $email->from
+                ]);
+            }
+
+            return response()->json(['type' => 'success'],200);
+        }
+    }
+
+    public function updateModelColor(Request $request){
+
+        foreach($request->color_name as $key => $value){
+            $model = ModelColor::where('id',$key)->first();
+            $model->color_code = $value;
+            $model->save();
+        }
+
+        return redirect('/email');
+    }
+
+    public function getModelNames(Request $request){
+        $modelColors = ModelColor::where('model_name','like','%'.$request->model_name.'%')->get();
+        $returnHTML = view('emails.modelTable')->with('modelColors', $modelColors)->render();
+        return response()->json(['html' => $returnHTML,'type' => 'success'],200);
+
     }
 }

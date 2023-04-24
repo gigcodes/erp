@@ -5,7 +5,7 @@
     @endif
   </td>
   <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y H:i:s') }}</td>
-  <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')"> 
+  <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')">
     {{ substr($email->from, 0,  20) }} {{strlen($email->from) > 20 ? '...' : '' }}
   </td>
   <td  data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->to}}')">
@@ -13,9 +13,9 @@
   </td>
   <td>
     @if(array_key_exists($email->model_type, $emailModelTypes))
-    {{$email->model_type?$emailModelTypes[$email->model_type]:'N/A' }}
+    {{$email->model_type? $emailModelTypes[$email->model_type] : 'N/A' }}
     @else
-    {{$email->model_type}}
+    {{ $email->model_type }}
     @endif
   </td>
   <td>{{ $email->type }}</td>
@@ -109,6 +109,11 @@
     <a class="btn btn-image btn-ht" title="View Email Log" onclick="fetchEmailLog('{{$email['id']}}')">
     <i class="fa fa-history" aria-hidden="true"></i>
     </a>
+
+    @if(empty($email->module_type) && $email->is_unknow_module == 1)
+      <a style="padding:3px;" type="button" title="Assign Model" class="btn btn-image make-label d-inline" data-id="{{ $email->id }}" onclick="openAssignModelPopup(this);"> <i class="fa fa-envelope" aria-hidden="true"></i> </a>
+    @endif
+
   </td>
 </tr>
 @endforeach
