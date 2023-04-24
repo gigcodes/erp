@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAffiliateProviderSitesTable extends Migration
+class CreateAffiliateProviderAccountsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class CreateAffiliateProviderSitesTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('affiliate_provider_sites')) {
-            Schema::create('affiliate_provider_sites', function (Blueprint $table) {
+        if (!Schema::hasTable('affiliate_provider_accounts')) {
+            Schema::create('affiliate_provider_accounts', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('affiliates_provider_id');
                 $table->integer('store_website_id');
@@ -34,6 +34,6 @@ class CreateAffiliateProviderSitesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('affiliate_provider_sites');
+        Schema::dropIfExists('affiliate_provider_accounts');
     }
 }

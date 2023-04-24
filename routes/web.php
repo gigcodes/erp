@@ -352,6 +352,7 @@ use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
 use App\Http\Controllers\GoogleShoppingAdsController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
 
@@ -4979,11 +4980,18 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
         Route::post('delete', [AffiliateMarketingController::class, 'deleteProvider'])->name('affiliate-marketing.deleteProviders');
     });
 
-    Route::prefix('provider-sites')->group(function () {
-        Route::get('', [AffiliateMarketingController::class, 'providerSites'])->name('affiliate-marketing.providerSites');
-        Route::get('{id}', [AffiliateMarketingController::class, 'getProviderSite'])->name('affiliate-marketing.getProviderSite');
-        Route::post('create', [AffiliateMarketingController::class, 'createProviderSite'])->name('affiliate-marketing.createProviderSite');
-        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProviderSite'])->name('affiliate-marketing.updateProviderSite');
-        Route::post('delete', [AffiliateMarketingController::class, 'deleteProviderSite'])->name('affiliate-marketing.deleteProviderSite');
+    Route::prefix('provider-accounts')->group(function () {
+        Route::get('', [AffiliateMarketingController::class, 'providerAccounts'])->name('affiliate-marketing.providerAccounts');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProviderAccount'])->name('affiliate-marketing.getProviderAccount');
+        Route::post('create', [AffiliateMarketingController::class, 'createProviderAccount'])->name('affiliate-marketing.createProviderAccount');
+        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProviderAccount'])->name('affiliate-marketing.updateProviderAccount');
+        Route::post('delete', [AffiliateMarketingController::class, 'deleteProviderAccount'])->name('affiliate-marketing.deleteProviderAccount');
+    });
+
+    Route::prefix('provider-details')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'index'])->name('affiliate-marketing.provider.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'createAffiliateGroup'])->name('affiliate-marketing.provider.createGroup');
+        Route::post('update/{id}', [AffiliateMarketingDataController::class, 'updateAffiliateGroup'])->name('affiliate-marketing.provider.updateGroup');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'getAffiliateGroup'])->name('affiliate-marketing.provider.getGroup');
     });
 });

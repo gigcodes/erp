@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AffiliateProviderSites extends Model
+class AffiliateProviderAccounts extends Model
 {
     protected $fillable = ['affiliates_provider_id', 'store_website_id', 'api_key', 'status'];
 

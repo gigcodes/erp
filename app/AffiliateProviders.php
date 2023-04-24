@@ -9,6 +9,6 @@ class AffiliateProviders extends Model
     protected $fillable = ['provider_name', 'status'];
 
     public function sites() {
-        $this->hasMany(AffiliateProviderSites::class, 'affiliates_provider_id', 'id');
+        return $this->hasMany(AffiliateProviderAccounts::class, 'affiliates_provider_id', 'id');
     }
 }

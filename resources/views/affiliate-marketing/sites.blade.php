@@ -34,12 +34,16 @@
                 Affiliates Providers Sites (<span id="affiliate_count"></span>)
             </h2>
             <div class="pull-left">
-                <form action="{{route('affiliate-marketing.providers')}}">
+                <form action="{{route('affiliate-marketing.providerAccounts')}}">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-4">
                                 <input name="provider_name" type="text" class="form-control"
                                        value="{{ request('provider_name') }}" placeholder="Search providers">
+                            </div>
+                            <div class="col-md-4">
+                                <input name="site" type="text" class="form-control"
+                                       value="{{ request('site') }}" placeholder="Search site">
                             </div>
                             <div class="col-md-4">
                                 {!! Form::select("status", ["" => "Select status", "active" => "Active", "inactive" => "Inactive"], request('status'), ["class" => "form-control type-filter"]) !!}
@@ -49,7 +53,7 @@
                                     <img src="/images/filter.png"/>
                                 </button>
                                 <button type="reset"
-                                        onclick="window.location='{{route('affiliate-marketing.providers')}}'"
+                                        onclick="window.location='{{route('affiliate-marketing.providerAccounts')}}'"
                                         class="btn btn-image" id="resetFilter">
                                     <img src="/images/resend2.png"/>
                                 </button>
@@ -60,7 +64,7 @@
             </div>
             <div class="col-md-2 pl-0 float-right">
                 <button data-toggle="modal" data-target="#add-site-provider" type="button"
-                        class="float-right mb-3 btn-secondary">New Provider
+                        class="float-right mb-3 btn-secondary">New Provider account
                 </button>
             </div>
         </div>
@@ -81,7 +85,7 @@
             </tr>
             </thead>
             <tbody>
-            @foreach ($providerSites as $key => $value)
+            @foreach ($providerAccounts as $key => $value)
                 <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $value->storeWebsite->title }}</td>
@@ -90,10 +94,12 @@
                     <td>{{ $value->api_key }}</td>
                     <td>{{ $value->status ? 'Active': 'Inactive' }}</td>
                     <td>
+                        <a href="{{route('affiliate-marketing.provider.index', ['provider_account' => $value->id])}}"
+                           class="btn btn-sm btn-default">View Details</a>
                         <button type="button" data-toggle="modal" data-target="#add-site-provider"
                                 onclick="editData('{!! $value->id !!}')"
                                 class="btn btn-image"><img src="/images/edit.png"></button>
-                        {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.deleteProviderSite'],'style'=>'display:inline']) !!}
+                        {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.deleteProviderAccount'],'style'=>'display:inline']) !!}
                         <input type="hidden" value="{{$value->id}}" name="id">
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
@@ -103,7 +109,7 @@
             </tbody>
         </table>
     </div>
-    {{--    {!! $providerSites->render() !!}--}}
+    {!! $providerAccounts->links() !!}
 
     <div class="modal fade" id="add-site-provider" role="dialog" style="z-index: 3000;">
         <div class="modal-dialog modal-lg" role="document">
@@ -113,7 +119,7 @@
                         <h2>Add Site to Provider</h2>
                     </div>
                     <form id="add-site-provider-form" method="POST"
-                          action="{{route('affiliate-marketing.createProviderSite')}}">
+                          action="{{route('affiliate-marketing.createProviderAccount')}}">
                         {{csrf_field()}}
                         <div class="form-group row">
                             <label for="headline1" class="col-sm-2 col-form-label">Select Provider</label>
@@ -187,17 +193,17 @@
         }
 
         $('#add-site-provider').on('show.bs.modal', function () {
-            $('#add-site-provider-form').attr('action', "{{ route('affiliate-marketing.createProviderSite') }}");
+            $('#add-site-provider-form').attr('action', "{{ route('affiliate-marketing.createProviderAccount') }}");
             $('#add-site-provider-form button[type="submit"]').text('Create');
         })
 
         function editData(id) {
-            let url = "{{ route('affiliate-marketing.getProviderSite', [":id"]) }}";
+            let url = "{{ route('affiliate-marketing.getProviderAccount', [":id"]) }}";
             url = url.replace(':id', id);
             $.ajax({
                 url,
                 type: 'GET',
-                params: { id },
+                params: {id},
                 beforeSend: function () {
                     $("#loading-image").show();
                 },
@@ -207,7 +213,7 @@
                         toastr["error"](response.message);
                         $('#add-site-provider').modal('hide');
                     } else {
-                        let url = "{{ route('affiliate-marketing.updateProviderSite', [":id"]) }}";
+                        let url = "{{ route('affiliate-marketing.updateProviderAccount', [":id"]) }}";
                         url = url.replace(':id', id);
                         $('#add-site-provider-form').attr('action', url);
                         $('#add-site-provider-form button[type="submit"]').text('Update');
