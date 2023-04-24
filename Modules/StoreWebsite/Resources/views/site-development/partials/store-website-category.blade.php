@@ -28,10 +28,14 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
         </div>
         <div class="form-group col-lg-1" style="margin: 7px 0 0 0">
             <button type="submit" class="btn btn-sm btn-image btn-search-record" style="float:left">
-                <img src="/images/send.png" style="cursor: nwse-resize; width: 16px;">
+                <img src="/images/send.png" title="Apply filter" style="cursor: pointer; width: 16px;">
             </button>
         </div>
         </form>
+        <div class="form-group col-lg-2">
+            {{ Form::select('master_category_id', ['' => '- Select Master Category -'] + $masterCategories, '', ['class' => 'select2 globalSelect2', 'id' => 'master_category_id', 'style' => 'float:left']) }}
+        </div>
+        <div class="form-group col-lg-1" style="margin: 7px 0 0 0"><img src="/images/send.png" title="Bulk update" style="cursor: pointer; width: 16px; float:left" id="bulk_action"></div>
     </div>
     <div class="col-lg-12 margin-tb">
         <div class="col-md-12">
@@ -39,9 +43,8 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
                 <table class="table table-bordered">
                     <thead>
                       <tr>
-                        <th>Category ID</th>
+                        <th><input type="checkbox" name="checkAll" id="checkAll"> <label for="checkAll">Category ID</label></th>
                         <th>Category</th>
-                        <th>Website</th>
                         <th>Master Category</th>
                       </tr>
                     </thead>
@@ -49,9 +52,10 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
                         @foreach($categories as $category)
                         <tbody>
                         <tr>
-                            <td style="vertical-align:middle;">{{ $category->id }}</td>
+                            <td style="vertical-align:middle;">
+                                <label><input type="checkbox" name="bulk_user_action[]" class="d-inline bulk_user_action" value="{{ $category->id }}">
+                                {{ $category->id }}</label></td>
                             <td style="vertical-align:middle;">{{ $category->title }}</td>
-                            <td style="vertical-align:middle;">{{ $category->website }}</td>
                             <td style="vertical-align:middle;">
                                 {{ Form::select('site_development_master_category_id', ['' => '- Select-'] + $masterCategories, $category->site_development_master_category_id, ['class' => 'select2 globalSelect2 master_category_id','data-websiteid'=>$category->website_id, 'data-site' => $category->site_development_id ,'data-category' => $category->id, 'data-title' => $category->title]) }}    
                             </td>
@@ -79,10 +83,16 @@ $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
 </div>
 
 <script type="text/javascript">
+$(document).ready(function(){
+    $("#checkAll").click(function () {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+    });
+});
+
 $(document).on("change", ".master_category_id" , function(){
         $.ajax({
             type: "POST",
-            url: "{{ route('site-development.save') }}",   
+            url: "{{ route('site-development.update-category') }}",   
             data: { 
                 websiteId: $(this).data("websiteid"), 
                 category: $(this).data("category"), 
@@ -99,6 +109,41 @@ $(document).on("change", ".master_category_id" , function(){
                 }
             }
         });
+});
+
+$(document).on("click", "#bulk_action" , function(){
+    var mcid = $('#master_category_id').val();
+    if (mcid != '') {
+        let checkIds = [];
+        $('.bulk_user_action').each(function(){
+            if($(this).is(':checked')) {
+                checkIds.push($(this).val());
+            }
+        });
+
+        if (checkIds.length) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('site-development.update-category-bulk') }}",   
+                data: { 
+                    categories: checkIds, 
+                    master_category_id: mcid,
+                    _token: "{{ csrf_token() }}"
+                },  
+                success: function(response) {
+                    if (response.code == 200) {
+                        toastr['success'](response.messages);
+                    } else {
+                        toastr['error'](response.messages);
+                    }
+                }
+            });
+        } else {
+            toastr['error']('Please select atleast one category id.');
+        }
+    } else {
+        toastr['error']('Select master category');
+    }
 });
 </script>
 @endsection

@@ -125,6 +125,9 @@
                             <button class="btn btn-secondary btn-xs btn-add-test-case-modal" style="color:white;"
                                     data-toggle="modal" data-target="#newTestCaseModal"> Add Test Cases
                             </button>&nbsp;&nbsp;
+							
+							<button class="btn btn-secondary btn-xs delete-tast-cases" style="color:white;"> Delete
+                            </button>&nbsp;&nbsp;
                             @endif
                         </div>&nbsp;&nbsp;
                     </div>
@@ -159,17 +162,22 @@
     @include("test-cases.create")
     @include("test-cases.edit")
 
-
+<style>
+#newHistoryModal table th{
+	border:1px solid #ddd;
+}
+</style>
     <div id="newHistoryModal" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>Test Case History</h3>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
+				<div class="modal-body">
                 <table class="table">
-                    <tr>
+                    <tr style="background-color:#3333;">
                         <th>Name</th>
                         <th>Status</th>
                         <th>Suite</th>
@@ -177,11 +185,13 @@
                         <th>Assign to</th>
                         <th>Module/Feature</th>
                         <th>Updated By</th>
+						<th></th>
                     </tr>
                     <tbody class="tbh">
 
                     </tbody>
                 </table>
+				</div>
             </div>
         </div>
     </div>
@@ -286,5 +296,44 @@
                 $temp.remove();
                 alert("Copied!");
             });
+			
+			$(document).on('click', '.chkTaskDeleteCommon', function() {
+				if ($(this).is(':checked')) {
+					$("input[name='chkTaskNameChange[]']").attr('checked', true);
+				} else {
+					$("input[name='chkTaskNameChange[]']").attr('checked', false);
+				}
+			});
+			
+			$(document).ready(function() {
+				  $(".delete-tast-cases").click(function(){
+					  var arr = [];
+					  $.each($("input[name='chkTaskNameChange[]']:checked"), function(){
+						  arr.push($(this).val());
+					  });
+					  
+					  
+					  $.ajax({
+						url: '/test-cases/delete-multiple-test-cases',
+						type: 'delete',
+						headers: {
+							'X-CSRF-TOKEN': "{{ csrf_token() }}"
+						},
+						data: {
+							data: arr
+						},
+						beforeSend: function() {
+							$("#loading-image").show();
+						}
+					}).done(function(response) {
+						location.reload();
+					}).fail(function(jqXHR, ajaxOptions, thrownError) {
+						toastr["error"]("Oops,something went wrong");
+						$("#loading-image").hide();
+					});
+			
+					  
+				  });
+			  });
         </script>
 @endsection

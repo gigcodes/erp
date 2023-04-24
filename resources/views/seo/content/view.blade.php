@@ -4,13 +4,10 @@
 @php
     $auth = auth()->user();
 @endphp
+<h2 class="page-heading">{{ $moduleName }} Details</h2>
 <div class="container-fluid">
-    <div class="card mt-3">
-        <div class="card-header">
-            <h3 class="text-center">View SEO Content</h3>
-            <hr>
-        </div>
-        <div class="card-body">
+    <div class="mt-3">
+        <div class="">
             <form action="" method="POST" id="seoForm" autocomplete="off">
                 <div class="row">
                     <div class="col-md-4">
@@ -66,14 +63,11 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="pb-3 px-5">
+                                            <button type="button" class="mt-1 btn btn-secondary btn-sm seoStatusBtn">Seo team status</button>
+                                            <button type="button" class="mt-1 btn btn-secondary btn-sm publishStatusBtn">Publish team status</button>
+                                        </div>
                                     </div>
-                                </td>
-                                <td>
-                                    <button type="button" class="mt-1 btn btn-primary btn-sm seoStatusBtn">Seo team status</button>
-                                    <button type="button" class="mt-1 btn btn-primary btn-sm publishStatusBtn">Publish team status</button>
-                                </td>
-                                <td>
-                                    {{-- <button type="button" class="mt-1 btn btn-danger btn-sm kwRmBtn">Remove</button> --}}
                                 </td>
                             </tr>
                             @endforeach
@@ -160,17 +154,16 @@
                 @if($auth->hasRole(['Admin']))    
                     <div class="row mt-3">
                         <div class="col-md-6">
-                            <button type="button" class="btn btn-primary btn-sm historyBtn" data-type="user">User History</button>
-                            <button type="button" class="btn btn-primary btn-sm ml-2 historyBtn" data-type="price">Price History</button>
+                            <button type="button" class="btn btn-secondary btn-sm historyBtn" data-type="user">User History</button>
+                            <button type="button" class="btn btn-secondary btn-sm ml-2 historyBtn" data-type="price">Price History</button>
                         </div>
                     </div>
                 @endif
 
                 <hr>
-                <div class="row mt-3">
+                <div class="row mt-3 mb-5">
                     <div class="col-md-12">
-                        <a href="{{ route('seo.content.index') }}" class="btn btn-secondary">Cancel</a>
-                        {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                        <a href="{{ route('seo.content.index') }}" class="btn btn-notification">Cancel</a>
                     </div>
                 </div>
             </form>

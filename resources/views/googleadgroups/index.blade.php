@@ -6,7 +6,7 @@
       <h2 class="page-heading">Google AdGroups (<span id="adsgroup_count">{{$totalNumEntries}}</span>) for {{@$campaign_name}} campaign name <a class="btn-image float-right custom-button" href="{{ route('googlecampaigns.index') }}?account_id={{$campaign_account_id}}">Back to Campaign</a></h2>
     <div class="pull-left p-0">
         <div class="form-group">
-            <div class="row">      
+            <div class="row">
                 <div class="col-md-3 pr-2">
                     <input name="googlegroup_name" type="text" class="form-control" value="{{ isset($googlegroup_name) ? $googlegroup_name : '' }}" placeholder="Group Name" id="googlegroup_name">
                 </div>
@@ -14,7 +14,7 @@
                 <div class="col-md-2 p-0 pr-2">
                     <input name="googlegroup_id" type="text" class="form-control" value="{{ isset($googlegroup_id) ? $googlegroup_id : '' }}" placeholder="Group ID" id="googlegroup_id">
                 </div>
-                @if(!in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))
+                @if(!in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]) && $type != 'remarketing')
                 <div class="col-md-2 p-0 pr-2">
                     <input name="bid" type="text" class="form-control" value="{{ isset($bid) ? $bid : '' }}" placeholder="Bid" id="bid">
                 </div>
@@ -45,7 +45,7 @@
                 <th>Ads Group Name</th>
                 <th>Google Campaign Id</th>
                 <th>Google Adgroupd Id</th>
-                @if(!in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))
+                @if(!in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]) && $type != 'remarketing')
                 <th>Bid</th>
                 @endif
                 <th>Status</th>
@@ -61,7 +61,7 @@
                     <td>{{$adGroup->ad_group_name ?? '' }}</td>
                     <td>{{$adGroup->adgroup_google_campaign_id ?? '' }}</td>
                     <td>{{$adGroup->google_adgroup_id ?? '' }}</td>
-                    @if(!in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]))
+                    @if(!in_array(@$campaign_channel_type, ["MULTI_CHANNEL"]) && $type != 'remarketing')
                     <td>{{$adGroup->bid ?? '' }}</td>
                     @endif
                     <td>{{$adGroup->status ?? '' }}</td>
@@ -71,6 +71,10 @@
                         @if(in_array(@$campaign_channel_type, ["DISPLAY"]))
                             <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/responsive-display-ad">
                                 <button type="submit" class="btn-image">Display Ads</button>
+                            </form>
+                        @elseif(in_array(@$campaign_channel_type, ["SHOPPING"]))
+                            <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/shopping-ad">
+                                <button type="submit" class="btn-image">Shopping Ads</button>
                             </form>
                         @elseif(in_array(@$campaign_channel_type, ["SEARCH"]))
                             <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
@@ -102,7 +106,7 @@
         </table>
     {{ $adGroups->links() }}
     </div>
-    
+
         <div class="modal fade" id="adgroupmodal" role="dialog" style="z-index: 3000;">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -121,7 +125,7 @@
                                 @endif
                             </div>
                         </div>
-                        @if($campaign_channel_type != "MULTI_CHANNEL")
+                        @if($campaign_channel_type != "MULTI_CHANNEL" && $type != 'remarketing')
                             <div class="form-group row">
                                 <label for="bid-amount" class="col-sm-2 col-form-label">Bid amount</label>
                                 <div class="col-sm-6">
@@ -204,7 +208,7 @@
                                 @endif
                             </div>
                         </div>
-                        @if($campaign_channel_type != "MULTI_CHANNEL")
+                        @if($campaign_channel_type != "MULTI_CHANNEL" && $type != 'remarketing')
                             <div class="form-group row">
                                 <label for="cpc-bid-micro-amount" class="col-sm-2 col-form-label">Bid amount</label>
                                 <div class="col-sm-6">
@@ -285,8 +289,8 @@
             url: src,
             dataType: "json",
             data: {
-               
-               blank : blank, 
+
+               blank : blank,
 
             },
             beforeSend: function () {
@@ -299,7 +303,7 @@
             $('#googlegroup_id').val('');
             $('#bid').val('');
             $('#adsgroup_status').val('');
-         
+
 
             $("#adsgroup-table tbody").empty().html(data.tbody);
             $("#adsgroup_count").text(data.count);
@@ -328,7 +332,7 @@
                 $('#updateadgroupmodal [name="adGroupId"]').val(data.google_adgroup_id);
                 $('#updateadgroupmodal [name="adGroupName"]').val(data.ad_group_name);
                 $('#updateadgroupmodal [name="cpcBidMicroAmount"]').val(data.bid);
-                
+
                 if(data.status == "ENABLED"){
                     $('#updateadgroupmodal [name="adGroupStatus"] option:eq(0)').prop('selected', true).change();
                 }else{
@@ -405,7 +409,7 @@
                   // console.log(response);
                 });
                 });
-            }); 
+            });
         </script>
-    @endpush 
+    @endpush
 @endif

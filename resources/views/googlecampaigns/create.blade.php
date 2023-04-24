@@ -78,7 +78,7 @@
 
     .select2.select2-container.select2-container--default {
         width: 100% !important;
-    }   
+    }
 
     div.pac-container {
         z-index: 99999999999 !important;
@@ -93,7 +93,7 @@
       <form method="POST" id="CreateCompaign" class="create-compaign-form" enctype="multipart/form-data">
           {{csrf_field()}}
           <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
-         
+
          <div class="row m-0 mb-3">
              <div class="col-md-4 pl-0 pr-2">
                  <div class="form-group m-0 top">
@@ -149,10 +149,10 @@
             <fieldset>
                 <legend class="lagend">Settings</legend>
                 <div class="form-group m-0 row">
-                    <div class="col-md-6 pl-0 pr-3">
-                        <label for="campaign-status" class=" col-form-label">Merchant Id</label><br>
-                            <input type="text" id="merchant_id" name="merchant_id" value="">
-                    </div>
+{{--                    <div class="col-md-6 pl-0 pr-3">--}}
+{{--                        <label for="campaign-status" class=" col-form-label">Merchant Id</label><br>--}}
+{{--                            <input type="text" id="merchant_id" name="merchant_id" value="">--}}
+{{--                    </div>--}}
                     <div class="col-md-6 pl-0 pr-0">
                         <label for="campaign-status" class=" col-form-label">Select Country</label><br>
                             <input type="text" id="sales_country" name="sales_country" value="">
@@ -285,7 +285,7 @@
                 <div class="form-group m-0 mb-3">
                     <label for="start-date" class="col-form-label">Start Date</label>
                     <div>
-                        <input type="text" class="form-control" id="start-date" name="start_date" placeholder="Start Date E.g {{date('Ymd', strtotime('+1 day'))}}">
+                        <input type="date" class="form-control" id="start-date" name="start_date" placeholder="Start Date E.g {{date('Ymd', strtotime('+1 day'))}}">
                         @if ($errors->has('start_date'))
                             <span class="text-danger">{{$errors->first('start_date')}}</span>
                         @endif
@@ -298,14 +298,14 @@
                 <div class="form-group m-0 mb-3">
                     <label for="start-date" class="col-form-label">End Date</label>
                     <div>
-                        <input type="text" class="form-control" id="end-date" name="end_date" placeholder="End Date E.g {{date('Ymd', strtotime('+1 month'))}}">
+                        <input type="date" class="form-control" id="end-date" name="end_date" placeholder="End Date E.g {{date('Ymd', strtotime('+1 month'))}}">
                         @if ($errors->has('end_date'))
                             <span class="text-danger">{{$errors->first('end_date')}}</span>
                         @endif
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 pr-0 pl-0">
+            <div class="col-md-6 pr-0 pl-0" id="div-language-fields">
                 <div class="form-group m-0 mb-5">
                     <label for="target_languages" class="col-form-label">Target Languages</label>
                     <div class="status-selection">
@@ -319,7 +319,7 @@
             </div>
         </div>
 
-        <div class="row m-0">
+        <div class="row m-0" id="div-location-fields">
             <div class="col-md-6 pl-0 pr-3">
                 <div class="form-group m-0 mb-3">
                     <label for="start-date" class="col-form-label">Location</label>
@@ -351,7 +351,7 @@
                             <div class="form-group m-0 mb-5">
                                 <label for="country_id" class="col-form-label">Country</label>
                                 <select class="form-control" id="" name="country_id" style="height: auto">
-                                    
+
                                 </select>
                             </div>
                         </div>
@@ -362,7 +362,7 @@
                             <div class="form-group m-0 mb-5">
                                 <label for="state_id" class="col-form-label">State</label>
                                 <select class="form-control" id="" name="state_id" style="height: auto">
-                                    
+
                                 </select>
                             </div>
                         </div>
@@ -373,7 +373,7 @@
                             <div class="form-group m-0 mb-5">
                                 <label for="city_id" class="col-form-label">City</label>
                                 <select class="form-control" id="" name="city_id" style="height: auto">
-                                    
+
                                 </select>
                             </div>
                         </div>
@@ -398,9 +398,9 @@
                                 <label for="target_location_address" class="col-form-label">Address</label>
 
                                 <input type="text" class="form-control" id="target_location_address" name="target_location_address" placeholder="Enter a place name, address or coordinates">
-                                
+
                                {{--  <select class="form-control" id="" name="target_location_address" style="height: auto">
-                                    
+
                                 </select> --}}
                             </div>
                         </div>
@@ -485,7 +485,7 @@
     var bidding_focus_on=$("#bidding_focus_on");
     var channel_type=$("#channel_type");
     var channel_sub_type=$("#channel_sub_type");
-    
+
     $(document).ready(function(){
         biddingFocusBaseStrategy();
         channelTypeChangeFunc();
@@ -508,7 +508,7 @@
             // if(bidding_focus_on_val=="conversions"){
             //     biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
             // }
-            
+
             if(channel_type.val()=="MULTI_CHANNEL"){
                 biddingStrategyArray=['TARGET_CPA'];
             }
@@ -523,7 +523,7 @@
 
         }
 
-        
+
         $("#biddingStrategyType").on('change',function(){
             var biddingStrategyTypeVal=$(this).val();
             $("#maindiv_for_target").hide();
@@ -555,24 +555,24 @@
             }
 
         });
-        
+
         //$(document).on("click", '#target_cost_per_action', function() {
         $("#target_cost_per_action").click(function(){
             if($("#target_cost_per_action").is(":checked")){
                 $("#div_html_append_1").show();
             }else{
                 $("#div_html_append_1").hide();
-            } 
+            }
         });
 
         $("#directiBiddingSelect").click(function(){
             $("#maindiv_for_target").hide();
             $("#div_html_append_1").hide();
             $("#target_cost_per_action").prop('checked',false);
-            
+
             $("#div_roas").hide();
             $("#div_targetspend").hide();
-           
+
             var bidding_focus_on_val=bidding_focus_on.val();
             if(bidding_focus_on_val=="conversions"){
                 biddingStrategyArray=['TARGET_CPA','TARGET_ROAS','TARGET_SPEND','MAXIMIZE_CONVERSIONS','MANUAL_CPM','MANUAL_CPC','UNSPECIFIED'];
@@ -590,17 +590,17 @@
 
             $('#biddingStrategyType option:not([hidden]):eq(0)').prop('selected', true).change();
         });
-        
+
         $("#resetBiddingSection").click(function(){
             $("#biddingStrategyType").removeAttr('selected');
             $("#biddingStrategyType option").hide();
-            
+
             biddingStrategyArray=['MANUAL_CPC','MAXIMIZE_CONVERSION_VALUE'];
 
             if(channel_type.val()=="MULTI_CHANNEL"){
                 biddingStrategyArray=['TARGET_CPA'];
             }
-           
+
             if(biddingStrategyArray.length>0){
                 $(biddingStrategyArray).each(function(i,v){
                     $("#biddingStrategyType option[value=" + v + "]").show();
@@ -625,7 +625,9 @@
             $("#channel_sub_type").removeAttr('selected');
             $("#channel_sub_type option").hide();
             $("#div_shipping_setting").hide();
-            $("#div_app_setting").hide();
+            $("#div_app_setting").hide()
+            $("#div-language-fields").show();
+            $("#div-location-fields").show();
             //end re-arranging everything
             resetAdOptimization();
             if(channel_type_val=="SEARCH"){
@@ -638,10 +640,12 @@
                 channelSubTypeyArray = [];
                 channelSubTypeyArray.push('APP_CAMPAIGN','APP_CAMPAIGN_FOR_ENGAGEMENT','APP_CAMPAIGN_FOR_PRE_REGISTRATION');
             }
-            
+
 
             if(channel_type_val=="SHOPPING"){
                 $("#div_shipping_setting").show();
+                $("#div-language-fields").hide();
+                $("#div-location-fields").hide();
             }
 
             if(channel_type_val=="MULTI_CHANNEL"){
@@ -694,7 +698,7 @@
     function gm_authFailure() {
         toastr["error"]('Google maps failed to load!');
     }
-    
+
     function initialize() {
       var input = document.getElementById('target_location_address');
       new google.maps.places.Autocomplete(input);

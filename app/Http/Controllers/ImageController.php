@@ -220,13 +220,13 @@ class ImageController extends Controller
         $category = '';
         $price = null;
 
-        if ($request->brand[0] != null) {
+        if (isset($request->brand) && count($request->brand) > 0 && $request->brand[0] != null) {
             $images = $images->whereIn('brand', $request->brand);
 
             $brand = $request->brand[0];
         }
 
-        if ($request->category[0] != null && $request->category[0] != 1) {
+        if (isset($request->category) && count($request->category) > 0 && $request->category[0] != null && $request->category[0] != 1) {
             $is_parent = Category::isParent($request->category[0]);
             $category_children = [];
 
@@ -314,13 +314,13 @@ class ImageController extends Controller
         $category = '';
         $price = null;
 
-        if ($request->brand[0] != null) {
+        if (isset($request->brand) && count($request->brand) > 0 && $request->brand[0] != null) {
             $images = $images->whereIn('brand', $request->brand);
 
             $brand = $request->brand[0];
         }
 
-        if ($request->category[0] != null && $request->category[0] != 1) {
+        if (isset($request->category) && count($request->category) > 0 && $request->category[0] != null && $request->category[0] != 1) {
             $is_parent = Category::isParent($request->category[0]);
             $category_children = [];
 

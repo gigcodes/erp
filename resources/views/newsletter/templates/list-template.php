@@ -26,7 +26,7 @@
 			      	<td>{{:prop.sent_at}}</td>
 			      	<td>{{:prop.mailinglist_name}}</td>
 			      	<td ><a href="javascript:;" class="show-more-image" style="color: #333;"data-attr="section_p_{{:prop.id}}">View All</a></td>
-			      	<td>{{:prop.updated_by}}</td>
+			      	<td>{{:prop.updated_by_name}}</td>
 			      	<td>
                         <div style="width:126px;">
                             <button type="button" data-id="{{>prop.id}}" class="btn p-1 btn-edit-template" >
