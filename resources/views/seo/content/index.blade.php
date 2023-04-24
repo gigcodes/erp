@@ -119,7 +119,8 @@ $auth = auth()->user();
         const $datatable = $('#seoProcessTbl').DataTable({
             serverSide: true,
             lengthMenu: [ [50, 100, 150, -1], [50, 100, 150, "All"] ],
-            searching:false
+            searching:false,
+            responsive:true
             , ajax: {
                 url: '', 
                 data:{
