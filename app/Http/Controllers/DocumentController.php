@@ -153,19 +153,9 @@ class DocumentController extends Controller
                 
                 $uploadDocData = $uploadDocData->paginate(50);
 
-         $users = User::get();       
+          $users = User::get();       
 
-
-
-          return view('development.documentList', compact('uploadDocData','users'));      
-
-    //                 $developertaskDoc =  DeveloperTaskDocument::select("subject", "description", "developer_task_id", "created_at")->with(['media']);
-    //                 $taskDoc = Task::select("task_details as description", "task_subject as subject", "id as developer_task_id","created_at")->with(['media']);
-   
-    //     $merged = $developertaskDoc->merge($taskDoc)->get();
-    
-    //    $data = $taskDoc->merge($developertaskDoc)->paginate(10);
-    //    dd($data);
+          return view('development.documentList', compact('uploadDocData','users')); 
        
   
      }
