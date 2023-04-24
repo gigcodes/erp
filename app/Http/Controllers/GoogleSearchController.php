@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
+use App\Category;
 use App\HashTag;
 use App\InstagramPosts;
+use App\KeywordSearchVariants;
+use App\Library\Watson\Response;
 use App\Setting;
+use Google\Service\AndroidPublisher\Variant;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 //use App\InstagramPosts;
 
@@ -309,7 +315,7 @@ class GoogleSearchController extends Controller
         }
 
         // Return view
-        return view('google.search.results', compact('posts', 'request', 'queryString', 'orderBy'));
+                return view('google.search.results', compact('posts', 'request', 'queryString', 'orderBy'));
     }
 
     /**
@@ -407,15 +413,62 @@ class GoogleSearchController extends Controller
         }
     }
 
-//    public function deleteSearch($id)
-//    {
-//      $instaPost = InstagramPosts::find($id);
-//
-//      if($instaPost){
-//        $instaPost->delete();
-//      }
-//
-//      return response()->json(['message' => "delete successfully"]);
-//
-//    }
+    /**
+     * Function for auto generate Keywords from brand, category and sub category
+     * @param $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function generateKeywords(Request $request) {
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', '-1');
+
+        $brand_list = Brand::select('name', 'id')->get()->toArray();
+        $category_list_with_variant = Category::getCategoryHierarchySting();
+        return response()->json(['success' => true, 'data' => $category_list_with_variant], 200);
+        // Define the arrays
+        $array1 = $brand_list;  // array with 8000 records
+        $array2 = $category_list_with_variant; // array with 400 records
+
+        // Define the chunk size for each array
+        $chunkSize1 = 300;
+        $chunkSize2 = 100;
+
+        // Loop over the chunks of the first array
+        for ($i = 0; $i < count($array1); $i += $chunkSize1) {
+            $chunk1 = array_slice($array1, $i, $chunkSize1);
+
+            // Loop over the chunks of the second array
+            for ($j = 0; $j < count($array2); $j += $chunkSize2) {
+                $chunk2 = array_slice($array2, $j, $chunkSize2);
+                $string_arr = [];
+                // Loop over the combinations   of the current chunks
+                foreach ($chunk1 as $value1) {
+                    foreach ($chunk2 as $value2) {
+                        $string_arr['hashtag'] = $value1['name'] . ' ' . $value2->combined_string;
+                        $string_arr['platforms_id'] = $this->platformsId;
+                        $string_arr['rating'] = 8;
+                        $string_arr['created_at'] = $string_arr['updated_at'] = date('Y-m-d h:i:s');
+                        $insertA_arr[] = $string_arr;
+                    }
+                    if(count($insertA_arr) > 0) {
+                        HashTag::insertOrIgnore($insertA_arr);
+                    }
+                }
+            }
+        }
+        return response()->json(['success' => true], 200);
+
+    }
+
+    /*public function deleteSearch($id)
+    {
+      $instaPost = InstagramPosts::find($id);
+
+      if($instaPost){
+        $instaPost->delete();
+      }
+
+      return response()->json(['message' => "delete successfully"]);
+
+    }*/
 }

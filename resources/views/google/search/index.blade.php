@@ -149,6 +149,17 @@ input:checked + .slider:before {
                 </div>
 
 
+
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVariantModal">
+                    Add Variant
+                </button>
+                <!-- Button Generate Keyword Strings -->
+                <button type="button" class="btn btn-primary" onclick="generateString()">
+                    Generate Strings
+                </button>
+
+
             </div>
             <div class="col-md-12">
                 <table class="table-striped table-bordered table table-sm">
@@ -194,6 +205,48 @@ input:checked + .slider:before {
             </div>
         </div>
     </div>
+<!-- add variants modal -->
+<div class="modal fade " id="addVariantModal" tabindex="-1" role="dialog" aria-labelledby="addVariantModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Keyword Variants</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="name">Variant</label>
+                                <input type="text" name="variant_name" id="variant_name" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Add?</label>
+                                <button type="button" class="btn-block btn btn-primary" id="add_keyword_variant">Add Variant</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table id="variant_list_table" class="table table-striped table-bordered w-100">
+                        <thead>
+                            <tr>
+                                <th width="16%">ID</th>
+                                <th width="16%">Variants</th>
+                                <th width="16%">Date</th>
+                                <th width="16%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('styles')
@@ -201,6 +254,8 @@ input:checked + .slider:before {
 @endsection
 
 @section('scripts')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script>
     $(document).ready(function() {
         $(".checkbox").change(function() {
@@ -242,7 +297,56 @@ input:checked + .slider:before {
                     }); 
             }
         });
+
+
+        $('#variant_list_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ route('list.keyword.variant') }}",
+            "columns": [
+                { "data": null},
+                { "data": "keyword" },
+                { "data": "created_at",
+                    "render": function (data, type, row) {
+                        return moment(data).format('DD-MM-YYYY');
+                    }
+                },
+                { "data": null },
+            ],
+            "columnDefs": [
+                {
+                    "targets": 3,
+                    "data": null,
+                    "render": function (data, type, row, meta) {
+                        return '<a href="javascript:void(0)" class="text-danger" onclick="deleteRow('+data.id+')"><i class="fa fa-trash"></i></a>';
+                    }
+                }
+            ],
+            "createdRow": function (row, data, index) {
+                $('td', row).eq(0).html(index + 1);
+            }
+        });
     });
+
+    function deleteRow(id) {
+        $.ajax({
+            url: "{{ url('variant') }}/" + id,
+            type: 'DELETE',
+            headers: {
+                "X-CSRF-TOKEN": "{{csrf_token()}}"
+            },
+            success: function(data) {
+                $('#variant_list_table').DataTable().ajax.reload();
+                if (data.error){
+                    toastr['error'](data.error);
+                } else {
+                    $('#runScrapper_'+id).prop('disabled', false);
+                    $('#runScrapper_'+id).html(buttonCaption);
+                    alert('Scrapper initiated successfully');
+                }
+            }
+        });
+    }
 
     function callScraper(id){
         var buttonCaption = $('#runScrapper_'+id).html();
@@ -264,6 +368,33 @@ input:checked + .slider:before {
                     $('#runScrapper_'+id).html(buttonCaption);
                     alert('Scrapper initiated successfully');
                 }
+            }
+        });
+    }
+
+    $('#add_keyword_variant').on('click', function(e) {
+
+        e.preventDefault();
+        var name = $('#variant_name').val();
+        $.ajax({
+            type: "POST",
+            url: "{{ route('add.keyword.variant') }}",
+            data: {keyword:name,  _token: "{{ csrf_token() }}"},
+            success: function( msg ) {
+                $('#variant_list_table').DataTable().ajax.reload();
+                $('#variant_name').val('');
+            }
+        });
+    });
+
+    function generateString() {
+        $.ajax({
+            type: "POST",
+            url: "{{ route('keyword.generate') }}",
+            data: {keyword:name,  _token: "{{ csrf_token() }}"},
+            success: function( msg ) {
+                $('#variant_list_table').DataTable().ajax.reload();
+                $('#variant_name').val('');
             }
         });
     }

@@ -156,6 +156,7 @@ use App\Http\Controllers\KeywordassignController;
 use App\Http\Controllers\KeywordInstructionController;
 use App\Http\Controllers\KeywordsController;
 use App\Http\Controllers\KeywordToCategoryController;
+use App\Http\Controllers\KeywordVariantController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LaravelLogController;
@@ -3877,6 +3878,11 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/dev/delete/attachment', [UicheckController::class, 'deleteDevDocument'])->name('uicheck.dev.delete.attachment');
     Route::post('uicheck/device/status', [UicheckController::class, 'updateDeviceStatus'])->name('uicheck.device.status');
 
+    Route::prefix('variant')->group(function () {
+        Route::post('/', [KeywordVariantController::class, 'create'])->name('add.keyword.variant');
+        Route::get('/', [KeywordVariantController::class, 'index'])->name('list.keyword.variant');
+        Route::delete('/{id}', [KeywordVariantController::class, 'delete'])->name('delete.keyword.variant');
+    });
     Route::prefix('uicheck')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
@@ -3907,6 +3913,7 @@ Route::prefix('google')->middleware('auth')->group(function () {
      Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
      Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
     Route::resource('/search/keyword', GoogleSearchController::class);
+    Route::post('/search/generate-keyword', [GoogleSearchController::class, 'generateKeywords'])->name('keyword.generate');
     Route::get('/search/keyword-priority', [GoogleSearchController::class, 'markPriority'])->name('google.search.keyword.priority');
     Route::get('/search/keyword', [GoogleSearchController::class, 'index'])->name('google.search.keyword');
     Route::get('/search/results', [GoogleSearchController::class, 'searchResults'])->name('google.search.results');
