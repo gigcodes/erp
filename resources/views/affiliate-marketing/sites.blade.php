@@ -31,7 +31,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">
-                Affiliates Providers Sites (<span id="affiliate_count"></span>)
+                Affiliates Providers Sites (<span id="affiliate_count">{!! $providerAccounts->total() !!}</span>)
             </h2>
             <div class="pull-left">
                 <form action="{{route('affiliate-marketing.providerAccounts')}}">
@@ -95,7 +95,7 @@
                     <td>{{ $value->status ? 'Active': 'Inactive' }}</td>
                     <td>
                         <a href="{{route('affiliate-marketing.provider.index', ['provider_account' => $value->id])}}"
-                           class="btn btn-sm btn-default">View Details</a>
+                           class="btn btn-sm btn-default">View Dashboard</a>
                         <button type="button" data-toggle="modal" data-target="#add-site-provider"
                                 onclick="editData('{!! $value->id !!}')"
                                 class="btn btn-image"><img src="/images/edit.png"></button>

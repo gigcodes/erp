@@ -21,11 +21,6 @@
             font-weight: 100;
             line-height: 10px;
         }
-
-        .link-button, .link-button:hover, .link-button:focus {
-            text-decoration: none;
-            line-height: 1.4;
-        }
     </style>
 @endsection
 @section('content')
@@ -41,7 +36,6 @@
             <div class="pull-left">
                 <form action="{{route('affiliate-marketing.provider.index', ['provider_account' => $provider->id])}}">
                     <div class="form-group">
-                        <input type="hidden" name="provider_account" value="{!! $provider->id !!}">
                         <div class="row">
                             <div class="col-md-6">
                                 <input name="group_name" type="text" class="form-control"
@@ -67,28 +61,8 @@
                 </button>
                 {!! Form::close() !!}
                 <button data-toggle="modal" data-target="#create-group" type="button"
-                        class="float-right mb-3 mr-2 btn-secondary">New Group
+                        class="float-right mb-3 btn-secondary">New Group
                 </button>
-                <a href="{!! route('affiliate-marketing.provider.program.index', ['provider_account' => $provider->id]) !!}"
-                   type="button"
-                   class="float-right mb-3 mr-2 btn-secondary link-button">View Affiliates
-                </a>
-                <a href="{!! route('affiliate-marketing.provider.program.index', ['provider_account' => $provider->id]) !!}"
-                   type="button"
-                   class="float-right mb-3 mr-2 btn-secondary link-button">View Programs
-                </a>
-                <a href="{!! route('affiliate-marketing.provider.program.index', ['provider_account' => $provider->id]) !!}"
-                   type="button"
-                   class="float-right mb-3 mr-2 btn-secondary link-button">View Payments
-                </a>
-                <a href="{!! route('affiliate-marketing.provider.commission.index', ['provider_account' => $provider->id]) !!}"
-                   type="button"
-                   class="float-right mb-3 mr-2 btn-secondary link-button">View Commissions
-                </a>
-                <a href="{!! route('affiliate-marketing.provider.program.index', ['provider_account' => $provider->id]) !!}"
-                   type="button"
-                   class="float-right mb-3 mr-2 btn-secondary link-button">View Conversions
-                </a>
             </div>
         </div>
     </div>

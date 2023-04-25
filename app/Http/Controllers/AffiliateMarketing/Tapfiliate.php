@@ -17,16 +17,83 @@ class Tapfiliate
         $this->PROVIDER_ACCOUNT = $providerAccount;
     }
 
-    public function createAffiliateGroup($data)
+    /**
+     * Create affiliate group on provider
+     * @param $data
+     * @return array
+     */
+    public function createAffiliateGroup($data): array
     {
-        $response = $this->callApi('POST', 'affiliate-groups/', $data);
-        return $response;
+        return $this->callApi('POST', 'affiliate-groups/', $data);
     }
 
-    public function updateAffiliateGroup($id, $data)
+    /**
+     * Update affiliate group on provider
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function updateAffiliateGroup($id, $data): array
     {
-        $response = $this->callApi('PATCH', 'affiliate-groups/' . $id . '/', $data);
-        return $response;
+        return $this->callApi('PATCH', 'affiliate-groups/' . $id . '/', $data);
+    }
+
+    public function getSyncData(): array
+    {
+        $programList = $this->callApi('GET', 'programs/');
+        $affiliatesGroupList = $this->callApi('GET', 'affiliate-groups/');
+        $affiliatesList = $this->callApi('GET', 'affiliates/');
+        $commissionList = $this->callApi('GET', 'commissions/');
+        $conversionsList = $this->callApi('GET', 'conversions/');
+        $paymentsList = $this->callApi('GET', 'payments/');
+        return [
+            'programList' => $programList,
+            'affiliatesGroupList' => $affiliatesGroupList,
+            'affiliatesList' => $affiliatesList,
+            'commissionList' => $commissionList,
+            'conversionsList' => $conversionsList,
+            'paymentsList' => $paymentsList,
+        ];
+    }
+
+    /**
+     * Get all the programmes from API
+     * @return array
+     */
+    public function getProgrammes(): array
+    {
+        return $this->callApi('GET', 'programs/');
+    }
+
+    /**
+     * Get all the commissions from API
+     * @return array
+     */
+    public function getCommissions(): array
+    {
+        return $this->callApi('GET', 'commissions/');
+    }
+
+    /**
+     * Update affiliate Commission on provider
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function updateAffiliateCommission($id, $data): array
+    {
+        return $this->callApi('PATCH', 'commissions/' . $id . '/', $data);
+    }
+
+    /**
+     * Update affiliate Commission approve or disapprove on provider
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function updateAffiliateApproveDisapprove($id, $isApprove): array
+    {
+        return $this->callApi($isApprove ? 'PUT' : 'DELETE', 'commissions/' . $id . '/approved/');
     }
 
     /**
@@ -48,13 +115,14 @@ class Tapfiliate
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
+//            CURLOPT_HEADER => true,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'X-Api-Key:' . $this->API_KEY
             ]
         ]);
 
-        if ($method == 'POST' || $method == 'PATCH') {
+        if ($method == 'POST' || $method == 'PATCH' || $method == 'PUT') {
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($params));
         }
         $response = curl_exec($curl);
@@ -64,7 +132,13 @@ class Tapfiliate
             $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
             return ['status' => false, 'message' => $message . "cURL Error #:" . $err];
         } else {
-            return ['status' => true, 'message' => "Data found", 'data' => json_decode($response, true)];
+            $response = json_decode($response, true);
+            if (is_array($response)) {
+                return ['status' => true, 'message' => "Data found", 'data' => $response];
+            } else {
+                $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
+                return ['status' => false, 'message' => $message . "cURL Error #:" . $response];
+            }
         }
     }
 }

@@ -357,19 +357,19 @@ use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 Auth::routes();
 
 Route::prefix('youtube')->middleware('auth')->group(function () {
-Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
-Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
-Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
-Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
-Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
-Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
-Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
+    Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+    Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
+    Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
+    Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
+    Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
+    Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
+    Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
 
-Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
-Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
+    Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
+    Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
 
-Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
-Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+    Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
+    Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
 });
 // Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
 // Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
@@ -726,12 +726,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
-    Route::get('incorrect-attributes', [UnknownAttributeProductController::class,'index'])->name('incorrect-attributes');
-    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
-    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
-    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
-    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
-    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class,'index'])->name('crop-rejected-final-approval-images');
+    Route::get('incorrect-attributes', [UnknownAttributeProductController::class, 'index'])->name('incorrect-attributes');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class, 'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class, 'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
+    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class, 'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
+    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class, 'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
+    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class, 'index'])->name('crop-rejected-final-approval-images');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -2676,11 +2676,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
 
 /**
-* This route will push the FAQ to series of website with help of API
-*/
+ * This route will push the FAQ to series of website with help of API
+ */
 Route::middleware('auth')->group(function () {
-	Route::post('push/faq', 			[FaqPushController::class, 'pushFaq']);
-	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
+    Route::post('push/faq', [FaqPushController::class, 'pushFaq']);
+    Route::post('push/faq/all', [FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
@@ -3014,7 +3014,7 @@ Route::middleware('auth')->group(function () {
     Route::post('test-cases/add-test-cases', [TestCaseController::class, 'sendTestCases'])->name('test-cases.sendtestcases');
     Route::get('test-cases/usertest-history/{id}', [TestCaseController::class, 'usertestHistory'])->name('test-cases.usertest-history');
     Route::get('test-cases/user-teststatus-history/{id}', [TestCaseController::class, 'userteststatusHistory'])->name('test-cases.usertest-history');
-	Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
+    Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
 
     Route::get('test-suites', [TestSuitesController::class, 'index'])->name('test-suites.index');
     Route::get('test-suites/records', [TestSuitesController::class, 'records'])->name('test-suites.records');
@@ -3926,8 +3926,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
-     Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
-     Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
+    Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
+    Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
     Route::resource('/search/keyword', GoogleSearchController::class);
     Route::get('/search/keyword-priority', [GoogleSearchController::class, 'markPriority'])->name('google.search.keyword.priority');
     Route::get('/search/keyword', [GoogleSearchController::class, 'index'])->name('google.search.keyword');
@@ -3946,13 +3946,13 @@ Route::prefix('google')->middleware('auth')->group(function () {
     //Google Developer API
 // Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
 
-Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+    Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
 // Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
-Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+    Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
-Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
+    Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
 
-     Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
+    Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -4923,8 +4923,8 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
 });
 
-Route::prefix('seo')->middleware('auth')->group(function() {
-    Route::prefix('content')->group(function() {
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::prefix('content')->group(function () {
         Route::get('', [Seo\ContentController::class, 'index'])->name('seo.content.index');
         Route::get('create', [Seo\ContentController::class, 'create'])->name('seo.content.create');
         Route::post('store', [Seo\ContentController::class, 'store'])->name('seo.content.store');
@@ -4933,7 +4933,7 @@ Route::prefix('seo')->middleware('auth')->group(function() {
         Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
     });
 
-    Route::prefix('company')->group(function() {
+    Route::prefix('company')->group(function () {
         Route::get('', [Seo\CompanyController::class, 'index'])->name('seo.company.index');
         Route::get('create', [Seo\CompanyController::class, 'create'])->name('seo.company.create');
         Route::post('store', [Seo\CompanyController::class, 'store'])->name('seo.company.store');
@@ -4941,7 +4941,7 @@ Route::prefix('seo')->middleware('auth')->group(function() {
         Route::post('{id}/update', [Seo\CompanyController::class, 'update'])->name('seo.company.update');
     });
 
-    Route::prefix('company-type')->group(function() {
+    Route::prefix('company-type')->group(function () {
         Route::get('', [Seo\CompanyTypeController::class, 'index'])->name('seo.company-type.index');
         Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.content-type.store');
     });
@@ -4955,21 +4955,20 @@ Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList'
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
 
 
-
 Route::prefix('appconnect')->middleware('auth')->group(function () {
-Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
-Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
-Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
-Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
-Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
-Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
-Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
-Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
-Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
-Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
-Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
-Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
- });
+    Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
+    Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+    Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
+    Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
+    Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
+    Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+    Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
+    Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
+    Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
+    Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
+    Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
+    Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
+});
 
 Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
     Route::prefix('providers')->group(function () {
@@ -4993,5 +4992,19 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
         Route::post('create', [AffiliateMarketingDataController::class, 'createAffiliateGroup'])->name('affiliate-marketing.provider.createGroup');
         Route::post('update/{id}', [AffiliateMarketingDataController::class, 'updateAffiliateGroup'])->name('affiliate-marketing.provider.updateGroup');
         Route::get('{id}', [AffiliateMarketingDataController::class, 'getAffiliateGroup'])->name('affiliate-marketing.provider.getGroup');
+        Route::post('sync', [AffiliateMarketingDataController::class, 'syncData'])->name('affiliate-marketing.provider.syncData');
+    });
+
+    Route::prefix('programs')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'programIndex'])->name('affiliate-marketing.provider.program.index');
+        Route::post('programme-sync', [AffiliateMarketingDataController::class, 'programSync'])->name('affiliate-marketing.provider.program.sync');
+    });
+
+    Route::prefix('commissions')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'commissionIndex'])->name('affiliate-marketing.provider.commission.index');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'commissionGet'])->name('affiliate-marketing.provider.commission.get');
+        Route::post('update', [AffiliateMarketingDataController::class, 'commissionUpdate'])->name('affiliate-marketing.provider.commission.update');
+        Route::post('approve/{id}', [AffiliateMarketingDataController::class, 'commissionApproveDisapprove'])->name('affiliate-marketing.provider.commission.approveDisapprove');
+        Route::post('commission-sync', [AffiliateMarketingDataController::class, 'commissionSync'])->name('affiliate-marketing.provider.commission.sync');
     });
 });
