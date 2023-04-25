@@ -79,6 +79,15 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+
+        .select-box .select2-container .selection .select2-selection--multiple .select2-selection__rendered {
+         display: block;
+        }
+
+        .select-box .select2-container .selection .select2-selection--multiple .select2-selection__rendered + .loading-icon {
+             position: absolute;
+            top: 7px;
+        }
     </style>
 @endsection
 @section('content')
@@ -163,7 +172,7 @@
                                 {{csrf_field()}}
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group">
+                                        <div class="form-group select-box">
                                             <label for="brand-list">Brand</label>
                                             <?php echo Form::select("brand", [], null, ["class" => "form-control brand-list", 'id' => 'brand-list']); ?>
                                             <span class="product-title-show"></span>
@@ -171,14 +180,14 @@
                                     </div>
 
                                     <div class="col-md-3">
-                                        <div class="form-group">
+                                        <div class="form-group select-box">
                                             <label for="name">Select Category</label>
                                             {!! $new_category_selection !!}
                                         </div>
                                     </div>
 
                                     <div class="col-md-3">
-                                        <div class="form-group">
+                                        <div class="form-group select-box">
                                             <label for="variants-list">Select Postfix</label>
                                             <select id="variants-list" class="form-control w-100 select-multiple"
                                                     name="variants" data-placeholder=" Select Postfix" multiple>
@@ -242,7 +251,7 @@
                 </div>
             </div>
 
-            <div class="col-md-12 mt-2 card-body">
+            <div class="col-md-12 mt-5 card-body">
                 <table class="table-striped table-bordered table table-sm" id="keyword-list-table">
                     <thead>
                     <tr>
@@ -277,7 +286,7 @@
                             </td>
                             <td>
                                 <button class="btn py-0 btn-default " id="runScrapper_{{ $keyword->id }}"
-                                        onclick="callScraper({{ $keyword->id }})">Run Scraper
+                                        onclick="callScraper({ $keyword->id })">Run Scraper
                                     For {{ $keyword->hashtag }}</button>
                             </td>
                             <td>
