@@ -259,6 +259,7 @@
                         <th>Keyword</th>
                         <th>Priority</th>
                         <th>Run Scraper</th>
+                        <th>Created By</th>
                         <th>Created On</th>
                         <th width="50px">Actions</th>
                     </tr>
@@ -538,6 +539,10 @@
                     {data: "hashtag"},
                     {data: "priority"},
                     {data: "hashtag"},
+                    {data: "creator",
+                            "render": function (data, type, row) {
+                                return data?.name ?? '-';
+                            }},
                     {data: "created_at",
                            "render": function (data, type, row) {
                                 return moment(data).format('DD-MM-YYYY');
@@ -560,7 +565,7 @@
                         }
                     },
                     {
-                        targets: 5,
+                        targets: 6,
                         data: null,
                         render: function (data, type, row, meta) {
                             return `<button class="btn btn-default btn-trash btn-image border-0 btn-sm" id="delete-keyword-${data.id}" onclick="deleteKeyword(${data.id})"><i class="fa fa-trash"></i></button>`;
