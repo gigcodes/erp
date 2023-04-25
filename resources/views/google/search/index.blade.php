@@ -423,6 +423,42 @@
             });
         }
 
+        function deleteRow(id) {
+            $.ajax({
+                url: "{{ url('variant') }}/" + id,
+                type: 'DELETE',
+                headers: {
+                    "X-CSRF-TOKEN": "{{csrf_token()}}"
+                },
+                beforeSend: function () {
+                    // Show the loading icon when the AJAX request starts
+                    $('#delete-variant-' + id).append(loadingIcon);
+                },
+                success: function (data) {
+                    toastr['success']('Deleted Succesfully.');
+                    $('#variant_list_table').DataTable().ajax.reload();
+                }
+            });
+        }
+
+        function deleteKeyword(id) {
+            $.ajax({
+                type: "POST",
+                url: "{{ url('/google/search/delete') }}/" + id,
+                data: {
+                    _token: '{{csrf_token()}}',
+                },
+                beforeSend: function () {
+                    // Show the loading icon when the AJAX request starts
+                    $('#delete-keyword-' + id).append(loadingIcon);
+                },
+                success: function (msg) {
+                    toastr['success']('Deleted Succesfully.');
+                    $('#keyword-list-table').DataTable().ajax.reload();
+                }
+            });
+        }
+
         $(document).ready(function () {
             $('.select-multiple').select2({width: '100%'});
 
@@ -455,7 +491,7 @@
                         targets: 3,
                         data: null,
                         render: function (data, type, row, meta) {
-                            return '<a href="javascript:void(0)" class="text-secondary" onclick="deleteRow(' + data.id + ')"><i class="fa fa-trash"></i></a>';
+                            return `<a href="javascript:void(0)" class="text-secondary" id="delete-variant-${data.id}" onclick="deleteRow(${data.id})"><i class="fa fa-trash"></i></a>`;
                         }
                     }
                 ],
@@ -464,29 +500,12 @@
                 }
             });
 
-            function deleteRow(id) {
-                $.ajax({
-                    url: "{{ url('variant') }}/" + id,
-                    type: 'DELETE',
-                    headers: {
-                        "X-CSRF-TOKEN": "{{csrf_token()}}"
-                    },
-                    success: function (data) {
-                        $('#variant_list_table').DataTable().ajax.reload();
-                        if (data.error) {
-                            toastr['error'](data.error);
-                        } else {
-                            $('#runScrapper_' + id).prop('disabled', false);
-                            $('#runScrapper_' + id).html(buttonCaption);
-                            alert('Scrapper initiated successfully');
-                        }
-                    }
-                });
-            }
-
             $('#add_keyword_variant').on('click', function (e) {
 
                 e.preventDefault();
+                if (!$('#variant_name').val()){
+                    toastr['error']('postfix field if required');
+                }
                 var name = $('#variant_name').val();
                 $.ajax({
                     type: "POST",
@@ -498,23 +517,6 @@
                     }
                 });
             });
-
-            function deleteKeyword(id) {
-                $.ajax({
-                    url: "{{ route('google.search.keyword.delete') }}/" + id,
-                    type: 'POST',
-                    headers: {
-                        "X-CSRF-TOKEN": "{{csrf_token()}}"
-                    },
-                    success: function (data) {
-                        $('#keyword-list-table').DataTable().ajax.reload();
-                        if (data.error) {
-                            toastr['error'](data.error);
-                        }
-                    }
-                });
-            }
-
             /*POSTFIX JAVASCRIPT END*/
 
             /* KEYWORD TABLE DATATABLE SCRIPT START */
@@ -587,23 +589,6 @@
             $('#keyword-list-table').DataTable().ajax.reload();
         }
 
-        function deleteKeyword(id) {
-            $.ajax({
-                type: "POST",
-                url: "{{ url('/google/search/delete') }}/" + id,
-                data: {
-                    _token: '{{csrf_token()}}',
-                },
-                beforeSend: function () {
-                    // Show the loading icon when the AJAX request starts
-                    $('#delete-keyword-' + id).append(loadingIcon);
-                },
-                success: function (msg) {
-                    toastr['success']('Deleted Succesfully.');
-                    $('#keyword-list-table').DataTable().ajax.reload();
-                }
-            });
-        }
         /* KEYWORD TABLE DATATABLE SCRIPT END */
 
         function generateString(e) {
