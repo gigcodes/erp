@@ -242,7 +242,7 @@
                 </div>
             </div>
 
-            <div class="col-md-12 mt-5 card-body">
+            <div class="col-md-12 mt-2 card-body">
                 <table class="table-striped table-bordered table table-sm" id="keyword-list-table">
                     <thead>
                     <tr>
@@ -250,7 +250,8 @@
                         <th>Keyword</th>
                         <th>Priority</th>
                         <th>Run Scraper</th>
-                        <th>Actions</th>
+                        <th>Created On</th>
+                        <th width="50px">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -391,32 +392,38 @@
 
             /*POSTFIX JAVASCRIPT DATATABLE*/
             $('#variant_list_table').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "ordering": true,
-                "searching": true,
-                "ajax": "{{ route('list.keyword.variant') }}",
-                "columns": [
-                    {"data": null},
-                    {"data": "keyword"},
+                processing: true,
+                serverSide: true,
+                ordering: true,
+                searching: true,
+                ajax: "{{ route('list.keyword.variant') }}",
+                columns: [
                     {
-                        "data": "created_at",
-                        "render": function (data, type, row) {
+                        data: null,
+                        width: '70%'
+                    },
+                    {data: "keyword"},
+                    {
+                        data: "created_at",
+                        render: function (data, type, row) {
                             return moment(data).format('DD-MM-YYYY');
                         }
                     },
-                    {"data": null},
-                ],
-                "columnDefs": [
                     {
-                        "targets": 3,
-                        "data": null,
-                        "render": function (data, type, row, meta) {
+                        data: null,
+                        width: '100px'
+                    },
+                ],
+                columnDefs: [
+                    {
+                        targets: 3,
+                        data: null,
+                        render: function (data, type, row, meta) {
                             return '<a href="javascript:void(0)" class="text-secondary" onclick="deleteRow(' + data.id + ')"><i class="fa fa-trash"></i></a>';
                         }
                     }
                 ],
-                "createdRow": function (row, data, index) {
+                createdRow: function (row, data, index) {
                     $('td', row).eq(0).html(index + 1);
                 }
             });
@@ -520,10 +527,10 @@
                     {data: "hashtag"},
                     {data: "priority"},
                     {data: "hashtag"},
-                    /*{data: "created_at",
+                    {data: "created_at",
                            "render": function (data, type, row) {
                                 return moment(data).format('DD-MM-YYYY');
-                           }},*/
+                            }},
                     {data: null},
                 ],
                 columnDefs: [
@@ -542,7 +549,7 @@
                         }
                     },
                     {
-                        targets: 4,
+                        targets: 5,
                         data: null,
                         render: function (data, type, row, meta) {
                             return `<button class="btn btn-default btn-trash btn-image border-0 btn-sm" id="delete-keyword-${data.id}" onclick="deleteKeyword(${data.id})"><i class="fa fa-trash"></i></button>`;
