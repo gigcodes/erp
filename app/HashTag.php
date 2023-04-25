@@ -25,4 +25,9 @@ class HashTag extends Model
     {
         return $this->hasMany(InstagramPosts::class, 'hashtag_id', 'id');
     }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\User::class, 'created_by', 'id');
+    }
 }

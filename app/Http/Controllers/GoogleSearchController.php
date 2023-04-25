@@ -51,7 +51,7 @@ class GoogleSearchController extends Controller
 
         if ($request->search || $request->priority) {
             if ($request->search != null && $request->priority == 'on') {
-                $keywords = HashTag::query()
+                $keywords = HashTag::query()->with('creator')
                     ->where('priority', '1')
                     ->where('platforms_id', $this->platformsId)
                     ->where('hashtag', 'LIKE', "%{$request->search}%")
@@ -59,11 +59,12 @@ class GoogleSearchController extends Controller
 
                 $queryString = 'search=' . $request->search . '&priority=' . $request->priority . '&';
             } elseif ($request->priority == 'on') {
-                $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
+                $keywords = HashTag::with('creator')->where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
 
                 $queryString = 'priority=' . $request->priority . '&';
             } elseif ($request->search != null) {
                 $keywords = HashTag::query()
+                    ->with('creator')
                     ->where('hashtag', 'LIKE', "%{$request->search}%")
                     ->where('platforms_id', $this->platformsId)
                     ->orderBy($sortBy, $orderBy);
@@ -72,7 +73,7 @@ class GoogleSearchController extends Controller
                 $queryString = 'search=' . $request->search . '&';
             }
         } else {
-            $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
+            $keywords = HashTag::with('creator')->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
         }
 
         if($request->ajax()) {
@@ -105,6 +106,7 @@ class GoogleSearchController extends Controller
         $hashtag->hashtag = $request->get('name');
         $hashtag->rating = $request->get('rating') ?? 8;
         $hashtag->platforms_id = $this->platformsId;
+        $hashtag->created_by = \Auth::user()->id;
         $hashtag->save();
 
         return redirect()->back()->with('message', 'Keyword created successfully!');
@@ -449,6 +451,7 @@ class GoogleSearchController extends Controller
                     $string_arr['platforms_id'] = $this->platformsId;
                     $string_arr['rating'] = 8;
                     $string_arr['created_at'] = $string_arr['updated_at'] = date('Y-m-d h:i:s');
+                    $string_arr['created_by'] = \Auth::user()->id;
                     $check_exist = HashTag::where('hashtag', $string_arr['hashtag'])->count();
                     if($check_exist <= 0) {
                         HashTag::insert($string_arr);
