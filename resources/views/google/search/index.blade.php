@@ -355,6 +355,32 @@
         // loading icon html
         const loadingIcon = '<i class="fa fa-spinner fa-spin loading-icon"></i>';
 
+        function callScraper(id) {
+            var buttonCaption = $('#runScrapper_' + id).html();
+            $('#runScrapper_' + id).html('Initiating...').prop('disabled', true);
+            //ajax call coming here...
+            $.ajax({
+                url: "{{ route('google.search.keyword.scrap') }}",
+                type: 'GET',
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function (data) {
+                    if (data.error) {
+                        toastr['error'](data.error);
+                    } else {
+                        toastr['success']('Scrapper initiated Successfully');
+                    }
+                    $('#runScrapper_' + id).prop('disabled', false).html(buttonCaption);
+                },
+                error: function (err) {
+                    toastr['error'](err.error);
+                    $('#runScrapper_' + id).prop('disabled', false).html(buttonCaption);
+                }
+            });
+        }
+
         function showForm(elementId) {
             $('#form-div').show()
             $('.form-blocks').hide();
@@ -481,30 +507,6 @@
 
             /*POSTFIX JAVASCRIPT END*/
 
-            function callScraper(id) {
-                var buttonCaption = $('#runScrapper_' + id).html();
-                $('#runScrapper_' + id).html('Initiating...');
-                $('#runScrapper_' + id).prop('disabled', true);
-                //ajax call coming here...
-                $.ajax({
-                    url: "{{ route('google.search.keyword.scrap') }}",
-                    type: 'GET',
-                    data: {
-                        id: id,
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function (data) {
-                        if (data.error) {
-                            toastr['error'](data.error);
-                        } else {
-                            $('#runScrapper_' + id).prop('disabled', false);
-                            $('#runScrapper_' + id).html(buttonCaption);
-                            toastr['success']('Scrapper initiated Successfully');
-                        }
-                    }
-                });
-            }
-
             /* KEYWORD TABLE DATATABLE SCRIPT START */
             const keywordListTable = $('#keyword-list-table').DataTable({
                 language: {
@@ -545,7 +547,7 @@
                         targets: 3,
                         data: null,
                         render: function (data, type, row, meta) {
-                            return `<button class="btn py-0 btn-default " id="runScrapper_${row.id}" onclick="callScraper(${row.id})">Run Scraper For ${row.hashtag}</button>`;
+                            return `<button class="btn py-0 btn-default " id="runScrapper_${row.id}" onclick="callScraper('${row.id}')">Run Scraper For ${row.hashtag}</button>`;
                         }
                     },
                     {
