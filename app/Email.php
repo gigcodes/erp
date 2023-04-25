@@ -29,11 +29,135 @@ class Email extends Model
                     if(empty($email->module_type)){
                         $email->is_unknow_module = 1;
                     }
+
                 }
 
                 if(!empty($email->from)){
                     $explodeArray = explode('@',$email->from);
                     $email->name = $explodeArray[0];
+                }
+
+            }
+            catch(\Exception $e){
+
+            }
+        });
+
+        self::created(function ($email) {
+            try{
+
+                $is_module_found = 0;
+                $customer = Customer::where('email',$email->from)->first();
+
+                if(!empty($customer)){
+                    $is_module_found = 1;
+                    $params = [
+                        'number' => $customer->phone,
+                        'message' => $email->message,
+                        'media_url' => null,
+                        'approved' => 0,
+                        'status' => 0,
+                        'contact_id' => null,
+                        'erp_user' => null,
+                        'supplier_id' => null,
+                        'task_id' => null,
+                        'dubizzle_id' => null,
+                        'vendor_id' => null,
+                        'customer_id' => $customer->id,
+                        'is_email' => 1,
+                        'from_email' => $email->from,
+                        'to_email' => $email->to,
+                        'email_id' => $email->id,
+                    ];
+
+                    $email->is_unknow_module = 0;
+                    $email->name = explode('@',$email->from)[0];
+                    $email->save();
+                    
+                    $messageModel = ChatMessage::create($params);
+                }
+
+                $supplier = Supplier::where('email', $email->from)->first();
+                if ($supplier) {
+                    $is_module_found = 1;
+                    $params = [
+                        'number' => $supplier->phone,
+                        'message' => $email->message,
+                        'media_url' => null,
+                        'approved' => 0,
+                        'status' => 0,
+                        'contact_id' => null,
+                        'erp_user' => null,
+                        'supplier_id' => $supplier->id,
+                        'task_id' => null,
+                        'dubizzle_id' => null,
+                        'is_email' => 1,
+                        'from_email' => $email->from,
+                        'to_email' => $email->to,
+                        'email_id' => $email->id,
+                    ];
+
+                    $email->is_unknow_module = 0;
+                    $email->name = explode('@',$email->from)[0];
+                    $email->save();
+
+                    $messageModel = ChatMessage::create($params);
+                }
+
+
+                $vandor = Vendor::where('email', $email->from)->first();
+                if ($vandor) {
+                    $is_module_found = 1;
+                    $params = [
+                        'number' => $vandor->phone,
+                        'message' => $email->message,
+                        'media_url' => null,
+                        'approved' => 0,
+                        'status' => 0,
+                        'contact_id' => null,
+                        'erp_user' => null,
+                        'supplier_id' => null,
+                        'task_id' => null,
+                        'dubizzle_id' => null,
+                        'vendor_id' => $vandor->id,
+                        'is_email' => 1,
+                        'from_email' => $email->from,
+                        'to_email' => $email->to,
+                        'email_id' => $email->id,
+                    ];
+
+                    $email->is_unknow_module = 0;
+                    $email->name = explode('@',$email->from)[0];
+                    $email->save();
+
+                    $messageModel = ChatMessage::create($params);
+                }
+
+                if($is_module_found == 0){
+                    $email->is_unknow_module = 1;
+                    $email->name = explode('@',$email->from)[0];
+                    $email->save();
+
+                    $params = [
+                        'number' => null,
+                        'message' => $email->message,
+                        'media_url' => null,
+                        'approved' => 0,
+                        'status' => 0,
+                        'contact_id' => null,
+                        'erp_user' => null,
+                        'supplier_id' => null,
+                        'task_id' => null,
+                        'dubizzle_id' => null,
+                        'is_email' => 1,
+                        'from_email' => $email->from,
+                        'to_email' => $email->to,
+                        'email_id' => $email->id,
+                        'message_type'  => 'email'
+                    ];
+
+                    $messageModel = ChatMessage::create($params);
+                    $mailFound = true;
                 }
 
             }
