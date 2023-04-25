@@ -72,6 +72,7 @@ class FetchEmail implements ShouldQueue
                 ],
             ];
 
+            $is_module_available = 0;
             $available_models = [
                 'supplier' => \App\Supplier::class, 'vendor' => \App\Vendor::class,
                 'customer' => \App\Customer::class, 'users' => \App\User::class,
@@ -237,6 +238,7 @@ class FetchEmail implements ShouldQueue
                                 \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
                                 \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params, $isEmail = true);
                                 $mailFound = true;
+                                $is_module_available = 1;
                             }
 
                             if (! $mailFound) {
@@ -261,6 +263,7 @@ class FetchEmail implements ShouldQueue
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
                                     $mailFound = true;
+                                    $is_module_available = 1;
                                 }
                             }
 
@@ -285,6 +288,7 @@ class FetchEmail implements ShouldQueue
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
                                     $mailFound = true;
+                                    $is_module_available = 1;
                                 }
                             }
 
@@ -309,6 +313,11 @@ class FetchEmail implements ShouldQueue
                                 ];
                                 $messageModel = \App\ChatMessage::create($params);
                                 $mailFound = true;
+
+                            if($is_module_available == 0){
+                                $email = Email::where('id',$email_id)->first();
+                                $email->is_unknow_module = 1;
+                                $email->save();
                             }
                         }
                     }

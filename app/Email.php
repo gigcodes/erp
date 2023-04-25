@@ -25,6 +25,10 @@ class Email extends Model
                     if(strlen($emailCategoryId) > 0){
                         $email->email_category_id = $emailCategoryId;
                     }
+
+                    if(empty($email->module_type)){
+                        $email->is_unknow_module = 1;
+                    }
                 }
 
                 if(!empty($email->from)){
@@ -61,7 +65,7 @@ class Email extends Model
     protected $fillable = [
         'model_id', 'model_type', 'type', 'seen', 'from', 'to', 'subject', 'message', 'template', 'additional_data', 'created_at',
         'cc', 'bcc', 'origin_id', 'reference_id', 'status', 'approve_mail', 'is_draft', 'error_message', 'store_website_id',
-        'message_en', 'schedule_at', 'mail_status', 'order_id', 'order_status',
+        'message_en', 'schedule_at', 'mail_status', 'order_id', 'order_status','is_unknow_module'
     ];
 
     protected $casts = [

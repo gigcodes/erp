@@ -38,7 +38,7 @@
             $($formModal).on('hide.bs.modal', function() {
                 $($formModal).find('.modal-body').html('');
             })
-            $(document).on('click', '.submitBtn', function(e) {
+            $(document).on('click', '.saveFormBtn', function(e) {
                 let $form = $(document).find('#seoForm');
                 if(!$form.valid()) {
                     return false;
