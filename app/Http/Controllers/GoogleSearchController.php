@@ -49,27 +49,27 @@ class GoogleSearchController extends Controller
             $sortBy = '';
         }*/
 
-        if ($request->term || $request->priority) {
-            if ($request->term != null && $request->priority == 'on') {
+        if ($request->search || $request->priority) {
+            if ($request->search != null && $request->priority == 'on') {
                 $keywords = HashTag::query()
                     ->where('priority', '1')
                     ->where('platforms_id', $this->platformsId)
-                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->where('hashtag', 'LIKE', "%{$request->search}%")
                     ->orderBy($sortBy, $orderBy);
 
-                $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
+                $queryString = 'search=' . $request->search . '&priority=' . $request->priority . '&';
             } elseif ($request->priority == 'on') {
                 $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
 
                 $queryString = 'priority=' . $request->priority . '&';
-            } elseif ($request->term != null) {
+            } elseif ($request->search != null) {
                 $keywords = HashTag::query()
-                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->where('hashtag', 'LIKE', "%{$request->search}%")
                     ->where('platforms_id', $this->platformsId)
-                    ->orderBy($sortBy, $orderBy)
-                    ->paginate(Setting::get('pagination'));
+                    ->orderBy($sortBy, $orderBy);
+                    //->paginate(Setting::get('pagination'));
 
-                $queryString = 'term=' . $request->term . '&';
+                $queryString = 'search=' . $request->search . '&';
             }
         } else {
             $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
@@ -79,13 +79,12 @@ class GoogleSearchController extends Controller
             return DataTables::of($keywords->get())
                 ->addIndexColumn()
                 ->make(true);
-//            return response()->json(['success'=> true, 'data'=>$keywords]);
         }
 
-        $keywords = $keywords->paginate(Setting::get('pagination'));
+        $keywords_total = HashTag::where('platforms_id', $this->platformsId)->count();
         $new_category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
         $variants = KeywordSearchVariants::list();
-        return view('google.search.index', compact('keywords', 'queryString', 'orderBy', 'variants', 'new_category_selection'));
+        return view('google.search.index', compact('keywords_total', 'queryString', 'orderBy', 'variants', 'new_category_selection'));
     }
 
     /**

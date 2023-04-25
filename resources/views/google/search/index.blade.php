@@ -94,36 +94,36 @@
         @endif
         <div class="row">
             <div class="col-md-12 px-0">
-                <h2 class="page-heading">Google Search Keywords (<span>{{ $keywords->total() }}</span>) </h2>
+                <h2 class="page-heading">Google Search Keywords (<span>{{ $keywords_total }}</span>) </h2>
             </div>
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <div class="row align-items-end">
                             <div class="col-md-6">
-                                <form action="{{ route('google.search.keyword') }}" method="GET">
+                                <form {{--action="{{ route('google.search.keyword') }}" method="GET" --}} >
                                     <div class="">
                                         <div class="row align-items-center">
                                             <div class="col-md-5">
-                                                <input name="term" type="text" class="form-control"
+                                                <input name="term" type="search" class="form-control"
                                                        value="{{ isset($term) ? $term : '' }}"
-                                                       placeholder="Keyword Name">
+                                                       placeholder="Search Keyword" id="search-keyword-text">
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="d-flex align-items-center">
                                                     <div class="form-check d-flex align-items-center pl-0">
                                                         <input class="form-check-input mt-0" type="checkbox"
                                                                name="priority"
-                                                               id="defaultCheck1">
+                                                               id="priority_filter">
                                                         <label class="form-check-label pl-4 ml-2 font-weight-normal"
-                                                               for="defaultCheck1">
+                                                               for="priority_filter">
                                                             Priority
                                                         </label>
                                                     </div>
                                                     <div>
-                                                        <button type="submit" class="btn btn-secondary ml-4"><i
+                                                        <button type="button" onclick="filterData()" class="btn btn-secondary ml-4"><i
                                                                     class="fa fa-filter filter-icon"
-                                                                    aria-hidden="true"></i>Apply Filter
+                                                                    aria-hidden="true"></i> Apply Filter
                                                         </button>
                                                     </div>
                                                 </div>
@@ -500,50 +500,69 @@
 
             /* KEYWORD TABLE DATATABLE SCRIPT START */
             const keywordListTable = $('#keyword-list-table').DataTable({
-                "language": {
+                language: {
                     searchPlaceholder: "Search Keyword"
                 },
-                "processing": true,
-                "serverSide": true,
-                "ordering": true,
-                "searching": true,
-                "ajax": "{{ route('google.search-keyword.list') }}",
-                "columns": [
-                    {"data": null},
-                    {"data": "hashtag"},
-                    {"data": "priority"},
-                    {"data": "hashtag"},
-                    {"data": null},
+                pageLength: 50,
+                processing: true,
+                serverSide: true,
+                ordering: true,
+                searching: true,
+                ajax: {
+                    url: "{{ route('google.search-keyword.list') }}",
+                    data: function (d) {
+                        d.priority = ($('#priority_filter').is(":checked")) ? 'on' : undefined
+                        d.search = $('#search-keyword-text').val()
+                    }
+                },
+                columns: [
+                    {data: null},
+                    {data: "hashtag"},
+                    {data: "priority"},
+                    {data: "hashtag"},
+                    {data: "created_at",
+                           "render": function (data, type, row) {
+                                return moment(data).format('DD-MM-YYYY');
+                           }},
+                    {data: null},
                 ],
-                "columnDefs": [
+                columnDefs: [
                     {
-                        "targets": 2,
-                        "data": null,
-                        "render": function (data, type, row, meta) {
-                            return `<label class="switch mb-0"><input type="checkbox" onclick="updatePriority(this)" ${row.priority === 1 ? 'checked' : ''} class="checkbox" value="${row.id}"><span class="slider round"></span></label>`;
+                        targets: 2,
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            return `<label class="switch mb-0"><input type="checkbox" onclick="updatePriority(this)" ${row.priority === 1 ? 'checked' : ''} class="checkbox" value=${row.id}"><span class="slider round"></span></label>`;
                         }
                     },
                     {
-                        "targets": 3,
-                        "data": null,
-                        "render": function (data, type, row, meta) {
+                        targets: 3,
+                        data: null,
+                        render: function (data, type, row, meta) {
                             return `<button class="btn py-0 btn-default " id="runScrapper_${row.id}" onclick="callScraper(${row.id})">Run Scraper For ${row.hashtag}</button>`;
                         }
                     },
                     {
-                        "targets": 4,
-                        "data": null,
-                        "render": function (data, type, row, meta) {
+                        targets: 5,
+                        data: null,
+                        render: function (data, type, row, meta) {
                             return `<button class="btn btn-default btn-trash btn-image border-0 btn-sm" id="delete-keyword-${data.id}" onclick="deleteKeyword(${data.id})"><i class="fa fa-trash"></i></button>`;
                         }
                     }
                 ],
-                "createdRow": function (row, data, index, meta) {
+                createdRow: function (row, data, index, meta) {
                     var pageInfo = keywordListTable.page.info();
                     $('td', row).eq(0).html((pageInfo.length * pageInfo.page) + index + 1);
                 }
             });
+
+            /*$('#search-keyword-text, #priority_filter').change(function(){
+                $('#keyword-list-table').DataTable().ajax.reload();
+            });*/
         });
+
+        function filterData() {
+            $('#keyword-list-table').DataTable().ajax.reload();
+        }
 
         function deleteKeyword(id) {
             $.ajax({
