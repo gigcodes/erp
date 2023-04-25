@@ -61,7 +61,7 @@
                     <!-- Language Selection -->
                     <div class="col-2 d-flex" style=" justify-content: end !important;padding-right: 22px;">
                         <div class="form-group mb-0">
-                            <button class="btn btn-xs btn-secondary error-email-history ml-3 ">View Errors</button>
+                            <button type="button" class="btn btn-xs btn-secondary error-email-history ml-3 ">View Errors</button>
                             <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#emailAddressModal">
                               <i class="fa fa-plus" style=" width:25px"></i>
                             </button>
@@ -110,6 +110,7 @@
             <th width="10%">Encryp</th>
             <th width="10%">Str Website</th>
             <th width="5%">Status</th>
+            <th width="5%">Error Description</th>
             <th width="5%">Action</th>
           </tr>
         </thead>
@@ -170,6 +171,9 @@
                 @if($server->history_last_message->is_success ?? '' == 1) {{ 'Success' }} @elseif(isset($server->history_last_message->is_success)) {{'Error'}} @else {{'-'}} @endif
               </td>
               <td>
+                {{( isset($server->history_last_message) && isset($server->history_last_message->message) ) ? $server->history_last_message->message : '-'}}
+             </td>
+              <td>
                 <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="EmailAddressesbtn('{{$server->id}}')"><i class="fa fa-arrow-down"></i></button>
               </td>
             </tr>
@@ -194,6 +198,9 @@
                   <i class="fa fa-eye"></i>
                 </a>
                 <a href="javascript:;" onclick="sendtoWhatsapp({{ $server->id }})" title="Send to Whatsapp" class="btn btn-xs p-0 m-0 text-secondary mr-2">
+                  <i class="fa fa-send-o"></i>
+                </a>
+                <a href="javascript:;" data-id="{{$server->id}}"  title="run cron" class="btn btn-xs p-0 m-0 text-secondary mr-2 single-email-run-cron">
                   <i class="fa fa-send-o"></i>
                 </a>
                 <div id="sendToWhatsapp{{$server->id}}" class="modal fade" role="dialog">
@@ -709,7 +716,7 @@
                 <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
               @endif
             </div>
-         
+
             <div class="form-group col-md-4">
               <strong>Signature Title:</strong>
               <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
@@ -1161,6 +1168,29 @@ function sendtoWhatsapp(password_id) {
           document.execCommand("copy");
           $temp.remove();
           alert("Copied!");
+        });
+        $(document).on("click",".single-email-run-cron",function() {
+          var data = {
+            "_token": "{{ csrf_token() }}",
+            'id': $(this).attr('data-id'),
+          };
+          $.ajax({
+            type: 'POST',
+            url: '/email-addresses/single-email-run-cron',
+            data: data,
+            success: function(data) {
+              window.location.reload();
+              if(data.status = "success"){
+                toastr["success"](data.message);
+              }else{
+                toastr["error"]('Something went wrong');
+              }
+            },
+            error: function (response) {
+              window.location.reload();
+              toastr['error']("Something went wrong", 'error');
+            }
+          });
         });
 
   </script>

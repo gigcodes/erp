@@ -926,6 +926,12 @@
                                                                 <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                                                             </div>
                                                         @endif
+                                                        <button class="btn btn-image upload-task-files-button ml-2" type="button" title="Uploaded Files" data-task_id="{{$task->id}}">
+                                                            <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                                                        </button>
+                                                        <button class="btn btn-image view-task-files-button ml-2" type="button" title="View Uploaded Files" data-task_id="{{$task->id}}">
+                                                            <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+                                                        </button>
                                                     </div>
                                                     @if (isset($task->message))
                                                         <div style="margin-bottom:10px;width: 100%;">
@@ -1058,6 +1064,13 @@
                                                     @endif
                                                     <button class="btn btn-image expand-row-btn-lead" data-task_id="{{ $task->id }}"><img src="/images/forward.png"></button>
                                                     <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>
+
+                                                    <button class="btn btn-image mt-2 create-task-document" title="Create document" data-id="{{$task->id}}">
+                                                        <i class="fa fa-file-text" aria-hidden="true"></i>
+                                                    </button>
+                                                    <button class="btn btn-image mt-2 show-created-task-document" title="Show created document" data-id="{{$task->id}}">
+                                                        <i class="fa fa-list" aria-hidden="true"></i>
+                                                    </button>
 
                                                 </div>
                                             </div>
@@ -1520,6 +1533,157 @@
             </form>
         </div>
     </div>
+</div>
+<div id="taskGoogleDocModal" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Google Doc</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+
+            <form action="{{route('google-docs.task')}}" method="POST">
+                {{ csrf_field() }}
+                <input type="hidden" id="task_id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Document type:</strong>
+
+                        <select class="form-control" name="type" required id="doc-type">
+                            <option value="spreadsheet">Spreadsheet</option>
+                            <option value="doc">Doc</option>
+                            <option value="ppt">Ppt</option>
+                            <option value="xps">Xps</option>
+                            <option value="txt">Txt</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Name:</strong>
+                        <input type="text" name="doc_name" value="" class="form-control input-sm" placeholder="Document Name" required id="doc-name">
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Category:</strong>
+                        <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category">
+                    </div>
+                   
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" id="btnCreateTaskDocument">Create</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+<div id="taskGoogleDocListModal" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Google Documents list</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="5%">File Name</th>
+                        <th width="5%">Created Date</th>
+                        <th width="10%">URL</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="uploadeTaskFileModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Upload Screencast/File to Google Drive</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<form action="{{ route('task.upload-file') }}" method="POST" enctype="multipart/form-data">
+				@csrf
+				<input type="hidden" name="task_id" id="upload_task_id">
+				<div class="modal-body">						
+					<div class="form-group">
+						<strong>Upload File</strong>
+						<input type="file" name="file[]" id="fileInput" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple required>
+						@if ($errors->has('file'))
+							<div class="alert alert-danger">{{$errors->first('file')}}</div>
+						@endif
+					</div>
+					<div class="form-group">
+						<strong>File Creation Date:</strong>
+						<input type="date" name="file_creation_date" value="{{ old('file_creation_date') }}" class="form-control input-sm" placeholder="Drive Date" required>
+					</div>
+					<div class="form-group">
+							<label>Remarks:</label>
+							<textarea id="remarks" name="remarks" rows="4" cols="64" value="{{ old('remarks') }}" placeholder="Remarks" required class="form-control"></textarea>
+
+							@if ($errors->has('remarks'))
+								<div class="alert alert-danger">{{$errors->first('remarks')}}</div>
+							@endif
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-default">Upload</button>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+<div id="displayTaskFileUpload" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-xl">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Google Drive Uploaded files</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="table-responsive mt-3">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Filename</th>
+								<th>File Creation Date</th>
+								<th>URL</th>
+								<th>Remarks</th>
+							</tr>
+						</thead>
+						<tbody id="taskFileUploadedData">
+							
+						</tbody>
+					</table>
+				</div>
+			 </div>
+
+
+		</div>
+
+	</div>
 </div>
 
 @endsection
@@ -3605,5 +3769,130 @@
                 });
             }
         }
+
+
+        $(document).ready(function () {
+            $(document).on('click', ".create-task-document", function () {
+                let task_id = $(this).data('id');
+                if(task_id != "") {
+                    $("#task_id").val($(this).data('id'));
+                    $("#taskGoogleDocModal").modal('show');
+                } else {
+                    toastr["error"]("Task id not found.");
+                }
+            });
+
+            $(document).on('click', ".show-created-task-document", function () {
+                let task_id = $(this).data('id');
+                if(task_id != "") {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{route('google-docs.task.show')}}",
+                        data: {
+                            task_id,
+                            task_type: "TASK"
+                        },
+                        beforeSend: function() {
+                            $("#loading-image").show();
+                            // $("#btnCreateTaskDocument").attr('disabled', true)
+                        },
+                        success: function (response) {
+                            $("#loading-image").hide();
+                            $("#taskGoogleDocListModal tbody").html(response.data);
+                            $("#taskGoogleDocListModal").modal('show');
+                        },
+                        error: function(response) {
+                            toastr["error"]("Something went wrong!");
+                            $("#loading-image").hide();
+                        }
+                    });
+                } else {
+                    toastr["error"]("Task id not found.");
+                }
+            });
+            
+            $(document).on('click', "#btnCreateTaskDocument", function () {
+                let doc_type = $("#doc-type").val();
+                let doc_name = $("#doc-name").val();
+                let doc_category = $("#doc-category").val();
+                let task_id = $("#task_id").val();
+                
+                if(doc_type.trim() == "") {
+                    toastr["error"]("Select document type.");
+                    return
+                }
+                if(doc_name.trim() == "") {
+                    toastr["error"]("Insert document name.");
+                    return
+                }
+                if(doc_category.trim() == "") {
+                    toastr["error"]("Insert document category.");
+                    return
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{route('google-docs.task')}}",
+                    data: {
+                        _token: "{{csrf_token()}}",
+                        doc_category,
+                        doc_type,
+                        doc_name,
+                        task_id,
+                        task_type: "TASK"
+                    },
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                        $("#btnCreateTaskDocument").attr('disabled', true)
+                    },
+                    success: function (response) {
+                        if(response.status == true) {
+                            toastr["success"](response.message);
+                        } else {
+                            toastr["error"](response.message);
+                        }
+                        $("#loading-image").hide();
+                        $("#btnCreateTaskDocument").removeAttr('disabled')
+                        $("#taskGoogleDocModal").modal('hide');
+                        $("#doc-type").val(null);
+                        $("#doc-name").val(null);
+                        $("#doc-category").val(null);
+                        $("#task_id").val(null);
+                    },
+                    error: function(response) {
+                        toastr["error"]("Something went wrong!");
+                        $("#loading-image").hide();
+                        $("#btnCreateTaskDocument").removeAttr('disabled')
+                    }
+                });
+
+            });
+
+            $(document).on("click", ".upload-task-files-button", function (e) {
+                e.preventDefault();
+                let task_id = $(this).data("task_id");
+                $("#uploadeTaskFileModal #upload_task_id").val(task_id || 0);
+                $("#uploadeTaskFileModal").modal("show")
+            });
+
+            $(document).on("click", ".view-task-files-button", function (e) {
+                e.preventDefault();
+                let task_id = $(this).data("task_id");
+                $.ajax({
+                    type: "get",
+                    url: "{{route('task.files.record')}}",
+                    data: {
+                        task_id
+                    },
+                    success: function (response) {
+                        $("#taskFileUploadedData").html(response.data);
+                        $("#displayTaskFileUpload").modal("show")
+                    },
+                    error: function (response) {
+                        toastr['error']("Something went wrong!");
+                    }
+                });
+            });
+        });
     </script>
 @endsection

@@ -6,7 +6,9 @@ use App\GoogleScreencast;
 use App\Jobs\UploadGoogleDriveScreencast;
 use App\Language;
 use App\Models\UicheckHistory;
+use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
+use App\SiteDevelopmentMasterCategory;
 use App\SiteDevelopmentStatus;
 /*use Illuminate\Http\Request;
 use App\SiteDevelopment;
@@ -41,6 +43,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
+use Log;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
 
@@ -1099,9 +1102,22 @@ class UicheckController extends Controller
                 $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);
             }
 
-            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
+            if ($request->type != '') {
+                $uiDevDatas = $uiDevDatas->where('uic.uicheck_type_id', $request->type);
+            }
+
+            if ($request->website != '') {
+                $uiDevDatas = $uiDevDatas->where('uic.website_id', $request->website);
+            }
+
+            if ($request->user != '') {
+                // $uiDevDatas = $uiDevDatas->whereIn('u.id', [$request->user]);
+                $uiDevDatas = $uiDevDatas->where('ui_devices.user_id', $request->user);
+            }
+
+            $uiDevDatas = $uiDevDatas->select('ui_devices.*','uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
                 DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), DB::raw("GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable")
-            )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
+            )->orderBy('uic.id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(30);
 
 
             $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
@@ -1114,8 +1130,9 @@ class UicheckController extends Controller
             $siteDevelopmentStatuses = SiteDevelopmentStatus::get();
 
             $store_websites = StoreWebsite::get()->pluck("website", 'id');
-
-            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'siteDevelopmentStatuses', 'uicheck_id', 'site_development_categories', 'allUsers', 'store_websites'));
+            $allUicheckTypes = UicheckType::get()->pluck("name", 'id')->toArray();
+           
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'siteDevelopmentStatuses', 'uicheck_id', 'site_development_categories', 'allUsers', 'store_websites', 'allUicheckTypes'));
         } catch (\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e->getMessage()]);
@@ -1125,11 +1142,14 @@ class UicheckController extends Controller
     public function responseDeviceStatusChange(Request $request)
     {
         try {
+            $old_status = null;
             $uiDevDatas = UiDevice::where('id', $request->id)
                     ->where('device_no', $request->device_no)
-                    ->where('uicheck_id', $request->uicheck_id)
-                    ->update(['status' => $request->status]);
-            if ($uiDevDatas == 0) {
+                    ->where('uicheck_id', $request->uicheck_id)->first();
+            if($uiDevDatas) {
+                $old_status = $uiDevDatas->status;
+                $uiDevDatas->update(['status' => $request->status]);
+            } else {
                 UiDevice::create([
                     'user_id' => \Auth::user()->id,
                     'device_no' => $request->device_no,
@@ -1139,7 +1159,7 @@ class UicheckController extends Controller
                 ]);
             }
 
-            $this->uicheckResponsiveUpdateHistory($request);
+            $this->uicheckResponsiveUpdateHistory($request, $old_status);
 
             return response()->json(['code' => 200, 'message' => 'Status updated succesfully']);
         } catch (\Exception $e) {
@@ -1147,7 +1167,7 @@ class UicheckController extends Controller
         }
     }
 
-    public function uicheckResponsiveUpdateHistory($data)
+    public function uicheckResponsiveUpdateHistory($data, $old_status=3)
     {
         try {
             $data['user_id'] = \Auth::user()->id ?? '';
@@ -1159,7 +1179,7 @@ class UicheckController extends Controller
                     'uicheck_id' => $data->uicheck_id ?? '',
                     'device_no' => $data->device_no ?? '',
                     'status' => $data->status ?? '',
-                    'old_status' => $data->old_status ?? '',
+                    'old_status' => $old_status ?? '',
                 ]
             );
         } catch (\Exception $e) {
@@ -1531,22 +1551,21 @@ class UicheckController extends Controller
                 $message = $udh->message;
                 $estimatedTime = $udh->estimated_time;
 
+                UiDeviceHistory::create(
+                    [
+                        'user_id' => \Auth::user()->id ?? '',
+                        'ui_devices_id' => $uiDeviceId ?? '',
+                        'uicheck_id' => $uicheckId ?? '',
+                        'device_no' => $deviceNo ?? '',
+                        'status' => $oldStatus ?? '',
+                        'estimated_time' => $estimatedTime,
+                        'message' => $message,
+                    ]
+                );
                 $udh->status = $statusId == "-" ? null : $statusId;
                 $udh->save();
                 if ($udh->save()){
                     $status = SiteDevelopmentStatus::find($statusId);
-                    UiDeviceHistory::create(
-                        [
-                            'user_id' => \Auth::user()->id ?? '',
-                            'ui_device_id' => $uiDeviceId ?? '',
-                            'uicheck_id' => $uicheckId ?? '',
-                            'device_no' => $deviceNo ?? '',
-                            'status' => $oldStatus ?? '',
-                            'estimated_time' => $estimatedTime,
-                            'message' => $message,
-                        ]
-                    );
-
                     return respJson(200, '', [
                         'message' => 'Status updated successfully',
                         'data' => $status->color
@@ -1571,39 +1590,140 @@ class UicheckController extends Controller
     public function assignNewUser(Request $request)
     {
         try {
-
-            $designSubCategory = SiteDevelopmentCategory::join("site_development_master_categories as sdmc", 'sdmc.id', 'site_development_categories.master_category_id')
+            //master category id for design
+            $siteDevelopmentMasterCategory = SiteDevelopmentMasterCategory::select('id')->where('title','Design')->first();
+            $siteDevelopmentDesignMasterCategoryId = $siteDevelopmentMasterCategory->id;
+            
+            $siteDevelopmentCategoryIds = SiteDevelopmentCategory::join("site_development_master_categories as sdmc", 'sdmc.id', 'site_development_categories.master_category_id')
                 ->where('sdmc.title', 'Design')->select('site_development_categories.id')->pluck('id');
 
-            $uiDevDatas = new UiDevice();
-            $uiDevDatas = $uiDevDatas->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
-                                    ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
-                                    ->leftJoin('uicheck_user_accesses as uua', 'ui_devices.uicheck_id', 'uua.uicheck_id')
-                                    ->leftJoin('users as u', 'u.id', 'uua.user_id')
-                                    ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
-                                    ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
-                                    ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
-
-            $uiDevDatas = $uiDevDatas->whereIn("uic.site_development_category_id", $designSubCategory)->where("sw.id", $request->website);
-            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'u.name as username','sw.website', 'sdc.title')->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->get()->pluck('uicheck_id');
-
-            if(isset($uiDevDatas) && count($uiDevDatas) > 0) {
-                foreach ($uiDevDatas as $key => $uicheck_id) {
-                    UicheckUserAccess::firstOrCreate([
-                        "user_id" => $request->user,
-                        "uicheck_id" => $uicheck_id
-                    ]);
-                }
-
-                return response()->json(["status"=> true, "message" => "User has assigned successfully"]);
-
-
+            if($siteDevelopmentCategoryIds->count() > 0) {
+                $siteDevelopmentCategoryIds = $siteDevelopmentCategoryIds->toArray();
             } else {
-                return response()->json(["status"=> false, "message"=> "No existing record found."]);
+                $siteDevelopmentCategoryIds = [];
+                return response()->json(["status"=> false, "message" => "Category not found."]);
+            }
+
+            $uiTypesCollection = [];
+            $uiTypes = UicheckType::whereIn("name", ["UI Test", "UI Design"])->get();
+            if($uiTypes->count() > 0) {
+                $uiTypesCollection = $uiTypes;
+            }
+
+            $userId = $request->user;
+            $websiteId = $request->website;
+
+            $all_site_development = $this->processSiteDevelopmentCategory($userId, $websiteId, $siteDevelopmentCategoryIds, $siteDevelopmentDesignMasterCategoryId);
+            
+            if(isset($all_site_development) && !empty($all_site_development)) {
+                foreach ($all_site_development as $site_development_id => $site_development_category_id) {
+                    foreach ($uiTypesCollection as $key => $ui_type) {
+                        $uicheck = Uicheck::where([
+                            "website_id"=> $websiteId,
+                            "site_development_id"=> $site_development_id,
+                            "site_development_category_id"=> $site_development_category_id,
+                            'uicheck_type_id' => $ui_type->id
+                        ])->get();
+
+                        if($uicheck->count() == 0) {
+                            $this->addNewUirecords($websiteId, $site_development_id, $site_development_category_id, $ui_type->id, $userId);
+
+                        } else {
+                            $uicheck = $uicheck->first();
+                            if($uicheck->uiDeviceCount() == 0) {
+                                UiDevice::create([
+                                    "user_id" => $userId ?? 0,
+                                    "device_no" => "1",
+                                    "uicheck_id" => $uicheck->id,
+                                    "message" => ""
+                                ]);
+                            }
+                            
+                            UicheckUserAccess::provideAccess($uicheck->id, $userId);
+                        }
+                    }
+                    
+                }
+                return response()->json(["status"=> true, "message" => "User has assigned successfully."]);
+            } else {
+                return response()->json(["status"=> false, "message" => "No data found."]);
             }
         } catch (\Exception $e) {
+            Log::info($e);
             return response()->json(["status"=> false, "message"=> "Something went wrong."]);
         }
+    }
+
+    /**
+     * Create UI Test and UI Desing type records for given site_development_category_id
+     */
+    public function processSiteDevelopmentCategory($userId, $websiteId, $siteDevelopmentCategoryIds, $siteDevelopmentDesignMasterCategoryId)
+    {
+        try {
+            $siteDevelopmentCategoryIds = array_unique($siteDevelopmentCategoryIds);
+            $inserted_record = SiteDevelopment::where("website_id", $websiteId)->whereIn("site_development_category_id", $siteDevelopmentCategoryIds)->distinct()->select("site_development_category_id")->pluck("site_development_category_id");
+    
+            if(isset($inserted_record) && $inserted_record->count() > 0) {
+                $inserted_record = $inserted_record->toArray();
+            } else {
+                $inserted_record = [];
+            }
+    
+            $not_inserted_category_ids = array_diff($siteDevelopmentCategoryIds, $inserted_record);
+    
+            $insertData = [];
+            if(isset($not_inserted_category_ids) && count($not_inserted_category_ids) > 0) {
+                foreach ($not_inserted_category_ids as $key => $ids) {
+                    $insertData[] = [
+                        "site_development_category_id" => $ids,
+                        "website_id" => $websiteId,
+                        "site_development_master_category_id" => $siteDevelopmentDesignMasterCategoryId
+                    ];
+                }
+            }
+    
+            if(count($insertData) > 0) {
+                SiteDevelopment::insert($insertData);
+            }
+    
+            $all_site_development = SiteDevelopment::where("website_id", $websiteId)->whereIn("site_development_category_id", $siteDevelopmentCategoryIds)->distinct()->select()->pluck( "site_development_category_id", "id");
+
+            if($all_site_development->count() > 0) {
+                return $all_site_development->toArray();
+            } else {
+                return [];
+            }
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Add new ui record 
+     */
+    public function addNewUirecords($websiteId, $site_development_id, $site_development_category_id, $ui_type, $userId)
+    {
+        try {
+            $uicheck = Uicheck::create([
+                'website_id' => $websiteId,
+                'site_development_id' => $site_development_id,
+                'site_development_category_id' => $site_development_category_id,
+                'created_at' => now(),
+                'uicheck_type_id' => $ui_type
+            ]);
+    
+            $uidevice = UiDevice::create([
+                "user_id" => $userId ?? 0,
+                "device_no" => "1",
+                "uicheck_id" => $uicheck->id,
+                "message" => ""
+            ]);
+    
+            UicheckUserAccess::create([
+                'user_id' => $userId ?? 0,
+                'uicheck_id' => $uicheck->id,
+            ]);
+        } catch (\Exception $e) {}
     }
 
     public function userHistory(Request $request)
@@ -1633,17 +1753,42 @@ class UicheckController extends Controller
             'file_creation_date' => 'required',
             'remarks' => 'sometimes',
             'ui_check_id' => 'required',
+            'device_no' => 'required',
             'file_read' => 'sometimes',
             'file_write' => 'sometimes'
         ]);
         
         $data = $request->all();
+        // dd($data);
         try {
             $uiCheck = Uicheck::find($request->ui_check_id);
-            // dd($uiCheck);
+            
+
+            $uiDevData = UiDevice::where('uicheck_id', '=', $request->ui_check_id)->where('device_no', '=', $request->device_no)->first();
+            // dd($uiDevData);
+            $uiDev['user_id'] = \Auth::user()->id;
+            $uiDev['device_no'] = $request->device_no;
+            $uiDev['uicheck_id'] = $request->ui_check_id;
+            $uiDev['message'] = "New File uploaded";
+            if ($request->uidevdatetime) {
+                $uiDev['estimated_time'] = date('H:i:s', strtotime($request->uidevdatetime));
+            }
+            $uiDevid = $uiDevData->id ?? '';
+            if ($uiDevid == '') {
+                $uiDevs = UiDevice::create($uiDev);
+                $uiData = UiDevice::where('id', $uiDevs->id)->first();
+            } else {
+                $uiData = $uiDevData;
+                $uiLans = UiDevice::where('id', $uiDevData->id)->update($uiDev);
+            }
+
+            $uiDev['ui_devices_id'] = $uiData->id;
+            $deviceHistory = UiDeviceHistory::create($uiDev);
+
+
             foreach($data['file'] as $file)
             {
-                DB::transaction(function () use ($file,$data, $uiCheck) {
+                DB::transaction(function () use ($file,$data, $uiCheck, $uiData, $deviceHistory) {
                     $googleScreencast = new GoogleScreencast();
                     $googleScreencast->file_name = $file->getClientOriginalName();
                     $googleScreencast->extension = $file->extension();
@@ -1654,11 +1799,17 @@ class UicheckController extends Controller
 
                     $googleScreencast->remarks = $data['remarks'];
                     $googleScreencast->file_creation_date = $data['file_creation_date'];
-                    $googleScreencast->belongable_id = $uiCheck->id;
-                    $googleScreencast->belongable_type = Uicheck::class;
+                    $googleScreencast->belongable_id = $uiData->id; //Ui device Id
+                    $googleScreencast->belongable_type = UiDevice::class;
                     $googleScreencast->save();
 
-                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file, "anyone");
+                    UploadGoogleDriveScreencast::dispatchNow(
+                        $googleScreencast, $file, "anyone", 
+                        [
+                            UiDevice::class => $uiData->id,
+                            UiDeviceHistory::class => $deviceHistory->id 
+                        ]
+                    );
                 });
             }
             
@@ -1675,22 +1826,74 @@ class UicheckController extends Controller
     public function getUploadedFilesList(Request $request)
     {
         try {
-            $result = [];
-            if(isset($request->ui_check_id)) {
-                $result = GoogleScreencast::where('belongable_type', Uicheck::class)->where('belongable_id', $request->ui_check_id)->orderBy('id', 'desc')->get();
-                if(isset($result) && count($result) > 0) {
-                    $result = $result->toArray();   
-                }
+            $class = null; 
+            if(isset($request->device_no)) {
+                $class = UiDevice::class;
+            }
 
-                return response()->json([
-                    "data" => view("uicheck.google-drive-list", compact("result"))->render()
-                ]);
+            $device = UiDevice::where("uicheck_id", $request->ui_check_id)->where("device_no", $request->device_no)->first();
+
+            if(isset($device)) {
+                $result = [];
+                if(isset($request->ui_check_id)) {
+                    $result = GoogleScreencast::where('belongable_type', $class)->where('belongable_id', $device->id)->orderBy('id', 'desc')->get();
+                    if(isset($result) && count($result) > 0) {
+                        $result = $result->toArray();   
+                    }
+    
+                    return response()->json([
+                        "data" => view("uicheck.google-drive-list", compact("result"))->render()
+                    ]);
+                }
+            } else {
+                throw new Exception("Device not found");
             }
             
         } catch (Exception $e) {
             return response()->json([
                 "data" => view("uicheck.google-drive-list", ["result"=> null])->render()
             ]);
+        }
+    }
+
+    /**
+     * Assign a new user to website
+     */
+    public function addNewUser(Request $request)
+    {
+        try {
+            $oldUserId = $request->oldUserId;
+            $newUserId = $request->newUserId;
+            $websiteId = $request->websiteId;
+
+            $uiDevDatas = new UiDevice();
+            $uiDevDatas = $uiDevDatas->with('uichecks.uiDevice.lastUpdatedHistory.stausColor')->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
+                                    ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
+                                    ->leftJoin('uicheck_user_accesses as uua', 'ui_devices.uicheck_id', 'uua.uicheck_id')
+                                    ->leftJoin('users as u', 'u.id', 'uua.user_id')
+                                    ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
+                                    ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
+                                    ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
+
+            $uiDevDatas = $uiDevDatas->where('uic.website_id', $websiteId);
+            $uiDevDatas = $uiDevDatas->whereIn('u.id', [$oldUserId]);
+
+            $uiDevDatas = $uiDevDatas->select('ui_devices.*','uic.uicheck_type_id', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
+                            DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail'), DB::raw("GROUP_CONCAT(DISTINCT u.name order by uua.id desc) as user_accessable")
+                        )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->get();
+
+            foreach($uiDevDatas as $uiRow) {
+                $user = UicheckUserAccess::firstOrNew(
+                    ['user_id' => $newUserId, 'uicheck_id' => $uiRow->uicheck_id],
+                    ['user_id' => $newUserId, 'uicheck_id' => $uiRow->uicheck_id]
+                );
+                 
+                $user->save();
+            }
+
+            return response()->json(["status"=> true, "message" => "User has assigned successfully"]);
+        } catch (\Exception $e) {
+            return response()->json(["status"=> false, "message"=> "Something went wrong."]);
         }
     }
 }

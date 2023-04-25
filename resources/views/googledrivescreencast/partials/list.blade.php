@@ -1,6 +1,8 @@
 @php
     $enum = [
-        "App\Uicheck" => "UICHECK-" 
+        "App\Uicheck" => "UICHECK-",
+        "App\UiDevice" => "UIDEVICE-",
+        "App\Task" => "TASK-"
     ];
 @endphp
 
@@ -16,7 +18,7 @@
                 #BUG-{{ $file->bug_id }}
             @endif
             @if (!isset($file->developer_task_id) && !isset($file->bug_id))
-                {{$enum[$file->belongable_type] ?? ""}} {{$file->belongable_id}}
+                {{$enum[$file->belongable_type] ?? ""}}{{$file->belongable_id}}
             @endif
         </td>
         <td>{{ $file->file_creation_date }}</td>

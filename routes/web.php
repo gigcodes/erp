@@ -350,6 +350,7 @@ use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
+use App\Http\Controllers\GoogleShoppingAdsController;
 
 Auth::routes();
 
@@ -1431,6 +1432,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/update_email', [EmailController::class, 'updateEmail']);
     Route::resource('mailbox', MailBoxController::class);
 
+    Route::post('email/assign-modal',[EmailController::class,'assignModel'])->name('assignModel');
+    Route::post('email/update-model-color',[EmailController::class,'updateModelColor'])->name('updateModelColor');
+    Route::post('email/getModelNames',[EmailController::class,'getModelNames'])->name('getModelNames');
+
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
     Route::post('changeStatus', [EmailController::class, 'changeStatus'])->name('changeStatus');
@@ -1562,6 +1567,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
     Route::post('task/recurring-history', [TaskModuleController::class, 'recurringHistory'])->name('task.recurringHistory');
     Route::post('task/create-multiple-task-from-shortcut-bugtrack', [TaskModuleController::class, 'createMultipleTaskFromSortcutBugtrack'])->name('task.create.multiple.task.shortcut.bugtrack');
+    Route::post('task/upload-file', [TaskModuleController::class, 'uploadFile'])->name('task.upload-file');
+    Route::get('task/files/record', [TaskModuleController::class, 'getUploadedFilesList'])->name('task.files.record');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -2242,6 +2249,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('language/delete', [LanguageController::class, 'delete'])->name('language.delete');
 
     // Documents Manager
+    Route::get('development/document/list', [DocumentController::class, 'documentList'])->name('development.document.list');
     Route::get('documents', [DocumentController::class, 'index'])->name('document.index');
     Route::get('documents-email', [DocumentController::class, 'email'])->name('document.email');
     Route::post('document/store', [DocumentController::class, 'store'])->name('document.store');
@@ -2508,6 +2516,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email-addresses/password/change', [EmailAddressesController::class, 'passwordChange'])->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', [EmailAddressesController::class, 'sendToWhatsApp'])->name('email.password.sendwhatsapp');
     Route::post('email-addresses/assign', [EmailAddressesController::class, 'assignUsers'])->name('email-addresses.assign');
+    Route::post('/email-addresses/single-email-run-cron', [EmailAddressesController::class, 'singleEmailRunCron']);
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
 
@@ -3906,6 +3915,7 @@ Route::middleware('auth')->group(function () {
         Route::get('user-history', [UicheckController::class, 'userHistory'])->name('uicheck.userhistory');
         Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
         Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
+        Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -3984,6 +3994,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/repos/{id}/github-actions', [Github\RepositoryController::class, 'ajaxActionWorkflows']);
         Route::get('/repos/{id}/branch/merge', [Github\RepositoryController::class, 'mergeBranch']);
         Route::get('/repos/{id}/deploy', [Github\RepositoryController::class, 'deployBranch']);
+        Route::post('/repos/{id}/branch', [Github\RepositoryController::class, 'deleteBranchFromRepo']);
         Route::post('/repos/{id}/actions/jobs/{jobId}/rerun', [Github\RepositoryController::class, 'rerunGithubAction']);
         Route::post('/add_user_to_repo', [Github\UserController::class, 'addUserToRepository']);
         Route::get('/users', [Github\UserController::class, 'listOrganizationUsers']);
@@ -4145,6 +4156,14 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::get('/create', [GoogleAdGroupKeywordController::class, 'createPage'])->name('ad-group-keyword.createPage');
                     Route::post('/create', [GoogleAdGroupKeywordController::class, 'createKeyword'])->name('ad-group-keyword.craeteKeyword');
                     Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('shopping-ad')->group(function () {
+                    Route::get('/', [GoogleShoppingAdsController::class, 'index'])->name('shopping-ads.index');
+                    Route::post('/create', [GoogleShoppingAdsController::class, 'createAd'])->name('shopping-ads.createAd');
+                    Route::delete('/delete/{adId}', [GoogleShoppingAdsController::class, 'deleteAd'])->name('shopping-ads.deleteAd');
                 });
             });
         });
@@ -4882,6 +4901,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::get('/header/search', [GoogleDocController::class, 'googledocSearch'])->name('.google.module.search');
     Route::get('{id}/edit', [GoogleDocController::class, 'edit'])->name('.edit');
     Route::post('/update', [GoogleDocController::class, 'update'])->name('.update');
+    Route::post('task', [GoogleDocController::class, 'createDocumentOnTask'])->name('.task');
+    Route::get('task/show', [GoogleDocController::class, 'listDocumentOnTask'])->name('.task.show');
 });
 
 Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middleware('auth')->group(function () {
