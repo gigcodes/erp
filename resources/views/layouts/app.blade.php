@@ -2054,7 +2054,6 @@ if (!empty($notifications)) {
                                                         Planner</a>
                                                     <a class="dropdown-item" href="{{ route('seo-tool') }}">Semrush
                                                         details</a>
-                                                    <a class="dropdown-item" href="{{ route('seo.company.index') }}">SEO Company</a>
                                                 </li>
                                             </ul>
                                 </li>
