@@ -14,8 +14,8 @@ class AddIndexOnDoNotDisturbInCustomersTable extends Migration
     public function up()
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->index('do_not_disturb');
-            $table->index('deleted_at');
+            //$table->index('do_not_disturb');
+            //$table->index('deleted_at');
         });
     }
 

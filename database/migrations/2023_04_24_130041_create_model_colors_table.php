@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
+class CreateModelColorsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
      */
     public function up()
     {
-        Schema::table('github_repositories', function (Blueprint $table) {
-            //$table->index('github_organizations_id');
+        Schema::create('model_colors', function (Blueprint $table) {
+            $table->id();
+            $table->string('model_name');
+            $table->string('color_code');
+            $table->timestamps();
         });
     }
 
@@ -25,6 +28,6 @@ class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('model_colors');
     }
 }
