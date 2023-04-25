@@ -77,7 +77,8 @@
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
             <tr>
-              <th width="5%">Devtask Id</th>
+              <th width="5%">Id</th>
+              <th>Type</th>
               <th width="10%">Subject</th>
               <th width="10%">Description</th>
               <th width="10%">Document Link</th>
@@ -90,6 +91,7 @@
            @foreach($uploadDocData as $value)
             <tr>
             <td>{{$value->developer_task_id}}</td>
+            <td>{{$value->type}}</td>
             <td>{{$value->subject}}</td>
             <td>{{$value->description}}</td>
 
