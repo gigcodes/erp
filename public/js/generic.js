@@ -56,10 +56,10 @@ var getMoreChatConvo = function(params) {
 
 var getHtml = function(response) {
     var j = 0;
-
-
+    
+       
     var classMaster = (load_type == "broadcast" || load_type == "images") ? "full-match-img" : "";
-
+    
 
     // if(load_type == "broadcast" || load_type == "images") {
     //     $("#chat-list-history").find(".modal-dialog").addClass("modal-lg");
@@ -67,7 +67,7 @@ var getHtml = function(response) {
     //     $("#chat-list-history").find(".modal-dialog").removeClass("modal-lg");
     // }
     // <input type="text" id="click-to-clipboard-message" class="form-control link hidden" style="position: absolute; left: -1000px;"></input>
-
+    
     var fullHtml = '<div style="overflow-x:auto;"><input type="text" id="click-to-clipboard-message" class="link" style="position: absolute; left: -5000px;"></input><table class="table table-bordered">';
 
     (response.messages).forEach(function (message) {
@@ -87,7 +87,7 @@ var getHtml = function(response) {
             fullHtml = fullHtml + '<tr class="out-background filter-message '+ reviewed_msg+'" data-message="'+message.message+'">';
         }
         else {
-            fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg" data-message="'+message.message+'">';
+            fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg" data-message="'+message.message+'">'; 
         }
         fullHtml = fullHtml + '<td style="width:5%"><input data-object_type_id="'+message.object_type_id+'" data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
         var fromMsg = '';
@@ -209,7 +209,7 @@ var getHtml = function(response) {
                          }
                      }
                      button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
-
+                     
                 }
 
 
@@ -250,7 +250,7 @@ var getHtml = function(response) {
             button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
 
             if(message.additional_data != '' && message.additional_data != null)
-            {
+            { 
                 button += "<a href='/purchase-product/download_excel_file/?filename="+ message.additional_data +"' title='Download Excel' class='btn btn-xs btn-secondary ml-1 download_excel' data-id='" + message.id + "'><i class='fa fa-file-excel-o' aria-hidden='true'></i></a>";
             }
         }
@@ -269,7 +269,7 @@ var getHtml = function(response) {
         if(message.is_reviewed != 1) {
             button += '&nbsp;<button title="Mark as reviewed" class="btn btn-secondary review-btn" data-id="' + message.id + '"><i class="fa fa-check" aria-hidden="true"></i></button>&nbsp;';
         }
-
+        
         if (message.inout == 'out' || message.inout == 'in') {
             button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
@@ -296,14 +296,14 @@ var getHtml = function(response) {
             // for (var i = 0; i < message.media.length; i++) {
                 // Get image to display
                 parentImgSrc = getImageToDisplay(message.parentMedia[0].image);
-
-
+                
+        
                 // Set media
                 if (parentImgSrc != '') {
                     parentMedia = parentMedia + '<div class="'+classFive+'">';
                     var imageType = (message.parentMedia[0].image).substr( (message.parentMedia[0].image).length - 4).toLowerCase();
                     if (message.parentMedia[0].product_id) {
-
+        
                         if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
                             parentMedia = parentMedia + '<a href="javascript:;" data-id="' + message.parentMedia[0].product_id + '" class="show-product-info "><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
                         } else {
@@ -316,7 +316,7 @@ var getHtml = function(response) {
                             parentMedia = parentMedia + '<a class="show-thumbnail-image has-pdf" href="' + message.parentMedia[0].image + '" target="_blank"><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
                         }
                     }
-
+        
                     if (message.parentMedia[0].product_id > 0 && message.customer_id > 0) {
                         parentMedia = parentMedia + '<br />';
                         parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.parentMedia[0].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
@@ -336,7 +336,7 @@ var getHtml = function(response) {
         else {
             var datetime = message.datetime;
         }
-
+       
 
         if (message.inout == 'in') {
             if (message.quoted_message_id) {
@@ -366,7 +366,7 @@ var getHtml = function(response) {
         }
         li += '</div>';
         fullHtml = fullHtml + '<td style="width:45%">' + li + '</td>';
-        fullHtml = fullHtml + '<td style="width:30%">' + button + '</td>';
+        fullHtml = fullHtml + '<td style="width:30%">' + button + '</td>'; 
         fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + '</td></tr>';
         console.log(fromMsg);
 
@@ -485,24 +485,24 @@ $(document).on('click', '.downloadChatMessages', function () {
     }).done(function (response) {
         $('#chatHiddenForm').remove();
         if(response.downloadUrl){
-        var form = $("<form/>",
+        var form = $("<form/>", 
                  { action:"/chat-messages/downloadChatMessages",
                     method:"POST",
                     target:'_blank',
                     id:"chatHiddenForm",
                      }
             );
-        form.append(
-            $("<input>",
-                { type:'hidden',
-                name:'filename',
+        form.append( 
+            $("<input>", 
+                { type:'hidden',  
+                name:'filename', 
                 value:response.downloadUrl }
             )
         );
-        form.append(
-            $("<input>",
-                { type:'hidden',
-                name:'_token',
+        form.append( 
+            $("<input>", 
+                { type:'hidden',  
+                name:'_token', 
                 value:$('meta[name="csrf-token"]').attr('content') }
             )
         );
@@ -551,7 +551,7 @@ $(document).on('click', '.btn-approve', function (e) {
 //     $('html, body').animate({
 //       scrollTop: ($(target).offset().top)
 //     }, 2000);
-
+    
 //  });
 
 function getImageToDisplay(imageUrl) {
@@ -863,18 +863,18 @@ var clipboardFinalMsg = '';
 $(document).on('click','.click-to-clipboard', function () {
     clipboardFinalMsg = '';
     $("#click-to-clipboard-message").val('');
-    if ($(this).prop("checked") == true) {
+    if ($(this).prop("checked") == true) { 
         clipboradMsg.push({
             id: $(this).data('id'),
             message:  $(this).data('message')
         });
-      } else {
+      } else { 
         for (var i = 0; i < clipboradMsg.length; i++) {
-            if (clipboradMsg[i].id && clipboradMsg[i].id === $(this).data('id')) {
+            if (clipboradMsg[i].id && clipboradMsg[i].id === $(this).data('id')) { 
                 clipboradMsg.splice(i, 1);
                 break;
             }
-        }
+        } 
       }
       for (var i = 0; i < clipboradMsg.length; i++) {
         clipboardFinalMsg = clipboardFinalMsg + clipboradMsg[i].message;
@@ -949,7 +949,7 @@ var html = $(thiss).html();
         } else {
             $(thiss).html(html);
         }
-
+        
         console.log(response);
         alert('Could not resend message');
     });
@@ -1115,7 +1115,7 @@ $(".search_chat_pop_time").datetimepicker({
 
 /*$('body').on('focus',".search_chat_pop_time", function(){
     if($(this).data("DateTimePicker") == null){
-
+        
        // datepicker initialized
     }
 });*/

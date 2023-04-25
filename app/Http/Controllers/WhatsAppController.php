@@ -2080,19 +2080,7 @@ class WhatsAppController extends FindByNumberController
                 ]);
             }
         }
-
-        if($context == 'email'){
-            $lastMessage = ChatMessage::find($request->chat_id);
-            $data['from_email'] = $lastMessage->from_email;
-            $data['to_email']   = $lastMessage->to_email;
-
-            $data['is_email'] = 1;
-            $data['email_id'] = $request->email_id;
-            $data['message_type'] = 'email';
-            unset($data['user_id']);
-            $module_id = $request->email_id;
-        }
-        elseif ($context == 'customer') {
+        if ($context == 'customer') {
             $data['customer_id'] = $request->customer_id;
             $module_id = $request->customer_id;
             //update if the customer message is going to send then update all old message to read
@@ -3344,18 +3332,6 @@ class WhatsAppController extends FindByNumberController
                 'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
             ]);
         }
-
-        if ($context == 'email') {
-            ChatMessagesQuickData::updateOrCreate([
-                'model' => \App\Email::class,
-                'model_id' => $data['email_id'],
-            ], [
-                'last_communicated_message' => @$params['message'],
-                'last_communicated_message_at' => Carbon::now(),
-                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
-            ]);
-        }
-
         // $data['status'] = 1;
 
         // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
@@ -4349,7 +4325,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
 
         if ($message->message != '') {
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'user-feedback-hrTicket' || $context == 'SOP-Data' || $context == 'timedoctor' || $context == 'email') {
+            if ($context == 'supplier' ||$context == 'customer' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'user-feedback-hrTicket' || $context == 'SOP-Data' || $context == 'timedoctor') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4446,19 +4422,12 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 if ($context == 'timedoctor') {
-                    $user = User::find($message->time_doctor_activity_user_id);
+                    $user = User::find($message->time_doctor_activity_user_id);                    
                     $phone = $user->phone;
                     $toemail = $user->email;
                     $whatsapp_number = Auth::user()->whatsapp_number;
                     $model_id = $message->user_id;
                     $model_class = \App\User::class;
-                }
-
-                if ($context == 'email') {
-                    $emailObj = Email::find($message->email_id);
-                    $toemail = $emailObj->to;
-                    $model_id = $message->email_id;
-                    $model_class = \App\Email::class;
                 }
 
                 if ($is_mail == 1) {

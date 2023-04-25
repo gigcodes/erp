@@ -27,7 +27,6 @@ use App\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Email;
 
 class ChatMessagesController extends Controller
 {
@@ -128,9 +127,6 @@ class ChatMessagesController extends Controller
                 break;
             case 'timedoctor':
                 $object = User::find($request->object_id);
-                break;
-            case 'email':
-                $object = Email::find($request->object_id);
                 break;
             default:
                 $object = Customer::find($request->object);
@@ -457,8 +453,7 @@ class ChatMessagesController extends Controller
                     $chatFileData .= "\n"."\n"."\n";
                 }
             } else {
-
-                $arr = [
+                $messages[] = [
                     'id' => $chatMessage->id,
                     'type' => $request->object,
                     'object_type_id' => $request->object_id,
@@ -489,13 +484,6 @@ class ChatMessagesController extends Controller
                     'quoted_message_id' => $chatMessage->quoted_message_id,
                     'additional_data' => $additional_data, //Purpose : Add additional data - DEVTASK-4236
                 ];
-
-                if($chatMessage->message_type == 'email'){
-                    $arr['sendTo'] = $chatMessage->from_email;
-                    $arr['sendBy'] = $chatMessage->to_email;
-                }
-
-                $messages[] = $arr;
             }
         }
 
