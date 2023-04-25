@@ -238,7 +238,7 @@ class BlogController extends Controller
             'twitter' => 'nullable|max:256',
             'google' => 'nullable|max:256',
             'bing' => 'nullable|max:256',
-            'publish_blog_date' => 'nullable|date_format:Y-m-d|after:' . Carbon::now()->format('Y-m-d')
+           
         ]);
 
         $blog = Blog::create($request->all());

@@ -32,6 +32,9 @@
     align-items: center;
     gap: 5px;
 }
+  #blog_listing_filter {
+    margin-right: 7px;
+}
     
 	</style>
 
@@ -119,6 +122,7 @@
                       
                        <div class="col-md-4">
                             <label class="form-label">Content</label>
+                              <div class="text-danger" id="AddcontentValidation" style="display:none">Content Field is required.</div>
                             <br>
                              <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#ContentModal" class="btn btn-primary custom-button">Content</button></div>
                        
@@ -310,7 +314,7 @@
                     <div class="row mt-3">
                         <div class="col-md-12">
                               <button type="button" class="btn btn-secondary custom-button" data-dismiss="modal">Close</button>
-                            <button type="submit" class="pull-right btn btn-success btn-rounded btn-lg">Add Blog</button>
+                            <button type="submit" class="pull-right  btn btn-success btn-rounded btn-lg" id="NewBlogCreate">Add Blog</button>
                             {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
                         </div>
                     </div>
@@ -404,8 +408,8 @@
                                       
                                   </div>
                                   <div class="modal-body">
-                                          
-                                                  <textarea  name="content" rows="20" cols="55"></textarea>
+                                                
+                                                  <textarea id="AddBlogContent"  name="content" rows="20" cols="55"></textarea>
                                                  
                                   </div>     
                                   <div class="modal-footer">
@@ -703,6 +707,8 @@
          
         $('#socialShare').modal('hide');
         });
+
+       
         
 
         $("button[data-dismiss-modal=googleBingo]").click(function () {
@@ -710,7 +716,7 @@
         });
 
         $("button[data-dismiss-modal=EditGoogleBing]").click(function () {
-          alert('callBingo');
+        
         $('#edit_google_bingo').modal('hide');
         });
 
@@ -719,6 +725,34 @@
           $(document).on('click', '#EditSharemodalClose', function(e){
            $('#EditsocialShare').modal('hide');
           });
+
+           $(document).on('click', '#UpdateBlogdata', function(e){
+          var content = $('#EditBlogContent').val().trim();
+           if(content === ''){
+            $('#EditcontentValidation').css('display','block');
+              e.preventDefault();
+             return false;
+           }
+            
+          });
+
+
+        $("#addBlog").submit(function(e){
+               var content = $('#AddBlogContent').val().trim();
+           if(content === ''){
+            $('#AddcontentValidation').css('display','block');
+              e.preventDefault();
+             return false;
+           }
+            
+        });
+
+        
+
+          
+         
+
+         
 
            $(document).on('click', '#EditContentModalClose', function(e){
            $('#EditContentModal').modal('hide');

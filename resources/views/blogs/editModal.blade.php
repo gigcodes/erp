@@ -48,6 +48,7 @@
                      <div class="col-md-4">
                         <label class="form-label">Content</label>
                         <br>
+                         <div class="text-danger" id="EditcontentValidation" style="display:none">Content Field is required.</div>
                         <div> <button type="button" data-toggle="modal" data-target="#EditContentModal" class="btn btn-primary custom-button">Content</button></div>   
                     </div>
 
@@ -191,7 +192,7 @@
                             <div class='col-md-4'>
                                     <label class="form-label">Publish Blog Date</label>
                                     <div class='input-group date' id='edit-blog-datetime'>
-                                            <input type='date' class="form-control" name="publish_blog_date" value="{{ date('Y-m-d', strtotime($blog->publish_blog_date)) }}" />
+                                            <input type='date' class="form-control" name="publish_blog_date" value="{{!empty($blog->publish_blog_date) ? date('Y-m-d', strtotime($blog->publish_blog_date)): '' }}" />
                                            
 
                                     </div>
@@ -240,7 +241,7 @@
                 <div class="row mt-3">
                     <div class="col-md-12">
                           <button type="button" class="btn btn-secondary custom-button" data-dismiss="modal">Close</button>
-                        <button type="submit" class="pull-right btn btn-success btn-rounded btn-lg">Update Blog</button>
+                        <button type="submit" class="pull-right btn btn-success btn-rounded btn-lg" id="UpdateBlogdata">Update Blog</button>
                         {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
                     </div>
                 </div>
@@ -256,7 +257,7 @@
                                   </div>
                                   <div class="modal-body">
                                           
-                                     <textarea  name="content" rows="20" cols="55">{{$blog->content}}</textarea>
+                                     <textarea id="EditBlogContent"  name="content" rows="20" cols="55">{{$blog->content}}</textarea>
                                                  
                                   </div>     
                                   <div class="modal-footer">
