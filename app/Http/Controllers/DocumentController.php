@@ -162,12 +162,13 @@ class DocumentController extends Controller
                 // $uploadDocData = $uploadDocData->orderBy('tasks.id', 'desc');    
                 $uploadDocData = $uploadDocData->union($developertask);
                 $uploadDocData = $uploadDocData->orderBy('media_id','desc');
+                $DataCount = $uploadDocData->count();
                 $uploadDocData = $uploadDocData->paginate(50);
 
-          $users = User::get();
+                $users = User::get();
 
           
-          $totalCount = $uploadDocData->count();
+                $totalCount =$DataCount;
          
         
 
