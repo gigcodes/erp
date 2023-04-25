@@ -507,7 +507,7 @@
                 processing: true,
                 serverSide: true,
                 ordering: true,
-                searching: true,
+                searching: false,
                 ajax: {
                     url: "{{ route('google.search-keyword.list') }}",
                     data: function (d) {
@@ -542,7 +542,7 @@
                         }
                     },
                     {
-                        targets: 5,
+                        targets: 4,
                         data: null,
                         render: function (data, type, row, meta) {
                             return `<button class="btn btn-default btn-trash btn-image border-0 btn-sm" id="delete-keyword-${data.id}" onclick="deleteKeyword(${data.id})"><i class="fa fa-trash"></i></button>`;
