@@ -1553,6 +1553,8 @@ class EmailController extends Controller
         $email->model_type = $model_name;
         $email->save();
 
+        \Log::info('Assign Model to email : '.$model_name);
+
         $userExist = $model::where('email',$email->from)->first();
 
         if(empty($userExist)){
