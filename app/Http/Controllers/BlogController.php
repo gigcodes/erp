@@ -63,6 +63,16 @@ class BlogController extends Controller
                     }
                 })
 
+                ->addColumn('checkmobile_friendliness', function ($row) {
+                    if($row->checkmobile_friendliness == 'yes'){
+                        return "Yes";
+                    }elseif($row->checkmobile_friendliness == 'no'){
+                        return "No";
+                    }else{
+                        return "";
+                    }
+                })
+
                 ->addColumn('created_at', function ($row) {
                     $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : "N/A";
                     return $createdDate;
@@ -116,7 +126,8 @@ class BlogController extends Controller
                     return $italicTags;
                 })
                 ->addColumn('publish_blog_date', function ($row) {
-                    $publishDate = $row->publish_blog_date ? Carbon::parse($row->publish_blog_date)->format('Y-m-d') : "N/A";
+                    
+                    $publishDate = !empty($row->publish_blog_date) ? Carbon::parse($row->publish_blog_date)->format('Y-m-d') : "N/A";
                     return $publishDate;
                 })
                 ->addColumn('plaglarism', function ($row) {
@@ -134,7 +145,7 @@ class BlogController extends Controller
                     <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
                     return $actionBtn;
                 })
-                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'header_tag', 'strong_tag','italic_tag'])
+                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'header_tag', 'strong_tag','italic_tag','checkmobile_friendliness'])
                 ->make(true);
         }
 
@@ -618,7 +629,7 @@ class BlogController extends Controller
             'url_structure' => $request->url_structure,
             'url_xml' => $request->url_xml,
             'no_follow' => $request->no_follow,
-            'publish_blog_date' => !empty($request->publish_blog_date) ? Carbon::parse($request->publish_blog_date)->format('Y-m-d'): '',
+            'publish_blog_date' => !empty($request->publish_blog_date) ? Carbon::parse($request->publish_blog_date)->format('Y-m-d'): null,
             'no_index' => $request->no_index,
             'date' => $request->date,
             'facebook' => $request->facebook,
@@ -631,7 +642,8 @@ class BlogController extends Controller
             'google_date' => $request->google_date,
             'bing' => $request->bing,
             'bing_date' => $request->bing_date,
-
+            'canonical_url' => $request->canonical_url,
+            'checkmobile_friendliness' => $request->checkmobile_friendliness,
         ];
         
         $blogUpdate = Blog::where('id', $id)->update($dataUpdate);

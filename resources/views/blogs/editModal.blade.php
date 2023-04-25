@@ -234,6 +234,24 @@
                                     </div>
                             </div>
 
+                             <div class="col-md-4">
+                                  <label class="form-label">Canonical URL</label>
+                                  <br>
+                                  <input  name="canonical_url" type="text" name="canonical_url" value="{{$blog->canonical_url}}" class="form-control">
+                        
+                                  </div>
+                                  <div class="col-md-4">
+                                 
+                                  <label class="form-label">CheckMobile Friendliness</label>
+
+                                    <select name="checkmobile_friendliness" class="form-control">
+                                        <option value="yes" {{ $blog->checkmobile_friendliness == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option {{ $blog->checkmobile_friendliness == 'no' ? 'selected' : '' }} value="no">No</option>
+                                    </select>
+                                 
+                        
+                                  </div>
+
                               
                 </div> 
 

@@ -21,6 +21,8 @@ class Blog extends Model
         'publish_blog_date',
         'no_index',
         'no_follow',
+        'canonical_url',
+        'checkmobile_friendliness',
         'date',
         'facebook',
         'facebook_date',

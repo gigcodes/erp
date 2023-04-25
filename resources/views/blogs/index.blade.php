@@ -307,6 +307,24 @@
                                         </div>
                                 </div>
 
+                                  <div class="col-md-4">
+                                  <label class="form-label">Canonical URL</label>
+                                  <br>
+                                  <input  name="canonical_url" type="text" name="canonical_url" value="{{ old('canonical_url') }}" class="form-control">
+                        
+                                  </div>
+                                  <div class="col-md-4">
+                                 
+                                  <label class="form-label">CheckMobile Friendliness</label>
+                                  <select name="checkmobile_friendliness" class="form-control">
+                                      <option value="yes">Yes</option>
+                                      <option value="no">No</option>
+                                  </select>
+                                 
+                        
+                                  </div>
+
+
                                   
                     </div> 
 
@@ -546,6 +564,8 @@
                             <th style="width:10px !important;">userName</th>
                             <th>Idea</th>
                             <th>Keyword</th>
+                            <th>Canonical URL</th>
+                            <th>CheckMobile Friendliness</th>
                             <th>Content</th>
                              <th>No Follow</th>
                             <th>No Index</th>
@@ -626,6 +646,8 @@
                     {data: 'idea', name: 'idea', orderable: false, searchable: true},
                     
                     {data: 'keyword', name: 'keyword', orderable: false, searchable: false},
+                    {data: 'canonical_url', name: 'canonical_url', orderable: false, searchable: false},
+                    {data: 'checkmobile_friendliness', name: 'checkmobile_friendliness', orderable: false, searchable: false},
                     {data: 'content', name: 'content', orderable: false, searchable: true},
                     {data: 'no_index', name: 'no_index', orderable: false, searchable: false},
                     {data: 'no_follow', name: 'no_follow', orderable: false, searchable: false},
