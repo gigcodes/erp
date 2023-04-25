@@ -5,8 +5,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label class="form-label">Type</label>
-                        <input type="hidden" value="" name="type_id">
-                        <select name="type" class="form-control" required data-msg-required="Please select type.">
+                        <select name="type_id" class="form-control" required data-msg-required="Please select type.">
                             <option value="">-- SELECT --</option>
                             @foreach ($companyTypes as $item)
                                 <option value="{{ $item->id }}">{{ $item->name }}</option>

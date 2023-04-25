@@ -40,6 +40,7 @@
                 
                 $historyTable = $($historyModal).find('#historyTable').DataTable({
                     serverSide:true,
+                    processing:true,
                     lengthMenu: [ [50, 100, 150, -1], [50, 100, 150, "All"] ],
                     ajax:{
                         url:'',
@@ -71,30 +72,9 @@
 
         // Form popup 
         $(function() {
-            function initSelect2() {
-                $(document).find("select[name=type]").select2({
-                    tags: true,
-                })
-            }
-
-            $(document).on("select2:select", 'select[name=type]',function(e) {
-                let data = e.params.data;
-                $.ajax({
-                    type: "POST",
-                    url: `{{ route('seo.content-type.store')}}`,
-                    data: {
-                        name: data.text,
-                        _token:`{{ csrf_token() }}`
-                    },
-                    dataType: "json",
-                    success: function (response) {
-                        $(document).find("input[name=type_id]").val(response.data.id)
-                    }
-                });
-            });
 
             let $formModal = $(document).find('#companyFormModal');
-            $(document).on('click', '.editBtn,.addNewBtn', function() {
+            $(document).on('click', '.editBtn, .addNewBtn', function() {
                 let url = $(this).attr('data-url');
                 $.ajax({
                     type: "GET",
@@ -107,7 +87,6 @@
                         $($formModal).find('.modal-body').html(response.data);
                         $($formModal).find('.modal-title').text(response.title);
                         $($formModal).modal('show');
-                        initSelect2();
                     }
                 });
             })
@@ -138,6 +117,86 @@
 
         $(document).on('click', '.searchBtn', function() {
             $datatableData.clear().draw();
+        });
+
+        // Type Module
+        $(function() {
+            let $typeModal = $(document).find('#typeModal');
+            let $typeFormModal = $(document).find('#typeFormModal');
+            let $typeTable = null;
+
+            $(document).on('click', '.typeModuleBtn', function() {
+                $($typeModal).modal('show');
+                $typeTable = $(document).find('#typeTable').DataTable({
+                    serverSide:true,
+                    processing:true,
+                    lengthMenu: [ [50, 100, 150, -1], [50, 100, 150, "All"] ],
+                    ajax:{
+                        url:`{{ route('seo.company-type.index') }}`
+                    },
+                    columns:[
+                        { data: 'DT_RowIndex', 'orderable': false, 'searchable': false },
+                        { data: 'name', name:'name' },
+                        {data:'actions', name:'actions'},
+                    ]
+                });
+            })
+
+            $($typeModal).on('hide.bs.modal', function() {
+                $typeTable.destroy();
+            });
+
+            $(document).on('click', '.addNewTypeBtn, .typeEditBtn', function() {
+                let url = $(this).attr('data-url');
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    data: {},
+                    dataType: "json",
+                    success: function (response) {
+                        $($typeFormModal).modal('show');
+                        $($typeFormModal).find('.modal-title').html(response.title);
+                        $($typeFormModal).find('.modal-body').html(response.data);
+                    }
+                });
+            });
+
+            $(document).on('click', '.typeDeleteBtn', function() {
+                let isValid = confirm("are you sure want to delete?");
+                if(isValid) {
+                    let url = $(this).attr('data-url');
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: {
+                            _token:`{{ csrf_token() }}`
+                        },
+                        dataType: "json",
+                        success: function (response) {
+                            $typeTable.clear().draw();
+                        }
+                    });
+                }
+            });
+
+            $(document).on('click', '#typeFormModal .saveBtn', function() {
+                let $form = $(document).find("#typeFormModal #companyForm");
+                if(!$form.valid()) {
+                    return false;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: $form.attr('action'),
+                    data: $form.serialize(),
+                    dataType: "json",
+                    success: function (response) {
+                        $($typeFormModal).modal('hide');
+                        $($typeFormModal).find('.modal-body').html('');
+                        $typeTable.clear().draw();
+                    }
+                });
+            })
         })
 
     });
