@@ -520,10 +520,10 @@
                     {data: "hashtag"},
                     {data: "priority"},
                     {data: "hashtag"},
-                    {data: "created_at",
+                    /*{data: "created_at",
                            "render": function (data, type, row) {
                                 return moment(data).format('DD-MM-YYYY');
-                           }},
+                           }},*/
                     {data: null},
                 ],
                 columnDefs: [
