@@ -17,6 +17,7 @@ class CreateAffiliateConversionsTable extends Migration
             Schema::create('affiliate_conversions', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('affiliate_account_id');
+                $table->string('affiliate_conversion_id');
                 $table->string('external_id');
                 $table->float('amount');
                 $table->dateTime('click_date')->nullable();

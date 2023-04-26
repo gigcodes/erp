@@ -202,6 +202,105 @@ class Tapfiliate
     }
 
     /**
+     * Get Conversion
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function createConversions($data): array
+    {
+        return $this->callApi('POST', 'conversions/', $data);
+    }
+
+    /**
+     * Update Conversion
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function updateConversions($id, $data): array
+    {
+        return $this->callApi('PATCH', 'conversions/' . $id . '/', $data);
+    }
+
+    /**
+     * Delete Conversion
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function deleteConversions($id): array
+    {
+        return $this->callApi('DELETE', 'conversions/' . $id . '/');
+    }
+
+    /**
+     * Add commission to Conversion
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function addCommissionConversions($id, $data): array
+    {
+        return $this->callApi('POST', 'conversions/' . $id . '/commissions/', $data);
+    }
+
+    /**
+     * Get all Conversions
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function getAllConversions(): array
+    {
+        return $this->callApi('GET', 'conversions/');
+    }
+
+    /**
+     * Create customers
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function createCustomer($data): array
+    {
+        return $this->callApi('POST', 'customers/', $data);
+    }
+
+    /**
+     * Delete customers
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function deleteCustomer($id): array
+    {
+        return $this->callApi('DELETE', 'customers/' . $id . '/');
+    }
+
+    /**
+     * Cancel customers
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function cancelCustomer($id, $isCancle): array
+    {
+        return $this->callApi($isCancle ? 'DELETE' : 'PUT', 'customers/' . $id . '/status/');
+    }
+
+    /**
+     * Get all customers
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function getAllCustomer(): array
+    {
+        return $this->callApi('GET', 'customers/');
+    }
+
+    /**
      * Common function to fetch data from API using CURL.
      * @param $method
      * @param $url

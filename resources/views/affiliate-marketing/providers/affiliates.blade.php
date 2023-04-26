@@ -185,7 +185,8 @@
                         <input type="hidden" id="affiliate_id" name="affiliate_id" value="">
                         <div class="form-group row">
                             <label for="headline1" class="col-sm-2 col-form-label">Programme</label>
-                            <select name="programme_id" id="programme_id" class="form-control" style="width: 50% !important;">
+                            <select name="programme_id" id="programme_id" class="form-control"
+                                    style="width: 50% !important;">
                                 <option value="">Select</option>
                                 @foreach($affiliateProgrammes as $programme)
                                     <option value="{!! $programme->id !!}">{!! $programme->title !!}</option>

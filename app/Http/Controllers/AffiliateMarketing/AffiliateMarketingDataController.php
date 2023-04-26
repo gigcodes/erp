@@ -4,12 +4,14 @@ namespace App\Http\Controllers\AffiliateMarketing;
 
 use App\AffiliateCommissions;
 use App\AffiliateConversions;
+use App\AffiliateCustomers;
 use App\AffiliateGroups;
 use App\AffiliateMarketers;
 use App\AffiliateMarketingLogs;
 use App\AffiliatePayments;
 use App\AffiliatePrograms;
 use App\AffiliateProviderAccounts;
+use App\Customer;
 use App\Http\Controllers\Controller;
 use App\Setting;
 use Illuminate\Http\JsonResponse;
@@ -339,7 +341,7 @@ class AffiliateMarketingDataController extends Controller
                                 'kind' => $commission['kind'],
                                 'currency' => $commission['currency'],
                                 'final' => $commission['final'],
-                                'finalization_date' => $commission['finalization_date']
+                                'finalization_date' => isset($commission['finalization_date'])
                             ]);
                         } else {
                             $commissionData->affiliate_commission_id = $commission['id'];
@@ -355,7 +357,7 @@ class AffiliateMarketingDataController extends Controller
                             $commissionData->kind = $commission['kind'];
                             $commissionData->currency = $commission['currency'];
                             $commissionData->final = $commission['final'];
-                            $commissionData->finalization_date = $commission['finalization_date'];
+                            $commissionData->finalization_date = isset($commission['finalization_date']);
                             $commissionData->save();
                         }
                     }
@@ -991,6 +993,744 @@ class AffiliateMarketingDataController extends Controller
         } catch (\Exception $e) {
             $this->logActivity('Sync affiliate payments Data', ['status' => false, 'message' => $e->getMessage()]);
             return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
+     */
+    public function conversionIndex(Request $request)
+    {
+        if ($request->has('provider_account') && $request->provider_account) {
+            $provider = $this->getProviderAccount($request->provider_account);
+            $providersConversions = AffiliateConversions::with('affiliate')->where(function ($query) use ($request, $provider) {
+                $query->where('affiliate_account_id', $provider->id);
+                if ($request->has('name') && $request->name) {
+                    $query->whereHas('affiliate', function ($query) use ($request) {
+                        $query->where('firstName', 'like', '%' . $request->firstName . '%');
+                        $query->where('lastName', 'like', '%' . $request->lastName . '%');
+                        $query->where('email', 'like', '%' . $request->email . '%');
+                    });
+                }
+            })->paginate(Setting::get('pagination'), '*', 'affiliate_conversions');
+            $customers = Customer::where('store_website_id', $provider->store_website_id)->get();
+            return view('affiliate-marketing.providers.conversions', compact('providersConversions', 'provider', 'customers'));
+        }
+        return Redirect::route('affiliate-marketing.providerAccounts')
+            ->with('error', 'No provider found');
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function conversionCreate(Request $request): RedirectResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'referral_code' => 'sometimes',
+                'tracking_id' => 'sometimes',
+                'click_id' => 'sometimes',
+                'coupon' => 'sometimes',
+                'currency' => 'sometimes',
+                'asset_id' => 'sometimes',
+                'source_id' => 'sometimes',
+                'amount' => 'required',
+                'customer_id' => 'required',
+                'commission_type' => 'sometimes',
+                'commissions' => 'sometimes',
+                'user_agent' => 'sometimes',
+                'ip' => 'sometimes',
+            ]);
+            if ($validator->fails()) {
+                $this->logActivity('Create conversion', ['status' => false, 'message' => $validator->errors()->first()]);
+                return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                    ->with('create_popup', true)
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->createConversions([
+                    'referral_code' => $request->referral_code,
+                    'tracking_id' => $request->tracking_id,
+                    'click_id' => $request->click_id,
+                    'coupon' => $request->coupon,
+                    'currency' => $request->currency,
+                    'asset_id' => $request->asset_id,
+                    'source_id' => $request->source_id,
+                    'amount' => $request->amount,
+                    'customer_id' => $request->customer_id,
+                    'commission_type' => $request->commission_type,
+                    'commissions' => $request->commissions,
+                    'user_agent' => $request->user_agent,
+                    'ip' => $request->ip,
+                    'external_id' => uniqid()
+                ]);
+                if ($responseData['status']) {
+                    if ($responseData['data']['commissions']) {
+                        foreach ($responseData['data']['commissions'] as $commission) {
+                            $commissionData = AffiliateCommissions::where('affiliate_commission_id', $commission['id'])->first();
+                            $affiliteData = AffiliateMarketers::where('affiliate_id', $commission['affiliate']['id'])->first();
+                            if (!$commissionData) {
+                                AffiliateCommissions::create([
+                                    'affiliate_account_id' => $request->provider_account,
+                                    'affiliate_commission_id' => $commission['id'],
+                                    'amount' => $commission['amount'],
+                                    'approved' => isset($commission['approved']) ? $commission['approved'] : false,
+                                    'affiliate_commission_created_at' => $commission['created_at'],
+                                    'commission_type' => $commission['commission_type'],
+                                    'conversion_sub_amount' => $commission['conversion_sub_amount'],
+                                    'comment' => $commission['comment'],
+                                    'affiliate_conversion_id' => $responseData['data']['id'],
+                                    'payout' => isset($responseData['data']['payout']) && $responseData['data']['payout']['id'],
+                                    'affiliate_marketer_id' => $affiliteData && $affiliteData->id,
+                                    'kind' => $commission['kind'],
+                                    'currency' => $commission['currency'],
+                                    'final' => $commission['final'],
+                                    'finalization_date' => isset($commission['finalization_date']),
+                                ]);
+                            } else {
+                                $commissionData->amount = $commission['amount'];
+                                $commissionData->approved = isset($commission['approved']) ? $commission['approved'] : false;
+                                $commissionData->affiliate_commission_created_at = $commission['created_at'];
+                                $commissionData->commission_type = $commission['commission_type'];
+                                $commissionData->conversion_sub_amount = $commission['conversion_sub_amount'];
+                                $commissionData->comment = $commission['comment'];
+                                $commissionData->affiliate_conversion_id = $responseData['data']['id'];
+                                $commissionData->payout = isset($responseData['data']['payout']) && $responseData['data']['payout']['id'];
+                                $commissionData->affiliate_marketer_id = $affiliteData && $affiliteData->id;
+                                $commissionData->kind = $commission['kind'];
+                                $commissionData->currency = $commission['currency'];
+                                $commissionData->final = $commission['final'];
+                                $commissionData->finalization_date = isset($commission['finalization_date']);
+                                $commissionData->save();
+                            }
+                        }
+                    }
+                    $programmeData = null;
+                    $affiliateData = null;
+                    if (isset($responseData['data']['program']) && $responseData['data']['program']['id']) {
+                        $programmeData = AffiliatePrograms::where('affiliate_program_id', $responseData['data']['program']['id'])->first();
+                    }
+                    if (isset($responseData['data']['affiliate']) && $responseData['data']['affiliate']['id']) {
+                        $affiliateData = AffiliateMarketers::where('affiliate_id', $responseData['data']['affiliate']['id'])->first();
+                    }
+                    AffiliateConversions::create([
+                        'affiliate_account_id' => $request->provider_account,
+                        'affiliate_conversion_id' => $responseData['data']['id'],
+                        'external_id' => $responseData['data']['external_id'],
+                        'amount' => $responseData['data']['amount'],
+                        'click_date' => isset($responseData['data']['click']) && $responseData['data']['click']['created_at'],
+                        'click_referrer' => isset($responseData['data']['click']) && $responseData['data']['click']['referrer'],
+                        'click_landing_page' => isset($responseData['data']['click']) && $responseData['data']['click']['landing_page'],
+                        'program_id' => isset($responseData['data']['program']) && $responseData['data']['program']['id'],
+                        'affiliate_id' => isset($responseData['data']['affiliate']) && $responseData['data']['affiliate']['id'],
+                        'affiliate_program_id' => $programmeData->id,
+                        'affiliate_marketer_id' => $affiliateData->id,
+                        'customer_id' => isset($responseData['data']['customer']) && $responseData['data']['customer']['id'],
+                        'customer_system_id' => isset($responseData['data']['customer']) && $responseData['data']['customer']['customer_id'],
+                        'customer_status' => isset($responseData['data']['customer']) && $responseData['data']['customer']['status'],
+                        'meta_data' => isset($responseData['data']['meta_data']) ? serialize($responseData['data']['meta_data']) : '',
+                        'commission_created_at' => $responseData['data']['created_at'],
+                        'warnings' => serialize($responseData['data']['warnings']),
+                        'affiliate_meta_data' => serialize($responseData['data']['affiliate_meta_data']),
+                    ]);
+                    $this->logActivity('Create conversion', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Conversion added successfully');
+                }
+                $this->logActivity('Create conversion', $responseData);
+                return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Create conversion', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                ->with('error', 'Affiliate account not found');
+        } catch (\Exception $e) {
+            $this->logActivity('Create conversion', ['status' => false, 'message' => $e->getMessage()]);
+            return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function conversionUpdate(Request $request): RedirectResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'amount' => 'sometimes'
+            ]);
+            if ($validator->fails()) {
+                $this->logActivity('Update conversion', ['status' => false, 'message' => $validator->errors()->first()]);
+                return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                    ->with('create_popup', true)
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            $conversionData = AffiliateConversions::find($request->conversion_id);
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->updateConversions($conversionData->affiliate_conversion_id, [
+                    'amount' => $request->amount
+                ]);
+                if ($responseData['status']) {
+                    if ($responseData['data']) {
+                        foreach ($responseData['data']['commissions'] as $commission) {
+                            $commissionData = AffiliateCommissions::where('affiliate_commission_id', $commission['id'])->first();
+                            $affiliteData = AffiliateMarketers::where('affiliate_id', $commission['affiliate']['id'])->first();
+                            if (!$commissionData) {
+                                AffiliateCommissions::create([
+                                    'affiliate_account_id' => $request->provider_account,
+                                    'affiliate_commission_id' => $commission['id'],
+                                    'amount' => $commission['amount'],
+                                    'approved' => isset($commission['approved']) ? $commission['approved'] : false,
+                                    'affiliate_commission_created_at' => $commission['created_at'],
+                                    'commission_type' => $commission['commission_type'],
+                                    'conversion_sub_amount' => $commission['conversion_sub_amount'],
+                                    'comment' => $commission['comment'],
+                                    'affiliate_conversion_id' => $responseData['data']['id'],
+                                    'payout' => isset($responseData['data']['payout']) && $responseData['data']['payout']['id'],
+                                    'affiliate_marketer_id' => $affiliteData && $affiliteData->id,
+                                    'kind' => $commission['kind'],
+                                    'currency' => $commission['currency'],
+                                    'final' => $commission['final'],
+                                    'finalization_date' => isset($commission['finalization_date']),
+                                ]);
+                            } else {
+                                $commissionData->amount = $commission['amount'];
+                                $commissionData->approved = $commission['approved'];
+                                $commissionData->affiliate_commission_created_at = $commission['created_at'];
+                                $commissionData->commission_type = $commission['commission_type'];
+                                $commissionData->conversion_sub_amount = $commission['conversion_sub_amount'];
+                                $commissionData->comment = $commission['comment'];
+                                $commissionData->affiliate_conversion_id = $responseData['data']['id'];
+                                $commissionData->payout = isset($responseData['data']['payout']) && $responseData['data']['payout']['id'];
+                                $commissionData->affiliate_marketer_id = $affiliteData && $affiliteData->id;
+                                $commissionData->kind = $commission['kind'];
+                                $commissionData->currency = $commission['currency'];
+                                $commissionData->final = $commission['final'];
+                                $commissionData->finalization_date = isset($commission['finalization_date']);
+                                $commissionData->save();
+                            }
+                        }
+                    }
+                    $conversionData->amount = $request->amount;
+                    $conversionData->save();
+                    $this->logActivity('update conversion', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Conversion updated successfully');
+                }
+                $this->logActivity('Update conversion', $responseData);
+                return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Update conversion', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                ->with('error', 'Affiliate account not found');
+        } catch (\Exception $e) {
+            $this->logActivity('Update conversion', ['status' => false, 'message' => $e->getMessage()]);
+            return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function conversionDelete(Request $request, $id): RedirectResponse
+    {
+        try {
+            $conversions = AffiliateConversions::findOrFail($id);
+            if (!$conversions) {
+                return Redirect::route('affiliate-marketing.provider.conversion.index')
+                    ->with('error', 'No account found');
+            }
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->deleteConversions($conversions->affiliate_conversion_id);
+                if ($responseData['status']) {
+                    $conversions->delete();
+                    $this->logActivity('Delete Conversion', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Conversion deleted successfully');
+                }
+                $this->logActivity('Delete Conversion', $responseData);
+                return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Delete Conversion', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.conversion.index')
+                ->with('success', 'Account Not found');
+        } catch (\Exception $e) {
+            return Redirect::route('affiliate-marketing.provider.conversion.index')
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function conversionAddCommission(Request $request): RedirectResponse
+    {
+        try {
+            $conversions = AffiliateConversions::findOrFail($request->conversion_id);
+            if (!$conversions) {
+                return Redirect::route('affiliate-marketing.provider.conversion.index')
+                    ->with('error', 'No account found');
+            }
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->addCommissionConversions($conversions->affiliate_conversion_id, [
+                    'conversion_sub_amount' => $request->conversion_sub_amount,
+                    'commission_type' => $request->commission_type,
+                    'comment' => $request->comment,
+                ]);
+                if ($responseData['status']) {
+                    foreach ($responseData['data'] as $commission) {
+                        $commissionData = AffiliateCommissions::where('affiliate_commission_id', $commission['id'])->first();
+                        $affiliteData = AffiliateMarketers::where('affiliate_id', $commission['affiliate']['id'])->first();
+                        if (!$commissionData) {
+                            AffiliateCommissions::create([
+                                'affiliate_account_id' => $request->provider_account,
+                                'affiliate_commission_id' => $commission['id'],
+                                'amount' => $commission['amount'],
+                                'approved' => isset($commission['approved']) ? $commission['approved'] : false,
+                                'affiliate_commission_created_at' => $commission['created_at'],
+                                'commission_type' => $commission['commission_type'],
+                                'conversion_sub_amount' => $commission['conversion_sub_amount'],
+                                'comment' => $commission['comment'],
+                                'affiliate_conversion_id' => $request->affiliate_conversion_id,
+                                'payout' => isset($commission['payout']) && $commission['payout']['id'],
+                                'affiliate_marketer_id' => $affiliteData && $affiliteData->id,
+                                'kind' => $commission['kind'],
+                                'currency' => $commission['currency'],
+                                'final' => $commission['final'],
+                                'finalization_date' => isset($commission['finalization_date']),
+                            ]);
+                        } else {
+                            $commissionData->amount = $commission['amount'];
+                            $commissionData->approved = (bool)$commission['approved'];
+                            $commissionData->affiliate_commission_created_at = $commission['created_at'];
+                            $commissionData->commission_type = $commission['commission_type'];
+                            $commissionData->conversion_sub_amount = $commission['conversion_sub_amount'];
+                            $commissionData->comment = $commission['comment'];
+                            $commissionData->affiliate_conversion_id = $request->affiliate_conversion_id;
+                            $commissionData->payout = isset($commission['payout']) && $commission['payout']['id'];
+                            $commissionData->affiliate_marketer_id = $affiliteData && $affiliteData->id;
+                            $commissionData->kind = $commission['kind'];
+                            $commissionData->currency = $commission['currency'];
+                            $commissionData->final = $commission['final'];
+                            $commissionData->finalization_date = isset($commission['finalization_date']);
+                            $commissionData->save();
+                        }
+                    }
+                    $this->logActivity('Commission added to Conversion', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Commission added to Conversion successfully');
+                }
+                $this->logActivity('Commission added to Conversion', $responseData);
+                return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Commission added to Conversion', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.conversion.index')
+                ->with('success', 'Account Not found');
+        } catch (\Exception $e) {
+            return Redirect::route('affiliate-marketing.provider.conversion.index')
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Sync Payments from API to DB
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function conversionSync(Request $request): RedirectResponse
+    {
+        try {
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->getAllConversions();
+                if ($responseData['status']) {
+                    foreach ($responseData['data'] as $conversion) {
+                        if ($conversion['commissions']) {
+                            foreach ($conversion['commissions'] as $commission) {
+                                $commissionData = AffiliateCommissions::where('affiliate_commission_id', $commission['id'])->first();
+                                $affiliteData = AffiliateMarketers::where('affiliate_id', $commission['affiliate']['id'])->first();
+                                if (!$commissionData) {
+                                    AffiliateCommissions::create([
+                                        'affiliate_account_id' => $request->provider_account,
+                                        'affiliate_commission_id' => $commission['id'],
+                                        'amount' => $commission['amount'],
+                                        'approved' => isset($commission['approved']) ? $commission['approved'] : false,
+                                        'affiliate_commission_created_at' => $commission['created_at'],
+                                        'commission_type' => $commission['commission_type'],
+                                        'conversion_sub_amount' => $commission['conversion_sub_amount'],
+                                        'comment' => $commission['comment'],
+                                        'affiliate_conversion_id' => $conversion['id'],
+                                        'payout' => isset($commission['payout']) && $commission['payout']['id'],
+                                        'affiliate_marketer_id' => $affiliteData && $affiliteData->id,
+                                        'kind' => $commission['kind'],
+                                        'currency' => $commission['currency'],
+                                        'final' => $commission['final'],
+                                        'finalization_date' => isset($commission['finalization_date']),
+                                    ]);
+                                } else {
+                                    $commissionData->amount = $commission['amount'];
+                                    $commissionData->approved = $commission['approved'];
+                                    $commissionData->affiliate_commission_created_at = $commission['created_at'];
+                                    $commissionData->commission_type = $commission['commission_type'];
+                                    $commissionData->conversion_sub_amount = $commission['conversion_sub_amount'];
+                                    $commissionData->comment = $commission['comment'];
+                                    $commissionData->affiliate_conversion_id = $conversion['id'];
+                                    $commissionData->payout = isset($commission['payout']) && $commission['payout']['id'];
+                                    $commissionData->affiliate_marketer_id = $affiliteData && $affiliteData->id;
+                                    $commissionData->kind = $commission['kind'];
+                                    $commissionData->currency = $commission['currency'];
+                                    $commissionData->final = $commission['final'];
+                                    $commissionData->finalization_date = isset($commission['finalization_date']);
+                                }
+                            }
+                        }
+                        $conversionData = AffiliateConversions::where('affiliate_conversion_id', $conversion['id'])->first();
+                        $programmeData = null;
+                        $affiliateData = null;
+                        if (isset($conversion['program']) && $conversion['program']['id']) {
+                            $programmeData = AffiliatePrograms::where('affiliate_program_id', $conversion['program']['id'])->first();
+                        }
+                        if (isset($conversion['affiliate']) && $conversion['affiliate']['id']) {
+                            $affiliateData = AffiliateMarketers::where('affiliate_id', $conversion['affiliate']['id'])->first();
+                        }
+                        if (!$conversionData) {
+                            AffiliateConversions::create([
+                                'affiliate_account_id' => $request->provider_account,
+                                'affiliate_conversion_id' => $conversion['id'],
+                                'external_id' => $conversion['external_id'],
+                                'amount' => $conversion['amount'],
+                                'click_date' => isset($conversion['click']) ? $conversion['click']['created_at'] : null,
+                                'click_referrer' => isset($conversion['click']) ? $conversion['click']['referrer'] : null,
+                                'click_landing_page' => isset($conversion['click']) ? $conversion['click']['landing_page'] : null,
+                                'program_id' => isset($conversion['program']) ? $conversion['program']['id'] : null,
+                                'affiliate_id' => isset($conversion['affiliate']) ? $conversion['affiliate']['id'] : null,
+                                'affiliate_program_id' => $programmeData->id,
+                                'affiliate_marketer_id' => $affiliateData->id,
+                                'customer_id' => isset($conversion['customer']) ? $conversion['customer']['id'] : null,
+                                'customer_system_id' => isset($conversion['customer']) ? $conversion['customer']['customer_id'] : null,
+                                'customer_status' => isset($conversion['customer']) ? $conversion['customer']['status'] : null,
+                                'meta_data' => isset($conversion['meta_data']) ? serialize($conversion['meta_data']) : '',
+                                'commission_created_at' => $conversion['created_at'],
+                                'warnings' => serialize($conversion['warnings']),
+                                'affiliate_meta_data' => serialize($conversion['affiliate_meta_data'])
+                            ]);
+                        } else {
+                            $conversionData->affiliate_conversion_id = $conversion['id'];
+                            $conversionData->external_id = $conversion['external_id'];
+                            $conversionData->amount = $conversion['amount'];
+                            $conversionData->click_date = isset($conversion['click']) ? $conversion['click']['created_at'] : null;
+                            $conversionData->click_referrer = isset($conversion['click']) ? $conversion['click']['referrer'] : null;
+                            $conversionData->click_landing_page = isset($conversion['click']) ? $conversion['click']['landing_page'] : null;
+                            $conversionData->program_id = isset($conversion['program']) ? $conversion['program']['id'] : null;
+                            $conversionData->affiliate_id = isset($conversion['affiliate']) ? $conversion['affiliate']['id'] : null;
+                            $conversionData->affiliate_program_id = $programmeData->id;
+                            $conversionData->affiliate_marketer_id = $affiliateData->id;
+                            $conversionData->customer_id = isset($conversion['customer']) ? $conversion['customer']['id'] : null;
+                            $conversionData->customer_system_id = isset($conversion['customer']) ? $conversion['customer']['customer_id'] : null;
+                            $conversionData->customer_status = isset($conversion['customer']) ? $conversion['customer']['status'] : null;
+                            $conversionData->meta_data = isset($conversion['meta_data']) ? serialize($conversion['meta_data']) : '';
+                            $conversionData->commission_created_at = $conversion['created_at'];
+                            $conversionData->warnings = $conversion['warnings'];
+                            $conversionData->affiliate_meta_data = $conversion['affiliate_meta_data'];
+                            $conversionData->save();
+                        }
+                    }
+                    $this->logActivity('Sync affiliate conversion Data', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Affiliate affiliate conversion synced successfully');
+                }
+                $this->logActivity('Sync affiliate conversion Data', $responseData);
+                return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Sync affiliate conversion Data', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                ->with('error', 'Affiliate account not found');
+        } catch (\Exception $e) {
+            $this->logActivity('Sync affiliate conversion Data', ['status' => false, 'message' => $e->getMessage()]);
+            return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
+     */
+    public function customerIndex(Request $request)
+    {
+        if ($request->has('provider_account') && $request->provider_account) {
+            $provider = $this->getProviderAccount($request->provider_account);
+            $providersCustomers = AffiliateCustomers::with(['affiliate', 'programme'])->where(function ($query) use ($request, $provider) {
+                $query->where('affiliate_account_id', $provider->id);
+                if ($request->has('name') && $request->name) {
+                    $query->whereHas('affiliate', function ($query) use ($request) {
+                        $query->where('firstName', 'like', '%' . $request->firstName . '%');
+                        $query->where('lastName', 'like', '%' . $request->lastName . '%');
+                        $query->where('email', 'like', '%' . $request->email . '%');
+                    });
+                }
+            })->paginate(Setting::get('pagination'), '*', 'affiliate_customer');
+            $customers = Customer::where('store_website_id', $provider->store_website_id)->get();
+            return view('affiliate-marketing.providers.customers', compact('providersCustomers', 'provider', 'customers'));
+        }
+        return Redirect::route('affiliate-marketing.providerAccounts')
+            ->with('error', 'No provider found');
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function customerCreate(Request $request): RedirectResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'referral_code' => 'sometimes',
+                'tracking_id' => 'sometimes',
+                'click_id' => 'sometimes',
+                'coupon' => 'sometimes',
+                'currency' => 'sometimes',
+                'asset_id' => 'sometimes',
+                'source_id' => 'sometimes',
+                'customer_id' => 'required',
+                'status' => 'sometimes',
+                'user_agent' => 'sometimes',
+                'ip' => 'sometimes',
+            ]);
+            if ($validator->fails()) {
+                $this->logActivity('Create customer', ['status' => false, 'message' => $validator->errors()->first()]);
+                return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                    ->with('create_popup', true)
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->createCustomer([
+                    'referral_code' => $request->referral_code,
+                    'tracking_id' => $request->tracking_id,
+                    'click_id' => $request->click_id,
+                    'coupon' => $request->coupon,
+                    'currency' => $request->currency,
+                    'asset_id' => $request->asset_id,
+                    'source_id' => $request->source_id,
+                    'customer_id' => $request->customer_id,
+                    'status' => $request->status,
+                    'user_agent' => $request->user_agent,
+                    'ip' => $request->ip
+                ]);
+                if ($responseData['status']) {
+                    $programmeData = null;
+                    $affiliateData = null;
+                    if (isset($responseData['data']['program']) && $responseData['data']['program']['id']) {
+                        $programmeData = AffiliatePrograms::where('affiliate_program_id', $responseData['data']['program']['id'])->first();
+                    }
+                    if (isset($responseData['data']['affiliate']) && $responseData['data']['affiliate']['id']) {
+                        $affiliateData = AffiliateMarketers::where('affiliate_id', $responseData['data']['affiliate']['id'])->first();
+                    }
+                    AffiliateCustomers::create([
+                        'affiliate_account_id' => $request->provider_account,
+                        'customer_id' => $responseData['data']['id'],
+                        'customer_system_id' => $responseData['data']['customer_id'],
+                        'status' => $responseData['data']['status'],
+                        'customer_created_at' => $responseData['data']['created_at'],
+                        'click_date' => isset($responseData['data']['click']) && $responseData['data']['click']['created_at'],
+                        'click_referrer' => isset($responseData['data']['click']) && $responseData['data']['click']['referrer'],
+                        'click_landing_page' => isset($responseData['data']['click']) && $responseData['data']['click']['landing_page'],
+                        'program_id' => isset($responseData['data']['program']) && $responseData['data']['program']['id'],
+                        'affiliate_id' => isset($responseData['data']['affiliate']) && $responseData['data']['affiliate']['id'],
+                        'affiliate_program_id' => $programmeData->id,
+                        'affiliate_marketer_id' => $affiliateData->id,
+                        'affiliate_meta_data' => serialize($responseData['data']['affiliate_meta_data']),
+                        'meta_data' => serialize($responseData['data']['meta_data']),
+                        'warnings' => serialize($responseData['data']['warnings'])
+                    ]);
+                    $this->logActivity('Create customer', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Customer added successfully');
+                }
+                $this->logActivity('Create customer', $responseData);
+                return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Create customer', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                ->with('error', 'Affiliate account not found');
+        } catch (\Exception $e) {
+            $this->logActivity('Create customer', ['status' => false, 'message' => $e->getMessage()]);
+            return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function customerDelete(Request $request, $id): RedirectResponse
+    {
+        try {
+            $customer = AffiliateCustomers::findOrFail($id);
+            if (!$customer) {
+                return Redirect::route('affiliate-marketing.provider.conversion.index')
+                    ->with('error', 'No account found');
+            }
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->deleteCustomer($customer->customer_id);
+                if ($responseData['status']) {
+                    $customer->delete();
+                    $this->logActivity('Delete Customer', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Customer deleted successfully');
+                }
+                $this->logActivity('Delete Customer', $responseData);
+                return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Delete Customer', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.customer.index')
+                ->with('success', 'Account Not found');
+        } catch (\Exception $e) {
+            return Redirect::route('affiliate-marketing.provider.customer.index')
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function customerCancelUnCancel(Request $request, $id): RedirectResponse
+    {
+        try {
+            $customer = AffiliateCustomers::findOrFail($id);
+            if (!$customer) {
+                return Redirect::route('affiliate-marketing.provider.conversion.index')
+                    ->with('error', 'No account found');
+            }
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->cancelCustomer($customer->customer_id, $customer->status != 'canceled');
+                if ($responseData['status']) {
+                    $customer->status = $responseData['data']['status'];
+                    $customer->save();
+                    $this->logActivity('Cancel Customer', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Customer Cancel successfully');
+                }
+                $this->logActivity('Cancel Customer', $responseData);
+                return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Cancel Customer', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.customer.index')
+                ->with('success', 'Account Not found');
+        } catch (\Exception $e) {
+            return Redirect::route('affiliate-marketing.provider.customer.index')
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Sync Customers from API to DB
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function customerSync(Request $request): RedirectResponse
+    {
+        try {
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->getAllCustomer();
+                if ($responseData['status']) {
+                    foreach ($responseData['data'] as $customer) {
+                        $programmeData = null;
+                        $affiliateData = null;
+                        if (isset($customer['program']) && $customer['program']['id']) {
+                            $programmeData = AffiliatePrograms::where('affiliate_program_id', $customer['program']['id'])->first();
+                        }
+                        if (isset($customer['affiliate']) && $customer['affiliate']['id']) {
+                            $affiliateData = AffiliateMarketers::where('affiliate_id', $customer['affiliate']['id'])->first();
+                        }
+                        $customerData = AffiliateCustomers::where('customer_id', $customer['id'])->first();
+                        if (!$customerData) {
+                            AffiliateCustomers::create([
+                                'affiliate_account_id' => $request->provider_account,
+                                'customer_id' => $customer['id'],
+                                'customer_system_id' => $customer['customer_id'],
+                                'status' => $customer['status'],
+                                'customer_created_at' => $customer['created_at'],
+                                'click_date' => isset($customer['click']) && $customer['click']['created_at'],
+                                'click_referrer' => isset($customer['click']) && $customer['click']['referrer'],
+                                'click_landing_page' => isset($customer['click']) && $customer['click']['landing_page'],
+                                'program_id' => isset($customer['program']) && $customer['program']['id'],
+                                'affiliate_id' => isset($customer['affiliate']) && $customer['affiliate']['id'],
+                                'affiliate_program_id' => $programmeData->id,
+                                'affiliate_marketer_id' => $affiliateData->id,
+                                'affiliate_meta_data' => serialize($customer['affiliate_meta_data']),
+                                'meta_data' => serialize($customer['meta_data']),
+                                'warnings' => serialize($customer['warnings'])
+                            ]);
+                        } else {
+                            $customerData->customer_id = $customer['id'];
+                            $customerData->customer_system_id = $customer['customer_id'];
+                            $customerData->status = $customer['status'];
+                            $customerData->customer_created_at = $customer['created_at'];
+                            $customerData->click_date = isset($customer['click']) && $customer['click']['created_at'];
+                            $customerData->click_referrer = isset($customer['click']) && $customer['click']['referrer'];
+                            $customerData->click_landing_page = isset($customer['click']) && $customer['click']['landing_page'];
+                            $customerData->program_id = isset($customer['program']) && $customer['program']['id'];
+                            $customerData->affiliate_id = isset($customer['affiliate']) && $customer['affiliate']['id'];
+                            $customerData->affiliate_program_id = $programmeData->id;
+                            $customerData->affiliate_marketer_id = $affiliateData->id;
+                            $customerData->affiliate_meta_data = serialize($customer['affiliate_meta_data']);
+                            $customerData->meta_data = serialize($customer['meta_data']);
+                            $customerData->warnings = serialize($customer['warnings']);
+                            $customerData->save();
+                        }
+                    }
+                    $this->logActivity('Sync affiliate customer Data', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Affiliate affiliate customer synced successfully');
+                }
+                $this->logActivity('Sync affiliate customer Data', $responseData);
+                return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Sync affiliate customer Data', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                ->with('error', 'Affiliate account not found');
+        } catch (\Exception $e) {
+            $this->logActivity('Sync affiliate customer Data', ['status' => false, 'message' => $e->getMessage()]);
+            return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
     }

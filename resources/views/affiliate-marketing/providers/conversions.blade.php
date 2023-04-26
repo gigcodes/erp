@@ -30,23 +30,24 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">
-                {!! $provider->provider->provider_name !!} Groups (<span
-                        id="affiliate_count">{{ $providersGroups->total() }}</span>)
+                {!! $provider->provider->provider_name !!} Conversions (<span
+                        id="affiliate_count">{{ $providersConversions->total() }}</span>)
             </h2>
             <div class="pull-left">
-                <form action="{{route('affiliate-marketing.provider.index', ['provider_account' => $provider->id])}}">
+                <form action="{{route('affiliate-marketing.provider.conversion.index', ['provider_account' => $provider->id])}}">
+                    <input type="hidden" name="provider_account" value="{!! $provider->id !!}">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-6">
-                                <input name="group_name" type="text" class="form-control"
-                                       value="{{ request('group_name') }}" placeholder="Search group name">
+                                <input name="name" type="text" class="form-control"
+                                       value="{{ request('name') }}" placeholder="Search name">
                             </div>
                             <div class="col-md-6">
                                 <button type="submit" class="btn btn-image">
                                     <img src="/images/filter.png"/>
                                 </button>
                                 <button type="reset"
-                                        onclick="window.location='{{route('affiliate-marketing.provider.index', ['provider_account' => $provider->id])}}'"
+                                        onclick="window.location='{{route('affiliate-marketing.provider.conversion.index', ['provider_account' => $provider->id])}}'"
                                         class="btn btn-image" id="resetFilter">
                                     <img src="/images/resend2.png"/>
                                 </button>
@@ -56,12 +57,12 @@
                 </form>
             </div>
             <div class="col-md-6 pl-0 float-right">
-                {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.syncData', ['provider_account' => $provider->id]],'style'=>'display:inline']) !!}
+                {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.conversion.sync', ['provider_account' => $provider->id]],'style'=>'display:inline']) !!}
                 <button type="submit" class="float-right mb-3 btn-secondary">Refresh Data
                 </button>
                 {!! Form::close() !!}
-                <button data-toggle="modal" data-target="#create-group" type="button"
-                        class="float-right mb-3 btn-secondary">New Group
+                <button data-toggle="modal" data-target="#create-conversion" type="button"
+                        class="float-right mb-3 btn-secondary">New Conversion
                 </button>
             </div>
         </div>
@@ -74,56 +75,67 @@
             <thead>
             <tr>
                 <th>No</th>
-                <th>Name</th>
-                <th>{!! $provider->provider->provider_name !!} group id</th>
+                <th>Affiliate Name</th>
+                <th>Amount</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-            @foreach ($providersGroups as $key => $providersGroup)
+            @foreach ($providersConversions as $key => $providersConversion)
                 <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $providersGroup->title }}</td>
-                    <td>{{ $providersGroup->affiliate_provider_group_id }}</td>
+                    <td>{{ $providersConversion->affiliate->firstname .' '.$providersConversion->affiliate->lastname }}</td>
+                    <td>{{ $providersConversion->amount }}</td>
                     <td>
-                        <button type="button" data-toggle="modal" data-target="#create-group"
-                                onclick="editData('{!! $providersGroup->id !!}')"
+                        <button type="button" data-toggle="modal" data-target="#update-conversion"
+                                onclick="editData('{!! $providersConversion->id !!}', '{!! $providersConversion->amount !!}')"
                                 class="btn btn-image"><img src="/images/edit.png"></button>
+                        {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.conversion.delete', [$providersConversion->id, 'provider_account' => $provider->id]],'style'=>'display:inline']) !!}
+                        <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
+                        {!! Form::close() !!}
+                        <button type="button" data-toggle="modal" data-target="#add-commission" onclick="addCommission('{!! $providersConversion->id !!}')"
+                                class="btn btn-image"><img src="/images/price.png"/></button>
                     </td>
                 </tr>
             @endforeach
             </tbody>
         </table>
     </div>
-    {!! $providersGroups->render() !!}
-    <div class="modal fade" id="create-group" role="dialog" style="z-index: 3000;">
+    {!! $providersConversions->render() !!}
+    <div class="modal fade" id="create-conversion" role="dialog" style="z-index: 3000;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="col-md-12">
                     <div class="page-header" style="width: 69%">
-                        <h2>Create Affiliate Group</h2>
+                        <h2>Create Conversion</h2>
                     </div>
-                    <form id="add-group-form" method="POST"
-                          action="{{route('affiliate-marketing.provider.createGroup', ['provider_account' => $provider->id])}}">
-                        {{csrf_field()}}
-                        <input type="hidden" id="provider_id" name="affiliate_account_id" value="{!! $provider->id !!}">
-                        <div class="form-group row">
-                            <label for="headline1" class="col-sm-2 col-form-label">Title</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="group_title" name="title"
-                                       placeholder="Title" value="{{ old('title') }}">
-                                @if ($errors->has('title'))
-                                    <span class="text-danger">{{$errors->first('title')}}</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="float-right ml-2 custom-button btn" data-dismiss="modal"
-                                    aria-label="Close">Close
-                            </button>
-                            <button type="submit" class="float-right custom-button btn">Create</button>
-                        </div>
-                    </form>
+                    @include('affiliate-marketing.providers.partials.conversion-create')
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="update-conversion" role="dialog" style="z-index: 3000;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="col-md-12">
+                    <div class="page-header" style="width: 69%">
+                        <h2>Update Conversion amount</h2>
+                    </div>
+                    @include('affiliate-marketing.providers.partials.conversion-update')
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="add-commission" role="dialog" style="z-index: 3000;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="col-md-12">
+                    <div class="page-header" style="width: 69%">
+                        <h2>Add commission</h2>
+                    </div>
+                    @include('affiliate-marketing.providers.partials.conversion-commission')
                 </div>
             </div>
         </div>
@@ -141,45 +153,17 @@
         @endif
 
         if (showPopup) {
-            $('#create-group').modal('show');
+            $('#create-conversion').modal('show');
         }
 
-        $('#create-group').on('show.bs.modal', function () {
-            $('#create-group .page-header h2').text('Create Affiliate Group');
-            $('#add-group-form').attr('action', "{{ route('affiliate-marketing.provider.createGroup', ['provider_account' => $provider->id]) }}");
-            $('#add-group-form button[type="submit"]').text('Create');
-        })
+        function editData(id, amount) {
+            $('#edit-amount').val(amount);
+            $('#conversion_id').val(id);
+        }
 
-        $('#create-group').on('hidden.bs.modal', function () {
-            $('#add-group-form').get(0).reset();
-        })
-
-        function editData(id) {
-            let url = "{{ route('affiliate-marketing.provider.getGroup', [":id", 'provider_account' => $provider->id]) }}";
-            url = url.replace(':id', id);
-            $.ajax({
-                url,
-                type: 'GET',
-                params: {id},
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-                success: function (response) {
-                    $("#loading-image").hide();
-                    if (!response.status) {
-                        toastr["error"](response.message);
-                        $('#create-group').modal('hide');
-                    } else {
-                        let url = "{{ route('affiliate-marketing.provider.updateGroup', [":id", 'provider_account' => $provider->id]) }}";
-                        url = url.replace(':id', id);
-                        $('#add-group-form').attr('action', url);
-                        $('#add-group-form button[type="submit"]').text('Update');
-                        $('#create-group .page-header h2').text('Update Affiliate Group');
-                        $('#add-group-form [name="title"]').val(response.data.title);
-                        $('#add-group-form [name="provider_id"]').val(response.data.affiliate_account_id);
-                    }
-                }
-            })
+        function addCommission(id) {
+            console.log($('#add_conversion_id'));
+            $('#add_conversion_id').val(id);
         }
     </script>
 @endsection

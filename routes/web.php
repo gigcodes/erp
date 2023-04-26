@@ -5025,4 +5025,21 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
         Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'paymentsCancel'])->name('affiliate-marketing.provider.payments.cancel');
         Route::post('payments-sync', [AffiliateMarketingDataController::class, 'paymentsSync'])->name('affiliate-marketing.provider.payments.sync');
     });
+
+    Route::prefix('conversions')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'conversionIndex'])->name('affiliate-marketing.provider.conversion.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'conversionCreate'])->name('affiliate-marketing.provider.conversion.create');
+        Route::post('update', [AffiliateMarketingDataController::class, 'conversionUpdate'])->name('affiliate-marketing.provider.conversion.update');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'conversionDelete'])->name('affiliate-marketing.provider.conversion.delete');
+        Route::post('add-commission', [AffiliateMarketingDataController::class, 'conversionAddCommission'])->name('affiliate-marketing.provider.conversion.addCommission');
+        Route::post('conversion-sync', [AffiliateMarketingDataController::class, 'conversionSync'])->name('affiliate-marketing.provider.conversion.sync');
+    });
+
+    Route::prefix('customer')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'customerIndex'])->name('affiliate-marketing.provider.customer.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'customerCreate'])->name('affiliate-marketing.provider.customer.create');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'customerDelete'])->name('affiliate-marketing.provider.customer.delete');
+        Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'customerCancelUnCancel'])->name('affiliate-marketing.provider.customer.cancelUncancel');
+        Route::post('customer-sync', [AffiliateMarketingDataController::class, 'customerSync'])->name('affiliate-marketing.provider.customer.sync');
+    });
 });

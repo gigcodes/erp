@@ -62,10 +62,10 @@
                 </form>
             </div>
             <div class="col-md-6 pl-0 float-right">
-                {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.syncData', ['provider_account' => $provider->id]],'style'=>'display:inline']) !!}
-                <button type="submit" class="float-right mb-3 btn-secondary">Refresh Data
-                </button>
-                {!! Form::close() !!}
+{{--                {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.syncData', ['provider_account' => $provider->id]],'style'=>'display:inline']) !!}--}}
+{{--                <button type="submit" class="float-right mb-3 btn-secondary">Refresh Data--}}
+{{--                </button>--}}
+{{--                {!! Form::close() !!}--}}
                 <button data-toggle="modal" data-target="#create-group" type="button"
                         class="float-right mb-3 mr-2 btn-secondary">New Group
                 </button>
@@ -85,9 +85,13 @@
                    type="button"
                    class="float-right mb-3 mr-2 btn-secondary link-button">View Commissions
                 </a>
-                <a href="{!! route('affiliate-marketing.provider.program.index', ['provider_account' => $provider->id]) !!}"
+                <a href="{!! route('affiliate-marketing.provider.conversion.index', ['provider_account' => $provider->id]) !!}"
                    type="button"
                    class="float-right mb-3 mr-2 btn-secondary link-button">View Conversions
+                </a>
+                <a href="{!! route('affiliate-marketing.provider.customer.index', ['provider_account' => $provider->id]) !!}"
+                   type="button"
+                   class="float-right mb-3 mr-2 btn-secondary link-button">View Customers
                 </a>
             </div>
         </div>
