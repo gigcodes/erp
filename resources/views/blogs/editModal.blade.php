@@ -273,7 +273,7 @@
 
 
                 <!-- Edit Content Added -->
-            <div class="modal fade" id="EditContentModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
+            <div class="modal fade" id="EditContentModal"  role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
                   <div class="modal-dialog" role="document">
                         <div class="modal-content">
                                   <div class="modal-header">
