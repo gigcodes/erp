@@ -1,6 +1,10 @@
 
 
   <script type="text/javascript" src="{{ asset('js/fm-tagator.js') }}"></script>
+
+  <script>
+    CKEDITOR.replace( 'editcontent' );
+  </script>
     
  
 
@@ -49,7 +53,7 @@
                         <label class="form-label">Content</label>
                         <br>
                          <div class="text-danger" id="EditcontentValidation" style="display:none">Content Field is required.</div>
-                        <div> <button type="button" data-toggle="modal" data-target="#EditContentModal" class="btn btn-primary custom-button">Content</button></div>   
+                        <div> <button type="button" data-toggle="modal" id ="EditContentDataModal"  class="btn btn-primary custom-button">Content</button></div>   
                     </div>
 
 
@@ -277,12 +281,13 @@
                                       
                                   </div>
                                   <div class="modal-body">
-                                          
-                                     <textarea id="EditBlogContent"  name="content" rows="20" cols="55">{{$blog->content}}</textarea>
+                                           <input type="text" name="content" value="{{$blog->content}}" id="editcontent"> 
+                                        
+                                     {{--  <textarea id="EditBlogContent"  name="content" rows="20" cols="55">{{$blog->content}}</textarea>  --}}
                                                  
                                   </div>     
                                   <div class="modal-footer">
-                                      <button type="button" class="btn btn-secondary" id="EditContentModalClose">Cancel</button>
+                                      <button type="button" class="btn btn-secondary" id="EditContentModalCloseButton">Cancel</button>
                                       <button type="button" class="btn btn-success"  id="EditContentModalClose">Add</button>
                                       {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
                                   </div>

@@ -107,6 +107,12 @@ class BlogController extends Controller
                     $bingDate = $row->bing_date ? Carbon::parse($row->bing_date)->format('Y-m-d') : "N/A";
                     return $bingDate;
                 })
+
+                ->addColumn('content', function ($row) {
+                  
+                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" id="ViewContent" data-blog-id="' . $row->id . '" class="btn custom-button ViewContent btn-warning btn-sm"><i class="fa fa-eye"></i> Content</a>&nbsp;';
+                    return $actionBtn;
+                })
                
                 ->addColumn('strong_tag', function ($row) {
                     
@@ -143,7 +149,7 @@ class BlogController extends Controller
                     <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
                     return $actionBtn;
                 })
-                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'strong_tag','italic_tag','checkmobile_friendliness','internal_link'])
+                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'strong_tag','italic_tag','checkmobile_friendliness','internal_link','content'])
                 ->make(true);
         }
 
@@ -207,6 +213,7 @@ class BlogController extends Controller
                         return '';
                     }
                 })
+                
 
                 ->addColumn('created_at', function ($row) {
                     $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : "N/A";
@@ -233,6 +240,7 @@ class BlogController extends Controller
     public function store(Request $request)
     {
 
+       
         $this->validate($request, [
             'user_id' => 'required',
             'idea' => 'nullable|max:524',
@@ -484,6 +492,20 @@ class BlogController extends Controller
             return response()->json(['status' => 'error', 'data' => ['not found'], 'message' => 'Not Found!'], 400);
         }
     }
+
+    public function contentView($id)
+    {
+     
+        $blog = Blog::where('id', $id)->first();
+        if (!empty($blog)) {
+            $returnHTML = view('blogs.Contentview')->with('blog', $blog)->render();
+           
+            return response()->json(['status' => 'success', 'data' => ['html' => $returnHTML], 'message' => 'Blog'], 200);
+        } else {
+            return response()->json(['status' => 'error', 'data' => ['not found'], 'message' => 'Not Found!'], 400);
+        }
+    }
+    
 
     public function allTagsByTagType($type)
     {

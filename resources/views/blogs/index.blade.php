@@ -70,7 +70,28 @@
                   </div>
               </div>
           </div> 
-        </div>  
+        </div>
+
+
+              {{--  Content View Modal --}}
+        <div class="modal fade" id="ViewContentModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">       
+          <div class="modal-dialog modal-lg" role="document" >
+              <div class="modal-content">
+                  <div class="modal-header">
+                    Content View
+                      
+                  </div>
+                  <div class="modal-body DataContentView">
+                    
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="ViewContentModalHide">Close</button>
+                 
+                   
+                </div>
+              </div>
+          </div> 
+        </div>    
 
         {{--   Add Modal Popup         --}}
       <div class="modal fade" id="addBlogModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
@@ -432,12 +453,13 @@
                                       
                                   </div>
                                   <div class="modal-body">
-                                            <input type="text" name="content" >     
-                                                  <textarea id="AddBlogContent" class="content"  name="content" rows="20" cols="55"></textarea>
+                                    <input type="hidden" name="content_html" id="content_html">
+                                                <input type="text" name="content" id="content">
+                                                  {{--  <textarea id="AddBlogContent" id="AddcontentCk" name="content"></textarea>  --}}
                                                  
                                   </div>     
                                   <div class="modal-footer">
-                                      <button type="button" class="btn btn-secondary" id="ContentModalHide">Cancel</button>
+                                      <button type="button" class="btn btn-secondary" id="ContentModalHideButton">Cancel</button>
                                       <button type="button" class="btn btn-success"  id="ContentModalHide">Add</button>
                                       {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
                                   </div>
@@ -713,6 +735,34 @@
 
        });
 
+       $('#blog_listing').on('click','#ViewContent',function(){
+           
+        var id = $(this).data('blog-id');
+
+        // AJAX request
+        $.ajax({
+            url: 'contentview/'+id,
+            type: 'GET',
+            data: {id: id},
+            dataType: 'json',
+            success: function(response){
+              console.log(response);
+                if(response.status == 'success'){
+                  $('.DataContentView').html("");
+                 $('.DataContentView').append(response.data.html);
+               
+                  $('#ViewContentModal').modal("show");
+                  
+                
+                    
+                }else{
+                     alert("Something went wrong!");
+                }
+            }
+        });
+
+   });
+
           $('.refreshTable').click(function(){
              
                 $('#userId').val('');
@@ -755,7 +805,7 @@
           });
 
            $(document).on('click', '#UpdateBlogdata', function(e){
-          var content = $('#EditBlogContent').val().trim();
+          var content = $('#editcontent').val().trim();
            if(content === ''){
             $('#EditcontentValidation').css('display','block');
               e.preventDefault();
@@ -766,7 +816,7 @@
 
 
         $("#addBlog").submit(function(e){
-               var content = $('#AddBlogContent').val().trim();
+               var content = $('#content').val().trim();
            if(content === ''){
             $('#AddcontentValidation').css('display','block');
               e.preventDefault();
@@ -775,30 +825,59 @@
             
         });
 
-        
-
-          
-         
-
          
 
            $(document).on('click', '#EditContentModalClose', function(e){
-           $('#EditContentModal').modal('hide');
+            var editorText = CKEDITOR.instances.editcontent.getData();
+            
+            $(document).find('#editcontent').val(editorText);
+            $('#EditContentModal').modal('hide');
+          });
+          $(document).on('click', '#EditContentModalCloseButton', function(e){
+            
+            $('#EditContentModal').modal('hide');
           });
 
           
 
+          
            $(document).on('click', '#ContentModalHide', function(e){
+            var editorText = CKEDITOR.instances.content.getData();
+            
+            $(document).find('#content').val(editorText);
            $('#ContentModal').modal('hide');
           });
+          
+          $(document).on('click', '#ContentModalHideButton', function(e){
+            
+           $('#ContentModal').modal('hide');
+          });
+
+          $(document).on('click', '#ViewContentModalHide', function(e){
+            
+            $('#ViewContentModal').modal('hide');
+           });
+
+          
+
+          
+
+          $(document).on('click', '#EditContentDataModal', function(e){
+
+            var Editcontentvalue = $(document).find('#editcontent').val();
+            
+            CKEDITOR.instances.editcontent.setData(Editcontentvalue)
+      
+            $('#EditContentModal').modal('show');
+          });
+          
 
            $(document).on('click', '#EditGoogleBingo', function(e){
            $('#edit_google_bingo').modal('hide');
           });
        
 
-        
-        
+    
 
         $(document).on("click",".delete-blog",function(e){
           e.preventDefault();
