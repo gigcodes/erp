@@ -65,6 +65,24 @@
                         <input type="text" name="live_link" class="form-control" required data-msg-required="Please enter live link." value="{{ $seoCompany->live_link }}">
                     </div>
                 </div>
+
+                <div class="row">
+                    @php
+                        $statusArr = [
+                            'pending',
+                            'approved',
+                            'rejected',
+                        ];
+                    @endphp
+                    <div class="form-group col-md-4 mt-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control" required data-msg-required="Please select status.">
+                            @foreach ($statusArr as $status)
+                                <option value="{{ $status }}" {{ $seoCompany->status == $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
             </form>
         </div>
     </div>

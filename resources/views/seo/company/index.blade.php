@@ -22,7 +22,7 @@ $auth = auth()->user();
     <div class="mt-3">
         <div class=" mt-4">
             <div class="row mb-3">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">Type</label>
                     <select name="type" class="form-control typeSelect">
                         <option value=""> -- SELECT --</option>
@@ -42,12 +42,29 @@ $auth = auth()->user();
                     </select>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">User</label>
                     <select name="type" class="form-control userFilter">
                         <option value=""> -- SELECT --</option>
                         @foreach ($users as $item)
                             <option value="{{ $item->id }}">{{ $item->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                     @php
+                        $statusArr = [
+                            'pending',
+                            'approved',
+                            'rejected',
+                        ];
+                    @endphp
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-control statusFilter">
+                        <option value="">-- SELECT --</option>
+                        @foreach ($statusArr as $status)
+                            <option value="{{ $status }}">{{ ucfirst($status) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -69,9 +86,11 @@ $auth = auth()->user();
                         <th>PA</th>
                         <th>SS</th>
                         <th>User</th>
-                        <th>Username & Password</th>
+                        <th>Username</th>
+                        <th>Password</th>
                         <th>Live link</th>
                         <th>Date</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -168,10 +187,11 @@ $auth = auth()->user();
                             <th>DA</th>
                             <th>PA</th>
                             <th>SS</th>
-                            <th>User</th>
-                            <th>Username & Password</th>
+                            <th>Username</th>
+                            <th>Password</th>
                             <th>Live link</th>
                             <th>Date</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                 </table>

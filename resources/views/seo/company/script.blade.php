@@ -13,6 +13,7 @@
                     companyTypeId:() => $(document).find(".typeSelect option:selected").val(),
                     websiteId:() => $(document).find(".websiteFilter option:selected").val(),
                     userId:() => $(document).find(".userFilter option:selected").val(),
+                    status:() => $(document).find(".statusFilter option:selected").val(),
                 }
             },
             columns:[
@@ -23,9 +24,11 @@
                 {data:'pa', name:'pa'},
                 {data:'ss', name:'ss'},
                 {data:'user.name', name:'user.name'},
-                {data:'userPass', name:'userPass'},
+                {data:'username', name:'username'},
+                {data:'password', name:'password'},
                 {data:'liveLink', name:'liveLink'},
                 {data:'created_at', name:'created_at'},
+                {data:'status', name:'status'},
                 {data:'actions', name:'actions'},
             ]
         });
@@ -56,10 +59,11 @@
                         {data:'da', name:'da'},
                         {data:'pa', name:'pa'},
                         {data:'ss', name:'ss'},
-                        {data:'user.name', name:'user.name'},
-                        {data:'userPass', name:'userPass'},
+                        {data:'username', name:'username'},
+                        {data:'password', name:'password'},
                         {data:'liveLink', name:'liveLink'},
                         {data:'created_at', name:'created_at'},
+                        {data:'status', name:'status'},
                     ]
                 })
             })
