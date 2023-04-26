@@ -146,7 +146,13 @@
 
                         <div class="col-md-4">
                             <label class="form-label">Internal link</label>
-                            <input type="text" name="internal_link" class="form-control" value="{{ old('internal_link') }}">
+                         
+                             <select name="internal_link" class="form-control">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+
+                           
                             @error('internal_link')
                             <div class="alert text-danger">{{ $message }}</div>
                             @enderror
@@ -170,7 +176,7 @@
                         <div class="col-md-4">
                             <label class="form-label">Title tag</label>
                             <br>
-                            <input id="activate_tagator2" type="text" name="title_tag" class="tagator" value="{{ old('title_tag') }}" data-tagator-show-all-options-on-focus="true" data-tagator-autocomplete={{$tagName}}>
+                            <input  type="text" name="title_tag" value="{{ old('title_tag') }}">
                         </div>
 
                         <div class="col-md-4">
@@ -192,7 +198,7 @@
                         <div class="col-md-4">
                           <label class="form-label">Header tag</label>
                             <br>
-                            <input id="activate_tagator2" name="header_tag" type="text" class="tagator" value="{{ old('header_tag') }}" data-tagator-show-all-options-on-focus="true" data-tagator-autocomplete={{$tagName}}>
+                            <input  name="header_tag" type="text" value="{{ old('header_tag') }}">
                         
                         </div>
 
@@ -426,8 +432,8 @@
                                       
                                   </div>
                                   <div class="modal-body">
-                                                
-                                                  <textarea id="AddBlogContent"  name="content" rows="20" cols="55"></textarea>
+                                            <input type="text" name="content" >     
+                                                  <textarea id="AddBlogContent" class="content"  name="content" rows="20" cols="55"></textarea>
                                                  
                                   </div>     
                                   <div class="modal-footer">

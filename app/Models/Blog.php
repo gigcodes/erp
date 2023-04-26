@@ -14,6 +14,8 @@ class Blog extends Model
         'content',
         'plaglarism',
         'internal_link',
+        'header_tag',
+        'title_tag',
         'external_link',
         'meta_desc',
         'url_structure',

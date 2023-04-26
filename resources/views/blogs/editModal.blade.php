@@ -68,7 +68,10 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Internal link</label>
-                        <input type="text" name="internal_link" class="form-control" value="{{$blog->internal_link}}">
+                       <select name="internal_link" class="form-control">
+                                        <option value="yes" {{ $blog->internal_link == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option {{ $blog->internal_link == 'no' ? 'selected' : '' }} value="no">No</option>
+                                    </select>
                          @error('internal_link')
                         <div class="alert text-danger">{{ $message }}</div>
                         @enderror
@@ -96,7 +99,7 @@
                     <div class="col-md-4">
                         <label class="form-label">Title tag</label>
                         <br>
-                        <input id="edit_activate_tagator2" type="text" name="title_tag" class="tagator" value="{{$titleTagEditValue}}" data-tagator-show-all-options-on-focus="true">
+                        <input  type="text" name="title_tag" value="{{$blog->title_tag}}">
                     </div>
 
                     <div class="col-md-4">
@@ -122,7 +125,7 @@
                     <div class="col-md-4">
                        <label class="form-label">Header tag</label>
                         <br>
-                        <input id="edit_activate_tagator2" name="header_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true">
+                        <input  name="header_tag" type="text"  value="{{$blog->header_tag}}">
                     
                     </div>
 
