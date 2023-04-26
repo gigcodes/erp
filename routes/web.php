@@ -4947,7 +4947,11 @@ Route::prefix('seo')->middleware('auth')->group(function() {
 
     Route::prefix('company-type')->group(function() {
         Route::get('', [Seo\CompanyTypeController::class, 'index'])->name('seo.company-type.index');
-        Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.content-type.store');
+        Route::get('create', [Seo\CompanyTypeController::class, 'create'])->name('seo.company-type.create');
+        Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.company-type.store');
+        Route::get('edit/{id}', [Seo\CompanyTypeController::class, 'edit'])->name('seo.company-type.edit');
+        Route::post('update/{id}', [Seo\CompanyTypeController::class, 'update'])->name('seo.company-type.update');
+        Route::post('destroy/{id}', [Seo\CompanyTypeController::class, 'destroy'])->name('seo.company-type.destroy');
     });
 
 });

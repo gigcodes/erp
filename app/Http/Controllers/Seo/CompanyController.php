@@ -60,7 +60,8 @@ class CompanyController extends Controller
             'pa' => $request->pa,
             'ss' => $request->ss,
             'email_address_id' => $request->email_address_id,
-            'live_link' => $request->live_link
+            'live_link' => $request->live_link,
+            'status' => $request->status,
         ]);
         $this->addHistory($seoCompany);
         DB::commit();
@@ -96,7 +97,8 @@ class CompanyController extends Controller
             'pa' => $request->pa,
             'ss' => $request->ss,
             'email_address_id' => $request->email_address_id,
-            'live_link' => $request->live_link
+            'live_link' => $request->live_link,
+            'status' => $request->status,
         ]);
         $this->addHistory($seoCompany);
         DB::commit();
@@ -131,6 +133,11 @@ class CompanyController extends Controller
         if(!empty($request->userId)) {
             $seoCompanies = $seoCompanies->where('user_id', $request->userId);
         }
+
+        if(!empty($request->status)) {
+            $seoCompanies = $seoCompanies->where('status', $request->status);
+        }
+        
         return datatables()->eloquent($seoCompanies)
             ->addColumn('actions', function($val) {
                 $editUrl = route('seo.company.edit', $val->id);
@@ -145,18 +152,21 @@ class CompanyController extends Controller
             ->addColumn('company', function($val) {
                 return $val->companyType->name ?? '-';
             })
-            ->addColumn('userPass', function($val) {
-                $data = "<span>";
-                $data .= "<b>Username : </b>" . ($val->emailAddress->username ?? '-') . "<br>";
-                $data .= "<b>Password : </b>" . ($val->emailAddress->password ?? '-') . "<br>";
-                $data .= "</data>";
-                return $data;
+            ->addColumn('username', function($val) {
+                return $val->emailAddress->username ?? '-';
+            })
+            ->addColumn('password', function($val) {
+                return $val->emailAddress->password ?? '-';
             })
             ->addColumn('liveLink', function($val) {
                 return "<a target='_blank' href='$val->live_link'>{$val->live_link}</a>";
             })
+            ->addColumn('status', function($val) {
+                $val->status = ucfirst($val->status);
+                return "<span class='badge'>{$val->status}</a>";
+            })
             ->addIndexColumn()
-            ->rawColumns(['actions', 'userPass', 'liveLink'])
+            ->rawColumns(['actions', 'liveLink', 'status'])
             ->make(true);
     }
 
@@ -171,18 +181,24 @@ class CompanyController extends Controller
             ->addColumn('company', function($val) {
                 return $val->companyType->name ?? '-';
             })
-            ->addColumn('userPass', function($val) {
-                $data = "<span>";
-                $data .= "<b>Username : </b>" . ($val->emailAddress->username ?? '-') . "<br>";
-                $data .= "<b>Password : </b>" . ($val->emailAddress->password ?? '-') . "<br>";
-                $data .= "</data>";
-                return $data;
+            ->addColumn('company', function($val) {
+                return $val->companyType->name ?? '-';
+            })
+            ->addColumn('username', function($val) {
+                return $val->emailAddress->username ?? '-';
+            })
+            ->addColumn('password', function($val) {
+                return $val->emailAddress->password ?? '-';
             })
             ->addColumn('liveLink', function($val) {
                 return "<a target='_blank' href='$val->live_link'>{$val->live_link}</a>";
             })
+            ->addColumn('status', function($val) {
+                $val->status = ucfirst($val->status);
+                return "<span class='badge'>{$val->status}</a>";
+            })
             ->addIndexColumn()
-            ->rawColumns(['actions', 'userPass', 'liveLink'])
+            ->rawColumns(['actions', 'liveLink', 'status'])
             ->make(true);
     }
     
@@ -198,7 +214,8 @@ class CompanyController extends Controller
             'pa' => $request->pa,
             'ss' => $request->ss,
             'email_address_id' => $request->email_address_id,
-            'live_link' => $request->live_link
+            'live_link' => $request->live_link,
+            'status' => $request->status,
         ]);
 
         return true;
