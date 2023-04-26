@@ -110,7 +110,10 @@ class MailinglistController extends Controller
                 curl_close($curl);
                 \Log::info($response);
                 $res = json_decode($response);
-
+                if(!isset($res->id) && isset($res->code) && isset($res->message) ){
+                    $errror_message=$res->code.':'.$res->message;
+                    return response()->json(['status' => false,'messages'=>[$errror_message]]);
+                }
                 Mailinglist::create([
                     'id' => $res->id,
                     'name' => $request->name,
@@ -141,7 +144,13 @@ class MailinglistController extends Controller
                 $response = curl_exec($curl);
 
                 curl_close($curl);
+                
                 $res = json_decode($response);
+                \Log::info($res);
+                if(!isset($res->status) && !isset($res->list_uid)){
+                    
+                    return response()->json(['status' => false,'messages'=>['Not getting any response. Please check AcelleMail API']]);
+                }
                 if ($res->status == 1) {
                     //getting last id
                     $list = Mailinglist::orderBy('id', 'desc')->first();
@@ -352,12 +361,14 @@ class MailinglistController extends Controller
                 $response = curl_exec($curl);
                 curl_close($curl);
                 $res = json_decode($response);
-                if ($res->subscribers) {
+                if (isset($res->subscribers)) {
                     foreach ($res->subscribers as $subscriber) {
                         if ($subscriber->list_uid == $id) {
                             return response()->json(['status' => 'success']);
                         }
                     }
+                }else{
+                    return response()->json(['status' => 'error']);
                 }
 
                 //Assign Customer to list
@@ -428,7 +439,7 @@ class MailinglistController extends Controller
         $response = curl_exec($curl);
         curl_close($curl);
         $res = json_decode($response);
-
+        \Log::info($response);
         if (isset($res->message)) {
             if ($res->message == 'Contact already exist') {
                 $curl3 = curl_init();
@@ -481,6 +492,7 @@ class MailinglistController extends Controller
 
                 return response()->json(['status' => 'success']);
             }
+            return response()->json(['status' => 'error']);
         } else {
             $customer = Customer::where('email', $email)->first();
             $mailinglist = Mailinglist::find($id);
@@ -561,9 +573,15 @@ class MailinglistController extends Controller
                     CURLOPT_POSTFIELDS => [],
                 ]);
 
-                $res = curl_exec($curl);
+                $response = curl_exec($curl);
 
                 curl_close($curl);
+                $res = json_decode($response);
+
+                if (!isset($res->status)) {
+                    return redirect()->back()->with('error',"Not getting any response. Please check AcelleMail API");
+                } 
+
             } else {
                 $curl = curl_init();
                 curl_setopt_array($curl, [
@@ -586,15 +604,18 @@ class MailinglistController extends Controller
 
                 curl_close($curl);
                 $res = json_decode($response);
+
+                if (isset($res->message) && isset($res->code)) {
+                    $errror_message = $res->code.': '.$res->message;
+                    return redirect()->back()->with('error', $errror_message);
+                } 
             }
 
-            if (isset($res->message)) {
-                return redirect()->back()->with('error', $res->message);
-            } else {
-                Mailinglist::where('remote_id', $id)->delete();
+            
+            Mailinglist::where('remote_id', $id)->delete();
 
-                return redirect()->back()->with('success', 'Removed successfully.');
-            }
+            return redirect()->back()->with('success', 'Removed successfully.');
+            
         }
     }
 
@@ -706,6 +727,7 @@ class MailinglistController extends Controller
 
                 return response()->json(['status' => 'success']);
             }
+            return response()->json(['status' => 'error']);
         } else {
             $customer = Customer::where('email', $email)->first();
             $mailinglist = Mailinglist::find($id);
