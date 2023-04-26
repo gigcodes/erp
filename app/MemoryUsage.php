@@ -10,7 +10,6 @@ class MemoryUsage extends Model
 
     protected static function boot()
     {
-        parent::boot();
         self::creating(function (MemoryUsage $memory) {
             $thresold_limit_for_memory_uses = Setting::where('name', 'thresold_limit_for_memory_uses')->first();
 
