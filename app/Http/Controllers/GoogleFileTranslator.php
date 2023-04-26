@@ -62,28 +62,33 @@ class GoogleFileTranslator extends Controller
             'tolanguage' => 'required',
             'file' => 'required|max:10000|mimes:csv,txt',
         ]);
-        $this->getMediaPathSave();
-        $filename = $request->file('file');
-        $ext = $filename->getClientOriginalExtension();
-        //$filenameNew = md5($filename).'.'.$ext;
-        $filenameNew = $filename->getClientOriginalName();
-        $media = MediaUploader::fromSource($request->file('file'))
-        ->toDestination('uploads', 'google-file-translator')
-        ->upload();
-        $input = $request->all();
-        $input['name'] = $filenameNew;
-        $insert = GoogleFiletranslatorFile::create($input);
-        $path = public_path().'/uploads/google-file-translator/';
-        $languageData = Language::where('id', $insert->tolanguage)->first();
-        if (file_exists($path.$insert->name)) {
-            try {
-                $result = $this->translateFile($path.$insert->name, $languageData->locale, ',');
-            } catch (\Exception $e) {
-                return redirect()->route('googlefiletranslator.list')->with('error', $e->getMessage());
+        try {
+            $this->getMediaPathSave();
+            $filename = $request->file('file');
+            $ext = $filename->getClientOriginalExtension();
+            //$filenameNew = md5($filename).'.'.$ext;
+            $filenameNew = $filename->getClientOriginalName();
+            $media = MediaUploader::fromSource($request->file('file'))
+            ->toDestination('uploads', 'google-file-translator')
+            ->upload();
+            $input = $request->all();
+            $input['name'] = $filenameNew;
+            $insert = GoogleFiletranslatorFile::create($input);
+            $path = public_path().'/uploads/google-file-translator/';
+            $languageData = Language::where('id', $insert->tolanguage)->first();
+            if (file_exists($path.$insert->name)) {
+                try {
+                    $result = $this->translateFile($path.$insert->name, $languageData->locale, ',');
+                } catch (\Exception $e) {
+                    return redirect()->route('googlefiletranslator.list')->with('error', $e->getMessage());
+                }
             }
+            
+            return redirect()->route('googlefiletranslator.list')->with('success', 'Translation created successfully');
+        } catch (\Exception $e) {
+            \Log::error($e);
+            return redirect()->route('googlefiletranslator.list')->with('error', "Error while uploading file. Please try again.");
         }
-
-        return redirect()->route('googlefiletranslator.list')->with('success', 'Translation created successfully');
     }
 
     /**
