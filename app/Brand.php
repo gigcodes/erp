@@ -202,4 +202,8 @@ class Brand extends Model
         // Return brands array
         return $brandsArray;
     }
+
+    public static function updateStatusIsHashtagsGenerated() {
+        \DB::table('brands')->where('is_hashtag_generated', 0)->update(['is_hashtag_generated' => 1]);
+    }
 }

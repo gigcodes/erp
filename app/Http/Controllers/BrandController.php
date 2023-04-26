@@ -8,6 +8,8 @@ use App\BrandLogo;
 use App\BrandWithLogo;
 use App\Category;
 use App\CategorySegment;
+use App\HashTag;
+use App\Jobs\CreateHashTags;
 use App\Product;
 use App\ScrapedProducts;
 use App\Scraper;
@@ -212,6 +214,38 @@ class BrandController extends Controller
         DB::table('category_segment_discounts')->insert([
             ['brand_id' => $brand->id, 'category_segment_id' => $category_segment_id, 'amount' => $amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()],
         ]);
+
+        /* Initialize queue for add hashtags */
+//        $brandList = Brand::where('is_hashtag_generated', 0)->get();
+//        if (! $brandList->isEmpty()) {
+//            ini_set('max_execution_time', '-1');
+//            ini_set('max_execution_time', '0'); // for infinite time of execution
+//
+//            $category_postfix_string_list = Category::getCategoryHierarchyString(4);
+//            $string_arr = [];
+//            foreach ($brandList as $brand) {
+//                foreach($category_postfix_string_list as $string) {
+//                    $string_data['hashtag'] = $brand->name .' '. $string->combined_string;
+//                    $string_data['platforms_id'] = 2;
+//                    $string_data['rating'] = 8;
+//                    $string_data['created_at'] = $string_data['updated_at'] = date('Y-m-d h:i:s');
+//                    $string_data['created_by'] = \Auth::user()->id;
+//                    $check_exist = HashTag::where('hashtag', $string_data['hashtag'])->count();
+//                    if($check_exist <= 0) {
+//                        $string_arr[] = $string_data;
+//                    }
+//                }
+//                CreateHashTags::dispatch($string_arr)->onQueue('insert-hash-tags');
+//                $string_arr = [];
+//            }
+
+            /*$chunks = array_chunk($string_arr, 10);
+
+            foreach ($chunks as $chunk) {
+                CreateHashTags::dispatch($chunk)->onQueue('insert-hash-tags');
+            }*/
+//            Brand::updateStatusIsHashtagsGenerated();
+        }
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }

@@ -1086,9 +1086,10 @@ class Category extends Model
      * id = 1, 143, 144, 211, 241, 366, 372 <- these are some unwanted ids od category which we dont want to keep in generated string
      * ex: Select Category, Unknown Category, Ignore Category Reference, Ignore Category Reference,
      * Level in this query is taken for we wanted to go deep till 4 levels for category and sub category
+     * @param int $level
      * @return array
      */
-    public static function getCategoryHierarchySting(): array
+    public static function getCategoryHierarchyString($level = 4): array
     {
         $query = 'WITH RECURSIVE category_path AS(
                         SELECT id, title, title AS generated_string, 1 AS level
@@ -1098,7 +1099,7 @@ class Category extends Model
                     SELECT c.id, c.title, CONCAT(cp.generated_string, " ", c.title), cp.level + 1
                     FROM categories c
                     JOIN category_path cp ON  c.parent_id = cp.id
-                    WHERE cp.level < 4)
+                    WHERE cp.level < '.$level.')
                     
                     SELECT CONCAT(cp.generated_string, " ", ksv.keyword) AS combined_string
                     FROM category_path cp
