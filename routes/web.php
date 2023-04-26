@@ -5018,4 +5018,11 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
         Route::post('add-to-programme', [AffiliateMarketingDataController::class, 'affiliateAddToProgramme'])->name('affiliate-marketing.provider.affiliate.addToProgramme');
         Route::post('affiliate-sync', [AffiliateMarketingDataController::class, 'affiliateSync'])->name('affiliate-marketing.provider.affiliate.sync');
     });
+
+    Route::prefix('payments')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'paymentsIndex'])->name('affiliate-marketing.provider.payments.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'paymentsCreate'])->name('affiliate-marketing.provider.payments.create');
+        Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'paymentsCancel'])->name('affiliate-marketing.provider.payments.cancel');
+        Route::post('payments-sync', [AffiliateMarketingDataController::class, 'paymentsSync'])->name('affiliate-marketing.provider.payments.sync');
+    });
 });

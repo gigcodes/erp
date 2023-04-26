@@ -7,6 +7,7 @@ use App\AffiliateConversions;
 use App\AffiliateGroups;
 use App\AffiliateMarketers;
 use App\AffiliateMarketingLogs;
+use App\AffiliatePayments;
 use App\AffiliatePrograms;
 use App\AffiliateProviderAccounts;
 use App\Http\Controllers\Controller;
@@ -822,8 +823,174 @@ class AffiliateMarketingDataController extends Controller
             return Redirect::route('affiliate-marketing.provider.affiliate.index')
                 ->with('success', 'Account Not found');
         } catch (\Exception $e) {
-            _p($e->getMessage());die;
             return Redirect::route('affiliate-marketing.provider.affiliate.index')
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
+     */
+    public function paymentsIndex(Request $request)
+    {
+        if ($request->has('provider_account') && $request->provider_account) {
+            $provider = $this->getProviderAccount($request->provider_account);
+            $providersPayments = AffiliatePayments::with('affiliate')->where(function ($query) use ($request, $provider) {
+                $query->where('affiliate_account_id', $provider->id);
+                if ($request->has('name') && $request->name) {
+                    $query->whereHas('affiliate', function ($query) use ($request) {
+                        $query->where('firstName', 'like', '%' . $request->firstName . '%');
+                        $query->where('lastName', 'like', '%' . $request->lastName . '%');
+                        $query->where('email', 'like', '%' . $request->email . '%');
+                    });
+                }
+            })->paginate(Setting::get('pagination'), '*', 'affiliate_payments');
+            $affiliates = AffiliateMarketers::where('affiliate_account_id', $provider->id)->get();
+            return view('affiliate-marketing.providers.payments', compact('providersPayments', 'provider', 'affiliates'));
+        }
+        return Redirect::route('affiliate-marketing.providerAccounts')
+            ->with('error', 'No provider found');
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function paymentsCreate(Request $request): RedirectResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'affiliate_id' => 'required',
+                'amount' => 'required',
+                'currency' => 'required|max:3'
+            ]);
+            if ($validator->fails()) {
+                $this->logActivity('Create Affiliate payment', ['status' => false, 'message' => $validator->errors()->first()]);
+                return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                    ->with('create_popup', true)
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            $affiliateData = AffiliateMarketers::find($request->affiliate_id);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->createAffiliatePayment([
+                    'affiliate_id' => $affiliateData->affiliate_id,
+                    'amount' => $request->amount,
+                    'currency' => $request->currency,
+                ]);
+                if ($responseData['status']) {
+                    AffiliatePayments::create([
+                        'affiliate_account_id' => $request->provider_account,
+                        'payment_id' => $responseData['data'][0]['id'],
+                        'payment_created_at' => $responseData['data'][0]['created_at'],
+                        'affiliate_marketer_id' => $affiliateData->id,
+                        'amount' => $request->amount,
+                        'currency' => $request->currency,
+                    ]);
+                    $this->logActivity('Create Affiliate payment', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Affiliate payment added successfully');
+                }
+                $this->logActivity('Create Affiliate payment', $responseData);
+                return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Create Affiliate payment', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                ->with('error', 'Affiliate account not found');
+        } catch (\Exception $e) {
+            $this->logActivity('Create Affiliate payment', ['status' => false, 'message' => $e->getMessage()]);
+            return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function paymentsCancel(Request $request, $id): RedirectResponse
+    {
+        try {
+            $payment = AffiliatePayments::findOrFail($id);
+            if (!$payment) {
+                return Redirect::route('affiliate-marketing.provider.payments.index')
+                    ->with('error', 'No account found');
+            }
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->cancelAffiliatePayment($payment->payment_id);
+                if ($responseData['status']) {
+                    $payment->delete();
+                    $this->logActivity('Delete Affiliate payment', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Affiliate payment deleted successfully');
+                }
+                $this->logActivity('Delete Affiliate payment', $responseData);
+                return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Delete Affiliate payment', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.payments.index')
+                ->with('success', 'Account Not found');
+        } catch (\Exception $e) {
+            return Redirect::route('affiliate-marketing.provider.payments.index')
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Sync Payments from API to DB
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function paymentsSync(Request $request): RedirectResponse
+    {
+        try {
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->getAffiliatePayment();
+                if ($responseData['status']) {
+                    foreach ($responseData['data'] as $payment) {
+                        $paymentData = AffiliatePayments::where('payment_id', $payment['id'])->first();
+                        $affiliateData = AffiliateMarketers::where('affiliate_id', $payment['affiliate']['id'])->first();
+                        if (!$paymentData) {
+                            AffiliatePayments::create([
+                                'affiliate_account_id' => $request->provider_account,
+                                'payment_id' => $payment['id'],
+                                'payment_created_at' => $payment['created_at'],
+                                'affiliate_marketer_id' => $affiliateData->id,
+                                'amount' => $payment['amount'],
+                                'currency' => $payment['currency'],
+                            ]);
+                        } else {
+                            $paymentData->payment_id = $payment['id'];
+                            $paymentData->payment_created_at = $payment['created_at'];
+                            $paymentData->affiliate_marketer_id = $affiliateData->id;
+                            $paymentData->amount = $payment['amount'];
+                            $paymentData->currency = $payment['currency'];
+                            $paymentData->save();
+                        }
+                    }
+                    $this->logActivity('Sync affiliate Payment Data', $responseData);
+                    return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                        ->with('success', 'Affiliate affiliate Payment synced successfully');
+                }
+                $this->logActivity('Sync affiliate Payment Data', $responseData);
+                return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                    ->with('error', $responseData['message']);
+            }
+            $this->logActivity('Sync affiliate Payment Data', ['status' => false, 'message' => "Account Not found"]);
+            return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
+                ->with('error', 'Affiliate account not found');
+        } catch (\Exception $e) {
+            $this->logActivity('Sync affiliate payments Data', ['status' => false, 'message' => $e->getMessage()]);
+            return Redirect::route('affiliate-marketing.provider.payments.index', ['provider_account' => $request->provider_account])
                 ->with('error', $e->getMessage());
         }
     }

@@ -77,7 +77,7 @@
                    type="button"
                    class="float-right mb-3 mr-2 btn-secondary link-button">View Programs
                 </a>
-                <a href="{!! route('affiliate-marketing.provider.program.index', ['provider_account' => $provider->id]) !!}"
+                <a href="{!! route('affiliate-marketing.provider.payments.index', ['provider_account' => $provider->id]) !!}"
                    type="button"
                    class="float-right mb-3 mr-2 btn-secondary link-button">View Payments
                 </a>

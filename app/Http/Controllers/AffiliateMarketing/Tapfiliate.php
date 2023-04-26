@@ -169,6 +169,39 @@ class Tapfiliate
     }
 
     /**
+     * Create Affiliate Payment
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function createAffiliatePayment($data): array
+    {
+        return $this->callApi('POST', 'payments/', $data);
+    }
+
+    /**
+     * Cancel Affiliate Payment
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function cancelAffiliatePayment($id): array
+    {
+        return $this->callApi('DELETE', 'payments/' . $id . '/');
+    }
+
+    /**
+     * Get All Affiliate Payment
+     * @param $id
+     * @param $data
+     * @return array
+     */
+    public function getAffiliatePayment(): array
+    {
+        return $this->callApi('GET', 'payments/');
+    }
+
+    /**
      * Common function to fetch data from API using CURL.
      * @param $method
      * @param $url
