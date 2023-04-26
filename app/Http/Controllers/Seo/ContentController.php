@@ -214,7 +214,7 @@ class ContentController extends Controller
                 $editUrl = route('seo.content.edit', $val->id);
                 $showUrl = route('seo.content.show', $val->id);
                 $actions = '';
-                if($auth->hasRole(['Admin', 'user'])) {
+                if($auth->hasRole(['Admin', 'user', 'Seo Head'])) {
                     $actions .= "<a href='javascript:;' data-url='{$editUrl}' class='btn btn-secondary btn-sm editBtn'>Edit</a>";
                 }
                 return $actions;
