@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
+class AddMessageTypeFieldToChatMessagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
      */
     public function up()
     {
-        Schema::table('github_repositories', function (Blueprint $table) {
-            //$table->index('github_organizations_id');
+        Schema::table('chat_messages', function (Blueprint $table) {
+            $table->string('message_type')->nullable();
         });
     }
 
@@ -25,6 +25,8 @@ class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('chat_messages', function (Blueprint $table) {
+            //
+        });
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
+class AddIsUnknowModuleFieldToEmailsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
      */
     public function up()
     {
-        Schema::table('github_repositories', function (Blueprint $table) {
-            //$table->index('github_organizations_id');
+        Schema::table('emails', function (Blueprint $table) {
+            $table->integer('is_unknow_module')->default(0);
         });
     }
 
@@ -25,6 +25,8 @@ class AddIndexOnRepositoryOfGithubRepositoriesTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('emails', function (Blueprint $table) {
+            //
+        });
     }
 }

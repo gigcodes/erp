@@ -9,6 +9,7 @@ use App\EmailAddress;
 use App\Models\Seo\SeoCompanyHistroy;
 use App\Models\Seo\SeoCompany;
 use App\StoreWebsite;
+use App\User;
 use DB;
 use Illuminate\Support\Facades\Redirect;
 
@@ -27,6 +28,8 @@ class CompanyController extends Controller
             return $this->tableData();
         }
 
+        $data['websites'] = StoreWebsite::select('id', 'website')->get();
+        $data['users'] = User::select('id', 'name')->get();
         $data['companyTypes'] = SeoCompanyType::all();
         $data['moduleName'] = $this->moduleName;
         return view("{$this->view}/index", $data);
@@ -38,7 +41,12 @@ class CompanyController extends Controller
         $data['webistes'] = StoreWebsite::all();
         $data['emailAddresses'] = EmailAddress::select('id', 'username', 'password')->get();
         $data['moduleName'] = $this->moduleName;
-        return view("{$this->view}/create", $data);
+        $html =  view("{$this->view}/ajax/create", $data)->render();
+        return response()->json([
+            'success' => true,
+            'title' => "Add SEO Company",
+            'data' => $html
+        ]);
     }
 
     public function store(Request $request)
@@ -57,7 +65,9 @@ class CompanyController extends Controller
         $this->addHistory($seoCompany);
         DB::commit();
 
-        return Redirect::route("{$this->route}.index");
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
     public function edit(Request $request, int $id)
@@ -67,7 +77,12 @@ class CompanyController extends Controller
         $data['emailAddresses'] = EmailAddress::select('id', 'username', 'password')->get();
         $data['moduleName'] = $this->moduleName;
         $data['seoCompany'] = SeoCompany::findOrFail($id);
-        return view("{$this->view}/edit", $data);
+        $html = view("{$this->view}/ajax/edit", $data)->render();
+        return response()->json([
+            'success' => true,
+            'title' => "Edit SEO Company",
+            'data' => $html
+        ]);
     }
 
     public function update(Request $request, int $id)
@@ -86,29 +101,62 @@ class CompanyController extends Controller
         $this->addHistory($seoCompany);
         DB::commit();
 
-        return Redirect::route("{$this->route}.index");
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
     private function tableData()
     {
         $request = request();
+        
         $seoCompanies = SeoCompany::with(['website:id,website', 'user:id,name']);
+
+        if(!empty($request->search['value'])) {
+            $searchVal = $request->search['value'];
+            $seoCompanies = $seoCompanies->where(function($query) use ($searchVal) {
+                $query->where('da', 'LIKE', "%$searchVal%")
+                    ->orWhere('pa', 'LIKE', "%$searchVal%")
+                    ->orWhere('ss', 'LIKE', "%$searchVal%")
+                    ->orWhere('live_link', 'LIKE', "%$searchVal%");
+            });
+        }
+
         if(!empty($request->companyTypeId)) {
             $seoCompanies = $seoCompanies->where('company_type_id', $request->companyTypeId);
+        }
+        if(!empty($request->websiteId)) {
+            $seoCompanies = $seoCompanies->where('website_id', $request->websiteId);
+        }
+        if(!empty($request->userId)) {
+            $seoCompanies = $seoCompanies->where('user_id', $request->userId);
         }
         return datatables()->eloquent($seoCompanies)
             ->addColumn('actions', function($val) {
                 $editUrl = route('seo.company.edit', $val->id);
                 $actions = '';
-                $actions .= "<a href='{$editUrl}' class='btn btn-sm btn-secondary mr-1'>Edit</a>";
+                $actions .= "<a href='javascript:;' data-url='{$editUrl}' class='btn btn-sm btn-secondary mr-1 editBtn'>Edit</a>";
                 $actions .= "<a href='javascript:;' data-id='{$val->id}' class='btn btn-sm btn-secondary historyBtn'>History</a>";
                 return $actions;
             })
             ->editColumn('created_at', function($val) {
-                return date('Y-m-d H:i:s', strtotime($val->created_at));
+                return date('Y-m-d h:i A', strtotime($val->created_at));
+            })
+            ->addColumn('company', function($val) {
+                return $val->companyType->name ?? '-';
+            })
+            ->addColumn('userPass', function($val) {
+                $data = "<span>";
+                $data .= "<b>Username : </b>" . ($val->emailAddress->username ?? '-') . "<br>";
+                $data .= "<b>Password : </b>" . ($val->emailAddress->password ?? '-') . "<br>";
+                $data .= "</data>";
+                return $data;
+            })
+            ->addColumn('liveLink', function($val) {
+                return "<a target='_blank' href='$val->live_link'>{$val->live_link}</a>";
             })
             ->addIndexColumn()
-            ->rawColumns(['actions'])
+            ->rawColumns(['actions', 'userPass', 'liveLink'])
             ->make(true);
     }
 
@@ -118,19 +166,23 @@ class CompanyController extends Controller
         $seoCompanies = SeoCompanyHistroy::with(['website:id,website', 'user:id,name'])->where('seo_company_id', $request->companyId);
         return datatables()->eloquent($seoCompanies)
             ->editColumn('created_at', function($val) {
-                return date('Y-m-d H:i:s', strtotime($val->created_at));
+                return date('Y-m-d h:i A', strtotime($val->created_at));
             })
-            ->editColumn('company_name', function($val) {
+            ->addColumn('company', function($val) {
                 return $val->companyType->name ?? '-';
             })
-            ->editColumn('live_link', function($val) {
-                if(empty($val->live_link)) {
-                    return '-';
-                }
-                return "<a target='_blank' href='{$val->live_link}'>{$val->live_link}</a>";
+            ->addColumn('userPass', function($val) {
+                $data = "<span>";
+                $data .= "<b>Username : </b>" . ($val->emailAddress->username ?? '-') . "<br>";
+                $data .= "<b>Password : </b>" . ($val->emailAddress->password ?? '-') . "<br>";
+                $data .= "</data>";
+                return $data;
+            })
+            ->addColumn('liveLink', function($val) {
+                return "<a target='_blank' href='$val->live_link'>{$val->live_link}</a>";
             })
             ->addIndexColumn()
-            ->rawColumns(['live_link'])
+            ->rawColumns(['actions', 'userPass', 'liveLink'])
             ->make(true);
     }
     
