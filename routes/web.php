@@ -1434,6 +1434,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/update_email', [EmailController::class, 'updateEmail']);
     Route::resource('mailbox', MailBoxController::class);
 
+    Route::post('email/assign-modal',[EmailController::class,'assignModel'])->name('assignModel');
+    Route::post('email/update-model-color',[EmailController::class,'updateModelColor'])->name('updateModelColor');
+    Route::post('email/getModelNames',[EmailController::class,'getModelNames'])->name('getModelNames');
+
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
     Route::post('changeStatus', [EmailController::class, 'changeStatus'])->name('changeStatus');
@@ -2247,6 +2251,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('language/delete', [LanguageController::class, 'delete'])->name('language.delete');
 
     // Documents Manager
+    Route::get('development/document/list', [DocumentController::class, 'documentList'])->name('development.document.list');
     Route::get('documents', [DocumentController::class, 'index'])->name('document.index');
     Route::get('documents-email', [DocumentController::class, 'email'])->name('document.email');
     Route::post('document/store', [DocumentController::class, 'store'])->name('document.store');
@@ -2513,6 +2518,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email-addresses/password/change', [EmailAddressesController::class, 'passwordChange'])->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', [EmailAddressesController::class, 'sendToWhatsApp'])->name('email.password.sendwhatsapp');
     Route::post('email-addresses/assign', [EmailAddressesController::class, 'assignUsers'])->name('email-addresses.assign');
+    Route::post('/email-addresses/single-email-run-cron', [EmailAddressesController::class, 'singleEmailRunCron']);
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
 
