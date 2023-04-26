@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AffiliateMarketers extends Model
 {
+    protected $table = 'affiliates_marketers';
     protected $fillable = [
         'affiliate_account_id',
         'affiliate_id',
@@ -26,12 +27,24 @@ class AffiliateMarketers extends Model
         'affiliate_created_at',
         'affiliate_group_id',
         'promoted_at',
-        'promotion_method'
+        'promotion_method',
+        'referral_link',
+        'asset_id',
+        'source_id',
+        'approved',
+        'coupon',
+        'affiliate_programme_id'
     ];
 
 
     public function account()
     {
-        return $this->hasOne(AffiliateProviderAccounts::class, 'affiliate_account_id', 'id');
+        return $this->hasOne(AffiliateProviderAccounts::class, 'id', 'affiliate_account_id');
+    }
+
+
+    public function group()
+    {
+        return $this->hasOne(AffiliateGroups::class, 'id', 'affiliate_group_id');
     }
 }

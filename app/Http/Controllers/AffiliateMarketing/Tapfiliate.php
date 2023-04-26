@@ -75,6 +75,78 @@ class Tapfiliate
     }
 
     /**
+     * Get all the affiliates from API
+     * @return array
+     */
+    public function getAffiliates(): array
+    {
+        return $this->callApi('GET', 'affiliates/');
+    }
+
+    /**
+     * Create affiliates on provider
+     * @return array
+     */
+    public function createAffiliate($data): array
+    {
+        return $this->callApi('POST', 'affiliates/', $data);
+    }
+
+    /**
+     * Delete affiliates on provider
+     * @return array
+     */
+    public function deleteAffiliate($id): array
+    {
+        return $this->callApi('DELETE', 'affiliates/' . $id . '/');
+    }
+
+    /**
+     * Set affiliates group of affiliate on provider
+     * @return array
+     */
+    public function setAffiliateGroupForAffiliate($id, $data): array
+    {
+        return $this->callApi('PUT', 'affiliates/' . $id . '/group/', $data);
+    }
+
+    /**
+     * Get affiliates payout methods from provider
+     * @return array
+     */
+    public function getAllAffiliatePayoutMethods($id): array
+    {
+        return $this->callApi('GET', 'affiliates/' . $id . '/payout-methods/');
+    }
+
+    /**
+     * Set affiliates payout methods on provider
+     * @return array
+     */
+    public function setAffiliatePayoutMethods($id, $payout_id): array
+    {
+        return $this->callApi('PUT', 'affiliates/' . $id . '/payout-methods/' . $payout_id . '/');
+    }
+
+    /**
+     * Set affiliates programme
+     * @return array
+     */
+    public function addAffiliateToProgramme($id, $data): array
+    {
+        return $this->callApi('POST', 'programs/' . $id . '/affiliates/', $data);
+    }
+
+    /**
+     * Approve, Disapprove affiliates in programme
+     * @return array
+     */
+    public function approveDisapproveAffiliateToProgramme($id, $affiliateId, $isApprove): array
+    {
+        return $this->callApi($isApprove ? 'PUT' : 'DELETE', 'programs/' . $id . '/affiliates/' . $affiliateId . '/approved/');
+    }
+
+    /**
      * Update affiliate Commission on provider
      * @param $id
      * @param $data
@@ -134,10 +206,18 @@ class Tapfiliate
         } else {
             $response = json_decode($response, true);
             if (is_array($response)) {
+                if (array_key_exists('errors', $response)) {
+                    $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
+                    return ['status' => false, 'message' => $message . "cURL Error #:" . serialize($response)];
+                }
                 return ['status' => true, 'message' => "Data found", 'data' => $response];
             } else {
-                $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
-                return ['status' => false, 'message' => $message . "cURL Error #:" . $response];
+                if ($method == 'DELETE') {
+                    return ['status' => true, 'message' => "Data found", 'data' => $response];
+                } else {
+                    $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
+                    return ['status' => false, 'message' => $message . "cURL Error #:" . $response];
+                }
             }
         }
     }

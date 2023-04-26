@@ -21,6 +21,26 @@
             font-weight: 100;
             line-height: 10px;
         }
+
+        legend {
+            display: block;
+            width: auto;
+            max-width: 100%;
+            padding: 0;
+            margin-bottom: 0;
+            font-size: 1.5rem;
+            line-height: inherit;
+            color: inherit;
+            white-space: normal;
+            border-bottom: none !important;
+        }
+
+        fieldset {
+            padding: 10px 10px;
+            margin: 0 2px;
+            border: 1px solid #c0c0c07a;
+            border-radius: 4px;
+        }
     </style>
 @endsection
 @section('content')
@@ -30,23 +50,24 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">
-                {!! $provider->provider->provider_name !!} Groups (<span
-                        id="affiliate_count">{{ $providersGroups->total() }}</span>)
+                {!! $provider->provider->provider_name !!} Affiliates (<span
+                        id="affiliate_count">{{ $providersAffiliates->total() }}</span>)
             </h2>
             <div class="pull-left">
-                <form action="{{route('affiliate-marketing.provider.index', ['provider_account' => $provider->id])}}">
+                <form action="{{route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $provider->id])}}">
+                    <input type="hidden" name="provider_account" value="{!! $provider->id !!}">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-6">
-                                <input name="group_name" type="text" class="form-control"
-                                       value="{{ request('group_name') }}" placeholder="Search group name">
+                                <input name="name" type="text" class="form-control"
+                                       value="{{ request('name') }}" placeholder="Search affiliate">
                             </div>
                             <div class="col-md-6">
                                 <button type="submit" class="btn btn-image">
                                     <img src="/images/filter.png"/>
                                 </button>
                                 <button type="reset"
-                                        onclick="window.location='{{route('affiliate-marketing.provider.index', ['provider_account' => $provider->id])}}'"
+                                        onclick="window.location='{{route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $provider->id])}}'"
                                         class="btn btn-image" id="resetFilter">
                                     <img src="/images/resend2.png"/>
                                 </button>
@@ -56,12 +77,12 @@
                 </form>
             </div>
             <div class="col-md-6 pl-0 float-right">
-                {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.syncData', ['provider_account' => $provider->id]],'style'=>'display:inline']) !!}
-                <button type="submit" class="float-right mb-3 btn-secondary">Refresh Data
+                {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.affiliate.sync', ['provider_account' => $provider->id]],'style'=>'display:inline']) !!}
+                <button type="submit" class="float-right mb-3 btn-secondary">Refresh affiliates
                 </button>
                 {!! Form::close() !!}
-                <button data-toggle="modal" data-target="#create-group" type="button"
-                        class="float-right mb-3 btn-secondary">New Group
+                <button data-toggle="modal" data-target="#create-affiliate" type="button"
+                        class="float-right mb-3 btn-secondary">New Affiliate
                 </button>
             </div>
         </div>
@@ -75,53 +96,126 @@
             <tr>
                 <th>No</th>
                 <th>Name</th>
-                <th>{!! $provider->provider->provider_name !!} group id</th>
+                <th>Email</th>
+                <th>Company Name</th>
+                <th>Group</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-            @foreach ($providersGroups as $key => $providersGroup)
+            @foreach ($providersAffiliates as $key => $providersAffiliate)
                 <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $providersGroup->title }}</td>
-                    <td>{{ $providersGroup->affiliate_provider_group_id }}</td>
+                    <td>{{ $providersAffiliate->firstname .' '. $providersAffiliate->lastname }}</td>
+                    <td>{{ $providersAffiliate->email ?: 'N/A' }}</td>
+                    <td>{{ $providersAffiliate->company_name ?: 'N/A' }}</td>
+                    <td>{{ $providersAffiliate->group->title ?: 'N/A' }}</td>
                     <td>
-                        <button type="button" data-toggle="modal" data-target="#create-group"
-                                onclick="editData('{!! $providersGroup->id !!}')"
-                                class="btn btn-image"><img src="/images/edit.png"></button>
+                        {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.affiliate.delete', [$providersAffiliate->id, 'provider_account' => $provider->id]],'style'=>'display:inline']) !!}
+                        <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
+                        {!! Form::close() !!}
+                        <button type="button" data-toggle="modal" data-target="#update-payout"
+                                onclick="editPayout('{!! $providersAffiliate->id !!}')"
+                                class="btn btn-image"><img src="/images/price.png"/></button>
+                        @if (!$providersAffiliate->referral_link)
+                            <button type="button" data-toggle="modal" data-target="#update-programme"
+                                    class="btn btn-image"
+                                    onclick="$('#affiliate_id').val('{!! $providersAffiliate->id !!}')">Add to Programme
+                            </button>
+                        @endif
                     </td>
                 </tr>
             @endforeach
             </tbody>
         </table>
     </div>
-    {!! $providersGroups->render() !!}
-    <div class="modal fade" id="create-group" role="dialog" style="z-index: 3000;">
+    {!! $providersAffiliates->render() !!}
+    <div class="modal fade" id="create-affiliate" role="dialog" style="z-index: 3000;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="col-md-12">
                     <div class="page-header" style="width: 69%">
                         <h2>Create Affiliate Group</h2>
                     </div>
-                    <form id="add-group-form" method="POST"
-                          action="{{route('affiliate-marketing.provider.createGroup', ['provider_account' => $provider->id])}}">
+                    @include('affiliate-marketing.providers.partials.affiliate-create')
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="update-payout" role="dialog" style="z-index: 3000;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="col-md-12">
+                    <div class="page-header" style="width: 69%">
+                        <h2>Update Payout methods</h2>
+                    </div>
+                    <form id="add-payout-form" method="POST"
+                          action="{{route('affiliate-marketing.provider.affiliate.create', ['provider_account' => $provider->id])}}">
                         {{csrf_field()}}
                         <input type="hidden" id="provider_id" name="affiliate_account_id" value="{!! $provider->id !!}">
                         <div class="form-group row">
-                            <label for="headline1" class="col-sm-2 col-form-label">Title</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="group_title" name="title"
-                                       placeholder="Title" value="{{ old('title') }}">
-                                @if ($errors->has('title'))
-                                    <span class="text-danger">{{$errors->first('title')}}</span>
-                                @endif
-                            </div>
+                            <label for="headline1" class="col-sm-2 col-form-label">Payout method</label>
+                            <select name="payout_id" id="payout_id" class="form-control">
+                                <option value="">Select</option>
+                            </select>
                         </div>
+
                         <div class="modal-footer">
                             <button type="button" class="float-right ml-2 custom-button btn" data-dismiss="modal"
                                     aria-label="Close">Close
                             </button>
                             <button type="submit" class="float-right custom-button btn">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="update-programme" role="dialog" style="z-index: 3000;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="col-md-12">
+                    <div class="page-header" style="width: 69%">
+                        <h2>Add Affiliate To Programme</h2>
+                    </div>
+                    <form id="add-payout-form" method="POST"
+                          action="{{route('affiliate-marketing.provider.affiliate.addToProgramme', ['provider_account' => $provider->id])}}">
+                        {{csrf_field()}}
+                        <input type="hidden" id="provider_id" name="provider_account" value="{!! $provider->id !!}">
+                        <input type="hidden" id="affiliate_id" name="affiliate_id" value="">
+                        <div class="form-group row">
+                            <label for="headline1" class="col-sm-2 col-form-label">Programme</label>
+                            <select name="programme_id" id="programme_id" class="form-control" style="width: 50% !important;">
+                                <option value="">Select</option>
+                                @foreach($affiliateProgrammes as $programme)
+                                    <option value="{!! $programme->id !!}">{!! $programme->title !!}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group row">
+                            <label for="headline1" class="col-sm-2 col-form-label">Coupon</label>
+                            <div class="col-sm-10 p-0">
+                                <input type="text" class="form-control" id="coupon" name="coupon" style="width: 50%"
+                                       placeholder="Coupon" value="{{ old('coupon') }}">
+                                @if ($errors->has('coupon'))
+                                    <span class="text-danger">{{$errors->first('coupon')}}</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="headline1" class="col-sm-2 col-form-label">Status</label>
+                            <select name="approved" id="approved" class="form-control" style="width: 50% !important;">
+                                <option value="">Select</option>
+                                <option value="true">Approved</option>
+                                <option value="false">Disapproved</option>
+                            </select>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="float-right ml-2 custom-button btn" data-dismiss="modal"
+                                    aria-label="Close">Close
+                            </button>
+                            <button type="submit" class="float-right custom-button btn">Update</button>
                         </div>
                     </form>
                 </div>
@@ -141,42 +235,31 @@
         @endif
 
         if (showPopup) {
-            $('#create-group').modal('show');
+            $('#create-affiliate').modal('show');
         }
 
-        $('#create-group').on('show.bs.modal', function () {
-            $('#create-group .page-header h2').text('Create Affiliate Group');
-            $('#add-group-form').attr('action', "{{ route('affiliate-marketing.provider.createGroup', ['provider_account' => $provider->id]) }}");
-            $('#add-group-form button[type="submit"]').text('Create');
-        })
-
-        $('#create-group').on('hidden.bs.modal', function () {
-            $('#add-group-form').get(0).reset();
-        })
-
-        function editData(id) {
-            let url = "{{ route('affiliate-marketing.provider.getGroup', [":id", 'provider_account' => $provider->id]) }}";
+        function editPayout(id) {
+            console.log(id);
+            let url = "{!! route('affiliate-marketing.provider.affiliate.payoutMethods', [':id']) !!}";
             url = url.replace(':id', id);
             $.ajax({
-                url,
+                url: url + '?provider_account=' + '{!! $provider->id !!}',
                 type: 'GET',
-                params: {id},
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
                 success: function (response) {
-                    $("#loading-image").hide();
                     if (!response.status) {
                         toastr["error"](response.message);
-                        $('#create-group').modal('hide');
+                        $('#update-payout').modal('hide');
                     } else {
-                        let url = "{{ route('affiliate-marketing.provider.updateGroup', [":id", 'provider_account' => $provider->id]) }}";
-                        url = url.replace(':id', id);
-                        $('#add-group-form').attr('action', url);
-                        $('#add-group-form button[type="submit"]').text('Update');
-                        $('#create-group .page-header h2').text('Update Affiliate Group');
-                        $('#add-group-form [name="title"]').val(response.data.title);
-                        $('#add-group-form [name="provider_id"]').val(response.data.affiliate_account_id);
+                        if (response.data.length <= 0) {
+                            toastr["success"]('No Payout methods found');
+                            $('#update-payout').modal('hide');
+                        } else {
+                            let optionsHtml = '<option value="">Select</option>';
+                            response.data.forEach(item => {
+                                optionsHtml += '<option value=' + item.id + '>' + item.title + '</option>'
+                            })
+                            $('#payout_id').html(optionsHtml);
+                        }
                     }
                 }
             })

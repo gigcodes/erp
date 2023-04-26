@@ -5007,4 +5007,15 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
         Route::post('approve/{id}', [AffiliateMarketingDataController::class, 'commissionApproveDisapprove'])->name('affiliate-marketing.provider.commission.approveDisapprove');
         Route::post('commission-sync', [AffiliateMarketingDataController::class, 'commissionSync'])->name('affiliate-marketing.provider.commission.sync');
     });
+
+    Route::prefix('affiliates')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'affiliateIndex'])->name('affiliate-marketing.provider.affiliate.index');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'affiliateGet'])->name('affiliate-marketing.provider.affiliate.get');
+        Route::post('create', [AffiliateMarketingDataController::class, 'affiliateCreate'])->name('affiliate-marketing.provider.affiliate.create');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'affiliateDelete'])->name('affiliate-marketing.provider.affiliate.delete');
+        Route::get('payout-methods/{id}', [AffiliateMarketingDataController::class, 'affiliatePayoutMethods'])->name('affiliate-marketing.provider.affiliate.payoutMethods');
+        Route::post('update/payout-methods/{id}', [AffiliateMarketingDataController::class, 'affiliateUpdatePayoutMethod'])->name('affiliate-marketing.provider.affiliate.updatePayoutMethods');
+        Route::post('add-to-programme', [AffiliateMarketingDataController::class, 'affiliateAddToProgramme'])->name('affiliate-marketing.provider.affiliate.addToProgramme');
+        Route::post('affiliate-sync', [AffiliateMarketingDataController::class, 'affiliateSync'])->name('affiliate-marketing.provider.affiliate.sync');
+    });
 });

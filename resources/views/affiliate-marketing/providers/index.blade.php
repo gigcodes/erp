@@ -69,7 +69,7 @@
                 <button data-toggle="modal" data-target="#create-group" type="button"
                         class="float-right mb-3 mr-2 btn-secondary">New Group
                 </button>
-                <a href="{!! route('affiliate-marketing.provider.program.index', ['provider_account' => $provider->id]) !!}"
+                <a href="{!! route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $provider->id]) !!}"
                    type="button"
                    class="float-right mb-3 mr-2 btn-secondary link-button">View Affiliates
                 </a>
