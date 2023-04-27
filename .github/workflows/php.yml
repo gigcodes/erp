@@ -7,7 +7,6 @@ on:
 jobs:
   laravel-pint:
     runs-on: ubuntu-latest
-    container: ubuntu
     services:
       mysql:
         image: mysql:5.7
@@ -32,7 +31,7 @@ jobs:
         env:
           COMPOSER_TOKEN: ${{ secrets.CI_TOKEN }}
       - name: Install Composer dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
+        run: composer install --no-interaction --no-suggest --ignore-platform-reqs
       # - name: Prepare the application
       #   run: |
       #     php -r "file_exists('.env') || copy('.env.example', '.env');"
