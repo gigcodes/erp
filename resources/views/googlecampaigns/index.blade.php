@@ -144,7 +144,7 @@
                               <form method="GET" action="/google-campaigns/{{$campaign['google_campaign_id']}}/adgroups">
                                   <button type="submit" class="btn btn-sm btn-link">Ad Groups</button>
                               </form>
-                              @if ($campaign->type != 'remarketing')
+                              @if ($campaign->type != 'remarketing' && $campaign->channel_type !== 'SHOPPING')
                                   <form method="GET" action="/google-campaigns/{{$campaign['google_campaign_id']}}/google-campaign-location">
                                       <button type="submit" class="btn btn-sm btn-link">Location</button>
                                   </form>

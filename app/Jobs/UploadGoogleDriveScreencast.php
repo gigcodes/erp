@@ -17,17 +17,19 @@ class UploadGoogleDriveScreencast
     private $googleScreencast;
     private $uploadedFile;
     private $permissionForAll = null;
+    private $updatable = null;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(GoogleScreencast $googleScreencast, $uploadedFile, $permissionForAll = null)
+    public function __construct(GoogleScreencast $googleScreencast, $uploadedFile, $permissionForAll = null, $updatable = null)
     {
         $this->googleScreencast = $googleScreencast;
         $this->uploadedFile = $uploadedFile;
         $this->permissionForAll = $permissionForAll;
+        $this->updatable = $updatable;
     }
 
     /**
@@ -45,9 +47,13 @@ class UploadGoogleDriveScreencast
         try {
             $createFile = $this->uploadScreencast(env('GOOGLE_SCREENCAST_FOLDER'), $this->googleScreencast->read, $this->googleScreencast->write);
             $screencastId = $createFile->id;
-
+            
             $this->googleScreencast->google_drive_file_id = $screencastId;
             $this->googleScreencast->save();
+            
+            if($this->updatable != null) {
+                $this->updateData($this->updatable, $screencastId);
+            }
         } catch (Exception $e) {
             echo 'Message: '.$e->getMessage();
             dd($e);
@@ -131,6 +137,26 @@ class UploadGoogleDriveScreencast
             echo "Error Message: ".$e;
         } 
 
+    }
+
+    public function updateData($data = [], $file_id)
+    {
+        try {
+            foreach ($data as $class => $id) {
+                $model = $class::find($id);
+                
+                switch ($class) {
+                    case 'App\UiDevice':
+                    case 'App\UiDeviceHistory':
+                        $model->message = env('GOOGLE_DRIVE_FILE_URL').$file_id."/view?usp=share_link";
+                        $model->save();
+                        break;
+                    
+                    default:
+                        break;
+                }
+            }
+        } catch (Exception $e) {}
     }
     
 }

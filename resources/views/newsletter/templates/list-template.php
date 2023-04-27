@@ -10,6 +10,7 @@
 		      	<th width="10%">Send On</th>
 		      	<th width="10%">Send At</th>
 		      	<th width="10%">Mail List</th>
+				<th width="10%">Mailing list Templates</th>
 		      	<th width="10%">Products</th>
 		      	<th width="10%">Updated by</th>
 		        <th width="5%">Action</th>
@@ -25,6 +26,7 @@
 			      	<td>{{:prop.sent_on}}</td>
 			      	<td>{{:prop.sent_at}}</td>
 			      	<td>{{:prop.mailinglist_name}}</td>
+					  <td>{{:prop.mailinglist_template_name}}</td>
 			      	<td ><a href="javascript:;" class="show-more-image" style="color: #333;"data-attr="section_p_{{:prop.id}}">View All</a></td>
 			      	<td>{{:prop.updated_by_name}}</td>
 			      	<td>

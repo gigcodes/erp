@@ -77,6 +77,7 @@ class NewsletterController extends Controller
             }
             $rec->product_images = $images;
             $rec->store_websiteName = ($rec->storeWebsite) ? $rec->storeWebsite->website : '';
+            $rec->mailinglist_template_name = ($rec->mailinglistTemplate) ? $rec->mailinglistTemplate->name : '';
             $items[] = $rec;
         }
 
@@ -213,7 +214,8 @@ class NewsletterController extends Controller
         $newsletter = Newsletter::find($id);
 
         if ($newsletter) {
-            $template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
+            //$template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
+            $template =$newsletter->mailinglistTemplate;
             if ($template) {
                 $products = $newsletter->products;
                 if (! $products->isEmpty()) {

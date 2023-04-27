@@ -143,6 +143,9 @@ class FetchEmails extends Command
                                                 $attachments_array[] = $path;
                                             });
 
+                                            $emailData = explode('@',$email->getFrom()[0]->mail);
+                                            $name = $emailData[0];
+
                                             $params = [
                                                 'model_id' => $supplier->id,
                                                 'model_type' => Supplier::class,
@@ -155,6 +158,7 @@ class FetchEmails extends Command
                                                 'template' => 'customer-simple',
                                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
                                                 'created_at' => $email->getDate(),
+                                                'name'  => $name
                                             ];
 
                                             Email::create($params);
@@ -202,6 +206,10 @@ class FetchEmails extends Command
                                                 $attachments_array[] = $path;
                                             });
 
+                                            $emailData = explode('@',$email->getFrom()[0]->mail);
+                                            $name = $emailData[0];
+
+
                                             $params = [
                                                 'model_id' => $supplier->id,
                                                 'model_type' => Supplier::class,
@@ -214,6 +222,7 @@ class FetchEmails extends Command
                                                 'template' => 'customer-simple',
                                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
                                                 'created_at' => $email->getDate(),
+                                                'name' => $name
                                             ];
 
                                             Email::create($params);
@@ -264,6 +273,9 @@ class FetchEmails extends Command
                                         $attachments_array[] = $path;
                                     });
 
+                                    $emailData = explode('@',$email->getFrom()[0]->mail);
+                                    $name = $emailData[0];
+
                                     $params = [
                                         'model_id' => $supplier->id,
                                         'model_type' => Supplier::class,
@@ -276,6 +288,7 @@ class FetchEmails extends Command
                                         'template' => 'customer-simple',
                                         'additional_data' => json_encode(['attachment' => $attachments_array]),
                                         'created_at' => $email->getDate(),
+                                        'name'  => $name,
                                     ];
 
                                     Email::create($params);
@@ -330,6 +343,9 @@ class FetchEmails extends Command
                                         $attachments_array[] = $path;
                                     });
 
+                                    $emailData = explode('@',$email->getFrom()[0]->mail);
+                                    $name = $emailData[0];
+
                                     $params = [
                                         'model_id' => $supplier->id,
                                         'model_type' => Supplier::class,
@@ -342,6 +358,7 @@ class FetchEmails extends Command
                                         'template' => 'customer-simple',
                                         'additional_data' => json_encode(['attachment' => $attachments_array]),
                                         'created_at' => $email->getDate(),
+                                        'name'  => $name,
                                     ];
 
                                     Email::create($params);

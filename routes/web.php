@@ -351,23 +351,26 @@ use App\Http\Controllers\TimeDoctorController;
 use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
+use App\Http\Controllers\GoogleShoppingAdsController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
 
 Route::prefix('youtube')->middleware('auth')->group(function () {
-Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
-Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
-Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
-Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
-Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
-Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
-Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
+    Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+    Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
+    Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
+    Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
+    Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
+    Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
+    Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
 
-Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
-Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
+    Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
+    Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
 
-Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
-Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+    Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
+    Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
 });
 // Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
 // Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
@@ -381,6 +384,7 @@ Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideo
 use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\MailBoxController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BingWebMasterController;
 use App\Http\Controllers\GoogleAdsRemarketingController;
 
@@ -429,6 +433,21 @@ Route::get('criteria/get/{id}', [PositionController::class, 'list'])->name('get.
 
 Route::get('vendors/create-cv/{id}', [VendorResumeController::class, 'create'])->name('vendors.create.cv');
 Route::post('vendors/cv/store', [VendorResumeController::class, 'store'])->name('vendor.cv.store');
+
+Route::prefix('blog')->middleware('auth')->group(function () {
+    Route::get('/list', [BlogController::class, 'index'])->name('blog.index');
+    Route::get('/add', [BlogController::class, 'create'])->name('blog.create');
+    Route::get('/edit/{id}', [BlogController::class, 'edit'])->name('blog.edit');
+    Route::post('/store', [BlogController::class, 'store'])->name('store-blog.submit');
+    Route::post('/update/{id}', [BlogController::class, 'update'])->name('update-blog.submit');
+    Route::delete('/delete/{id}', [BlogController::class, 'destroy'])->name('update-blog.delete');
+    Route::get('/history/list', [BlogController::class, 'viewAllHistory'])->name('view-blog-all.history');
+    Route::get('/view/{id}', [BlogController::class, 'show'])->name('blog.view');
+    Route::get('/contentview/{id}', [BlogController::class, 'contentView'])->name('blog.contentView');
+
+
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('discount-sale-price', [DiscountSalePriceController::class, 'index']);
     Route::delete('discount-sale-price/{id}', [DiscountSalePriceController::class, 'delete']);
@@ -570,6 +589,8 @@ Route::prefix('product')->middleware('auth')->group(function () {
     Route::post('store-website-description', [ProductController::class, 'storeWebsiteDescription'])->name('product.store.website.description');
     Route::post('test', [ProductController::class, 'test'])->name('product.test.template');
 });
+
+
 Route::prefix('logging')->middleware('auth')->group(function () {
     Route::any('list/api/logs', [LaravelLogController::class, 'apiLogs'])->name('api-log-list');
     Route::any('list/api/logs/generate-report', [LaravelLogController::class, 'generateReport'])->name('api-log-list-generate-report');
@@ -708,12 +729,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
-    Route::get('incorrect-attributes', [UnknownAttributeProductController::class,'index'])->name('incorrect-attributes');
-    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
-    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
-    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
-    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
-    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class,'index'])->name('crop-rejected-final-approval-images');
+    Route::get('incorrect-attributes', [UnknownAttributeProductController::class, 'index'])->name('incorrect-attributes');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class, 'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class, 'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
+    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class, 'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
+    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class, 'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
+    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class, 'index'])->name('crop-rejected-final-approval-images');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -1416,6 +1437,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/status', [EmailController::class, 'status']);
     Route::post('email/update_email', [EmailController::class, 'updateEmail']);
     Route::resource('mailbox', MailBoxController::class);
+
+    Route::post('email/assign-modal',[EmailController::class,'assignModel'])->name('assignModel');
+    Route::post('email/update-model-color',[EmailController::class,'updateModelColor'])->name('updateModelColor');
+    Route::post('email/getModelNames',[EmailController::class,'getModelNames'])->name('getModelNames');
 
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
@@ -2230,6 +2255,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('language/delete', [LanguageController::class, 'delete'])->name('language.delete');
 
     // Documents Manager
+    Route::get('development/document/list', [DocumentController::class, 'documentList'])->name('development.document.list');
     Route::get('documents', [DocumentController::class, 'index'])->name('document.index');
     Route::get('documents-email', [DocumentController::class, 'email'])->name('document.email');
     Route::post('document/store', [DocumentController::class, 'store'])->name('document.store');
@@ -2496,6 +2522,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email-addresses/password/change', [EmailAddressesController::class, 'passwordChange'])->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', [EmailAddressesController::class, 'sendToWhatsApp'])->name('email.password.sendwhatsapp');
     Route::post('email-addresses/assign', [EmailAddressesController::class, 'assignUsers'])->name('email-addresses.assign');
+    Route::post('/email-addresses/single-email-run-cron', [EmailAddressesController::class, 'singleEmailRunCron']);
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
 
@@ -2659,11 +2686,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
 
 /**
-* This route will push the FAQ to series of website with help of API
-*/
+ * This route will push the FAQ to series of website with help of API
+ */
 Route::middleware('auth')->group(function () {
-	Route::post('push/faq', 			[FaqPushController::class, 'pushFaq']);
-	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
+    Route::post('push/faq', [FaqPushController::class, 'pushFaq']);
+    Route::post('push/faq/all', [FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
@@ -2997,7 +3024,7 @@ Route::middleware('auth')->group(function () {
     Route::post('test-cases/add-test-cases', [TestCaseController::class, 'sendTestCases'])->name('test-cases.sendtestcases');
     Route::get('test-cases/usertest-history/{id}', [TestCaseController::class, 'usertestHistory'])->name('test-cases.usertest-history');
     Route::get('test-cases/user-teststatus-history/{id}', [TestCaseController::class, 'userteststatusHistory'])->name('test-cases.usertest-history');
-	Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
+    Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
 
     Route::get('test-suites', [TestSuitesController::class, 'index'])->name('test-suites.index');
     Route::get('test-suites/records', [TestSuitesController::class, 'records'])->name('test-suites.records');
@@ -3076,6 +3103,8 @@ Route::middleware('auth')->group(function () {
 Route::get('instagram/logs', [InstagramPostsController::class, 'instagramUserLogs'])->name('instagram.logs');
 Route::post('instagram/history', [InstagramPostsController::class, 'history'])->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', [HashtagController::class, 'addmailinglist']);
+
+
 Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('inbox', [SocialAccountController::class, 'inbox'])->name('social.direct-message');
     Route::post('send-message', [SocialAccountController::class, 'sendMessage'])->name('social.message.send');
@@ -3900,6 +3929,7 @@ Route::middleware('auth')->group(function () {
         Route::get('user-history', [UicheckController::class, 'userHistory'])->name('uicheck.userhistory');
         Route::post('responsive/upload-file', [UicheckController::class, 'uploadFile'])->name('uicheck.upload-file');
         Route::get('responsive/files/record', [UicheckController::class, 'getUploadedFilesList'])->name('uicheck.files.record');
+        Route::post('add-user', [UicheckController::class, 'addNewUser'])->name('uicheck.addNewuser');
 
         Route::prefix('history')->group(function () {
             Route::get('all', [UicheckController::class, 'historyAll'])->name('uicheck.history.all');
@@ -3937,13 +3967,13 @@ Route::prefix('google')->middleware('auth')->group(function () {
     //Google Developer API
 // Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
 
-Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+    Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
 // Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
-Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+    Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
-Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
+    Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
 
-     Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
+    Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -4143,6 +4173,14 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
                     Route::get('/create', [GoogleAdGroupKeywordController::class, 'createPage'])->name('ad-group-keyword.createPage');
                     Route::post('/create', [GoogleAdGroupKeywordController::class, 'createKeyword'])->name('ad-group-keyword.craeteKeyword');
                     Route::delete('/delete/{keywordId}', [GoogleAdGroupKeywordController::class, 'deleteKeyword'])->name('ad-group-keyword.deleteKeyword');
+                });
+            });
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('shopping-ad')->group(function () {
+                    Route::get('/', [GoogleShoppingAdsController::class, 'index'])->name('shopping-ads.index');
+                    Route::post('/create', [GoogleShoppingAdsController::class, 'createAd'])->name('shopping-ads.createAd');
+                    Route::delete('/delete/{adId}', [GoogleShoppingAdsController::class, 'deleteAd'])->name('shopping-ads.deleteAd');
                 });
             });
         });
@@ -4906,8 +4944,8 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
 });
 
-Route::prefix('seo')->middleware('auth')->group(function() {
-    Route::prefix('content')->group(function() {
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::prefix('content')->group(function () {
         Route::get('', [Seo\ContentController::class, 'index'])->name('seo.content.index');
         Route::get('create', [Seo\ContentController::class, 'create'])->name('seo.content.create');
         Route::post('store', [Seo\ContentController::class, 'store'])->name('seo.content.store');
@@ -4916,7 +4954,7 @@ Route::prefix('seo')->middleware('auth')->group(function() {
         Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
     });
 
-    Route::prefix('company')->group(function() {
+    Route::prefix('company')->group(function () {
         Route::get('', [Seo\CompanyController::class, 'index'])->name('seo.company.index');
         Route::get('create', [Seo\CompanyController::class, 'create'])->name('seo.company.create');
         Route::post('store', [Seo\CompanyController::class, 'store'])->name('seo.company.store');
@@ -4924,9 +4962,13 @@ Route::prefix('seo')->middleware('auth')->group(function() {
         Route::post('{id}/update', [Seo\CompanyController::class, 'update'])->name('seo.company.update');
     });
 
-    Route::prefix('company-type')->group(function() {
+    Route::prefix('company-type')->group(function () {
         Route::get('', [Seo\CompanyTypeController::class, 'index'])->name('seo.company-type.index');
-        Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.content-type.store');
+        Route::get('create', [Seo\CompanyTypeController::class, 'create'])->name('seo.company-type.create');
+        Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.company-type.store');
+        Route::get('edit/{id}', [Seo\CompanyTypeController::class, 'edit'])->name('seo.company-type.edit');
+        Route::post('update/{id}', [Seo\CompanyTypeController::class, 'update'])->name('seo.company-type.update');
+        Route::post('destroy/{id}', [Seo\CompanyTypeController::class, 'destroy'])->name('seo.company-type.destroy');
     });
 
 });
@@ -4938,18 +4980,91 @@ Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList'
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
 
 
-
 Route::prefix('appconnect')->middleware('auth')->group(function () {
-Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
-Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
-Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
-Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
-Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
-Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
-Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
-Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
-Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
-Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
-Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
-Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
- });
+    Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
+    Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+    Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
+    Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
+    Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
+    Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+    Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
+    Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
+    Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
+    Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
+    Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
+    Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
+});
+
+Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
+    Route::prefix('providers')->group(function () {
+        Route::get('', [AffiliateMarketingController::class, 'providers'])->name('affiliate-marketing.providers');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProvider'])->name('affiliate-marketing.getProvider');
+        Route::post('create', [AffiliateMarketingController::class, 'createProvider'])->name('affiliate-marketing.createProvider');
+        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProvider'])->name('affiliate-marketing.updateProvider');
+        Route::post('delete', [AffiliateMarketingController::class, 'deleteProvider'])->name('affiliate-marketing.deleteProviders');
+    });
+
+    Route::prefix('provider-accounts')->group(function () {
+        Route::get('', [AffiliateMarketingController::class, 'providerAccounts'])->name('affiliate-marketing.providerAccounts');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProviderAccount'])->name('affiliate-marketing.getProviderAccount');
+        Route::post('create', [AffiliateMarketingController::class, 'createProviderAccount'])->name('affiliate-marketing.createProviderAccount');
+        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProviderAccount'])->name('affiliate-marketing.updateProviderAccount');
+        Route::post('delete', [AffiliateMarketingController::class, 'deleteProviderAccount'])->name('affiliate-marketing.deleteProviderAccount');
+    });
+
+    Route::prefix('provider-details')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'index'])->name('affiliate-marketing.provider.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'createAffiliateGroup'])->name('affiliate-marketing.provider.createGroup');
+        Route::post('update/{id}', [AffiliateMarketingDataController::class, 'updateAffiliateGroup'])->name('affiliate-marketing.provider.updateGroup');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'getAffiliateGroup'])->name('affiliate-marketing.provider.getGroup');
+        Route::post('sync', [AffiliateMarketingDataController::class, 'syncData'])->name('affiliate-marketing.provider.syncData');
+    });
+
+    Route::prefix('programs')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'programIndex'])->name('affiliate-marketing.provider.program.index');
+        Route::post('programme-sync', [AffiliateMarketingDataController::class, 'programSync'])->name('affiliate-marketing.provider.program.sync');
+    });
+
+    Route::prefix('commissions')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'commissionIndex'])->name('affiliate-marketing.provider.commission.index');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'commissionGet'])->name('affiliate-marketing.provider.commission.get');
+        Route::post('update', [AffiliateMarketingDataController::class, 'commissionUpdate'])->name('affiliate-marketing.provider.commission.update');
+        Route::post('approve/{id}', [AffiliateMarketingDataController::class, 'commissionApproveDisapprove'])->name('affiliate-marketing.provider.commission.approveDisapprove');
+        Route::post('commission-sync', [AffiliateMarketingDataController::class, 'commissionSync'])->name('affiliate-marketing.provider.commission.sync');
+    });
+
+    Route::prefix('affiliates')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'affiliateIndex'])->name('affiliate-marketing.provider.affiliate.index');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'affiliateGet'])->name('affiliate-marketing.provider.affiliate.get');
+        Route::post('create', [AffiliateMarketingDataController::class, 'affiliateCreate'])->name('affiliate-marketing.provider.affiliate.create');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'affiliateDelete'])->name('affiliate-marketing.provider.affiliate.delete');
+        Route::get('payout-methods/{id}', [AffiliateMarketingDataController::class, 'affiliatePayoutMethods'])->name('affiliate-marketing.provider.affiliate.payoutMethods');
+        Route::post('update/payout-methods/{id}', [AffiliateMarketingDataController::class, 'affiliateUpdatePayoutMethod'])->name('affiliate-marketing.provider.affiliate.updatePayoutMethods');
+        Route::post('add-to-programme', [AffiliateMarketingDataController::class, 'affiliateAddToProgramme'])->name('affiliate-marketing.provider.affiliate.addToProgramme');
+        Route::post('affiliate-sync', [AffiliateMarketingDataController::class, 'affiliateSync'])->name('affiliate-marketing.provider.affiliate.sync');
+    });
+
+    Route::prefix('payments')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'paymentsIndex'])->name('affiliate-marketing.provider.payments.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'paymentsCreate'])->name('affiliate-marketing.provider.payments.create');
+        Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'paymentsCancel'])->name('affiliate-marketing.provider.payments.cancel');
+        Route::post('payments-sync', [AffiliateMarketingDataController::class, 'paymentsSync'])->name('affiliate-marketing.provider.payments.sync');
+    });
+
+    Route::prefix('conversions')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'conversionIndex'])->name('affiliate-marketing.provider.conversion.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'conversionCreate'])->name('affiliate-marketing.provider.conversion.create');
+        Route::post('update', [AffiliateMarketingDataController::class, 'conversionUpdate'])->name('affiliate-marketing.provider.conversion.update');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'conversionDelete'])->name('affiliate-marketing.provider.conversion.delete');
+        Route::post('add-commission', [AffiliateMarketingDataController::class, 'conversionAddCommission'])->name('affiliate-marketing.provider.conversion.addCommission');
+        Route::post('conversion-sync', [AffiliateMarketingDataController::class, 'conversionSync'])->name('affiliate-marketing.provider.conversion.sync');
+    });
+
+    Route::prefix('customer')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'customerIndex'])->name('affiliate-marketing.provider.customer.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'customerCreate'])->name('affiliate-marketing.provider.customer.create');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'customerDelete'])->name('affiliate-marketing.provider.customer.delete');
+        Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'customerCancelUnCancel'])->name('affiliate-marketing.provider.customer.cancelUncancel');
+        Route::post('customer-sync', [AffiliateMarketingDataController::class, 'customerSync'])->name('affiliate-marketing.provider.customer.sync');
+    });
+});

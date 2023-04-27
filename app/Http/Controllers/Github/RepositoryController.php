@@ -95,7 +95,6 @@ class RepositoryController extends Controller
             'current_branch' => $currentBranch,
         ]);
 
-        //print_r($repository);
     }
 
     public function deployBranch($repoId, Request $request)
