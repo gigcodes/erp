@@ -21,7 +21,7 @@ class Newsletter extends Model
      * @SWG\Property(property="store_website_id",type="integer")
      */
     protected $fillable = [
-        'subject', 'store_website_id', 'sent_at', 'sent_on', 'updated_by', 'mail_list_id',
+        'subject', 'store_website_id', 'sent_at', 'sent_on', 'updated_by', 'mail_list_id', 'mail_list_temp_id',
     ];
 
     public function newsletterProduct()
@@ -42,5 +42,10 @@ class Newsletter extends Model
     public function mailinglist()
     {
         return $this->hasOne(\App\Mailinglist::class, 'id', 'mail_list_id');
+    }
+
+    public function mailinglistTemplate()
+    {
+        return $this->hasOne(\App\MailinglistTemplate::class, 'id', 'mail_list_temp_id');
     }
 }
