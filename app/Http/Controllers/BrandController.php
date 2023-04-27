@@ -245,7 +245,7 @@ class BrandController extends Controller
                 CreateHashTags::dispatch($chunk)->onQueue('insert-hash-tags');
             }*/
 //            Brand::updateStatusIsHashtagsGenerated();
-        }
+//        }
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }
