@@ -44,8 +44,8 @@ class SendEmailNewsletter extends Command
         //$newsletters = Newsletter::where("id",2)->get();
 
         foreach ($newsletters as $newsletter) {
-            $template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
-
+            //$template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
+            $template =$newsletter->mailinglistTemplate;
             if ($template) {
                 $products = $newsletter->products;
 

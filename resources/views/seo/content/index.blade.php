@@ -10,7 +10,7 @@ $auth = auth()->user();
 <div class="container-fluid">
     <div class="d-flex justify-content-end">
         <div class="">
-            @if($auth->hasRole(['Admin', 'User']))
+            @if($auth->hasRole(['Admin', 'User', 'Seo Head']))
             <a href="javascript:;" class="btn btn-secondary addNewBtn">Add new</a>
             @endif
         </div>
@@ -107,7 +107,7 @@ $auth = auth()->user();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary submitBtn">Submit</button>
+                <button type="button" class="btn btn-primary saveFormBtn">Submit</button>
             </div>
         </div>
     </div>

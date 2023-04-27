@@ -22,6 +22,7 @@ class SeoCompany extends Model
         'ss',
         'email_address_id',
         'live_link',
+        'status',
     ];
 
     /**

@@ -1362,11 +1362,22 @@ class EmailController extends Controller
         return $eventData;
     }
 
-    public function getAllEmailEvents()
+    public function getAllEmailEvents(Request $request)
     {
-        $events = \App\SendgridEvent::select('*')->orderBy('id', 'desc')->get()->groupBy('sg_message_id');
+        $events = \App\SendgridEvent::select('*');
 
-        return view('emails.events', compact('events'));
+        if (! empty($request->email)) {
+            $events = $events->where('email', 'like', '%'.$request->email.'%');
+        }
+
+        if (! empty($request->event)) {
+            $events = $events->where('event', 'like', '%'.$request->event.'%');
+        }
+
+        $events = $events->orderBy('id', 'desc')->groupBy('sg_message_id')->paginate(30)->appends(request()->except(['page']));
+
+        $event = $request->event ?? '';
+        return view('emails.events', compact('events','event'));
     }
 
     public function getAllEmailEventsJourney(Request $request)
