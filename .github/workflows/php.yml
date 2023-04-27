@@ -25,9 +25,7 @@ jobs:
         run: |
           mysql --version
           sudo apt-get install -y mysql-client
-          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uuser -psecret -e "SHOW DATABASES"
-      - name: Copy .env
-        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -u user -p secret -e "SHOW DATABASES"
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         env:
