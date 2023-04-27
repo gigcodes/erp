@@ -2,10 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
+use App\Category;
 use App\HashTag;
 use App\InstagramPosts;
+use App\KeywordSearchVariants;
+use App\Library\Watson\Response;
 use App\Setting;
+use Google\Service\AndroidPublisher\Variant;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Yajra\DataTables\DataTables;
 
 //use App\InstagramPosts;
 
@@ -42,34 +49,43 @@ class GoogleSearchController extends Controller
             $sortBy = '';
         }*/
 
-        if ($request->term || $request->priority) {
-            if ($request->term != null && $request->priority == 'on') {
-                $keywords = HashTag::query()
+        if ($request->search || $request->priority) {
+            if ($request->search != null && $request->priority == 'on') {
+                $keywords = HashTag::query()->with('creator')
                     ->where('priority', '1')
                     ->where('platforms_id', $this->platformsId)
-                    ->where('hashtag', 'LIKE', "%{$request->term}%")
-                    ->orderBy($sortBy, $orderBy)
-                    ->paginate(Setting::get('pagination'));
+                    ->where('hashtag', 'LIKE', "%{$request->search}%")
+                    ->orderBy($sortBy, $orderBy);
 
-                $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
+                $queryString = 'search=' . $request->search . '&priority=' . $request->priority . '&';
             } elseif ($request->priority == 'on') {
-                $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+                $keywords = HashTag::with('creator')->where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
 
                 $queryString = 'priority=' . $request->priority . '&';
-            } elseif ($request->term != null) {
+            } elseif ($request->search != null) {
                 $keywords = HashTag::query()
-                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->with('creator')
+                    ->where('hashtag', 'LIKE', "%{$request->search}%")
                     ->where('platforms_id', $this->platformsId)
-                    ->orderBy($sortBy, $orderBy)
-                    ->paginate(Setting::get('pagination'));
+                    ->orderBy($sortBy, $orderBy);
+                    //->paginate(Setting::get('pagination'));
 
-                $queryString = 'term=' . $request->term . '&';
+                $queryString = 'search=' . $request->search . '&';
             }
         } else {
-            $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+            $keywords = HashTag::with('creator')->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
         }
 
-        return view('google.search.index', compact('keywords', 'queryString', 'orderBy'));
+        if($request->ajax()) {
+            return DataTables::of($keywords->get())
+                ->addIndexColumn()
+                ->make(true);
+        }
+
+        $keywords_total = HashTag::where('platforms_id', $this->platformsId)->count();
+        $new_category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
+        $variants = KeywordSearchVariants::list();
+        return view('google.search.index', compact('keywords_total', 'queryString', 'orderBy', 'variants', 'new_category_selection'));
     }
 
     /**
@@ -90,6 +106,7 @@ class GoogleSearchController extends Controller
         $hashtag->hashtag = $request->get('name');
         $hashtag->rating = $request->get('rating') ?? 8;
         $hashtag->platforms_id = $this->platformsId;
+        $hashtag->created_by = \Auth::user()->id;
         $hashtag->save();
 
         return redirect()->back()->with('message', 'Keyword created successfully!');
@@ -112,7 +129,7 @@ class GoogleSearchController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request,$id)
     {
         if (is_numeric($id)) {
             $hash = HashTag::findOrFail($id);
@@ -121,7 +138,10 @@ class GoogleSearchController extends Controller
             HashTag::where('hashtag', $id)->delete();
         }
 
-        return redirect()->back()->with('message', 'Keyword has been deleted successfuly!');
+        if($request->ajax()) {
+            return response()->json(['success'=> true, 'message' => 'Keyword has been deleted successfully!']);
+        }
+        return redirect()->back()->with('message', 'Keyword has been deleted successfully!');
     }
 
     /**
@@ -309,7 +329,7 @@ class GoogleSearchController extends Controller
         }
 
         // Return view
-        return view('google.search.results', compact('posts', 'request', 'queryString', 'orderBy'));
+                return view('google.search.results', compact('posts', 'request', 'queryString', 'orderBy'));
     }
 
     /**
@@ -407,15 +427,51 @@ class GoogleSearchController extends Controller
         }
     }
 
-//    public function deleteSearch($id)
-//    {
-//      $instaPost = InstagramPosts::find($id);
-//
-//      if($instaPost){
-//        $instaPost->delete();
-//      }
-//
-//      return response()->json(['message' => "delete successfully"]);
-//
-//    }
+    /**
+     * Function for auto generate Keywords from brand, category and sub category
+     * @param $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function generateKeywords(Request $request) {
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', '-1');
+
+        $data = $request->post('data');
+        $brand_list = $data['brand'];
+        $category_list = $data['category'];
+        $variants_list = $data['variants'];
+
+        $category_list = Category::whereIn('id', $category_list)->get()->toArray();
+
+        $string_arr = [];
+        foreach ($brand_list as $val1) {
+            foreach ($category_list as $val2) {
+                foreach ($variants_list as $val3) {
+                    $string_arr['hashtag'] = $val1 .' '. $val2['title'] .' '. $val3;
+                    $string_arr['platforms_id'] = $this->platformsId;
+                    $string_arr['rating'] = 8;
+                    $string_arr['created_at'] = $string_arr['updated_at'] = date('Y-m-d h:i:s');
+                    $string_arr['created_by'] = \Auth::user()->id;
+                    $check_exist = HashTag::where('hashtag', $string_arr['hashtag'])->count();
+                    if($check_exist <= 0) {
+                        HashTag::insert($string_arr);
+                    }
+                }
+            }
+        }
+        return response()->json(['success' => true], 200);
+
+    }
+
+    /*public function deleteSearch($id)
+    {
+      $instaPost = InstagramPosts::find($id);
+
+      if($instaPost){
+        $instaPost->delete();
+      }
+
+      return response()->json(['message' => "delete successfully"]);
+
+    }*/
 }

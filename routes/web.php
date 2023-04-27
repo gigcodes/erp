@@ -156,6 +156,7 @@ use App\Http\Controllers\KeywordassignController;
 use App\Http\Controllers\KeywordInstructionController;
 use App\Http\Controllers\KeywordsController;
 use App\Http\Controllers\KeywordToCategoryController;
+use App\Http\Controllers\KeywordVariantController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LaravelLogController;
@@ -443,7 +444,7 @@ Route::prefix('blog')->middleware('auth')->group(function () {
     Route::get('/history/list', [BlogController::class, 'viewAllHistory'])->name('view-blog-all.history');
     Route::get('/view/{id}', [BlogController::class, 'show'])->name('blog.view');
     Route::get('/contentview/{id}', [BlogController::class, 'contentView'])->name('blog.contentView');
-    
+
 
 });
 
@@ -999,6 +1000,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     //  Route::resource('activity','ActivityConroller');
 
+    Route::get('brand/list', [BrandController::class, 'show'])->name('brand.list'); //Purpose : upload logo - DEVTASK-4278
     Route::get('brand/get_all_images', [BrandController::class, 'get_all_images'])->name('brand.get_all_images'); //Purpose : upload logo - DEVTASK-4278
     Route::get('brand/logo_data', [BrandController::class, 'fetchlogos'])->name('brand.logo_data'); //Purpose : Get Brand Logo - DEVTASK-4278
     Route::post('brand/uploadlogo', [BrandController::class, 'uploadlogo'])->name('brand.uploadlogo'); //Purpose : upload logo - DEVTASK-4278
@@ -3906,6 +3908,14 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/dev/delete/attachment', [UicheckController::class, 'deleteDevDocument'])->name('uicheck.dev.delete.attachment');
     Route::post('uicheck/device/status', [UicheckController::class, 'updateDeviceStatus'])->name('uicheck.device.status');
 
+    Route::prefix('variant')->group(function () {
+        Route::post('/', [KeywordVariantController::class, 'create'])->name('add.keyword.variant');
+        Route::get('/', [KeywordVariantController::class, 'index'])->name('list.keyword.variant');
+        Route::delete('/{id}', [KeywordVariantController::class, 'delete'])->name('delete.keyword.variant');
+    });
+
+    Route::get('brand/search', [GoogleSearchController::class, 'searchBrand1'])->name('search.brand');
+
     Route::prefix('uicheck')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
@@ -3936,11 +3946,14 @@ Route::middleware('auth')->group(function () {
 Route::prefix('google')->middleware('auth')->group(function () {
     Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
     Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
+    Route::get('/get-keywords', [GoogleSearchController::class, 'index'])->name('google.search-keyword.list');
     Route::resource('/search/keyword', GoogleSearchController::class);
+    Route::post('/search/generate-keyword', [GoogleSearchController::class, 'generateKeywords'])->name('keyword.generate');
     Route::get('/search/keyword-priority', [GoogleSearchController::class, 'markPriority'])->name('google.search.keyword.priority');
     Route::get('/search/keyword', [GoogleSearchController::class, 'index'])->name('google.search.keyword');
     Route::get('/search/results', [GoogleSearchController::class, 'searchResults'])->name('google.search.results');
     Route::get('/search/scrap', [GoogleSearchController::class, 'callScraper'])->name('google.search.keyword.scrap');
+    Route::post('/search/delete/{id?}', [GoogleSearchController::class, 'destroy'])->name('google.search.keyword.delete');
 
     Route::resource('/affiliate/keyword', GoogleAffiliateController::class);
     Route::get('/affiliate/keyword', [GoogleAffiliateController::class, 'index'])->name('google.affiliate.keyword');
