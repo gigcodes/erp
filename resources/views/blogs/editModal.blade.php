@@ -94,7 +94,10 @@
                 <div class="row mt-3">
                     <div class="col-md-4">
                         <label class="form-label">External link</label>
-                        <input type="text" name="external_link" class="form-control" value="{{$blog->external_link}}">
+                        <select name="external_link" class="form-control">
+                            <option value="yes" {{ $blog->external_link == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option {{ $blog->external_link == 'no' ? 'selected' : '' }} value="no">No</option>
+                        </select>
                         @error('external_link')
                         <div class="alert text-danger">{{ $message }}</div>
                         @enderror
@@ -136,7 +139,10 @@
                        <div class="col-md-4">
                        <label class="form-label">Italic Tag</label>
                         <br>
-                       <input id="edit_activate_tagator2" name="italic_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true">
+                        <select name="italic_tag" class="form-control">
+                            <option value="yes" {{ $blog->italic_tag == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option {{ $blog->italic_tag == 'no' ? 'selected' : '' }} value="no">No</option>
+                        </select>
                     
                     </div>
                     
@@ -155,7 +161,10 @@
                     <div class="col-md-4">
                        <label class="form-label">Strong Tag</label>
                         <br>
-                       <input id="edit_activate_tagator2" name="strong_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true" >
+                        <select name="strong_tag" class="form-control">
+                            <option value="yes" {{ $blog->strong_tag == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option {{ $blog->strong_tag == 'no' ? 'selected' : '' }} value="no">No</option>
+                        </select>
                     
                     </div>
 
@@ -392,7 +401,10 @@
                                             <img src="{{ asset('social/gogole_icon.png') }}" style="width:50px; height:50px"/>
                                             </div>
                                             <div class="col-md-3">
-                                                <input type='text' name="google" class="form-control" value="{{$blog->google}}" />
+                                                <select name="google" class="form-control">
+                                                    <option value="yes" {{ $blog->google == 'yes' ? 'selected' : '' }}>Yes</option>
+                                                    <option {{ $blog->google == 'no' ? 'selected' : '' }} value="no">No</option>
+                                                </select>
                                             </div>
                                             <div class="col-md-5">
                                                 <div class='input-group date' id='edit_google_date'>
@@ -414,7 +426,10 @@
                                             </label>
                                             </div>
                                             <div class="col-md-3">
-                                                <input type='text' name="bing" class="form-control" value="{{$blog->bing}}" />
+                                                <select name="bing" class="form-control">
+                                                    <option value="yes" {{ $blog->bing == 'yes' ? 'selected' : '' }}>Yes</option>
+                                                    <option {{ $blog->bing == 'no' ? 'selected' : '' }} value="no">No</option>
+                                                </select>
                                             </div>
                                             <div class="col-md-5">
                                                 <div class='input-group date' id='edit_bing_date'>
