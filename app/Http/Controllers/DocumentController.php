@@ -21,8 +21,9 @@ use App\DocumentCategory;
 use App\DocumentSendHistory;
 use Illuminate\Http\Request;
 use App\DeveloperTaskDocument;
-use App\Mails\Manual\DocumentEmail;
 use Illuminate\Support\Facades\DB;
+use App\Mails\Manual\DocumentEmail;
+
 
 class DocumentController extends Controller
 {
@@ -100,12 +101,16 @@ class DocumentController extends Controller
     public function documentList(Request $request)
     {
       
-        
-        $developertask = DB::table("developer_task_documents")->select("subject", "description", "developer_task_id", "developer_task_documents.created_at", "mediables.tag as tag", "media.disk as disk","media.directory as directory", "media.filename as filename", "media.extension as extension","users.name as username")
+      
+        $developertask = DB::table("developer_task_documents")
+         ->select("subject", "description", "developer_task_id", "developer_task_documents.created_at", 
+         "mediables.tag as tag", "media.disk as disk","media.directory as directory", "media.filename as filename",
+          "media.extension as extension","users.name as username",DB::raw("'Devtask' as type"), 'media.id as media_id')
          ->join('mediables', 'mediables.mediable_id', '=', 'developer_task_documents.id')
          ->join('users', 'users.id', '=', 'developer_task_documents.created_by')
          ->join('media', 'media.id', '=', 'mediables.media_id')
-         ->where('mediables.mediable_type', 'App\DeveloperTaskDocument');
+         ->where('mediables.mediable_type', 'App\DeveloperTaskDocument')
+         ->where('mediables.tag', config("constants.media_tags"));
          
          
         if ($request->task_subject && $request->task_subject != null) {
@@ -123,18 +128,24 @@ class DocumentController extends Controller
             $developertask = $developertask->whereDate('developer_task_documents.created_at', $request->date);
             
         }
-        $developertask = $developertask->orderBy('developer_task_documents.id', 'desc');
+        // $developertask = $developertask->orderBy('developer_task_documents.id', 'desc');
          
          
 
-        $uploadDocData = DB::table("tasks")->select("task_details as description", "task_subject as subject", "tasks.id as developer_task_id","tasks.created_at","mediables.tag as tag", "media.disk as disk", "media.directory as directory","media.filename as filename","media.extension as extension","users.name as username")
+        $uploadDocData = DB::table("tasks")
+                ->select("task_details as description", "task_subject as subject",
+                 "tasks.id as developer_task_id","tasks.created_at","mediables.tag as tag", 
+                 "media.disk as disk", "media.directory as directory","media.filename as filename",
+                 "media.extension as extension","users.name as username",DB::raw("'Task' as type"), 'media.id as media_id')
                 ->join('mediables', 'mediables.mediable_id', '=', 'tasks.id')
                 ->join('users', 'users.id', '=', 'tasks.assign_from')
                 ->join('media', 'media.id', '=', 'mediables.media_id')
-                ->where('mediables.mediable_type', 'App\Task');
+                ->where('mediables.mediable_type', 'App\Task')
+                ->where('mediables.tag', config("constants.media_tags"));
+                
 
                 if ($request->task_subject && $request->task_subject != null) {
-                    $uploadDocData = $uploadDocData->where('tasks.task_subject', 'LIKE',  "%$request->task_subject%");
+                    $uplodDocData = $uploadDocData->where('tasks.task_subject', 'LIKE',  "%$request->task_subject%");
                 }
                 if (!empty($request->user_id)) {
                     $uploadDocData= $uploadDocData->where('tasks.assign_from', $request->user_id);
@@ -148,13 +159,16 @@ class DocumentController extends Controller
                     $uploadDocData= $uploadDocData->whereDate('tasks.created_at', $request->date);
                     
                 }   
-                $uploadDocData = $uploadDocData->orderBy('tasks.id', 'desc');    
+                // $uploadDocData = $uploadDocData->orderBy('tasks.id', 'desc');    
                 $uploadDocData = $uploadDocData->union($developertask);
-                
+                $uploadDocData = $uploadDocData->orderBy('media_id','desc');
+                $DataCount = $uploadDocData->count();
                 $uploadDocData = $uploadDocData->paginate(50);
 
-          $users = User::get();
-          $totalCount = $uploadDocData->count();
+                $users = User::get();
+
+          
+                $totalCount =$DataCount;
          
         
 
