@@ -29,7 +29,9 @@ jobs:
       - name: Sleep for 30 seconds
         uses: jakejarvis/wait-action@master
         with:
-          time: "60s"
+          time: "30s"
+      - name: Config clear
+        run: php artisan config:cache
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         env:
