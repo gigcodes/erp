@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
 use App\BrandCategoryPriceRange;
 use App\Category;
 use App\CategoryCancellationPolicyLog;
 use App\CategorySegment;
+use App\HashTag;
+use App\Jobs\CreateHashTags;
+use App\KeywordSearchVariants;
 use App\ScrappedCategoryMapping;
 use App\Setting;
 use Illuminate\Http\Request;
@@ -106,10 +110,43 @@ class CategoryController extends Controller
             'show_all_id' => 'numeric|nullable',
         ]);
         $input = $request->all();
-        // dd($input);
+//         dd($input);
         $input['parent_id'] = empty($input['parent_id']) ? 0 : $input['parent_id'];
 
         Category::create($input);
+
+        /* Initialize queue for add - */
+        $brandList = Brand::getAll();
+        $keywordVariants = KeywordSearchVariants::list();
+        if (!empty($brandList)) {
+            ini_set('max_execution_time', '-1');
+            ini_set('max_execution_time', '0'); // for infinite time of execution
+
+            $string_arr = [];
+            foreach ($brandList as $brand) {
+                foreach($keywordVariants as $keywordVariant) {
+                    $string_data['hashtag'] = $brand .' '. $input['title'] . ' ' . $keywordVariant;
+                    $string_data['platforms_id'] = 2;
+                    $string_data['rating'] = 8;
+                    $string_data['created_at'] = $string_data['updated_at'] = date('Y-m-d h:i:s');
+                    $string_data['created_by'] = \Auth::user()->id;
+                    $check_exist = HashTag::where('hashtag', $string_data['hashtag'])->count();
+                    if($check_exist <= 0) {
+                        $string_arr[] = $string_data;
+                    }
+                }
+
+                $chunks = array_chunk($string_arr, 1000);
+                foreach ($chunks as $chunk) {
+                    CreateHashTags::dispatch($chunk)->onQueue('generategooglescraperkeywords');
+                }
+                $string_arr = [];
+                $processed_brand_id_array[] = $brand->id;
+                /*CreateHashTags::dispatch($string_arr)->onQueue('insert-hash-tags');
+                $string_arr = [];*/
+            }
+            Category::updateStatusIsHashtagsGeneratedCategories();
+        }
 
         return back()->with('success', 'New Category added successfully.');
     }

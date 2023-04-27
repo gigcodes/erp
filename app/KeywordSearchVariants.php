@@ -20,4 +20,8 @@ class KeywordSearchVariants extends Model
     {
         return self::pluck('keyword', 'id')->toArray();
     }
+
+    public static function updateStatusIsHashtagsGeneratedKeywordVariants() {
+        \DB::table('keywordSearchVariants')->where('is_hashtag_generated', 0)->update(['is_hashtag_generated' => 1]);
+    }
 }
