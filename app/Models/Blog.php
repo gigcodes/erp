@@ -16,6 +16,7 @@ class Blog extends Model
         'internal_link',
         'header_tag',
         'title_tag',
+        'store_website_id',
         'strong_tag',
         'italic_tag',
         'external_link',

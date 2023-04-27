@@ -368,6 +368,28 @@
                                   
                     </div> 
 
+                       
+                    <div class="row mt-3">
+                                
+
+                               
+                                  <div class="col-md-4">
+                                 
+                                  <label class="form-label">Select Website</label>
+                                  <select class="browser-default custom-select"  required="required" name="store_website_id" style="height:auto">
+                                    <option disabled value="" selected>---Selecty store websites---</option>
+                                    @foreach($store_website as $sw)
+                                        <option value="{{$sw->id}}" >{{$sw->website}}</option>
+                                    @endforeach
+                                </select>
+                                 
+                        
+                                  </div>
+
+
+                                  
+                    </div> 
+
                     <hr>
                     <div class="row mt-3">
                         <div class="col-md-12">
@@ -616,6 +638,7 @@
                             <th style="width:10px !important;">userName</th>
                             <th>Idea</th>
                             <th>Keyword</th>
+                            <th>Website</th>
                             <th>Canonical URL</th>
                             <th>CheckMobile Friendliness</th>
                             <th>Content</th>
@@ -698,6 +721,7 @@
                     {data: 'idea', name: 'idea', orderable: false, searchable: true},
                     
                     {data: 'keyword', name: 'keyword', orderable: false, searchable: false},
+                    {data: 'store_website_id', name: 'store_website_id', orderable: false, searchable: false},
                     {data: 'canonical_url', name: 'canonical_url', orderable: false, searchable: false},
                     {data: 'checkmobile_friendliness', name: 'checkmobile_friendliness', orderable: false, searchable: false},
                     {data: 'content', name: 'content', orderable: false, searchable: true},

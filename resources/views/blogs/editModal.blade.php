@@ -270,7 +270,27 @@
 
                               
                 </div> 
+                           
+                <div class="row mt-3">
+                                
 
+                               
+                    <div class="col-md-4">
+                   
+                    <label class="form-label">Select Website</label>
+                    <select class="browser-default custom-select"  required="required" name="store_website_id" style="height:auto">
+                      <option disabled value="" selected>---Selecty store websites---</option>
+                      @foreach($store_website as $sw)
+                          <option value="{{ $sw->id }}" {{ $sw->id == $blog->store_website_id ? 'selected' : '' }} >{{$sw->website}}</option>
+                      @endforeach
+                  </select>
+                   
+          
+                    </div>
+
+
+                    
+      </div> 
                 <hr>
                 <div class="row mt-3">
                     <div class="col-md-12">

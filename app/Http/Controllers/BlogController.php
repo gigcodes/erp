@@ -93,6 +93,15 @@ class BlogController extends Controller
                     }
                 })
 
+                ->addColumn('store_website_id', function ($row) {
+                   $website = \App\StoreWebsite::where('id', $row->store_website_id)->first();
+                   if(empty($website)){
+                    return '';
+                   }else{
+                    return $website->website;
+                   }
+                })
+
                 ->addColumn('bing', function ($row) {
                     if($row->bing == 'yes'){
                         return "Yes";
@@ -189,12 +198,14 @@ class BlogController extends Controller
         }
 
         $users = User::get();
-                $allTag = Tag::get()->toArray();
-        $tagName = array_column($allTag, 'tag');
+        $store_website = \App\StoreWebsite::all();
+        //         $allTag = Tag::get()->toArray();
+        // $tagName = array_column($allTag, 'tag');
 
-        $tagName = implode(",", $tagName);
-        $tagName = "['" . str_replace(",", "','", $tagName) . "']";
-        return view('blogs.index', compact('users','tagName'));
+        // $tagName = implode(",", $tagName);
+        // $tagName = "['" . str_replace(",", "','", $tagName) . "']";
+
+        return view('blogs.index', compact('users','store_website'));
     }
 
     /**
@@ -294,7 +305,9 @@ class BlogController extends Controller
 
         $blog = Blog::create($request->all());
         if (!empty($blog)) {
+            
             $blogId = $blog->id;
+            $this->createSitemap($blogId);
             $blogHistory = BlogHistory::create([
                 'blog_id' => $blog->id,
                 'plaglarism' => $blog->plaglarism,
@@ -311,6 +324,12 @@ class BlogController extends Controller
         } else {
             return redirect()->back()->with('error', 'Something Went Wrong!');
         }
+    }
+
+
+    public function createSitemap($blogId)
+    {
+        
     }
 
 
@@ -498,9 +517,9 @@ class BlogController extends Controller
             // $strongTagAll = implode(",", $strongTagAll);
             // $strongTagAll = "['" . str_replace(",", "','", $strongTagAll) . "']";
 
-
+            $store_website = \App\StoreWebsite::all();
            // return view('blogs.editModal', compact('blog', 'headerTagEditValue', 'titleTagEditValue', 'italicTagEditValue', 'strongTagEditValue', 'users'));
-            $returnHTML = view('blogs.editModal')->with('blog', $blog)->with('users', $users)->render();
+            $returnHTML = view('blogs.editModal')->with('blog', $blog)->with('users', $users)->with('store_website',$store_website)->render();
            
             return response()->json(['status' => 'success', 'data' => ['html' => $returnHTML], 'message' => 'Blog'], 200);
         } else {
@@ -636,6 +655,7 @@ class BlogController extends Controller
 
         $dataUpdate = [
             'user_id' => $request->user_id,
+            'store_website_id'=>$request->store_website_id,
             'header_tag' => $request->header_tag,
             'title_tag' => $request->title_tag,
             'strong_tag' => $request->strong_tag,
@@ -665,6 +685,7 @@ class BlogController extends Controller
             'bing_date' => $request->bing_date,
             'canonical_url' => $request->canonical_url,
             'checkmobile_friendliness' => $request->checkmobile_friendliness,
+            
         ];
         
         $blogUpdate = Blog::where('id', $id)->update($dataUpdate);
