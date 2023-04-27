@@ -23,10 +23,15 @@ jobs:
       #     echo "Laravel package 2 cloned"
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
+      - name: Setup PHP
+       uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: xdebug
+        env:
+          COMPOSER_TOKEN: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
       - name: Install composer dependencies
         uses: php-actions/composer@v6
-        with:
-          ssh_key: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
       - name: "Run laravel pint"
         run: ./vendor/bin/pint
       - name: "Push the changes to Git"
