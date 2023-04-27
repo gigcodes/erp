@@ -140,7 +140,7 @@ class TranslationController extends Controller
         $translateLog = TranslateLog::find($id);
         $translateLog->delete();
 
-        return redirect()->route('translation.log')
+        return redirect()->back()
             ->with('success', 'Translation Log deleted successfully');
     }
 
@@ -151,6 +151,10 @@ class TranslationController extends Controller
         if ($request->id) {
             $query = $query->where('id', $request->id);
         }
+        if ($request->account_id) {
+            $query = $query->where('google_traslation_settings_id', $request->account_id);
+        }
+
         if ($request->search) {
             $query = $query->where('messages', 'LIKE', '%'.$request->search.'%')
                     ->orWhere('created_at', 'LIKE', '%'.$request->search.'%')
