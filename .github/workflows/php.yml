@@ -28,6 +28,16 @@ jobs:
           mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uuser -psecret -e "SHOW DATABASES"
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        env:
+          COMPOSER_TOKEN: ${{ secrets.CI_TOKEN }}
+      - name: Install Composer Dependencies
+        run: composer install
+      - name: Clear Config
+        run: php artisan config:clear
+      - name: Generate key
+        run: php artisan key:generate
       - name: Database dump
         env:
           DB_DATABASE: test_db
@@ -37,18 +47,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           php artisan migrate
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        env:
-          COMPOSER_TOKEN: ${{ secrets.CI_TOKEN }}
-      - name: Install Composer Dependencies
-        run: composer install
-      # - name: Prepare the application
-      #   run: |
-      #     php -r "file_exists('.env') || copy('.env.example', '.env');"
-      #     php artisan key:generate
-      # - name: Clear Config
-      #   run: php artisan config:clear
       - name: "Run laravel pint"
         run: ./vendor/bin/pint
       - name: "Push the changes to Git"
