@@ -24,12 +24,12 @@ jobs:
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
       - name: Setup PHP
-       uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-          extensions: xdebug
-        env:
-          COMPOSER_TOKEN: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
+        uses: shivammathur/setup-php@v2
+          with:
+            php-version: '7.4'
+            extensions: xdebug
+          env:
+            COMPOSER_TOKEN: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
       - name: Install composer dependencies
         uses: php-actions/composer@v6
       - name: "Run laravel pint"
