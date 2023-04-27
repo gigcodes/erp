@@ -7,6 +7,7 @@ on:
 jobs:
   laravel-pint:
     runs-on: ubuntu-latest
+    container: ubuntu
     services:
       mysql:
         image: mysql:5.7
