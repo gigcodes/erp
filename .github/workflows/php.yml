@@ -7,26 +7,46 @@ on:
 jobs:
   laravel-pint:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: erp
+          MYSQL_USER: user
+          MYSQL_PASSWORD: secret
+          MYSQL_ROOT_PASSWORD: secretroot
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      # - name: Clone Laravel package 1
-      #   run: |
-      #     git clone https://github.com/MMMagento/erp-excel-importer.git vendor/seo2websites/erp-excel-importer
-      #     echo "Laravel package 1 cloned"
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
-      # - name: Clone Laravel package 2
-      #   run: |
-      #     git clone https://github.com/MMMagento/google-vision.git vendor/seo2websites/google-vision
-      #     echo "Laravel package 2 cloned"
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
-      - name: Install composer dependencies
-        uses: php-actions/composer@v6
+      - name: Verify MySQL connection
+        run: |
+          mysql --version
+          sudo apt-get install -y mysql-client
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uuser -psecret -e "SHOW DATABASES"
+      - name: Sleep for 30 seconds
+        uses: jakejarvis/wait-action@master
         with:
-          ssh_key: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
+          time: "30s"
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        env:
+          COMPOSER_TOKEN: ${{ secrets.CI_TOKEN }}
+      - name: Install Composer Dependencies
+        run: composer install
+      - name: Generate key
+        run: php artisan key:generate
+      - name: Database dump
+        env:
+          DB_DATABASE: test_db
+          DB_USERNAME: user
+          DB_PASSWORD: secret
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          php artisan migrate
       - name: "Run laravel pint"
         run: ./vendor/bin/pint
       - name: "Push the changes to Git"
