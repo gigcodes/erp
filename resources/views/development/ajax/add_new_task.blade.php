@@ -28,12 +28,19 @@
                         @endif
 
                         <div class="form-group col-md-6">
+                            <label for="" class="form-label">Organization</label>
+                            <select name="organizationId" id="organizationId" class="form-control">
+                                @foreach ($githubOrganizations as $githubOrganization)
+                                    <option value="{{ $githubOrganization->id }}" data-repos='{{ $githubOrganization->repos }}' {{ ($githubOrganization->name == 'MMMagento' ? 'selected' : '' ) }}>{{  $githubOrganization->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-6">
                             <label for="repository_id">Repository:</label>
                             <br>
                             <select style="width:100%" class="form-control select2" id="repository_id" name="repository_id">
-                                @foreach ($respositories as $repository)
-                                <option value="{{ $repository->id }}" {{ $repository->id == $defaultRepositoryId ? 'selected' : '' }}>{{ $repository->name }}</option>
-                                @endforeach
+                               
                             </select>
 
                             @if ($errors->has('repository_id'))
@@ -216,3 +223,29 @@
 
     </div>
 </div>
+<script>
+    var defaultRepositoryId = '{{ $defaultRepositoryId }}';
+    
+    getRepositories();
+
+    $('#repository_id').on('select2:select', function (e) {
+        getRepositories();
+    });
+
+    function getRepositories(){
+        $('#repository_id').select2('destroy');
+        var repos = $.parseJSON($('#organizationId option:selected').attr('data-repos'));
+
+        $('#repository_id').empty();
+
+        console.log(repos);
+
+        if(repos.length > 0){
+            $.each(repos, function (k, v){
+                $('#repository_id').append('<option value="'+v.id+'" '+(defaultRepositoryId == v.id ? 'selected' : '')+'>'+v.name+'</option>');
+            });
+
+            $('#repository_id').select2();
+        }
+    }
+</script>

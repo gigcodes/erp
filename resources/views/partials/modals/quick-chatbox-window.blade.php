@@ -188,7 +188,7 @@
                                     $customer = $chatId->customer;
                                     if($customer) {
                                     $customerInital = substr($customer->name, 0, 1);
-                                    $website_data = \App\StoreWebsite::where("id", $customer->store_website_id)->first();
+                                    
                                     @endphp
                                     <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
@@ -203,7 +203,7 @@
                                                 <span>{{ $customer->name }}</span>
                                                 <h5>{{ $customer->phone ?? '' }} </h5>
                                                 <!-- <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p> -->
-                                                <h5>{{ $website_data->website ?? '' }} </h5>
+                                                <h5> </h5>
                                             </div>
                                             <!-- @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif -->
                                         </div>

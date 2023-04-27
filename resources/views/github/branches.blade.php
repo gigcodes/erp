@@ -1,93 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
-<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
-<script>
-    var currentChatParams = {};
-    currentChatParams.data = {
-        page: 1
-        , hasMore: true
-    , };
-    var workingOn = null;
-
-    function getBranchHtml(response) {
-        let html = "";
-        $.each(response, function(key, value) {
-            html += "<tr>";
-            html += "<td>" + value.branch_name + "</td>";
-            html += "<td>" + value.behind_by + "</td>";
-            html += "<td>" + value.ahead_by + "</td>";
-            html += "<td>" + value.last_commit_author_username + "</td>";
-            html += "<td>" + value.last_commit_time + "</td>";
-            html += "</tr>";
-        });
-        return html;
-    }
-
-    let isApiCall = true;
-    let pageNum = 1;
-
-    async function getBranches({repoId, page})
-    {
-        return $.ajax({
-            type: "GET",
-            url: "",
-            async:true,
-            data: {
-                repoId: repoId,
-                page:page
-            },
-            dataType: "json",
-            success: function (response) {
-                return response;
-            }
-        });
-    }
-
-
-    let $dataTable = $(document).find("#branch-section table").DataTable({
-            "bPaginate": false,
-            "search":false,
-        });
-    async function fetchBranches({repoId}) {
-        $dataTable.destroy();
-        $(document).find("#branch-section .loader-section").show();
-        $(document).find("#branch-section table tbody tr").remove();
-        $(document).find("#branch-section table tfoot").hide();
-        let branches = await getBranches({
-            repoId: repoId,
-        });
-        if(branches.data.length < 1) {
-            $(document).find("#branch-section table tfoot").show();
-            // return false;
-        }
-        let htmlContent = getBranchHtml(branches.data);
-        $(document).find("#branch-section table tbody").html(htmlContent);
-        $(document).find("#branchCount").html(`(${branches.data.length})`)
-        $(document).find("#branch-section .loader-section").hide();
-        $dataTable = (document).find("#branch-section table").DataTable({
-            "bPaginate": false,
-            "search":false,
-        });
-    }
-    
-    $(document).ready(function() {
-        $(async function() {
-            await fetchBranches({
-                repoId: $(document).find("select[name=repoId]").val(),
-            });
-        });
-
-        $(document).on('change', "select[name=repoId]", async function() {
-            await fetchBranches({
-                repoId: $(document).find("select[name=repoId]").val(),
-            });
-        })
-    })
-
-
-</script>
 <style>
     #action-workflow-table_filter {
         text-align: right;
@@ -101,12 +14,15 @@
         table-layout: fixed; // 
         word-wrap: break-word; // 
     }
+    .d-n{
+        display: none;
+    }
 
 </style>
 
 <div class="row">
     <div class="col-lg-12 margin-tb page-heading">
-        <h5 class="ml-5">Branches <span id="branchCount"></span></h5>
+        <h5 class="ml-5">Branches (<span id="branches_row_html_id"></span>)</h5>
         <h3 class="text-center">Github Branches</h3>
     </div>
 </div>
@@ -139,15 +55,22 @@
 <div class="container" style="max-width: 100%;width: 100%;" id="branch-section">
     <div class="row mb-3">
         <div class="col-md-3">
-            <label for="" class="form-label">Repository</label>
-            <select name="repoId" class="form-control">
-                @foreach ($repos as $repo)
-                    <option value="{{ $repo->id }}">{{ $repo->name }}</option>
+            <label for="" class="form-label">Organization</label>
+            <select name="organizationId" id="organizationId" class="form-control">
+                @foreach ($githubOrganizations as $githubOrganization)
+                    <option value="{{ $githubOrganization->id }}" data-repos='{{ $githubOrganization->repos }}' {{ ($githubOrganization->name == 'MMMagento' ? 'selected' : '' ) }}>{{  $githubOrganization->name }}</option>
                 @endforeach
             </select>
         </div>
+
+        <div class="col-md-3">
+            <label for="" class="form-label">Repository</label>
+            <select name="repoId" id="repoId" class="form-control">
+                
+            </select>
+        </div>
     </div>
-    <table class="table table-bordered action-table" style="table-layout: fixed;">
+    <table class="table table-bordered action-table" style="table-layout: fixed;" id="branches-table">
         <thead>
             <tr>
                 <th style="width:7% !important;">Name</th>
@@ -160,14 +83,90 @@
         <tbody>
             
         </tbody>
-        <tfoot style="display: none">
-            <td colspan="5" >
-                <h5 class="text-center text-bold">No Data Found</h5>
-            </td>
-        </tfoot>
     </table>
-    <div class="loader-section">
+    <div class="loader-section d-n">
         <div style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url({{ url('images/pre-loader.gif')}}) 50% 50% no-repeat;"></div>
     </div>
 </div>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
+<script>
+    $("#branches-table").DataTable({
+        "bPaginate": false,
+        "search":false,
+    });
+    
+    $('#organizationId').change(function (){
+        getRepositories();
+    });
+
+    function getRepositories(){
+        var repos = $.parseJSON($('#organizationId option:selected').attr('data-repos'));
+
+        $('#repoId').empty();
+
+        if(repos.length > 0){
+            $.each(repos, function (k, v){
+                $('#repoId').append('<option value="'+v.id+'">'+v.name+'</option>');
+            });
+
+            getBranches();
+        }else{
+            getBranches();
+        }
+    }
+
+    $('#repoId').change(function (){
+        getBranches();
+    });
+
+    function getBranches(){
+        var repoId = $('#repoId').val();
+
+        $('.loader-section').removeClass('d-n');
+
+        $.ajax({
+            type: "GET",
+            url: "",
+            async:true,
+            data: {
+                repoId: repoId,
+            },
+            dataType: "json",
+            success: function (response) {
+                var branchHtml = getBranchHtml(response.data);
+
+                $('#branches-table').DataTable().clear().destroy();
+
+                $('#branches_row_html_id').html(response.data.length);
+                $('#branches-table tbody').empty().html(branchHtml);
+
+                $("#branches-table").DataTable({
+                    "bPaginate": false,
+                    "search":false,
+                });
+
+                $('.loader-section').addClass('d-n');
+            }
+        });
+    }
+
+    function getBranchHtml(response) {
+        let html = "";
+        $.each(response, function(key, value) {
+            html += "<tr>";
+            html += "<td>" + value.branch_name + "</td>";
+            html += "<td>" + value.behind_by + "</td>";
+            html += "<td>" + value.ahead_by + "</td>";
+            html += "<td>" + value.last_commit_author_username + "</td>";
+            html += "<td>" + value.last_commit_time + "</td>";
+            html += "</tr>";
+        });
+        return html;
+    }
+
+    $(document).ready(function() {
+        getRepositories();
+    });
+</script>
 @endsection

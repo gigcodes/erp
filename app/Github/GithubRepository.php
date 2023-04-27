@@ -34,4 +34,9 @@ class GithubRepository extends Model
             'id'
         )->orderBy('last_commit_time', 'desc');
     }
+
+    public function organization()
+    {
+        return $this->belongsTo(\App\Github\GithubOrganization::class, 'github_organization_id', 'id');
+    }
 }

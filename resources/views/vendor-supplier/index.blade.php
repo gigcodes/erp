@@ -12,7 +12,7 @@
 <form action="http://pravin.sololux/vendors" method="POST">
         <input type="hidden" name="_token" value="tojivzAhdNcOBzXsKN0r3FgSHyBD6UKJzyNfjdF0">
         <div class="modal-header">
-          <h4 class="modal-title">Store a Vendor</h4>
+          <h4 class="modal-title">Store a Vendor444</h4>
           <button type="button" class="close" data-dismiss="modal">×</button>
         </div>
         <div class="modal-body">

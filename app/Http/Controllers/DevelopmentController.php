@@ -10,6 +10,7 @@ use App\DeveloperTask;
 use App\DeveloperTaskComment;
 use App\DeveloperTaskHistory;
 use App\DeveoperTaskPullRequestMerge;
+use App\Github\GithubOrganization;
 use App\Github\GithubRepository;
 use App\Helpers;
 use App\Helpers\HubstaffTrait;
@@ -53,6 +54,7 @@ use Storage;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\DeveloperTaskStatusChecklist;
 use App\Models\DeveloperTaskStatusChecklistRemarks;
+use View;
 
 class DevelopmentController extends Controller
 {
@@ -3669,7 +3671,10 @@ class DevelopmentController extends Controller
 
         // this is the ID for erp
         $defaultRepositoryId = 231925646;
-        $respositories = GithubRepository::all();
+        // $respositories = GithubRepository::all();
+
+        $githubOrganizations = GithubOrganization::get();
+
         $statusList = \DB::table('task_statuses')
             ->orderBy('name')
             ->select('name')
@@ -3684,7 +3689,7 @@ class DevelopmentController extends Controller
         //Get hubstaff projects
         $projects = HubstaffProject::all();
 
-        $html = view('development.ajax.add_new_task', compact('users', 'tasksTypes', 'modules', 'moduleNames', 'respositories', 'defaultRepositoryId', 'projects', 'statusList'))->render();
+        $html = View::make('development.ajax.add_new_task', compact('users', 'tasksTypes', 'modules', 'moduleNames', 'githubOrganizations', 'defaultRepositoryId', 'projects', 'statusList'))->render();
 
         return json_encode(compact('html', 'status'));
     }

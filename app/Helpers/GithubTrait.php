@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use App\Github\GithubRepository;
+use App\Github\GithubOrganization;
 
 trait GithubTrait
 {
@@ -17,9 +19,19 @@ trait GithubTrait
         ]);
     }
 
-    private function compareRepoBranches(int $repoId, string $branchName, string $base = 'master')
+    private function connectGithubClient($userName, $token)
     {
-        $githubClient = $this->getGithubClient();
+        $githubClient = new Client([
+                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+                'auth' => [$userName, $token],
+            ]);
+
+        return $githubClient;
+    }
+
+    private function compareRepoBranches($userName, $token, int $repoId, string $branchName, string $base = 'master')
+    {
+        $githubClient = $this->connectGithubClient($userName, $token);
         //https://api.github.com/repositories/:repoId/compare/:diff
 
         try {
@@ -65,14 +77,18 @@ trait GithubTrait
         ];
     }
 
-    private function inviteUser(string $email)
+    private function inviteUser(string $email, $organizationId)
     {
+        $organization = GithubOrganization::find($organizationId);
+
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
         // /orgs/:org/invitations
         // $url = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/invitations';
-        $url = 'https://api.github.com/orgs/'.config('env.GITHUB_ORG_ID').'/invitations';
-
+        $url = 'https://api.github.com/orgs/'.$organization->name.'/invitations';
+        
         try {
-            $this->getGithubClient()->post(
+            $githubClient->post(
                 $url,
                 [
                     'json' => [
@@ -170,12 +186,16 @@ trait GithubTrait
     }
 
 
-    private function rerunAction($repository, $jobId)
+    private function rerunAction($repoId, $jobId)
     {
-        $url = 'https://api.github.com/repos/'.getenv('GITHUB_ORG_ID')."/".$repository.'/actions/runs/'.$jobId.'/rerun-failed-jobs';
+        $githubRepository  = GithubRepository::with('organization')->find($repoId);
 
+        $url = 'https://api.github.com/repos/'.$githubRepository->organization->name."/".$githubRepository->name.'/actions/runs/'.$jobId.'/rerun-failed-jobs';
+
+        $githubClient = $this->connectGithubClient($githubRepository->organization->username, $githubRepository->organization->token);
+        
         try {
-            $this->client->post($url);
+            $githubClient->post($url);
             $data['status'] = true;
         } catch (Exception $e) {
             $data['status'] = false;

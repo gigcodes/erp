@@ -6,6 +6,7 @@ use App\DeveloperTask;
 use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
+use App\Github\GithubOrganization;
 use App\GitMigrationErrorLog;
 use App\Helpers\GithubTrait;
 use App\Helpers\MessageHelper;
@@ -33,46 +34,83 @@ class RepositoryController extends Controller
         ]);
     }
 
-    private function refreshGithubRepos()
+    private function connectGithubClient($userName, $token)
     {
-        // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
-        $url = 'https://api.github.com/orgs/'.config('env.GITHUB_ORG_ID').'/repos?per_page=100';
+        $githubClient = new Client([
+                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+                'auth' => [$userName, $token],
+            ]);
 
-        $response = $this->client->get($url);
+        return $githubClient;
+    }
 
-        $repositories = json_decode($response->getBody()->getContents());
-
+    private function refreshGithubRepos($organizationId)
+    {
+        if(strlen($organizationId) > 0){
+            $organization = GithubOrganization::find($organizationId);
+        }else{
+            $organization = GithubOrganization::where('name', 'MMMagento')->first();
+        }
+        
         $dbRepositories = [];
 
-        foreach ($repositories as $repository) {
-            $data = [
-                'id' => $repository->id,
-                'name' => $repository->name,
-                'html' => $repository->html_url,
-                'webhook' => $repository->hooks_url,
-                'created_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->created_at),
-                'updated_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at),
-            ];
+        try{
+            if(!empty($organization)){
+                // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
+                $url = 'https://api.github.com/orgs/'.$organization->name.'/repos?per_page=100';
 
-            GithubRepository::updateOrCreate(
-                [
-                    'id' => $repository->id,
-                ],
-                $data
-            );
-            $dbRepositories[] = $data;
+                $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
+                $response = $githubClient->get($url);
+
+                $repositories = json_decode($response->getBody()->getContents());
+
+                foreach ($repositories as $repository) {
+                    $data = [
+                        'id' => $repository->id,
+                        'organization_id' => $organization->id,
+                        'name' => $repository->name,
+                        'html' => $repository->html_url,
+                        'webhook' => $repository->hooks_url,
+                        'created_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->created_at),
+                        'updated_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at),
+                    ];
+        
+                    GithubRepository::updateOrCreate(
+                        [
+                            'id' => $repository->id,
+                        ],
+                        $data
+                    );
+                    $dbRepositories[] = $data;
+                }
+            }
+        }
+        catch(\Exception $e){
+
         }
 
         return $dbRepositories;
     }
 
     //
-    public function listRepositories()
+    public function listRepositories(Request $request, $organizationId = '')
     {
-        $repositories = $this->refreshGithubRepos();
+        $repositories = $this->refreshGithubRepos($organizationId);
+
+        $githubOrganizations = GithubOrganization::get();
+
+        if($request->ajax()){
+            return response()->json([
+                'tbody' => view('github.include.repository-list', compact('repositories'))->render(),
+                'count' => count($repositories)
+            ], 200);
+        }
 
         return view('github.repositories', [
             'repositories' => $repositories,
+            'githubOrganizations' => $githubOrganizations,
+            'organizationId' => $organizationId
         ]);
     }
 
@@ -205,12 +243,21 @@ class RepositoryController extends Controller
         ]);
     }
 
-    public function getGitMigrationErrorLog()
+    public function getGitMigrationErrorLog(Request $request)
     {
-        try {
-            $gitDbError = GitMigrationErrorLog::orderBy('id', 'desc')->take(100)->get();
+        if($request->ajax()) {
+            $gitDbError = GitMigrationErrorLog::where('repository_id',  $request->repoId)->orderBy('id', 'desc')->take(100)->get();
 
-            return view('github.deploy_branch_error', compact('gitDbError'));
+            return response()->json([
+                'tbody' => view('github.include.migration-error-logs-list', compact('gitDbError'))->render(),
+                'count' => count($gitDbError)
+            ], 200);
+        }
+
+        try {
+            $githubOrganizations = GithubOrganization::with('repos')->get();
+
+            return view('github.deploy_branch_error', compact('githubOrganizations'));
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
@@ -475,36 +522,41 @@ class RepositoryController extends Controller
         return $githubActionRuns;
     }
 
-    public function listAllPullRequests()
+    public function listAllPullRequests(Request $request)
     {
-        $repositories = GithubRepository::all(['id', 'name']);
-        $allPullRequests = [];
-        foreach ($repositories as $repository) {
-            $pullRequests = $this->getPullRequests($repository->id);
-            foreach($pullRequests as $key =>  $pullRequest){
-                //Need to execute the detail API as we require the mergeable_state which is only return in the PR detail API.
-                $pr = $this->getPullRequestDetail($repository->id,$pullRequest['id']);
-                $pullRequests[$key]['mergeable_state'] = $pr['mergeable_state'];
-                $pullRequests[$key]['conflict_exist'] = $pr['mergeable_state'] == "dirty" ? true : false;
+        if($request->ajax()) {
+            $repositories = GithubRepository::select('id', 'name')->where('id',  $request->repoId)->get();
+            $allPullRequests = [];
+            
+            foreach ($repositories as $repository) {
+                $pullRequests = $this->getPullRequests($repository->id);
+                foreach($pullRequests as $key =>  $pullRequest){
+                    //Need to execute the detail API as we require the mergeable_state which is only return in the PR detail API.
+                    $pr = $this->getPullRequestDetail($repository->id,$pullRequest['id']);
+                    $pullRequests[$key]['mergeable_state'] = $pr['mergeable_state'];
+                    $pullRequests[$key]['conflict_exist'] = $pr['mergeable_state'] == "dirty" ? true : false;
+                }
+                $pullRequests = array_map(
+                    function ($pullRequest) use ($repository) {
+                        $pullRequest['repository'] = $repository;
+
+                        return $pullRequest;
+                    },
+                    $pullRequests
+                );
+
+                $allPullRequests = array_merge($allPullRequests, $pullRequests);
             }
-            $pullRequests = array_map(
-                function ($pullRequest) use ($repository) {
-                    $pullRequest['repository'] = $repository;
 
-                    return $pullRequest;
-                },
-                $pullRequests
-            );
-
-            $allPullRequests = array_merge($allPullRequests, $pullRequests);
+            return response()->json([
+                'tbody' => view('github.include.pull-request-list', compact('pullRequests'))->render(),
+                'count' => count($pullRequests)
+            ], 200);
         }
 
-        return view(
-            'github.all_pull_requests',
-            [
-                'pullRequests' => $allPullRequests,
-            ]
-        );
+        $githubOrganizations = GithubOrganization::with('repos')->get();
+
+        return view('github.all_pull_requests', compact('githubOrganizations'));
     }
 
     public function deployNodeScrapers()
@@ -524,8 +576,9 @@ class RepositoryController extends Controller
                 'data' => $data
             ]);
         }
-        $data['repos'] = GithubRepository::all();
-        return view('github.branches', $data);
+        $githubOrganizations = GithubOrganization::with('repos')->get();
+        
+        return view('github.branches', compact('githubOrganizations'));
     }
 
     public function getAjaxBranches(Request $request)
@@ -546,8 +599,10 @@ class RepositoryController extends Controller
                 'data' => $data
             ]);
         }
-        $data['repos'] = GithubRepository::all();
-        return view('github.actions', $data);
+        
+        $githubOrganizations = GithubOrganization::with('repos')->get();
+        
+        return view('github.actions', compact('githubOrganizations'));
     }
 
     public function getAjaxActions(Request $request)
