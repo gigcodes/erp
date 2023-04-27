@@ -21,7 +21,7 @@ class AssetsManagerPaymentCron extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Assets manager payment cron payment cycle';
 
     /**
      * Create a new command instance.

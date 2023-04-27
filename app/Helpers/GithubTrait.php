@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use App\Github\GithubRepository;
 use App\Github\GithubOrganization;
+use Illuminate\Support\Arr;
 
 trait GithubTrait
 {
@@ -22,11 +23,46 @@ trait GithubTrait
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([
-                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
-                'auth' => [$userName, $token],
-            ]);
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [$userName, $token],
+        ]);
 
         return $githubClient;
+    }
+
+    private function pullRequests($userName, $token, $repoId, $filters = [])
+    {
+        $addedFilters = !empty($filters) ? Arr::query($filters) : "";
+        $pullRequests = [];
+        $url = 'https://api.github.com/repositories/'.$repoId.'/pulls?per_page=200';
+        if(!empty($addedFilters)){
+            $url .= "&".$addedFilters;
+        }
+        try {
+            // $client = $this->getGithubClient();
+            // $response = $client->get($url);
+            $githubClient = $this->connectGithubClient($userName, $token);
+            $response = $githubClient->get($url);
+            
+            $decodedJson = json_decode($response->getBody()->getContents());
+            foreach ($decodedJson as $pullRequest) {
+                $pullRequests[] = [
+                    'id' => $pullRequest->number,
+                    'title' => $pullRequest->title,
+                    'number' => $pullRequest->number,
+                    'state' => $pullRequest->state,
+                    'username' => $pullRequest->user->login,
+                    'userId' => $pullRequest->user->id,
+                    'updated_at' => $pullRequest->updated_at,
+                    'source' => $pullRequest->head->ref,
+                    'destination' => $pullRequest->base->ref,
+                ];
+            }
+        } catch (Exception $e) {
+            $this->info($e->getMessage());
+        }
+
+        return $pullRequests;
     }
 
     private function compareRepoBranches($userName, $token, int $repoId, string $branchName, string $base = 'master')
@@ -136,6 +172,19 @@ trait GithubTrait
                     'state' => "closed"
                 ]
             ]);
+            $data['status'] = true;
+        } catch (Exception $e) {
+            $data['status'] = false;
+            $data['error'] = $e->getMessage();
+        }
+        return $data;
+    }
+    private function deleteBranch(string $repositoryId, string $branchName)
+    {
+        $url = 'https://api.github.com/repositories/'.$repositoryId.'/git/refs/heads/'.$branchName;
+
+        try {
+            $this->client->delete($url);
             $data['status'] = true;
         } catch (Exception $e) {
             $data['status'] = false;

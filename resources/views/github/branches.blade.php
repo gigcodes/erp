@@ -11,12 +11,14 @@
         width: 100%;
         clear: both;
         border-collapse: collapse;
-        table-layout: fixed; // 
-        word-wrap: break-word; // 
+        table-layout: fixed; 
+        word-wrap: break-word; 
     }
     .d-n{
         display: none;
     }
+
+    .dataTables_wrapper.dt-bootstrap4 .row div.col-sm-12.col-md-6:empty{ display: none }
 
 </style>
 
@@ -69,15 +71,48 @@
                 
             </select>
         </div>
+            <!-- Single button -->
+            <label for="" class="form-label">Action on selected Item</label>
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle jq_selected_item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    0 Items Selected <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#"  onclick="confirmDelete()">Delete All</a></li>
+                </ul>
+            </div>
+        </div>
+
+       
+        <div class="col-md-3">
+            <label for="" class="form-label">Repository</label>
+            <select name="repoId" class="form-control">
+                @foreach ($repos as $repo)
+                    <option value="{{ $repo->id }}">{{ $repo->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="" class="form-label">Status</label>
+            <select name="status" id="status" class="form-control">
+                <option value="">All</option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+            </select>
+        </div>
+        
     </div>
     <table class="table table-bordered action-table" style="table-layout: fixed;" id="branches-table">
         <thead>
             <tr>
-                <th style="width:7% !important;">Name</th>
+
+                <th style="width:10% !important;"><input type="checkbox" name="select_all" value="1" id="action-select-all"></th>
+                <th style="width:25% !important;">Name</th>
+                <th style="width:10% !important;">Status</th>
                 <th style="width:10% !important;">Behind By</th>
-                <th style="width:13% !important;">Ahead By</th>
-                <th style="width:10% !important;">Last Commit by</th>
-                <th style="width:10% !important;">Last Commit by</th>
+                <th style="width:10% !important;">Ahead By</th>
+                <th style="width:15% !important;">Last Commit By</th>
+                <th style="width:15% !important;">Last Commit At</th>
             </tr>
         </thead>
         <tbody>
@@ -131,6 +166,7 @@
             async:true,
             data: {
                 repoId: repoId,
+                status: $("#status").val(),
             },
             dataType: "json",
             success: function (response) {
@@ -155,11 +191,20 @@
         let html = "";
         $.each(response, function(key, value) {
             html += "<tr>";
+            html += `<td><input type="checkbox" class="action" name="action[]" data-repository-id="`+value.repository_id+`" value="` + value.branch_name+ `"></td>`;
             html += "<td>" + value.branch_name + "</td>";
+            html += "<td>" + value.status + "</td>";
             html += "<td>" + value.behind_by + "</td>";
             html += "<td>" + value.ahead_by + "</td>";
             html += "<td>" + value.last_commit_author_username + "</td>";
             html += "<td>" + value.last_commit_time + "</td>";
+            // html += `<td style="width:10%;">
+            //     <div style="margin-top: 5px;">
+            //         <button class="btn btn-sm btn-secondary" style="margin-top: 5px;" onclick="confirmDelete('`+value.repository_id+`','`+value.branch_name+`')">
+            //             Delete Branch
+            //         </button>
+            //     </div>
+            // </td>`;
             html += "</tr>";
         });
         return html;
@@ -168,5 +213,77 @@
     $(document).ready(function() {
         getRepositories();
     });
+
+    function confirmDelete() {
+        $length = $('input:checkbox[name="action[]"]:checked').length;
+        if($length == 0){
+            toastr['error']("Please select item to delete the branch");
+        }else{
+            let result = confirm("Are you sure you want to delete these branches?");
+            if (result) {
+                $('input:checkbox[name="action[]"]:checked').each(function(){
+                    let repositoryId = $(this).data('repository-id');
+                    let branchName = $(this).val();
+                    if(repositoryId && branchName ){
+                        $.ajax({
+                            headers : {
+                                'Accept' : 'application/json',
+                                'Content-Type' : 'application/json',
+                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                            },
+                            type: "post",
+                            url: '/github/repos/'+repositoryId+'/branch?branch_name='+branchName,
+                            dataType: "json",
+                            success: function (response) {
+                                if(response.status) {
+                                    toastr['success']('Branch has been deleted successfully!');
+                                    
+                                }else{
+                                    errorMessage = response.error ? response.error : 'Something went wrong please try again later!';
+                                    toastr['error'](errorMessage);
+                                }
+                            },
+                            error: function () {
+                                toastr['error']('Could not change module!');
+                            }
+                        });
+                        
+                    }
+                    
+                });
+                window.location.reload();
+            }
+        }
+    }
+    
+    $(document).on('click','#action-select-all', function(){
+      if ($("#action-select-all").is(':checked')) {
+          $('input[name="action[]"]').prop('checked', true);
+        }else{
+          $('input[name="action[]"]').prop('checked', false);
+      }
+      $length = $('input[name="action[]"]:checked').length;
+      $(".jq_selected_item").html($length+" Items Selected");
+   });
+    
+    $(document).on('click','.action', function(){
+      $length = $('input[name="action[]"]:checked').length;
+      $(".jq_selected_item").html($length+" Items Selected");
+    });
+
+    function resetActionButoonAndCheckbox(){
+        $(".jq_selected_item").html("0 Items Selected");
+        $("#action-select-all").prop('checked', false);
+    }
+
+    $(document).on('change', "select[name=repoId]", function() {
+        resetActionButoonAndCheckbox();
+        getBranches();
+    })
+
+    $(document).on('change', "#status", function() {
+        resetActionButoonAndCheckbox();
+        getBranches();
+    })
 </script>
 @endsection

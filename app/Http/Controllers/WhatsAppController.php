@@ -2080,7 +2080,18 @@ class WhatsAppController extends FindByNumberController
                 ]);
             }
         }
-        if ($context == 'customer') {
+        if($context == 'email'){
+            $lastMessage = ChatMessage::find($request->chat_id);
+            $data['from_email'] = $lastMessage->from_email;
+            $data['to_email']   = $lastMessage->to_email;
+
+            $data['is_email'] = 1;
+            $data['email_id'] = $request->email_id;
+            $data['message_type'] = 'email';
+            unset($data['user_id']);
+            $module_id = $request->email_id;
+        }
+        elseif ($context == 'customer') {
             $data['customer_id'] = $request->customer_id;
             $module_id = $request->customer_id;
             //update if the customer message is going to send then update all old message to read
@@ -2221,16 +2232,19 @@ class WhatsAppController extends FindByNumberController
                             $adm = User::find($task->assign_from);
                             if ($adm) {
                                 $this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
+                                 WebNotificationController::sendBulkNotification($adm->id,'Task & Activity', $data['message']);
                             }
                         } elseif ($recepient == 'assigned_to') {
                             foreach ($task->users as $key => $user) {
                                 $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                 WebNotificationController::sendBulkNotification($user->id,'Task & Activity', $data['message']);
                             }
                         } elseif ($recepient == 'master_user_id') {
                             if (! empty($task->master_user_id)) {
                                 $userMaster = User::find($task->master_user_id);
                                 if ($userMaster) {
                                     $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                                    WebNotificationController::sendBulkNotification($userMaster->id,'Task & Activity', $data['message']);
                                 }
                             }
                         } elseif ($recepient == 'second_master_user_id') {
@@ -2238,6 +2252,7 @@ class WhatsAppController extends FindByNumberController
                                 $userMaster = User::find($task->second_master_user_id);
                                 if ($userMaster) {
                                     $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                                    WebNotificationController::sendBulkNotification($userMaster->id,'Task & Activity', $data['message']);
                                 }
                             }
                         } elseif ($recepient == 'contacts') {
@@ -2264,6 +2279,7 @@ class WhatsAppController extends FindByNumberController
                                     $data['erp_user'] = $user->id;
                                 } else {
                                     $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                     WebNotificationController::sendBulkNotification($user->id,'Task & Activity', $data['message']);
                                 }
                             }
                         } elseif ($task->master_user_id == Auth::id()) {
@@ -2272,11 +2288,13 @@ class WhatsAppController extends FindByNumberController
                                     $data['erp_user'] = $user->id;
                                 } else {
                                     $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                    WebNotificationController::sendBulkNotification($user->id,'Task & Activity', $data['message']);
                                 }
                             }
                             $adm = User::find($task->assign_from);
                             if ($adm) {
                                 $this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
+                                WebNotificationController::sendBulkNotification($adm->id,'Task & Activity', $data['message']);
                             }
                         } else {
                             if (! $task->users->contains(Auth::id())) {
@@ -2284,6 +2302,7 @@ class WhatsAppController extends FindByNumberController
 
                                 foreach ($task->users as $key => $user) {
                                     $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                    WebNotificationController::sendBulkNotification($user->id,'Task & Activity', $data['message']);
                                 }
                             } else {
                                 foreach ($task->users as $key => $user) {
@@ -2292,6 +2311,7 @@ class WhatsAppController extends FindByNumberController
                                     } else {
                                         if ($user->id != Auth::id()) {
                                             $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                            WebNotificationController::sendBulkNotification($user->id,'Task & Activity', $data['message']);
                                         }
                                     }
                                 }
@@ -3323,6 +3343,18 @@ class WhatsAppController extends FindByNumberController
                 'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
             ]);
         }
+
+        if ($context == 'email') {
+            ChatMessagesQuickData::updateOrCreate([
+                'model' => \App\Email::class,
+                'model_id' => $data['email_id'],
+            ], [
+                'last_communicated_message' => @$params['message'],
+                'last_communicated_message_at' => Carbon::now(),
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]);
+        }
+
         // $data['status'] = 1;
 
         // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
@@ -4316,7 +4348,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
 
         if ($message->message != '') {
-            if ($context == 'supplier' ||$context == 'customer' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'user-feedback-hrTicket' || $context == 'SOP-Data' || $context == 'timedoctor') {
+            if ($context == 'supplier' ||$context == 'customer' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'user-feedback-hrTicket' || $context == 'SOP-Data' || $context == 'timedoctor' || $context == 'email') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4413,12 +4445,19 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 if ($context == 'timedoctor') {
-                    $user = User::find($message->time_doctor_activity_user_id);                    
+                    $user = User::find($message->time_doctor_activity_user_id);
                     $phone = $user->phone;
                     $toemail = $user->email;
                     $whatsapp_number = Auth::user()->whatsapp_number;
                     $model_id = $message->user_id;
                     $model_class = \App\User::class;
+                }
+
+                if ($context == 'email') {
+                    $emailObj = Email::find($message->email_id);
+                    $toemail = $emailObj->to;
+                    $model_id = $message->email_id;
+                    $model_class = \App\Email::class;
                 }
 
                 if ($is_mail == 1) {

@@ -379,7 +379,7 @@ float: left;
                                     <a title="Download Invoice" class="btn btn-xs p-2" href="{{ route('sop.download',$value->id) }}">
                                             <i class="fa fa-download downloadpdf"></i>
                                     </a>
-                                    <button type="button" class="btn send-email-common-btn p-2" data-content="{!! $value->content !!}" data-toemail="@if ($value->user){{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}">
+                                    <button type="button" class="btn send-email-common-btn p-2" data-content="{{$value->content}}" data-toemail="@if ($value->user){{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}">
                                         <i class="fa fa-envelope-square"></i>
                                     </button>
                                     <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list p-2" title="Sop User" data-sop_id="{{ $value->id }}">

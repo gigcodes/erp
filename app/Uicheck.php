@@ -25,6 +25,7 @@ class Uicheck extends Model
         'lock_admin',
         'language_flag',
         'translation_flag',
+        'uicheck_type_id'
     ];
 
     public function whatsappAll($needBroadCast = false)
@@ -55,5 +56,9 @@ class Uicheck extends Model
     public function uiDevice()
     {
         return $this->hasMany(UiDevice::class, 'uicheck_id', 'id');
+    }
+    public function uiDeviceCount()
+    {
+        return $this->hasMany(UiDevice::class, 'uicheck_id', 'id')->count();
     }
 }

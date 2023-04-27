@@ -41,7 +41,7 @@
                             <div class="col pr-0">
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
-                           
+
 
                             <div class="col">
                                 <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
@@ -57,13 +57,13 @@
 
                             <!-- START - Purpose : Set unreplied messages - DEVATSK=4350 -->
                             <div style="display: flex;align-items: center">
-                                
+
                                     @if(isset($_REQUEST['unreplied_msg']) && $_REQUEST['unreplied_msg']== true)
                                         @php $check_status = 'checked'; @endphp
                                     @else
                                         @php $check_status = ''; @endphp
                                     @endif
-                               
+
                                 <input class="mt-0 mr-2" type="checkbox" id="unreplied_msg" name="unreplied_msg" {{$check_status}} value="true"> Unreplied Messages
                             </div>
                             <div style="margin-left: 20px;display: flex;align-items: center">
@@ -72,7 +72,7 @@
                                     @else
                                         @php $check_status = ''; @endphp
                                     @endif
-                               
+
                                 <input class="mt-0 mr-2" type="checkbox" id="unread_message" name="unread_message" {{$check_status}} value="true"> Unread Messages
                             </div>
                             <!-- END - DEVATSK=4350 -->
@@ -98,7 +98,7 @@
                         </div>
                     </form>
 
-                
+
                     <form method="post">
                         <?php echo csrf_field(); ?>
                         <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:250px;"]); ?>
@@ -120,7 +120,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -188,7 +188,7 @@
                 var id = $this.select2({tags:true,"width" : 200}).find(":selected").data("id");
                 if(id == undefined) {
                     var quickCategory = $this.closest(".communication").find(".quickCategory");
-                    
+
                     if (quickCategory.val() == "") {
                         alert("Please Select Category!!");
                         return false;
@@ -388,7 +388,7 @@
             console.log('*****************************');
             var thiss = $(this);
             var data = new FormData();
-            
+
             var field = "customer_id";
             var tr  = $(this).closest("tr").find("td").first();
             var typeId = tr.data('customer-id');
@@ -400,8 +400,8 @@
             console.log(type);
 
             var message= $('#message_'+id).val();
-          
-             
+
+
             if(parseInt(tr.data("vendor-id")) > 0) {
                 type = "vendor";
                 typeId = tr.data("vendor-id");
@@ -416,14 +416,20 @@
                 data.append("chat_reply_message_id", chatMessageReplyId)
                 //END - DEVTASK-4203
             }
-            
+
             var customer_id = typeId;
             //var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
-           
-            var message= $('#message_'+id).val();
-          
-            if(type === 'customer'){
 
+            var message= $('#message_'+id).val();
+
+
+            if(type === 'email'){
+                typeId = tr.data('email-id');
+                console.log("Email Id : ",typeId);
+                data.append("email_id", typeId);
+                data.append("message", message);
+                data.append("status", 1);
+            }else if(type === 'customer'){
                 data.append("customer_id", typeId);
                 data.append("message", message);
                 data.append("status", 1);
@@ -468,7 +474,7 @@
                     data: { id : id ,
                         message : message,
                         from:'chatbot_replay',
-                    _token: "{{ csrf_token() }}" 
+                    _token: "{{ csrf_token() }}"
                     },
                 })
                 .done(function(data) {
@@ -477,7 +483,7 @@
                 })
             }
             //END - DEVTASK-18280
-            
+
 
             var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
             data.append("add_autocomplete", add_autocomplete);
@@ -502,7 +508,7 @@
                         toastr['success']("Message sent successfully", 'success');
 
                     }).fail(function (errObj) {
-                       
+
                     });
                 }
             } else {
@@ -650,13 +656,13 @@
         $('document').on('click', '.create-customer-ticket-modal', function () {
             $('#ticket_customer_id').val($(this).attr('data-customer_id'));
         });
-        
+
         $(document).on('click', '.create_short_cut',function () {
             $('.sop_description').val("");
             let message = '';
             message = $(this).attr('data-msg');
             $('.sop_description').val(message);
         });
-        
+
     </script>
 @endsection

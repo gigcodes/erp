@@ -2024,6 +2024,9 @@ if (!empty($notifications)) {
                                         aria-haspopup="true" aria-expanded="false" v-pre="">SEO<span class="caret">
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
                                                 <li class="nav-item dropdown dropdown-submenu">
+                                                    @if(auth()->user()->hasRole(['Admin', 'user', 'Seo Head']))
+                                                        <a class="dropdown-item" href="{{ route('seo.content.index') }}">Content</a>
+                                                    @endif
                                                     <a class="dropdown-item" href="{{ route('seo.company.index') }}">Company</a>
                                                     <a class="dropdown-item"
                                                         href="{{ action('\App\Http\Controllers\BackLinkController@displayBackLinkDetails') }}">Back
@@ -2051,7 +2054,6 @@ if (!empty($notifications)) {
                                                         Planner</a>
                                                     <a class="dropdown-item" href="{{ route('seo-tool') }}">Semrush
                                                         details</a>
-                                                    <a class="dropdown-item" href="{{ route('seo.company.index') }}">SEO Company</a>
                                                 </li>
                                             </ul>
                                 </li>
@@ -2265,6 +2267,19 @@ if (!empty($notifications)) {
                                     <a class="dropdown-item" href="{{ route('logging.flow.log') }}">Flow Log
                                     </a>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                       aria-haspopup="true" aria-expanded="false" v-pre>Affiliate Marketing<span
+                                                class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('affiliate-marketing.providers')}}">Providers</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('affiliate-marketing.providerAccounts')}}">Providers Accounts</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -2293,6 +2308,20 @@ if (!empty($notifications)) {
                                     </ul>
                                 </li>
 
+                                 <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" v-pre>Blog<span
+                                            class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+
+                                            <a class="dropdown-item" href="/blog/list">Blog</a>
+                                             <a class="dropdown-item" href="/blog/history/list">View History</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" v-pre>Youtube<span
@@ -2300,8 +2329,8 @@ if (!empty($notifications)) {
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/youtube/add-chanel">Create Chanel</a>
-                                          
-                                            
+
+
                                         </li>
                                     </ul>
                                 </li>
@@ -2497,7 +2526,7 @@ if (!empty($notifications)) {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ route('store-website.page.review.translate','German') }}">German Page Review Translate </a>
                                                     </li>
-                                                    
+
                                                 </ul>
                                         </li>
                                         <li class="nav-item">
@@ -3250,9 +3279,6 @@ if (!empty($notifications)) {
                             <li class="nav-item dropdown">
                                 <a class="dropdown-item" href="{{ route('redisQueue.list') }}">Larvel Queue</a>
                             </li>
-                            <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('seo.content.index') }}">SEO Content</a>
-                            </li>
                             <li class="nav-item dropdown dropdown-submenu">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
                                     aria-haspopup="true" aria-expanded="false">Development <span
@@ -3261,6 +3287,9 @@ if (!empty($notifications)) {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('development/change-user') }}">Change
                                             User</a>
+                                    </li>
+                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('development/document/list') }}">Document Upload List</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item"

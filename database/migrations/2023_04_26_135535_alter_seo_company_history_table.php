@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddTypeInToPostmanHistorysTable extends Migration
+class AlterSeoCompanyHistoryTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddTypeInToPostmanHistorysTable extends Migration
      */
     public function up()
     {
-        Schema::table('postman_historys', function (Blueprint $table) {
-            $table->string('type')->nullable()->after('user_id');
+        Schema::table('seo_company_histories', function (Blueprint $table) {
+            $table->string('status')->nullable()->after('live_link');
         });
     }
 
@@ -25,8 +25,8 @@ class AddTypeInToPostmanHistorysTable extends Migration
      */
     public function down()
     {
-        Schema::table('google_docs', function (Blueprint $table) {
-            //
+        Schema::table('seo_company_histories', function (Blueprint $table) {
+            $table->dropColumn(['status']);
         });
     }
 }

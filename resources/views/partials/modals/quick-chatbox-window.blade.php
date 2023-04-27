@@ -169,50 +169,48 @@
                             <div class="card-body contacts_body">
                                 {{-- $chatIds11 = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')->orderBy('status','desc')->get(); --}}
                                 @php
+                                    $chatIds = \App\CustomerLiveChat::with('customer')
+                                        ->join(DB::raw('(Select max(id) as id from customer_live_chats group by customer_id) LatestMessage'), function($join) {
+                                            $join->on('customer_live_chats.id', '=', 'LatestMessage.id');
+                                        })
+                                        ->groupBy('customer_id')->orderBy('created_at', 'desc')->get();
 
-
-                                $chatIds = \App\CustomerLiveChat::with('customer')
-                                ->join(DB::raw('(Select max(id) as id from customer_live_chats group by customer_id) LatestMessage'), function($join) {
-                                $join->on('customer_live_chats.id', '=', 'LatestMessage.id');
-                                })
-                                ->groupBy('customer_id')->orderBy('created_at', 'desc')->get();
-
-
-
-                                $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-
+                                    $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                 @endphp
+
                                 <ul class="contacts" id="customer-list-chat">
-                                    @foreach ($chatIds as $chatId)
-                                    @php
-                                    $customer = $chatId->customer;
-                                    if($customer) {
-                                    $customerInital = substr($customer->name, 0, 1);
-                                    
-                                    @endphp
-                                    <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />
-                                    <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
+                                    @if(count($chatIds) > 0)
+                                        @php $website_data = \App\StoreWebsite::pluck('website', 'id')->all(); @endphp
 
-                                        <div class="d-flex bd-highlight">
-                                            <div class="img_cont">
-                                                <!-- <soan class="rounded-circle user_inital">{{ $customerInital }}</soan> -->
-                                                {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
-                                                <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
-                                            </div>
-                                            <div class="user_info">
-                                                <span>{{ $customer->name }}</span>
-                                                <h5>{{ $customer->phone ?? '' }} </h5>
-                                                <!-- <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p> -->
-                                                <h5> </h5>
-                                            </div>
-                                            <!-- @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif -->
-                                        </div>
-                                    </li>
-                                    @php
-                                    }
-                                    @endphp
-                                    @endforeach
+                                        @foreach ($chatIds as $chatId)
+                                            @php $customer = $chatId->customer; @endphp
+                                            @if(!empty($customer))
+                                                @php
+                                                    $customerInital = substr($customer->name, 0, 1);
+                                                    $websiteName = (isset($website_data[$customer->store_website_id]) ? $website_data[$customer->store_website_id] : '');
+                                                @endphp
 
+                                                <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />
+                                                <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
+
+                                                    <div class="d-flex bd-highlight">
+                                                        <div class="img_cont">
+                                                            <!-- <soan class="rounded-circle user_inital">{{ $customerInital }}</soan> -->
+                                                            {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
+                                                            <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
+                                                        </div>
+                                                        <div class="user_info">
+                                                            <span>{{ $customer->name }}</span>
+                                                            <h5>{{ $customer->phone ?? '' }} </h5>
+                                                            <!-- <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p> -->
+                                                            <h5>{{ $websiteName ?? '' }} </h5>
+                                                        </div>
+                                                        <!-- @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif -->
+                                                    </div>
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    @endif
                                 </ul>
                             </div>
                             <div class="card-footer"></div>
