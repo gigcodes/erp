@@ -10,23 +10,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      # - name: Clone Laravel package 1
-      #   run: |
-      #     git clone https://github.com/MMMagento/erp-excel-importer.git vendor/seo2websites/erp-excel-importer
-      #     echo "Laravel package 1 cloned"
+      # - name: Setup PHP
+      #   uses: shivammathur/setup-php@v2
       #   env:
-      #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
-      # - name: Clone Laravel package 2
-      #   run: |
-      #     git clone https://github.com/MMMagento/google-vision.git vendor/seo2websites/google-vision
-      #     echo "Laravel package 2 cloned"
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        env:
-          COMPOSER_TOKEN: ${{ secrets.CI_TOKEN }}
+      #     COMPOSER_TOKEN: ${{ secrets.CI_SECRET }}
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
       - name: Install composer dependencies
         uses: php-actions/composer@v6
       - name: "Run laravel pint"
