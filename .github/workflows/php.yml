@@ -30,8 +30,6 @@ jobs:
         uses: jakejarvis/wait-action@master
         with:
           time: "30s"
-      - name: Config clear
-        run: php artisan config:cache
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         env:
