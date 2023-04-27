@@ -10,16 +10,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      # - name: Setup PHP
-      #   uses: shivammathur/setup-php@v2
-      #   env:
-      #     COMPOSER_TOKEN: ${{ secrets.CI_SECRET }}
-      - name: Add SSH key
-        uses: webfactory/ssh-agent@v0.4.1
-        with:
-          ssh-private-key: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        env:
+          COMPOSER_TOKEN: ${{ secrets.CI_TOKEN }}
       - name: Install composer dependencies
-        uses: php-actions/composer@v6
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
       - name: "Run laravel pint"
         run: ./vendor/bin/pint
       - name: "Push the changes to Git"
