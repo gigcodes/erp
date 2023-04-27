@@ -29,7 +29,7 @@ jobs:
           php-version: "7.4"
           extensions: xdebug
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
       - name: Install composer dependencies
         uses: php-actions/composer@v6
       - name: "Run laravel pint"
