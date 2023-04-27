@@ -7,26 +7,37 @@ on:
 jobs:
   laravel-pint:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: erp
+          MYSQL_USER: user
+          MYSQL_PASSWORD: secret
+          MYSQL_ROOT_PASSWORD: secretroot
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      # - name: Clone Laravel package 1
+      - name: Verify MySQL connection
+        run: |
+          mysql --version
+          sudo apt-get install -y mysql-client
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uuser -psecret -e "SHOW DATABASES"
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        env:
+          COMPOSER_TOKEN: ${{ secrets.CI_TOKEN }}
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-suggest --ignore-platform-reqs
+      # - name: Prepare the application
       #   run: |
-      #     git clone https://github.com/MMMagento/erp-excel-importer.git vendor/seo2websites/erp-excel-importer
-      #     echo "Laravel package 1 cloned"
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
-      # - name: Clone Laravel package 2
-      #   run: |
-      #     git clone https://github.com/MMMagento/google-vision.git vendor/seo2websites/google-vision
-      #     echo "Laravel package 2 cloned"
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
-      - name: Install composer dependencies
-        uses: php-actions/composer@v6
-        with:
-          ssh_key: ${{ secrets.ERP_EXCEL_IMPORTER_PRIVATE_SSH_KEY }}
+      #     php -r "file_exists('.env') || copy('.env.example', '.env');"
+      #     php artisan key:generate
+      # - name: Clear Config
+      #   run: php artisan config:clear
       - name: "Run laravel pint"
         run: ./vendor/bin/pint
       - name: "Push the changes to Git"
