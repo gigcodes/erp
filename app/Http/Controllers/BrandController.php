@@ -16,6 +16,7 @@ use App\Scraper;
 use App\Setting;
 use App\StoreWebsiteBrand;
 use Auth;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -216,36 +217,36 @@ class BrandController extends Controller
         ]);
 
         /* Initialize queue for add hashtags */
-//        $brandList = Brand::where('is_hashtag_generated', 0)->get();
-//        if (! $brandList->isEmpty()) {
-//            ini_set('max_execution_time', '-1');
-//            ini_set('max_execution_time', '0'); // for infinite time of execution
-//
-//            $category_postfix_string_list = Category::getCategoryHierarchyString(4);
-//            $string_arr = [];
-//            foreach ($brandList as $brand) {
-//                foreach($category_postfix_string_list as $string) {
-//                    $string_data['hashtag'] = $brand->name .' '. $string->combined_string;
-//                    $string_data['platforms_id'] = 2;
-//                    $string_data['rating'] = 8;
-//                    $string_data['created_at'] = $string_data['updated_at'] = date('Y-m-d h:i:s');
-//                    $string_data['created_by'] = \Auth::user()->id;
-//                    $check_exist = HashTag::where('hashtag', $string_data['hashtag'])->count();
-//                    if($check_exist <= 0) {
-//                        $string_arr[] = $string_data;
-//                    }
-//                }
-//                CreateHashTags::dispatch($string_arr)->onQueue('insert-hash-tags');
-//                $string_arr = [];
-//            }
+        /*$brandList = Brand::where('is_hashtag_generated', 0)->limit(1)->get();
+        if (! $brandList->isEmpty()) {
+            ini_set('max_execution_time', '-1');
+            ini_set('max_execution_time', '0'); // for infinite time of execution
 
-            /*$chunks = array_chunk($string_arr, 10);
+            $category_postfix_string_list = Category::getCategoryHierarchyString(4);
+            $string_arr = [];
+            foreach ($brandList as $brand) {
+                foreach($category_postfix_string_list as $string) {
+                    $string_data['hashtag'] = $brand->name .' '. $string->combined_string;
+                    $string_data['platforms_id'] = 2;
+                    $string_data['rating'] = 8;
+                    $string_data['created_at'] = $string_data['updated_at'] = date('Y-m-d h:i:s');
+                    $string_data['created_by'] = \Auth::user()->id;
+                    $check_exist = HashTag::where('hashtag', $string_data['hashtag'])->count();
+                    if($check_exist <= 0) {
+                        $string_arr[] = $string_data;
+                    }
+                }
 
-            foreach ($chunks as $chunk) {
-                CreateHashTags::dispatch($chunk)->onQueue('insert-hash-tags');
-            }*/
-//            Brand::updateStatusIsHashtagsGenerated();
-//        }
+                $chunks = array_chunk($string_arr, 100);
+                foreach ($chunks as $chunk) {
+                    CreateHashTags::dispatch($chunk)->onQueue('generategooglescraperkeywords');
+                }
+//                CreateHashTags::dispatch($string_arr)->onQueue('generategooglescraperkeywords');
+                $string_arr = [];
+            }
+
+            Brand::updateStatusIsHashtagsGenerated();
+        }*/
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }

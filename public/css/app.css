@@ -72,6 +72,7 @@ section {
 }
 
 body {
+    min-height: 100%;
     margin: 0;
     font-family: "Raleway", sans-serif;
     font-size: 0.9rem;
@@ -11526,7 +11527,8 @@ overflow-x: hidden !important;
     height:30px !important;
 }
 #app{
-    overflow: hidden !important;
+    overflow-x: hidden!important;
+    overflow-y: visible !important;
 }
 .btn.btn-edit-template{
     padding: 1px 0px;

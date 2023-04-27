@@ -38,17 +38,18 @@ class CreateHashTags implements ShouldQueue
 
             \DB::table('hash_tags')->insert($this->hashTag);
 
-            self::putLog('Job start sizes from erp end time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job  generategooglescraperkeywordsstart sizes from erp end time : '.date('Y-m-d H:i:s'));
 
             return true;
         } catch (\Exception $e) {
+            self::putLog('Job start generategooglescraperkeywords Exeption  from erp start time : '.date('Y-m-d H:i:s'));
             throw new \Exception($e->getMessage());
         }
     }
 
     public static function putLog($message)
     {
-        \Log::channel('hashtagAdd')->info($message);
+        \Log::channel('generategooglescraperkeywords')->info($message);
         return true;
     }
 }
