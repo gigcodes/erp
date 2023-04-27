@@ -25,15 +25,13 @@ jobs:
         run: |
           mysql --version
           sudo apt-get install -y mysql-client
-          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -u user -p secret -e "SHOW DATABASES"
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uuser -psecret -e "SHOW DATABASES"
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         env:
           COMPOSER_TOKEN: ${{ secrets.CI_TOKEN }}
       - name: Install Composer Dependencies
         run: composer install
-      - name: Clear Config
-        run: php artisan config:clear
       - name: Generate key
         run: php artisan key:generate
       - name: Database dump
