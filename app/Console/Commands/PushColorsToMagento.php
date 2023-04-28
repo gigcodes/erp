@@ -42,9 +42,9 @@ class PushColorsToMagento extends Command
         $colorsData = \App\ColorNamesReference::groupBy('erp_name')->get();
         if (! $colorsData->isEmpty()) {
             foreach ($colorsData as $cd) {
-                echo 'Color Started  : '.$cd->erp_name;
+                echo 'Color Started  : ' . $cd->erp_name;
                 foreach ($website as $web) {
-                    echo 'Store Started  : '.$web->website;
+                    echo 'Store Started  : ' . $web->website;
                     $checkSite = \App\StoreWebsiteColor::where('erp_color', $cd->erp_name)->where('store_website_id', $web->id)->where('platform_id', '>', 0)->first();
                     if (! $checkSite) {
                         $id = \seo2websites\MagentoHelper\MagentoHelper::addColor($cd->erp_name, $web);

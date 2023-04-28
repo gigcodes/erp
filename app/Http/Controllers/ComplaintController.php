@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use Storage;
+use App\User;
 use App\Account;
-use App\Complaint;
-use App\ComplaintThread;
-use App\Customer;
 use App\Helpers;
 use App\Setting;
+use App\Customer;
+use App\Complaint;
 use App\StatusChange;
-use App\User;
-use Auth;
+use App\ComplaintThread;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Storage;
 
 class ComplaintController extends Controller
 {
@@ -76,7 +76,6 @@ class ComplaintController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -144,7 +143,6 @@ class ComplaintController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

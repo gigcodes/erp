@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Loggers\LogListMagento;
 use App\ProductPushErrorLog;
+use App\Loggers\LogListMagento;
 use Illuminate\Console\Command;
 
 class DeleteMagentoPushLog extends Command
@@ -44,7 +44,7 @@ class DeleteMagentoPushLog extends Command
 
         if (! $logs->isEmpty()) {
             foreach ($logs as $log) {
-                echo  $log->product_id." Started to delete \n";
+                echo  $log->product_id . " Started to delete \n";
                 $product = ProductPushErrorLog::where('product_id', $log->product_id)->get();
                 if (! $product->isEmpty()) {
                     foreach ($product as $p) {

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Preferences;
 
-use function define;
 use function ltrim;
+use PhpMyAdmin\Url;
+use function define;
 use PhpMyAdmin\Config;
-use PhpMyAdmin\Config\ConfigFile;
-use PhpMyAdmin\Config\Forms\User\MainForm;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Template;
 use PhpMyAdmin\TwoFactor;
-use PhpMyAdmin\Url;
 use PhpMyAdmin\UserPreferences;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Config\ConfigFile;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Config\Forms\User\MainForm;
+use PhpMyAdmin\Controllers\AbstractController;
 
 class MainPanelController extends AbstractController
 {

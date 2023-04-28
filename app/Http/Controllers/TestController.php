@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Google\Cloud\BigQuery\BigQueryClient;
 use Illuminate\Support\Arr;
+use Google\Cloud\BigQuery\BigQueryClient;
 
 class TestController extends Controller
 {

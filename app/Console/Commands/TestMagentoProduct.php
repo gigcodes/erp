@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\ProductHelper;
-use App\Helpers\StatusHelper;
 use App\Jobs\PushToMagento;
-use App\Loggers\LogListMagento;
 use App\ProductPushErrorLog;
+use App\Helpers\StatusHelper;
+use App\Helpers\ProductHelper;
+use App\Loggers\LogListMagento;
 use Illuminate\Console\Command;
 
 class TestMagentoProduct extends Command
@@ -81,17 +81,17 @@ class TestMagentoProduct extends Command
                         foreach ($products as $product) {
                             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
                             if (count($websiteArrays) == 0) {
-                                \Log::channel('productUpdates')->info('Product started '.$product->id.' No website found');
-                                $msg = 'No website found for  Brand: '.$product->brand.' and Category: '.$product->category;
+                                \Log::channel('productUpdates')->info('Product started ' . $product->id . ' No website found');
+                                $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
                                 ProductPushErrorLog::log($product->id, $msg, 'error');
-                                LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info');
+                                LogListMagento::log($product->id, 'Start push to magento for product id ' . $product->id, 'info');
                             } else {
                                 $i = 1;
                                 foreach ($websiteArrays as $websiteArray) {
                                     $website = \App\StoreWebsite::find($websiteArray);
                                     if ($website) {
-                                        \Log::channel('productUpdates')->info('Product started website found For website'.$website->website);
-                                        LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $website->id);
+                                        \Log::channel('productUpdates')->info('Product started website found For website' . $website->website);
+                                        LogListMagento::log($product->id, 'Start push to magento for product id ' . $product->id, 'info', $website->id);
                                         //currently we have 3 queues assigned for this task.
                                         if ($i > 3) {
                                             $i = 1;

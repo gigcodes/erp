@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\CallRecording;
 use App\Customer;
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use App\CallRecording;
 use Illuminate\Http\Request;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 
 class ExotelController extends FindByNumberController
 {
@@ -23,7 +23,7 @@ class ExotelController extends FindByNumberController
         $exotel_sid = 'sololuxury'; // Your Exotel SID - Get it from here: http://my.exotel.in/settings/site#api-settings
         $exotel_token = '815a3a4dbf47e348d5f45c19c4067de14c120046'; // Your exotel token - Get it from here: http://my.exotel.in/settings/site#api-settings
 
-        $url = 'https://'.$exotel_sid.':'.$exotel_token.'@twilix.exotel.in/v1/Accounts/'.$exotel_sid.'/Calls/connect';
+        $url = 'https://' . $exotel_sid . ':' . $exotel_token . '@twilix.exotel.in/v1/Accounts/' . $exotel_sid . '/Calls/connect';
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -40,7 +40,7 @@ class ExotelController extends FindByNumberController
 
         curl_close($ch);
 
-        echo 'Response = '.print_r($http_result);
+        echo 'Response = ' . print_r($http_result);
     }
 
     public function checkNumber(Request $request)

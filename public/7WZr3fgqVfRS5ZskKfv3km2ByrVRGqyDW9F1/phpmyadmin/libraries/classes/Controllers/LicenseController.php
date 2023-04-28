@@ -8,9 +8,9 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers;
 
 use function __;
-use function is_readable;
 use function printf;
 use function readfile;
+use function is_readable;
 
 /**
  * Simple script to set correct charset for the license

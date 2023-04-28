@@ -3,8 +3,8 @@
 namespace Modules\BookStack\Providers;
 
 use Blade;
-use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Factory;
 
 class BookStackServiceProvider extends ServiceProvider
 {
@@ -24,7 +24,7 @@ class BookStackServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
-        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
     }
 
     /**
@@ -45,10 +45,10 @@ class BookStackServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('bookstack.php'),
+            __DIR__ . '/../Config/config.php' => config_path('bookstack.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'bookstack'
+            __DIR__ . '/../Config/config.php', 'bookstack'
         );
     }
 
@@ -61,14 +61,14 @@ class BookStackServiceProvider extends ServiceProvider
     {
         $viewPath = resource_path('views/modules/bookstack');
 
-        $sourcePath = __DIR__.'/../Resources/views';
+        $sourcePath = __DIR__ . '/../Resources/views';
 
         $this->publishes([
             $sourcePath => $viewPath,
         ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
-            return $path.'/modules/bookstack';
+            return $path . '/modules/bookstack';
         }, \Config::get('view.paths')), [$sourcePath]), 'bookstack');
     }
 
@@ -84,7 +84,7 @@ class BookStackServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'bookstack');
         } else {
-            $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'bookstack');
+            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'bookstack');
         }
     }
 
@@ -96,7 +96,7 @@ class BookStackServiceProvider extends ServiceProvider
     public function registerFactories()
     {
         if (! app()->environment('production') && $this->app->runningInConsole()) {
-            app(Factory::class)->load(__DIR__.'/../Database/factories');
+            app(Factory::class)->load(__DIR__ . '/../Database/factories');
         }
     }
 

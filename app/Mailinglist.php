@@ -77,7 +77,7 @@ class Mailinglist extends Model
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_HTTPHEADER => [
-                    'api-key:'.env('SEND_IN_BLUE_SMTP_EMAIL_API'),
+                    'api-key:' . env('SEND_IN_BLUE_SMTP_EMAIL_API'),
                     'Content-Type: application/json',
                 ],
             ]);
@@ -92,7 +92,7 @@ class Mailinglist extends Model
             $curl = curl_init();
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => 'https://acelle.theluxuryunlimited.com/api/v1/campaign/create/'.$mailingList->remote_id.'?api_token='.config('env.ACELLE_MAIL_API_TOKEN'),
+                CURLOPT_URL => 'https://acelle.theluxuryunlimited.com/api/v1/campaign/create/' . $mailingList->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN'),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,

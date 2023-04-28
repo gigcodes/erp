@@ -3,11 +3,11 @@
 namespace App\Exports;
 
 use App\Purchase;
+use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEvents
 {
@@ -46,7 +46,7 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
                             $products_array[$this->count]['size'] = $orderProducts->size;
                             $products_array[$this->count]['sku'] = $product->sku;
                             $products_array[$this->count]['price'] = $product->price;
-                            $products_array[$this->count]['discount'] = $product->percentage.'%';
+                            $products_array[$this->count]['discount'] = $product->percentage . '%';
                             $products_array[$this->count]['qty'] = $orderProducts->qty;
                             $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $orderProducts->qty;
 
@@ -67,7 +67,7 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
                             $products_array[$this->count]['size'] = $order_product->size;
                             $products_array[$this->count]['sku'] = $product->sku;
                             $products_array[$this->count]['price'] = $product->price;
-                            $products_array[$this->count]['discount'] = $product->percentage.'%';
+                            $products_array[$this->count]['discount'] = $product->percentage . '%';
                             $products_array[$this->count]['qty'] = $order_product->qty;
                             $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $order_product->qty;
                             // $products_array[$this->count]['client_name'] = $order_product->order ? ($order_product->order->customer ? $order_product->order->customer->name : 'No Customer') : 'No Order';
@@ -112,7 +112,7 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
             // Handle by a closure.
             AfterSheet::class => function (AfterSheet $event) {
                 for ($i = 1; $i <= $this->count; $i++) {
-                    $coordinates = 'A'.(string) ($i + 1);
+                    $coordinates = 'A' . (string) ($i + 1);
                     $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
                     $drawing->setName('Logo');
                     $drawing->setDescription('Logo');

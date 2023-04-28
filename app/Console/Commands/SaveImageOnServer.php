@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Services\Bots\Prada;
 use Carbon\Carbon;
+use App\CronJobReport;
 use GuzzleHttp\Client;
+use App\Services\Bots\Prada;
 use Illuminate\Console\Command;
 
 class SaveImageOnServer extends Command
@@ -66,6 +66,6 @@ class SaveImageOnServer extends Command
 
     private function setIP(): void
     {
-        $this->IP = '5.61.4.70  '.':'.'8080';
+        $this->IP = '5.61.4.70  ' . ':' . '8080';
     }
 }

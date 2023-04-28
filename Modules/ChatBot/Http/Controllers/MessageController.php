@@ -2,8 +2,8 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
-use App\ChatbotCategory;
 use App\ChatMessage;
+use App\ChatbotCategory;
 use App\SuggestedProduct;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -35,7 +35,7 @@ class MessageController extends Controller
 
         if (! empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
-                $q->where('cr.question', 'like', '%'.$search.'%')->orWhere('cr.answer', 'Like', '%'.$search.'%');
+                $q->where('cr.question', 'like', '%' . $search . '%')->orWhere('cr.answer', 'Like', '%' . $search . '%');
             });
         }
 
@@ -139,14 +139,14 @@ class MessageController extends Controller
                 $type = 'user';
             } elseif ($chatMEssage->supplier_id > 0) {
                 $type = 'supplier';
-            }elseif($chatMEssage->customer_id > 0){
+            } elseif ($chatMEssage->customer_id > 0) {
                 $type = 'customer';
-            } elseif($chatMEssage->message_type == 'email'){
+            } elseif ($chatMEssage->message_type == 'email') {
                 $type = 'email';
                 $messageId = $id;
             }
 
-            app(\App\Http\Controllers\WhatsAppController::class)->approveMessage($type, $myRequest,$messageId);
+            app(\App\Http\Controllers\WhatsAppController::class)->approveMessage($type, $myRequest, $messageId);
         }
 
         return response()->json(['code' => 200, 'message' => 'Messsage Send Successfully']);
@@ -272,7 +272,7 @@ class MessageController extends Controller
 
             $status = ($value == 1) ? 'read' : 'unread';
 
-            return response()->json(['code' => 200, 'data' => [], 'messages' => 'Marked as '.$status]);
+            return response()->json(['code' => 200, 'data' => [], 'messages' => 'Marked as ' . $status]);
         }
 
         return response()->json(['code' => 500, 'data' => [], 'messages' => 'Message not exist in record']);

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\BrandLogo;
 use Auth;
 use File;
+use App\BrandLogo;
 use Illuminate\Console\Command;
 
 class AddRenamedBrandLogoes extends Command

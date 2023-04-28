@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\MagentoProductCommonError;
-use App\MagentoLogHistory;
-use App\ProductPushErrorLog;
-use App\PushToMagentoCondition;
-use App\StoreWebsite;
 use Carbon\Carbon;
+use App\StoreWebsite;
+use App\MagentoLogHistory;
+use Illuminate\Support\Str;
+use App\ProductPushErrorLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\PushToMagentoCondition;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MagentoProductCommonError;
 
 class MagentoProductPushErrors extends Controller
 {
@@ -65,7 +65,7 @@ class MagentoProductPushErrors extends Controller
         if (! empty($request->log_date)) {
             $log_date = date('Y-m-d', strtotime($request->log_date));
 //            dd($log_date);
-            $records = $records->whereBetween('created_at', [$log_date.' 00:00:00', $log_date.' 23:59:59']);
+            $records = $records->whereBetween('created_at', [$log_date . ' 00:00:00', $log_date . ' 23:59:59']);
         }
 
         $records = $records->latest()->paginate(50);
@@ -79,26 +79,26 @@ class MagentoProductPushErrors extends Controller
                 $condition = $conditions[$row->condition_id];
             }
             $recorsArray[] = [
-                'product_id' => '<a class="show-product-information" data-id="'.$row->product_id.'" href="/products/'.$row->product_id.'" target="__blank">'.$row->product_id.'</a>',
+                'product_id' => '<a class="show-product-information" data-id="' . $row->product_id . '" href="/products/' . $row->product_id . '" target="__blank">' . $row->product_id . '</a>',
                 'updated_at' => $row->created_at->format('d-m-y H:i:s'),
                 'store_website' => ($row->store_website) ? $row->store_website->title : '-',
                 'message' => Str::limit(strip_tags($row->message), 30,
-                    '<a data-logid='.$row->id.' class="message_load">...</a>'),
+                    '<a data-logid=' . $row->id . ' class="message_load">...</a>'),
                 'request_data' => Str::limit($row->request_data, 30,
-                    '<a data-logid='.$row->id.' class="request_data_load">...</a>'),
+                    '<a data-logid=' . $row->id . ' class="request_data_load">...</a>'),
                 'condition_id' => $condition,
                 'response_data' => Str::limit($row->response_data, 30,
-                    '<a data-logid='.$row->id.' class="response_data_load">...</a>'),
+                    '<a data-logid=' . $row->id . ' class="response_data_load">...</a>'),
                 //                'response_status' => $row->response_status,
-                'response_status' => ' <div style="display:flex;"><select class="form-control globalSelect2" name="error_status" id="error_status" data-log_id="'.$row->id.'">
+                'response_status' => ' <div style="display:flex;"><select class="form-control globalSelect2" name="error_status" id="error_status" data-log_id="' . $row->id . '">
                 <option value="" ></option>
-                <option value="success" '.($row->response_status == 'success' ? 'selected' : '').'>Success</option>
-                <option value="error" '.($row->response_status == 'error' ? 'selected' : '').'>Error</option>
-                <option value="php" '.($row->response_status === 'php' ? 'selected' : '').'>Php</option>
-                <option value="magento" '.($row->response_status == 'magento' ? 'selected' : '').'>Magento</option>
-                <option value="message" '.($row->response_status == 'message' ? 'selected' : '').'>Message</option>
-                <option value="translation_not_found" '.($row->response_status == 'translation_not_found' ? 'selected' : '').'>Translation not found</option>
-                </select> <button style="padding-left:5px !important;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
+                <option value="success" ' . ($row->response_status == 'success' ? 'selected' : '') . '>Success</option>
+                <option value="error" ' . ($row->response_status == 'error' ? 'selected' : '') . '>Error</option>
+                <option value="php" ' . ($row->response_status === 'php' ? 'selected' : '') . '>Php</option>
+                <option value="magento" ' . ($row->response_status == 'magento' ? 'selected' : '') . '>Magento</option>
+                <option value="message" ' . ($row->response_status == 'message' ? 'selected' : '') . '>Message</option>
+                <option value="translation_not_found" ' . ($row->response_status == 'translation_not_found' ? 'selected' : '') . '>Translation not found</option>
+                </select> <button style="padding-left:5px !important;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="' . $row->id . '">
                 <i class="fa fa-info-circle"></i>
             </button></div>',
             ];
@@ -202,11 +202,11 @@ class MagentoProductPushErrors extends Controller
         $recordsArr = [];
         foreach ($records as $key => $row) {
             if (strpos($row->message, 'Failed readiness') !== false) {
-                if (array_key_exists('Failed_readiness_'.$row->response_status, $recordsArr)) {
-                    $recordsArr['Failed_readiness_'.$row->response_status]['count'] = $recordsArr['Failed_readiness_'.$row->response_status]['count'] + 1;
-                    $recordsArr['Failed_readiness_'.$row->response_status]['message'] = 'Failed readiness';
+                if (array_key_exists('Failed_readiness_' . $row->response_status, $recordsArr)) {
+                    $recordsArr['Failed_readiness_' . $row->response_status]['count'] = $recordsArr['Failed_readiness_' . $row->response_status]['count'] + 1;
+                    $recordsArr['Failed_readiness_' . $row->response_status]['message'] = 'Failed readiness';
                 } else {
-                    $recordsArr['Failed_readiness_'.$row->response_status] = [
+                    $recordsArr['Failed_readiness_' . $row->response_status] = [
                         'count' => 1,
                         'message' => $row->message,
                         'status' => $row->response_status,

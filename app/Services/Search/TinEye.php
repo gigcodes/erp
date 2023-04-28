@@ -2,8 +2,8 @@
 
 namespace App\Services\Search;
 
-use App\Loggers\LogTineye;
 use tineye\api\TinEyeApi;
+use App\Loggers\LogTineye;
 
 class TinEye
 {

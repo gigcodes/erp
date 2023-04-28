@@ -3,8 +3,8 @@
 namespace Modules\BookStack\Uploads;
 
 use Illuminate\Support\Str;
-use Modules\BookStack\Entities\Page;
 use Modules\BookStack\Ownable;
+use Modules\BookStack\Entities\Page;
 
 class Attachment extends Ownable
 {
@@ -21,7 +21,7 @@ class Attachment extends Ownable
             return $this->name;
         }
 
-        return $this->name.'.'.$this->extension;
+        return $this->name . '.' . $this->extension;
     }
 
     /**
@@ -45,6 +45,6 @@ class Attachment extends Ownable
             return $this->path;
         }
 
-        return url('/attachments/'.$this->id);
+        return url('/attachments/' . $this->id);
     }
 }

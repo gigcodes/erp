@@ -39,7 +39,7 @@ class WatsonBrandCategoryGenerate extends Command
     public function handle()
     {
         try {
-            \Log::info($this->signature.'Starting..');
+            \Log::info($this->signature . 'Starting..');
 
             \DB::table('products')->where('products.name', '!=', null)->join('brands', 'products.brand', 'brands.id')
                     ->join('categories as cat', 'cat.id', 'products.category')
@@ -51,7 +51,7 @@ class WatsonBrandCategoryGenerate extends Command
 
                         foreach ($Query as $key => $value) {
                             $chatQueArr[] = [
-                                'question' => ucwords($value->brand.' '.$value->main_category.' '.$value->sub_category.' '.$value->title),
+                                'question' => ucwords($value->brand . ' ' . $value->main_category . ' ' . $value->sub_category . ' ' . $value->title),
                                 'chatbot_question_id' => 117,
                             ];
                         }
@@ -60,9 +60,9 @@ class WatsonBrandCategoryGenerate extends Command
                         $chatQueArr = [];
                     });
 
-            \Log::info($this->signature.'Run success');
+            \Log::info($this->signature . 'Run success');
         } catch (Exception $e) {
-            \Log::error($this->signature.':: '.$e->getMessage());
+            \Log::error($this->signature . ':: ' . $e->getMessage());
         }
     }
 }

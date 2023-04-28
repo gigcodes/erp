@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\PushToMagento;
-use App\Loggers\LogListMagento;
-use App\Setting;
-use App\SimplyDutyCountry;
-use App\SimplyDutyCountryHistory;
-use App\SimplyDutySegment;
-use App\StoreWebsite;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Response;
+use App\Setting;
+use App\StoreWebsite;
+use App\SimplyDutyCountry;
+use App\SimplyDutySegment;
+use App\Jobs\PushToMagento;
+use Illuminate\Http\Request;
+use App\Loggers\LogListMagento;
+use App\SimplyDutyCountryHistory;
+use Illuminate\Support\Facades\Auth;
 
 class SimplyDutyCountryController extends Controller
 {
@@ -63,7 +63,6 @@ class SimplyDutyCountryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\SimplyDutyCountry  $simplyDutyCountry
      * @return \Illuminate\Http\Response
      */
     public function show(SimplyDutyCountry $simplyDutyCountry)
@@ -74,7 +73,6 @@ class SimplyDutyCountryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SimplyDutyCountry  $simplyDutyCountry
      * @return \Illuminate\Http\Response
      */
     public function edit(SimplyDutyCountry $simplyDutyCountry)
@@ -85,8 +83,6 @@ class SimplyDutyCountryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\SimplyDutyCountry  $simplyDutyCountry
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, SimplyDutyCountry $simplyDutyCountry)
@@ -97,7 +93,6 @@ class SimplyDutyCountryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SimplyDutyCountry  $simplyDutyCountry
      * @return \Illuminate\Http\Response
      */
     public function destroy(SimplyDutyCountry $simplyDutyCountry)
@@ -278,7 +273,7 @@ class SimplyDutyCountryController extends Controller
         if ($ps) {
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['duty_price' => $amount, 'status' => 0]);
-                $note = 'Country Duty changed  from '.$p->duty_price.' To '.$amount;
+                $note = 'Country Duty changed  from ' . $p->duty_price . ' To ' . $amount;
                 $this->pushToMagento($p->product_id, $p->store_website_id);
                 \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
             }
@@ -295,7 +290,7 @@ class SimplyDutyCountryController extends Controller
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['segment_discount' => $segmentDiscount, 'status' => 0]);
                 $this->pushToMagento($p->product_id, $p->store_website_id);
-                $note = 'Segment discount change  from '.$p->segment_discount.' To '.$segmentDiscount;
+                $note = 'Segment discount change  from ' . $p->segment_discount . ' To ' . $segmentDiscount;
                 \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
             }
         }
@@ -308,8 +303,8 @@ class SimplyDutyCountryController extends Controller
         if ($product) {
             $website = StoreWebsite::where('id', $websiteId)->first();
             if ($website == null) {
-                \Log::channel('productUpdates')->info('Product started '.$product->id.' No website found');
-                $msg = 'No website found for  Brand: '.$product->brand.' and Category: '.$product->category;
+                \Log::channel('productUpdates')->info('Product started ' . $product->id . ' No website found');
+                $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
                 //ProductPushErrorLog::log($product->id, $msg, 'error');
                 //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
                 echo $msg;
@@ -319,8 +314,8 @@ class SimplyDutyCountryController extends Controller
 
                 if ($website) {
                     // testing
-                    \Log::channel('productUpdates')->info('Product started website found For website'.$website->website);
-                    $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $website->id);
+                    \Log::channel('productUpdates')->info('Product started website found For website' . $website->website);
+                    $log = LogListMagento::log($product->id, 'Start push to magento for product id ' . $product->id, 'info', $website->id);
                     //currently we have 3 queues assigned for this task.
                     if ($i > 3) {
                         $i = 1;

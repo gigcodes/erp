@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\UserLog;
 use DataTables;
+use App\UserLog;
 use Illuminate\Http\Request;
 
 class UserLogController extends Controller
@@ -50,7 +50,6 @@ class UserLogController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -69,7 +68,6 @@ class UserLogController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\UserLog  $userLog
      * @return \Illuminate\Http\Response
      */
     public function show(UserLog $userLog)
@@ -80,7 +78,6 @@ class UserLogController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\UserLog  $userLog
      * @return \Illuminate\Http\Response
      */
     public function edit(UserLog $userLog)
@@ -91,8 +88,6 @@ class UserLogController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\UserLog  $userLog
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, UserLog $userLog)
@@ -103,7 +98,6 @@ class UserLogController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\UserLog  $userLog
      * @return \Illuminate\Http\Response
      */
     public function destroy(UserLog $userLog)
@@ -120,14 +114,14 @@ class UserLogController extends Controller
         }
 
         if ($request->id) {
-            $query = $query->where('user_name', 'LIKE', '%'.$request->id.'%');
+            $query = $query->where('user_name', 'LIKE', '%' . $request->id . '%');
         }
 
         $userslogs = $query->select(['id', 'user_id', 'url', 'created_at', 'user_name', 'updated_at'])->orderBy('id', 'desc');
 
         return Datatables::of($userslogs)
         ->addColumn('user_name', function ($userslogs) {
-            return '<button class="btn btn-sm yellow edit" onclick="usertype('.$userslogs->user_id.')">'.$userslogs->user_name.'</button>';
+            return '<button class="btn btn-sm yellow edit" onclick="usertype(' . $userslogs->user_id . ')">' . $userslogs->user_name . '</button>';
         })
         ->rawColumns(['user_name'])
         ->make(true);

@@ -124,7 +124,7 @@ return [
      *
      */
 
-    'geoip_database_path' => __DIR__.'/geoip', //storage_path('geoip'),
+    'geoip_database_path' => __DIR__ . '/geoip', //storage_path('geoip'),
 
     /*
      * Also log SQL query bindings?

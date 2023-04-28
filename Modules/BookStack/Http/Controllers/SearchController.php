@@ -2,13 +2,13 @@
 
 namespace Modules\BookStack\Http\Controllers;
 
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\View\Factory;
 use Modules\BookStack\Actions\ViewService;
-use Modules\BookStack\Entities\EntityContextManager;
-use Modules\BookStack\Entities\Repos\EntityRepo;
 use Modules\BookStack\Entities\SearchService;
+use Modules\BookStack\Entities\Repos\EntityRepo;
+use Modules\BookStack\Entities\EntityContextManager;
 
 class SearchController extends Controller
 {
@@ -22,11 +22,6 @@ class SearchController extends Controller
 
     /**
      * SearchController constructor.
-     *
-     * @param  EntityRepo  $entityRepo
-     * @param  ViewService  $viewService
-     * @param  SearchService  $searchService
-     * @param  EntityContextManager  $entityContextManager
      */
     public function __construct(
         EntityRepo $entityRepo,
@@ -44,7 +39,6 @@ class SearchController extends Controller
     /**
      * Searches all entities.
      *
-     * @param  Request  $request
      * @return View
      *
      * @internal param string $searchTerm
@@ -55,7 +49,7 @@ class SearchController extends Controller
         $this->setPageTitle(trans('bookstack::entities.search_for_term', ['term' => $searchTerm]));
 
         $page = intval($request->get('page', '0')) ?: 1;
-        $nextPageLink = url('/search?term='.urlencode($searchTerm).'&page='.($page + 1));
+        $nextPageLink = url('/search?term=' . urlencode($searchTerm) . '&page=' . ($page + 1));
 
         $results = $this->searchService->searchEntities($searchTerm, 'all', $page, 20);
 
@@ -90,7 +84,7 @@ class SearchController extends Controller
         }
 
         $page = intval($request->get('page', '0')) ?: 1;
-        $nextPageLink = url('/searchGrid?'.urlencode(json_encode($request->all())).'&page='.($page + 1));
+        $nextPageLink = url('/searchGrid?' . urlencode(json_encode($request->all())) . '&page=' . ($page + 1));
 
         $results = $this->searchService->searchEntitiesGrid($searchTerm, $entityType, $options, $tags, $exact, $date_filter, $page, 20);
 
@@ -107,7 +101,6 @@ class SearchController extends Controller
     /**
      * Searches all entities within a book.
      *
-     * @param  Request  $request
      * @param  int  $bookId
      * @return View
      *
@@ -124,7 +117,6 @@ class SearchController extends Controller
     /**
      * Searches all entities within a chapter.
      *
-     * @param  Request  $request
      * @param  int  $chapterId
      * @return View
      *
@@ -142,7 +134,6 @@ class SearchController extends Controller
      * Search for a list of entities and return a partial HTML response of matching entities.
      * Returns the most popular entities if no search is provided.
      *
-     * @param  Request  $request
      * @return mixed
      */
     public function searchEntitiesAjax(Request $request)
@@ -153,7 +144,7 @@ class SearchController extends Controller
 
         // Search for entities otherwise show most popular
         if ($searchTerm !== false) {
-            $searchTerm .= ' {type:'.implode('|', $entityTypes).'}';
+            $searchTerm .= ' {type:' . implode('|', $entityTypes) . '}';
             $entities = $this->searchService->searchEntities($searchTerm, 'all', 1, 20, $permission)['results'];
         } else {
             $entities = $this->viewService->getPopular(20, 0, $entityTypes, $permission);
@@ -165,7 +156,6 @@ class SearchController extends Controller
     /**
      * Search siblings items in the system.
      *
-     * @param  Request  $request
      * @return Factory|View|mixed
      */
     public function searchSiblings(Request $request)

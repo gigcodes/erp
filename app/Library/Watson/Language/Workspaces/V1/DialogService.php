@@ -40,7 +40,7 @@ class DialogService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes',
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes',
             ['query' => ['version' => $version], 'json' => $params]
         );
     }
@@ -49,7 +49,7 @@ class DialogService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes',
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes',
             ['query' => ['version' => $version] + $params]
         );
     }
@@ -58,7 +58,7 @@ class DialogService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes/'.$dialogNodes,
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes/' . $dialogNodes,
             ['query' => ['version' => $version]]
         );
     }
@@ -67,7 +67,7 @@ class DialogService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes/'.$dialogNodes,
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes/' . $dialogNodes,
             ['query' => ['version' => $version], 'json' => $params]
         );
     }
@@ -76,7 +76,7 @@ class DialogService extends Service
     {
         return $this->client->request(
             'DELETE',
-            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes/'.$dialogNodes,
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes/' . $dialogNodes,
             ['query' => ['version' => $version]]
         );
     }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use function is_string;
 use function substr;
+use function is_string;
 use Symfony\Component\DependencyInjection\Reference;
 
 return static function (ContainerConfigurator $configurator): void {
@@ -41,8 +41,8 @@ return static function (ContainerConfigurator $configurator): void {
         }
     };
 
-    $servicesFile = include ROOT_PATH.'libraries/services.php';
+    $servicesFile = include ROOT_PATH . 'libraries/services.php';
     $loadServices($servicesFile, $services);
-    $servicesFile = include ROOT_PATH.'libraries/services_controllers.php';
+    $servicesFile = include ROOT_PATH . 'libraries/services_controllers.php';
     $loadServices($servicesFile, $services);
 };

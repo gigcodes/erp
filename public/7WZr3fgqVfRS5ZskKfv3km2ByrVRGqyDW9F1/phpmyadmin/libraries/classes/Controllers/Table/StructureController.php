@@ -4,36 +4,36 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Table;
 
+use stdClass;
 use function __;
+use PhpMyAdmin\Url;
+use PhpMyAdmin\Util;
+use PhpMyAdmin\Index;
+use PhpMyAdmin\Table;
 use function in_array;
 use function is_string;
+use PhpMyAdmin\Tracker;
 use PhpMyAdmin\Charsets;
+use PhpMyAdmin\Template;
+use function str_contains;
+use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\FlashMessages;
+use PhpMyAdmin\StorageEngine;
+use PhpMyAdmin\CreateAddField;
+use PhpMyAdmin\Engines\Innodb;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Query\Utilities;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Utils\ForeignKey;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\CheckUserPrivileges;
 use PhpMyAdmin\Config\PageSettings;
 use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Partitioning\Partition;
+use PhpMyAdmin\Database\CentralColumns;
 use PhpMyAdmin\ConfigStorage\RelationCleanup;
 use PhpMyAdmin\ConfigStorage\RelationParameters;
-use PhpMyAdmin\CreateAddField;
-use PhpMyAdmin\Database\CentralColumns;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Engines\Innodb;
-use PhpMyAdmin\FlashMessages;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Index;
-use PhpMyAdmin\Partitioning\Partition;
-use PhpMyAdmin\Query\Utilities;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\StorageEngine;
-use PhpMyAdmin\Table;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Tracker;
-use PhpMyAdmin\Transformations;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use PhpMyAdmin\Utils\ForeignKey;
-use stdClass;
-use function str_contains;
 
 /**
  * Displays table structure infos like columns, indexes, size, rows

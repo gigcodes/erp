@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Hubstaff;
 
-use App\Http\Controllers\Controller;
 use Curl\Curl;
-use Hubstaff\Authentication\Token;
 use Hubstaff\Hubstaff;
 use Illuminate\Http\Request;
+use Hubstaff\Authentication\Token;
+use App\Http\Controllers\Controller;
 
 class HubstaffController extends Controller
 {
@@ -137,7 +137,7 @@ class HubstaffController extends Controller
     {
         $id = $request->id;
 
-        $url = 'https://api.hubstaff.com/v1/users/'.$id;
+        $url = 'https://api.hubstaff.com/v1/users/' . $id;
 
         $curl = new Curl();
 
@@ -178,7 +178,7 @@ class HubstaffController extends Controller
     {
         $id = $request->id;
 
-        $url = 'https://api.hubstaff.com/v1/users/'.$id.'/projects';
+        $url = 'https://api.hubstaff.com/v1/users/' . $id . '/projects';
 
         $curl = new Curl();
 
@@ -304,7 +304,7 @@ class HubstaffController extends Controller
 
     public function postTaskFromId(Request $request)
     {
-        $url = 'https://api.hubstaff.com/v1/tasks/'.$request->id;
+        $url = 'https://api.hubstaff.com/v1/tasks/' . $request->id;
 
         $curl = new Curl();
 
@@ -428,7 +428,7 @@ class HubstaffController extends Controller
 
     public function showMembers(Request $request)
     {
-        $url = 'https://api.hubstaff.com/v1/organizations/'.$request->id.'/members';
+        $url = 'https://api.hubstaff.com/v1/organizations/' . $request->id . '/members';
 
         $curl = new Curl();
 

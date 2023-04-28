@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\ColdLeads;
-use App\Customer;
 use App\User;
+use App\Customer;
+use App\ColdLeads;
 use App\UserActions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +35,6 @@ class UserActionsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -92,7 +91,6 @@ class UserActionsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\UserActions  $userActions
      * @return \Illuminate\Http\Response
      */
     public function edit(UserActions $userActions)
@@ -103,8 +101,6 @@ class UserActionsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\UserActions  $userActions
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, UserActions $userActions)
@@ -115,7 +111,6 @@ class UserActionsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\UserActions  $userActions
      * @return \Illuminate\Http\Response
      */
     public function destroy(UserActions $userActions)

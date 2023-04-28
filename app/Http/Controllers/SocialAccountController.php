@@ -20,8 +20,6 @@ class SocialAccountController extends Controller
 
     /**
      * List Message of specific user
-     *
-     * @param  Request  $request
      */
     public function listMessage(Request $request)
     {
@@ -37,8 +35,6 @@ class SocialAccountController extends Controller
 
     /**
      * Sending Message to Social contact user
-     *
-     * @param  Request  $request
      */
     public function sendMessage(Request $request)
     {

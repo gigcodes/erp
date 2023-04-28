@@ -22,8 +22,8 @@ class AffiliatePrograms extends Model
         'program_category_is_admitad_suitable',
     ];
 
-
-    public function account() {
+    public function account()
+    {
         return $this->hasOne(AffiliateProviderAccounts::class, 'affiliate_account_id', 'id');
     }
 }

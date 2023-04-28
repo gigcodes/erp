@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatbotDialogResponse;
-use App\ChatMessage;
-use App\Customer;
-use App\Leads;
-use App\Library\Watson\Model as WatsonManager;
-use App\Message;
-use App\NotificationQueue;
-use App\Order;
-use App\Product;
-use App\PushNotification;
 use File;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Image;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Plank\Mediable\Media;
 use Storage;
+use App\Leads;
+use App\Order;
+use App\Message;
+use App\Product;
+use App\Customer;
+use App\ChatMessage;
+use App\PushNotification;
+use Plank\Mediable\Media;
+use App\NotificationQueue;
+use Illuminate\Http\Request;
+use App\ChatbotDialogResponse;
+use Illuminate\Support\Facades\Auth;
+use App\Library\Watson\Model as WatsonManager;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class MessageController extends Controller
 {
@@ -47,7 +47,6 @@ class MessageController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -89,7 +88,7 @@ class MessageController extends Controller
 
         if ($request->hasFile('image')) {
             $media = MediaUploader::fromSource($request->file('image'))
-                                    ->toDirectory('message/'.floor($message->id / config('constants.image_per_folder')))
+                                    ->toDirectory('message/' . floor($message->id / config('constants.image_per_folder')))
                                     ->upload();
             $message->attachMedia($media, config('constants.media_tags'));
         }
@@ -104,12 +103,12 @@ class MessageController extends Controller
         }
 
         if ($request->screenshot_path != '') {
-            $image_path = public_path().'/uploads/temp_screenshot.png';
+            $image_path = public_path() . '/uploads/temp_screenshot.png';
             $img = substr($request->screenshot_path, strpos($request->screenshot_path, ',') + 1);
             $img = Image::make(base64_decode($img))->encode('png')->save($image_path);
 
             $media = MediaUploader::fromSource($image_path)
-                                    ->toDirectory('message/'.floor($message->id / config('constants.image_per_folder')))
+                                    ->toDirectory('message/' . floor($message->id / config('constants.image_per_folder')))
                                     ->upload();
             $message->attachMedia($media, config('constants.media_tags'));
 
@@ -225,7 +224,7 @@ class MessageController extends Controller
             return '';
         }
 
-        return redirect('/'.$moduletype.'/'.$id);
+        return redirect('/' . $moduletype . '/' . $id);
     }
 
     /**
@@ -247,7 +246,7 @@ class MessageController extends Controller
         foreach ($match[1] as $image) {
             $exploded = explode('uploads/', $image);
 
-            array_push($new_match, public_path('uploads/'.$exploded[1]));
+            array_push($new_match, public_path('uploads/' . $exploded[1]));
         }
 
         \Zipper::make(public_path('images.zip'))->add($new_match)->close();
@@ -269,7 +268,6 @@ class MessageController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

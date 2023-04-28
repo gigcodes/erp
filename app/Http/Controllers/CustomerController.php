@@ -2,60 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
-use App\Brand;
-use App\Category;
-use App\ChatMessage;
-use App\CommunicationHistory;
-use App\Complaint;
-use App\CreditHistory;
-use App\CreditLog;
-use App\Customer;
-use App\CustomerAddressData;
-use App\CustomerPriorityPoint;
-use App\CustomerPriorityRangePoint;
-use App\Email;
-use App\EmailAddress;
-use App\ErpLeads;
-use App\Exports\CustomersExport;
-use App\Helpers;
-use App\Imports\CustomerImport;
-use App\Instruction;
-use App\InstructionCategory;
-use App\Leads;
-use App\Mails\Manual\AdvanceReceipt;
-use App\Mails\Manual\CustomerEmail;
-use App\Mails\Manual\IssueCredit;
-use App\Mails\Manual\OrderConfirmation;
-use App\Mails\Manual\RefundProcessed;
-use App\Message;
-use App\MessageQueue;
-use App\Order;
-use App\OrderStatus as OrderStatuses;
-use App\Product;
-use App\QuickSellGroup;
-use App\ReadOnly\PurchaseStatus;
-use App\ReadOnly\SoloNumbers;
-use App\Reply;
-use App\ReplyCategory;
-use App\Setting;
-use App\Status;
-use App\StoreWebsite;
-use App\SuggestedProduct;
-use App\Supplier;
-use App\TwilioPriority;
-use App\User;
-use App\StoreWebsiteTwilioNumber;
 use Auth;
+use App\User;
+use App\Brand;
+use App\Email;
+use App\Leads;
+use App\Order;
+use App\Reply;
+use App\ApiKey;
+use App\Status;
+use App\Helpers;
+use App\Message;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Customer;
+use App\ErpLeads;
+use App\Supplier;
+use App\Complaint;
+use App\CreditLog;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
-use GuzzleHttp\Client as GuzzleClient;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\ChatMessage;
+use App\Instruction;
+use App\EmailAddress;
+use App\MessageQueue;
+use App\StoreWebsite;
+use App\CreditHistory;
+use App\ReplyCategory;
+use App\QuickSellGroup;
+use App\TwilioPriority;
+use App\SuggestedProduct;
 use Illuminate\Support\Arr;
+use App\CustomerAddressData;
+use App\InstructionCategory;
+use Illuminate\Http\Request;
+use App\CommunicationHistory;
+use App\ReadOnly\SoloNumbers;
+use App\CustomerPriorityPoint;
+use App\Imports\CustomerImport;
+use App\Exports\CustomersExport;
+use App\ReadOnly\PurchaseStatus;
+use App\Mails\Manual\IssueCredit;
+use App\StoreWebsiteTwilioNumber;
 use Illuminate\Support\Facades\DB;
+use App\CustomerPriorityRangePoint;
+use App\Mails\Manual\CustomerEmail;
+use App\Mails\Manual\AdvanceReceipt;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Mails\Manual\RefundProcessed;
+use App\OrderStatus as OrderStatuses;
+use GuzzleHttp\Client as GuzzleClient;
+use App\Mails\Manual\OrderConfirmation;
 use Plank\Mediable\Media as PlunkMediable;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends Controller
 {
@@ -78,11 +78,11 @@ class CustomerController extends Controller
         $html = '';
         foreach ($custHosData as $key => $val) {
             $html .= '<tr>';
-            $html .= '<td>'.$val->id.'</td>';
-            $html .= '<td>'.$val->used_credit.'</td>';
-            $html .= '<td>'.$val->used_in.'</td>';
-            $html .= '<td>'.$val->type.'</td>';
-            $html .= '<td>'.date('d-m-Y', strtotime($val->created_at)).'</td>';
+            $html .= '<td>' . $val->id . '</td>';
+            $html .= '<td>' . $val->used_credit . '</td>';
+            $html .= '<td>' . $val->used_in . '</td>';
+            $html .= '<td>' . $val->type . '</td>';
+            $html .= '<td>' . date('d-m-Y', strtotime($val->created_at)) . '</td>';
             $html .= '</tr>';
         }
         if ($html) {
@@ -104,11 +104,11 @@ class CustomerController extends Controller
         $html = '';
         foreach ($custHosData as $key => $val) {
             $html .= '<tr>';
-            $html .= '<td>'.date('d-m-Y', strtotime($val->created_at)).'</td>';
-            $html .= '<td>'.$val->request.'</td>';
-            $html .= '<td>'.$val->response.'</td>';
-            $html .= '<td>'.$val->status.'</td>';
-            $html .= '<td>'.$val->id.'</td>';
+            $html .= '<td>' . date('d-m-Y', strtotime($val->created_at)) . '</td>';
+            $html .= '<td>' . $val->request . '</td>';
+            $html .= '<td>' . $val->response . '</td>';
+            $html .= '<td>' . $val->status . '</td>';
+            $html .= '<td>' . $val->id . '</td>';
             $html .= '</tr>';
         }
         if ($html) {
@@ -267,7 +267,7 @@ class CustomerController extends Controller
         $allCustomers = $results[0]->pluck('id')->toArray();
 
         // Get all sent broadcasts from the past month
-        $sbQuery = DB::select("select MIN(group_id) AS minGroup, MAX(group_id) AS maxGroup from message_queues where sent = 1 and created_at>'".date('Y-m-d H:i:s', strtotime('1 month ago'))."'");
+        $sbQuery = DB::select("select MIN(group_id) AS minGroup, MAX(group_id) AS maxGroup from message_queues where sent = 1 and created_at>'" . date('Y-m-d H:i:s', strtotime('1 month ago')) . "'");
 
         // Add broadcasts to array
         $broadcasts = [];
@@ -358,27 +358,27 @@ class CustomerController extends Controller
         }
 
         if ($request->get('shoe_size')) {
-            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size')."'";
+            $searchWhereClause .= " AND customers.shoe_size = '" . $request->get('shoe_size') . "'";
         }
 
         if ($request->get('clothing_size')) {
-            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size')."'";
+            $searchWhereClause .= " AND customers.clothing_size = '" . $request->get('clothing_size') . "'";
         }
 
         if ($request->get('shoe_size_group')) {
-            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size_group')."'";
+            $searchWhereClause .= " AND customers.shoe_size = '" . $request->get('shoe_size_group') . "'";
         }
 
         if ($request->get('clothing_size_group')) {
-            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size_group')."'";
+            $searchWhereClause .= " AND customers.clothing_size = '" . $request->get('clothing_size_group') . "'";
         }
 
         if ($request->get('customer_id')) {
-            $searchWhereClause .= " AND customers.id LIKE '%".$request->get('customer_id')."%'";
+            $searchWhereClause .= " AND customers.id LIKE '%" . $request->get('customer_id') . "%'";
         }
 
         if ($request->get('customer_name')) {
-            $searchWhereClause .= " AND customers.name LIKE '%".$request->get('customer_name')."%'";
+            $searchWhereClause .= " AND customers.name LIKE '%" . $request->get('customer_name') . "%'";
         }
 
         $orderby = 'DESC';
@@ -407,7 +407,7 @@ class CustomerController extends Controller
         $end_time = $request->range_end ? "$request->range_end 23:59" : '';
 
         if ($start_time != '' && $end_time != '') {
-            $filterWhereClause = " AND last_communicated_at BETWEEN '".$start_time."' AND '".$end_time."'";
+            $filterWhereClause = " AND last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
         }
 
         if ($request->type == 'unread' || $request->type == 'unapproved') {
@@ -419,7 +419,7 @@ class CustomerController extends Controller
             // $messageWhereClause = " WHERE chat_messages.status = $type";
 
             if ($start_time != '' && $end_time != '') {
-                $filterWhereClause = " AND (last_communicated_at BETWEEN '".$start_time."' AND '".$end_time."') AND message_status = $type";
+                $filterWhereClause = " AND (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
             }
         } else {
             if (
@@ -445,8 +445,8 @@ class CustomerController extends Controller
                 } else {
                     $orderWhereClause = ' WHERE ';
                 }
-                $orderWhereClause .= 'orders.order_status = "'.$request->get('type').'"';
-                $filterWhereClause = ' AND order_status = "'.$request->get('type').'"';
+                $orderWhereClause .= 'orders.order_status = "' . $request->get('type') . '"';
+                $filterWhereClause = ' AND order_status = "' . $request->get('type') . '"';
             } else {
                 if (strtolower($request->type) != 'new' && strtolower($request->type) != 'delivery' && strtolower($request->type) != 'refund to be processed' && strtolower($request->type) != '') {
                     $join = 'LEFT';
@@ -517,7 +517,7 @@ class CustomerController extends Controller
                         chat_messages.created_at AS last_communicated_at
                     FROM
                         chat_messages
-                    '.$messageWhereClause.'
+                    ' . $messageWhereClause . '
                 ) AS chat_messages
             ON
                 customers.id=chat_messages.customer_id AND
@@ -526,7 +526,7 @@ class CustomerController extends Controller
                         MAX(id)
                     FROM
                         chat_messages
-                    '.$messageWhereClause.(! empty($messageWhereClause) ? ' AND ' : '').'
+                    ' . $messageWhereClause . (! empty($messageWhereClause) ? ' AND ' : '') . '
                         chat_messages.customer_id=customers.id
                     GROUP BY
                         chat_messages.customer_id
@@ -540,7 +540,7 @@ class CustomerController extends Controller
                         orders.order_status as order_status
                     FROM
                         orders
-                    '.$orderWhereClause.'
+                    ' . $orderWhereClause . '
                     GROUP BY
                         customer_id
                 ) as orders
@@ -582,11 +582,11 @@ class CustomerController extends Controller
             WHERE
                 customers.deleted_at IS NULL AND
                 customers.id IS NOT NULL
-            '.$searchWhereClause.'
-            '.$filterWhereClause.'
-            '.$leadsWhereClause.'
-            '.$assignedWhereClause.'
-            '.$orderByClause.'
+            ' . $searchWhereClause . '
+            ' . $filterWhereClause . '
+            ' . $leadsWhereClause . '
+            ' . $assignedWhereClause . '
+            ' . $orderByClause . '
         ';
         $customers = DB::select($sql);
 
@@ -690,7 +690,7 @@ class CustomerController extends Controller
                                     MAX(orders.created_at) as order_created,
                                     orders.order_status as order_status
                                 FROM
-                                    orders '.$orderWhereClause.'
+                                    orders ' . $orderWhereClause . '
                                 GROUP BY
                                     customer_id
                             ) as orders
@@ -708,7 +708,7 @@ class CustomerController extends Controller
                             ) as order_products
                         ON
                             orders.order_id = order_products.purchase_order_id
-                        '.$join.' JOIN
+                        ' . $join . ' JOIN
                             (
                                 SELECT
                                     MAX(id) as message_id,
@@ -716,11 +716,11 @@ class CustomerController extends Controller
                                     message,
                                     MAX(created_at) as message_created_At
                                 FROM
-                                    chat_messages '.$messageWhereClause.'
+                                    chat_messages ' . $messageWhereClause . '
                                 GROUP BY
                                     customer_id
                                 ORDER BY
-                                    chat_messages.created_at '.$orderby.'
+                                    chat_messages.created_at ' . $orderby . '
                             ) AS chat_messages
                         ON
                             customers.id = chat_messages.customer_id
@@ -730,10 +730,10 @@ class CustomerController extends Controller
                 ) AND (
                     id IS NOT NULL
                 )
-                '.$searchWhereClause.'
+                ' . $searchWhereClause . '
           ) AS customers
-          '.$filterWhereClause.$leadsWhereClause.
-            $assignedWhereClause.
+          ' . $filterWhereClause . $leadsWhereClause .
+            $assignedWhereClause .
             $orderByClause;
 
         // dd($customers);
@@ -930,7 +930,7 @@ class CustomerController extends Controller
         $end_time = $request->input('range_end') ?? '';
 
         if ($start_time != '' && $end_time != '') {
-            $filterWhereClause = " WHERE last_communicated_at BETWEEN '".$start_time."' AND '".$end_time."'";
+            $filterWhereClause = " WHERE last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
         }
 
         if ($request->type == 'unread' || $request->type == 'unapproved') {
@@ -940,7 +940,7 @@ class CustomerController extends Controller
             $filterWhereClause = " WHERE message_status = $type";
 
             if ($start_time != '' && $end_time != '') {
-                $filterWhereClause = " WHERE (last_communicated_at BETWEEN '".$start_time."' AND '".$end_time."') AND message_status = $type";
+                $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
             }
         } else {
             if ($sortby === 'communication') {
@@ -971,20 +971,20 @@ class CustomerController extends Controller
                       ON customers.id = leads.lcid
 
                       LEFT JOIN
-                        (SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM orders '.$orderWhereClause.' GROUP BY customer_id) as orders
+                        (SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM orders ' . $orderWhereClause . ' GROUP BY customer_id) as orders
                           LEFT JOIN (SELECT order_products.order_id as purchase_order_id, order_products.purchase_status FROM order_products) as order_products
                           ON orders.order_id = order_products.purchase_order_id
 
-                      '.$join.' JOIN (SELECT MAX(id) as message_id, customer_id, message, MAX(created_at) as message_created_At FROM chat_messages GROUP BY customer_id ORDER BY created_at DESC) AS chat_messages
+                      ' . $join . ' JOIN (SELECT MAX(id) as message_id, customer_id, message, MAX(created_at) as message_created_At FROM chat_messages GROUP BY customer_id ORDER BY created_at DESC) AS chat_messages
                       ON customers.id = chat_messages.customer_id
 
 
                     ) AS customers
                     WHERE (deleted_at IS NULL)
-                    '.$searchWhereClause.'
-                    '.$orderByClause.'
+                    ' . $searchWhereClause . '
+                    ' . $orderByClause . '
                   ) AS customers
-                  '.$filterWhereClause.';
+                  ' . $filterWhereClause . ';
   							');
 
         // dd($new_customers);
@@ -1259,7 +1259,7 @@ class CustomerController extends Controller
         $this->validate($request, [
             'name' => 'required|min:3|max:255',
             'email' => 'required_without_all:phone,instahandler|nullable|email',
-            'phone' => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers,phone,'.$request->first_customer_id,
+            'phone' => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $request->first_customer_id,
             'instahandler' => 'required_without_all:email,phone|nullable|min:3|max:255',
             'rating' => 'required|numeric',
             'address' => 'sometimes|nullable|min:3|max:255',
@@ -1352,7 +1352,6 @@ class CustomerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -1378,7 +1377,7 @@ class CustomerController extends Controller
             //get default whatsapp number for vendor from whatsapp config
             $task_info = DB::table('whatsapp_configs')
                 ->select('*')
-                ->whereRaw('find_in_set('.self::DEFAULT_FOR.',default_for)')
+                ->whereRaw('find_in_set(' . self::DEFAULT_FOR . ',default_for)')
                 ->first();
 
             $data['whatsapp_number'] = $task_info->number;
@@ -1492,7 +1491,7 @@ class CustomerController extends Controller
 
         $searchedMessages = null;
         if ($request->get('sm')) {
-            $searchedMessages = ChatMessage::where('customer_id', $id)->where('message', 'LIKE', '%'.$request->get('sm').'%')->get();
+            $searchedMessages = ChatMessage::where('customer_id', $id)->where('message', 'LIKE', '%' . $request->get('sm') . '%')->get();
         }
 
         $customer_ids = json_decode($request->customer_ids ?? '[0]');
@@ -1792,7 +1791,6 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -1803,7 +1801,7 @@ class CustomerController extends Controller
         $this->validate($request, [
             'name' => 'required|min:3|max:255',
             'email' => 'required_without_all:phone,instahandler|nullable|email',
-            'phone' => 'required_without_all:email,instahandler|nullable|unique:customers,phone,'.$id,
+            'phone' => 'required_without_all:email,instahandler|nullable|unique:customers,phone,' . $id,
             'instahandler' => 'required_without_all:email,phone|nullable|min:3|max:255',
             'rating' => 'required|numeric',
             'address' => 'sometimes|nullable|min:3|max:255',
@@ -1838,7 +1836,7 @@ class CustomerController extends Controller
         $customer->save();
 
         if ($request->do_not_disturb == 'on') {
-            \Log::channel('customerDnd')->debug('(Customer ID '.$customer->id.' line '.$customer->name.' '.$customer->number.': Added To DND');
+            \Log::channel('customerDnd')->debug('(Customer ID ' . $customer->id . ' line ' . $customer->name . ' ' . $customer->number . ': Added To DND');
             MessageQueue::where('customer_id', $customer->id)->delete();
 
             // foreach ($message_queues as $message_queue) {
@@ -1875,7 +1873,7 @@ class CustomerController extends Controller
         $customer->save();
 
         if ($request->do_not_disturb == 1) {
-            \Log::channel('customerDnd')->debug('(Customer ID '.$customer->id.' line '.$customer->name.' '.$customer->number.': Added To DND');
+            \Log::channel('customerDnd')->debug('(Customer ID ' . $customer->id . ' line ' . $customer->name . ' ' . $customer->number . ': Added To DND');
             MessageQueue::where('customer_id', $customer->id)->delete();
 
             // foreach ($message_queues as $message_queue) {
@@ -2407,7 +2405,7 @@ class CustomerController extends Controller
         $img->text($text, 5, 50, function ($font) use ($fontSize, $color) {
             $font->file(public_path('fonts/Arial.ttf'));
             $font->size($fontSize);
-            $font->color('#'.$color);
+            $font->color('#' . $color);
             $font->align('top');
         });
 
@@ -2470,7 +2468,7 @@ class CustomerController extends Controller
     public function dispatchBroadSendPrice($customer, $product_ids, $dimention = false)
     {
         if (! empty($customer) && is_numeric($customer->phone)) {
-            \Log::info('Customer with phone found for customer id : '.$customer->id.' and product ids '.json_encode($product_ids));
+            \Log::info('Customer with phone found for customer id : ' . $customer->id . ' and product ids ' . json_encode($product_ids));
             if (! empty(array_filter($product_ids))) {
                 foreach ($product_ids as $pid) {
                     $product = \App\Product::where('id', $pid)->first();
@@ -2667,7 +2665,7 @@ class CustomerController extends Controller
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
             $pdf->render();
-            $pdf->stream($id.'-label.pdf');
+            $pdf->stream($id . '-label.pdf');
         }
     }
 
@@ -2708,7 +2706,7 @@ class CustomerController extends Controller
                 $customer->save();
             }
 
-            return response()->json(['code' => 200, 'data' => [], 'message' => $field.' updated successfully']);
+            return response()->json(['code' => 200, 'data' => [], 'message' => $field . ' updated successfully']);
         }
 
         return response()->json(['code' => 200, 'data' => [], 'message' => 'Sorry , no customer found']);
@@ -2976,7 +2974,7 @@ class CustomerController extends Controller
                 return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
             } else {
                 $toAdd = $balance - $customer->credit;
-                $message = $this->generate_erp_response('credit_deduct.insufficient_balance', $store_website_id, $default = 'You do not have sufficient credits, Please add '.$toAdd.' to proceed.', request('lang_code'));
+                $message = $this->generate_erp_response('credit_deduct.insufficient_balance', $store_website_id, $default = 'You do not have sufficient credits, Please add ' . $toAdd . ' to proceed.', request('lang_code'));
 
                 return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
             }
@@ -2995,15 +2993,15 @@ class CustomerController extends Controller
         $customers_all->latest('date')->groupBy('customers.id')->orderBy('date', 'desc');
 
         if ($request->name != '') {
-            $customers_all->where('name', 'Like', '%'.$request->name.'%');
+            $customers_all->where('name', 'Like', '%' . $request->name . '%');
         }
 
         if ($request->email != '') {
-            $customers_all->where('email', 'Like', '%'.$request->email.'%');
+            $customers_all->where('email', 'Like', '%' . $request->email . '%');
         }
 
         if ($request->phone != '') {
-            $customers_all->where('phone', 'Like', '%'.$request->phone.'%');
+            $customers_all->where('phone', 'Like', '%' . $request->phone . '%');
         }
 
         if ($request->store_website != '') {
@@ -3038,10 +3036,10 @@ class CustomerController extends Controller
             $html = '';
             foreach ($creditEmailLog as $log) {
                 $html .= '<tr>';
-                $html .= '<td>'.$log->id.'</td>';
-                $html .= '<td>'.$log->from_email.'</td>';
-                $html .= '<td>'.$log->to_email.'</td>';
-                $html .= '<td>'.$log->created_at.'</td>';
+                $html .= '<td>' . $log->id . '</td>';
+                $html .= '<td>' . $log->from_email . '</td>';
+                $html .= '<td>' . $log->to_email . '</td>';
+                $html .= '<td>' . $log->created_at . '</td>';
                 $html .= '</tr>';
             }
 
@@ -3122,14 +3120,14 @@ class CustomerController extends Controller
         $records = '';
         foreach ($history as $c) {
             $records .= '<tr>
-              <td>'.$c->id.'</td>
-              <td>'.$c->name.'</td>
-              <td>'.$c->email.'</td>
-              <td>'.$c->phone.'</td>
-              <td>'.$c->address.'</td>
-              <td>'.$c->city.'</td>
-              <td>'.$c->pincode.'</td>
-              <td>'.$c->country.'</td> </tr>';
+              <td>' . $c->id . '</td>
+              <td>' . $c->name . '</td>
+              <td>' . $c->email . '</td>
+              <td>' . $c->phone . '</td>
+              <td>' . $c->address . '</td>
+              <td>' . $c->city . '</td>
+              <td>' . $c->pincode . '</td>
+              <td>' . $c->country . '</td> </tr>';
         }
 
         return response()->json(['records' => $records, 'code' => 200, 'status' => 'success']);
@@ -3181,7 +3179,6 @@ class CustomerController extends Controller
     /**
      * This function is use for get all proirity data
      *
-     * @param  Request  $request
      * @param [int] $id
      * @return Jsonresponse
      */
@@ -3225,7 +3222,6 @@ class CustomerController extends Controller
     /**
      * This function is use for save proirity data
      *
-     * @param  Request  $request
      * @return Jsonresponse
      */
     public function addCustomerPriorityPoints(Request $request)
@@ -3249,7 +3245,6 @@ class CustomerController extends Controller
     /**
      * This function is use for get all proirity Range data
      *
-     * @param  Request  $request
      * @param [int] $id
      * @return Jsonresponse
      */
@@ -3277,7 +3272,6 @@ class CustomerController extends Controller
     /**
      * This function is use for get all proirity Range data
      *
-     * @param  Request  $request
      * @param [int] $id
      * @return Jsonresponse
      */
@@ -3311,7 +3305,6 @@ class CustomerController extends Controller
     /**
      * This function is use for get all proirity Range data
      *
-     * @param  Request  $request
      * @param [int] $id
      * @return Jsonresponse
      */
@@ -3329,7 +3322,6 @@ class CustomerController extends Controller
     /**
      * This function is use for save proirity range data
      *
-     * @param  Request  $request
      * @return Jsonresponse
      */
     public function addCustomerPriorityRangePoints(Request $request)
@@ -3352,7 +3344,6 @@ class CustomerController extends Controller
     /**
      * This function is use for save proirity range delete data
      *
-     * @param  Request  $request
      * @return Jsonresponse
      */
     public function deleteCustomerPriorityRangePoints(Request $request)

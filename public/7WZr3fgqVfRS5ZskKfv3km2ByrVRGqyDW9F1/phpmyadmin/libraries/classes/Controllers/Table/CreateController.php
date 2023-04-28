@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function htmlspecialchars;
-use function is_array;
-use function mb_strtolower;
-use PhpMyAdmin\Config;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\CreateAddField;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Table\ColumnsDefinition;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Transformations;
 use PhpMyAdmin\Url;
+use function strlen;
+use PhpMyAdmin\Core;
 use PhpMyAdmin\Util;
 use function sprintf;
-use function strlen;
+use function is_array;
+use PhpMyAdmin\Config;
+use PhpMyAdmin\Template;
+use function mb_strtolower;
+use function htmlspecialchars;
+use PhpMyAdmin\CreateAddField;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Table\ColumnsDefinition;
 
 /**
  * Displays table create form and handles it.

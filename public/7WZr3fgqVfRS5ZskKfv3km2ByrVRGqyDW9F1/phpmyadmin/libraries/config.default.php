@@ -578,8 +578,8 @@ $cfg['Servers'][$i]['tracking_version_auto_create'] = false;
  *
  * @global string $cfg['Servers'][$i]['tracking_default_statements']
  */
-$cfg['Servers'][$i]['tracking_default_statements'] = 'CREATE TABLE,ALTER TABLE,DROP TABLE,RENAME TABLE,CREATE INDEX,'.
-      'DROP INDEX,INSERT,UPDATE,DELETE,TRUNCATE,REPLACE,CREATE VIEW,'.
+$cfg['Servers'][$i]['tracking_default_statements'] = 'CREATE TABLE,ALTER TABLE,DROP TABLE,RENAME TABLE,CREATE INDEX,' .
+      'DROP INDEX,INSERT,UPDATE,DELETE,TRUNCATE,REPLACE,CREATE VIEW,' .
       'ALTER VIEW,DROP VIEW,CREATE DATABASE,ALTER DATABASE,DROP DATABASE';
 
 /**
@@ -895,7 +895,7 @@ $cfg['CaptchaApi'] = 'https://www.google.com/recaptcha/api.js';
  * @global string $cfg['CaptchaCsp']
  */
 $cfg['CaptchaCsp'] = 'https://apis.google.com https://www.google.com/recaptcha/'
-    .' https://www.gstatic.com/recaptcha/ https://ssl.gstatic.com/';
+    . ' https://www.gstatic.com/recaptcha/ https://ssl.gstatic.com/';
 
 /**
  * reCaptcha API's request parameter name
@@ -2812,7 +2812,7 @@ $cfg['SaveDir'] = '';
 if (defined('TEMP_DIR')) {
     $cfg['TempDir'] = TEMP_DIR;
 } else {
-    $cfg['TempDir'] = ROOT_PATH.'tmp'.DIRECTORY_SEPARATOR;
+    $cfg['TempDir'] = ROOT_PATH . 'tmp' . DIRECTORY_SEPARATOR;
 }
 
 /**

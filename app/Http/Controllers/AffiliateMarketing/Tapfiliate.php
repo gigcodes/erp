@@ -8,7 +8,9 @@ namespace App\Http\Controllers\AffiliateMarketing;
 class Tapfiliate
 {
     private $BASE_API_URL = 'https://api.tapfiliate.com/1.6/';
+
     private $API_KEY = '';
+
     private $PROVIDER_ACCOUNT;
 
     public function __construct($providerAccount)
@@ -19,8 +21,6 @@ class Tapfiliate
 
     /**
      * Create affiliate group on provider
-     * @param $data
-     * @return array
      */
     public function createAffiliateGroup($data): array
     {
@@ -29,9 +29,6 @@ class Tapfiliate
 
     /**
      * Update affiliate group on provider
-     * @param $id
-     * @param $data
-     * @return array
      */
     public function updateAffiliateGroup($id, $data): array
     {
@@ -46,6 +43,7 @@ class Tapfiliate
         $commissionList = $this->callApi('GET', 'commissions/');
         $conversionsList = $this->callApi('GET', 'conversions/');
         $paymentsList = $this->callApi('GET', 'payments/');
+
         return [
             'programList' => $programList,
             'affiliatesGroupList' => $affiliatesGroupList,
@@ -58,7 +56,6 @@ class Tapfiliate
 
     /**
      * Get all the programmes from API
-     * @return array
      */
     public function getProgrammes(): array
     {
@@ -67,7 +64,6 @@ class Tapfiliate
 
     /**
      * Get all the commissions from API
-     * @return array
      */
     public function getCommissions(): array
     {
@@ -76,7 +72,6 @@ class Tapfiliate
 
     /**
      * Get all the affiliates from API
-     * @return array
      */
     public function getAffiliates(): array
     {
@@ -85,7 +80,6 @@ class Tapfiliate
 
     /**
      * Create affiliates on provider
-     * @return array
      */
     public function createAffiliate($data): array
     {
@@ -94,7 +88,6 @@ class Tapfiliate
 
     /**
      * Delete affiliates on provider
-     * @return array
      */
     public function deleteAffiliate($id): array
     {
@@ -103,7 +96,6 @@ class Tapfiliate
 
     /**
      * Set affiliates group of affiliate on provider
-     * @return array
      */
     public function setAffiliateGroupForAffiliate($id, $data): array
     {
@@ -112,7 +104,6 @@ class Tapfiliate
 
     /**
      * Get affiliates payout methods from provider
-     * @return array
      */
     public function getAllAffiliatePayoutMethods($id): array
     {
@@ -121,7 +112,6 @@ class Tapfiliate
 
     /**
      * Set affiliates payout methods on provider
-     * @return array
      */
     public function setAffiliatePayoutMethods($id, $payout_id): array
     {
@@ -130,7 +120,6 @@ class Tapfiliate
 
     /**
      * Set affiliates programme
-     * @return array
      */
     public function addAffiliateToProgramme($id, $data): array
     {
@@ -139,7 +128,6 @@ class Tapfiliate
 
     /**
      * Approve, Disapprove affiliates in programme
-     * @return array
      */
     public function approveDisapproveAffiliateToProgramme($id, $affiliateId, $isApprove): array
     {
@@ -148,9 +136,6 @@ class Tapfiliate
 
     /**
      * Update affiliate Commission on provider
-     * @param $id
-     * @param $data
-     * @return array
      */
     public function updateAffiliateCommission($id, $data): array
     {
@@ -159,9 +144,8 @@ class Tapfiliate
 
     /**
      * Update affiliate Commission approve or disapprove on provider
-     * @param $id
+     *
      * @param $data
-     * @return array
      */
     public function updateAffiliateApproveDisapprove($id, $isApprove): array
     {
@@ -170,9 +154,8 @@ class Tapfiliate
 
     /**
      * Create Affiliate Payment
+     *
      * @param $id
-     * @param $data
-     * @return array
      */
     public function createAffiliatePayment($data): array
     {
@@ -181,9 +164,8 @@ class Tapfiliate
 
     /**
      * Cancel Affiliate Payment
-     * @param $id
+     *
      * @param $data
-     * @return array
      */
     public function cancelAffiliatePayment($id): array
     {
@@ -192,9 +174,9 @@ class Tapfiliate
 
     /**
      * Get All Affiliate Payment
+     *
      * @param $id
      * @param $data
-     * @return array
      */
     public function getAffiliatePayment(): array
     {
@@ -203,9 +185,8 @@ class Tapfiliate
 
     /**
      * Get Conversion
+     *
      * @param $id
-     * @param $data
-     * @return array
      */
     public function createConversions($data): array
     {
@@ -214,9 +195,6 @@ class Tapfiliate
 
     /**
      * Update Conversion
-     * @param $id
-     * @param $data
-     * @return array
      */
     public function updateConversions($id, $data): array
     {
@@ -225,9 +203,8 @@ class Tapfiliate
 
     /**
      * Delete Conversion
-     * @param $id
+     *
      * @param $data
-     * @return array
      */
     public function deleteConversions($id): array
     {
@@ -236,9 +213,6 @@ class Tapfiliate
 
     /**
      * Add commission to Conversion
-     * @param $id
-     * @param $data
-     * @return array
      */
     public function addCommissionConversions($id, $data): array
     {
@@ -247,9 +221,9 @@ class Tapfiliate
 
     /**
      * Get all Conversions
+     *
      * @param $id
      * @param $data
-     * @return array
      */
     public function getAllConversions(): array
     {
@@ -258,9 +232,8 @@ class Tapfiliate
 
     /**
      * Create customers
+     *
      * @param $id
-     * @param $data
-     * @return array
      */
     public function createCustomer($data): array
     {
@@ -269,9 +242,8 @@ class Tapfiliate
 
     /**
      * Delete customers
-     * @param $id
+     *
      * @param $data
-     * @return array
      */
     public function deleteCustomer($id): array
     {
@@ -280,9 +252,8 @@ class Tapfiliate
 
     /**
      * Cancel customers
-     * @param $id
+     *
      * @param $data
-     * @return array
      */
     public function cancelCustomer($id, $isCancle): array
     {
@@ -291,9 +262,9 @@ class Tapfiliate
 
     /**
      * Get all customers
+     *
      * @param $id
      * @param $data
-     * @return array
      */
     public function getAllCustomer(): array
     {
@@ -302,10 +273,6 @@ class Tapfiliate
 
     /**
      * Common function to fetch data from API using CURL.
-     * @param $method
-     * @param $url
-     * @param array $params
-     * @return array
      */
     public function callApi($method, $url, array $params = []): array
     {
@@ -319,11 +286,11 @@ class Tapfiliate
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
-//            CURLOPT_HEADER => true,
+            //            CURLOPT_HEADER => true,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
-                'X-Api-Key:' . $this->API_KEY
-            ]
+                'X-Api-Key:' . $this->API_KEY,
+            ],
         ]);
 
         if ($method == 'POST' || $method == 'PATCH' || $method == 'PUT') {
@@ -334,21 +301,25 @@ class Tapfiliate
         curl_close($curl);
         if ($err) {
             $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
-            return ['status' => false, 'message' => $message . "cURL Error #:" . $err];
+
+            return ['status' => false, 'message' => $message . 'cURL Error #:' . $err];
         } else {
             $response = json_decode($response, true);
             if (is_array($response)) {
                 if (array_key_exists('errors', $response)) {
                     $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
-                    return ['status' => false, 'message' => $message . "cURL Error #:" . serialize($response)];
+
+                    return ['status' => false, 'message' => $message . 'cURL Error #:' . serialize($response)];
                 }
-                return ['status' => true, 'message' => "Data found", 'data' => $response];
+
+                return ['status' => true, 'message' => 'Data found', 'data' => $response];
             } else {
                 if ($method == 'DELETE') {
-                    return ['status' => true, 'message' => "Data found", 'data' => $response];
+                    return ['status' => true, 'message' => 'Data found', 'data' => $response];
                 } else {
                     $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
-                    return ['status' => false, 'message' => $message . "cURL Error #:" . $response];
+
+                    return ['status' => false, 'message' => $message . 'cURL Error #:' . $response];
                 }
             }
         }

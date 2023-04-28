@@ -2,12 +2,12 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ModelColor extends Model
 {
     use HasFactory;
 
-    protected $table = "model_colors";
+    protected $table = 'model_colors';
 }

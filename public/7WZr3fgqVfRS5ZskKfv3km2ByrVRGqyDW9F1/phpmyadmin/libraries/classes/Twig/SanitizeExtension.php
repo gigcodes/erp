@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Twig;
 
-use PhpMyAdmin\Sanitize;
-use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use PhpMyAdmin\Sanitize;
+use Twig\Extension\AbstractExtension;
 
 class SanitizeExtension extends AbstractExtension
 {

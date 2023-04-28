@@ -3,9 +3,9 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\StoreWebsiteGoal;
-use App\StoreWebsiteGoalRemark;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\StoreWebsiteGoalRemark;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 
@@ -68,7 +68,7 @@ class GoalController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -94,7 +94,6 @@ class GoalController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $storeWebsiteId, $goalId)
     {
@@ -111,7 +110,6 @@ class GoalController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $storeWebsiteId, $goalId)
     {

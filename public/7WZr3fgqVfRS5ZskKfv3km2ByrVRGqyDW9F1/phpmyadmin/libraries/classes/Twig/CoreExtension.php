@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Twig;
 
 use PhpMyAdmin\Core;
-use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Twig\Extension\AbstractExtension;
 
 class CoreExtension extends AbstractExtension
 {

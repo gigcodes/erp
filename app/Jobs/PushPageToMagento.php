@@ -3,10 +3,10 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use seo2websites\MagentoHelper\MagentoHelper;
 
 class PushPageToMagento implements ShouldQueue
@@ -26,7 +26,7 @@ class PushPageToMagento implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($page,$updatedBy)
+    public function __construct($page, $updatedBy)
     {
         // Set product and website
         $this->page = $page;
@@ -49,14 +49,14 @@ class PushPageToMagento implements ShouldQueue
             $website = $page->storeWebsite;
 
             if ($website) {
-                $storeWebsite   =   new \App\StoreWebsite();
-                if((isset($website->tag_id) && $website->tag_id != "") ){
-                    $allWebsites=$storeWebsite->where('tag_id', $website->tag_id )->get();
+                $storeWebsite = new \App\StoreWebsite();
+                if ((isset($website->tag_id) && $website->tag_id != '')) {
+                    $allWebsites = $storeWebsite->where('tag_id', $website->tag_id)->get();
                 } else {
-                    $allWebsites=$storeWebsite->where("id",  $page->store_website_id)->get();
+                    $allWebsites = $storeWebsite->where('id', $page->store_website_id)->get();
                 }
-                
-                if(!empty($allWebsites)){
+
+                if (! empty($allWebsites)) {
                     foreach ($allWebsites as $websitekey => $website) {
                         //\Log::info("Store Website Data");
                         //\Log::info(print_r([$website->id,$website->website,$website->tag_id],true));

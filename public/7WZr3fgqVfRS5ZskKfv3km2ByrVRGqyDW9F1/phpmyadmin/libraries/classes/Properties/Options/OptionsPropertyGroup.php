@@ -7,10 +7,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Properties\Options;
 
-use function array_diff;
-use function count;
 use Countable;
+use function count;
 use function in_array;
+use function array_diff;
 
 /**
  * Parents group property items and provides methods to manage groups of

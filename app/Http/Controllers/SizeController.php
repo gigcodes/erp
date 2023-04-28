@@ -28,7 +28,7 @@ class SizeController extends Controller
         $records = Size::query();
 
         if ($request->keyword != null) {
-            $records = $records->where('name', 'like', '%'.$request->keyword.'%');
+            $records = $records->where('name', 'like', '%' . $request->keyword . '%');
         }
 
         $records = $records->paginate(25);
@@ -40,7 +40,7 @@ class SizeController extends Controller
             if (! $item->storeWebsitSize->isEmpty()) {
                 foreach ($item->storeWebsitSize as $sws) {
                     if ($sws->storeWebsite) {
-                        $stores[] = $sws->storeWebsite->title.'#'.$sws->platform_id;
+                        $stores[] = $sws->storeWebsite->title . '#' . $sws->platform_id;
                     }
                 }
             }
@@ -102,7 +102,7 @@ class SizeController extends Controller
             $arr = [];
             if (! $stores->isEmpty()) {
                 foreach ($stores as $store) {
-                    $arr['store_'.$store->store_website_id] = $store->platform_id;
+                    $arr['store_' . $store->store_website_id] = $store->platform_id;
                 }
             }
 
@@ -161,7 +161,7 @@ class SizeController extends Controller
         $sizes = Size::all();
         $unknownSizes = UnknownSize::query();
         if ($request->search) {
-            $unknownSizes = $unknownSizes->where('size', 'LIKE', '%'.$request->search.'%');
+            $unknownSizes = $unknownSizes->where('size', 'LIKE', '%' . $request->search . '%');
         }
         $unknownSizes = $unknownSizes->paginate(50);
 
@@ -202,8 +202,8 @@ class SizeController extends Controller
         $UnknownSize = \App\UnknownSize::find($q);
         if ($q) {
             // check the type and then
-            $q = '"'.$q.'"';
-            $products = \App\ScrapedProducts::where('properties', 'like', '%'.$UnknownSize->size.'%')->latest()->limit(5)->get();
+            $q = '"' . $q . '"';
+            $products = \App\ScrapedProducts::where('properties', 'like', '%' . $UnknownSize->size . '%')->latest()->limit(5)->get();
 
             $view = (string) view('compositions.preview-products', compact('products'));
 
@@ -220,8 +220,8 @@ class SizeController extends Controller
 
         if (! empty($from) && ! empty($to)) {
             // check the type and then
-            $q = '"'.$from.'"';
-            $total = \App\ScrapedProducts::where('properties', 'like', '%'.$q.'%')
+            $q = '"' . $from . '"';
+            $total = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')
                 ->join('products as p', 'p.sku', 'scraped_products.sku')
                 ->where('p.composition', '')
                 ->groupBy('p.id')
@@ -257,7 +257,7 @@ class SizeController extends Controller
             $to->references = $from;
             $to->save();
         } else {
-            $to->references = $oldReference.','.$from;
+            $to->references = $oldReference . ',' . $from;
             $to->save();
         }
 

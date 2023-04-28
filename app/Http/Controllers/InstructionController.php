@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\Customer;
-use App\Helpers;
-use App\Instruction;
-use App\InstructionCategory;
-use App\NotificationQueue;
-use App\PushNotification;
-use App\Setting;
-use App\User;
-use App\UserActions;
 use Auth;
+use App\User;
+use App\Helpers;
+use App\Setting;
+use App\Customer;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\ChatMessage;
+use App\Instruction;
+use App\UserActions;
+use App\PushNotification;
+use App\NotificationQueue;
 use Illuminate\Support\Arr;
+use App\InstructionCategory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class InstructionController extends Controller
 {
@@ -192,7 +192,7 @@ class InstructionController extends Controller
 
         if ($request->term) {
             $term = $request->term;
-            $sql = "(customer_id in (select id from customers where name like '%".$term."%') or instruction like '%".$term."%')";
+            $sql = "(customer_id in (select id from customers where name like '%" . $term . "%') or instruction like '%" . $term . "%')";
 
             $instructions = $instructions->whereRaw($sql);
             $pending_instructions = $pending_instructions->whereRaw($sql);
@@ -275,7 +275,6 @@ class InstructionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -367,7 +366,6 @@ class InstructionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -429,7 +427,7 @@ class InstructionController extends Controller
         NotificationQueue::where('model_type', \App\Instruction::class)->where('model_id', $instruction->id)->delete();
         PushNotification::where('model_type', \App\Instruction::class)->where('model_id', $instruction->id)->delete();
 
-        $url = route('customer.show', $instruction->customer->id).'#internal-message-body';
+        $url = route('customer.show', $instruction->customer->id) . '#internal-message-body';
 
         Customer::where('id', $instruction->customer->id)->update([
             'instruction_completed_at' => Carbon::now()->toDateTimeString(),
@@ -516,7 +514,7 @@ class InstructionController extends Controller
 
         // Set type
         if ($request->type != null) {
-            $instructions = $instructions->where('instruction', 'like', '%'.$request->type.'%');
+            $instructions = $instructions->where('instruction', 'like', '%' . $request->type . '%');
         }
 
         // For non-admins

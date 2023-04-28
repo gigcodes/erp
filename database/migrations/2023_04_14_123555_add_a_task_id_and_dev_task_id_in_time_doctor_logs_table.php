@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddATaskIdAndDevTaskIdInTimeDoctorLogsTable extends Migration
 {
@@ -14,11 +14,11 @@ class AddATaskIdAndDevTaskIdInTimeDoctorLogsTable extends Migration
     public function up()
     {
         Schema::table('time_doctor_logs', function (Blueprint $table) {
-            $table->unsignedBigInteger("dev_task_id")->nullable();
-            $table->unsignedBigInteger("task_id")->nullable();
+            $table->unsignedBigInteger('dev_task_id')->nullable();
+            $table->unsignedBigInteger('task_id')->nullable();
         });
     }
-    
+
     /**
      * Reverse the migrations.
      *
@@ -27,8 +27,8 @@ class AddATaskIdAndDevTaskIdInTimeDoctorLogsTable extends Migration
     public function down()
     {
         Schema::table('time_doctor_logs', function (Blueprint $table) {
-            $table->dropColumn("dev_task_id");
-            $table->dropColumn("task_id");
+            $table->dropColumn('dev_task_id');
+            $table->dropColumn('task_id');
         });
     }
 }

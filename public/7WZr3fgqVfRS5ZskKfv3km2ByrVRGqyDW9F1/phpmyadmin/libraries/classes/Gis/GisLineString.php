@@ -7,14 +7,14 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Gis;
 
-use function count;
-use function hexdec;
-use function json_encode;
-use function mb_substr;
-use PhpMyAdmin\Image\ImageWrapper;
-use function round;
 use TCPDF;
 use function trim;
+use function count;
+use function round;
+use function hexdec;
+use function mb_substr;
+use function json_encode;
+use PhpMyAdmin\Image\ImageWrapper;
 
 /**
  * Handles actions related to GIS LINESTRING objects
@@ -179,7 +179,7 @@ class GisLineString extends GisGeometry
     {
         $line_options = [
             'name' => $label,
-            'id' => $label.$this->getRandomId(),
+            'id' => $label . $this->getRandomId(),
             'class' => 'linestring vector',
             'fill' => 'none',
             'stroke' => $line_color,
@@ -192,12 +192,12 @@ class GisLineString extends GisGeometry
 
         $row = '<polyline points="';
         foreach ($points_arr as $point) {
-            $row .= $point[0].','.$point[1].' ';
+            $row .= $point[0] . ',' . $point[1] . ' ';
         }
 
         $row .= '"';
         foreach ($line_options as $option => $val) {
-            $row .= ' '.$option.'="'.trim((string) $val).'"';
+            $row .= ' ' . $option . '="' . trim((string) $val) . '"';
         }
 
         $row .= '/>';
@@ -224,10 +224,10 @@ class GisLineString extends GisGeometry
         ];
 
         $result = 'var style = new ol.style.Style({'
-            .'stroke: new ol.style.Stroke('.json_encode($stroke_style).')';
+            . 'stroke: new ol.style.Stroke(' . json_encode($stroke_style) . ')';
         if (trim($label) !== '') {
             $text_style = ['text' => trim($label)];
-            $result .= ', text: new ol.style.Text('.json_encode($text_style).')';
+            $result .= ', text: new ol.style.Text(' . json_encode($text_style) . ')';
         }
 
         $result .= '});';
@@ -242,10 +242,10 @@ class GisLineString extends GisGeometry
         $linesrting = mb_substr($spatial, 11, -1);
         $points_arr = $this->extractPoints($linesrting, null);
 
-        return $result.'var line = new ol.Feature({geometry: '
-            .$this->getLineForOpenLayers($points_arr, $srid).'});'
-            .'line.setStyle(style);'
-            .'vectorLayer.addFeature(line);';
+        return $result . 'var line = new ol.Feature({geometry: '
+            . $this->getLineForOpenLayers($points_arr, $srid) . '});'
+            . 'line.setStyle(style);'
+            . 'vectorLayer.addFeature(line);';
     }
 
     /**
@@ -268,14 +268,14 @@ class GisLineString extends GisGeometry
             $wkt .= (isset($gis_data[$index]['LINESTRING'][$i]['x'])
                     && trim((string) $gis_data[$index]['LINESTRING'][$i]['x']) != ''
                     ? $gis_data[$index]['LINESTRING'][$i]['x'] : $empty)
-                .' '.(isset($gis_data[$index]['LINESTRING'][$i]['y'])
+                . ' ' . (isset($gis_data[$index]['LINESTRING'][$i]['y'])
                     && trim((string) $gis_data[$index]['LINESTRING'][$i]['y']) != ''
-                    ? $gis_data[$index]['LINESTRING'][$i]['y'] : $empty).',';
+                    ? $gis_data[$index]['LINESTRING'][$i]['y'] : $empty) . ',';
         }
 
         $wkt = mb_substr($wkt, 0, -1);
 
-        return $wkt.')';
+        return $wkt . ')';
     }
 
     /**

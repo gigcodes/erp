@@ -2,8 +2,8 @@
 
 namespace Modules\BookStack\Auth\Permissions;
 
-use Modules\BookStack\Auth\Role;
 use Modules\BookStack\Model;
+use Modules\BookStack\Auth\Role;
 
 class RolePermission extends Model
 {
@@ -20,7 +20,6 @@ class RolePermission extends Model
     /**
      * Get the permission object by name.
      *
-     * @param $name
      * @return mixed
      */
     public static function getByName($name)

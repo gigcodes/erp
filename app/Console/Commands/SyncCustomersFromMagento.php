@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Customer;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class SyncCustomersFromMagento extends Command
@@ -85,7 +85,7 @@ class SyncCustomersFromMagento extends Command
                 }
             } catch (\SoapFault $fault) {
                 // can't connect magento API server
-                dump("Can't connect Magento via SOAP: ".$fault->getMessage());
+                dump("Can't connect Magento via SOAP: " . $fault->getMessage());
                 \App\CronJob::insertLastError($this->signature, $fault->getMessage());
             }
 
@@ -116,7 +116,7 @@ class SyncCustomersFromMagento extends Command
     public function setCustomer($customerInfo, $customerAddress)
     {
         $customer = [];
-        $customer['name'] = $customerInfo['firstname'].' '.$customerInfo['lastname'];
+        $customer['name'] = $customerInfo['firstname'] . ' ' . $customerInfo['lastname'];
         $customer['email'] = $customerInfo['email'];
         $customer['address'] = $customerAddress['street'];
         $customer['city'] = $customerAddress['city'];

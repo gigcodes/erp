@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
 use function __;
-use function htmlspecialchars;
 use PhpMyAdmin\FieldMetadata;
+use function htmlspecialchars;
 use PhpMyAdmin\Plugins\TransformationsPlugin;
 
 /**
@@ -26,8 +26,8 @@ abstract class PreApPendTransformationsPlugin extends TransformationsPlugin
     {
         return __(
             'Prepends and/or Appends text to a string. First option is text'
-            .' to be prepended, second is appended (enclosed in single'
-            .' quotes, default empty string).'
+            . ' to be prepended, second is appended (enclosed in single'
+            . ' quotes, default empty string).'
         );
     }
 
@@ -45,8 +45,8 @@ abstract class PreApPendTransformationsPlugin extends TransformationsPlugin
         $options = $this->getOptions($options, $cfg['DefaultTransformations']['PreApPend']);
 
         //just prepend and/or append the options to the original text
-        return htmlspecialchars($options[0]).htmlspecialchars($buffer)
-            .htmlspecialchars($options[1]);
+        return htmlspecialchars($options[0]) . htmlspecialchars($buffer)
+            . htmlspecialchars($options[1]);
     }
 
     /* ~~~~~~~~~~~~~~~~~~~~ Getters and Setters ~~~~~~~~~~~~~~~~~~~~ */

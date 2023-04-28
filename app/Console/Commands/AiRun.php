@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\LogScraperVsAi;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\LogScraperVsAi;
 use Illuminate\Console\Command;
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
@@ -72,7 +72,7 @@ class AiRun extends Command
                 $product = Product::with('product_category')->where('id', $product->id)->first();
 
                 // Output something to the command line to know we are still running
-                echo 'Start Vision for product '.$product->id."\n";
+                echo 'Start Vision for product ' . $product->id . "\n";
 
                 // Get array product images
                 $arrMedia = $product->getMedia(config('constants.media_tags'));

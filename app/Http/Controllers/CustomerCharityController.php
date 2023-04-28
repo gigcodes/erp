@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use Auth;
+use App\User;
 use App\Brand;
-use App\Category;
-use App\CharityCountry;
-use App\CharityProductStoreWebsite;
-use App\CustomerCharity;
-use App\CustomerCharityWebsiteStore;
-use App\Helpers\ProductHelper;
 use App\Product;
 use App\Setting;
-use App\StoreWebsite;
-use App\User;
-use App\VendorCategory;
 use App\Website;
+use App\Category;
+use App\StoreWebsite;
 use App\WebsiteStore;
-use Auth;
-use DB;
+use App\CharityCountry;
+use App\VendorCategory;
+use App\CustomerCharity;
 use Illuminate\Http\Request;
+use App\Helpers\ProductHelper;
+use App\CharityProductStoreWebsite;
+use App\CustomerCharityWebsiteStore;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerCharityController extends Controller
@@ -77,22 +77,22 @@ class CustomerCharityController extends Controller
 
             //If name is not null
             if (request('name') != null) {
-                $query->where('name', 'LIKE', '%'.request('name').'%');
+                $query->where('name', 'LIKE', '%' . request('name') . '%');
             }
 
             //if addess is not null
             if (request('address') != null) {
-                $query->where('address', 'LIKE', '%'.request('address').'%');
+                $query->where('address', 'LIKE', '%' . request('address') . '%');
             }
 
             //if email is not null
             if (request('email') != null) {
-                $query->where('email', 'LIKE', '%'.request('email').'%');
+                $query->where('email', 'LIKE', '%' . request('email') . '%');
             }
 
             //if phone is not null
             if (request('phone') != null) {
-                $query->where('phone', 'LIKE', '%'.request('phone').'%');
+                $query->where('phone', 'LIKE', '%' . request('phone') . '%');
             }
             $status = request('status');
             if ($status != null && ! request('with_archived')) {
@@ -117,11 +117,11 @@ class CustomerCharityController extends Controller
             }
             //if email is not nyll
             if (request('email') != null) {
-                $query->where('email', 'like', '%'.request('email').'%');
+                $query->where('email', 'like', '%' . request('email') . '%');
             }
             if (request('communication_history') != null && ! request('with_archived')) {
                 $communication_history = request('communication_history');
-                $query->orWhereRaw("customer_charities.id in (select charity_id from chat_messages where charity_id is not null and message like '%".$communication_history."%')");
+                $query->orWhereRaw("customer_charities.id in (select charity_id from chat_messages where charity_id is not null and message like '%" . $communication_history . "%')");
             }
 
             if ($request->with_archived != null && $request->with_archived != '') {
@@ -151,7 +151,7 @@ class CustomerCharityController extends Controller
                 if ($permittedCategories_all == 0) {
                     $permittedCategories = '';
                 } else {
-                    $permittedCategories = 'and customer_charities.category_id in ('.implode(',', $permittedCategories).')';
+                    $permittedCategories = 'and customer_charities.category_id in (' . implode(',', $permittedCategories) . ')';
                 }
             }
             /* $customer_charities = DB::select('
@@ -211,13 +211,13 @@ class CustomerCharityController extends Controller
                     0 as message_status
                     FROM customer_charities
                     LEFT JOIN store_websites on store_websites.id=customer_charities.store_website_id
-                    WHERE (name LIKE "%'.$term.'%" OR
-                    phone LIKE "%'.$term.'%" OR
-                    email LIKE "%'.$term.'%" OR
-                    address LIKE "%'.$term.'%" OR
-                    social_handle LIKE "%'.$term.'%" OR
-                    customer_charities.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%'.$term.'%" OR phone LIKE "%'.$term.'%" OR email LIKE "%'.$term.'%"))) '.$permittedCategories.'
-                    ORDER BY '.$sortByClause.' created_at DESC;
+                    WHERE (name LIKE "%' . $term . '%" OR
+                    phone LIKE "%' . $term . '%" OR
+                    email LIKE "%' . $term . '%" OR
+                    address LIKE "%' . $term . '%" OR
+                    social_handle LIKE "%' . $term . '%" OR
+                    customer_charities.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) ' . $permittedCategories . '
+                    ORDER BY ' . $sortByClause . ' created_at DESC;
 
             ');
 
@@ -310,7 +310,7 @@ class CustomerCharityController extends Controller
             //get default whatsapp number for vendor from whatsapp config
             $task_info = DB::table('whatsapp_configs')
                         ->select('*')
-                        ->whereRaw('find_in_set('.self::DEFAULT_FOR.',default_for)')
+                        ->whereRaw('find_in_set(' . self::DEFAULT_FOR . ',default_for)')
                         ->first();
             if (isset($task_info->number) && $task_info->number != null) {
                 $data['whatsapp_number'] = $task_info->number;
@@ -343,7 +343,7 @@ class CustomerCharityController extends Controller
             CustomerCharity::where('id', $charity->id)->update([
                 'product_id' => $product->id,
             ]);
-            Product::where('id', $product->id)->update(['sku' => 'charity_'.$product->id]);
+            Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
             /*   $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
 
               $website_ids = Website::whereIn('store_website_id', $request->websites)->get()->pluck('id')->toArray();
@@ -468,7 +468,7 @@ class CustomerCharityController extends Controller
         ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
         })->get();*/
-        $search = CustomerCharity::where('name', 'LIKE', '%'.$term.'%')
+        $search = CustomerCharity::where('name', 'LIKE', '%' . $term . '%')
             ->get();
 
         return response()->json($search);
@@ -484,7 +484,7 @@ class CustomerCharityController extends Controller
         ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
         })->get();*/
-        $search = CustomerCharity::where('email', 'LIKE', '%'.$term.'%')
+        $search = CustomerCharity::where('email', 'LIKE', '%' . $term . '%')
             ->get();
 
         return response()->json($search);
@@ -500,7 +500,7 @@ class CustomerCharityController extends Controller
         ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
         })->get();*/
-        $search = CustomerCharity::where('phone', 'LIKE', '%'.$term.'%')
+        $search = CustomerCharity::where('phone', 'LIKE', '%' . $term . '%')
             ->get();
 
         return response()->json($search);
@@ -582,14 +582,14 @@ class CustomerCharityController extends Controller
         $Website = CharityProductStoreWebsite::select('charity_product_store_websites.id', 'charity_product_store_websites.price', 'websites.name')->join('websites', 'charity_product_store_websites.website_id', 'websites.id')->where('charity_id', $charity_id)->get();
         $html = '';
         foreach ($Website as $w) {
-            $html .= '<tr><td>'.$w->name.'</td>';
-            $html .= '<td>'.$w->price.'</td>';
-            $html .= '<td><button onclick="delwebsite('.$w->id.')" type="button" class="btn btn-default">Delete</button></td></tr>';
+            $html .= '<tr><td>' . $w->name . '</td>';
+            $html .= '<td>' . $w->price . '</td>';
+            $html .= '<td><button onclick="delwebsite(' . $w->id . ')" type="button" class="btn btn-default">Delete</button></td></tr>';
         }
 
         echo $html = " <table class='table table-bordered' >
       <thead><tr><th>Website</th><th>Price</th></tr> </thead>
-      <tbody>".$html.'</tbody></table';
+      <tbody>" . $html . '</tbody></table';
 
         /* if ($c)
     {

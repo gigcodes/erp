@@ -64,8 +64,8 @@ function outputFlatArray($arr, $lang)
         $grouped[$group][$path] = $val;
     }
     foreach ($grouped as $filename => $arr) {
-        echo "\e[36m".$lang.'/'.$filename.".php\e[0m\n";
-        echo json_encode($arr, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n";
+        echo "\e[36m" . $lang . '/' . $filename . ".php\e[0m\n";
+        echo json_encode($arr, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
     }
 }
 
@@ -79,7 +79,7 @@ function formatLang($lang)
 
 function loadLang(string $lang)
 {
-    $dir = __DIR__."/{$lang}";
+    $dir = __DIR__ . "/{$lang}";
     if (! file_exists($dir)) {
         errorOut("Expected directory '{$dir}' does not exist");
     }
@@ -89,7 +89,7 @@ function loadLang(string $lang)
         if (substr($file, -4) !== '.php') {
             continue;
         }
-        $fileData = include $dir.'/'.$file;
+        $fileData = include $dir . '/' . $file;
         $name = substr($file, 0, -4);
         $data[$name] = $fileData;
     }
@@ -109,7 +109,7 @@ function flattenArray(array $arr)
 
         $toUse = flattenArray($arrItem);
         foreach ($toUse as $innerKey => $item) {
-            $data[$key.'.'.$innerKey] = $item;
+            $data[$key . '.' . $innerKey] = $item;
         }
     }
 
@@ -118,11 +118,11 @@ function flattenArray(array $arr)
 
 function info($text)
 {
-    echo "\e[34m".$text."\e[0m\n";
+    echo "\e[34m" . $text . "\e[0m\n";
 }
 
 function errorOut($text)
 {
-    echo "\e[31m".$text."\e[0m\n";
+    echo "\e[31m" . $text . "\e[0m\n";
     exit(1);
 }

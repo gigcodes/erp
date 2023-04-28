@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Image;
 
 use function count;
-use function extension_loaded;
-use function function_exists;
-use function imagearc;
-use function imagecolorallocate;
-use function imagecopyresampled;
-use function imagecreatefromstring;
-use function imagecreatetruecolor;
-use function imagedestroy;
-use function imagefilledpolygon;
-use function imagefilledrectangle;
-use function imagejpeg;
-use function imageline;
-use function imagepng;
-use function imagestring;
 use function imagesx;
 use function imagesy;
+use function imagearc;
+use function imagepng;
+use function imagejpeg;
+use function imageline;
 use const PHP_VERSION_ID;
+use function imagestring;
+use function imagedestroy;
+use function function_exists;
+use function extension_loaded;
+use function imagecolorallocate;
+use function imagecopyresampled;
+use function imagefilledpolygon;
+use function imagecreatetruecolor;
+use function imagefilledrectangle;
+use function imagecreatefromstring;
 
 final class ImageWrapper
 {

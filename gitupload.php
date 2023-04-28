@@ -55,7 +55,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'process') {
             $linesSubmited++;
 
             // now check if the file exists in local:
-            if (file_exists($localPath.$line)) {
+            if (file_exists($localPath . $line)) {
                 $sanaticedLines[] = $line;
             }
         }
@@ -71,8 +71,8 @@ if (isset($_POST['action']) && $_POST['action'] == 'process') {
 
         // perform file upload
         foreach ($sanaticedLines as $fileToUpload) {
-            $fileToUploadLocalPath = $localPath.$fileToUpload;
-            $fileToUploadRemotePath = $remotePath.$fileToUpload;
+            $fileToUploadLocalPath = $localPath . $fileToUpload;
+            $fileToUploadRemotePath = $remotePath . $fileToUpload;
 
             // log
             $files2Upload++;

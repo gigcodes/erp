@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Services\Bots;
 
 use Closure;
-use Facebook\WebDriver\Chrome\ChromeOptions;
-use Facebook\WebDriver\Remote\DesiredCapabilities;
-use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Laravel\Dusk\Chrome\SupportsChrome;
+use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
 use NunoMaduro\LaravelConsoleDusk\Contracts\Drivers\DriverContract;
 
 class Chrome implements DriverContract
@@ -19,8 +19,6 @@ class Chrome implements DriverContract
 
     /**
      * Chrome constructor.
-     *
-     * @param $proxy
      */
     public function __construct($proxy)
     {
@@ -56,7 +54,7 @@ class Chrome implements DriverContract
         $proxy = $this->proxy;
         if (null !== $proxy) {
             $options->addArguments([
-                '--proxy-server='.$proxy['ip'].':'.$proxy['port'],
+                '--proxy-server=' . $proxy['ip'] . ':' . $proxy['port'],
             ]);
         }
 

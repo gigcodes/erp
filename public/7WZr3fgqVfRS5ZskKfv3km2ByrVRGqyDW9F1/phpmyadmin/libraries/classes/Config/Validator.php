@@ -8,36 +8,36 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Config;
 
 use function __;
-use function array_map;
-use function array_merge;
-use function array_shift;
-use function call_user_func_array;
+use function trim;
 use function count;
-use function error_clear_last;
-use function error_get_last;
-use function explode;
-use const FILTER_FLAG_IPV4;
-use const FILTER_FLAG_IPV6;
-use const FILTER_VALIDATE_IP;
-use function filter_var;
-use function htmlspecialchars;
 use function intval;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Util;
+use function explode;
+use function sprintf;
+use const PHP_INT_MAX;
 use function is_array;
+use function array_map;
 use function is_object;
 use function mb_strpos;
 use function mb_substr;
+use function filter_var;
+use function preg_match;
+use function array_merge;
+use function array_shift;
+use function str_replace;
 use function mysqli_close;
-use function mysqli_connect;
+use function preg_replace;
+use const FILTER_FLAG_IPV4;
+use const FILTER_FLAG_IPV6;
 use function mysqli_report;
 use const MYSQLI_REPORT_OFF;
-use const PHP_INT_MAX;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\Util;
-use function preg_match;
-use function preg_replace;
-use function sprintf;
-use function str_replace;
-use function trim;
+use function error_get_last;
+use function mysqli_connect;
+use const FILTER_VALIDATE_IP;
+use function error_clear_last;
+use function htmlspecialchars;
+use function call_user_func_array;
 
 /**
  * Validation class for various validation functions
@@ -162,7 +162,7 @@ class Validator
                 $vdef = (array) $validator;
                 $vname = array_shift($vdef);
                 /** @var callable $vname */
-                $vname = 'PhpMyAdmin\Config\Validator::'.$vname;
+                $vname = 'PhpMyAdmin\Config\Validator::' . $vname;
                 $args = array_merge([$vid, &$arguments], $vdef);
                 $r = call_user_func_array($vname, $args);
 
@@ -243,7 +243,7 @@ class Validator
         if ($error !== null) {
             $lastError = error_get_last();
             if ($lastError !== null) {
-                $error .= ' - '.$lastError['message'];
+                $error .= ' - ' . $lastError['message'];
             }
         }
 
@@ -390,7 +390,7 @@ class Validator
         $matches = [];
         // in libraries/ListDatabase.php _checkHideDatabase(),
         // a '/' is used as the delimiter for hide_db
-        @preg_match('/'.Util::requestString($values[$path]).'/', '', $matches);
+        @preg_match('/' . Util::requestString($values[$path]) . '/', '', $matches);
 
         $currentError = error_get_last();
 
@@ -425,7 +425,7 @@ class Validator
                 $v = Util::requestString($v);
                 $lines[] = preg_match('/^-\d+$/', $ip)
                     ? $v
-                    : $ip.': '.$v;
+                    : $ip . ': ' . $v;
             }
         } else {
             // AJAX validation
@@ -437,8 +437,8 @@ class Validator
             $matches = [];
             // we catch anything that may (or may not) be an IP
             if (! preg_match('/^(.+):(?:[ ]?)\\w+$/', $line, $matches)) {
-                $result[$path][] = __('Incorrect value:').' '
-                    .htmlspecialchars($line);
+                $result[$path][] = __('Incorrect value:') . ' '
+                    . htmlspecialchars($line);
 
                 continue;
             }

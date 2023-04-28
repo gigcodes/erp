@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\InstagramAutoComments;
 use App\TargetLocation;
 use Illuminate\Http\Request;
+use App\InstagramAutoComments;
 
 class InstagramAutoCommentsController extends Controller
 {
@@ -35,7 +35,6 @@ class InstagramAutoCommentsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      * Create a new comment for a country or gender
      */
@@ -91,7 +90,6 @@ class InstagramAutoCommentsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\InstagramAutoComments  $instagramAutoComments
      * @return \Illuminate\Http\Response
      * Update the source, text and options
@@ -110,7 +108,6 @@ class InstagramAutoCommentsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\InstagramAutoComments  $instagramAutoComments
      * @return \Illuminate\Http\Response
      */
     public function destroy(InstagramAutoComments $instagramAutoComments)

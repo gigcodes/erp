@@ -1,12 +1,12 @@
 <?php
 
-use Laravel\Telescope\Http\Middleware\Authorize;
 use Laravel\Telescope\Watchers;
+use Laravel\Telescope\Http\Middleware\Authorize;
 
 $telescopeEnabled = false;
 $telescopeFile = storage_path('app/public/telescope.json');
 
-if(file_exists($telescopeFile)){
+if (file_exists($telescopeFile)) {
     $telescopeRes = json_decode(file_get_contents(storage_path('app/public/telescope.json')), true);
     $telescopeEnabled = (isset($telescopeRes['telescope_enabled']) && $telescopeRes['telescope_enabled'] == 1 ? true : false);
 }

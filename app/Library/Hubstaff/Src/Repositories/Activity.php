@@ -10,7 +10,7 @@ class Activity
 
     public function __construct($accessToken)
     {
-        $this->accessToken = 'Bearer '.$accessToken;
+        $this->accessToken = 'Bearer ' . $accessToken;
 
         return $this;
     }

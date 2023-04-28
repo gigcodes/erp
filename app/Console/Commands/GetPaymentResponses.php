@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\CronJob;
+use Carbon\Carbon;
+use App\StoreWebsite;
 use App\CronJobReport;
 use App\PaymentResponse;
-use App\StoreWebsite;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GetPaymentResponses extends Command
@@ -54,7 +54,7 @@ class GetPaymentResponses extends Command
                 $web_url = strtolower($web->magento_url);
                 $url = parse_url($web_url);
                 if (! isset($url['scheme'])) {
-                    $web_url = 'https://'.$web_url;
+                    $web_url = 'https://' . $web_url;
                 }
                 $api = "$web_url/rest/V1/payment/sales/order/$date";
                 $data = json_decode($this->getDataApi($api, $token), true);
@@ -125,7 +125,7 @@ class GetPaymentResponses extends Command
      */
     public function getDataApi($url, $token)
     {
-        $authorization = 'Authorization: Bearer '.$token;
+        $authorization = 'Authorization: Bearer ' . $token;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]); // Inject the token into the header

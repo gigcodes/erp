@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\ScrapedProducts;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class UpdatePricesWithDecimals extends Command
@@ -63,15 +63,15 @@ class UpdatePricesWithDecimals extends Command
                     $needToupdate = false;
                     if (strlen($scPrice) > 4 && strlen($scPrice) < 6) {
                         $scPrice = substr($scPrice, 0, 3);
-                        $scPrice = $scPrice.'.00';
+                        $scPrice = $scPrice . '.00';
                         $needToupdate = true;
                     } elseif (strlen($scPrice) > 5 && strlen($scPrice) < 7) {
                         $scPrice = substr($scPrice, 0, 4);
-                        $scPrice = $scPrice.'.00';
+                        $scPrice = $scPrice . '.00';
                         $needToupdate = true;
                     }
 
-                    dump("$key - Scraped Product - $product->sku and needToupdate : ".$needToupdate);
+                    dump("$key - Scraped Product - $product->sku and needToupdate : " . $needToupdate);
 
                     if ($needToupdate) {
                         if (is_numeric($scPrice)) {
