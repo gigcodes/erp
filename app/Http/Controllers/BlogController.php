@@ -40,8 +40,7 @@ class BlogController extends Controller
 
             $blogs->with('user', 'blogsTag');
             $blogs = $blogs->orderBy('id', 'desc')->get();
-           
-           
+            
 
             return Datatables::of($blogs)
                 ->addIndexColumn()
@@ -59,7 +58,7 @@ class BlogController extends Controller
                     }
                 })
 
-                
+
                 ->addColumn('no_follow', function ($row) {
                     if ($row->no_follow === 1) {
                         return 'Yes';
@@ -71,20 +70,20 @@ class BlogController extends Controller
                 })
 
                 ->addColumn('google', function ($row) {
-                    if($row->google == 'yes'){
+                    if ($row->google == 'yes') {
                         return "Yes";
-                    }elseif($row->google == 'no'){
+                    } elseif ($row->google == 'no') {
                         return "No";
-                    }else{
+                    } else {
                         return "";
                     }
                 })
                 ->addColumn('strong_tag', function ($row) {
-                    if($row->strong_tag == 'yes'){
+                    if ($row->strong_tag == 'yes') {
                         return "Yes";
-                    }elseif($row->strong_tag == 'no'){
+                    } elseif ($row->strong_tag == 'no') {
                         return "No";
-                    }else{
+                    } else {
                         return "";
                     }
                 })
@@ -101,60 +100,60 @@ class BlogController extends Controller
                 //     return $actionBtn;
                 // })
                 ->addColumn('italic_tag', function ($row) {
-                    if($row->italic_tag == 'yes'){
+                    if ($row->italic_tag == 'yes') {
                         return "Yes";
-                    }elseif($row->italic_tag == 'no'){
+                    } elseif ($row->italic_tag == 'no') {
                         return "No";
-                    }else{
+                    } else {
                         return "";
                     }
                 })
 
                 ->addColumn('store_website_id', function ($row) {
-                   $website = \App\StoreWebsite::where('id', $row->store_website_id)->first();
-                   if(empty($website)){
-                    return '';
-                   }else{
-                    return $website->website;
-                   }
+                    $website = \App\StoreWebsite::where('id', $row->store_website_id)->first();
+                    if (empty($website)) {
+                        return '';
+                    } else {
+                        return $website->website;
+                    }
                 })
 
                 ->addColumn('bing', function ($row) {
-                    if($row->bing == 'yes'){
+                    if ($row->bing == 'yes') {
                         return "Yes";
-                    }elseif($row->bing == 'no'){
+                    } elseif ($row->bing == 'no') {
                         return "No";
-                    }else{
+                    } else {
                         return "";
                     }
                 })
 
                 ->addColumn('checkmobile_friendliness', function ($row) {
-                    if($row->checkmobile_friendliness == 'yes'){
+                    if ($row->checkmobile_friendliness == 'yes') {
                         return "Yes";
-                    }elseif($row->checkmobile_friendliness == 'no'){
+                    } elseif ($row->checkmobile_friendliness == 'no') {
                         return "No";
-                    }else{
+                    } else {
                         return "";
                     }
                 })
 
                 ->addColumn('internal_link', function ($row) {
-                    if($row->internal_link == 'yes'){
+                    if ($row->internal_link == 'yes') {
                         return "Yes";
-                    }elseif($row->internal_link == 'no'){
+                    } elseif ($row->internal_link == 'no') {
                         return "No";
-                    }else{
+                    } else {
                         return "";
                     }
                 })
 
                 ->addColumn('external_link', function ($row) {
-                    if($row->external_link == 'yes'){
+                    if ($row->external_link == 'yes') {
                         return "Yes";
-                    }elseif($row->external_link == 'no'){
+                    } elseif ($row->external_link == 'no') {
                         return "No";
-                    }else{
+                    } else {
                         return "";
                     }
                 })
@@ -185,22 +184,22 @@ class BlogController extends Controller
                 })
 
                 ->addColumn('content', function ($row) {
-                  
+
                     $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" id="ViewContent" data-blog-id="' . $row->id . '" class="btn custom-button ViewContent btn-warning btn-sm"><i class="fa fa-eye"></i> Content</a>&nbsp;';
                     return $actionBtn;
                 })
-            
+
                 ->addColumn('publish_blog_date', function ($row) {
-                    
+
                     $publishDate = !empty($row->publish_blog_date) ? Carbon::parse($row->publish_blog_date)->format('Y-m-d') : "N/A";
                     return $publishDate;
                 })
                 ->addColumn('plaglarism', function ($row) {
-                    if($row->plaglarism == 'yes'){
+                    if ($row->plaglarism == 'yes') {
                         return "Yes";
-                    }elseif($row->plaglarism == 'no'){
+                    } elseif ($row->plaglarism == 'no') {
                         return "No";
-                    }else{
+                    } else {
                         return "";
                     }
                 })
@@ -210,7 +209,7 @@ class BlogController extends Controller
                     <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
                     return $actionBtn;
                 })
-                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'strong_tag','italic_tag','checkmobile_friendliness','internal_link','content'])
+                ->rawColumns(['action', 'userName', 'plaglarism', 'facebook_date', 'google_date', 'instagram_date', 'twitter_date', 'strong_tag', 'italic_tag', 'checkmobile_friendliness', 'internal_link', 'content'])
                 ->make(true);
         }
 
@@ -222,7 +221,7 @@ class BlogController extends Controller
         // $tagName = implode(",", $tagName);
         // $tagName = "['" . str_replace(",", "','", $tagName) . "']";
 
-        return view('blogs.index', compact('users','store_website'));
+        return view('blogs.index', compact('users', 'store_website'));
     }
 
 
@@ -278,7 +277,7 @@ class BlogController extends Controller
                         return '';
                     }
                 })
-                
+
 
                 ->addColumn('created_at', function ($row) {
                     $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : "N/A";
@@ -305,7 +304,7 @@ class BlogController extends Controller
     public function store(Request $request)
     {
 
-       
+
         $this->validate($request, [
             'user_id' => 'required',
             'idea' => 'nullable|max:524',
@@ -324,13 +323,13 @@ class BlogController extends Controller
 
         $blog = Blog::create($request->all());
         if (!empty($blog)) {
-            
+
             $blogId = $blog->id;
-            if(!empty($blog->url_xml) && !empty($blog->store_website_id)){
-               
+            if (!empty($blog->url_xml) && !empty($blog->store_website_id)) {
+
                 $this->createSitemap($blog->store_website_id);
             }
-           
+
             $blogHistory = BlogHistory::create([
                 'blog_id' => $blog->id,
                 'plaglarism' => $blog->plaglarism,
@@ -353,40 +352,36 @@ class BlogController extends Controller
     public function createSitemap($websiteId)
     {
         $storeWebsite = StoreWebsite::where('id', $websiteId)->first();
-        if(!empty($storeWebsite)){
-          
-        $sitemapUrl = "sitemap/web_$websiteId";
-    
-        $baseUrl =   url('/');
-            
-            
-        $blogData  = Blog::where('store_website_id',$websiteId)->whereNotNull('url_xml')->get();
-        // $pollData = collect($polls);
-        // $pollArray = $pollData->chunk(50000);
-        //$pollIndex = SitemapIndex::create();
-        // $pollIndex = Sitemap::create();
-     
-        $pollsPath = public_path('sitemap/web_'.$websiteId);
-        // $indexPath = public_path('sitemap');
-        
-        if (!file_exists($pollsPath)) {
-            mkdir($pollsPath, 0777, true);
-        }
-        
+        if (!empty($storeWebsite)) {
+
+            $sitemapUrl = "sitemap/web_$websiteId";
+
+            $baseUrl =   url('/');
+
+
+            $blogData  = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->get();
+
+
+            $pollsPath = public_path('sitemap/web_' . $websiteId);
+            // $indexPath = public_path('sitemap');
+
+            if (!file_exists($pollsPath)) {
+                mkdir($pollsPath, 0777, true);
+            }
+
             $pollChildIndex = Sitemap::create();
             foreach ($blogData as $keys => $poll) {
                 $pollChildIndex->add(
-                    Url::create($baseUrl.'/'.$sitemapUrl.'/blog/' . $poll->url_xml)
+                    Url::create($poll->url_xml)
                 );
             }
-            $pollChildIndex->writeToFile($pollsPath.'/blog.xml');
-      
-        
-        return true;
 
+            $pollChildIndex->writeToFile($pollsPath . '/blog.xml');
+
+
+            return true;
         }
         return true;
-        
     }
 
 
@@ -544,7 +539,7 @@ class BlogController extends Controller
      */
     public function edit($id)
     {
-     
+
         $blog = Blog::where('id', $id)->first();
         if (!empty($blog)) {
             $users = User::get();
@@ -575,9 +570,9 @@ class BlogController extends Controller
             // $strongTagAll = "['" . str_replace(",", "','", $strongTagAll) . "']";
 
             $store_website = \App\StoreWebsite::all();
-           // return view('blogs.editModal', compact('blog', 'headerTagEditValue', 'titleTagEditValue', 'italicTagEditValue', 'strongTagEditValue', 'users'));
-            $returnHTML = view('blogs.editModal')->with('blog', $blog)->with('users', $users)->with('store_website',$store_website)->render();
-           
+            // return view('blogs.editModal', compact('blog', 'headerTagEditValue', 'titleTagEditValue', 'italicTagEditValue', 'strongTagEditValue', 'users'));
+            $returnHTML = view('blogs.editModal')->with('blog', $blog)->with('users', $users)->with('store_website', $store_website)->render();
+
             return response()->json(['status' => 'success', 'data' => ['html' => $returnHTML], 'message' => 'Blog'], 200);
         } else {
             return response()->json(['status' => 'error', 'data' => ['not found'], 'message' => 'Not Found!'], 400);
@@ -586,17 +581,17 @@ class BlogController extends Controller
 
     public function contentView($id)
     {
-     
+
         $blog = Blog::where('id', $id)->first();
         if (!empty($blog)) {
             $returnHTML = view('blogs.Contentview')->with('blog', $blog)->render();
-           
+
             return response()->json(['status' => 'success', 'data' => ['html' => $returnHTML], 'message' => 'Blog'], 200);
         } else {
             return response()->json(['status' => 'error', 'data' => ['not found'], 'message' => 'Not Found!'], 400);
         }
     }
-    
+
 
     public function allTagsByTagType($type)
     {
@@ -686,9 +681,9 @@ class BlogController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+
         $blog = Blog::where('id', $id)->first();
-      
+
         if (empty($blog)) {
             return redirect()->route('blog.index')->with('error', 'Blog Not Found!');
         }
@@ -707,12 +702,12 @@ class BlogController extends Controller
             'twitter' => 'nullable|max:256',
             'google' => 'nullable|max:256',
             'bing' => 'nullable|max:256',
-           
+
         ]);
 
         $dataUpdate = [
             'user_id' => $request->user_id,
-            'store_website_id'=>$request->store_website_id,
+            'store_website_id' => $request->store_website_id,
             'header_tag' => $request->header_tag,
             'title_tag' => $request->title_tag,
             'strong_tag' => $request->strong_tag,
@@ -727,7 +722,7 @@ class BlogController extends Controller
             'url_structure' => $request->url_structure,
             'url_xml' => $request->url_xml,
             'no_follow' => $request->no_follow,
-            'publish_blog_date' => !empty($request->publish_blog_date) ? Carbon::parse($request->publish_blog_date)->format('Y-m-d'): null,
+            'publish_blog_date' => !empty($request->publish_blog_date) ? Carbon::parse($request->publish_blog_date)->format('Y-m-d') : null,
             'no_index' => $request->no_index,
             'date' => $request->date,
             'facebook' => $request->facebook,
@@ -742,25 +737,25 @@ class BlogController extends Controller
             'bing_date' => $request->bing_date,
             'canonical_url' => $request->canonical_url,
             'checkmobile_friendliness' => $request->checkmobile_friendliness,
-            
+
         ];
-        
+
         $blogUpdate = Blog::where('id', $id)->update($dataUpdate);
-        
-        
-        
+
+
+
         if ($blogUpdate) {
-            
-            
+
+
             $blogupdateData = Blog::where('id', $id)->first();
             $oldXMlUrl = $blog->url_xml;
             $newXmlUrl = $blogupdateData->url_xml;
 
-             if($oldXMlUrl != $newXmlUrl){
-               
+            if ($oldXMlUrl != $newXmlUrl) {
+
                 $this->createSitemap($blogupdateData->store_website_id);
-             }
-           
+            }
+
 
             BlogHistory::create([
                 'blog_id' => $id,
@@ -795,7 +790,7 @@ class BlogController extends Controller
             // }
 
             return redirect()->route('blog.index')->with('message', 'Blog has been successfully update!');
-        }else{
+        } else {
             return redirect()->route('blog.index')->with('error', 'Something Went Wrong!');
         }
     }
@@ -814,12 +809,23 @@ class BlogController extends Controller
     public function destroy($id)
     {
         $blog = Blog::where('id', $id)->first();
+
         if (empty($blog)) {
             return response()->json(['message' => 'Blog Not Found.']);
         }
+
+
         BlogTag::where('blog_id', $id)->delete();
         BlogHistory::where('blog_id', $id)->delete();
+
+        $WebsiteId = $blog->store_website_id;
+
+
         $blog = Blog::where('id', $id)->delete();
+
+        if (!empty($WebsiteId)) {
+            $this->createSitemap($WebsiteId);
+        }
         if ($blog) {
             return response()->json(['status' => 200, 'message' => 'Blog has been successfully deleted!']);
         } else {

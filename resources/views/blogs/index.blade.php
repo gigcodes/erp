@@ -867,6 +867,7 @@
 
         $("#addBlog").submit(function(e){
                var content = $('#content').val().trim();
+               
            if(content === ''){
             $('#AddcontentValidation').css('display','block');
               e.preventDefault();
