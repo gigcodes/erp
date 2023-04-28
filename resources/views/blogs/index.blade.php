@@ -637,6 +637,7 @@
                           
                             <th style="width:10px !important;">userName</th>
                             <th>Idea</th>
+                          
                             <th>Keyword</th>
                             <th>Website</th>
                             <th>Canonical URL</th>
@@ -719,7 +720,7 @@
                 columns: [                  
                     {data: 'userName', name: 'userName',orderable: false, searchable: true},
                     {data: 'idea', name: 'idea', orderable: false, searchable: true},
-                    
+                   
                     {data: 'keyword', name: 'keyword', orderable: false, searchable: false},
                     {data: 'store_website_id', name: 'store_website_id', orderable: false, searchable: false},
                     {data: 'canonical_url', name: 'canonical_url', orderable: false, searchable: false},
@@ -810,6 +811,7 @@
         });
 
    });
+
 
           $('.refreshTable').click(function(){
              

@@ -7,10 +7,15 @@ use App\Tag;
 use App\User;
 use DataTables;
 use App\Models\Blog;
+use \App\StoreWebsite;
 use App\Models\BlogTag;
+use Spatie\Sitemap\Sitemap;
 use App\Models\BlogHistory;
+use Spatie\Sitemap\Tags\Url;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Spatie\Sitemap\SitemapIndex;
+use Illuminate\Support\Facades\Response;
 
 class BlogController extends Controller
 {
@@ -83,6 +88,18 @@ class BlogController extends Controller
                         return "";
                     }
                 })
+                // ->addColumn('xmldownload', function ($row) {
+                //     if(!empty($row->store_website_id) && !empty($row->xml_url))
+                //     {
+                //         $hrefLink = public_path('sitemap/web'.$row->store_website_id);
+                //         $baseUrl = url('/');
+                //         $hrefLink= $baseUrl.$hrefLink;
+                //     }else{
+                //         $hrefLink = '';
+                //     }
+                //     $actionBtn = '<a href="javascript:void(0)" data-link-new="'.$hrefLink.'" data-id="' . $row->id . '" id="downloadXMl" data-blog-id="' . $row->id . '" class="btn custom-button downloadXMl btn-warning btn-sm"><i class="fa fa-eye"></i> Content</a>&nbsp;';
+                //     return $actionBtn;
+                // })
                 ->addColumn('italic_tag', function ($row) {
                     if($row->italic_tag == 'yes'){
                         return "Yes";
@@ -193,7 +210,7 @@ class BlogController extends Controller
                     <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
                     return $actionBtn;
                 })
-                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'strong_tag','italic_tag','checkmobile_friendliness','internal_link','content'])
+                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'strong_tag','italic_tag','checkmobile_friendliness','internal_link','content','xmldownload'])
                 ->make(true);
         }
 
@@ -207,6 +224,8 @@ class BlogController extends Controller
 
         return view('blogs.index', compact('users','store_website'));
     }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -307,7 +326,11 @@ class BlogController extends Controller
         if (!empty($blog)) {
             
             $blogId = $blog->id;
-            $this->createSitemap($blogId);
+            if(!empty($blog->url_xml) && !empty($blog->store_website_id)){
+               
+                $this->createSitemap($blog->store_website_id);
+            }
+           
             $blogHistory = BlogHistory::create([
                 'blog_id' => $blog->id,
                 'plaglarism' => $blog->plaglarism,
@@ -327,8 +350,42 @@ class BlogController extends Controller
     }
 
 
-    public function createSitemap($blogId)
+    public function createSitemap($websiteId)
     {
+        $storeWebsite = StoreWebsite::where('id', $websiteId)->first();
+        if(!empty($storeWebsite)){
+          
+        $sitemapUrl = "sitemap/web_$websiteId";
+    
+        $baseUrl =   url('/');
+            
+            
+        $blogData  = Blog::where('store_website_id',$websiteId)->whereNotNull('url_xml')->get();
+        // $pollData = collect($polls);
+        // $pollArray = $pollData->chunk(50000);
+        //$pollIndex = SitemapIndex::create();
+        // $pollIndex = Sitemap::create();
+     
+        $pollsPath = public_path('sitemap/web_'.$websiteId);
+        // $indexPath = public_path('sitemap');
+        
+        if (!file_exists($pollsPath)) {
+            mkdir($pollsPath, 0777, true);
+        }
+        
+            $pollChildIndex = Sitemap::create();
+            foreach ($blogData as $keys => $poll) {
+                $pollChildIndex->add(
+                    Url::create($baseUrl.'/'.$sitemapUrl.'/blog/' . $poll->url_xml)
+                );
+            }
+            $pollChildIndex->writeToFile($pollsPath.'/blog.xml');
+      
+        
+        return true;
+
+        }
+        return true;
         
     }
 
@@ -631,7 +688,7 @@ class BlogController extends Controller
     {
         
         $blog = Blog::where('id', $id)->first();
-      
+        $urltoXml = $request->url_xml;
         if (empty($blog)) {
             return redirect()->route('blog.index')->with('error', 'Blog Not Found!');
         }
@@ -689,9 +746,21 @@ class BlogController extends Controller
         ];
         
         $blogUpdate = Blog::where('id', $id)->update($dataUpdate);
-
+        
+        
         
         if ($blogUpdate) {
+            
+            
+            $blogupdateData = Blog::where('id', $id)->first();
+            $oldXMlUrl = $blog->url_xml;
+            $newXmlUrl = $blogupdateData->url_xml;
+
+             if($oldXMlUrl != $newXmlUrl){
+               
+                $this->createSitemap($blogupdateData->store_website_id);
+             }
+           
 
             BlogHistory::create([
                 'blog_id' => $id,

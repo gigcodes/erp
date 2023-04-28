@@ -441,6 +441,9 @@ Route::prefix('blog')->middleware('auth')->group(function () {
     Route::get('/history/list', [BlogController::class, 'viewAllHistory'])->name('view-blog-all.history');
     Route::get('/view/{id}', [BlogController::class, 'show'])->name('blog.view');
     Route::get('/contentview/{id}', [BlogController::class, 'contentView'])->name('blog.contentView');
+   
+
+    
     
 
 });
