@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function intval;
-use function is_array;
 use function min;
-use PhpMyAdmin\Config;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\CreateAddField;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Table\ColumnsDefinition;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Transformations;
 use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
+use function intval;
 use function strlen;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Util;
+use function is_array;
+use PhpMyAdmin\Config;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\CreateAddField;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Table\ColumnsDefinition;
 
 /**
  * Displays add field form and handles it.

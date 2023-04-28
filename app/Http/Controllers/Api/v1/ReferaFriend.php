@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use Exception;
 use App\Coupon;
 use App\Customer;
-use App\Http\Controllers\Controller;
-use App\LogReferalCoupon;
-use App\Mail\SendReferralMail;
 use App\ReferFriend;
-use App\ReferralProgram;
 use App\StoreWebsite;
-use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\ReferralProgram;
+use App\LogReferalCoupon;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Mail\SendReferralMail;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class ReferaFriend extends Controller
 {
@@ -60,7 +60,6 @@ class ReferaFriend extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -207,7 +206,7 @@ class ReferaFriend extends Controller
                 //$url2 = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?' . $queryString2;
                 //$response2 = $httpClient->get($url2);
 
-                $referlink = $data['website'].'/register?uuid='.$data['uuid'];
+                $referlink = $data['website'] . '/register?uuid=' . $data['uuid'];
                 $mailData['referee_email'] = $data['referee_email'];
                 $mailData['referrer_email'] = $data['referrer_email'];
                 $mailData['store_website_id'] = $data['store_website_id'];
@@ -238,7 +237,7 @@ class ReferaFriend extends Controller
                 LogReferalCoupon::create([
                     'refer_friend_id' => $data['refer_log_id'],
                     'log' => 'exception',
-                    'message' => 'Mail not sent. Error => '.$e->getMessage(),
+                    'message' => 'Mail not sent. Error => ' . $e->getMessage(),
                 ]);
                 ReferFriend::where('id', $data['refer_log_id'])->update(['status' => 'Exception: Coupon Created But Mailed Not Sent']);
                 $message = $this->generate_erp_response('refera.friend.success', 0, $default = 'refferal created successfully', request('lang_code'));
@@ -293,7 +292,6 @@ class ReferaFriend extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

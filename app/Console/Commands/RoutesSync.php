@@ -52,13 +52,13 @@ class RoutesSync extends Command
                 if (Routes::where('url', '=', $route->uri)->count() > 0) {
                     continue;
                 }
-                \Log::channel('errorlog')->info('URL---'.$route->uri);
+                \Log::channel('errorlog')->info('URL---' . $route->uri);
                 Routes::create(['url' => $route->uri]);
             }
 
             \Log::channel('errorlog')->info('Schedule Job End : Routes Sync in DB');
         } catch (\Exception $e) {
-            \Log::channel('errorlog')->info('EXCEPTION---'.$e->getMessage());
+            \Log::channel('errorlog')->info('EXCEPTION---' . $e->getMessage());
         }
     }
 }

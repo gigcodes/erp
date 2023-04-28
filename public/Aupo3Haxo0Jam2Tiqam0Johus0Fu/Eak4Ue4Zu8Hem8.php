@@ -1,7 +1,7 @@
 <?php
 
 if (isset($_GET['restart']) && $_GET['restart'] == 'yes') {
-    $cmd = 'sh '.__DIR__.'/../../server_scripts/restart_db01.sh 2>&1';
+    $cmd = 'sh ' . __DIR__ . '/../../server_scripts/restart_db01.sh 2>&1';
 
     $allOutput = [];
     $allOutput[] = $cmd;

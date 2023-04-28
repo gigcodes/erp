@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Manual;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\ScrapedProducts;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SetFormattedPricingForScrapedProducts extends Command
@@ -66,12 +66,12 @@ class SetFormattedPricingForScrapedProducts extends Command
                             $scrapedProduct->save();
                         } else {
                             // Set multiplier
-                            $multiplier = 'euroIn'.ucfirst(strtolower($currency));
+                            $multiplier = 'euroIn' . ucfirst(strtolower($currency));
                             $scrapedProduct->price_eur = round($this->$multiplier * $this->_getFormattedPrice($scrapedProduct->price), 2);
                             $scrapedProduct->save();
                         }
                     } else {
-                        dump('Unable to detect currency and/or price: '.$scrapedProduct->price);
+                        dump('Unable to detect currency and/or price: ' . $scrapedProduct->price);
                         $scrapedProduct->price_eur = 0;
                         $scrapedProduct->save();
                     }

@@ -15,25 +15,17 @@ class SendgridEventCreated
 
     /**
      * SendgridEventCreated constructor.
-     *
-     * @param  SendgridEvent  $sendgridEvent
      */
     public function __construct(SendgridEvent $sendgridEvent)
     {
         $this->sendgridEvent = $sendgridEvent;
     }
 
-    /**
-     * @return SendgridEvent
-     */
     public function getSendgridEvent(): SendgridEvent
     {
         return $this->sendgridEvent;
     }
 
-    /**
-     * @return string
-     */
     public function getEventType(): string
     {
         return $this->getSendgridEvent()->event;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Database;
 
-use PhpMyAdmin\Database\MultiTableQuery;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Database\MultiTableQuery;
 
 /**
  * Handles database multi-table querying

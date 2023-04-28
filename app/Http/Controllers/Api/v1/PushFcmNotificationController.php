@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\FcmToken;
-use App\Http\Controllers\Controller;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class PushFcmNotificationController extends Controller
@@ -47,12 +47,12 @@ class PushFcmNotificationController extends Controller
             'store_website_id' => $storeweb->id,
         ];
         $insert = FcmToken::updateOrCreate(
-                                [
-                                    'store_website_id' => $storeweb->id,
-                                    'device_id' => $request->device_id,
-                                ],
-                                $token_data
-                            );
+            [
+                'store_website_id' => $storeweb->id,
+                'device_id' => $request->device_id,
+            ],
+            $token_data
+        );
         if (! $insert) {
             $message = $this->generate_erp_response('notification.failed', $storeweb->id, $default = 'Unable to create notification !', request('lang_code'));
 
@@ -79,17 +79,17 @@ class PushFcmNotificationController extends Controller
         $storeweb = StoreWebsite::where('website', $request->website)->first();
 
         $fcmToken = FcmToken::where('device_id', $request->device_id)->where('store_website_id', $storeweb->id)->first();
-        if(!empty($fcmToken)){
+        if (! empty($fcmToken)) {
             $fcmToken->lang = $request->lang;
             $fcmToken->save();
 
             $message = $this->generate_erp_response('notification.success', $storeweb->id, $default = 'Notification language updated successfully !', request('lang_code'));
-            return response()->json(['status' => 'success', 'message' => $message], 200);
 
-        }else{
+            return response()->json(['status' => 'success', 'message' => $message], 200);
+        } else {
             $message = $this->generate_erp_response('notification.failed', $storeweb->id, $default = 'Record not found!', request('lang_code'));
+
             return response()->json(['status' => 'failed', 'message' => $message], 500);
         }
-
     }
 }

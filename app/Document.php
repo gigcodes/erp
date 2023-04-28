@@ -6,8 +6,8 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use Illuminate\Database\Eloquent\Model;
 use Storage;
+use Illuminate\Database\Eloquent\Model;
 
 class Document extends Model
 {
@@ -38,7 +38,7 @@ class Document extends Model
     {
         $document = $this::find($id);
 
-        return Storage::disk('files')->url('documents/'.$document->filename);
+        return Storage::disk('files')->url('documents/' . $document->filename);
     }
 
     public function documentCategory()

@@ -2,27 +2,26 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\ApiKey;
-use App\ColdLeadBroadcasts;
-use App\CompetitorPage;
-use App\Customer;
-use App\CustomerMarketingPlatform;
-use App\ErpLeads;
-use App\Helpers\InstantMessagingHelper;
-use App\Http\Controllers\Controller;
-use App\ImQueue;
-use App\Marketing\WhatsappConfig;
-use App\Order;
-use App\Setting;
 use Auth;
+use App\Order;
+use App\ApiKey;
+use App\ImQueue;
+use App\Setting;
+use App\Customer;
+use App\ErpLeads;
+use App\CompetitorPage;
+use App\ColdLeadBroadcasts;
 use Illuminate\Http\Request;
+use App\Marketing\WhatsappConfig;
+use App\CustomerMarketingPlatform;
+use App\Http\Controllers\Controller;
+use App\Helpers\InstantMessagingHelper;
 
 class BroadcastController extends Controller
 {
     /**
      * Getting BroadCast Page with Ajax Search.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\Customer  id , term , date , number , broadcast , manual , remark , name
      * @return \Illuminate\Http\View And Ajax
      */
@@ -153,17 +152,17 @@ class BroadcastController extends Controller
 
             //if number is not null
             if (request('number') != null) {
-                $query->where('phone', 'LIKE', '%'.request('number').'%');
+                $query->where('phone', 'LIKE', '%' . request('number') . '%');
             }
 
             //if number is not null
             if (request('whats_number') != null) {
-                $query->where('broadcast_number', 'LIKE', '%'.request('whats_number').'%');
+                $query->where('broadcast_number', 'LIKE', '%' . request('whats_number') . '%');
             }
 
             //if number is not null
             if (request('name') != null) {
-                $query->where('name', 'LIKE', '%'.request('name').'%');
+                $query->where('name', 'LIKE', '%' . request('name') . '%');
             }
 
             //getting customer with DND
@@ -173,7 +172,7 @@ class BroadcastController extends Controller
 
             if (request('broadcast') != null) {
                 $query->whereHas('broadcastLatest', function ($qu) {
-                    $qu->where('group_id', 'LIKE', '%'.request('broadcast').'%');
+                    $qu->where('group_id', 'LIKE', '%' . request('broadcast') . '%');
                 });
             }
 
@@ -185,7 +184,7 @@ class BroadcastController extends Controller
 
             if (request('remark') != null) {
                 $query->whereHas('customerMarketingPlatformRemark', function ($qu) {
-                    $qu->where('remark', 'LIKE', '%'.request('remark').'%');
+                    $qu->where('remark', 'LIKE', '%' . request('remark') . '%');
                 });
             }
 
@@ -220,7 +219,7 @@ class BroadcastController extends Controller
             }
             $dndCustomerNumbersArray = implode(',', $dndCustomerNumberArray);
 
-            $customers = Customer::select('id', 'name', 'phone', 'broadcast_number', 'do_not_disturb', 'is_blocked', 'whatsapp_number', \DB::raw('IF(id IN ('.$orderList.') , 1 , 0) AS priority_order , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$marketingList.') , 1 , 0) AS priority_marketing , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$dndCustomerNumbersArray.') , 1 , 0) AS priority_dnd '))->orderby('priority_order', 'desc')->orderby('priority_lead', 'desc')->orderby('priority_marketing', 'asc')->orderby('priority_dnd', 'asc')->paginate(Setting::get('pagination'));
+            $customers = Customer::select('id', 'name', 'phone', 'broadcast_number', 'do_not_disturb', 'is_blocked', 'whatsapp_number', \DB::raw('IF(id IN (' . $orderList . ') , 1 , 0) AS priority_order , IF(id IN (' . $orderList . ') , 1 , 0) AS priority_lead , IF(id IN (' . $marketingList . ') , 1 , 0) AS priority_marketing , IF(id IN (' . $orderList . ') , 1 , 0) AS priority_lead , IF(id IN (' . $dndCustomerNumbersArray . ') , 1 , 0) AS priority_dnd '))->orderby('priority_order', 'desc')->orderby('priority_lead', 'desc')->orderby('priority_marketing', 'asc')->orderby('priority_dnd', 'asc')->paginate(Setting::get('pagination'));
         }
 
         //Filter For WhatsApp Number
@@ -303,7 +302,6 @@ class BroadcastController extends Controller
     /**
      * Update Customer TO DND .
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\Customer  id is $request->id
      * @return \Illuminate\Http\Response
      */
@@ -313,7 +311,7 @@ class BroadcastController extends Controller
         $customer = Customer::findOrFail($id);
         $customer->do_not_disturb = $request->type;
         $customer->update();
-        \Log::channel('customerDnd')->debug('(Customer ID '.$customer->id.' line '.$customer->name.' '.$customer->number.': Added To DND');
+        \Log::channel('customerDnd')->debug('(Customer ID ' . $customer->id . ' line ' . $customer->name . ' ' . $customer->number . ': Added To DND');
 
         return response()->json([
             'status' => 'success',
@@ -323,7 +321,6 @@ class BroadcastController extends Controller
     /**
      * Getting Remark From CustomerMarketingPlatform table.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\CustomerMarketingPlatform  customer_id = $request->id
      * @return \Illuminate\Http\Response
      */
@@ -339,7 +336,6 @@ class BroadcastController extends Controller
     /**
      * Adding Remark to CustomerMarketingPlatform table.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\CustomerMarketingPlatform  id and remark
      * @return \Illuminate\Http\Response
      */
@@ -360,7 +356,6 @@ class BroadcastController extends Controller
     /**
      * Adding Customer to CustomerMarketingPlatform table.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\Customer  $request ->id
      * @return \Illuminate\Http\Response
      */
@@ -440,7 +435,6 @@ class BroadcastController extends Controller
     /**
      * Update the customer number.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\Customer  $request ->id
      * @return \Illuminate\Http\Response
      */
@@ -464,7 +458,7 @@ class BroadcastController extends Controller
         $messages = ImQueue::where('number_from', $request->number)->whereDate('created_at', $request->date)->get();
         //dd($messages);
         foreach ($messages as $message) {
-            $messageArray[] = '<tr><td>'.$message->id.'</td><td>'.$message->text.'</td><td>'.$message->number_to.'</td><td>'.$message->created_at.'</td><td>'.$message->send_after.'</td></tr>';
+            $messageArray[] = '<tr><td>' . $message->id . '</td><td>' . $message->text . '</td><td>' . $message->number_to . '</td><td>' . $message->created_at . '</td><td>' . $message->send_after . '</td></tr>';
         }
 
         return response()->json([
@@ -480,7 +474,7 @@ class BroadcastController extends Controller
         $broadcasts = $customer->broadcastAll;
 
         foreach ($broadcasts as $broadcast) {
-            $broadcastArray[] = $broadcast->group_id.' '.$broadcast->created_at->format('d-m-Y').'<br>';
+            $broadcastArray[] = $broadcast->group_id . ' ' . $broadcast->created_at->format('d-m-Y') . '<br>';
         }
 
         return response()->json([

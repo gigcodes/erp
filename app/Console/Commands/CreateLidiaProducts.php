@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\ScrapedProducts;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CreateLidiaProducts extends Command

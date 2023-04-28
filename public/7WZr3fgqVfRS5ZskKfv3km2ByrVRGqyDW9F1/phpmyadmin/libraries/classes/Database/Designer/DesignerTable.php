@@ -88,6 +88,6 @@ class DesignerTable
      */
     public function getDbTableString(): string
     {
-        return $this->databaseName.'.'.$this->tableName;
+        return $this->databaseName . '.' . $this->tableName;
     }
 }

@@ -28,6 +28,6 @@ class RetrieveAndRankService extends Service
      */
     public function listSolrClusters()
     {
-        return $this->client->request('GET', $this->getMountedUrl().'/solr_clusters');
+        return $this->client->request('GET', $this->getMountedUrl() . '/solr_clusters');
     }
 }

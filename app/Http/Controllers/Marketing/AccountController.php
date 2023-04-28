@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Marketing;
 
 use App\Account;
-use App\Http\Controllers\Controller;
-use App\Marketing\InstaAccAutomationForm;
-use App\Marketing\MarketingPlatform;
 use App\Setting;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Marketing\MarketingPlatform;
+use App\Marketing\InstaAccAutomationForm;
 
 class AccountController extends Controller
 {
@@ -26,9 +26,9 @@ class AccountController extends Controller
         }
 
         if ($request->term) {
-            $query = $query->where('last_name', 'LIKE', '%'.$request->term.'%')
-                            ->orWhere('email', 'LIKE', '%'.$request->term.'%')
-                            ->orWhere('platform', 'LIKE', '%'.$request->term.'%');
+            $query = $query->where('last_name', 'LIKE', '%' . $request->term . '%')
+                            ->orWhere('email', 'LIKE', '%' . $request->term . '%')
+                            ->orWhere('platform', 'LIKE', '%' . $request->term . '%');
         }
 
         if ($request->date) {

@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
-use App\Helpers\ProductHelper;
-use App\Jobs\PushToMagento;
-use App\ListingHistory;
-use App\Loggers\LogListMagento;
+use App\Stage;
 use App\Product;
 use App\Setting;
-use App\Stage;
-use App\StoreWebsite;
+use App\Category;
 use Carbon\Carbon;
+use App\StoreWebsite;
+use App\ListingHistory;
+use App\Jobs\PushToMagento;
+use App\Helpers\ProductHelper;
+use App\Loggers\LogListMagento;
 use Illuminate\Support\Facades\Auth;
 
 class ProductListerController extends Controller
@@ -91,8 +91,8 @@ class ProductListerController extends Controller
             foreach ($websiteArrays as $websiteArray) {
                 $website = StoreWebsite::find($websiteArray);
                 if ($website) {
-                    \Log::channel('productUpdates')->info('Product started website found For website'.$website->website);
-                    LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $website->id);
+                    \Log::channel('productUpdates')->info('Product started website found For website' . $website->website);
+                    LogListMagento::log($product->id, 'Start push to magento for product id ' . $product->id, 'info', $website->id);
                     //currently we have 3 queues assigned for this task.
                     if ($i > 3) {
                         $i = 1;

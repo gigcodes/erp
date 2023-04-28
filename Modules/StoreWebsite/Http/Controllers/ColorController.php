@@ -2,13 +2,13 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\ColorReference;
+use Log;
 use App\Colors;
-use App\Http\Controllers\Controller;
 use App\StoreWebsite;
+use App\ColorReference;
 use App\StoreWebsiteColor;
 use Illuminate\Http\Request;
-use Log;
+use App\Http\Controllers\Controller;
 
 class ColorController extends Controller
 {
@@ -49,7 +49,7 @@ class ColorController extends Controller
 
         // Check for keyword search
         if ($request->keyword != null) {
-            $store_colors = $store_colors->where('erp_color', 'like', '%'.$request->keyword.'%');
+            $store_colors = $store_colors->where('erp_color', 'like', '%' . $request->keyword . '%');
         }
 
         return view('storewebsite::color.index', [
@@ -72,7 +72,6 @@ class ColorController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -123,7 +122,6 @@ class ColorController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

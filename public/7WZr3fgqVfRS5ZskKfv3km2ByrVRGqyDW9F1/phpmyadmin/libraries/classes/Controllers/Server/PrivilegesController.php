@@ -5,31 +5,31 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Server;
 
 use function __;
+use PhpMyAdmin\Url;
 use function header;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Util;
 use function implode;
 use function is_array;
-use function is_string;
-use function ob_get_clean;
 use function ob_start;
+use function is_string;
+use function urlencode;
+use PhpMyAdmin\Message;
+use function strtolower;
+use PhpMyAdmin\Template;
+use function str_replace;
+use function ob_get_clean;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Server\Plugins;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Server\Privileges;
 use PhpMyAdmin\CheckUserPrivileges;
 use PhpMyAdmin\ConfigStorage\Relation;
 use PhpMyAdmin\ConfigStorage\RelationCleanup;
 use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\Controllers\Database\PrivilegesController as DatabaseController;
 use PhpMyAdmin\Controllers\Table\PrivilegesController as TableController;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Server\Plugins;
-use PhpMyAdmin\Server\Privileges;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function str_replace;
-use function strtolower;
-use function urlencode;
+use PhpMyAdmin\Controllers\Database\PrivilegesController as DatabaseController;
 
 /**
  * Server privileges and users manipulations.
@@ -174,8 +174,8 @@ class PrivilegesController extends AbstractController
                 Message::error(
                     __(
                         "Username and hostname didn't change. "
-                        .'If you only want to change the password, '
-                        ."'Change password' tab should be used."
+                        . 'If you only want to change the password, '
+                        . "'Change password' tab should be used."
                     )
                 )->getDisplay()
             );
@@ -366,7 +366,7 @@ class PrivilegesController extends AbstractController
             ] = Util::getDbInfo($db, $sub_part);
 
             $content = ob_get_clean();
-            $this->response->addHTML($content."\n");
+            $this->response->addHTML($content . "\n");
         } elseif (! empty($GLOBALS['message'])) {
             $this->response->addHTML(Generator::getMessage($GLOBALS['message']));
             unset($GLOBALS['message']);
@@ -385,7 +385,7 @@ class PrivilegesController extends AbstractController
                 return;
             }
 
-            $this->response->addHTML('<h2>'.$title.'</h2>'.$export);
+            $this->response->addHTML('<h2>' . $title . '</h2>' . $export);
         }
 
         // Show back the form if an error occurred

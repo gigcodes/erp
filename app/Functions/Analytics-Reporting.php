@@ -1,7 +1,7 @@
 <?php
 
 // Load the Google API PHP Client Library.
-require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $analytics = initializeReportingAnalytics();
 $response = getReport($analytics);
@@ -82,14 +82,14 @@ function printReportingResults($reports)
             $dimensions = $row->getDimensions();
             $metrics = $row->getMetrics();
             for ($i = 0; $i < count($dimensionHeaders) && $i < $dimensions->count(); $i++) {
-                echo $dimensionHeaders[$i].': '.$dimensions[$i]."\n";
+                echo $dimensionHeaders[$i] . ': ' . $dimensions[$i] . "\n";
             }
 
             for ($j = 0; $j < count($metrics); $j++) {
                 $values = $metrics[$j]->getValues();
                 for ($k = 0; $k < count($values); $k++) {
                     $entry = $metricHeaders[$k];
-                    echo $entry->getName().': '.$values[$k]."\n";
+                    echo $entry->getName() . ': ' . $values[$k] . "\n";
                 }
             }
         }

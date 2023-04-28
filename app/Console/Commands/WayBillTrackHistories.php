@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Library\DHL\TrackShipmentRequest;
 use App\Order;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
+use App\Library\DHL\TrackShipmentRequest;
 
 class WayBillTrackHistories extends Command
 {
@@ -55,7 +55,7 @@ class WayBillTrackHistories extends Command
                         $i = 1;
                         foreach ($res->ShipmentInfo->ShipmentEvent->ArrayOfShipmentEventItem as $shipmentEvent) {
                             $shipment[$i]['waybill_id'] = $order->waybill->id;
-                            $shipment[$i]['dat'] = $shipmentEvent->Date.' '.$shipmentEvent->Time;
+                            $shipment[$i]['dat'] = $shipmentEvent->Date . ' ' . $shipmentEvent->Time;
                             $shipment[$i]['comment'] = $shipmentEvent->ServiceEvent->Description;
                             $shipment[$i]['location'] = $shipmentEvent->ServiceArea->Description;
                             if ($order->waybill->waybill_track_histories == null || $order->waybill->waybill_track_histories->count() == 0 || $order->waybill->waybill_track_histories->last() != $shipmentEvent->ServiceArea->Description) {
@@ -64,7 +64,7 @@ class WayBillTrackHistories extends Command
                                     $requestData->setMethod('POST');
                                     $params = [];
                                     $params['customer_id'] = $order->customer_id;
-                                    $params['message'] = 'Your order with order ID '.$order->id.' has been reached at '.$shipmentEvent->ServiceArea->Description.' location.';
+                                    $params['message'] = 'Your order with order ID ' . $order->id . ' has been reached at ' . $shipmentEvent->ServiceArea->Description . ' location.';
                                     $params['status'] = 2;
                                     $requestData->request->add($params);
                                     app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'priority');

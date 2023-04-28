@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Scraper;
-use App\ScrapRemark;
 use Carbon\Carbon;
+use App\ScrapRemark;
 use Illuminate\Console\Command;
 
 class ScraperNotCompletedAlert extends Command

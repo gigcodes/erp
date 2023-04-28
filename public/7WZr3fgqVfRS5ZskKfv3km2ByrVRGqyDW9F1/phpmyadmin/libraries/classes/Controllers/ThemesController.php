@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers;
 
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Template;
 use PhpMyAdmin\ThemeManager;
+use PhpMyAdmin\ResponseRenderer;
 
 class ThemesController extends AbstractController
 {

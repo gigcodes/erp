@@ -2,41 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Brand;
-use App\Category;
-use App\Helpers;
-use App\Helpers\ProductHelper;
-use App\Helpers\StatusHelper;
-use App\Image;
-use App\Imports\ProductsImport;
-use App\Loggers\LogScraper;
-use App\Loggers\ScrapPythonLog;
-use App\Product;
-use App\ScrapApiLog;
-use App\ScrapedProducts;
-use App\ScrapeQueues;
-use App\Scraper;
-use App\ScraperMapping;
-use App\ScraperResult;
-use App\ScrapRequestHistory;
-use App\Services\Products\GnbProductsCreator;
-use App\Services\Products\ProductsCreator;
-use App\Services\Scrap\GoogleImageScraper;
-use App\Services\Scrap\PinterestScraper;
-use App\Setting;
-use App\StoreWebsite;
-use App\Supplier;
+use Storage;
 use App\User;
+use App\Brand;
+use App\Image;
+use Validator;
+use App\Helpers;
+use App\Product;
+use App\Scraper;
+use App\Setting;
+use App\Category;
+use App\Supplier;
 use Carbon\Carbon;
+use App\ScrapApiLog;
+use App\ScrapeQueues;
+use App\StoreWebsite;
+use App\ScraperResult;
+use App\ScraperMapping;
+use App\ScrapedProducts;
+use App\Loggers\LogScraper;
+use App\ScrapRequestHistory;
 use Illuminate\Http\Request;
+use App\Helpers\StatusHelper;
+use App\Helpers\ProductHelper;
+use App\Imports\ProductsImport;
+use App\Loggers\ScrapPythonLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Services\Scrap\PinterestScraper;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use App\Services\Products\ProductsCreator;
+use App\Services\Scrap\GoogleImageScraper;
+use App\Services\Products\GnbProductsCreator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Storage;
-use Validator;
 
 class ScrapController extends Controller
 {
@@ -74,7 +74,7 @@ class ScrapController extends Controller
 
         if ($request->get('pinterest') === 'on') {
             $pinterestData = $this->pinterestScraper->scrapPinterestImages($q, $chip, $noi);
-            if(!is_array($pinterestData)) {
+            if (! is_array($pinterestData)) {
                 // Pinterest data is also coming from google
                 return redirect()->back()->with('error', 'HTML element is changed in Google.');
             }
@@ -82,7 +82,7 @@ class ScrapController extends Controller
 
         if ($request->get('google') === 'on') {
             $googleData = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
-            if(!is_array($googleData)) {
+            if (! is_array($googleData)) {
                 return redirect()->back()->with('error', 'HTML element is changed in Google.');
             }
         }
@@ -104,8 +104,8 @@ class ScrapController extends Controller
             try {
                 $imgData = file_get_contents($datum);
 
-                $fileName = md5(time().microtime()).'.png';
-                Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+                $fileName = md5(time() . microtime()) . '.png';
+                Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
                 $i = new Image();
                 $i->filename = $fileName;
                 if (! empty($product_id)) {
@@ -121,7 +121,7 @@ class ScrapController extends Controller
                     $StoreWebsite->attachMedia($media, ['website-image-attach']);
                 }
             } catch (\Exception $exception) {
-                \Log::error('Image save :: '.$exception->getMessage());
+                \Log::error('Image save :: ' . $exception->getMessage());
                 dd($exception->getMessage());
 
                 continue;
@@ -250,7 +250,7 @@ class ScrapController extends Controller
         // No brand found?
         if (! $brand) {
             // Check for reference
-            $brand = Brand::where('references', 'LIKE', '%'.$request->get('brand').'%')->first();
+            $brand = Brand::where('references', 'LIKE', '%' . $request->get('brand') . '%')->first();
 
             if (! $brand) {
                 // if brand is not then create a brand
@@ -325,13 +325,13 @@ class ScrapController extends Controller
         try {
             if (strlen($scPrice) > 4 && strlen($scPrice) < 6) {
                 $scPrice = substr($scPrice, 0, 3);
-                $scPrice = $scPrice.'.00';
+                $scPrice = $scPrice . '.00';
             } elseif (strlen($scPrice) > 5 && strlen($scPrice) < 7) {
                 $scPrice = substr($scPrice, 0, 4);
-                $scPrice = $scPrice.'.00';
+                $scPrice = $scPrice . '.00';
             }
         } catch (\Exception $e) {
-            \Log::info('Having problem with this price'.$scPrice.' and get message is '.$e->getMessage());
+            \Log::info('Having problem with this price' . $scPrice . ' and get message is ' . $e->getMessage());
         }
 
         if (is_numeric($scPrice)) {
@@ -366,7 +366,7 @@ class ScrapController extends Controller
             $scrapedProduct->original_sku = trim($request->get('sku'));
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->validated = empty($errorLog['error']) ? 1 : 0;
-            $scrapedProduct->validation_result = $errorLog['error'].$errorLog['warning'];
+            $scrapedProduct->validation_result = $errorLog['error'] . $errorLog['warning'];
             $scrapedProduct->category = isset($request->properties['category']) ? serialize($request->properties['category']) : null;
             $scrapedProduct->categories = $categoryForScrapedProducts;
             $scrapedProduct->color = $colorForScrapedProducts;
@@ -414,7 +414,7 @@ class ScrapController extends Controller
             $scrapedProduct->brand_id = $brand->id;
             $scrapedProduct->category = isset($request->properties['category']) ? serialize($request->properties['category']) : null;
             $scrapedProduct->validated = empty($errorLog) ? 1 : 0;
-            $scrapedProduct->validation_result = $errorLog['error'].$errorLog['warning'];
+            $scrapedProduct->validation_result = $errorLog['error'] . $errorLog['warning'];
             //adding new fields
             $scrapedProduct->categories = $categoryForScrapedProducts;
             $scrapedProduct->color = $colorForScrapedProducts;
@@ -426,7 +426,7 @@ class ScrapController extends Controller
             if ($request->get('size_system') != '') {
                 $scrapedProduct->size_system = $request->get('size_system');
             }
-            $scrapedProduct->save();    
+            $scrapedProduct->save();
         }
 
         //Saving to Log Scrapper
@@ -528,8 +528,8 @@ class ScrapController extends Controller
                 continue;
             }
 
-            $fileName = $prefix.'_'.md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }
@@ -594,8 +594,8 @@ class ScrapController extends Controller
                 $extension = $drawing->getExtension();
             }
 
-            $myFileName = '00_Image_'.++$i.'.'.$extension;
-            file_put_contents('uploads/social-media/'.$myFileName, $imageContents);
+            $myFileName = '00_Image_' . ++$i . '.' . $extension;
+            file_put_contents('uploads/social-media/' . $myFileName, $imageContents);
             $cells[substr($drawing->getCoordinates(), 2)][] = $myFileName;
         }
 
@@ -800,7 +800,6 @@ class ScrapController extends Controller
     /**
      * Save incoming data from scraper
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function saveFromNewSupplier(Request $request)
@@ -817,14 +816,14 @@ class ScrapController extends Controller
         // Find product
         $product = Product::find($receivedJson->id);
 
-        if($product){
-         // sets initial status pending for Finished external Scraper	
-          $pending_finished_external_scraper = [
-            'product_id' => $product->id,
-            'old_status' => $product->status_id,
-            'new_status' => StatusHelper::$externalScraperFinished,
-            'pending_status' => 1,
-            'created_at' => date('Y-m-d H:i:s'),
+        if ($product) {
+            // sets initial status pending for Finished external Scraper
+            $pending_finished_external_scraper = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$externalScraperFinished,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($pending_finished_external_scraper);
         }
@@ -833,7 +832,7 @@ class ScrapController extends Controller
         // No brand found?
         if (! $brand) {
             // Check for reference
-            $brand = Brand::where('references', 'LIKE', '%'.$receivedJson->brand.'%')->first();
+            $brand = Brand::where('references', 'LIKE', '%' . $receivedJson->brand . '%')->first();
 
             if (! $brand) {
                 // if brand is not then create a brand
@@ -1022,7 +1021,7 @@ class ScrapController extends Controller
             if ((int) $product->price == 0) {
                 $product->price = $receivedJson->price;
             }
-            $product->listing_remark = 'Original SKU: '.$receivedJson->sku;
+            $product->listing_remark = 'Original SKU: ' . $receivedJson->sku;
 
             // Set optional data
             if (! $product->lmeasurement) {
@@ -1040,7 +1039,7 @@ class ScrapController extends Controller
             $product->status_id = StatusHelper::$externalScraperFinished;
             $product->save();
 
-           // sets initial status pending for Finished external Scraper	
+            // sets initial status pending for Finished external Scraper
             $finished_external_scraper = [
                 'product_id' => $product->id,
                 'old_status' => $product->status_id,
@@ -1049,7 +1048,6 @@ class ScrapController extends Controller
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($finished_external_scraper);
-                    
 
             // Check if we have images
             $product->attachImagesToProduct($receivedJson->images);
@@ -1166,7 +1164,7 @@ class ScrapController extends Controller
                 $scrapedProduct = ScrapedProducts::where('url', $link)->where('website', $website)->first();
 
                 if ($scrapedProduct != null) {
-                    Log::channel('productUpdates')->debug('[scraped_product] Found existing product with sku '.ProductHelper::getSku($scrapedProduct->sku));
+                    Log::channel('productUpdates')->debug('[scraped_product] Found existing product with sku ' . ProductHelper::getSku($scrapedProduct->sku));
                     $scrapedProduct->url = $link;
                     $scrapedProduct->last_inventory_at = Carbon::now();
                     $scrapedProduct->save();
@@ -1276,7 +1274,7 @@ class ScrapController extends Controller
                 $scrapedProduct = ScrapedProducts::where('url', $link->link)->where('website', $website)->first();
 
                 if ($scrapedProduct != null) {
-                    Log::channel('productUpdates')->debug('[scraped_product] Found existing product with sku '.ProductHelper::getSku($scrapedProduct->sku));
+                    Log::channel('productUpdates')->debug('[scraped_product] Found existing product with sku ' . ProductHelper::getSku($scrapedProduct->sku));
                     $scrapedProduct->url = $link->link;
                     $scrapedProduct->last_inventory_at = Carbon::now();
                     $scrapedProduct->save();
@@ -1402,19 +1400,19 @@ class ScrapController extends Controller
             }
 
             if (request('color') != null) {
-                $query->whereRaw('JSON_EXTRACT(properties, \'$.color\') like "%'.$request->color.'%"');
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.color\') like "%' . $request->color . '%"');
             }
 
             if (request('category') != null) {
-                $query->whereRaw('JSON_EXTRACT(properties, \'$.category\') like "%'.$request->category.'%"');
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.category\') like "%' . $request->category . '%"');
             }
 
             if (request('psize') != null) {
-                $query->whereRaw('JSON_EXTRACT(properties, \'$.sizes\') like "%'.$request->psize.'%" OR JSON_EXTRACT(properties, \'$.size\') like "%'.$request->psize.'%"');
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.sizes\') like "%' . $request->psize . '%" OR JSON_EXTRACT(properties, \'$.size\') like "%' . $request->psize . '%"');
             }
 
             if (request('dimension') != null) {
-                $query->whereRaw('JSON_EXTRACT(properties, \'$.dimension\') like "%'.$request->dimension.'%"');
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.dimension\') like "%' . $request->dimension . '%"');
             }
 
             if (request('product_id') != null) {
@@ -1938,7 +1936,7 @@ class ScrapController extends Controller
                 if (! $scraper->parent_id) {
                     $totalScraper[] = $scraper->scraper_name;
                 } else {
-                    $totalScraper[] = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                    $totalScraper[] = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
                 }
             }
             //dd($scraper);
@@ -1975,7 +1973,7 @@ class ScrapController extends Controller
 
             ->get()
             ->toArray();
-        if($products){
+        if ($products) {
             foreach ($products as $value) {
                 $scrap_status_data = [
                     'product_id' => $value['id'],
@@ -2028,11 +2026,11 @@ class ScrapController extends Controller
             if (! $scraper->parent_id) {
                 $name = $scraper->scraper_name;
             } else {
-                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
             // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
-            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.config('env.NODE_SERVER_PORT').'/restart-script?filename='.$name.'.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
 
             //dd($url);
             //sample url
@@ -2076,11 +2074,11 @@ class ScrapController extends Controller
             if (! $scraper->parent_id) {
                 $name = $scraper->scraper_name;
             } else {
-                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
             // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
-            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.config('env.NODE_SERVER_PORT').'/process-list?filename='.$name.'.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
@@ -2097,7 +2095,7 @@ class ScrapController extends Controller
                 if (count($matches) == 2 || count($matches) == 1 || count($matches) == 0) {
                     return response()->json(['code' => 200, 'message' => 'Script Is Not Running']);
                 } else {
-                    return response()->json(['code' => 200, 'message' => "Script Is Running \n".json_decode($response)->Process[0]->duration]);
+                    return response()->json(['code' => 200, 'message' => "Script Is Running \n" . json_decode($response)->Process[0]->duration]);
                 }
             } else {
                 return response()->json(['code' => 500, 'message' => 'Check if Server is running']);
@@ -2112,11 +2110,11 @@ class ScrapController extends Controller
             if (! $scraper->parent_id) {
                 $name = $scraper->scraper_name;
             } else {
-                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
             // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
-            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.config('env.NODE_SERVER_PORT').'/process-list?filename='.$name.'.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
@@ -2140,11 +2138,11 @@ class ScrapController extends Controller
             if (! $scraper->parent_id) {
                 $name = $scraper->scraper_name;
             } else {
-                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
             // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js';
-            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.config('env.NODE_SERVER_PORT').'/kill-scraper?filename='.$name.'.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js';
 
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
@@ -2330,11 +2328,11 @@ class ScrapController extends Controller
             if (! $scraper->parent_id) {
                 $name = $scraper->scraper_name;
             } else {
-                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
             // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
-            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.config('env.NODE_SERVER_PORT').'/send-position?website='.$name;
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/send-position?website=' . $name;
 
             $curl = curl_init();
 
@@ -2358,7 +2356,7 @@ class ScrapController extends Controller
                         $file = "$request->server_id-$scraper->scraper_name.txt";
                         header('Content-Description: File Transfer');
                         header('Content-type: application/octet-stream');
-                        header('Content-disposition: attachment; filename= '.$file.'');
+                        header('Content-disposition: attachment; filename= ' . $file . '');
                         $log = base64_decode($response->log);
 
                         if (! empty($log)) {
@@ -2455,7 +2453,7 @@ class ScrapController extends Controller
         $scrapers = Scraper::whereNotNull('server_id');
 
         if ($request->has('q') && ! empty($request->get('q'))) {
-            $scrapers->where('scraper_name', 'LIKE', '%'.$request->get('q').'%');
+            $scrapers->where('scraper_name', 'LIKE', '%' . $request->get('q') . '%');
         }
         $scrapers = $scrapers->select('id', 'server_id', 'scraper_name', 'scraper_start_time')->get();
         $data = [];
@@ -2546,9 +2544,9 @@ class ScrapController extends Controller
         if ($result1 == 'Log File Not Found') {
             $insertData['log_text'] = $result1;
         } else {
-            $file_name = 'python_logs/python_site_log_'.$insertData['website'].'_'.$insertData['device'].'.log';
+            $file_name = 'python_logs/python_site_log_' . $insertData['website'] . '_' . $insertData['device'] . '.log';
             Storage::put($file_name, $result1);
-            $insertData['log_text'] = url('/storage/app/'.$file_name);
+            $insertData['log_text'] = url('/storage/app/' . $file_name);
         }
 
         ScrapPythonLog::create($insertData);

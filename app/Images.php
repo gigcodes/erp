@@ -5,9 +5,9 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Plank\Mediable\Mediable;
 
 class Images extends Model
 {
@@ -21,7 +21,7 @@ class Images extends Model
 
     public function saveFromSearchQueues($path, $link, $filename)
     {
-        if (copy($link, $path.'/'.$filename)) {
+        if (copy($link, $path . '/' . $filename)) {
             return true;
         } else {
             return false;

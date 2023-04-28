@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\DailyActivitiesHistories;
-use App\DailyActivity;
-use App\Helpers;
-use App\Instruction;
+use Auth;
 use App\Task;
 use App\User;
-use App\UserEvent\UserEvent;
-use Auth;
+use App\Helpers;
 use Carbon\Carbon;
+use App\Instruction;
+use App\DailyActivity;
+use App\UserEvent\UserEvent;
 use Illuminate\Http\Request;
+use App\DailyActivitiesHistories;
 
 class DailyPlannerController extends Controller
 {
@@ -184,13 +184,13 @@ class DailyPlannerController extends Controller
                         $notification[] = 'Following Event Schedule on today';
                         $no = 1;
                         foreach ($events as $event) {
-                            $notification[] = $no.') ['.$event->start.'] => '.$event->subject;
+                            $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
 
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
                                 'title' => 'Sent notification',
-                                'description' => 'To '.$user->name,
+                                'description' => 'To ' . $user->name,
                             ];
                             DailyActivitiesHistories::insert($history);
                         }
@@ -214,13 +214,13 @@ class DailyPlannerController extends Controller
                         $notification[] = 'Following Event Schedule on today';
                         $no = 1;
                         foreach ($events as $event) {
-                            $notification[] = $no.') ['.$event->start.'] => '.$event->subject;
+                            $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
 
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
                                 'title' => 'Sent notification',
-                                'description' => 'To '.$vendor->name,
+                                'description' => 'To ' . $vendor->name,
                             ];
                             DailyActivitiesHistories::insert($history);
                         }
@@ -283,13 +283,13 @@ class DailyPlannerController extends Controller
                             $no = 1;
 
                             foreach ($events as $event) {
-                                $notification[] = $no.') ['.changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone).'] => '.$event->subject;
+                                $notification[] = $no . ') [' . changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone) . '] => ' . $event->subject;
                                 $no++;
 
                                 $history = [
                                     'daily_activities_id' => $event->daily_activity_id,
                                     'title' => 'Sent notification',
-                                    'description' => 'To '.$user->name,
+                                    'description' => 'To ' . $user->name,
                                 ];
                                 DailyActivitiesHistories::insert($history);
                             }
@@ -313,12 +313,12 @@ class DailyPlannerController extends Controller
                             $notification[] = 'Following Event Schedule on within the next 30 min';
                             $no = 1;
                             foreach ($events as $event) {
-                                $notification[] = $no.') ['.changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone).'] => '.$event->subject;
+                                $notification[] = $no . ') [' . changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone) . '] => ' . $event->subject;
                                 $no++;
                                 $history = [
                                     'daily_activities_id' => $event->daily_activity_id,
                                     'title' => 'Sent notification',
-                                    'description' => 'To '.$vendor->name,
+                                    'description' => 'To ' . $vendor->name,
                                 ];
                                 DailyActivitiesHistories::insert($history);
                             }
@@ -354,7 +354,6 @@ class DailyPlannerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -396,7 +395,6 @@ class DailyPlannerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -435,7 +433,7 @@ class DailyPlannerController extends Controller
                 $time = date('H:i:s', strtotime($modal->for_datetime));
 
                 $modal->for_date = $plannedAt;
-                $modal->for_datetime = $plannedAt.' '.$time;
+                $modal->for_datetime = $plannedAt . ' ' . $time;
             }
             $modal->save();
 

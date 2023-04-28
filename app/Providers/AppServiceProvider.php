@@ -2,19 +2,19 @@
 
 namespace App\Providers;
 
-use App\CallBusyMessage;
-use App\DatabaseLog;
-use App\Observers\CallBusyMessageObserver;
-use App\ScrapedProducts;
 use Blade;
+use App\DatabaseLog;
 use Facebook\Facebook;
-use Illuminate\Pagination\Paginator;
+use Studio\Totem\Totem;
+use App\CallBusyMessage;
+use App\ScrapedProducts;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
-use Studio\Totem\Totem;
+use Illuminate\Support\Facades\Validator;
+use App\Observers\CallBusyMessageObserver;
 
 class AppServiceProvider extends ServiceProvider
 {

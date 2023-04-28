@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Category;
-use App\CronJobReport;
 use App\Product;
+use App\Category;
 use App\Supplier;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class FixCategoryNameBySupplier extends Command
@@ -76,13 +76,13 @@ class FixCategoryNameBySupplier extends Command
 
             Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
 //        Product::where('id', 143121)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
-                echo 'Chunk again======================================================='."\n";
+                echo 'Chunk again=======================================================' . "\n";
                 $total = 1000;
                 foreach ($products as $product) {
                     $this->classify2($product);
                     $total--;
                     echo PHP_EOL;
-                    echo $total.' Finished';
+                    echo $total . ' Finished';
                 }
             });
 
@@ -180,7 +180,7 @@ class FixCategoryNameBySupplier extends Command
                             }
 
                             if ($gender === false) {
-                                $this->warn('NOOOOO'.$product->supplier);
+                                $this->warn('NOOOOO' . $product->supplier);
                                 $product->category = 1;
                                 $product->save();
 

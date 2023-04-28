@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\CronJobReport;
 use App\Task;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\ChatMessage;
+use App\CronJobReport;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 
 class SendRecurringTasks extends Command
 {
@@ -73,7 +73,7 @@ class SendRecurringTasks extends Command
                 $sending_day = Carbon::parse($selected_time)->format('d');
                 $sending_month = Carbon::parse($selected_time)->format('m');
 
-                $params['message'] = $task->task_subject.'. '.$task->task_details;
+                $params['message'] = $task->task_subject . '. ' . $task->task_details;
                 $params['task_id'] = $task->id;
                 $params['user_id'] = $task->assign_from;
 

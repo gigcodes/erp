@@ -14,13 +14,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function htmlspecialchars;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Html\MySQLDocumentation;
-use PhpMyAdmin\Utils\ForeignKey;
+use function strlen;
 use function sprintf;
 use function str_contains;
-use function strlen;
+use function htmlspecialchars;
+use PhpMyAdmin\Utils\ForeignKey;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Html\MySQLDocumentation;
 
 /**
  * PhpMyAdmin\SqlQueryForm class
@@ -155,10 +155,10 @@ class SqlQueryForm
             $db = $GLOBALS['db'];
             // if you want navigation:
             $scriptName = Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabDatabase'], 'database');
-            $tmp_db_link = '<a href="'.$scriptName
-                .Url::getCommon(['db' => $db], ! str_contains($scriptName, '?') ? '?' : '&')
-                .'">';
-            $tmp_db_link .= htmlspecialchars($db).'</a>';
+            $tmp_db_link = '<a href="' . $scriptName
+                . Url::getCommon(['db' => $db], ! str_contains($scriptName, '?') ? '?' : '&')
+                . '">';
+            $tmp_db_link .= htmlspecialchars($db) . '</a>';
             $legend = sprintf(__('Run SQL query/queries on database %s'), $tmp_db_link);
             if (empty($query)) {
                 $query = Util::expandUserString($GLOBALS['cfg']['DefaultQueryDatabase'], 'backquote');
@@ -172,15 +172,15 @@ class SqlQueryForm
             $columns_list = $dbi->getColumns($db, $GLOBALS['table'], true);
 
             $scriptName = Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabTable'], 'table');
-            $tmp_tbl_link = '<a href="'.$scriptName.Url::getCommon(['db' => $db, 'table' => $table], '&').'">';
-            $tmp_tbl_link .= htmlspecialchars($db).'.'.htmlspecialchars($table).'</a>';
+            $tmp_tbl_link = '<a href="' . $scriptName . Url::getCommon(['db' => $db, 'table' => $table], '&') . '">';
+            $tmp_tbl_link .= htmlspecialchars($db) . '.' . htmlspecialchars($table) . '</a>';
             $legend = sprintf(__('Run SQL query/queries on table %s'), $tmp_tbl_link);
             if (empty($query)) {
                 $query = Util::expandUserString($GLOBALS['cfg']['DefaultQueryTable'], 'backquote');
             }
         }
 
-        $legend .= ': '.MySQLDocumentation::show('SELECT');
+        $legend .= ': ' . MySQLDocumentation::show('SELECT');
 
         return [
             $legend,

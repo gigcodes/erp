@@ -7,23 +7,23 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Server\Status;
 
-use function array_sum;
 use function count;
+use function strlen;
+use PhpMyAdmin\Util;
 use function implode;
-use function is_numeric;
-use function json_decode;
+use function array_sum;
 use function mb_strlen;
 use function mb_strpos;
-use function mb_strtolower;
 use function mb_substr;
 use function microtime;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Profiling;
-use PhpMyAdmin\Server\SysInfo\SysInfo;
-use PhpMyAdmin\Util;
+use function is_numeric;
 use function preg_match;
+use function json_decode;
+use PhpMyAdmin\Profiling;
 use function preg_replace;
-use function strlen;
+use function mb_strtolower;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Server\SysInfo\SysInfo;
 
 /**
  * functions for displaying server status sub item: monitor
@@ -69,7 +69,7 @@ class Monitor
         if (count($statusVars)) {
             $statusVarValues = $this->dbi->fetchResult(
                 "SHOW GLOBAL STATUS WHERE Variable_name='"
-                .implode("' OR Variable_name='", $statusVars)."'",
+                . implode("' OR Variable_name='", $statusVars) . "'",
                 0,
                 1
             );
@@ -80,7 +80,7 @@ class Monitor
         if (count($serverVars)) {
             $serverVarValues = $this->dbi->fetchResult(
                 "SHOW GLOBAL VARIABLES WHERE Variable_name='"
-                .implode("' OR Variable_name='", $serverVars)."'",
+                . implode("' OR Variable_name='", $serverVars) . "'",
                 0,
                 1
             );
@@ -100,7 +100,6 @@ class Monitor
      * @param  array  $ret             Real-time charting data
      * @param  array  $statusVarValues Status variable values
      * @param  array  $serverVarValues Server variable values
-     * @return array
      */
     private function getJsonForChartingDataSet(
         array $ret,
@@ -261,7 +260,6 @@ class Monitor
      *
      * @param  int  $start Unix Time: Start time for query
      * @param  int  $end   Unix Time: End time for query
-     * @return array
      */
     public function getJsonForLogDataTypeSlow(int $start, int $end): array
     {
@@ -272,8 +270,8 @@ class Monitor
         $query .= 'SUM(rows_examined) AS rows_examined, db, sql_text, ';
         $query .= 'COUNT(sql_text) AS \'#\' ';
         $query .= 'FROM `mysql`.`slow_log` ';
-        $query .= 'WHERE start_time > FROM_UNIXTIME('.$start.') ';
-        $query .= 'AND start_time < FROM_UNIXTIME('.$end.') GROUP BY sql_text';
+        $query .= 'WHERE start_time > FROM_UNIXTIME(' . $start . ') ';
+        $query .= 'AND start_time < FROM_UNIXTIME(' . $end . ') GROUP BY sql_text';
 
         $result = $this->dbi->tryQuery($query);
         // TODO: check for false
@@ -306,7 +304,7 @@ class Monitor
                             )
                         );
                         $row['sql_text'] = mb_substr($row['sql_text'], 0, 200)
-                            .'... ['.$implodeSqlText.']';
+                            . '... [' . $implodeSqlText . ']';
                     }
 
                     break;
@@ -335,7 +333,6 @@ class Monitor
      * @param  int  $end             Unix Time: End time for query
      * @param  bool  $isTypesLimited  Whether to limit types or not
      * @param  bool  $removeVariables Whether to remove variables or not
-     * @return array
      */
     public function getJsonForLogDataTypeGeneral(
         int $start,
@@ -352,9 +349,9 @@ class Monitor
         $query .= 'server_id, argument, count(argument) as \'#\' ';
         $query .= 'FROM `mysql`.`general_log` ';
         $query .= 'WHERE command_type=\'Query\' ';
-        $query .= 'AND event_time > FROM_UNIXTIME('.$start.') ';
-        $query .= 'AND event_time < FROM_UNIXTIME('.$end.') ';
-        $query .= $limitTypes.'GROUP by argument'; // HAVING count > 1';
+        $query .= 'AND event_time > FROM_UNIXTIME(' . $start . ') ';
+        $query .= 'AND event_time < FROM_UNIXTIME(' . $end . ') ';
+        $query .= $limitTypes . 'GROUP by argument'; // HAVING count > 1';
 
         $result = $this->dbi->tryQuery($query);
         // TODO: check for false
@@ -414,8 +411,8 @@ class Monitor
                     // but append byte count therefor
                     if (mb_strlen($row['argument']) > 220) {
                         $row['argument'] = mb_substr($row['argument'], 0, 200)
-                        .'... ['
-                        .implode(
+                        . '... ['
+                        . implode(
                             ' ',
                             (array) Util::formatByteDown(
                                 mb_strlen($row['argument']),
@@ -423,7 +420,7 @@ class Monitor
                                 2
                             )
                         )
-                            .']';
+                            . ']';
                     }
 
                     break;
@@ -469,17 +466,17 @@ class Monitor
         if (isset($name, $value)) {
             $escapedValue = $this->dbi->escapeString($value);
             if (! is_numeric($escapedValue)) {
-                $escapedValue = "'".$escapedValue."'";
+                $escapedValue = "'" . $escapedValue . "'";
             }
 
             if (! preg_match('/[^a-zA-Z0-9_]+/', $name)) {
-                $this->dbi->query('SET GLOBAL '.$name.' = '.$escapedValue);
+                $this->dbi->query('SET GLOBAL ' . $name . ' = ' . $escapedValue);
             }
         }
 
         return $this->dbi->fetchResult(
             'SHOW GLOBAL VARIABLES WHERE Variable_name IN'
-            .' ("general_log","slow_query_log","long_query_time","log_output")',
+            . ' ("general_log","slow_query_log","long_query_time","log_output")',
             0,
             1
         );
@@ -516,7 +513,7 @@ class Monitor
         $this->dbi->tryQuery($sqlQuery);
         $return['affectedRows'] = $cached_affected_rows;
 
-        $result = $this->dbi->tryQuery('EXPLAIN '.$sqlQuery);
+        $result = $this->dbi->tryQuery('EXPLAIN ' . $sqlQuery);
         if ($result !== false) {
             $return['explain'] = $result->fetchAllAssoc();
         }

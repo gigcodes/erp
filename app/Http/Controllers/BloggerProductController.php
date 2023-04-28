@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Blogger;
-use App\BloggerProduct;
-use App\Brand;
-use App\Helpers;
-use App\Http\Requests\CreateBloggerProductRequest;
-use App\ReplyCategory;
 use App\User;
+use App\Brand;
+use App\Blogger;
+use App\Helpers;
+use App\ReplyCategory;
+use App\BloggerProduct;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreateBloggerProductRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class BloggerProductController extends Controller

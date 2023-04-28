@@ -2,11 +2,11 @@
 
 namespace App\Helpers;
 
-use App\Customer;
 use App\ImQueue;
-use App\Marketing\WhatsappConfig;
 use App\Setting;
+use App\Customer;
 use Carbon\Carbon;
+use App\Marketing\WhatsappConfig;
 use Illuminate\Support\Facades\DB;
 
 class InstantMessagingHelper
@@ -102,9 +102,9 @@ class InstantMessagingHelper
         if (empty($sendAfter)) {
             // Check for decent times
             if (date('H', $maxTime) < $whatappConfig->send_start) {
-                $sendAfter = date('Y-m-d 0'.$whatappConfig->send_start.':00:00', $maxTime);
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime);
             } elseif (date('H', $maxTime) > $whatappConfig->send_end) {
-                $sendAfter = date('Y-m-d 0'.$whatappConfig->send_start.':00:00', $maxTime + 86400);
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime + 86400);
             } else {
                 $sendAfter = date('Y-m-d H:i:s', $maxTime);
             }
@@ -218,7 +218,7 @@ class InstantMessagingHelper
                         $customer->phone = (int) $customer->phone * -1;
                     }
                     $customer->update();
-                    \Log::channel('customer')->debug('Customer Name :'.$customer->name."\n Customer ID: ".$customer->id."\nPhone Number Not Valid:".$customer->phone."\n");
+                    \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
                 }
 
                 return false;
@@ -230,7 +230,7 @@ class InstantMessagingHelper
                     $customer->phone = (int) $customer->phone * -1;
                 }
                 $customer->update();
-                \Log::channel('customer')->debug('Customer Name :'.$customer->name."\n Customer ID: ".$customer->id."\nPhone Number Not Valid:".$customer->phone."\n");
+                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
             }
 
             return false;
@@ -247,7 +247,7 @@ class InstantMessagingHelper
                         $customer->phone = (int) $customer->phone * -1;
                     }
                     $customer->update();
-                    \Log::channel('customer')->debug('Customer Name :'.$customer->name."\n Customer ID: ".$customer->id."\nPhone Number Not Valid:".$customer->phone."\n");
+                    \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
                 }
 
                 return false;
@@ -259,7 +259,7 @@ class InstantMessagingHelper
                     $customer->phone = (int) $customer->phone * -1;
                 }
                 $customer->update();
-                \Log::channel('customer')->debug('Customer Name :'.$customer->name."\n Customer ID: ".$customer->id."\nPhone Number Not Valid:".$customer->phone."\n");
+                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
             }
 
             return false;

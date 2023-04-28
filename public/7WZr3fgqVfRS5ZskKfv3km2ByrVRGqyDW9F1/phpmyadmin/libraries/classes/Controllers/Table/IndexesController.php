@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Table;
 
-use function count;
-use function is_array;
-use function is_numeric;
-use function json_decode;
 use function min;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Index;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Table\Indexes;
-use PhpMyAdmin\Template;
+use function count;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Index;
+use function is_array;
+use function is_numeric;
+use PhpMyAdmin\Template;
+use function json_decode;
+use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\Table\Indexes;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 
 /**
  * Displays index edit/creation form and handles it.

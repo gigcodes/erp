@@ -2,11 +2,11 @@
 
 namespace App\Services\Scrap;
 
+use Storage;
 use App\Product;
 use App\ScrapEntries;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Storage;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GetImagesBySku extends Scraper
 {
@@ -89,7 +89,7 @@ class GetImagesBySku extends Scraper
                     break;
                 }
 
-                $productUrl = 'https://fendi.com'.$productUrl;
+                $productUrl = 'https://fendi.com' . $productUrl;
                 $productContent = $this->getContent($productUrl);
                 if ($productContent === '') {
                     return;
@@ -99,9 +99,9 @@ class GetImagesBySku extends Scraper
                 $images = $this->getImagesForFendi($c2);
 
                 foreach ($images as $image_name) {
-                    $path = public_path('uploads').'/social-media/'.$image_name;
+                    $path = public_path('uploads') . '/social-media/' . $image_name;
                     $media = MediaUploader::fromSource($path)
-                                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                             ->upload();
                     $product->attachMedia($media, config('constants.media_tags'));
                 }
@@ -161,8 +161,8 @@ class GetImagesBySku extends Scraper
                 continue;
             }
 
-            $fileName = $prefix.'_'.md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }

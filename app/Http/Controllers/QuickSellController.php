@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
+use Response;
 use App\Brand;
+use App\ApiKey;
+use App\Product;
+use App\Setting;
 use App\Category;
 use App\Customer;
-use App\Product;
-use App\ProductQuicksellGroup;
-use App\QuickSellGroup;
-use App\Setting;
 use App\Supplier;
-use Illuminate\Http\Request;
+use App\QuickSellGroup;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\ProductQuicksellGroup;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Response;
 
 class QuickSellController extends Controller
 {
@@ -117,7 +117,6 @@ class QuickSellController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -168,7 +167,7 @@ class QuickSellController extends Controller
             foreach ($request->file('images') as $image) {
                 $filename = Str::slug($image->getClientOriginalName());
                 $media = MediaUploader::fromSource($image)->useFilename($filename)
-                                  ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                  ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                   ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }
@@ -202,7 +201,6 @@ class QuickSellController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -263,7 +261,7 @@ class QuickSellController extends Controller
                 $filename = Str::slug($image->getClientOriginalName());
                 $media = MediaUploader::fromSource($image)
                                   ->useFilename($filename)
-                                  ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                  ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                   ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }
@@ -300,7 +298,7 @@ class QuickSellController extends Controller
         }
 
         if ($request->group_new == null && $request->group_old == null) {
-            $input = '<input type="checkbox" name="blank" class="group-checkbox checkbox" data-id='.$product->id.'>';
+            $input = '<input type="checkbox" name="blank" class="group-checkbox checkbox" data-id=' . $product->id . '>';
             $data = [$supplier, $price, $brand, $title, $input, $size];
         }
         if ($request->group_new != null) {
@@ -333,7 +331,7 @@ class QuickSellController extends Controller
 
         if ($sku) {
             $exploded = explode('-', $sku->sku);
-            $new_sku = 'QCKPRO-'.(intval($exploded[1]) + 1);
+            $new_sku = 'QCKPRO-' . (intval($exploded[1]) + 1);
 
             return $new_sku;
         }

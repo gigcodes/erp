@@ -2,21 +2,21 @@
 
 namespace App\Jobs;
 
-use App\ChatMessage;
+use File;
+use App\Product;
 use App\Currency;
 use App\Customer;
-use App\Helpers\ProductHelper;
-use App\Product;
 use Dompdf\Dompdf;
-use File;
+use App\ChatMessage;
+use Plank\Mediable\Media;
+use Illuminate\Http\Request;
 use Illuminate\Bus\Queueable;
+use App\Helpers\ProductHelper;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Plank\Mediable\Media;
 
 class SendMessageToCustomer implements ShouldQueue
 {
@@ -169,12 +169,12 @@ class SendMessageToCustomer implements ShouldQueue
                             $pdf->loadHtml($pdfView);
 
                             if (! empty($params['pdf_file_name'])) {
-                                $random = str_replace(' ', '-', $params['pdf_file_name'].'-'.($key + 1).'-'.date('Y-m-d-H-i-s-').rand());
+                                $random = str_replace(' ', '-', $params['pdf_file_name'] . '-' . ($key + 1) . '-' . date('Y-m-d-H-i-s-') . rand());
                             } else {
                                 $random = uniqid('sololuxury_', true);
                             }
 
-                            $fileName = public_path().'/'.$random.'.pdf';
+                            $fileName = public_path() . '/' . $random . '.pdf';
                             $pdf->render();
 
                             File::put($fileName, $pdf->output());

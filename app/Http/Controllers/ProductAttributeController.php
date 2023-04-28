@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
 use App\Image;
-use App\Product;
-use App\ProductReference;
-use App\ProductSizes;
-use App\ReadOnly\LocationList;
-use App\ScrapedProducts;
-use App\Setting;
 use App\Sizes;
 use App\Stage;
+use App\Product;
+use App\Setting;
+use App\Category;
 use App\Supplier;
-use Illuminate\Contracts\Auth\Guard;
+use App\ProductSizes;
+use App\ScrapedProducts;
+use App\ProductReference;
+use Plank\Mediable\Media;
 use Illuminate\Http\Request;
+use App\ReadOnly\LocationList;
+use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Plank\Mediable\Media;
 
 class ProductAttributeController extends Controller
 {
@@ -191,7 +191,7 @@ class ProductAttributeController extends Controller
         $productattribute->last_attributer = Auth::id();
 
         $validations = [
-            'sku' => 'required_without:dnf|unique:products,sku,'.$productattribute->id,
+            'sku' => 'required_without:dnf|unique:products,sku,' . $productattribute->id,
             // 'name'   => 'required_without:dnf',
             // 'short_description' => 'required_without:dnf',
             // 'composition' => 'required_without:dnf',
@@ -211,10 +211,10 @@ class ProductAttributeController extends Controller
         $images_no = count($images);
 
         for ($i = 0; $i < 5; $i++) {
-            if ($request->input('oldImage'.$i) != 0) {
-                $validations['image.'.$i] = 'mimes:jpeg,bmp,png,jpg';
+            if ($request->input('oldImage' . $i) != 0) {
+                $validations['image.' . $i] = 'mimes:jpeg,bmp,png,jpg';
 
-                if (empty($request->file('image.'.$i))) {
+                if (empty($request->file('image.' . $i))) {
                     $check_image++;
                 }
             }
@@ -293,13 +293,13 @@ class ProductAttributeController extends Controller
     {
         $delete_array = [];
         for ($i = 0; $i < 5; $i++) {
-            if ($request->input('oldImage'.$i) != 0) {
-                $delete_array[] = $request->input('oldImage'.$i);
+            if ($request->input('oldImage' . $i) != 0) {
+                $delete_array[] = $request->input('oldImage' . $i);
             }
 
-            if (! empty($request->file('image.'.$i))) {
-                $media = MediaUploader::fromSource($request->file('image.'.$i))
-                ->toDirectory('product/'.floor($productattribute->id / config('constants.image_per_folder')))
+            if (! empty($request->file('image.' . $i))) {
+                $media = MediaUploader::fromSource($request->file('image.' . $i))
+                ->toDirectory('product/' . floor($productattribute->id / config('constants.image_per_folder')))
                 ->upload();
                 $productattribute->attachMedia($media, config('constants.media_tags'));
             }
@@ -330,8 +330,8 @@ class ProductAttributeController extends Controller
         $proxy = new \SoapClient(config('magentoapi.url'), $options);
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
-        $sku = $product->sku.$product->color;
-        $old_sku = $product->sku.$old_color;
+        $sku = $product->sku . $product->color;
+        $old_sku = $product->sku . $old_color;
         $reference_final_sku = $sku;
         $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
         $brand = $product->brands()->get();
@@ -359,7 +359,7 @@ class ProductAttributeController extends Controller
                 }
 
                 // $reference_final_sku = str_replace(' ', '', $reference_sku . $reference_color);
-                $reference_final_sku = $reference_sku.$reference_color;
+                $reference_final_sku = $reference_sku . $reference_color;
                 $product_sizes = explode(',', $product->size);
 
                 foreach ($product_sizes as $size) {
@@ -405,14 +405,14 @@ class ProductAttributeController extends Controller
                         // dump($reference_final_sku);
 
                         try {
-                            $result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku.'-'.$size, $productData);
-                            $associated_skus[] = $reference_final_sku.'-'.$size;
+                            $result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku . '-' . $size, $productData);
+                            $associated_skus[] = $reference_final_sku . '-' . $size;
                         } catch (\Exception $e) {
                             $errors++;
 
                             try {
-                                $result = $proxy->catalogProductUpdate($sessionId, $reference_sku.'-'.$size, $productData);
-                                $associated_skus[] = $reference_final_sku.'-'.$size;
+                                $result = $proxy->catalogProductUpdate($sessionId, $reference_sku . '-' . $size, $productData);
+                                $associated_skus[] = $reference_final_sku . '-' . $size;
                             } catch (\Exception $e) {
                                 $errors++;
                             }
@@ -464,8 +464,8 @@ class ProductAttributeController extends Controller
                         // Creation of product simple
                         // dump('creates simple product');
                         try {
-                            $result = $proxy->catalogProductCreate($sessionId, 'simple', 14, $reference_sku.$reference_color.'-'.$size, $productData);
-                            $associated_skus[] = $reference_final_sku.'-'.$size;
+                            $result = $proxy->catalogProductCreate($sessionId, 'simple', 14, $reference_sku . $reference_color . '-' . $size, $productData);
+                            $associated_skus[] = $reference_final_sku . '-' . $size;
                         } catch (\Exception $e) {
                             $errors++;
                         }
@@ -555,7 +555,7 @@ class ProductAttributeController extends Controller
                 // $result = $proxy->catalogProductCreate($sessionId, 'configurable', 14, $sku, $productData);
             }
         } else {
-            $measurement = 'L-'.$product->lmeasurement.',H-'.$product->hmeasurement.',D-'.$product->dmeasurement;
+            $measurement = 'L-' . $product->lmeasurement . ',H-' . $product->hmeasurement . ',D-' . $product->dmeasurement;
 
             if ($product->references) {
                 $reference_sku = $product->sku;
@@ -566,7 +566,7 @@ class ProductAttributeController extends Controller
                     $reference_color = $reference->color;
                 }
 
-                $reference_final_sku = $reference_sku.$reference_color;
+                $reference_final_sku = $reference_sku . $reference_color;
             }
 
             $productData = [

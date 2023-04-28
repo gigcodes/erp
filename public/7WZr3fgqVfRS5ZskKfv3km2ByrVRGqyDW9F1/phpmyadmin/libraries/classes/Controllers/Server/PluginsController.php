@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server;
 
-use function array_keys;
 use function ksort;
-use function mb_strtolower;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Server\Plugins;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
+use function array_keys;
+use PhpMyAdmin\Template;
 use function preg_replace;
+use function mb_strtolower;
+use PhpMyAdmin\Server\Plugins;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\AbstractController;
 
 /**
  * Handles viewing server plugin details

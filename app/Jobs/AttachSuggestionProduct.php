@@ -3,12 +3,12 @@
 namespace App\Jobs;
 
 use App\SuggestedProduct;
+use Illuminate\Http\Request;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class AttachSuggestionProduct implements ShouldQueue
 {
@@ -45,7 +45,7 @@ class AttachSuggestionProduct implements ShouldQueue
                 SuggestedProduct::attachMoreProducts($suggestion);
             }
         } catch (\Exception $e) {
-            \Log::info('Issue fom customer_message '.$e->getMessage());
+            \Log::info('Issue fom customer_message ' . $e->getMessage());
             throw new \Exception($e->getMessage());
         }
     }

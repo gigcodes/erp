@@ -87,7 +87,7 @@ class NodeColumn extends Node
             $retval .= $this->getTruncateValue($key, $value);
         }
 
-        return $retval.')';
+        return $retval . ')';
     }
 
     /**
@@ -104,7 +104,7 @@ class NodeColumn extends Node
         switch ($key) {
             case 'default':
                 strlen($value) > 6 ?
-                    $retval .= substr($value, 0, 6).'...' :
+                    $retval .= substr($value, 0, 6) . '...' :
                     $retval = $value;
                 break;
             default:

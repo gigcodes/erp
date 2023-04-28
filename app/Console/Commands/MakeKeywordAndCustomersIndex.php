@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\BulkCustomerRepliesKeyword;
-use App\CronJobReport;
 use App\Customer;
-use App\Services\BulkCustomerMessage\KeywordsChecker;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\BulkCustomerRepliesKeyword;
+use App\Services\BulkCustomerMessage\KeywordsChecker;
 
 class MakeKeywordAndCustomersIndex extends Command
 {
@@ -29,8 +29,6 @@ class MakeKeywordAndCustomersIndex extends Command
 
     /**
      * Create a new command instance.
-     *
-     * @param  KeywordsChecker  $checker
      */
     public function __construct(KeywordsChecker $checker)
     {

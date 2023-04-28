@@ -5,10 +5,10 @@
 namespace App\Loggers;
 
 use App\Brand;
-use App\DeveloperTask;
-use App\Helpers\ProductHelper;
 use App\Scraper;
 use App\SkuFormat;
+use App\DeveloperTask;
+use App\Helpers\ProductHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class LogScraper extends Model
@@ -74,7 +74,7 @@ class LogScraper extends Model
             $errorLog = str_replace('[error]', '[warning]', $errorLog);
 
             // Update warningLog
-            $warningLog = $errorLog.$warningLog;
+            $warningLog = $errorLog . $warningLog;
 
             // Empty error log
             $errorLog = '';
@@ -98,7 +98,7 @@ class LogScraper extends Model
         $logScraper->discounted_price = $request->discounted_price ?? 0;
         $logScraper->is_sale = $request->is_sale ?? 0;
         $logScraper->validated = empty($errorLog) ? 1 : 0;
-        $logScraper->validation_result = $errorLog.$warningLog;
+        $logScraper->validation_result = $errorLog . $warningLog;
         //$logScraper->raw_data = isset($_SERVER[ 'REMOTE_ADDR' ]) ? serialize($request->all()) : null;
         $logScraper->save();
 
@@ -194,7 +194,7 @@ class LogScraper extends Model
         if (isset($request->properties)) {
             $properties = $request->properties;
             if (empty($properties['category'])) {
-                $string .= '[warning] Category is empty'.PHP_EOL;
+                $string .= '[warning] Category is empty' . PHP_EOL;
             }
         }
 
@@ -330,7 +330,7 @@ class LogScraper extends Model
                 if (! empty($skuFormat->sku_format)) {
                     try {
                         // Run brand regex on sku
-                        preg_match('/'.$skuFormat->sku_format.'/', $skuNew, $matches, PREG_UNMATCHED_AS_NULL);
+                        preg_match('/' . $skuFormat->sku_format . '/', $skuNew, $matches, PREG_UNMATCHED_AS_NULL);
 
                         // Do we have a match
                         if (isset($matches) && isset($matches[0]) && $matches != null) {
@@ -341,7 +341,7 @@ class LogScraper extends Model
                             }
                         }
                     } catch (\Exception $e) {
-                        return '[warning] Regex generated an exception for brand '.$brand->name." with regex '".$skuFormat->sku_format."'\n";
+                        return '[warning] Regex generated an exception for brand ' . $brand->name . " with regex '" . $skuFormat->sku_format . "'\n";
                     }
                 }
 
@@ -349,7 +349,7 @@ class LogScraper extends Model
                 if (! empty($skuFormat->sku_format_without_color)) {
                     try {
                         // Run brand regex on sku
-                        preg_match('/'.$skuFormat->sku_format_without_color.'/', $skuNew, $matchesWithoutColor, PREG_UNMATCHED_AS_NULL);
+                        preg_match('/' . $skuFormat->sku_format_without_color . '/', $skuNew, $matchesWithoutColor, PREG_UNMATCHED_AS_NULL);
 
                         // Do we have a match
                         if (isset($matchesWithoutColor) && isset($matchesWithoutColor[0]) && $matchesWithoutColor != null) {
@@ -360,7 +360,7 @@ class LogScraper extends Model
                             }
                         }
                     } catch (\Exception $e) {
-                        return '[warning] Regex without color generated an exception for brand '.$brand->name." with regex '".$skuFormat->sku_format."'\n";
+                        return '[warning] Regex without color generated an exception for brand ' . $brand->name . " with regex '" . $skuFormat->sku_format . "'\n";
                     }
                 }
 
@@ -370,7 +370,7 @@ class LogScraper extends Model
         }
 
         // If we end up here, there is no regex set for this brand TODO: Will be an error in the future
-        return '[warning] No brand found ('.$brand.")\n";
+        return '[warning] No brand found (' . $brand . ")\n";
     }
 
     public function skuFormat($sku, $brand)
@@ -444,14 +444,14 @@ class LogScraper extends Model
 
     public function taskType($supplier, $category, $brand)
     {
-        $string = $supplier.$category.$brand;
+        $string = $supplier . $category . $brand;
         $reference = md5(strtolower($string));
         $issue = DeveloperTask::where('reference', $reference)->first();
         if ($issue != null && $issue != '') {
             if ($issue->status == 'Done') {
-                return '<p>Issue Resolved</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$issue->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
+                return '<p>Issue Resolved</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="' . $issue->id . '" title="Load messages"><img src="/images/chat.png" alt=""></button>';
             } else {
-                return '<p>Issue Pending</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$issue->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
+                return '<p>Issue Pending</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="' . $issue->id . '" title="Load messages"><img src="/images/chat.png" alt=""></button>';
             }
         } else {
             return false;

@@ -5,9 +5,9 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Plank\Mediable\Mediable;
 
 class ReturnExchange extends Model
 {

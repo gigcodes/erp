@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Affiliates;
-use App\Http\Controllers\Controller;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class AffiliateController extends Controller
@@ -71,7 +71,6 @@ class AffiliateController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -123,14 +122,14 @@ class AffiliateController extends Controller
         $affiliates->source = isset($request->source) ? $request->source : '';
 
         if ($affiliates->save()) {
-            $message = $this->generate_erp_response("$type.success", ($storeweb) ? $storeweb->id : null, $default = ucwords($affiliates->type).' added successfully !', request('lang_code'));
+            $message = $this->generate_erp_response("$type.success", ($storeweb) ? $storeweb->id : null, $default = ucwords($affiliates->type) . ' added successfully !', request('lang_code'));
 
             return response()->json([
                 'status' => 'success',
                 'message' => $message,
             ], 200);
         }
-        $message = $this->generate_erp_response("$type.failed", ($storeweb) ? $storeweb->id : null, $default = 'Unable to add '.ucwords($affiliates->type).'!', request('lang_code'));
+        $message = $this->generate_erp_response("$type.failed", ($storeweb) ? $storeweb->id : null, $default = 'Unable to add ' . ucwords($affiliates->type) . '!', request('lang_code'));
 
         return response()->json([
             'status' => 'failed',
@@ -166,7 +165,6 @@ class AffiliateController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

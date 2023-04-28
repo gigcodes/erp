@@ -5,38 +5,38 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_keys;
-use function array_map;
-use function bin2hex;
 use function ceil;
 use function count;
+use function bin2hex;
 use function defined;
 use function explode;
-use function htmlspecialchars;
+use function is_bool;
+use function sprintf;
+use function ucwords;
 use function in_array;
 use function is_array;
-use function is_bool;
+use function array_map;
 use function is_object;
-use PhpMyAdmin\ConfigStorage\Features\BookmarkFeature;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\ConfigStorage\RelationCleanup;
-use PhpMyAdmin\Dbal\ResultInterface;
-use PhpMyAdmin\Display\Results as DisplayResults;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Html\MySQLDocumentation;
-use PhpMyAdmin\Query\Generator as QueryGenerator;
-use PhpMyAdmin\Query\Utilities;
-use PhpMyAdmin\SqlParser\Statements\AlterStatement;
-use PhpMyAdmin\SqlParser\Statements\DropStatement;
-use PhpMyAdmin\SqlParser\Statements\SelectStatement;
-use PhpMyAdmin\SqlParser\Utils\Query;
-use PhpMyAdmin\Utils\ForeignKey;
-use function session_start;
-use function session_write_close;
-use function sprintf;
-use function str_contains;
+use function array_keys;
 use function str_replace;
-use function ucwords;
+use function str_contains;
+use function session_start;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Query\Utilities;
+use PhpMyAdmin\Utils\ForeignKey;
+use function session_write_close;
+use PhpMyAdmin\Dbal\ResultInterface;
+use PhpMyAdmin\SqlParser\Utils\Query;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Html\MySQLDocumentation;
+use PhpMyAdmin\ConfigStorage\RelationCleanup;
+use PhpMyAdmin\Display\Results as DisplayResults;
+use PhpMyAdmin\Query\Generator as QueryGenerator;
+use PhpMyAdmin\SqlParser\Statements\DropStatement;
+use PhpMyAdmin\SqlParser\Statements\AlterStatement;
+use PhpMyAdmin\SqlParser\Statements\SelectStatement;
+use PhpMyAdmin\ConfigStorage\Features\BookmarkFeature;
 
 /**
  * Set of functions for the SQL executor
@@ -102,7 +102,7 @@ class Sql
 
             // Remove the name of the table from the retrieved field name.
             $sortCol = str_replace(
-                Util::backquote($table).'.',
+                Util::backquote($table) . '.',
                 '',
                 $sortCol
             );
@@ -111,7 +111,7 @@ class Sql
             $fullSqlQuery = Query::replaceClause(
                 $analyzedSqlResults['statement'],
                 $analyzedSqlResults['parser']->list,
-                'ORDER BY '.$sortCol
+                'ORDER BY ' . $sortCol
             );
 
             // TODO: Avoid reparsing the query.
@@ -140,8 +140,8 @@ class Sql
         return Query::replaceClause(
             $analyzedSqlResults['statement'],
             $analyzedSqlResults['parser']->list,
-            'LIMIT '.$_SESSION['tmpval']['pos'].', '
-            .$_SESSION['tmpval']['max_rows']
+            'LIMIT ' . $_SESSION['tmpval']['pos'] . ', '
+            . $_SESSION['tmpval']['max_rows']
         );
     }
 
@@ -250,7 +250,7 @@ class Sql
                 $currentValue,
                 $GLOBALS['cfg']['ForeignKeyMaxLimit']
             );
-            $dropdown = '<select>'.$dropdown.'</select>';
+            $dropdown = '<select>' . $dropdown . '</select>';
         }
 
         return $dropdown;
@@ -516,14 +516,14 @@ class Sql
 
                 if ($primaryKey !== null) {
                     $defaultOrderByClause = ' ORDER BY '
-                        .Util::backquote($table).'.'
-                        .Util::backquote($primaryKey).' '
-                        .$GLOBALS['cfg']['TablePrimaryKeyOrder'];
+                        . Util::backquote($table) . '.'
+                        . Util::backquote($primaryKey) . ' '
+                        . $GLOBALS['cfg']['TablePrimaryKeyOrder'];
                 }
             }
         }
 
-        return 'SELECT * FROM '.Util::backquote($table).$defaultOrderByClause;
+        return 'SELECT * FROM ' . Util::backquote($table) . $defaultOrderByClause;
     }
 
     /**
@@ -743,11 +743,11 @@ class Sql
                         '',
                     ],
                 ];
-                $countQuery = 'SELECT COUNT(*) FROM ('.Query::replaceClauses(
+                $countQuery = 'SELECT COUNT(*) FROM (' . Query::replaceClauses(
                     $statement,
                     $tokenList,
                     $replaces
-                ).') as cnt';
+                ) . ') as cnt';
                 $unlimNumRows = $this->dbi->fetchValue($countQuery);
                 if ($unlimNumRows === false) {
                     $unlimNumRows = 0;
@@ -964,7 +964,7 @@ class Sql
 
         if (isset($GLOBALS['querytime'])) {
             $queryTime = Message::notice(
-                '('.__('Query took %01.4f seconds.').')'
+                '(' . __('Query took %01.4f seconds.') . ')'
             );
             $queryTime->addParam($GLOBALS['querytime']);
             $message->addMessage($queryTime);
@@ -1331,8 +1331,8 @@ class Sql
                 sprintf(
                     __(
                         'Current selection does not contain a unique column.'
-                        .' Grid edit, checkbox, Edit, Copy and Delete features'
-                        .' are not available. %s'
+                        . ' Grid edit, checkbox, Edit, Copy and Delete features'
+                        . ' are not available. %s'
                     ),
                     MySQLDocumentation::showDocumentation(
                         'config',
@@ -1345,8 +1345,8 @@ class Sql
                 sprintf(
                     __(
                         'Current selection does not contain a unique column.'
-                        .' Grid edit, Edit, Copy and Delete features may result in'
-                        .' undesired behavior. %s'
+                        . ' Grid edit, Edit, Copy and Delete features may result in'
+                        . ' undesired behavior. %s'
                     ),
                     MySQLDocumentation::showDocumentation(
                         'config',

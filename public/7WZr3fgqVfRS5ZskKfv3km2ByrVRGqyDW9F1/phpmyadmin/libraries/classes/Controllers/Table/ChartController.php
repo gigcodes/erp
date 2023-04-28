@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function array_keys;
-use function htmlspecialchars;
-use function json_encode;
 use function min;
-use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Url;
+use function strlen;
+use PhpMyAdmin\Util;
+use PhpMyAdmin\Message;
+use function array_keys;
+use PhpMyAdmin\Template;
+use function json_encode;
 use PhpMyAdmin\DbTableExists;
 use PhpMyAdmin\FieldMetadata;
+use function htmlspecialchars;
 use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
 use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\SqlParser\Components\Limit;
 use PhpMyAdmin\SqlParser\Parser;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\SqlParser\Components\Limit;
 use PhpMyAdmin\SqlParser\Statements\SelectStatement;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function strlen;
 
 /**
  * Handles creation of the chart.

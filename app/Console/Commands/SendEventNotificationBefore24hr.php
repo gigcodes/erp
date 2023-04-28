@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\UserEvent\UserEvent;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SendEventNotificationBefore24hr extends Command
@@ -75,7 +75,7 @@ class SendEventNotificationBefore24hr extends Command
                         $notification[] = 'Following Event Schedule on within the next 24 hours';
                         $no = 1;
                         foreach ($events as $event) {
-                            $notification[] = $no.') ['.$event->start.'] => '.$event->subject;
+                            $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
                         }
 
@@ -98,7 +98,7 @@ class SendEventNotificationBefore24hr extends Command
                         $notification[] = 'Following Event Schedule on within the next 24 hours';
                         $no = 1;
                         foreach ($events as $event) {
-                            $notification[] = $no.') ['.$event->start.'] => '.$event->subject;
+                            $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
                         }
 

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
 use App\Customer;
+use App\ChatMessage;
 use Illuminate\Console\Command;
 
 class StoreLiveChats extends Command

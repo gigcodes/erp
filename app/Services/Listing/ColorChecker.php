@@ -2,10 +2,10 @@
 
 namespace App\Services\Listing;
 
-use App\ColorReference;
-use App\Colors;
-use Illuminate\Support\Str;
 use Schema;
+use App\Colors;
+use App\ColorReference;
+use Illuminate\Support\Str;
 
 class ColorChecker implements CheckerInterface
 {
@@ -15,7 +15,7 @@ class ColorChecker implements CheckerInterface
 
     public function __construct()
     {
-        if ((!env('CI')) && (Schema::hasTable('color_references') )) {
+        if ((! env('CI')) && (Schema::hasTable('color_references'))) {
             $this->setAvailableColors();
             $this->setColorTracks();
         }
@@ -24,7 +24,7 @@ class ColorChecker implements CheckerInterface
     public function check($product): bool
     {
         $color = Str::title($product->color);
-        dump('COL...'.$color);
+        dump('COL...' . $color);
         if (in_array($color, $this->availableColors, false)) {
             $product->color = $color;
             $product->save();
@@ -33,7 +33,7 @@ class ColorChecker implements CheckerInterface
         }
 
         $color = $this->improvise($product->name);
-        dump('sec_'.$color);
+        dump('sec_' . $color);
 
         if (in_array($color, $this->availableColors, false)) {
             $product->color = Str::title($color);
@@ -43,7 +43,7 @@ class ColorChecker implements CheckerInterface
         }
 
         $color = $this->improvise($product->short_description);
-        dump('third_'.$color);
+        dump('third_' . $color);
 
         if (in_array($color, $this->availableColors, false)) {
             $product->color = Str::title($color);

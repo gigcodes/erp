@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Website;
 use App\Customer;
-use App\Http\Controllers\Controller;
 use App\Language;
 use App\Mailinglist;
 use App\StoreWebsite;
-use App\Website;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class MailinglistController extends Controller
 {
@@ -16,9 +16,6 @@ class MailinglistController extends Controller
      *@create_customer
      *
      *@author Hitesh
-     *
-     *@param $email
-     *@param $store_website_id
      */
     public function create_customer($email, $store_website_id, $storeName = null, $language = null)
     {
@@ -127,8 +124,6 @@ class MailinglistController extends Controller
     }
 
     /**
-     * @param $id
-     * @param $email
      * @return \Illuminate\Http\RedirectResponse
      */
     public function addToList($id, $email, $send_in_blue_api)
@@ -152,7 +147,7 @@ class MailinglistController extends Controller
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => [
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                'api-key: '.$api_key,
+                'api-key: ' . $api_key,
                 'Content-Type: application/json',
             ],
         ]);
@@ -164,7 +159,7 @@ class MailinglistController extends Controller
             if ($res->message == 'Contact already exist') {
                 $curl3 = curl_init();
                 curl_setopt_array($curl3, [
-                    CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts/'.$email,
+                    CURLOPT_URL => 'https://api.sendinblue.com/v3/contacts/' . $email,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -174,7 +169,7 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => 'DELETE',
                     CURLOPT_HTTPHEADER => [
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        'api-key: '.$api_key,
+                        'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
                 ]);
@@ -195,7 +190,7 @@ class MailinglistController extends Controller
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => [
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        'api-key: '.$api_key,
+                        'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
                 ]);

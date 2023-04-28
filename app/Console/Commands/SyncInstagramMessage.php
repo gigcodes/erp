@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Customer;
+use Carbon\Carbon;
 //use App\InstagramThread;
 //use App\Services\Instagram\DirectMessage;
-use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class SyncInstagramMessage extends Command
@@ -59,7 +59,7 @@ class SyncInstagramMessage extends Command
                     if (count($user) !== 1) {
                         continue;
                     }
-                    echo $user[0]['username']."\n";
+                    echo $user[0]['username'] . "\n";
                     $customer = $this->createCustomer($user[0]);
 
                     if ($customer) {
@@ -75,7 +75,6 @@ class SyncInstagramMessage extends Command
     }
 
     /**
-     * @param $user
      * @return Customer|void
      */
     private function createCustomer($user)

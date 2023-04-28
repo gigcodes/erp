@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Colors;
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\CronJobReport;
 use Illuminate\Support\Str;
+use Illuminate\Console\Command;
 
 class ImportColorsFromTitleAndDescription extends Command
 {
@@ -64,7 +64,7 @@ class ImportColorsFromTitleAndDescription extends Command
                         $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
-                            dump($color.'--ing...');
+                            dump($color . '--ing...');
                             $product->color = $color;
                             $product->save();
                             break;
@@ -75,7 +75,7 @@ class ImportColorsFromTitleAndDescription extends Command
                         $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
-                            dump($color.'--ing...');
+                            dump($color . '--ing...');
 
                             $product->color = $color;
                             $product->save();
@@ -87,7 +87,7 @@ class ImportColorsFromTitleAndDescription extends Command
                         $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
-                            dump($color.'--ing...');
+                            dump($color . '--ing...');
                             $product->color = $color;
                             $product->save();
                             break;
@@ -98,7 +98,7 @@ class ImportColorsFromTitleAndDescription extends Command
                         $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
-                            dump($color.'--ing...');
+                            dump($color . '--ing...');
                             $product->color = $color;
                             $product->save();
                             break;

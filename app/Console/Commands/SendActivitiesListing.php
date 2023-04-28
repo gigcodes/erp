@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Benchmark;
-use App\CronJobReport;
-use App\Mails\Manual\ActivityListings;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use App\Mails\Manual\ActivityListings;
 
 class SendActivitiesListing extends Command
 {

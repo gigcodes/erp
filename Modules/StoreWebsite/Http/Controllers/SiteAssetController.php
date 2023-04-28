@@ -2,17 +2,17 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
+use DB;
+use PDF;
+use Storage;
+use App\User;
+use App\StoreWebsite;
 use App\SiteDevelopment;
+use Illuminate\Http\Request;
 use App\SiteDevelopmentCategory;
 use App\SiteDevelopmentDocument;
-use App\StoreWebsite;
-use App\User;
-use DB;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use PDF;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Storage;
 
 class SiteAssetController extends Controller
 {
@@ -60,12 +60,12 @@ class SiteAssetController extends Controller
     {
         $store_website = json_decode($request->download_website_id);
         $media_type = $request->media_type;
-        $dir = public_path().'/download_asset';
+        $dir = public_path() . '/download_asset';
         if (! is_dir($dir)) {
             mkdir($dir);
         }
-        $file_name = 'asset_'.uniqid().'.zip';
-        $dir = public_path().'/download_asset/'.$file_name;
+        $file_name = 'asset_' . uniqid() . '.zip';
+        $dir = public_path() . '/download_asset/' . $file_name;
 
         $images = \App\StoreWebsiteImage::leftJoin('media', 'store_website_images.media_id', '=', 'media.id')->whereIn('store_website_images.store_website_id', $store_website)->where('store_website_images.media_type', $media_type)->get();
         if (empty($images)) {
@@ -74,8 +74,8 @@ class SiteAssetController extends Controller
             $zip = new \ZipArchive();
             $zip->open($dir, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
             foreach ($images as $image) {
-                $invoice_file = Storage::disk($image->disk)->path($image->directory.'/'.$image->filename.'.'.$image->extension);
-                $zip->addFile($invoice_file, $image->filename.'.'.$image->extension);
+                $invoice_file = Storage::disk($image->disk)->path($image->directory . '/' . $image->filename . '.' . $image->extension);
+                $zip->addFile($invoice_file, $image->filename . '.' . $image->extension);
             }
             $zip->close();
 
@@ -152,12 +152,12 @@ class SiteAssetController extends Controller
                 if ($request->hasfile('files')) {
                     foreach ($request->file('files') as $files) {
                         $media = MediaUploader::fromSource($files)
-                            ->toDirectory('site_development_document/'.floor($store_website->id / config('constants.image_per_folder')))
+                            ->toDirectory('site_development_document/' . floor($store_website->id / config('constants.image_per_folder')))
                             ->upload();
                         $site_dev_documents->attachMedia($media, config('constants.media_tags'));
                     }
 
-                    $message = '[ '.$loggedUser->name.' ] - #DEVTASK-'.$store_website->id.' - '.$store_website->subject." \n\n".'New attchment(s) called '.$subject.' has been added. Please check and give your comment or fix it if any issue.';
+                    $message = '[ ' . $loggedUser->name . ' ] - #DEVTASK-' . $store_website->id . ' - ' . $store_website->subject . " \n\n" . 'New attchment(s) called ' . $subject . ' has been added. Please check and give your comment or fix it if any issue.';
 
                     // MessageHelper::sendEmailOrWebhookNotification([$store_website->assigned_to, $store_website->team_lead_id, $store_website->tester_id], $message);
                 }

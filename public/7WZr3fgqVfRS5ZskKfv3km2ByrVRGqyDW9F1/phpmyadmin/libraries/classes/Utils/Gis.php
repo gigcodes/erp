@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Utils;
 
-use function array_map;
-use function bin2hex;
-use function mb_strtolower;
-use function preg_match;
 use function trim;
+use function bin2hex;
+use function array_map;
+use function preg_match;
+use function mb_strtolower;
 
 final class Gis
 {
@@ -38,9 +38,9 @@ final class Gis
             $axisOrder = ', \'axis-order=long-lat\'';
         }
 
-        $wktsql = 'SELECT '.$spatialAsText."(x'".$hex."'".$axisOrder.')';
+        $wktsql = 'SELECT ' . $spatialAsText . "(x'" . $hex . "'" . $axisOrder . ')';
         if ($includeSRID) {
-            $wktsql .= ', '.$spatialSrid."(x'".$hex."')";
+            $wktsql .= ', ' . $spatialSrid . "(x'" . $hex . "')";
         }
 
         $wktresult = $dbi->tryQuery($wktsql);
@@ -53,7 +53,7 @@ final class Gis
 
         if ($includeSRID) {
             $srid = $wktarr[1] ?? null;
-            $wktval = "'".$wktval."',".$srid;
+            $wktval = "'" . $wktval . "'," . $srid;
         }
 
         return $wktval;
@@ -96,12 +96,12 @@ final class Gis
         $geomFromText = $mysqlVersion >= 50600 ? 'ST_GeomFromText' : 'GeomFromText';
         $gisString = trim($gisString);
         $geomTypes = '(POINT|MULTIPOINT|LINESTRING|MULTILINESTRING|POLYGON|MULTIPOLYGON|GEOMETRYCOLLECTION)';
-        if (preg_match("/^'".$geomTypes."\(.*\)',[0-9]*$/i", $gisString)) {
-            return $geomFromText.'('.$gisString.')';
+        if (preg_match("/^'" . $geomTypes . "\(.*\)',[0-9]*$/i", $gisString)) {
+            return $geomFromText . '(' . $gisString . ')';
         }
 
-        if (preg_match('/^'.$geomTypes.'\(.*\)$/i', $gisString)) {
-            return $geomFromText."('".$gisString."')";
+        if (preg_match('/^' . $geomTypes . '\(.*\)$/i', $gisString)) {
+            return $geomFromText . "('" . $gisString . "')";
         }
 
         return $gisString;
@@ -248,35 +248,35 @@ final class Gis
                 $spatialPrefix = 'ST_';
             }
 
-            $funcs[$spatialPrefix.'Crosses'] = [
+            $funcs[$spatialPrefix . 'Crosses'] = [
                 'params' => 2,
                 'type' => 'int',
             ];
-            $funcs[$spatialPrefix.'Contains'] = [
+            $funcs[$spatialPrefix . 'Contains'] = [
                 'params' => 2,
                 'type' => 'int',
             ];
-            $funcs[$spatialPrefix.'Disjoint'] = [
+            $funcs[$spatialPrefix . 'Disjoint'] = [
                 'params' => 2,
                 'type' => 'int',
             ];
-            $funcs[$spatialPrefix.'Equals'] = [
+            $funcs[$spatialPrefix . 'Equals'] = [
                 'params' => 2,
                 'type' => 'int',
             ];
-            $funcs[$spatialPrefix.'Intersects'] = [
+            $funcs[$spatialPrefix . 'Intersects'] = [
                 'params' => 2,
                 'type' => 'int',
             ];
-            $funcs[$spatialPrefix.'Overlaps'] = [
+            $funcs[$spatialPrefix . 'Overlaps'] = [
                 'params' => 2,
                 'type' => 'int',
             ];
-            $funcs[$spatialPrefix.'Touches'] = [
+            $funcs[$spatialPrefix . 'Touches'] = [
                 'params' => 2,
                 'type' => 'int',
             ];
-            $funcs[$spatialPrefix.'Within'] = [
+            $funcs[$spatialPrefix . 'Within'] = [
                 'params' => 2,
                 'type' => 'int',
             ];

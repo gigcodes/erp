@@ -8,16 +8,16 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_intersect_key;
 use function count;
 use function in_array;
 use function mb_strpos;
 use function mb_strstr;
 use function mb_substr;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Query\Utilities;
-use PhpMyAdmin\Utils\SessionCache;
 use function preg_replace;
+use PhpMyAdmin\Query\Utilities;
+use function array_intersect_key;
+use PhpMyAdmin\Utils\SessionCache;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Class for generating the top menu
@@ -115,7 +115,7 @@ class Menu
      */
     private function getAllowedTabs($level)
     {
-        $cacheKey = 'menu-levels-'.$level;
+        $cacheKey = 'menu-levels-' . $level;
         if (SessionCache::has($cacheKey)) {
             return SessionCache::get($cacheKey);
         }
@@ -124,16 +124,16 @@ class Menu
         $configurableMenusFeature = $this->relation->getRelationParameters()->configurableMenusFeature;
         if ($configurableMenusFeature !== null) {
             $groupTable = Util::backquote($configurableMenusFeature->database)
-                .'.'.Util::backquote($configurableMenusFeature->userGroups);
+                . '.' . Util::backquote($configurableMenusFeature->userGroups);
             $userTable = Util::backquote($configurableMenusFeature->database)
-                .'.'.Util::backquote($configurableMenusFeature->users);
+                . '.' . Util::backquote($configurableMenusFeature->users);
 
-            $sqlQuery = 'SELECT `tab` FROM '.$groupTable
-                ." WHERE `allowed` = 'N'"
-                ." AND `tab` LIKE '".$level."%'"
-                .' AND `usergroup` = (SELECT usergroup FROM '
-                .$userTable." WHERE `username` = '"
-                .$this->dbi->escapeString($GLOBALS['cfg']['Server']['user'])."')";
+            $sqlQuery = 'SELECT `tab` FROM ' . $groupTable
+                . " WHERE `allowed` = 'N'"
+                . " AND `tab` LIKE '" . $level . "%'"
+                . ' AND `usergroup` = (SELECT usergroup FROM '
+                . $userTable . " WHERE `username` = '"
+                . $this->dbi->escapeString($GLOBALS['cfg']['Server']['user']) . "')";
 
             $result = $this->dbi->tryQueryAsControlUser($sqlQuery);
             if ($result) {
@@ -173,7 +173,7 @@ class Menu
         $server['name'] = ! empty($cfg['Server']['verbose'])
             ? $cfg['Server']['verbose'] : $cfg['Server']['host'];
         $server['name'] .= empty($cfg['Server']['port'])
-            ? '' : ':'.$cfg['Server']['port'];
+            ? '' : ':' . $cfg['Server']['port'];
         $server['url'] = Util::getUrlForOption($cfg['DefaultTabServer'], 'server');
 
         if ($this->db !== '') {

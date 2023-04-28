@@ -2,8 +2,8 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\PaymentResponse;
 use App\StoreWebsite;
+use App\PaymentResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 

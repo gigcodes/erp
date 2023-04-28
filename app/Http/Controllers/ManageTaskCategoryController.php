@@ -49,7 +49,7 @@ class ManageTaskCategoryController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -83,7 +83,6 @@ class ManageTaskCategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -114,7 +113,6 @@ class ManageTaskCategoryController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -130,7 +128,6 @@ class ManageTaskCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -154,7 +151,6 @@ class ManageTaskCategoryController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {

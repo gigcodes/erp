@@ -59,7 +59,7 @@ class Replication
             return -1;
         }
 
-        return $dbi->tryQuery($action.' SLAVE '.$control.';', $link);
+        return $dbi->tryQuery($action . ' SLAVE ' . $control . ';', $link);
     }
 
     /**
@@ -92,13 +92,13 @@ class Replication
         }
 
         $out = $dbi->tryQuery(
-            'CHANGE MASTER TO '.
-            'MASTER_HOST=\''.$host.'\','.
-            'MASTER_PORT='.($port * 1).','.
-            'MASTER_USER=\''.$user.'\','.
-            'MASTER_PASSWORD=\''.$password.'\','.
-            'MASTER_LOG_FILE=\''.$pos['File'].'\','.
-            'MASTER_LOG_POS='.$pos['Position'].';',
+            'CHANGE MASTER TO ' .
+            'MASTER_HOST=\'' . $host . '\',' .
+            'MASTER_PORT=' . ($port * 1) . ',' .
+            'MASTER_USER=\'' . $user . '\',' .
+            'MASTER_PASSWORD=\'' . $password . '\',' .
+            'MASTER_LOG_FILE=\'' . $pos['File'] . '\',' .
+            'MASTER_LOG_POS=' . $pos['Position'] . ';',
             $link
         );
 

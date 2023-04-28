@@ -2,9 +2,9 @@
 
 namespace App;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 
 class ProductPushInformation extends Model
 {
@@ -12,14 +12,13 @@ class ProductPushInformation extends Model
 
     protected $table = 'product_push_informations';
 
-    protected $fillable = ['product_id','sku','status','quantity','stock_status','deleted_at','store_website_id','is_added_from_csv','real_product_id','is_available'];
+    protected $fillable = ['product_id', 'sku', 'status', 'quantity', 'stock_status', 'deleted_at', 'store_website_id', 'is_added_from_csv', 'real_product_id', 'is_available'];
 
     use SoftDeletes;
 
     public static function boot()
     {
         parent::boot();
-        
 
         static::updated(function (ProductPushInformation $p) {
             $dirties = $p->getDirty();
@@ -43,7 +42,7 @@ class ProductPushInformation extends Model
                     continue;
                 }
 
-                $old_arr['old_'.$key] = $oldValue;
+                $old_arr['old_' . $key] = $oldValue;
             }
 
             if (! empty($dirties['is_added_from_csv']) && ! empty($old_contents['is_added_from_csv'])) {
@@ -85,7 +84,7 @@ class ProductPushInformation extends Model
                     continue;
                 }
 
-                $old_arr['old_'.$key] = $oldValue;
+                $old_arr['old_' . $key] = $oldValue;
                 $old_arr['user_id'] = $user_id ?? 'command';
             }
             $old_arr['is_added_from_csv'] = $p->is_added_from_csv;

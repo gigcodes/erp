@@ -2,9 +2,9 @@
 
 namespace App\Mail;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use App\Http\Controllers\Controller;
 use Illuminate\Queue\SerializesModels;
 
 class SendReferralMail extends Mailable
