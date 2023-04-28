@@ -65,28 +65,30 @@ $auth = auth()->user();
                 </button>
             </div>
         </div>
-        <div class="card-body table-responsive">
-            <table class="table table-bordered" id="seoProcessTbl">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Website</th>
-                        <th>Keywords</th>
-                        <th>Word count</th>
-                        <th>Suggestion</th>
-                        <th>SEO Checklist</th>
-                        <th>Publish Checklist</th>
-                        <th>Document Link</th>
-                        <th>Live Status Link</th>
-                        <th>SEO Status</th>
-                        <th>User</th>
-                        <th>Price</th>
-                        <th>Publish Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-            </table>
+        <div class="card-body">
+            <div class="table-responsive-lg" style="overflow-x:auto;">
+                <table class="table table-bordered" id="seoProcessTbl">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Website</th>
+                            <th>Keywords</th>
+                            <th>Word count</th>
+                            <th>Suggestion</th>
+                            <th>SEO Checklist</th>
+                            <th>Publish Checklist</th>
+                            <th>Document Link</th>
+                            <th>Live Status Link</th>
+                            <th>SEO Status</th>
+                            <th>User</th>
+                            <th>Price</th>
+                            <th>Publish Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -98,6 +100,27 @@ $auth = auth()->user();
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary saveFormBtn">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
