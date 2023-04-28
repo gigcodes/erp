@@ -23,7 +23,10 @@ class ContentController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if($request->ajax()) { 
+            if($request->type == 'GET_HISTORY') {
+                return $this->renderPriceHistory();
+            }  
             return $this->getAjaxSeoProcess();
         }
         $data['websites'] = StoreWebsite::select('id', 'website')->get();
@@ -117,6 +120,8 @@ class ContentController extends Controller
         $seoProcess->update([
             'website_id' => $request->website_id,
             'user_id' => $request->user_id,
+            'word_count' => $request->word_count,
+            'suggestion' => $request->suggestion,
             'price' => $request->price,
             'is_price_approved' => $request->is_price_approved ?? 0,
             'google_doc_link' => $request->google_doc_link,
@@ -225,8 +230,15 @@ class ContentController extends Controller
 
                 return $actions;
             })
-            ->addColumn('user_id', function ($val) {
-                return $val->user->name ?? '-';
+            ->addColumn('user_id', function($val) use ($auth) {
+                $user = ($val->user->name ?? '-');
+                if($auth->hasRole(['Admin'])) {
+                    $historyImg = asset('images/history.png');
+                    $user .= "<button class='btn btn-image search ui-autocomplete-input userHistoryBtn' data-type='user' data-id='{$val->id}' style='cursor: default'>";
+                    $user .= "<img src='{$historyImg}' style='width:30px !important' />";
+                    $user .= "</button>";
+                }
+                return $user;
             })
             ->addColumn('website_id', function ($val) {
                 return $val->website->website ?? '-';
@@ -241,10 +253,7 @@ class ContentController extends Controller
 
                 return $status;
             })
-            ->editColumn('user_id', function ($val) {
-                return $val->user->name ?? '-';
-            })
-            ->editColumn('website_id', function ($val) {
+            ->editColumn('website_id', function($val) {
                 return $val->website->website ?? '-';
             })
             ->addColumn('keywords', function ($val) {
@@ -281,8 +290,8 @@ class ContentController extends Controller
             ->addColumn('documentLink', function ($val) {
                 return "<a target='_blank' href='{$val->google_doc_link}'>{$val->google_doc_link}</a>";
             })
-            ->addColumn('liveStatusLink', function ($val) {
-                return "<a target='_blank' href='{$val->google_doc_link}'>{$val->google_doc_link}</a>";
+            ->addColumn('liveStatusLink', function($val) {
+                return "<a target='_blank' href='{$val->live_status_link}'>{$val->live_status_link}</a>";
             })
             ->editColumn('price', function ($val) use ($auth) {
                 $price = "<b>{$val->price}</b>";
@@ -290,6 +299,10 @@ class ContentController extends Controller
                     if ($val->is_price_approved) {
                         $price .= '<br> <i>Approved</i>';
                     }
+                    $historyImg = asset('images/history.png');
+                    $price .= "<button class='btn btn-image search ui-autocomplete-input priceHistoryBtn' data-type='price' data-id='{$val->id}' style='cursor: default'>";
+                    $price .= "<img src='{$historyImg}' style='width:30px !important' />";
+                    $price .= "</button>";
                 }
 
                 return $price;
@@ -297,7 +310,7 @@ class ContentController extends Controller
             ->addColumn('seoStatus', function ($val) {
                 return $val->seoStatus->label ?? '-';
             })
-            ->rawColumns(['actions', 'status', 'keywords', 'seoChecklist', 'publishChecklist', 'documentLink', 'liveStatusLink', 'price'])
+            ->rawColumns(['actions', 'status', 'keywords', 'seoChecklist', 'publishChecklist', 'documentLink', 'liveStatusLink', 'price', 'user_id'])
             ->addIndexColumn()
             ->make();
 
@@ -352,11 +365,11 @@ class ContentController extends Controller
         $data['seoHistory'] = SeoHistory::query()->where('seo_process_id', $request->seoProcessId)
             ->where('type', $request->seoType)->get();
         $data['seoType'] = $request->seoType;
-        $html = view("$this->view/history", $data)->render();
-
+        $html = view("$this->view/ajax/history", $data)->render();
         return response()->json([
             'success' => true,
             'data' => $html,
+            'title' => ucfirst($request->seoType) . " History",
         ]);
     }
 }
