@@ -1,10 +1,10 @@
-<tr style="background:{{$issue->taskStatus->task_color ?? ''}};">
+<tr style="color:grey;">
     <td style="display:table-cell;vertical-align: baseline;">
         {{ $issue->id }}
     </td>
     <td>
         <a data-toggle="modal" data-target="#task_subject{{ $issue->id }}" class="btn pd-5 task-set-reminder" style="overflow: hidden;display: inline-block;text-overflow: ellipsis;white-space: nowrap;width: 100%;">
-            {{ $issue->subject ?? "-" }}
+            {{ $issue->subject }}
         </a>
         <div id="task_subject{{ $issue->id }}" class="modal fade" role="dialog">
             <div class="modal-dialog" style=" display: flex;justify-content: center;align-items: center; height: 100%;flex-wrap: wrap;">
@@ -56,7 +56,7 @@
 
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-info-circle"></i></button>
         @endif
-        <button style="float:right;padding-right:0px;" onclick="funDevInformationModal(this, '{{$issue->id}}')" data-userId="{{$issue->user_id}}" type="button" class="btn btn-xs" title="Show time data" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-refresh"></i></button>
+        <button style="float:right;padding-right:0px;" onclick="funDevInformationModal(this, '{{$issue->id}}')" data-userId="{{$issue->user_id}}" type="button" class="btn btn-xs" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-refresh"></i></button>
     </td>
     <td>
         {{ $issue->estimate_minutes }}
@@ -64,12 +64,12 @@
     </td>
     <td style="vertical-align: baseline;">
         {{ $issue->estimate_date }}
-        <button style="float:right;padding-right:0px;margin-left: auto;" type="button" class="btn btn-xs show-date-history" title="Show time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+        <button style="float:right;padding-right:0px;margin-left: auto;" type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
     </td>
     <td>
         {{ $issue->due_date }}
     </td>
-    <td class="communication-td">
+    <td class="communication-td devtask-com" style="display: block;">
         <!-- class="expand-row" -->
 
         <div class="d-flex">
@@ -125,19 +125,6 @@
         @endif
         <button type="button" data-type="develop" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
             <i class="fa fa-info-circle"></i>
-        </button>
-        <br>
-        <button class="btn upload-task-files-button p-0" type="button" title="Uploaded Files" data-task_type="DEVTASK" data-task_id="{{$issue->id}}">
-            <i class="fa fa-cloud-upload" aria-hidden="true"></i>
-        </button>
-        <button class="btn btn-image view-task-files-button p-0" type="button" title="View Uploaded Files" data-task_type="DEVTASK" data-task_id="{{$issue->id}}">
-            <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
-        </button>
-        <button class="btn create-task-document p-0" title="Create document" data-task_type="DEVTASK" data-id="{{$issue->id}}">
-            <i class="fa fa-file-text" aria-hidden="true"></i>
-        </button>
-        <button class="btn show-created-task-document p-0" title="Show created document" data-task_type="DEVTASK" data-id="{{$issue->id}}">
-            <i class="fa fa-list" aria-hidden="true"></i>
         </button>
     </td>
 </tr>

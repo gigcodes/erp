@@ -381,4 +381,9 @@ class DeveloperTask extends Model
     {
         return '#DEVTASK-' . $obj->id . '-' . $obj->subject . ' => ';
     }
+
+    public function taskStatus()
+    {
+        return $this->hasOne(TaskStatus::class, 'name', 'status');
+    }
 }
