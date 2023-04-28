@@ -14,9 +14,18 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
           token: ${{ secrets.PERSONAL_TOKEN }}
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          node-version: 16
+      - name: Install node modules
+        run: npm install
+      - name: Execute prettier
+        run: npm run format
       - name: Prettify code
         uses: creyD/prettier_action@v4.3
         with:
           prettier_options: --write **/*.{js,css,md}
           only_changed: True
-          github_token: : ${{ secrets.PERSONAL_TOKEN }}
+          github_token: ${{ secrets.PERSONAL_TOKEN }}
