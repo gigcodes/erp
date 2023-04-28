@@ -14,7 +14,8 @@
         "knowledge-base-dev": "npm-run-all --parallel watch livereload",
         "knowledge-base-watch": "webpack --watch",
         "knowledge-base-livereload": "livereload ./public/dist/",
-        "knowledge-base-permissions": "chown -R $USER:$USER bootstrap/cache storage public/uploads"
+        "knowledge-base-permissions": "chown -R $USER:$USER bootstrap/cache storage public/uploads",
+        "format": "prettier --write ."
     },
     "devDependencies": {
         "axios": "^0.18",
