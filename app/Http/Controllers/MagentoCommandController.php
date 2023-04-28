@@ -19,7 +19,8 @@ class MagentoCommandController extends Controller
     public function index()
     {
         try {
-            $magentoCommand = MagentoCommand::paginate(Setting::get('pagination'))->appends(request()->except(['page']));
+            $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+            $magentoCommand = MagentoCommand::paginate($limit)->appends(request()->except(['page']));
 
             $websites = StoreWebsite::all();
             $users = User::all();
@@ -45,7 +46,8 @@ class MagentoCommandController extends Controller
         if (! empty($request->user_id)) {
             $magentoCommand->where('user_id', '=', $request->user_id);
         }
-        $magentoCommand = $magentoCommand->paginate(Setting::get('pagination'));
+        $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+        $magentoCommand = $magentoCommand->paginate($limit);
         $users = User::all();
         $websites = StoreWebsite::all();
 
