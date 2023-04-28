@@ -5,7 +5,7 @@ on:
     branches: ["master"]
 
 jobs:
-    prettier:
+  prettier:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
