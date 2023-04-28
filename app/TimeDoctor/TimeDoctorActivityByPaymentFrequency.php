@@ -17,5 +17,4 @@ class TimeDoctorActivityByPaymentFrequency extends Model
         'frequency_type',
         'payment_receipt_ids',
     ];
-   
 }

@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Customer;
+use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
-use App\Customer;
-use App\Http\Controllers\WhatsAppController;
-use Carbon\Carbon;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\WhatsAppController;
 
 class SendReminderToCustomerIfTheyHaventReplied extends Command
 {
@@ -76,14 +76,14 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                 }
 
                 if ($customer->reminder_from == '0000-00-00 00:00' || strtotime($customer->reminder_from) >= strtotime('now')) {
-                    dump('here'.$customer->name);
+                    dump('here' . $customer->name);
                     $templateMessage = $customer->reminder_message;
                     if ($customer->reminder_last_reply == 0) {
                         //sends messahe
                         $this->sendMessage($customer->id, $templateMessage);
                     } else {
                         // get the message if the interval is greater or equal to time which is set for this customer
-                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= '.$frequency)
+                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
                             ->where('id', $messagesId->id)
                             ->where('user_id', '>', '0')
                             ->where('approved', '1')
@@ -105,7 +105,6 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
     }
 
     /**
-     * @param $customer
      * @param $message
      * Send message to customer, create message and then approve message...
      */

@@ -18,13 +18,13 @@ class PinterestScraper extends Scraper
         $body = $this->getContent($query);
 
         $c = new HtmlPageCrawler($body);
-        if($c->filter('body')->filter('td.gvhng')->getInnerHtml()) {
+        if ($c->filter('body')->filter('td.gvhng')->getInnerHtml()) {
             return redirect()->back()->with('error', 'No any images found on google');
         }
 
         // check if google html page has td with id "e3goi"
         $google_div_id = 'td.e3goi';
-        if($c->filter('body')->filter($google_div_id)->getInnerHtml()) {
+        if ($c->filter('body')->filter($google_div_id)->getInnerHtml()) {
             $imageJson = $c->filter('body')->filter($google_div_id)->filter('img');
             $images = [];
 

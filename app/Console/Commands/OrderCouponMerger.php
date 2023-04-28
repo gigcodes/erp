@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\Coupon;
-use App\CronJobReport;
 use App\Order;
-use App\StoreWebsite;
+use App\Coupon;
 use Carbon\Carbon;
+use App\StoreWebsite;
+use App\CronJobReport;
 use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Console\Command;
+use GuzzleHttp\Cookie\CookieJar;
 
 class OrderCouponMerger extends Command
 {
@@ -59,7 +59,7 @@ class OrderCouponMerger extends Command
                 if (! empty($get_api_endpoint_details)) {
                     foreach ($get_api_endpoint_details as $store_detail) {
                         if ($store_detail->magento_url != null && $store_detail->api_token != null) {
-                            $response = $guzzle->request('GET', $store_detail->magento_url.'/rest/V1/orders?searchCriteria[filter_groups][0][filters][0][field]=coupon_code&searchCriteria[filter_groups][0][filters][0][value]=&searchCriteria[filter_groups][0][filters][0][condition_type]=notnull', ['headers' => ['Authorization' => 'Bearer '.$store_detail->api_token]]);
+                            $response = $guzzle->request('GET', $store_detail->magento_url . '/rest/V1/orders?searchCriteria[filter_groups][0][filters][0][field]=coupon_code&searchCriteria[filter_groups][0][filters][0][value]=&searchCriteria[filter_groups][0][filters][0][condition_type]=notnull', ['headers' => ['Authorization' => 'Bearer ' . $store_detail->api_token]]);
                             $response_object = json_decode($response->getBody()->getContents());
                             if (json_last_error() == JSON_ERROR_NONE) {
                                 if (! empty($response_object)) {

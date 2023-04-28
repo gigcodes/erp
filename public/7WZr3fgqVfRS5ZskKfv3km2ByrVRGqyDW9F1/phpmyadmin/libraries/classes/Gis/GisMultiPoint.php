@@ -7,14 +7,14 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Gis;
 
-use function count;
-use function hexdec;
-use function json_encode;
-use function mb_substr;
-use PhpMyAdmin\Image\ImageWrapper;
-use function round;
 use TCPDF;
 use function trim;
+use function count;
+use function round;
+use function hexdec;
+use function mb_substr;
+use function json_encode;
+use PhpMyAdmin\Image\ImageWrapper;
 
 /**
  * Handles actions related to GIS MULTIPOINT objects
@@ -198,11 +198,11 @@ class GisMultiPoint extends GisGeometry
                 continue;
             }
 
-            $row .= '<circle cx="'.$point[0].'" cy="'
-                .$point[1].'" r="3"';
-            $point_options['id'] = $label.$this->getRandomId();
+            $row .= '<circle cx="' . $point[0] . '" cy="'
+                . $point[1] . '" r="3"';
+            $point_options['id'] = $label . $this->getRandomId();
             foreach ($point_options as $option => $val) {
-                $row .= ' '.$option.'="'.trim((string) $val).'"';
+                $row .= ' ' . $option . '="' . trim((string) $val) . '"';
             }
 
             $row .= '/>';
@@ -234,23 +234,23 @@ class GisMultiPoint extends GisGeometry
             'color' => $point_color,
             'width' => 2,
         ];
-        $result = 'var fill = new ol.style.Fill('.json_encode($fill_style).');'
-            .'var stroke = new ol.style.Stroke('.json_encode($stroke_style).');'
-            .'var style = new ol.style.Style({'
-            .'image: new ol.style.Circle({'
-            .'fill: fill,'
-            .'stroke: stroke,'
-            .'radius: 3'
-            .'}),'
-            .'fill: fill,'
-            .'stroke: stroke';
+        $result = 'var fill = new ol.style.Fill(' . json_encode($fill_style) . ');'
+            . 'var stroke = new ol.style.Stroke(' . json_encode($stroke_style) . ');'
+            . 'var style = new ol.style.Style({'
+            . 'image: new ol.style.Circle({'
+            . 'fill: fill,'
+            . 'stroke: stroke,'
+            . 'radius: 3'
+            . '}),'
+            . 'fill: fill,'
+            . 'stroke: stroke';
 
         if (trim($label) !== '') {
             $text_style = [
                 'text' => trim($label),
                 'offsetY' => -9,
             ];
-            $result .= ',text: new ol.style.Text('.json_encode($text_style).')';
+            $result .= ',text: new ol.style.Text(' . json_encode($text_style) . ')';
         }
 
         $result .= '});';
@@ -265,11 +265,11 @@ class GisMultiPoint extends GisGeometry
         $multipoint = mb_substr($spatial, 11, -1);
         $points_arr = $this->extractPoints($multipoint, null);
 
-        return $result.'var multiPoint = new ol.geom.MultiPoint('
-            .$this->getPointsArrayForOpenLayers($points_arr, $srid).');'
-            .'var feature = new ol.Feature({geometry: multiPoint});'
-            .'feature.setStyle(style);'
-            .'vectorLayer.addFeature(feature);';
+        return $result . 'var multiPoint = new ol.geom.MultiPoint('
+            . $this->getPointsArrayForOpenLayers($points_arr, $srid) . ');'
+            . 'var feature = new ol.Feature({geometry: multiPoint});'
+            . 'feature.setStyle(style);'
+            . 'vectorLayer.addFeature(feature);';
     }
 
     /**
@@ -292,14 +292,14 @@ class GisMultiPoint extends GisGeometry
             $wkt .= (isset($gis_data[$index]['MULTIPOINT'][$i]['x'])
                     && trim((string) $gis_data[$index]['MULTIPOINT'][$i]['x']) != ''
                     ? $gis_data[$index]['MULTIPOINT'][$i]['x'] : '')
-                .' '.(isset($gis_data[$index]['MULTIPOINT'][$i]['y'])
+                . ' ' . (isset($gis_data[$index]['MULTIPOINT'][$i]['y'])
                     && trim((string) $gis_data[$index]['MULTIPOINT'][$i]['y']) != ''
-                    ? $gis_data[$index]['MULTIPOINT'][$i]['y'] : '').',';
+                    ? $gis_data[$index]['MULTIPOINT'][$i]['y'] : '') . ',';
         }
 
         $wkt = mb_substr($wkt, 0, -1);
 
-        return $wkt.')';
+        return $wkt . ')';
     }
 
     /**
@@ -312,13 +312,13 @@ class GisMultiPoint extends GisGeometry
     {
         $wkt = 'MULTIPOINT(';
         for ($i = 0; $i < $row_data['numpoints']; $i++) {
-            $wkt .= $row_data['points'][$i]['x'].' '
-                .$row_data['points'][$i]['y'].',';
+            $wkt .= $row_data['points'][$i]['x'] . ' '
+                . $row_data['points'][$i]['y'] . ',';
         }
 
         $wkt = mb_substr($wkt, 0, -1);
 
-        return $wkt.')';
+        return $wkt . ')';
     }
 
     /**
@@ -371,13 +371,13 @@ class GisMultiPoint extends GisGeometry
                 continue;
             }
 
-            $ol_array .= $this->getPointForOpenLayers($point, $srid).'.getCoordinates(), ';
+            $ol_array .= $this->getPointForOpenLayers($point, $srid) . '.getCoordinates(), ';
         }
 
         if (mb_substr($ol_array, -2) === ', ') {
             $ol_array = mb_substr($ol_array, 0, -2);
         }
 
-        return $ol_array.')';
+        return $ol_array . ')';
     }
 }

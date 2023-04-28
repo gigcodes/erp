@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Jobs\CallHelperForZeroStockQtyUpdate;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
+use App\Jobs\CallHelperForZeroStockQtyUpdate;
 
 class UpdateInventory extends Command
 {
@@ -39,7 +38,6 @@ class UpdateInventory extends Command
      */
     public function handle()
     {
-
         \Log::info('Update Inventory');
         try {
             \Log::info('Update Inventory TRY');
@@ -62,7 +60,7 @@ class UpdateInventory extends Command
                 ->get();
             $skuProductArr = [];
             $skusArr = $products->pluck('sku')->toArray();
-            $selectedProducts = \App\Product::select('id','isUploaded','color','sku')
+            $selectedProducts = \App\Product::select('id', 'isUploaded', 'color', 'sku')
                 ->whereIn('sku', $skusArr)
                 ->get();
             foreach ($selectedProducts as $selected_prod_key => $selected_prod_value) {
@@ -83,10 +81,10 @@ class UpdateInventory extends Command
                 $productId = null;
                 $today = date('Y-m-d');
                 foreach ($products as $sku => $records) {
-                    \Log::info('Checking :'.json_encode($records));
+                    \Log::info('Checking :' . json_encode($records));
                     $sku = $records['sku'];
-                    \Log::info('skuRecords :'.json_encode($records));
-                    if(isset($skuProductArr[$sku]) && $skuProductArr[$sku]['isUploaded'] == 1) {
+                    \Log::info('skuRecords :' . json_encode($records));
+                    if (isset($skuProductArr[$sku]) && $skuProductArr[$sku]['isUploaded'] == 1) {
                         $records['product_id'] = $skuProductArr[$sku]['product_id'];
                         $records['isUploaded'] = $skuProductArr[$sku]['isUploaded'];
                         $records['color'] = $skuProductArr[$sku]['color'];
@@ -106,7 +104,7 @@ class UpdateInventory extends Command
                             }
                             if ($history) {
                                 $history->update(['in_stock' => $new_in_stock, 'prev_in_stock' => $prev_in_stock]);
-                                \Log::info('StatusHistory updated for product: '.$records['product_id']);
+                                \Log::info('StatusHistory updated for product: ' . $records['product_id']);
                             } else {
                                 $statusHistory[] = [
                                     'product_id' => $records['product_id'],
@@ -122,46 +120,46 @@ class UpdateInventory extends Command
                         } else {
                             \Log::info('product_id or supplier_id is not found');
                         }
-                        if (is_null($records['last_inventory_at']) || strtotime($records['last_inventory_at']) < strtotime('-'.$inventoryLifeTime.' days')) {
-                            $needToCheck[] = ['id' => $records['product_id'], 'sku' => $records['sku'].'-'.$records['color']];
+                        if (is_null($records['last_inventory_at']) || strtotime($records['last_inventory_at']) < strtotime('-' . $inventoryLifeTime . ' days')) {
+                            $needToCheck[] = ['id' => $records['product_id'], 'sku' => $records['sku'] . '-' . $records['color']];
                             \Log::info('Last inventory condition is success');
+
                             continue;
-                        }  else {
+                        } else {
                             \Log::info('Last inventory condition is failed');
                         }
                         $hasInventory = true;
-                        dump('Scraped Product updated : '.$records['sproduct_id']);
+                        dump('Scraped Product updated : ' . $records['sproduct_id']);
                     } else {
                         \Log::info('Product not found or isUploaded value is 0');
+
                         continue;
                     }
-
-
                 }
                 if (! $hasInventory && ! empty($productId)) {
                     $productIdsArr[] = $productId;
                 }
                 if (! empty($sproductIdArr)) {
                     \DB::table('scraped_products')->whereIn('id', $sproductIdArr)->update(['last_cron_check' => date('Y-m-d H:i:s')]);
-                    \Log::info('********scraped_products updated last_cron_check field********:'.json_encode($sproductIdArr));
+                    \Log::info('********scraped_products updated last_cron_check field********:' . json_encode($sproductIdArr));
                 }
                 if (! empty($productIdsArr)) {
                     \DB::table('products')->whereIn('id', $productIdsArr)->update(['stock' => 0, 'updated_at' => date('Y-m-d H:i:s')]);
-                    \Log::info('********products updated stock to zero and updated_at field********:'.json_encode($productIdsArr));
+                    \Log::info('********products updated stock to zero and updated_at field********:' . json_encode($productIdsArr));
                 }
                 if (! empty($statusHistory)) {
                     \App\InventoryStatusHistory::insert($statusHistory);
-                    \Log::info('********InventoryStatusHistory Bulk Insert********:'.json_encode($statusHistory));
+                    \Log::info('********InventoryStatusHistory Bulk Insert********:' . json_encode($statusHistory));
                 }
                 if (! empty($needToCheck)) {
-                    \Log::info('********needToCheck********:'.json_encode($needToCheck));
+                    \Log::info('********needToCheck********:' . json_encode($needToCheck));
                     try {
                         $time_start = microtime(true);
                         CallHelperForZeroStockQtyUpdate::dispatch($needToCheck)->onQueue('MagentoHelperForZeroStockQtyUpdate');
                         $time_end = microtime(true);
                         //\Log::info('inventory:update :: ForZeroStockQtyUpdate -Total Execution Time => ' . ($execution_time));
                     } catch (\Exception $e) {
-                        \Log::error('inventory:update :: CallHelperForZeroStockQtyUpdate :: '.$e->getMessage());
+                        \Log::error('inventory:update :: CallHelperForZeroStockQtyUpdate :: ' . $e->getMessage());
                     }
                 }
             } else {

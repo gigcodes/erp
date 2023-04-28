@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Agent;
-use App\CronJobReport;
 use App\Designer;
 use App\Supplier;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class ImportFarfetchSupplier extends Command
@@ -53,7 +53,7 @@ class ImportFarfetchSupplier extends Command
             foreach ($suppliers as $supplier) {
                 $existingSupplier = Supplier::where('supplier', trim($supplier->title))->first();
 
-                $this->info($supplier->title.'exists');
+                $this->info($supplier->title . 'exists');
 
                 if ($existingSupplier) {
                     $brands = $supplier->designers;
@@ -71,14 +71,14 @@ class ImportFarfetchSupplier extends Command
                         }
                     }
                     $imploded = implode(',', $explodedExistingBrand);
-                    $imploded = '"['.$imploded.']"';
+                    $imploded = '"[' . $imploded . ']"';
 
                     if (trim($supplier->social_handle) !== trim($existingSupplier->social_handle)) {
-                        $existingSupplier->social_handle = $existingSupplier->social_handle.', '.trim($supplier->social_handle);
+                        $existingSupplier->social_handle = $existingSupplier->social_handle . ', ' . trim($supplier->social_handle);
                     }
 
                     if (trim($supplier->instagram_handle) !== trim($existingSupplier->instagram_handle)) {
-                        $existingSupplier->instagram_handle = $existingSupplier->instagram_handle.', '.trim($supplier->instagram_handle);
+                        $existingSupplier->instagram_handle = $existingSupplier->instagram_handle . ', ' . trim($supplier->instagram_handle);
                     }
 
                     if (! $existingSupplier->address) {

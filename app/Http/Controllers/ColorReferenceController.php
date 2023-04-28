@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\ColorNamesReference;
 use App\ColorReference;
+use App\ColorNamesReference;
 use Illuminate\Http\Request;
 
 class ColorReferenceController extends Controller
@@ -19,7 +19,7 @@ class ColorReferenceController extends Controller
 
         if ($request->keyword != null) {
             $colors = $colors->where(function ($q) use ($request) {
-                $q->orWhere('color_name', 'like', '%'.$request->keyword.'%')->orWhere('erp_name', 'like', '%'.$request->keyword.'%');
+                $q->orWhere('color_name', 'like', '%' . $request->keyword . '%')->orWhere('erp_name', 'like', '%' . $request->keyword . '%');
             });
         }
 
@@ -47,7 +47,6 @@ class ColorReferenceController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -72,7 +71,6 @@ class ColorReferenceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ColorReference  $colorReference
      * @return \Illuminate\Http\Response
      */
     public function show(ColorReference $colorReference)
@@ -83,7 +81,6 @@ class ColorReferenceController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ColorReference  $colorReference
      * @return \Illuminate\Http\Response
      */
     public function edit(ColorReference $colorReference)
@@ -94,8 +91,6 @@ class ColorReferenceController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ColorReference  $colorReference
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ColorReference $colorReference)
@@ -106,7 +101,6 @@ class ColorReferenceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ColorReference  $colorReference
      * @return \Illuminate\Http\Response
      */
     public function destroy(ColorReference $colorReference)
@@ -120,8 +114,8 @@ class ColorReferenceController extends Controller
 
         if ($q) {
             // check the type and then
-            $q = '"color":"'.$q.'"';
-            $products = \App\ScrapedProducts::where('properties', 'like', '%'.$q.'%')->latest()->limit(5)->get();
+            $q = '"color":"' . $q . '"';
+            $products = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')->latest()->limit(5)->get();
 
             $view = (string) view('compositions.preview-products', compact('products'));
 
@@ -138,8 +132,8 @@ class ColorReferenceController extends Controller
 
         if (! empty($from) && ! empty($to)) {
             // check the type and then
-            $q = '"color":"'.$from.'"';
-            $total = \App\ScrapedProducts::where('properties', 'like', '%'.$q.'%')
+            $q = '"color":"' . $from . '"';
+            $total = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')
                 ->join('products as p', 'p.sku', 'scraped_products.sku')
                 ->where('p.color', '')
                 ->groupBy('p.id')

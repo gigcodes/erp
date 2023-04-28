@@ -2,8 +2,8 @@
 
 namespace App\Library\Watson;
 
-use App\Library\Watson\Interfaces\ResponseInterface;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use App\Library\Watson\Interfaces\ResponseInterface;
 
 class Response implements ResponseInterface
 {

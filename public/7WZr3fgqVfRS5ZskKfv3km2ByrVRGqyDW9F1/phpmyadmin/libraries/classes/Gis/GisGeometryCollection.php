@@ -7,13 +7,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Gis;
 
-use function array_merge;
+use TCPDF;
 use function count;
 use function mb_strpos;
 use function mb_substr;
-use PhpMyAdmin\Image\ImageWrapper;
 use function str_split;
-use TCPDF;
+use function array_merge;
+use PhpMyAdmin\Image\ImageWrapper;
 
 /**
  * Handles actions related to GIS GEOMETRYCOLLECTION objects
@@ -305,14 +305,14 @@ class GisGeometryCollection extends GisGeometry
                 continue;
             }
 
-            $wkt .= $gis_obj->generateWkt($gis_data, $i, $empty).',';
+            $wkt .= $gis_obj->generateWkt($gis_data, $i, $empty) . ',';
         }
 
         if (isset($gis_data[0]['gis_type'])) {
             $wkt = mb_substr($wkt, 0, -1);
         }
 
-        return $wkt.')';
+        return $wkt . ')';
     }
 
     /**

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Flow;
+use App\Product;
 use App\Customer;
 use App\ErpLeads;
-use App\Flow;
-use App\Http\Controllers\Controller;
-use App\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
@@ -126,7 +126,7 @@ class CustomerController extends Controller
             $flowId = Flow::where('flow_name', 'order_reviews')->pluck('id')->first();
             if ($flowId != null and $checkCustomer->email != null) {
                 \App\Email::where('scheduled_at', '>=', Carbon::now())->where('email', $checkCustomer->email)
-                    ->where('template', 'flow#'.$flowId)->delete();
+                    ->where('template', 'flow#' . $flowId)->delete();
             }
 
             if ($reviews) {

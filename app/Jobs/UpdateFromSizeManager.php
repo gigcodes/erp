@@ -3,10 +3,10 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class UpdateFromSizeManager implements ShouldQueue
 {
@@ -43,7 +43,7 @@ class UpdateFromSizeManager implements ShouldQueue
     public function handle()
     {
         try {
-            self::putLog('Job start sizes from erp start time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job start sizes from erp start time : ' . date('Y-m-d H:i:s'));
 
             $sizesProduct = \App\Product::join('product_suppliers as ps', 'ps.supplier_id', 'products.supplier_id')
             ->where('ps.size_system', $this->params['size_system'])
@@ -76,7 +76,7 @@ class UpdateFromSizeManager implements ShouldQueue
 
             //\Log::channel('productUpdates')->info(print_r($sku,true));
 
-            self::putLog('Job start sizes from erp end time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job start sizes from erp end time : ' . date('Y-m-d H:i:s'));
 
             return true;
         } catch (\Exception $e) {

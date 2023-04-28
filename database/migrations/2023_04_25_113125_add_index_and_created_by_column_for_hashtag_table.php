@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddIndexAndCreatedByColumnForHashtagTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddIndexAndCreatedByColumnForHashtagTable extends Migration
     public function up()
     {
         Schema::table('hash_tags', function (Blueprint $table) {
-            $table->unsignedBigInteger("created_by")->after('created_at')->nullable();
+            $table->unsignedBigInteger('created_by')->after('created_at')->nullable();
             $table->index(['hashtag']);
         });
     }
@@ -27,7 +27,7 @@ class AddIndexAndCreatedByColumnForHashtagTable extends Migration
     public function down()
     {
         Schema::table('hash_tags', function (Blueprint $table) {
-            $table->dropColumn("created_by");
+            $table->dropColumn('created_by');
         });
     }
 }

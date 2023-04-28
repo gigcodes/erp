@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Brand;
-use App\BroadcastImage;
-use App\CallBusyMessage;
-use App\CallRecording;
-use App\Category;
-use App\ChatMessage;
-use App\CommunicationHistory;
-use App\Customer;
-use App\ErpLeads;
-use App\ErpLeadsBrand;
-use App\ErpLeadsCategory;
-use App\ErpLeadStatus;
-use App\Helpers;
-use App\Image;
-use App\Leads;
-use App\Message;
-use App\MessageQueue;
-use App\Product;
-use App\ReplyCategory;
-use App\Setting;
-use App\Status;
-use App\StatusChange;
 use App\Task;
 use App\User;
-use GuzzleHttp\Client as GuzzleClient;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Brand;
+use App\Image;
+use App\Leads;
+use App\Status;
+use App\Helpers;
+use App\Message;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Customer;
+use App\ErpLeads;
+use App\ChatMessage;
+use App\MessageQueue;
+use App\StatusChange;
+use App\CallRecording;
+use App\ErpLeadsBrand;
+use App\ErpLeadStatus;
+use App\ReplyCategory;
+use App\BroadcastImage;
+use App\CallBusyMessage;
+use App\ErpLeadsCategory;
 use Plank\Mediable\Media;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\CommunicationHistory;
+use Illuminate\Support\Facades\Auth;
+use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class LeadsController extends Controller
 {
@@ -102,7 +102,7 @@ class LeadsController extends Controller
         $category = request()->get('multi_category', null);
 
         if (! is_null($category) && $category != '' && $category != 1) {
-            $leads->where('multi_category', 'LIKE', '%"'.$category.'"%');
+            $leads->where('multi_category', 'LIKE', '%"' . $category . '"%');
         }
 
         $status = request()->get('status', null);
@@ -127,10 +127,10 @@ class LeadsController extends Controller
                 return $query->where('name', 'LIKE', "%$term%");
             })->where(function ($query) use ($term) {
                 return $query
-                    ->orWhere('client_name', 'like', '%'.$term.'%')
-                    ->orWhere('id', 'like', '%'.$term.'%')
+                    ->orWhere('client_name', 'like', '%' . $term . '%')
+                    ->orWhere('id', 'like', '%' . $term . '%')
                     ->orWhere('contactno', $term)
-                    ->orWhere('city', 'like', '%'.$term.'%')
+                    ->orWhere('city', 'like', '%' . $term . '%')
                     ->orWhere('instahandler', $term)
                     ->orWhere('assigned_user', Helpers::getUserIdByName($term))
                     ->orWhere('assigned_user', Helpers::getUserIdByName($term))
@@ -210,7 +210,6 @@ class LeadsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -315,7 +314,7 @@ class LeadsController extends Controller
             if ($request->hasfile('image')) {
                 foreach ($request->file('image') as $image) {
                     $media = MediaUploader::fromSource($image)
-                        ->toDirectory('leads/'.floor($lead->id / config('constants.image_per_folder')))
+                        ->toDirectory('leads/' . floor($lead->id / config('constants.image_per_folder')))
                         ->upload();
                     $lead->attachMedia($media, config('constants.media_tags'));
                 }
@@ -435,7 +434,6 @@ class LeadsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -545,7 +543,7 @@ class LeadsController extends Controller
             } elseif ($old == -1) {
                 foreach ($request->file('image') as $image) {
                     $media = MediaUploader::fromSource($image)
-                        ->toDirectory('leads/'.floor($leads->id / config('constants.image_per_folder')))
+                        ->toDirectory('leads/' . floor($leads->id / config('constants.image_per_folder')))
                         ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }
@@ -558,7 +556,7 @@ class LeadsController extends Controller
             if ($request->hasFile('image')) {
                 foreach ($request->file('image') as $image) {
                     $media = MediaUploader::fromSource($image)
-                        ->toDirectory('leads/'.floor($leads->id / config('constants.image_per_folder')))
+                        ->toDirectory('leads/' . floor($leads->id / config('constants.image_per_folder')))
                         ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }
@@ -590,7 +588,7 @@ class LeadsController extends Controller
         $product_names = '';
 
         $params['customer_id'] = $customer->id;
-        \Log::channel('customer')->info('Lead send price started : '.$customer->id);
+        \Log::channel('customer')->info('Lead send price started : ' . $customer->id);
         $cnt = 'IN';
         $website = \App\StoreWebsite::find(15);
         foreach ($request->selected_product as $product_id) {
@@ -650,16 +648,16 @@ class LeadsController extends Controller
             \App\LeadProductPriceCountLogs::updateOrCreate($condition, $fields);
 
             if ($request->has('dimension')) {
-                $product_names .= "$brand_name $product->name".' ('."Length: $product->lmeasurement cm, Height: $product->hmeasurement cm & Depth: $product->dmeasurement cm) \n";
-                $params['message'] = 'The products with their respective dimensions are: : '.$product_names.'.';
+                $product_names .= "$brand_name $product->name" . ' (' . "Length: $product->lmeasurement cm, Height: $product->hmeasurement cm & Depth: $product->dmeasurement cm) \n";
+                $params['message'] = 'The products with their respective dimensions are: : ' . $product_names . '.';
                 $chat_message = ChatMessage::create($params);
             } else {
                 if ($request->has('detailed')) {
-                    $params['message'] = 'The product images for : : '.$brand_name.' '.$product->name.' are.';
+                    $params['message'] = 'The product images for : : ' . $brand_name . ' ' . $product->name . ' are.';
                     $chat_message = ChatMessage::create($params);
                     $chat_message->attachMedia($product->getMedia(config('constants.attach_image_tag')), config('constants.media_tags'));
                 } else {
-                    $auto_message = "$brand_name $product->name".' - '."$special_price";
+                    $auto_message = "$brand_name $product->name" . ' - ' . "$special_price";
                     //$auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
                     //$auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
                     $params['message'] = ''; //$auto_message;
@@ -678,7 +676,7 @@ class LeadsController extends Controller
                         // add text message and create image
                         $textImage = self::createProductTextImage(
                             $mediaImage->getAbsolutePath(),
-                            'instant_message_'.$chat_message->id,
+                            'instant_message_' . $chat_message->id,
                             $auto_message,
                             '545b62',
                             '40',
@@ -687,7 +685,7 @@ class LeadsController extends Controller
 
                         if (! empty($textImage)) {
                             $mediaPrice = MediaUploader::fromSource($textImage)
-                                ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_per_folder')))->upload();
+                                ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))->upload();
                             //$chat_message->media_url = $textImage;
                             $chat_message->attachMedia($mediaPrice, config('constants.media_tags'));
                             $chat_message->save();
@@ -696,14 +694,14 @@ class LeadsController extends Controller
                     // send message now
                     // uncomment this one to send message immidiatly
                     if (! $isQueue) {
-                        app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_'.$customer->id, $client, $textImage);
+                        app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
                     }
                 }
             }
 
             if (! $isQueue) {
                 $autoApprove = \App\Helpers\DevelopmentHelper::needToApproveMessage();
-                \Log::channel('customer')->info('Send price started : '.$chat_message->id);
+                \Log::channel('customer')->info('Send price started : ' . $chat_message->id);
 
                 if ($autoApprove && ! empty($chat_message->id)) {
                     // send request if auto approve
@@ -718,7 +716,7 @@ class LeadsController extends Controller
 
         if ($request->has('dimension') || $request->has('detailed')) {
             if (! $isQueue) {
-                app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_'.$customer->id, $client);
+                app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
             }
         }
 
@@ -850,17 +848,17 @@ class LeadsController extends Controller
         $img->text($text, 5, 50, function ($font) use ($fontSize, $color) {
             $font->file(public_path('/fonts/HelveticaNeue.ttf'));
             $font->size($fontSize);
-            $font->color('#'.$color);
+            $font->color('#' . $color);
             $font->align('top');
         });
 
-        $name = ! empty($name) ? $name.'_watermarked' : time().'_watermarked';
+        $name = ! empty($name) ? $name . '_watermarked' : time() . '_watermarked';
 
-        if (! \File::isDirectory(public_path().'/uploads/chat-price-image/')) {
-            \File::makeDirectory(public_path().'/uploads/chat-price-image/', 0777, true, true);
+        if (! \File::isDirectory(public_path() . '/uploads/chat-price-image/')) {
+            \File::makeDirectory(public_path() . '/uploads/chat-price-image/', 0777, true, true);
         }
 
-        $path = 'uploads/chat-price-image/'.$name.'.jpg';
+        $path = 'uploads/chat-price-image/' . $name . '.jpg';
 
         $img->save(public_path($path));
 
@@ -868,7 +866,7 @@ class LeadsController extends Controller
             return public_path($path);
         }
 
-        return url('/').'/'.$path;
+        return url('/') . '/' . $path;
     }
 
     public function erpLeads(Request $request)
@@ -940,7 +938,7 @@ class LeadsController extends Controller
         */
 
         if ($s = request('lead_customer')) {
-            $source = $source->where('c.name', 'like', '%'.$s.'%');
+            $source = $source->where('c.name', 'like', '%' . $s . '%');
         }
         if ($s = request('lead_brand')) {
             $source = $source->whereIn('erp_leads.brand_id', $s);
@@ -954,7 +952,7 @@ class LeadsController extends Controller
         }
         if ($s = request('lead_category')) {
             $leadIds = ErpLeadsCategory::leftJoin('categories', 'categories.id', '=', 'erp_leads_categories.category_id')
-                ->where('title', 'like', '%'.$s.'%')
+                ->where('title', 'like', '%' . $s . '%')
                 ->pluck('erp_lead_id')
                 ->toArray();
             $source = $source->whereIn('erp_leads.id', $leadIds);
@@ -1101,7 +1099,7 @@ class LeadsController extends Controller
         }*/
 
         if ($request->get('lead_customer')) {
-            $source = $source->where('c.name', 'like', '%'.$request->get('lead_customer').'%');
+            $source = $source->where('c.name', 'like', '%' . $request->get('lead_customer') . '%');
         }
 
         if ($request->get('lead_brand')) {
@@ -1113,7 +1111,7 @@ class LeadsController extends Controller
         }
 
         if ($request->get('lead_category')) {
-            $source = $source->where('cat.title', 'like', '%'.$request->get('lead_category').'%');
+            $source = $source->where('cat.title', 'like', '%' . $request->get('lead_category') . '%');
         }
 
         if ($request->get('lead_color')) {
@@ -1125,7 +1123,7 @@ class LeadsController extends Controller
         }
 
         if ($request->get('lead_type')) {
-            $source = $source->where('erp_leads.type', 'like', '%'.$request->get('lead_type').'%');
+            $source = $source->where('erp_leads.type', 'like', '%' . $request->get('lead_type') . '%');
         }
 
         if ($request->get('brand_segment')) {
@@ -1520,11 +1518,11 @@ class LeadsController extends Controller
             ->select(['erp_lead_sending_histories.*', 'products.name as product_name', 'c.name as customer_name', 'c.id as customer_id', 'erp_lead_status.name as lead_status']);
 
         if ($request->get('lead_customer')) {
-            $source = $source->where('c.name', 'like', '%'.$request->get('lead_customer').'%');
+            $source = $source->where('c.name', 'like', '%' . $request->get('lead_customer') . '%');
         }
 
         if ($request->get('product_name')) {
-            $source = $source->where('products.name', 'like', '%'.$request->get('product_name').'%');
+            $source = $source->where('products.name', 'like', '%' . $request->get('product_name') . '%');
         }
 
         if ($request->get('lead_status')) {
@@ -1620,7 +1618,7 @@ class LeadsController extends Controller
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
                     } catch (\Exception $e) {
-                        \Log::info('Sending mail issue at the ordercontroller #2215 ->'.$e->getMessage());
+                        \Log::info('Sending mail issue at the ordercontroller #2215 ->' . $e->getMessage());
                     }
                 } else {
                     $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();

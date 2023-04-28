@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-//use App\InstagramAutoComments;
 use Carbon\Carbon;
+//use App\InstagramAutoComments;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 //use InstagramAPI\Instagram;

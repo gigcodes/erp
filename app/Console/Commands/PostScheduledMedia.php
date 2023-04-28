@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\ImageSchedule;
 use App\ScheduleGroup;
-use App\Services\Facebook\Facebook;
 //use App\Services\Instagram\Instagram;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Services\Facebook\Facebook;
 
 class PostScheduledMedia extends Command
 {

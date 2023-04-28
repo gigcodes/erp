@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Setting;
-use App\SimplyDutyCalculation;
 use App\SimplyDutyCountry;
 use Illuminate\Http\Request;
+use App\SimplyDutyCalculation;
 
 class SimplyDutyCalculationController extends Controller
 {
@@ -54,7 +54,6 @@ class SimplyDutyCalculationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -65,7 +64,6 @@ class SimplyDutyCalculationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\SimplyDutyCalculation  $simplyDutyCalculation
      * @return \Illuminate\Http\Response
      */
     public function show(SimplyDutyCalculation $simplyDutyCalculation)
@@ -76,7 +74,6 @@ class SimplyDutyCalculationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SimplyDutyCalculation  $simplyDutyCalculation
      * @return \Illuminate\Http\Response
      */
     public function edit(SimplyDutyCalculation $simplyDutyCalculation)
@@ -87,8 +84,6 @@ class SimplyDutyCalculationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\SimplyDutyCalculation  $simplyDutyCalculation
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, SimplyDutyCalculation $simplyDutyCalculation)
@@ -99,7 +94,6 @@ class SimplyDutyCalculationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SimplyDutyCalculation  $simplyDutyCalculation
      * @return \Illuminate\Http\Response
      */
     public function destroy(SimplyDutyCalculation $simplyDutyCalculation)

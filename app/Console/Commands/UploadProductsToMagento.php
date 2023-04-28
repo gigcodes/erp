@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Jobs\PushToMagento;
-use App\MagentoSoapHelper;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\MagentoSoapHelper;
+use App\Jobs\PushToMagento;
 use Illuminate\Console\Command;
 
 class UploadProductsToMagento extends Command

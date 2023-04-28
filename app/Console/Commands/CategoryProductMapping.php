@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Console\Command;
 use App\ScrappedCategoryMapping;
 use App\ScrappedProductCategoryMapping;
-use Illuminate\Console\Command;
 
 class CategoryProductMapping extends Command
 {
@@ -42,7 +42,7 @@ class CategoryProductMapping extends Command
         //
         $all_category = ScrappedCategoryMapping::where('is_mapped', 0)->get()->pluck('name', 'id')->toArray();
 
-        dump('Total Category: '.count($all_category));
+        dump('Total Category: ' . count($all_category));
 
         foreach ($all_category as $k => $v) {
             $v = str_replace('/', ',', $v);
@@ -72,7 +72,7 @@ class CategoryProductMapping extends Command
             }
 
             ScrappedCategoryMapping::where('id', $k)->update(['is_mapped' => 1]);
-            dump('Category processed: => '.$v);
+            dump('Category processed: => ' . $v);
         }
     }
 }

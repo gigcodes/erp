@@ -2,11 +2,11 @@
 
 namespace App\Services\Scrap;
 
+use Storage;
 use App\Brand;
 use App\Product;
-use App\ScrapedProducts;
 use App\ScrapEntries;
-use Storage;
+use App\ScrapedProducts;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
 class DoubleFProductDetailsScraper extends Scraper
@@ -140,7 +140,7 @@ class DoubleFProductDetailsScraper extends Scraper
         }
 
         $colorCode = $colorCode[1];
-        $sku2 = $image->sku.$colorCode;
+        $sku2 = $image->sku . $colorCode;
         $image->sku = $sku2;
 
         $image->save();
@@ -256,8 +256,8 @@ class DoubleFProductDetailsScraper extends Scraper
                 continue;
             }
 
-            $fileName = $prefix.'_'.md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }

@@ -19,7 +19,7 @@
                       <select class="form-control website-form-page">
                         <option value="">-- Select --</option>
                           <?php foreach ($categroy_seos_list as $item) { ?>
-                            <option value="<?php echo $item->id; ?>"><?php echo $item->id.' - '.$item->meta_title; ?></option>
+                            <option value="<?php echo $item->id; ?>"><?php echo $item->id . ' - ' . $item->meta_title; ?></option>
                           <?php } ?>
                       </select>
 					  <input type="checkbox" name="ctitle" id="ctitle"> <label for="ctitle"> Meta title </label>
@@ -32,7 +32,7 @@
 						<select id="store_copy_id" class="form-control">
 							<option value="">-- Select --</option>
 							<?php foreach ($categroy_seos_list as $item) { ?>
-								<option value="<?php echo $item->id; ?>"><?php echo $item->id.' - '.$item->meta_title; ?></option>
+								<option value="<?php echo $item->id; ?>"><?php echo $item->id . ' - ' . $item->meta_title; ?></option>
 							<?php } ?>
 						</select>
 						<input type="checkbox" name="cttitle" id="cttitle"> <label for="cttitle"> Meta title </label>

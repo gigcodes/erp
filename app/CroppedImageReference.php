@@ -7,8 +7,8 @@ namespace App;
  */
 
 use DB;
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Media;
+use Illuminate\Database\Eloquent\Model;
 
 class CroppedImageReference extends Model
 {
@@ -58,12 +58,12 @@ class CroppedImageReference extends Model
 
     public function getProductIssueStatus($id)
     {
-        $task = DeveloperTask::where('task', 'LIKE', '%'.$id.'%')->first();
+        $task = DeveloperTask::where('task', 'LIKE', '%' . $id . '%')->first();
         if ($task != null) {
             if ($task->status == 'done') {
-                return '<p>Issue Resolved</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$task->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
+                return '<p>Issue Resolved</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="' . $task->id . '" title="Load messages"><img src="/images/chat.png" alt=""></button>';
             } else {
-                return '<p>Issue Pending</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$task->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
+                return '<p>Issue Pending</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="' . $task->id . '" title="Load messages"><img src="/images/chat.png" alt=""></button>';
             }
         } else {
             return 'No Issue Yet';

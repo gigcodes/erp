@@ -2,8 +2,8 @@
 
 namespace Modules\BookStack\Actions;
 
-use Modules\BookStack\Auth\User;
 use Modules\BookStack\Model;
+use Modules\BookStack\Auth\User;
 
 /**
  * @property string  key
@@ -43,13 +43,12 @@ class Activity extends Model
      */
     public function getText()
     {
-        return trans('activities.'.$this->key);
+        return trans('activities.' . $this->key);
     }
 
     /**
      * Checks if another Activity matches the general information of another.
      *
-     * @param $activityB
      * @return bool
      */
     public function isSimilarTo($activityB)

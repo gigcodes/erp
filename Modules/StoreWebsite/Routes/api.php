@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\ColorController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ColorController;
 
 /*
 |--------------------------------------------------------------------------

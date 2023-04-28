@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Wa72\HtmlPageDom\HtmlPageCrawler;

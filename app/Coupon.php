@@ -51,13 +51,13 @@ class Coupon extends Model
     {
         $discount = '';
         if ($this->currency) {
-            $discount .= $this->currency.' ';
+            $discount .= $this->currency . ' ';
         }
         if ($this->discount_fixed) {
-            $discount .= $this->discount_fixed.' fixed plus ';
+            $discount .= $this->discount_fixed . ' fixed plus ';
         }
         if ($this->discount_percentage) {
-            $discount .= $this->discount_percentage.'% discount';
+            $discount .= $this->discount_percentage . '% discount';
         }
 
         return $discount;

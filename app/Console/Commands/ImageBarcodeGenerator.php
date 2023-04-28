@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\BarcodeMedia;
-use Carbon\Carbon;
 use File;
+use Carbon\Carbon;
+use App\BarcodeMedia;
 use Illuminate\Console\Command;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -66,7 +66,7 @@ class ImageBarcodeGenerator extends Command
         if ($product) {
             $brand_name = $this->getBrandName($product);
             $special_price = $this->getSpecialPrice($product);
-            $auto_message = $brand_name."\n".$product->name."\n".$special_price;
+            $auto_message = $brand_name . "\n" . $product->name . "\n" . $special_price;
         }
 
         return $auto_message;
@@ -74,12 +74,12 @@ class ImageBarcodeGenerator extends Command
 
     public function setMediaFilename($media)
     {
-        return md5($media->id).'.'.$media->extension;
+        return md5($media->id) . '.' . $media->extension;
     }
 
     public function getMediaPathSave($key)
     {
-        $path = public_path().'/uploads/product-barcode/'.get_folder_number($key).'/';
+        $path = public_path() . '/uploads/product-barcode/' . get_folder_number($key) . '/';
         File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
 
         return $path;
@@ -118,7 +118,7 @@ class ImageBarcodeGenerator extends Command
                     $filenameNew = $this->setMediaFilename($media);
                     $path = $this->getMediaPathSave($product->id);
 
-                    $img->save($path.$filenameNew);
+                    $img->save($path . $filenameNew);
 
                     $barcodeMedia = BarcodeMedia::updateOrCreate([
                         'media_id' => $media->id,
@@ -128,18 +128,18 @@ class ImageBarcodeGenerator extends Command
                         'media_id' => $media->id,
                         'type' => 'product',
                         'type_id' => $product->id,
-                        'name' => $this->getBrandName($product).'||'.$product->name,
+                        'name' => $this->getBrandName($product) . '||' . $product->name,
                         'price' => $this->getSpecialPrice($product),
                     ]);
 
-                    $media = MediaUploader::fromSource($path.$filenameNew)
-                        ->toDirectory('uploads/product-barcode/'.get_folder_number($product->id).'/')
+                    $media = MediaUploader::fromSource($path . $filenameNew)
+                        ->toDirectory('uploads/product-barcode/' . get_folder_number($product->id) . '/')
                     //->toDirectory($path)
                         ->setOnDuplicateBehavior('replace')
                         ->upload();
                     $barcodeMedia->attachMedia($media, config('constants.media_barcode_tag'));
                 } catch (\Exception $e) {
-                    \Log::channel('productUpdates')->info($e->getMessage().' || Product '.$product->id.' having issue in image barcode and image stored on : '.$media->getAbsolutePath());
+                    \Log::channel('productUpdates')->info($e->getMessage() . ' || Product ' . $product->id . ' having issue in image barcode and image stored on : ' . $media->getAbsolutePath());
                 }
             }
             // once prduct has been done then delete barcode string image
@@ -180,7 +180,7 @@ class ImageBarcodeGenerator extends Command
             $whereString = 'where is_barcode_check is null and p.has_mediables = 1';
             $havingClause = 'having (total_image != total_barcode or total_barcode is null or bimage_name != bm_name or b_price > bm_price or b_price < bm_price)';
             if (! empty($productId) && $productId > 0) {
-                $whereString = ' where p.id = '.$productId.' and p.has_mediables = 1';
+                $whereString = ' where p.id = ' . $productId . ' and p.has_mediables = 1';
                 $havingClause = '';
             }
 
@@ -189,10 +189,10 @@ class ImageBarcodeGenerator extends Command
         IF(p.price_special_offer > 0, p.price_special_offer , p.price_inr_special) as b_price
         from products as p
         left join brands as b on b.id = p.brand
-        join mediables as md on md.mediable_id  = p.id and md.tag in ('.self::MEDIA_TYPE_TAG.') and mediable_type like "App%Product"
+        join mediables as md on md.mediable_id  = p.id and md.tag in (' . self::MEDIA_TYPE_TAG . ') and mediable_type like "App%Product"
         left join barcode_media as bm on bm.media_id = md.media_id and bm.type = "product"
-        '.$whereString.'
-        group by p.id '.$havingClause.' order by p.stock,p.id desc limit '.self::LIMIT;
+        ' . $whereString . '
+        group by p.id ' . $havingClause . ' order by p.stock,p.id desc limit ' . self::LIMIT;
 
             $productQuery = \DB::select($query);
 
@@ -210,12 +210,12 @@ class ImageBarcodeGenerator extends Command
                 $products = \App\Product::whereIn('id', $productIds)->get();
                 if (! $products->isEmpty()) {
                     foreach ($products as $product) {
-                        echo $product->id.' Started at  '.date('Y-m-d H:i:s').PHP_EOL;
+                        echo $product->id . ' Started at  ' . date('Y-m-d H:i:s') . PHP_EOL;
                         $this->product = $product;
                         $image = $this->insertImage($product);
                         $product->is_barcode_check = 1;
                         $product->save();
-                        echo $product->id.' Ended at  '.date('Y-m-d H:i:s').PHP_EOL;
+                        echo $product->id . ' Ended at  ' . date('Y-m-d H:i:s') . PHP_EOL;
                     }
                 }
                 $report->update(['end_time' => Carbon::now()]);

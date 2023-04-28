@@ -7,21 +7,21 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Config;
 
-use function array_combine;
-use function array_shift;
-use function array_walk;
 use function count;
-use const E_USER_ERROR;
-use function gettype;
-use function is_array;
-use function is_bool;
-use function is_int;
-use function is_string;
 use function ltrim;
+use function is_int;
+use function gettype;
+use function is_bool;
+use function is_array;
+use const E_USER_ERROR;
+use function is_string;
 use function mb_strpos;
-use function mb_strrpos;
 use function mb_substr;
+use function array_walk;
+use function mb_strrpos;
+use function array_shift;
 use function str_replace;
+use function array_combine;
 use function trigger_error;
 
 /**
@@ -127,13 +127,13 @@ class Form
     {
         $value = $this->configFile->getDbEntry($optionPath);
         if ($value === null) {
-            trigger_error($optionPath.' - select options not defined', E_USER_ERROR);
+            trigger_error($optionPath . ' - select options not defined', E_USER_ERROR);
 
             return [];
         }
 
         if (! is_array($value)) {
-            trigger_error($optionPath.' - not a static value list', E_USER_ERROR);
+            trigger_error($optionPath . ' - not a static value list', E_USER_ERROR);
 
             return [];
         }
@@ -179,7 +179,7 @@ class Form
     private function readFormPathsCallback($value, $key, $prefix): void
     {
         if (is_array($value)) {
-            $prefix .= $key.'/';
+            $prefix .= $key . '/';
             array_walk(
                 $value,
                 function ($value, $key, $prefix): void {
@@ -192,16 +192,16 @@ class Form
         }
 
         if (! is_int($key)) {
-            $this->default[$prefix.$key] = $value;
+            $this->default[$prefix . $key] = $value;
             $value = $key;
         }
 
         // add unique id to group ends
         if ($value === ':group:end') {
-            $value .= ':'.self::$groupCounter++;
+            $value .= ':' . self::$groupCounter++;
         }
 
-        $this->fields[] = $prefix.$value;
+        $this->fields[] = $prefix . $value;
     }
 
     /**
@@ -273,7 +273,6 @@ class Form
      * @see issue #15836
      *
      * @param  array  $form The form data
-     * @return array
      */
     protected function cleanGroupPaths(array $form): array
     {

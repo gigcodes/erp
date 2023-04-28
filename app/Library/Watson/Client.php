@@ -2,9 +2,9 @@
 
 namespace App\Library\Watson;
 
+use GuzzleHttp\Client as GuzzleClient;
 use App\Library\Watson\Interfaces\ClientInterface;
 use App\Library\Watson\Interfaces\ResponseInterface;
-use GuzzleHttp\Client as GuzzleClient;
 
 class Client implements ClientInterface
 {

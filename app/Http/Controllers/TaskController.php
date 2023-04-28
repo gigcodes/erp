@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Setting;
-use App\Status;
 use App\Task;
-use App\TaskStatus;
-use App\tasktypes;
 use App\User;
+use App\Status;
+use App\Setting;
+use App\tasktypes;
+use App\TaskStatus;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 
 class TaskController extends Controller
@@ -55,7 +55,6 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -141,7 +140,6 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -227,7 +225,6 @@ class TaskController extends Controller
     /**
      * function to show the user wise task's statuses counts.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -284,7 +281,6 @@ class TaskController extends Controller
     /**
      * function to show all the task list based on specific status and user
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $user_id, $status
      * @return \Illuminate\Http\Response
      */
@@ -298,7 +294,6 @@ class TaskController extends Controller
     /**
      * Function to get user's name - it's use for lazy loading of users data
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function usersList(Request $request)
@@ -306,7 +301,7 @@ class TaskController extends Controller
         $users = User::orderBy('name');
         if (! empty($request->q)) {
             $users->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%'.$request->q.'%');
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
         }
         $users = $users->paginate(30);
@@ -326,7 +321,6 @@ class TaskController extends Controller
     /**
      * Function to get user's name - it's use for lazy loading of users data
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function statusList(Request $request)
@@ -334,7 +328,7 @@ class TaskController extends Controller
         $taskStatus = TaskStatus::orderBy('name');
         if (! empty($request->q)) {
             $taskStatus->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%'.$request->q.'%');
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
         }
         $taskStatus = $taskStatus->paginate(30);

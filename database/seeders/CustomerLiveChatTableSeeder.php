@@ -20,7 +20,7 @@ class CustomerLiveChatTableSeeder extends Seeder
         // Load Faker
         $faker = \Faker\Factory::create();
 
-        foreach($customers as $customer){
+        foreach ($customers as $customer) {
             $customerLiveChat = new CustomerLiveChat();
             $customerLiveChat->customer_id = $customer->id;
             $customerLiveChat->thread = $faker->name;

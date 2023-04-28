@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class CheckScraperKilledHistory extends Command
@@ -55,11 +55,11 @@ class CheckScraperKilledHistory extends Command
         if (count($output) > 0) {
             foreach ($output as $_data) {
                 $scraper_name = trim($_data);
-                \Log::info('Found this scraper name '.$scraper_name);
+                \Log::info('Found this scraper name ' . $scraper_name);
                 if ($scraper_name) {
                     $scrapers = \App\Scraper::where('scraper_name', $scraper_name)->get();
                     if ($scrapers) {
-                        \Log::info('record found this scraper name '.$scraper_name);
+                        \Log::info('record found this scraper name ' . $scraper_name);
                         foreach ($scrapers as $_scrap) {
                             $status = \App\ScraperKilledHistory::create([
                                 'scraper_id' => $_scrap->id,

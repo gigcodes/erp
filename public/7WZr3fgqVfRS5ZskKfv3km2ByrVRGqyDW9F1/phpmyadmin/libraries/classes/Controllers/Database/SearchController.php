@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Database;
 
 use function __;
-use PhpMyAdmin\Database\Search;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Database\Search;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 
 class SearchController extends AbstractController
 {

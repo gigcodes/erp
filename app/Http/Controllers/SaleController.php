@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Sale;
+use App\User;
 use App\Image;
 use App\Product;
-use App\Sale;
 use App\Setting;
-use App\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SaleController extends Controller
 {
@@ -106,7 +106,7 @@ class SaleController extends Controller
         if ($request->has('image')) {
             $sale_instance = $sale->find($sale_id);
             $media = MediaUploader::fromSource($request->file('image'))
-                                            ->toDirectory('sale/'.floor($sale_instance->id / config('constants.image_per_folder')))
+                                            ->toDirectory('sale/' . floor($sale_instance->id / config('constants.image_per_folder')))
                                             ->upload();
             $sale_instance->attachMedia($media, config('constants.media_tags'));
         }
@@ -311,9 +311,9 @@ class SaleController extends Controller
         $q = $request->input('q');
 
         $results = Product::select('id', 'name', 'sku', 'brand')
-                          ->where('id', 'LIKE', '%'.$q.'%')
-                          ->orWhere('sku', 'LIKE', '%'.$q.'%')
-                          ->orWhere('name', 'LIKE', '%'.$q.'%')
+                          ->where('id', 'LIKE', '%' . $q . '%')
+                          ->orWhere('sku', 'LIKE', '%' . $q . '%')
+                          ->orWhere('name', 'LIKE', '%' . $q . '%')
                           ->offset(0)
                           ->limit(15)
                           ->get();
@@ -342,7 +342,7 @@ class SaleController extends Controller
 
             if (! empty($request->file('image'))) {
                 $media = MediaUploader::fromSource($request->file('image'))
-                                        ->toDirectory('sale/'.floor($sale->id / config('constants.image_per_folder')))
+                                        ->toDirectory('sale/' . floor($sale->id / config('constants.image_per_folder')))
                                         ->upload();
                 $sale->attachMedia($media, config('constants.media_tags'));
             }

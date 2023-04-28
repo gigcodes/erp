@@ -9,10 +9,10 @@ namespace PhpMyAdmin\Plugins\Schema\Eps;
 
 use function __;
 use function date;
-use function in_array;
-use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
-use PhpMyAdmin\Version;
 use function sprintf;
+use function in_array;
+use PhpMyAdmin\Version;
+use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
 
 /**
  * EPS Relation Schema Class
@@ -63,7 +63,7 @@ class EpsRelationSchema extends ExportRelationSchema
                 $this->pageNumber
             )
         );
-        $this->diagram->setAuthor('phpMyAdmin '.Version::VERSION);
+        $this->diagram->setAuthor('phpMyAdmin ' . Version::VERSION);
         $this->diagram->setDate(date('j F Y, g:i a'));
         $this->diagram->setOrientation($this->orientation);
         $this->diagram->setFont('Verdana', 10);

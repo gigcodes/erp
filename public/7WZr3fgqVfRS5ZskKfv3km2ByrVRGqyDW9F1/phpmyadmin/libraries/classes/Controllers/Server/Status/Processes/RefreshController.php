@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server\Status\Processes;
 
-use PhpMyAdmin\Controllers\Server\Status\AbstractController;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Server\Status\Data;
 use PhpMyAdmin\Server\Status\Processes;
-use PhpMyAdmin\Template;
+use PhpMyAdmin\Controllers\Server\Status\AbstractController;
 
 final class RefreshController extends AbstractController
 {

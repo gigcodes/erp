@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MagentoModule\MagentoModuleJsRequireHistoryRequest;
 use App\MagentoModuleJsRequireHistory;
+use App\Http\Requests\MagentoModule\MagentoModuleJsRequireHistoryRequest;
 
 class MagentoModuleJsRequireHistoryController extends Controller
 {

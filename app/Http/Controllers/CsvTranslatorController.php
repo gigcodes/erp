@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\CsvTranslator;
-use App\CsvTranslatorHistory;
-use App\Imports\CsvTranslatorImport;
-use App\Models\CsvPermissions;
 use App\User;
+use App\CsvTranslator;
 use Illuminate\Http\Request;
+use App\CsvTranslatorHistory;
+use App\Models\CsvPermissions;
+use App\Imports\CsvTranslatorImport;
 
 class CsvTranslatorController extends Controller
 {
@@ -155,9 +155,9 @@ class CsvTranslatorController extends Controller
 
     public function commanRadioLoad($lang, $id, $data)
     {
-        if ($data['status_'.$lang] == 'new') {
-            return $data[$lang].'<div class="d-flex"><input type="radio" data-id='.$id.' id="radio1" data-lang='.$lang.' name="radio1" value="checked"><label class="p-3">Accept</label>
-            <input type="radio" data-id='.$id.' data-lang='.$lang.' id="radio2" name="radio1" value="unchecked"><label class="p-3">Reject</label><div>';
+        if ($data['status_' . $lang] == 'new') {
+            return $data[$lang] . '<div class="d-flex"><input type="radio" data-id=' . $id . ' id="radio1" data-lang=' . $lang . ' name="radio1" value="checked"><label class="p-3">Accept</label>
+            <input type="radio" data-id=' . $id . ' data-lang=' . $lang . ' id="radio2" name="radio1" value="unchecked"><label class="p-3">Reject</label><div>';
         } else {
             return $data[$lang];
         }
@@ -181,52 +181,52 @@ class CsvTranslatorController extends Controller
         $language = $data[$lang];
         if (count($permissions[$lang]) == 1) {
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'view') {
-                if ($data['status_'.$lang] === 'checked') {
-                    return '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
+                if ($data['status_' . $lang] === 'checked') {
+                    return '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 } else {
-                    return '<div class="bg-custom-grey show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
+                    return '<div class="bg-custom-grey show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 }
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'edit') {
-                if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
+                if ($data['status_' . $lang] == 'checked') {
+                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 } else {
-                    return  '<div class="bg-custom-grey show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
+                    return  '<div class="bg-custom-grey show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 }
             }
         }
 
         if (count($permissions[$lang]) == 2) {
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'view') {
-                if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
+                if ($data['status_' . $lang] == 'checked') {
+                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 } else {
-                    return   '<div class="bg-custom-grey show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
+                    return   '<div class="bg-custom-grey show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 }
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'edit') {
-                if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
+                if ($data['status_' . $lang] == 'checked') {
+                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 } else {
-                    return  '<div class="bg-custom-grey p-2 show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
+                    return  '<div class="bg-custom-grey p-2 show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 }
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][1]) && $permissions[$lang][1] == 'view') {
-                if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
+                if ($data['status_' . $lang] == 'checked') {
+                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 } else {
-                    return   '<div class="bg-custom-grey show_csv_co">'.$language."</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
+                    return   '<div class="bg-custom-grey show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
                 }
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][1]) && $permissions[$lang][1] == 'edit') {
-                if ($data['status_'.$lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
+                if ($data['status_' . $lang] == 'checked') {
+                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 } else {
-                    return  '<div class="bg-custom-grey p-2 show_csv_co">'.$language."</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='".auth()->user()->id."' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
+                    return  '<div class="bg-custom-grey p-2 show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 }
             }
         }
@@ -300,7 +300,7 @@ class CsvTranslatorController extends Controller
         $historyData['csv_translator_id'] = $record->id;
         $historyData['updated_by_user_id'] = $request->update_by_user_id;
         $historyData['key'] = $key;
-        $historyData['status_'.$request->lang_id] = 'new';
+        $historyData['status_' . $request->lang_id] = 'new';
         $historyData[$request->lang_id] = $oldRecord;
         $historyData['created_at'] = \Carbon\Carbon::now();
         CsvTranslatorHistory::insert($historyData);
@@ -311,12 +311,12 @@ class CsvTranslatorController extends Controller
     public function approvedByAdmin(Request $request)
     {
         $record = CsvTranslator::where('id', $request->id)->first();
-        $record['status_'.$request->lang] = $request->status;
+        $record['status_' . $request->lang] = $request->status;
         $record['approved_by_user_id'] = \Auth::user()->id;
         $record->update();
 
         $record_history = CsvTranslatorHistory::where('csv_translator_id', $request->id)->where($request->lang, '!=', '')->orderBy('id', 'desc')->first();
-        $record_history['status_'.$request->lang] = $request->status;
+        $record_history['status_' . $request->lang] = $request->status;
         $record_history['approved_by_user_id'] = \Auth::user()->id;
         $record_history->update();
 
@@ -330,7 +330,7 @@ class CsvTranslatorController extends Controller
         $history = CsvTranslatorHistory::where([
             'csv_translator_id' => $request->id,
             'key' => $request->key,
-        ])->whereRaw('status_'.$request->language.' is not null')->get();
+        ])->whereRaw('status_' . $request->language . ' is not null')->get();
         if (count($history) > 0) {
             foreach ($history as $key => $historyData) {
                 $history[$key]['updater'] = User::where('id', $historyData['updated_by_user_id'])->pluck('name')->first();
@@ -357,7 +357,7 @@ class CsvTranslatorController extends Controller
                 $query->whereNotNull($language);
             }
             if (isset($status) && isset($language)) {
-                $query->where('status_'.$language, $status);
+                $query->where('status_' . $language, $status);
             }
 
             $data = $query->get();

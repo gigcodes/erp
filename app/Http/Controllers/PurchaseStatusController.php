@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\PurchaseStatus;
 use DB;
+use App\PurchaseStatus;
 use Illuminate\Http\Request;
 
 class PurchaseStatusController extends Controller
@@ -34,7 +34,6 @@ class PurchaseStatusController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -65,7 +64,6 @@ class PurchaseStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Language;
 use App\Setting;
+use App\Language;
 use Illuminate\Http\Request;
 
 class LanguageController extends Controller
@@ -13,8 +13,8 @@ class LanguageController extends Controller
         $query = Language::query();
 
         if ($request->term) {
-            $query = $query->where('locale', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('code', 'LIKE', '%'.$request->term.'%');
+            $query = $query->where('locale', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('code', 'LIKE', '%' . $request->term . '%');
         }
         $languages = $query->orderBy('code')->paginate(Setting::get('pagination'));
 

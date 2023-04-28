@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers;
 
-use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Url;
 use PhpMyAdmin\Template;
 use PhpMyAdmin\ThemeManager;
-use PhpMyAdmin\Url;
 use PhpMyAdmin\UserPreferences;
+use PhpMyAdmin\ResponseRenderer;
 
 final class ThemeSetController extends AbstractController
 {
@@ -26,7 +26,7 @@ final class ThemeSetController extends AbstractController
         global $cfg;
 
         if (! $cfg['ThemeManager'] || ! isset($_POST['set_theme'])) {
-            $this->response->header('Location: index.php?route=/'.Url::getCommonRaw([], '&'));
+            $this->response->header('Location: index.php?route=/' . Url::getCommonRaw([], '&'));
 
             return;
         }
@@ -39,6 +39,6 @@ final class ThemeSetController extends AbstractController
         $preferences['config_data']['ThemeDefault'] = $_POST['set_theme'];
         $userPreferences->save($preferences['config_data']);
 
-        $this->response->header('Location: index.php?route=/'.Url::getCommonRaw([], '&'));
+        $this->response->header('Location: index.php?route=/' . Url::getCommonRaw([], '&'));
     }
 }

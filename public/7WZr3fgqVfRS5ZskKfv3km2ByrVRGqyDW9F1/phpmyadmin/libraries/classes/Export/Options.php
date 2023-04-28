@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Export;
 
+use function strlen;
+use PhpMyAdmin\Core;
+use PhpMyAdmin\Util;
 use function explode;
-use function function_exists;
+use PhpMyAdmin\Table;
 use function in_array;
 use function is_array;
 use function is_string;
 use function mb_strpos;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\Encoding;
-use PhpMyAdmin\Plugins;
-use PhpMyAdmin\Plugins\ExportPlugin;
-use PhpMyAdmin\Query\Utilities;
-use PhpMyAdmin\Table;
-use PhpMyAdmin\Util;
-use function strlen;
 use function urldecode;
+use PhpMyAdmin\Plugins;
+use PhpMyAdmin\Encoding;
+use function function_exists;
+use PhpMyAdmin\Query\Utilities;
+use PhpMyAdmin\Plugins\ExportPlugin;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 final class Options
 {
@@ -76,7 +76,7 @@ final class Options
                     $isSelected = true;
                 }
             } elseif (! empty($tmpSelect)) {
-                if (mb_strpos(' '.$tmpSelect, '|'.$currentDb.'|')) {
+                if (mb_strpos(' ' . $tmpSelect, '|' . $currentDb . '|')) {
                     $isSelected = true;
                 }
             } else {

@@ -15,7 +15,7 @@ class DomainOverview extends Model
     {
         $key = config('env.SEMRUSH_API');
         $apis = [
-            'overview_all' => 'https://api.semrush.com/?key='.$key.'&type=domain_ranks&export_columns=Db,Dn,Rk,Or,Ot,Oc,Ad,At,Ac,Sh,Sv&domain='.$domain.'&database='.$db,
+            'overview_all' => 'https://api.semrush.com/?key=' . $key . '&type=domain_ranks&export_columns=Db,Dn,Rk,Or,Ot,Oc,Ad,At,Ac,Sh,Sv&domain=' . $domain . '&database=' . $db,
         ];
 
         if ($column == null) {

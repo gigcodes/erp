@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Customer;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 

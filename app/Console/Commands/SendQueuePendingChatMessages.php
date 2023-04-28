@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
+use Schema;
+use Carbon\Carbon;
 use App\ChatMessage;
 use App\MessageQueueHistory;
-use App\Services\Whatsapp\ChatApi\ChatApi;
-use Carbon\Carbon;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
-use Schema;
+use Illuminate\Console\Command;
+use App\Services\Whatsapp\ChatApi\ChatApi;
+
 class SendQueuePendingChatMessages extends Command
 {
     const BROADCAST_PRIORITY = 8;
@@ -66,7 +67,7 @@ class SendQueuePendingChatMessages extends Command
      */
     public function handle()
     {
-        if ((!env('CI')) && (Schema::hasTable('chat_messages'))) {
+        if ((! env('CI')) && (Schema::hasTable('chat_messages'))) {
             $queueStartTime = \App\ChatMessage::getStartTime();
             $queueEndTime = \App\ChatMessage::getEndTime();
             $queueTime = \App\ChatMessage::getQueueTime();

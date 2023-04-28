@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\DeveloperModule;
-use App\DeveloperTask;
 use App\User;
+use App\DeveloperTask;
+use App\DeveloperModule;
 
 class NewDevTaskController extends Controller
 {
@@ -29,7 +29,7 @@ class NewDevTaskController extends Controller
         $users = User::pluck('name', 'id')->toArray();
         if (! empty($_GET['search_term'])) {
             $search_term = $_GET['search_term'];
-            $dev_task = DeveloperTask::where('task', 'like', '%'.$search_term.'%')->paginate(60);
+            $dev_task = DeveloperTask::where('task', 'like', '%' . $search_term . '%')->paginate(60);
         } elseif (! empty($_GET['module'])) {
             $module = $_GET['module'];
             $dev_task = DeveloperTask::where('module_id', $module)->paginate(60);

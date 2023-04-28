@@ -29,7 +29,6 @@ class AttachmentService extends UploadService
     /**
      * Get an attachment from storage.
      *
-     * @param  Attachment  $attachment
      * @return string
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
@@ -42,7 +41,6 @@ class AttachmentService extends UploadService
     /**
      * Store a new attachment upon user upload.
      *
-     * @param  UploadedFile  $uploadedFile
      * @param  int  $page_id
      * @return Attachment
      *
@@ -71,8 +69,6 @@ class AttachmentService extends UploadService
      * Store a upload, saving to a file and deleting any existing uploads
      * attached to that file.
      *
-     * @param  UploadedFile  $uploadedFile
-     * @param  Attachment  $attachment
      * @return Attachment
      *
      * @throws FileUploadException
@@ -123,7 +119,6 @@ class AttachmentService extends UploadService
      * Updates the file ordering for a listing of attached files.
      *
      * @param  array  $attachmentList
-     * @param $pageId
      */
     public function updateFileOrderWithinPage($attachmentList, $pageId)
     {
@@ -135,8 +130,6 @@ class AttachmentService extends UploadService
     /**
      * Update the details of a file.
      *
-     * @param  Attachment  $attachment
-     * @param $requestData
      * @return Attachment
      */
     public function updateFile(Attachment $attachment, $requestData)
@@ -157,7 +150,6 @@ class AttachmentService extends UploadService
     /**
      * Delete a File from the database and storage.
      *
-     * @param  Attachment  $attachment
      *
      * @throws Exception
      */
@@ -176,8 +168,6 @@ class AttachmentService extends UploadService
     /**
      * Delete a file from the filesystem it sits on.
      * Cleans any empty leftover folders.
-     *
-     * @param  Attachment  $attachment
      */
     protected function deleteFileInStorage(Attachment $attachment)
     {
@@ -193,7 +183,6 @@ class AttachmentService extends UploadService
     /**
      * Store a file in storage with the given filename
      *
-     * @param  UploadedFile  $uploadedFile
      * @return string
      *
      * @throws FileUploadException
@@ -203,14 +192,14 @@ class AttachmentService extends UploadService
         $attachmentData = file_get_contents($uploadedFile->getRealPath());
 
         $storage = $this->getStorage();
-        $basePath = 'uploads/files/'.date('Y-m-M').'/';
+        $basePath = 'uploads/files/' . date('Y-m-M') . '/';
 
-        $uploadFileName = Str::random(16).'.'.$uploadedFile->getClientOriginalExtension();
-        while ($storage->exists($basePath.$uploadFileName)) {
-            $uploadFileName = Str::random(3).$uploadFileName;
+        $uploadFileName = Str::random(16) . '.' . $uploadedFile->getClientOriginalExtension();
+        while ($storage->exists($basePath . $uploadFileName)) {
+            $uploadFileName = Str::random(3) . $uploadFileName;
         }
 
-        $attachmentPath = $basePath.$uploadFileName;
+        $attachmentPath = $basePath . $uploadFileName;
         try {
             $storage->put($attachmentPath, $attachmentData);
         } catch (Exception $e) {

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Customer;
-use App\Helpers\InstantMessagingHelper;
-use App\Helpers\MagentoOrderHandleHelper;
-use App\MagentoCustomerReference;
 use App\Setting;
+use App\Customer;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
+use App\MagentoCustomerReference;
+use App\Helpers\InstantMessagingHelper;
+use App\Helpers\MagentoOrderHandleHelper;
 
 class MagentoCustomerReferenceController extends Controller
 {
@@ -92,7 +92,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -193,7 +192,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\MagentoCustomerReference  $magentoCustomerReference
      * @return \Illuminate\Http\Response
      */
     public function show(MagentoCustomerReference $magentoCustomerReference)
@@ -204,7 +202,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\MagentoCustomerReference  $magentoCustomerReference
      * @return \Illuminate\Http\Response
      */
     public function edit(MagentoCustomerReference $magentoCustomerReference)
@@ -215,8 +212,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\MagentoCustomerReference  $magentoCustomerReference
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, MagentoCustomerReference $magentoCustomerReference)
@@ -227,7 +222,6 @@ class MagentoCustomerReferenceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\MagentoCustomerReference  $magentoCustomerReference
      * @return \Illuminate\Http\Response
      */
     public function destroy(MagentoCustomerReference $magentoCustomerReference)

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Twig;
 
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Html\MySQLDocumentation;
 use PhpMyAdmin\Util;
-use PhpMyAdmin\Utils\ForeignKey;
-use PhpMyAdmin\Utils\Gis;
-use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use PhpMyAdmin\Utils\Gis;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Utils\ForeignKey;
+use Twig\Extension\AbstractExtension;
+use PhpMyAdmin\Html\MySQLDocumentation;
 
 class UtilExtension extends AbstractExtension
 {

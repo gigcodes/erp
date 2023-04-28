@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\StoreGTMetrixAccount;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GTMetrixAccount extends Command
@@ -58,7 +58,7 @@ class GTMetrixAccount extends Command
                     curl_setopt_array($curl, [
                         CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_USERPWD => $value->account_id.':'.'',
+                        CURLOPT_USERPWD => $value->account_id . ':' . '',
                         CURLOPT_ENCODING => '',
                         CURLOPT_MAXREDIRS => 10,
                         CURLOPT_TIMEOUT => 0,

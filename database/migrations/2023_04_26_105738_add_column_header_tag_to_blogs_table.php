@@ -14,8 +14,8 @@ class AddColumnHeaderTagToBlogsTable extends Migration
     public function up()
     {
         Schema::table('blogs', function (Blueprint $table) {
-            $table->string("header_tag", 256)->after('internal_link')->nullable();
-            $table->string("title_tag", 256)->after('header_tag')->nullable();
+            $table->string('header_tag', 256)->after('internal_link')->nullable();
+            $table->string('title_tag', 256)->after('header_tag')->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ class AddColumnHeaderTagToBlogsTable extends Migration
     public function down()
     {
         Schema::table('blogs', function (Blueprint $table) {
-            $table->dropColumn("header_tag");
-            $table->dropColumn("title_tag");
+            $table->dropColumn('header_tag');
+            $table->dropColumn('title_tag');
         });
     }
 }

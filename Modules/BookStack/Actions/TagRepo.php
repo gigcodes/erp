@@ -2,8 +2,8 @@
 
 namespace Modules\BookStack\Actions;
 
-use Modules\BookStack\Auth\Permissions\PermissionService;
 use Modules\BookStack\Entities\Entity;
+use Modules\BookStack\Auth\Permissions\PermissionService;
 
 /**
  * Class TagRepo
@@ -33,8 +33,6 @@ class TagRepo
     /**
      * Get an entity instance of its particular type.
      *
-     * @param $entityType
-     * @param $entityId
      * @param  string  $action
      * @return \Illuminate\Database\Eloquent\Model|null|static
      */
@@ -68,7 +66,6 @@ class TagRepo
      * Get tag name suggestions from scanning existing tag names.
      * If no search term is given the 50 most popular tag names are provided.
      *
-     * @param $searchTerm
      * @return array
      */
     public function getNameSuggestions($searchTerm = false)
@@ -76,7 +73,7 @@ class TagRepo
         $query = $this->tag->select('*', \DB::raw('count(*) as count'))->groupBy('name');
 
         if ($searchTerm) {
-            $query = $query->where('name', 'LIKE', $searchTerm.'%')->orderBy('name', 'desc');
+            $query = $query->where('name', 'LIKE', $searchTerm . '%')->orderBy('name', 'desc');
         } else {
             $query = $query->orderBy('count', 'desc')->take(50);
         }
@@ -91,8 +88,6 @@ class TagRepo
      * If no search is given the 50 most popular values are provided.
      * Passing a tagName will only find values for a tags with a particular name.
      *
-     * @param $searchTerm
-     * @param $tagName
      * @return array
      */
     public function getValueSuggestions($searchTerm = false, $tagName = false)
@@ -100,7 +95,7 @@ class TagRepo
         $query = $this->tag->select('*', \DB::raw('count(*) as count'))->groupBy('value');
 
         if ($searchTerm) {
-            $query = $query->where('value', 'LIKE', $searchTerm.'%')->orderBy('value', 'desc');
+            $query = $query->where('value', 'LIKE', $searchTerm . '%')->orderBy('value', 'desc');
         } else {
             $query = $query->orderBy('count', 'desc')->take(50);
         }
@@ -138,7 +133,6 @@ class TagRepo
     /**
      * Create a new Tag instance from user input.
      *
-     * @param $input
      * @return \BookStack\Actions\Tag
      */
     protected function newInstanceFromInput($input)

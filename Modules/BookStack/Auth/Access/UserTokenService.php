@@ -2,13 +2,13 @@
 
 namespace Modules\BookStack\Auth\Access;
 
+use stdClass;
 use Carbon\Carbon;
-use Illuminate\Database\Connection as Database;
 use Illuminate\Support\Str;
 use Modules\BookStack\Auth\User;
+use Illuminate\Database\Connection as Database;
 use Modules\BookStack\Exceptions\UserTokenExpiredException;
 use Modules\BookStack\Exceptions\UserTokenNotFoundException;
-use stdClass;
 
 class UserTokenService
 {
@@ -30,8 +30,6 @@ class UserTokenService
 
     /**
      * UserTokenService constructor.
-     *
-     * @param  Database  $db
      */
     public function __construct(Database $db)
     {
@@ -41,7 +39,6 @@ class UserTokenService
     /**
      * Delete all email confirmations that belong to a user.
      *
-     * @param  User  $user
      * @return mixed
      */
     public function deleteByUser(User $user)
@@ -54,8 +51,6 @@ class UserTokenService
     /**
      * Get the user id from a token, while check the token exists and has not expired.
      *
-     * @param  string  $token
-     * @return int
      *
      * @throws UserTokenNotFoundException
      * @throws UserTokenExpiredException
@@ -65,7 +60,7 @@ class UserTokenService
         $entry = $this->getEntryByToken($token);
 
         if (is_null($entry)) {
-            throw new UserTokenNotFoundException('Token "'.$token.'" not found');
+            throw new UserTokenNotFoundException('Token "' . $token . '" not found');
         }
 
         if ($this->entryExpired($entry)) {
@@ -77,8 +72,6 @@ class UserTokenService
 
     /**
      * Creates a unique token within the email confirmation database.
-     *
-     * @return string
      */
     protected function generateToken(): string
     {
@@ -92,9 +85,6 @@ class UserTokenService
 
     /**
      * Generate and store a token for the given user.
-     *
-     * @param  User  $user
-     * @return string
      */
     protected function createTokenForUser(User $user): string
     {
@@ -111,9 +101,6 @@ class UserTokenService
 
     /**
      * Check if the given token exists.
-     *
-     * @param  string  $token
-     * @return bool
      */
     protected function tokenExists(string $token): bool
     {
@@ -124,7 +111,6 @@ class UserTokenService
     /**
      * Get a token entry for the given token.
      *
-     * @param  string  $token
      * @return object|null
      */
     protected function getEntryByToken(string $token)
@@ -136,9 +122,6 @@ class UserTokenService
 
     /**
      * Check if the given token entry has expired.
-     *
-     * @param  stdClass  $tokenEntry
-     * @return bool
      */
     protected function entryExpired(stdClass $tokenEntry): bool
     {

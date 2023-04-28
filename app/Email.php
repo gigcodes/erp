@@ -14,42 +14,37 @@ class Email extends Model
     {
         parent::boot();
         self::creating(function ($email) {
-            try{
-                if(isset($email->type) && !empty($email->type) && $email->type == 'incoming'){
-                    $emailCategoryId = Email::where('from', 'like', '%'.$email->from.'%')
+            try {
+                if (isset($email->type) && ! empty($email->type) && $email->type == 'incoming') {
+                    $emailCategoryId = Email::where('from', 'like', '%' . $email->from . '%')
                         ->where('type', 'incoming')
                         ->orderBy('created_at', 'desc')
                         ->pluck('email_category_id')
                         ->first();
 
-                    if(strlen($emailCategoryId) > 0){
+                    if (strlen($emailCategoryId) > 0) {
                         $email->email_category_id = $emailCategoryId;
                     }
 
-                    if(empty($email->module_type)){
+                    if (empty($email->module_type)) {
                         $email->is_unknow_module = 1;
                     }
-
                 }
 
-                if(!empty($email->from)){
-                    $explodeArray = explode('@',$email->from);
+                if (! empty($email->from)) {
+                    $explodeArray = explode('@', $email->from);
                     $email->name = $explodeArray[0];
                 }
-
-            }
-            catch(\Exception $e){
-
+            } catch(\Exception $e) {
             }
         });
 
         self::created(function ($email) {
-            try{
-
+            try {
                 $is_module_found = 0;
-                $customer = Customer::where('email',$email->from)->first();
+                $customer = Customer::where('email', $email->from)->first();
 
-                if(!empty($customer)){
+                if (! empty($customer)) {
                     $is_module_found = 1;
                     $params = [
                         'number' => $customer->phone,
@@ -71,9 +66,9 @@ class Email extends Model
                     ];
 
                     $email->is_unknow_module = 0;
-                    $email->name = explode('@',$email->from)[0];
+                    $email->name = explode('@', $email->from)[0];
                     $email->save();
-                    
+
                     $messageModel = ChatMessage::create($params);
                 }
 
@@ -98,12 +93,11 @@ class Email extends Model
                     ];
 
                     $email->is_unknow_module = 0;
-                    $email->name = explode('@',$email->from)[0];
+                    $email->name = explode('@', $email->from)[0];
                     $email->save();
 
                     $messageModel = ChatMessage::create($params);
                 }
-
 
                 $vandor = Vendor::where('email', $email->from)->first();
                 if ($vandor) {
@@ -127,15 +121,15 @@ class Email extends Model
                     ];
 
                     $email->is_unknow_module = 0;
-                    $email->name = explode('@',$email->from)[0];
+                    $email->name = explode('@', $email->from)[0];
                     $email->save();
 
                     $messageModel = ChatMessage::create($params);
                 }
 
-                if($is_module_found == 0){
+                if ($is_module_found == 0) {
                     $email->is_unknow_module = 1;
-                    $email->name = explode('@',$email->from)[0];
+                    $email->name = explode('@', $email->from)[0];
                     $email->save();
 
                     $params = [
@@ -153,16 +147,13 @@ class Email extends Model
                         'from_email' => $email->from,
                         'to_email' => $email->to,
                         'email_id' => $email->id,
-                        'message_type'  => 'email'
+                        'message_type' => 'email',
                     ];
 
                     $messageModel = ChatMessage::create($params);
                     $mailFound = true;
                 }
-
-            }
-            catch(\Exception $e){
-
+            } catch(\Exception $e) {
             }
         });
     }
@@ -190,7 +181,7 @@ class Email extends Model
     protected $fillable = [
         'model_id', 'model_type', 'type', 'seen', 'from', 'to', 'subject', 'message', 'template', 'additional_data', 'created_at',
         'cc', 'bcc', 'origin_id', 'reference_id', 'status', 'approve_mail', 'is_draft', 'error_message', 'store_website_id',
-        'message_en', 'schedule_at', 'mail_status', 'order_id', 'order_status','is_unknow_module'
+        'message_en', 'schedule_at', 'mail_status', 'order_id', 'order_status', 'is_unknow_module',
     ];
 
     protected $casts = [

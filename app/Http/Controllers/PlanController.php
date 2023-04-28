@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PlanAction;
 use App\Plan;
-use App\PlanBasisStatus;
-use App\PlanCategories;
 use App\PlanTypes;
-use Illuminate\Http\Request;
+use App\PlanCategories;
+use App\PlanBasisStatus;
+use App\Models\PlanAction;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PlanController extends Controller
@@ -44,10 +44,10 @@ class PlanController extends Controller
         }
 
         if (request('term')) {
-            $query->where('subject', 'LIKE', '%'.request('term').'%');
-            $query->orwhere('sub_subject', 'LIKE', '%'.request('term').'%');
-            $query->orwhere('basis', 'LIKE', '%'.request('term').'%');
-            $query->orwhere('implications', 'LIKE', '%'.request('term').'%');
+            $query->where('subject', 'LIKE', '%' . request('term') . '%');
+            $query->orwhere('sub_subject', 'LIKE', '%' . request('term') . '%');
+            $query->orwhere('basis', 'LIKE', '%' . request('term') . '%');
+            $query->orwhere('implications', 'LIKE', '%' . request('term') . '%');
         }
 
         $planList = $query->orderBy('id', 'DESC')->paginate(10);

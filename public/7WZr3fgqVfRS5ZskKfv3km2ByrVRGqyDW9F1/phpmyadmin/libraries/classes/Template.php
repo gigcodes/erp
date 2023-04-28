@@ -4,34 +4,34 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
+use Throwable;
 use function __;
-use const E_USER_WARNING;
+use function sprintf;
+use RuntimeException;
+use Twig\Environment;
 use function is_array;
-use PhpMyAdmin\Twig\AssetExtension;
+use const E_USER_WARNING;
+use Twig\TemplateWrapper;
+use function trigger_error;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\Error\RuntimeError;
+use PhpMyAdmin\Twig\UrlExtension;
+use Twig\Loader\FilesystemLoader;
 use PhpMyAdmin\Twig\CoreExtension;
-use PhpMyAdmin\Twig\Extensions\Node\TransNode;
-use PhpMyAdmin\Twig\FlashMessagesExtension;
 use PhpMyAdmin\Twig\I18nExtension;
+use PhpMyAdmin\Twig\UtilExtension;
+use Twig\Extension\DebugExtension;
+use PhpMyAdmin\Twig\AssetExtension;
+use PhpMyAdmin\Twig\TableExtension;
 use PhpMyAdmin\Twig\MessageExtension;
+use PhpMyAdmin\Twig\TrackerExtension;
 use PhpMyAdmin\Twig\RelationExtension;
 use PhpMyAdmin\Twig\SanitizeExtension;
-use PhpMyAdmin\Twig\TableExtension;
-use PhpMyAdmin\Twig\TrackerExtension;
+use PhpMyAdmin\Twig\FlashMessagesExtension;
 use PhpMyAdmin\Twig\TransformationsExtension;
-use PhpMyAdmin\Twig\UrlExtension;
-use PhpMyAdmin\Twig\UtilExtension;
-use RuntimeException;
-use function sprintf;
-use Throwable;
-use function trigger_error;
-use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
-use Twig\Extension\DebugExtension;
-use Twig\Loader\FilesystemLoader;
+use PhpMyAdmin\Twig\Extensions\Node\TransNode;
 use Twig\RuntimeLoader\ContainerRuntimeLoader;
-use Twig\TemplateWrapper;
 
 /**
  * Handle front end templating
@@ -45,7 +45,7 @@ class Template
      */
     protected static $twig;
 
-    public const TEMPLATES_FOLDER = ROOT_PATH.'templates';
+    public const TEMPLATES_FOLDER = ROOT_PATH . 'templates';
 
     public function __construct()
     {
@@ -118,11 +118,11 @@ class Template
     private function load(string $templateName): TemplateWrapper
     {
         try {
-            $template = static::$twig->load($templateName.'.twig');
+            $template = static::$twig->load($templateName . '.twig');
         } catch (RuntimeException $e) {
             /* Retry with disabled cache */
             static::$twig->setCache(false);
-            $template = static::$twig->load($templateName.'.twig');
+            $template = static::$twig->load($templateName . '.twig');
             /*
              * The trigger error is intentionally after second load
              * to avoid triggering error when disabling cache does not

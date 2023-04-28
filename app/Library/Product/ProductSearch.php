@@ -2,8 +2,8 @@
 
 namespace App\Library\Product;
 
-use App\Category;
 use App\Product;
+use App\Category;
 
 class ProductSearch
 {
@@ -112,11 +112,11 @@ class ProductSearch
                         break;
 
                     case 'supplier':
-                        $products = $products->whereRaw('products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ('.implode(',', $value).'))');
+                        $products = $products->whereRaw('products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (' . implode(',', $value) . '))');
                         break;
 
                     case 'scrapper':
-                        $products = $products->whereRaw('products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (select supplier_id from scrapers where id in ('.implode(',', $value).')))');
+                        $products = $products->whereRaw('products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (select supplier_id from scrapers where id in (' . implode(',', $value) . ')))');
                         break;
 
                     case 'size':
@@ -210,7 +210,7 @@ class ProductSearch
                         break;
                     case 'quick_sell_groups':
                         if (! empty($value)) {
-                            $products = $products->whereRaw('(id in (select product_id from product_quicksell_groups where quicksell_group_id in ('.implode(',', $value).') ))');
+                            $products = $products->whereRaw('(id in (select product_id from product_quicksell_groups where quicksell_group_id in (' . implode(',', $value) . ') ))');
                         }
                         break;
                     case 'final_approval':

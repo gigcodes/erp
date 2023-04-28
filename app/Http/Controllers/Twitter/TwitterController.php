@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Twitter;
 
-use App\Http\Controllers\Controller;
 use File;
-use Illuminate\Http\Request;
 use Twitter;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class TwitterController extends Controller
 {

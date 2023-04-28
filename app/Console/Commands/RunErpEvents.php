@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use GuzzleHttp\Client as GuzzleClient;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
+use GuzzleHttp\Client as GuzzleClient;
 
 class RunErpEvents extends Command
 {
@@ -42,7 +42,7 @@ class RunErpEvents extends Command
         try {
             // disable all events which is past if still active
             $startDate = date('Y-m-d H:i:s');
-            $endDate = date('Y-m-d H:i:s', strtotime($startDate.'+5 minutes'));
+            $endDate = date('Y-m-d H:i:s', strtotime($startDate . '+5 minutes'));
 
             $events = \App\ErpEvents::where('next_run_date', '>=', $startDate)->where('next_run_date', '<=', $endDate)->get();
             //$events = \App\ErpEvents::where("id", "=", 2)->get();

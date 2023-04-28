@@ -6,11 +6,10 @@ use Session;
 use Exception;
 use Carbon\Carbon;
 use Google_Client;
-use App\Validator;
 use Google\Auth\OAuth2;
 use Google_Service_YouTube;
-use Illuminate\Http\Request;
 use App\Models\YoutubeVideo;
+use Illuminate\Http\Request;
 use App\Models\YoutubeChannel;
 use App\Models\YoutubeComment;
 use App\Library\Youtube\Helper;
@@ -21,15 +20,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\FetchYoutubeChannelData;
 use Google_Service_YouTube_VideoStatus;
-use Laravel\Socialite\Facades\Socialite;
 use Google_Service_YouTube_VideoSnippet;
+use Laravel\Socialite\Facades\Socialite;
 use Google_Service_YouTube_VideoContentDetails;
 
 // require_once __DIR__.'/../../vendor/autoload.php';
 
 class YoutubeController extends Controller
 {
-
     /*
     * used to get google refresh token for ads
     */
@@ -50,7 +48,6 @@ class YoutubeController extends Controller
         $api = intval(0);
 
         $scopes = ['Youtube1' => 'https://www.googleapis.com/auth/youtube.force-ssl', 'Youtube2' => 'https://www.googleapis.com/auth/youtubepartner-channel-audit', 'Youtube3' => 'https://www.googleapis.com/auth/youtube.upload'];
-
 
         $oauth2 = new OAuth2(
             [
@@ -74,11 +71,9 @@ class YoutubeController extends Controller
 
     public function viewUploadVideo(Request $request, $id)
     {
-
         $chaneltableData = YoutubeChannel::where('id', $id)->first();
 
         if (empty($chaneltableData)) {
-
             return redirect()->to('/youtube/add-chanel')->with('actError', 'Something Went Wromg');
         }
         $chanelTableId = $chaneltableData->id;
@@ -87,15 +82,12 @@ class YoutubeController extends Controller
         // $categoriesData= Helper::getVideoCategories($accessToken, $chaneltableData->id);
         $categoriesData = Helper::getVideoCategories();
 
-
         return view('youtube.chanel.video.create', compact('chanelTableId', 'categoriesData'));
     }
 
     public function uploadVideo(Request $request)
     {
-
         try {
-
             $this->validate($request, [
                 'videoCategories' => 'required',
                 'status' => 'required',
@@ -103,8 +95,6 @@ class YoutubeController extends Controller
                 'description' => 'required',
                 'youtubeVideo' => 'required',
             ]);
-
-
 
             $chaneltableData = YoutubeChannel::where('id', $request->tableChannelId)->first();
             if (empty($chaneltableData)) {
@@ -133,11 +123,9 @@ class YoutubeController extends Controller
 
             $service = new Google_Service_YouTube($client);
 
-
             $video = new Google_Service_YouTube_Video();
             //$videoContentDetails = new Google_Service_YouTube_VideoContentDetails();
             // $video->setContentDetails($videoContentDetails);
-
 
             $videoSnippet = new Google_Service_YouTube_VideoSnippet();
 
@@ -148,7 +136,6 @@ class YoutubeController extends Controller
             $videoSnippet->setPublishedAt(now());
             $video->setSnippet($videoSnippet);
 
-
             // Add 'status' object to the $video object.
             $videoStatus = new Google_Service_YouTube_VideoStatus();
             $videoStatus->setPrivacyStatus($request->status);
@@ -157,17 +144,17 @@ class YoutubeController extends Controller
             $response = $service->videos->insert(
                 'snippet,status',
                 $video,
-                array(
+                [
                     'data' => \File::get($request->file('youtubeVideo')),
                     'mimeType' => 'application/octet-stream',
-                    'uploadType' => 'multipart'
-                )
+                    'uploadType' => 'multipart',
+                ]
             );
 
-            if (!empty($response['id'])) {
-                if (!empty($chaneltableData->oauth2_refresh_token)) {
+            if (! empty($response['id'])) {
+                if (! empty($chaneltableData->oauth2_refresh_token)) {
                     $accessToken = Helper::getAccessTokenFromRefreshToken($chaneltableData->oauth2_refresh_token, $chaneltableData->id);
-                    if (!empty($accessToken)) {
+                    if (! empty($accessToken)) {
                         Helper::getVideoAndInsertDB($chaneltableData->id, $accessToken, $chaneltableData->chanelId);
                     }
                 }
@@ -175,13 +162,9 @@ class YoutubeController extends Controller
                 return redirect()->to('/youtube/add-chanel')->with('actSuccess', 'Upload Video Successfully!');
             }
         } catch (Exception $e) {
-
             return redirect()->to('/youtube/add-chanel')->with('actError', $e->getMessage());
         }
     }
-
-
-
 
     public function createChanel(Request $request)
     {
@@ -197,10 +180,10 @@ class YoutubeController extends Controller
         ]);
 
         try {
-
             $input = $request->all();
             $createChannel = YoutubeChannel::create($input);
             FetchYoutubeChannelData::dispatch($createChannel);
+
             return redirect()->to('/youtube/add-chanel')->with('actSuccess', 'Youtube Channel added successfully');
         } catch (Exception $e) {
             return redirect()->to('/youtube/add-chanel')->with('actError', $e->getMessage());
@@ -257,7 +240,7 @@ class YoutubeController extends Controller
     public function updateYoutubeAccessToken($websiteId)
     {
         try {
-            $websiteData =  StoreWebsiteYoutube::where('store_website_id', $websiteId)->first();
+            $websiteData = StoreWebsiteYoutube::where('store_website_id', $websiteId)->first();
 
             $params = [
                 'refresh_token' => $websiteData->refresh_token,
@@ -266,13 +249,13 @@ class YoutubeController extends Controller
                 'grant_type' => 'refresh_token',
             ];
             $headers = [
-                'Host' => 'oauth2.googleapis.com'
+                'Host' => 'oauth2.googleapis.com',
             ];
 
             $response = Http::withHeaders($headers)->post('https://oauth2.googleapis.com/token', $params)->json();
             $websiteData->access_token = $response['access_token'];
-            $expireIn = !empty($response['expires_in']) ? $response['expires_in'] : null;
-            if (!empty($expireIn)) {
+            $expireIn = ! empty($response['expires_in']) ? $response['expires_in'] : null;
+            if (! empty($expireIn)) {
                 $currentTime = strtotime(Carbon::now());
                 $expireIn = Carbon::createFromTimestamp(($currentTime + $expireIn));
             }
@@ -315,30 +298,29 @@ class YoutubeController extends Controller
 
     public function GetChanelData()
     {
-        $user  = Socialite::driver('youtube')->stateless()->user();
+        $user = Socialite::driver('youtube')->stateless()->user();
         $websiteId = request()->input('state');
         $socialsObj = StoreWebsiteYoutube::where('store_website_id', $websiteId)->first();
 
         if (empty($socialsObj)) {
-            $expireIn = !empty($user->accessTokenResponseBody['expires_in']) ? $user->accessTokenResponseBody['expires_in'] : null;
-            if (!empty($expireIn)) {
+            $expireIn = ! empty($user->accessTokenResponseBody['expires_in']) ? $user->accessTokenResponseBody['expires_in'] : null;
+            if (! empty($expireIn)) {
                 $currentTime = strtotime(Carbon::now());
                 $expireIn = Carbon::createFromTimestamp(($currentTime + $expireIn));
             }
 
             $data = [
-                'access_token' => !empty($user->accessTokenResponseBody['access_token']) ? $user->accessTokenResponseBody['access_token'] : null,
-                'refresh_token' => !empty($user->accessTokenResponseBody['refresh_token']) ? $user->accessTokenResponseBody['refresh_token'] : null,
-                'store_website_id' => !empty(request()->input('state')) ? request()->input('state') : null,
-                'token_expire_time' => $expireIn
+                'access_token' => ! empty($user->accessTokenResponseBody['access_token']) ? $user->accessTokenResponseBody['access_token'] : null,
+                'refresh_token' => ! empty($user->accessTokenResponseBody['refresh_token']) ? $user->accessTokenResponseBody['refresh_token'] : null,
+                'store_website_id' => ! empty(request()->input('state')) ? request()->input('state') : null,
+                'token_expire_time' => $expireIn,
 
             ];
             StoreWebsiteYoutube::create($data);
         }
         $this->regenerateToken($websiteId);
 
-
-        if (!empty($user)) {
+        if (! empty($user)) {
             return redirect()->route('chanelList', ['website_id' => $websiteId]);
         }
 
@@ -347,9 +329,8 @@ class YoutubeController extends Controller
 
     public function VideoListByChanelId(Request $request)
     {
-
-        $websiteId = !empty($request->route('websiteId')) ? $request->route('websiteId') : null;
-        $chanelId = !empty($request->route('chanelId')) ? $request->route('chanelId') : null;
+        $websiteId = ! empty($request->route('websiteId')) ? $request->route('websiteId') : null;
+        $chanelId = ! empty($request->route('chanelId')) ? $request->route('chanelId') : null;
         if (empty($websiteId) || empty($chanelId)) {
             abort(404);
         }
@@ -359,6 +340,7 @@ class YoutubeController extends Controller
         $videoIds = $this->getVideoIds($accessToken, $chanelId);
 
         $videoData = $this->getVideo($accessToken, $videoIds);
+
         return view('youtube.chanel.video.video-list', compact('videoData', 'websiteId'));
     }
 
@@ -371,24 +353,24 @@ class YoutubeController extends Controller
         //     return redirect()->to('/youtube/add-chanel')->with('actError', 'Something Went Wromg');
         // }
         $query = YoutubeComment::query();
-        $commentsList =  $query->where('video_id', $videoId)->paginate(10)->appends(request()->except(['page']));
+        $commentsList = $query->where('video_id', $videoId)->paginate(10)->appends(request()->except(['page']));
+
         return view('youtube.chanel.comment.comment-list', compact('commentsList'));
     }
-
 
     public function editChannel($id)
     {
         $store_website = \App\StoreWebsite::all();
         $googleAdsAc = YoutubeChannel::findOrFail($id);
+
         return $googleAdsAc;
     }
 
     public function updateChannel(Request $request)
     {
-       
         $account_id = $request->account_id;
-       
-;        //update account
+
+        //update account
         //create account
         $this->validate($request, [
             'store_websites' => 'required',
@@ -399,7 +381,7 @@ class YoutubeController extends Controller
             'oauth2_client_secret' => 'required',
             'oauth2_refresh_token' => 'required',
         ]);
-      
+
         try {
             $input = $request->all();
 
@@ -410,22 +392,19 @@ class YoutubeController extends Controller
 
             return redirect()->to('/youtube/add-chanel')->with('actSuccess', 'Channel updated successfully');
         } catch (Exception $e) {
-           
             return redirect()->to('/youtube/add-chanel')->with('actError', $e->getMessage());
         }
     }
-
 
     public function listVideo(Request $request, $youtubeChannelTableId)
     {
         $chaneltableData = YoutubeChannel::where('id', $youtubeChannelTableId)->first();
 
         if (empty($chaneltableData)) {
-
             return redirect()->to('/youtube/add-chanel')->with('actError', 'Something Went Wromg');
         }
         $query = YoutubeVideo::query();
-        $videoList =  $query->where('channel_id', $chaneltableData->chanelId)->paginate(5)->appends(request()->except(['page']));
+        $videoList = $query->where('channel_id', $chaneltableData->chanelId)->paginate(5)->appends(request()->except(['page']));
         // $videoList = YoutubeVideo::where('channel_id', $chaneltableData->chanelId)->paginate(5);
 
         return view('youtube.chanel.video.video-list', compact('videoList'));

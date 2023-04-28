@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\CompareImagesHelper;
+use Plank\Mediable\Media;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Plank\Mediable\Media;
+use App\Helpers\CompareImagesHelper;
 
 class AddBitsToMediaTable extends Command
 {
@@ -43,16 +43,16 @@ class AddBitsToMediaTable extends Command
         DB::table('media')->whereNull('bits')->where('directory', 'like', '%product/%')->orderBy('id')->chunk(100, function ($medias) {
             foreach ($medias as $m) {
                 if (! DB::table('mediables')->where('media_id', $m->id)->first()) {
-                    dump('skip => mediable not exist'.$m->id);
+                    dump('skip => mediable not exist' . $m->id);
                     Media::where('id', $m->id)->update([
                         'bits' => 1,
                     ]);
 
                     continue;
                 }
-                $a = 'https://erp.theluxuryunlimited.com/'.$m->disk.'/'.$m->directory.'/'.$m->filename.'.'.$m->extension;
+                $a = 'https://erp.theluxuryunlimited.com/' . $m->disk . '/' . $m->directory . '/' . $m->filename . '.' . $m->extension;
                 if (! @file_get_contents($a)) {
-                    dump('skip => '.$a);
+                    dump('skip => ' . $a);
                     Media::where('id', $m->id)->update([
                         'bits' => 0,
                     ]);

@@ -2,15 +2,15 @@
 
 namespace App\Console\Commands;
 
+use Log;
 use App\Product;
+use GuzzleHttp\Client;
+use App\WebsiteProductCsv;
 use App\ProductPushInformation;
+use Illuminate\Console\Command;
 use App\ProductPushInformationHistory;
 use App\ProductPushInformationSummery;
-use App\WebsiteProductCsv;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use Illuminate\Console\Command;
-use Log;
 
 class UpdateProductInformationFromCsv extends Command
 {
@@ -84,7 +84,7 @@ class UpdateProductInformationFromCsv extends Command
                 } catch (ClientException $e) {
                     $is_file_exists = false;
 
-                    Log::channel('product_push_information_csv')->info('file-url:'.$file_url.'  and error: '.$e->getMessage());
+                    Log::channel('product_push_information_csv')->info('file-url:' . $file_url . '  and error: ' . $e->getMessage());
                     $this->error('file not exists');
                 }
 

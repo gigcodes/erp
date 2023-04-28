@@ -10,9 +10,6 @@ interface ClientInterface
     /**
      * Make a HTTP request
      *
-     * @param $method
-     * @param $uri
-     * @param $options
      * @return Response
      */
     public function request($method, $uri, $options = []);
@@ -20,8 +17,6 @@ interface ClientInterface
     /**
      * Set the current Guzzle instance
      *
-     * @param  GuzzleClient  $guzzle
-     * @return
      *
      * @internal param GuzzleClient $client
      */
@@ -37,7 +32,6 @@ interface ClientInterface
     /**
      *  Set the client options merging and/or overwriting its contents
      *
-     * @param  array  $options
      * @return null
      */
     public function setOptions(array $options);
@@ -45,7 +39,6 @@ interface ClientInterface
     /**
      *  Set the response instance
      *
-     * @param  ResponseInterface  $response
      * @return null
      */
     public function setResponse(ResponseInterface $response);

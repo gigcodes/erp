@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddPaidToUyoutubeChannelstable extends Migration
 {
@@ -29,8 +29,6 @@ class AddPaidToUyoutubeChannelstable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        
     }
 
     /**

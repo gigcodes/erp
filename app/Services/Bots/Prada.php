@@ -2,10 +2,10 @@
 
 namespace App\Services\Bots;
 
-use App\Services\Scrap\Scraper;
 use GuzzleHttp\Client;
-use NunoMaduro\LaravelConsoleDusk\Manager;
+use App\Services\Scrap\Scraper;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use NunoMaduro\LaravelConsoleDusk\Manager;
 
 class Prada extends Scraper
 {
@@ -57,7 +57,7 @@ class Prada extends Scraper
             $forth = substr($skux, 9, 1);
             $fifth = substr($skux, 10, 3);
 
-            $trimmedSkus[] = $first.'_'.$second.'_'.$third.'_'.$forth.'_'.$fifth;
+            $trimmedSkus[] = $first . '_' . $second . '_' . $third . '_' . $forth . '_' . $fifth;
 
             $first = substr($skux, 0, 6);
             $second = substr($skux, 10, 3);
@@ -65,7 +65,7 @@ class Prada extends Scraper
             $forth = substr($skux, 6, 1);
             $fifth = substr($skux, 7, 3);
 
-            $trimmedSkus[] = $first.'_'.$second.'_'.$third.'_'.$forth.'_'.$fifth;
+            $trimmedSkus[] = $first . '_' . $second . '_' . $third . '_' . $forth . '_' . $fifth;
 
             foreach ($trimmedSkus as $trimmedSku) {
                 $defaultUrl = "https://www.prada.com/it/it/search.$trimmedSku.html";
@@ -77,7 +77,7 @@ class Prada extends Scraper
                             $c = new HtmlPageCrawler($html);
                             $link = $c->filter('.slider .component-productBoxSliderSlide a');
                             if (count($link)) {
-                                $url = 'https://www.prada.com'.$link->getAttribute('href');
+                                $url = 'https://www.prada.com' . $link->getAttribute('href');
 
                                 $browser->visit($url);
                                 $data = $browser->element('#application')->getAttribute('innerHTML');

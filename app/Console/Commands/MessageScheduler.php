@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\AutoReply;
-use App\CronJobReport;
 use App\Customer;
-use App\ScheduledMessage;
+use App\AutoReply;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScheduledMessage;
 use Illuminate\Console\Command;
 
 class MessageScheduler extends Command
@@ -64,7 +64,7 @@ class MessageScheduler extends Command
                 $params = [
                     'user_id' => 6,
                     'message' => $auto_reply->reply,
-                    'sending_time' => "$today_date ".Carbon::parse($auto_reply->sending_time)->format('H:m'),
+                    'sending_time' => "$today_date " . Carbon::parse($auto_reply->sending_time)->format('H:m'),
                     'type' => 'customer',
                 ];
 

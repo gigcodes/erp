@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Server\SysInfo;
 
-use function array_combine;
-use function array_merge;
-use function file_get_contents;
 use function intval;
 use function is_array;
-use function is_readable;
 use function mb_strpos;
 use function mb_substr;
-use function preg_match_all;
 use function preg_split;
+use function array_merge;
+use function is_readable;
+use function array_combine;
+use function preg_match_all;
+use function file_get_contents;
 
 /**
  * Linux based SysInfo class

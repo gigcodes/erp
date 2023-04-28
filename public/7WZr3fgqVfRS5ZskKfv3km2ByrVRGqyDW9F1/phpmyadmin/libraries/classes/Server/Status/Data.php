@@ -9,11 +9,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Server\Status;
 
 use function __;
+use PhpMyAdmin\Url;
 use function basename;
+use function str_contains;
 use function mb_strtolower;
 use PhpMyAdmin\ReplicationInfo;
-use PhpMyAdmin\Url;
-use function str_contains;
 
 /**
  * This class provides data about the server status

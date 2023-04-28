@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CroppedImageReference;
 use Carbon\Carbon;
+use App\CroppedImageReference;
 use Illuminate\Console\Command;
 
 class NumberOfImageCroppedCheck extends Command

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Server\Privileges;
 
-use function __;
 use Exception;
+use function __;
+use function sprintf;
 use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Query\Compatibility;
-use function sprintf;
 
 final class AccountLocking
 {

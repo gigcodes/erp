@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
-use App\Library\Watson\Language\Workspaces\V1\IntentService;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Library\Watson\Language\Workspaces\V1\IntentService;
 
 class ImportWatsonIntents extends Command
 {
