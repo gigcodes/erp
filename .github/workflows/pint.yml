@@ -20,8 +20,8 @@ jobs:
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Launch Pint inspection
         run: ./vendor/bin/pint
-      - name: Push changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Push to protected branch
+        uses: CasperWA/push-protected@v2
         with:
-          commit_message: Apply Laravel Pint Changes
-          skip_fetch: true
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          unprotect_reviews: true

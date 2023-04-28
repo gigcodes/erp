@@ -19,8 +19,4 @@ jobs:
         with:
           prettier_options: --write **/*.{js,css,md}
           only_changed: True
-      - name: Push to protected branch
-        uses: CasperWA/push-protected@v2
-        with:
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          unprotect_reviews: true
+          github_token: : ${{ secrets.PERSONAL_TOKEN }}
