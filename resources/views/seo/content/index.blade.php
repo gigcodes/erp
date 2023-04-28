@@ -65,7 +65,7 @@ $auth = auth()->user();
                 </button>
             </div>
         </div>
-        <div class="card-body table-responsive">
+        <div class="card-body table-responsive" style="overflow-x: auto">
             <table class="table table-bordered" id="seoProcessTbl">
                 <thead>
                     <tr>
