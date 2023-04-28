@@ -11,6 +11,7 @@ use App\DeveloperTaskComment;
 use App\DeveloperTaskHistory;
 use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubRepository;
+use App\GoogleScreencast;
 use App\Helpers;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
@@ -19,6 +20,7 @@ use App\Hubstaff\HubstaffProject;
 use App\Hubstaff\HubstaffTask;
 use App\HubstaffHistory;
 use App\Issue;
+use App\Jobs\UploadGoogleDriveScreencast;
 use App\LogChatMessage;
 use App\MeetingAndOtherTime;
 use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
@@ -1306,24 +1308,24 @@ class DevelopmentController extends Controller
         $team_members_array_unique_ids = implode(',', $team_members_array_unique);
 
         $task_statuses = TaskStatus::all();
-
+        $taskStatusArray = $task_statuses->pluck("id", "name")->toArray();
         $modules = DeveloperModule::orderBy('name')->get();
 
         $type = $request->tasktype ? $request->tasktype : 'all';
 
         $title = 'Flag Task List';
 
-        $issues = DeveloperTask::with(['timeSpent', 'leadtimeSpent', 'testertimeSpent', 'assignedUser']); // ->where('is_flagged', '1')
+        $issues = DeveloperTask::with(['timeSpent', 'leadtimeSpent', 'testertimeSpent', 'assignedUser', 'taskStatus']); // ->where('is_flagged', '1')
         $issues->whereNotIn('developer_tasks.status', [DeveloperTask::DEV_TASK_STATUS_DONE, DeveloperTask::DEV_TASK_STATUS_IN_REVIEW]);
         $issues->whereRaw('developer_tasks.assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
 
-        $task = Task::with(['timeSpent']); // ->where('is_flagged', '1')
+        $task = Task::with(['timeSpent', 'taskStatus']); // ->where('is_flagged', '1')
         $task->whereNotIn('tasks.status', [
             Task::TASK_STATUS_DONE,
             Task::TASK_STATUS_USER_COMPLETE,
             Task::TASK_STATUS_USER_COMPLETE_2,
         ]);
-        // $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
+        $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
 
         if (Auth::user()->hasRole('Admin')) {
             $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
@@ -1377,6 +1379,14 @@ class DevelopmentController extends Controller
         }
         if (! empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
+
+            $requestStatusArray = [];
+            foreach ($request->get('task_status') as $key => $status) {
+                $requestStatusArray[] = $taskStatusArray[$status];
+            }
+            
+            $task = $task->whereIn('tasks.status', $requestStatusArray);
+            // dd($task->toSql(), $request->get('task_status'));
         }
         // $task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition = $whereTaskCondition = '';
@@ -1430,16 +1440,24 @@ class DevelopmentController extends Controller
         }
 
         if ($request->delivery_date && $request->delivery_date != '') {
-            $task->where('due_date', $request->delivery_date);
+            $delivery_date = Carbon::parse($request->delivery_date)->toDateString();
+            $issues->whereDate('due_date', $delivery_date);
+            $task->whereDate('due_date', $delivery_date);
         }
 
         // Sort
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC');
+            $task = $task->orderBy('priority_no', 'ASC')->orderBy('created_at', 'DESC');
         } elseif ($request->order == 'latest_task_first') {
             $issues = $issues->orderBy('developer_tasks.id', 'DESC');
+            $task = $task->orderBy('tasks.id', 'DESC');
+        } elseif($request->order == 'oldest_first') {
+            $issues = $issues->orderBy('developer_tasks.id', 'ASC');
+            $task = $task->orderBy('tasks.id', 'ASC');
         } else {
             $issues = $issues->orderBy('chat_messages.id', 'desc');
+            $task = $task->orderBy('chat_messages.id', 'desc');
         }
 
         $paginateLimit = Setting::get('pagination') ?: 15;
@@ -1462,7 +1480,7 @@ class DevelopmentController extends Controller
             }
             foreach ($tasks as $key => $issue) {
                 if ($isReviwerLikeAdmin) {
-                    $data .= view('task-module.partials.flagsummarydata', compact('issue', 'users', 'statusList', 'task_statuses'));
+                    $data .= view('task-module.partials.flagsummarydata2', compact('issue', 'users', 'statusList', 'task_statuses'));
                 } elseif ($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID) {
                     $data .= view('task-module.partials.flagdeveloper-row-view', compact('issue', 'users', 'statusList', 'task_statuses'));
                 }
@@ -4708,5 +4726,89 @@ class DevelopmentController extends Controller
             ];
         }
         return response()->json($result);
+    }
+
+    /**
+     * Upload a task file to google drive 
+     */
+    public function uploadFile(Request $request)
+    {
+        $request->validate([
+            'file' => 'required',
+            'file_creation_date' => 'required',
+            'remarks' => 'sometimes',
+            'task_id' => 'required',
+            'file_read' => 'sometimes',
+            'file_write' => 'sometimes'
+        ]);
+
+        $data = $request->all();
+        
+        try {
+            foreach($data['file'] as $file)
+            {
+                DB::transaction(function () use ($file,$data) {
+                    $googleScreencast = new GoogleScreencast();
+                    $googleScreencast->file_name = $file->getClientOriginalName();
+                    $googleScreencast->extension = $file->extension();
+                    $googleScreencast->user_id = Auth::id();
+                    
+                    $googleScreencast->read = "";
+                    $googleScreencast->write = "";
+
+                    if($data["task_type"] == "DEVTASK") {
+                        $googleScreencast->developer_task_id = $data['task_id'];
+                    } else if ($data["task_type"] == "TASK") {
+                        $googleScreencast->belongable_id = $data['task_id'];
+                        $googleScreencast->belongable_type = Task::class;
+                    }
+
+                    $googleScreencast->remarks = $data['remarks'];
+                    $googleScreencast->file_creation_date = $data['file_creation_date'];
+
+                    $googleScreencast->save();
+                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
+                });
+            }
+            
+            return back()->with('success', "File is Uploaded to Google Drive.");
+        } catch (Exception $e) {
+            return back()->with('error', "Something went wrong. Please try again");
+        }
+        
+    }
+
+    /**
+     * This function will return a list of files which are uploaded under uicheck class
+     */
+    public function getUploadedFilesList(Request $request)
+    {
+        try {
+            $result = [];
+            if(isset($request->task_id) && isset($request->task_type)) {
+                if($request->task_type == "DEVTASK") {
+                    $result = GoogleScreencast::where('developer_task_id', $request->task_id)->orderBy('id', 'desc')->get();
+                } else if ($request->task_type == "TASK"){
+                    $result = GoogleScreencast::where('belongable_type', Task::class)->where('belongable_id', $request->task_id)->orderBy('id', 'desc')->get();
+                } else {
+                    throw new Exception("Something went wrong.");
+                }
+                
+                if(isset($result) && count($result) > 0) {
+                    $result = $result->toArray();   
+                }
+
+                return response()->json([
+                    "data" => view("development.partials.google-drive-list", compact("result"))->render()
+                ]);
+            } else {
+                throw new Exception("Task not found");
+            }
+            
+        } catch (Exception $e) {
+            return response()->json([
+                "data" => view("development.partials.google-drive-list", ["result"=> null])->render()
+            ]);
+        }
     }
 }

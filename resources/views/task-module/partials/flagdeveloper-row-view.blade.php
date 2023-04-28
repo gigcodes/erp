@@ -4,14 +4,14 @@
     </td>
     <td>
         <a data-toggle="modal" data-target="#task_subject{{ $issue->id }}" class="btn pd-5 task-set-reminder" style="overflow: hidden;display: inline-block;text-overflow: ellipsis;white-space: nowrap;width: 100%;">
-            {{ $issue->subject ?? "-" }}
+            {{ $issue->task_subject ?? "-" }}
         </a>
         <div id="task_subject{{ $issue->id }}" class="modal fade" role="dialog">
             <div class="modal-dialog" style=" display: flex;justify-content: center;align-items: center; height: 100%;flex-wrap: wrap;">
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-body">
-                        {{ $issue->subject }}
+                        {{ $issue->task_subject }}
                     </div>
                     <div class="modal-footer" style="padding-top: 8px; padding-bottom: 8px;">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -74,8 +74,8 @@
 
         <div class="d-flex">
             <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px;width:calc(100% - 24px);display:block;" />
-            <button type="submit" class="btn btn-xs btn-image send-message-open" id="submit_message" data-id="{{$issue->id}}"><img src="/images/filled-sent.png" /></button>
-            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
+            <button type="submit" class="btn btn-xs btn-image send-message-task" id="submit_message" data-id="{{$issue->id}}"><img src="/images/filled-sent.png" /></button>
+            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $issue->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
         </div>
         <div class="d-flex">
 
@@ -119,24 +119,24 @@
             <i class="fa fa-history"></i>
         </button>
         @if ($issue->is_flagged == 1)
-        <button type="button" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}" /></button>
+        <button type="button" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="TASK" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}" /></button>
         @else
-        <button type="button" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="DEVTASK" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
+        <button type="button" class="btn btn-image flag-task btn-xs pull-left mt-0" data-type="TASK" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
         @endif
         <button type="button" data-type="develop" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
             <i class="fa fa-info-circle"></i>
         </button>
         <br>
-        <button class="btn upload-task-files-button p-0" type="button" title="Uploaded Files" data-task_type="DEVTASK" data-task_id="{{$issue->id}}">
+        <button class="btn upload-task-files-button p-0" type="button" title="Uploaded Files" data-task_type="TASK" data-task_id="{{$issue->id}}">
             <i class="fa fa-cloud-upload" aria-hidden="true"></i>
         </button>
-        <button class="btn btn-image view-task-files-button p-0" type="button" title="View Uploaded Files" data-task_type="DEVTASK" data-task_id="{{$issue->id}}">
+        <button class="btn btn-image view-task-files-button p-0" type="button" title="View Uploaded Files" data-task_type="TASK" data-task_id="{{$issue->id}}">
             <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
         </button>
-        <button class="btn create-task-document p-0" title="Create document" data-task_type="DEVTASK" data-id="{{$issue->id}}">
+        <button class="btn create-task-document p-0" title="Create document"  data-task_type="TASK" data-id="{{$issue->id}}">
             <i class="fa fa-file-text" aria-hidden="true"></i>
         </button>
-        <button class="btn show-created-task-document p-0" title="Show created document" data-task_type="DEVTASK" data-id="{{$issue->id}}">
+        <button class="btn show-created-task-document p-0" title="Show created document"  data-task_type="TASK" data-id="{{$issue->id}}">
             <i class="fa fa-list" aria-hidden="true"></i>
         </button>
     </td>
