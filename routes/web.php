@@ -1734,6 +1734,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
             Route::get('delete', [NewsletterController::class, 'delete'])->name('newsletters.delete');
             Route::get('change-store', [NewsletterController::class, 'changeStore'])->name('newsletters.change.store');
             Route::get('preview', [NewsletterController::class, 'preview'])->name('newsletters.preview');
+            Route::post('translate', [NewsletterController::class, 'translate'])->name('newsletters.translate');
         });
     });
 
