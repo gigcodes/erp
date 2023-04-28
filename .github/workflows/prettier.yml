@@ -19,4 +19,4 @@ jobs:
         with:
           prettier_options: --write **/*.{js,css,md}
           only_changed: True
-          github_token: : ${{ secrets.PERSONAL_TOKEN }}
+          github_token: ${{ secrets.PERSONAL_TOKEN }}
