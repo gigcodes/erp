@@ -15,6 +15,7 @@ use App\Jobs\CreateGoogleDoc;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\CreateGoogleSpreadsheet;
+use App\Models\GoogleDocsCategory;
 
 class GoogleDocController extends Controller
 {
@@ -26,7 +27,6 @@ class GoogleDocController extends Controller
     public function index(Request $request)
     {
         $data = GoogleDoc::orderBy('created_at', 'desc');
-
         if ($keyword = request('name')) {
             $data = $data->where(function ($q) use ($keyword) {
                 $q->where('name', 'LIKE', "%$keyword%");
@@ -41,6 +41,10 @@ class GoogleDocController extends Controller
             $data = $data->where(function ($q) use ($keyword) {
                 $q->whereRaw("find_in_set('" . $keyword . "',google_docs.read)")->orWhereRaw("find_in_set('" . $keyword . "',google_docs.write)");
             });
+        }
+
+        if (isset($request->googleDocCategory)) {
+            $data = $data->whereIn('category', $request->googleDocCategory ?? []);
         }
         if (! Auth::user()->isAdmin()) {
             $data->whereRaw("find_in_set('" . Auth::user()->gmail . "',google_docs.read)")->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_docs.write)");
@@ -146,10 +150,26 @@ class GoogleDocController extends Controller
      */
     public function update(Request $request)
     {
-        //
-        $modal = GoogleDoc::where('id', $request->id)->update(['category' => $request->doc_category]);
-        if ($modal) {
-            return back()->with('success', 'Google Doc Category successfully updated.');
+        $updateData = [];
+        if (isset($request->doc_category)) {
+            $updateData['category'] = $request->doc_category;
+        }
+        if (isset($request->type)) {
+            $updateData['type'] = $request->type;
+        }
+        if (isset($request->name)) {
+            $updateData['name'] = $request->name;
+        }
+        if (isset($request->docId)) {
+            $updateData['docId'] = $request->docId;
+        }
+        if(count($updateData) > 0) {
+            $modal = GoogleDoc::where('id', $request->id)->update($updateData);
+            if ($modal) {
+                return back()->with('success', 'Google Doc Category successfully updated.');
+            } else {
+                return back()->with('error', 'Something went wrong.');
+            }
         } else {
             return back()->with('error', 'Something went wrong.');
         }
@@ -395,6 +415,34 @@ class GoogleDocController extends Controller
                 'status' => false,
                 'data' => view('googledocs.task-document')->render(),
             ]);
+        }
+    }
+
+    public function updateGoogleDocCategory(Request $request)
+    {
+        try {
+            if(isset($request->category_id) && isset($request->doc_id)) {
+                GoogleDoc::where('id', $request->doc_id)->update([
+                    "category" => $request->category_id
+                ]);
+                return response()->json(["status"=> true, "message" => "Category updated."]);
+            } else {
+                return response()->json(["status"=> false, "message" => "Invalid request"]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(["status"=> false, "message" => "Error while updating status"]);
+        }
+    }
+
+    public function createGoogleDocCategory(Request $request)
+    {
+        try {
+            GoogleDocsCategory::create([
+                "name"=> $request->name
+            ]);
+            return redirect()->back()->with('success', 'Category added successfully.');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Error while creating category');
         }
     }
 }

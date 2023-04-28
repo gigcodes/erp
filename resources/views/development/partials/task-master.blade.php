@@ -70,9 +70,20 @@
                         <input type="text" name="doc_name" value="" class="form-control input-sm" placeholder="Document Name" required id="doc-name">
                     </div>
 
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         <strong>Category:</strong>
                         <input type="text" name="doc_category" value="" class="form-control input-sm" placeholder="Document Category" required id="doc-category">
+                    </div> --}}
+                    <div class="form-group">
+                        <strong>Category:</strong>
+                        <select name="doc_category" class="form-control" id="doc-category" required>
+                            <option>Select Category</option>
+                            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
+                                @foreach ($googleDocCategory as $key => $category)
+                                    <option value="{{$key}}">{{$category}}</option>
+                                @endforeach
+                            @endif
+                        </select>
                     </div>
                    
                 </div>
