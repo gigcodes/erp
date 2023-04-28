@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\AutoReply;
-use App\ChatbotCategory;
-use App\ChatbotKeyword;
-use App\ChatbotKeywordValue;
-use App\ChatbotQuestion;
-use App\ChatbotQuestionExample;
-use App\ChatbotQuestionReply;
-use App\ChatMessagePhrase;
-use App\ChatMessageWord;
-use App\Customer;
-use App\Library\Watson\Model as WatsonManager;
-use App\ScheduledMessage;
-use App\Setting;
-use App\WatsonAccount;
 use Auth;
+use App\Setting;
+use App\Customer;
+use App\AutoReply;
+use App\WatsonAccount;
+use App\ChatbotKeyword;
+use App\ChatbotCategory;
+use App\ChatbotQuestion;
+use App\ChatMessageWord;
+use App\ScheduledMessage;
+use App\ChatMessagePhrase;
+use App\ChatbotKeywordValue;
 use Illuminate\Http\Request;
+use App\ChatbotQuestionReply;
+use App\ChatbotQuestionExample;
+use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class AutoReplyController extends Controller
@@ -80,7 +80,6 @@ class AutoReplyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -150,7 +149,6 @@ class AutoReplyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -481,7 +479,7 @@ class AutoReplyController extends Controller
 
         if ($request->keyword != null) {
             $history = $history->where(function ($q) use ($request) {
-                $q->where('chat_message_phrases.phrase', 'like', '%'.$request->keyword.'%')->orWhere('u.name', 'like', '%'.$request->keyword.'%');
+                $q->where('chat_message_phrases.phrase', 'like', '%' . $request->keyword . '%')->orWhere('u.name', 'like', '%' . $request->keyword . '%');
             });
         }
 

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Compositions;
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\Compositions;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class ImportAllApprovedCompositions extends Command
@@ -65,7 +65,7 @@ class ImportAllApprovedCompositions extends Command
                         continue;
                     }
 
-                    dump('Adding '.$cmp);
+                    dump('Adding ' . $cmp);
 
                     $cmpr = new Compositions();
                     $cmpr->name = trim($cmp);

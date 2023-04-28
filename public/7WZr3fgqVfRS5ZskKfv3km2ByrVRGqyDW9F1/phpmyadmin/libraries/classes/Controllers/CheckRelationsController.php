@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers;
 
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Http\ServerRequest;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use const SQL_DIR;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Http\ServerRequest;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Displays status of phpMyAdmin configuration storage

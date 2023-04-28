@@ -8,25 +8,25 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_key_exists;
-use function array_merge;
-use function array_multisort;
-use function count;
 use function date;
-use function htmlspecialchars;
-use function in_array;
+use const SORT_ASC;
+use function count;
+use function rtrim;
+use function strlen;
 use function ini_set;
+use function sprintf;
+use function in_array;
 use function is_array;
 use function mb_strstr;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Dbal\ResultInterface;
-use PhpMyAdmin\Html\Generator;
-use function preg_replace;
-use function rtrim;
-use const SORT_ASC;
-use function sprintf;
-use function strlen;
 use function strtotime;
+use function array_merge;
+use function preg_replace;
+use function array_multisort;
+use function array_key_exists;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\Dbal\ResultInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * PhpMyAdmin\Tracking class
@@ -195,11 +195,11 @@ class Tracking
             return false;
         }
 
-        $sql_query = ' SELECT DISTINCT db_name, table_name FROM '.
-            Util::backquote($trackingFeature->database).'.'.
-            Util::backquote($trackingFeature->tracking).
-            " WHERE db_name = '".$this->dbi->escapeString($db).
-            "' ".
+        $sql_query = ' SELECT DISTINCT db_name, table_name FROM ' .
+            Util::backquote($trackingFeature->database) . '.' .
+            Util::backquote($trackingFeature->tracking) .
+            " WHERE db_name = '" . $this->dbi->escapeString($db) .
+            "' " .
             ' ORDER BY db_name, table_name';
 
         return $this->dbi->queryAsControlUser($sql_query);
@@ -228,12 +228,12 @@ class Tracking
         $filter_ts_from,
         array $filter_users
     ) {
-        $html = '<h3>'.__('Tracking report')
-            .'  [<a href="'.Url::getFromRoute('/table/tracking', $url_params).'">'.__('Close')
-            .'</a>]</h3>';
+        $html = '<h3>' . __('Tracking report')
+            . '  [<a href="' . Url::getFromRoute('/table/tracking', $url_params) . '">' . __('Close')
+            . '</a>]</h3>';
 
-        $html .= '<small>'.__('Tracking statements').' '
-            .htmlspecialchars($data['tracking']).'</small><br>';
+        $html .= '<small>' . __('Tracking statements') . ' '
+            . htmlspecialchars($data['tracking']) . '</small><br>';
         $html .= '<br>';
 
         [$str1, $str2, $str3, $str4, $str5] = $this->getHtmlForElementsOfTrackingReport(
@@ -301,24 +301,24 @@ class Tracking
         $selection_both
     ) {
         $str1 = '<select name="logtype">'
-            .'<option value="schema"'
-            .($selection_schema ? ' selected="selected"' : '').'>'
-            .__('Structure only').'</option>'
-            .'<option value="data"'
-            .($selection_data ? ' selected="selected"' : '').'>'
-            .__('Data only').'</option>'
-            .'<option value="schema_and_data"'
-            .($selection_both ? ' selected="selected"' : '').'>'
-            .__('Structure and data').'</option>'
-            .'</select>';
+            . '<option value="schema"'
+            . ($selection_schema ? ' selected="selected"' : '') . '>'
+            . __('Structure only') . '</option>'
+            . '<option value="data"'
+            . ($selection_data ? ' selected="selected"' : '') . '>'
+            . __('Data only') . '</option>'
+            . '<option value="schema_and_data"'
+            . ($selection_both ? ' selected="selected"' : '') . '>'
+            . __('Structure and data') . '</option>'
+            . '</select>';
         $str2 = '<input type="text" name="date_from" value="'
-            .htmlspecialchars($_POST['date_from']).'" size="19">';
+            . htmlspecialchars($_POST['date_from']) . '" size="19">';
         $str3 = '<input type="text" name="date_to" value="'
-            .htmlspecialchars($_POST['date_to']).'" size="19">';
+            . htmlspecialchars($_POST['date_to']) . '" size="19">';
         $str4 = '<input type="text" name="users" value="'
-            .htmlspecialchars($_POST['users']).'">';
+            . htmlspecialchars($_POST['users']) . '">';
         $str5 = '<input type="hidden" name="list_report" value="1">'
-            .'<input class="btn btn-primary" type="submit" value="'.__('Go').'">';
+            . '<input class="btn btn-primary" type="submit" value="' . __('Go') . '">';
 
         return [
             $str1,
@@ -366,7 +366,7 @@ class Tracking
     ) {
         $ddlog_count = 0;
 
-        $html = '<form method="post" action="'.Url::getFromRoute('/table/tracking').'">';
+        $html = '<form method="post" action="' . Url::getFromRoute('/table/tracking') . '">';
         $html .= Url::getHiddenInputs($url_params + [
             'report' => 'true',
             'version' => $_POST['version'],
@@ -433,7 +433,7 @@ class Tracking
         $str4,
         $str5
     ) {
-        $html = '<form method="post" action="'.Url::getFromRoute('/table/tracking').'">';
+        $html = '<form method="post" action="' . Url::getFromRoute('/table/tracking') . '">';
         $html .= Url::getHiddenInputs($url_params + [
             'report' => 'true',
             'version' => $_POST['version'],
@@ -449,7 +449,7 @@ class Tracking
         );
         $html .= '</form>';
 
-        $html .= '<form class="disableAjax" method="post" action="'.Url::getFromRoute('/table/tracking').'">';
+        $html .= '<form class="disableAjax" method="post" action="' . Url::getFromRoute('/table/tracking') . '">';
         $html .= Url::getHiddenInputs($url_params + [
             'report' => 'true',
             'version' => $_POST['version'],
@@ -461,19 +461,19 @@ class Tracking
         ]);
 
         $str_export1 = '<select name="export_type">'
-            .'<option value="sqldumpfile">'.__('SQL dump (file download)')
-            .'</option>'
-            .'<option value="sqldump">'.__('SQL dump').'</option>'
-            .'<option value="execution" onclick="alert(\''
-            .Sanitize::escapeJsString(
+            . '<option value="sqldumpfile">' . __('SQL dump (file download)')
+            . '</option>'
+            . '<option value="sqldump">' . __('SQL dump') . '</option>'
+            . '<option value="execution" onclick="alert(\''
+            . Sanitize::escapeJsString(
                 __('This option will replace your table and contained data.')
             )
-            .'\')">'.__('SQL execution').'</option></select>';
+            . '\')">' . __('SQL execution') . '</option></select>';
 
-        $str_export2 = '<input class="btn btn-primary" type="submit" value="'.__('Go').'">';
+        $str_export2 = '<input class="btn btn-primary" type="submit" value="' . __('Go') . '">';
 
-        $html .= '<br>'.sprintf(__('Export as %s'), $str_export1)
-            .$str_export2.'<br>';
+        $html .= '<br>' . sprintf(__('Export as %s'), $str_export1)
+            . $str_export2 . '<br>';
         $html .= '</form>';
 
         return $html;
@@ -593,7 +593,7 @@ class Tracking
                 || in_array($entry['username'], $filterUsers))
             ) {
                 $entry['formated_statement'] = Generator::formatSql($entry['statement'], true);
-                $deleteParam = 'delete_'.$whichLog;
+                $deleteParam = 'delete_' . $whichLog;
                 $entry['url_params'] = Url::getCommon($urlParams + [
                     'report' => 'true',
                     'version' => $_POST['version'],
@@ -626,9 +626,9 @@ class Tracking
      */
     public function getHtmlForSchemaSnapshot(array $params): string
     {
-        $html = '<h3>'.__('Structure snapshot')
-            .'  [<a href="'.Url::getFromRoute('/table/tracking', $params).'">'.__('Close')
-            .'</a>]</h3>';
+        $html = '<h3>' . __('Structure snapshot')
+            . '  [<a href="' . Url::getFromRoute('/table/tracking', $params) . '">' . __('Close')
+            . '</a>]</h3>';
         $data = Tracker::getTrackedData($_POST['db'], $_POST['table'], $_POST['version']);
 
         // Get first DROP TABLE/VIEW and CREATE TABLE/VIEW statements
@@ -742,7 +742,7 @@ class Tracking
     public function deleteFromTrackingReportLog(string $db, string $table, array &$data, $which_log, $type, $message)
     {
         $html = '';
-        $delete_id = $_POST['delete_'.$which_log];
+        $delete_id = $_POST['delete_' . $which_log];
 
         // Only in case of valid id
         if ($delete_id == (int) $delete_id) {
@@ -777,16 +777,16 @@ class Tracking
     {
         $html = '';
         $new_query = '# '
-            .__(
+            . __(
                 'You can execute the dump by creating and using a temporary database. '
-                .'Please ensure that you have the privileges to do so.'
+                . 'Please ensure that you have the privileges to do so.'
             )
-            ."\n"
-            .'# '.__('Comment out these two lines if you do not need them.')."\n"
-            ."\n"
-            ."CREATE database IF NOT EXISTS pma_temp_db; \n"
-            ."USE pma_temp_db; \n"
-            ."\n";
+            . "\n"
+            . '# ' . __('Comment out these two lines if you do not need them.') . "\n"
+            . "\n"
+            . "CREATE database IF NOT EXISTS pma_temp_db; \n"
+            . "USE pma_temp_db; \n"
+            . "\n";
 
         foreach ($entries as $entry) {
             $new_query .= $entry['statement'];
@@ -810,7 +810,7 @@ class Tracking
     public function exportAsSqlExecution(array $entries): void
     {
         foreach ($entries as $entry) {
-            $this->dbi->query("/*NOTRACK*/\n".$entry['statement']);
+            $this->dbi->query("/*NOTRACK*/\n" . $entry['statement']);
         }
     }
 
@@ -825,16 +825,16 @@ class Tracking
 
         // Replace all multiple whitespaces by a single space
         $table = htmlspecialchars(preg_replace('/\s+/', ' ', $_POST['table']));
-        $dump = '# '.sprintf(
+        $dump = '# ' . sprintf(
             __('Tracking report for table `%s`'),
             $table
         )
-        ."\n".'# '.date('Y-m-d H:i:s')."\n";
+        . "\n" . '# ' . date('Y-m-d H:i:s') . "\n";
         foreach ($entries as $entry) {
             $dump .= $entry['statement'];
         }
 
-        $filename = 'log_'.$table.'.sql';
+        $filename = 'log_' . $table . '.sql';
         ResponseRenderer::getInstance()->disable();
         Core::downloadHeader(
             $filename,
@@ -867,7 +867,7 @@ class Tracking
             $msg = Message::success(
                 sprintf(
                     $message,
-                    htmlspecialchars($db.'.'.$table),
+                    htmlspecialchars($db . '.' . $table),
                     htmlspecialchars($_POST['version'])
                 )
             );
@@ -960,7 +960,7 @@ class Tracking
                 sprintf(
                     __('Version %1$s of %2$s was deleted.'),
                     htmlspecialchars($version),
-                    htmlspecialchars($db.'.'.$table)
+                    htmlspecialchars($db . '.' . $table)
                 )
             );
             $html .= $msg->getDisplay();
@@ -991,7 +991,7 @@ class Tracking
                 sprintf(
                     __('Version %1$s was created, tracking for %2$s is active.'),
                     htmlspecialchars($_POST['version']),
-                    htmlspecialchars($db.'.'.$table)
+                    htmlspecialchars($db . '.' . $table)
                 )
             );
             $html .= $msg->getDisplay();
@@ -1091,12 +1091,12 @@ class Tracking
         }
 
         // Prepare statement to get HEAD version
-        $allTablesQuery = ' SELECT table_name, MAX(version) as version FROM '.
-            Util::backquote($trackingFeature->database).'.'.
-            Util::backquote($trackingFeature->tracking).
-            ' WHERE db_name = \''.$this->dbi->escapeString($db).
-            '\' '.
-            ' GROUP BY table_name'.
+        $allTablesQuery = ' SELECT table_name, MAX(version) as version FROM ' .
+            Util::backquote($trackingFeature->database) . '.' .
+            Util::backquote($trackingFeature->tracking) .
+            ' WHERE db_name = \'' . $this->dbi->escapeString($db) .
+            '\' ' .
+            ' GROUP BY table_name' .
             ' ORDER BY table_name ASC';
 
         $allTablesResult = $this->dbi->queryAsControlUser($allTablesQuery);
@@ -1106,14 +1106,14 @@ class Tracking
         $versions = [];
         while ($oneResult = $allTablesResult->fetchRow()) {
             [$tableName, $versionNumber] = $oneResult;
-            $tableQuery = ' SELECT * FROM '.
-                Util::backquote($trackingFeature->database).'.'.
-                Util::backquote($trackingFeature->tracking).
+            $tableQuery = ' SELECT * FROM ' .
+                Util::backquote($trackingFeature->database) . '.' .
+                Util::backquote($trackingFeature->tracking) .
                 ' WHERE `db_name` = \''
-                .$this->dbi->escapeString($db)
-                .'\' AND `table_name`  = \''
-                .$this->dbi->escapeString($tableName)
-                .'\' AND `version` = \''.$versionNumber.'\'';
+                . $this->dbi->escapeString($db)
+                . '\' AND `table_name`  = \''
+                . $this->dbi->escapeString($tableName)
+                . '\' AND `version` = \'' . $versionNumber . '\'';
 
             $versions[] = $this->dbi->queryAsControlUser($tableQuery)->fetchAssoc();
         }
@@ -1145,7 +1145,7 @@ class Tracking
         $sep = $cfg['NavigationTreeTableSeparator'];
 
         foreach ($table_list as $value) {
-            if (is_array($value) && array_key_exists('is'.$sep.'group', $value) && $value['is'.$sep.'group']) {
+            if (is_array($value) && array_key_exists('is' . $sep . 'group', $value) && $value['is' . $sep . 'group']) {
                 // Recursion step
                 $untracked_tables = array_merge($this->extractTableNames($value, $db, $testing), $untracked_tables);
             } elseif (is_array($value) && ($testing || Tracker::getVersion($db, $value['Name']) == -1)) {

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddModuleFieldInTasksTable extends Migration
 {
@@ -13,7 +13,7 @@ class AddModuleFieldInTasksTable extends Migration
      */
     public function up()
     {
-        Schema::table(env('TOTEM_TABLE_PREFIX','').'tasks', function (Blueprint $table) {
+        Schema::table(env('TOTEM_TABLE_PREFIX', '') . 'tasks', function (Blueprint $table) {
             $table->integer('developer_module_id')->nullable()->after('id');
         });
     }
@@ -25,7 +25,7 @@ class AddModuleFieldInTasksTable extends Migration
      */
     public function down()
     {
-        Schema::table(env('TOTEM_TABLE_PREFIX','').'tasks', function (Blueprint $table) {
+        Schema::table(env('TOTEM_TABLE_PREFIX', '') . 'tasks', function (Blueprint $table) {
             $table->dropColumn('developer_module_id');
         });
     }

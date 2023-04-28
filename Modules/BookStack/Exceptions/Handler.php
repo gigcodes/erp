@@ -3,12 +3,12 @@
 namespace Modules\BookStack\Exceptions;
 
 use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
@@ -29,7 +29,6 @@ class Handler extends ExceptionHandler
      * Report or log an exception.
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Exception  $e
      * @return mixed
      *
      * @throws Exception
@@ -43,7 +42,6 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $e
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $e)
@@ -62,7 +60,7 @@ class Handler extends ExceptionHandler
             $message = $this->getOriginalMessage($e);
             $code = ($e->getCode() === 0) ? 500 : $e->getCode();
 
-            return response()->view('errors/'.$code, ['message' => $message], $code);
+            return response()->view('errors/' . $code, ['message' => $message], $code);
         }
 
         // Handle 404 errors with a loaded session to enable showing user-specific information
@@ -76,8 +74,6 @@ class Handler extends ExceptionHandler
     /**
      * Check the exception chain to compare against the original exception type.
      *
-     * @param  Exception  $e
-     * @param $type
      * @return bool
      */
     protected function isExceptionType(Exception $e, $type)
@@ -94,7 +90,6 @@ class Handler extends ExceptionHandler
     /**
      * Get original exception message.
      *
-     * @param  Exception  $e
      * @return string
      */
     protected function getOriginalMessage(Exception $e)
@@ -110,7 +105,6 @@ class Handler extends ExceptionHandler
      * Convert an authentication exception into an unauthenticated response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Auth\AuthenticationException  $exception
      * @return \Illuminate\Http\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception)
@@ -126,7 +120,6 @@ class Handler extends ExceptionHandler
      * Convert a validation exception into a JSON response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Validation\ValidationException  $exception
      * @return \Illuminate\Http\JsonResponse
      */
     protected function invalidJson($request, ValidationException $exception)

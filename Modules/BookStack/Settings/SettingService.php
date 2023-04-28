@@ -21,9 +21,6 @@ class SettingService
 
     /**
      * SettingService constructor.
-     *
-     * @param  Setting  $setting
-     * @param  Cache  $cache
      */
     public function __construct(Setting $setting, Cache $cache)
     {
@@ -35,14 +32,13 @@ class SettingService
      * Gets a setting from the database,
      * If not found, Returns default, Which is false by default.
      *
-     * @param    $key
      * @param  string|bool  $default
      * @return bool|string
      */
     public function get($key, $default = false)
     {
         if ($default === false) {
-            $default = config('setting-defaults.'.$key, false);
+            $default = config('setting-defaults.' . $key, false);
         }
 
         if (isset($this->localCache[$key])) {
@@ -59,7 +55,6 @@ class SettingService
     /**
      * Get a value from the session instead of the main store option.
      *
-     * @param $key
      * @param  bool  $default
      * @return mixed
      */
@@ -75,7 +70,6 @@ class SettingService
      * Get a user-specific setting from the database or cache.
      *
      * @param  \BookStack\Auth\User  $user
-     * @param $key
      * @param  bool  $default
      * @return bool|string
      */
@@ -91,7 +85,6 @@ class SettingService
     /**
      * Get a value for the current logged-in user.
      *
-     * @param $key
      * @param  bool  $default
      * @return bool|string
      */
@@ -104,8 +97,6 @@ class SettingService
      * Gets a setting value from the cache or database.
      * Looks at the system defaults if not cached or in database.
      *
-     * @param $key
-     * @param $default
      * @return mixed
      */
     protected function getValueFromStore($key, $default)
@@ -117,7 +108,7 @@ class SettingService
         }
 
         // Check the cache
-        $cacheKey = $this->cachePrefix.$key;
+        $cacheKey = $this->cachePrefix . $key;
         $cacheVal = $this->cache->get($cacheKey, null);
         if ($cacheVal !== null) {
             return $cacheVal;
@@ -137,12 +128,10 @@ class SettingService
 
     /**
      * Clear an item from the cache completely.
-     *
-     * @param $key
      */
     protected function clearFromCache($key)
     {
-        $cacheKey = $this->cachePrefix.$key;
+        $cacheKey = $this->cachePrefix . $key;
         $this->cache->forget($cacheKey);
         if (isset($this->localCache[$key])) {
             unset($this->localCache[$key]);
@@ -152,8 +141,6 @@ class SettingService
     /**
      * Format a settings value
      *
-     * @param $value
-     * @param $default
      * @return mixed
      */
     protected function formatValue($value, $default)
@@ -177,7 +164,6 @@ class SettingService
     /**
      * Checks if a setting exists.
      *
-     * @param $key
      * @return bool
      */
     public function has($key)
@@ -190,7 +176,6 @@ class SettingService
     /**
      * Check if a user setting is in the database.
      *
-     * @param $key
      * @return bool
      */
     public function hasUser($key)
@@ -201,8 +186,6 @@ class SettingService
     /**
      * Add a setting to the database.
      *
-     * @param $key
-     * @param $value
      * @return bool
      */
     public function put($key, $value)
@@ -221,8 +204,6 @@ class SettingService
      * Put a user-specific setting into the database.
      *
      * @param  \BookStack\Auth\User  $user
-     * @param $key
-     * @param $value
      * @return bool
      */
     public function putUser($user, $key, $value)
@@ -237,18 +218,16 @@ class SettingService
     /**
      * Convert a setting key into a user-specific key.
      *
-     * @param $key
      * @return string
      */
     protected function userKey($userId, $key = '')
     {
-        return 'user:'.$userId.':'.$key;
+        return 'user:' . $userId . ':' . $key;
     }
 
     /**
      * Removes a setting from the database.
      *
-     * @param $key
      * @return bool
      */
     public function remove($key)
@@ -265,18 +244,16 @@ class SettingService
     /**
      * Delete settings for a given user id.
      *
-     * @param $userId
      * @return mixed
      */
     public function deleteUserSettings($userId)
     {
-        return $this->setting->where('name', 'like', $this->userKey($userId).'%')->delete();
+        return $this->setting->where('name', 'like', $this->userKey($userId) . '%')->delete();
     }
 
     /**
      * Gets a setting model from the database for the given key.
      *
-     * @param $key
      * @return mixed
      */
     protected function getSettingObjectByKey($key)
@@ -289,7 +266,6 @@ class SettingService
      * Used where certain configuration options overrule others.
      * Returns null if no override value is available.
      *
-     * @param $key
      * @return bool|null
      */
     protected function getOverrideValue($key)

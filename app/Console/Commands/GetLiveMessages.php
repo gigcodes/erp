@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
 use App\Customer;
 use Carbon\Carbon;
+use App\ChatMessage;
 use Illuminate\Console\Command;
 
 class GetLiveMessages extends Command
@@ -81,7 +81,7 @@ class GetLiveMessages extends Command
             curl_close($curl);
 
             if ($err) {
-                echo 'cURL Error #:'.$err;
+                echo 'cURL Error #:' . $err;
             } else {
                 $chats = json_decode($response);
                 $summary = $chats->chats_summary;

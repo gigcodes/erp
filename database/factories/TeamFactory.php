@@ -5,8 +5,8 @@ namespace Database\Factories;
 use App\Task;
 use App\Team;
 use App\User;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TeamFactory extends Factory
 {

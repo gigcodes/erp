@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
-use App\Http\Requests\MagentoModule\MagentoModuleRequest;
-use App\MagentoModule;
-use App\MagentoModuleCategory;
-use App\MagentoModuleHistory;
-use App\MagentoModuleRemark;
-use App\MagentoModuleType;
-use App\StoreWebsite;
-use App\TaskStatus;
-use App\User;
 use Auth;
+use App\User;
+use App\TaskStatus;
+use App\StoreWebsite;
+use App\MagentoModule;
+use App\MagentoModuleType;
+use App\MagentoModuleRemark;
 use Illuminate\Http\Request;
+use App\MagentoModuleHistory;
+use App\MagentoModuleCategory;
+use App\Http\Requests\MagentoModule\MagentoModuleRequest;
+use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
 
 class MagentoModuleController extends Controller
 {
@@ -62,7 +62,7 @@ class MagentoModuleController extends Controller
                 );
 
             if (isset($request->module) && ! empty($request->module)) {
-                $items->where('magento_modules.module', 'Like', '%'.$request->module.'%');
+                $items->where('magento_modules.module', 'Like', '%' . $request->module . '%');
             }
 
             if (isset($request->user_id) && ! empty($request->user_id)) {
@@ -205,7 +205,6 @@ class MagentoModuleController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  MagentoModule  $magento_module
      * @return \Illuminate\Http\Response
      */
     public function update(MagentoModuleRequest $request, MagentoModule $magento_module)
@@ -238,7 +237,6 @@ class MagentoModuleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  MagentoModule  $magento_module
      * @return \Illuminate\Http\Response
      */
     public function destroy(MagentoModule $magento_module)

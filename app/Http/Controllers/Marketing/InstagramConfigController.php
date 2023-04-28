@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\CompetitorPage;
-use App\Http\Controllers\Controller;
-use App\ImQueue;
-use App\InstagramKeyword;
-use App\Marketing\InstagramConfig;
-use App\Services\Whatsapp\ChatApi\ChatApi;
-use App\Setting;
 use Crypt;
-use Illuminate\Http\Request;
 use Response;
+use App\ImQueue;
+use App\Setting;
+use App\CompetitorPage;
+use App\InstagramKeyword;
+use Illuminate\Http\Request;
+use App\Marketing\InstagramConfig;
+use App\Http\Controllers\Controller;
+use App\Services\Whatsapp\ChatApi\ChatApi;
 
 class InstagramConfigController extends Controller
 {
@@ -39,17 +39,17 @@ class InstagramConfigController extends Controller
 
             //if number is not null
             if (request('number') != null) {
-                $query->where('number', 'LIKE', '%'.request('number').'%');
+                $query->where('number', 'LIKE', '%' . request('number') . '%');
             }
 
             //If username is not null
             if (request('username') != null) {
-                $query->where('username', 'LIKE', '%'.request('username').'%');
+                $query->where('username', 'LIKE', '%' . request('username') . '%');
             }
 
             //if provider with is not null
             if (request('provider') != null) {
-                $query->where('provider', 'LIKE', '%'.request('provider').'%');
+                $query->where('provider', 'LIKE', '%' . request('provider') . '%');
             }
 
             //if provider with is not null
@@ -90,7 +90,6 @@ class InstagramConfigController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -157,7 +156,6 @@ class InstagramConfigController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\InstagramConfig  $InstagramConfig
      * @return \Illuminate\Http\Response
      */
@@ -186,7 +184,6 @@ class InstagramConfigController extends Controller
     /**
      * Show history page
      *
-     * @param $id
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function history($id, Request $request)
@@ -218,8 +215,6 @@ class InstagramConfigController extends Controller
     /**
      * Show queue page
      *
-     * @param $id
-     * @param  Request  $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function queue($id, Request $request)
@@ -250,7 +245,6 @@ class InstagramConfigController extends Controller
     /**
      * Delete single queue
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroyQueue(Request $request)

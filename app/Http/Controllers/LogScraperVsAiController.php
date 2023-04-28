@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\LogScraperVsAi;
 use App\Product;
+use App\LogScraperVsAi;
 use Illuminate\Http\Request;
 
 class LogScraperVsAiController extends Controller

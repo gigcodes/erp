@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
 use File;
+use App\Product;
 use Illuminate\Console\Command;
 
 class DeleteProduct extends Command
@@ -91,12 +91,12 @@ class DeleteProduct extends Command
         // check if product is empty then delete only
         if ($product->orderproducts->isEmpty()) {
             $id = $product->id;
-            echo 'Started to delete #'.$id."\n";
+            echo 'Started to delete #' . $id . "\n";
             if (! $product->media->isEmpty()) {
                 foreach ($product->media as $image) {
                     $image_path = $image->getAbsolutePath();
                     if (File::exists($image_path)) {
-                        echo $image_path.' Being Deleted for #'.$product->id."\n";
+                        echo $image_path . ' Being Deleted for #' . $product->id . "\n";
                         File::delete($image_path);
                     }
                     $image->delete();
@@ -126,10 +126,10 @@ class DeleteProduct extends Command
             \App\Loggers\LogListMagento::where('product_id', $product->id)->delete();
             \App\LogScraperVsAi::where('product_id', $product->id)->delete();
             \App\Notification::where('product_id', $product->id)->delete();
-            \DB::statement('Delete from private_view_products where product_id = '.$product->id);
+            \DB::statement('Delete from private_view_products where product_id = ' . $product->id);
             //\App\PrivateViewProduct::where("product_id",$product->id)->delete();
             //\App\PrivateView::where("product_id",$product->id)->delete();
-            \DB::statement('Delete from product_attributes where product_id = '.$product->id);
+            \DB::statement('Delete from product_attributes where product_id = ' . $product->id);
             //\App\ProductAttribute::where("product_id",$product->id)->delete();
             \App\ProductCategoryHistory::where('product_id', $product->id)->delete();
             \App\ProductColorHistory::where('product_id', $product->id)->delete();
@@ -146,7 +146,7 @@ class DeleteProduct extends Command
             \App\ProductVerifyingUser::where('product_id', $product->id)->delete();
             \App\PurchaseDiscount::where('product_id', $product->id)->delete();
 
-            \DB::statement('Delete from purchase_product_supplier where product_id = '.$product->id);
+            \DB::statement('Delete from purchase_product_supplier where product_id = ' . $product->id);
 
             //\App\PurchaseProductSupplier::where("product_id",$product->id)->delete();
             \App\PurchaseProduct::where('product_id', $product->id)->delete();
@@ -171,7 +171,7 @@ class DeleteProduct extends Command
             \App\UserProduct::where('product_id', $product->id)->delete();
             \App\WebsiteProduct::where('product_id', $product->id)->delete();
             $product->forceDelete();
-            echo 'End to delete #'.$id."\n";
+            echo 'End to delete #' . $id . "\n";
         }
     }
 }

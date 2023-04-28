@@ -2,13 +2,13 @@
 
 namespace Modules\BookStack\Http\Controllers;
 
+use Views;
 use Activity;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\BookStack\Auth\UserRepo;
 use Modules\BookStack\Entities\ExportService;
 use Modules\BookStack\Entities\Repos\EntityRepo;
-use Views;
 
 class ChapterController extends Controller
 {
@@ -21,8 +21,6 @@ class ChapterController extends Controller
     /**
      * ChapterController constructor.
      *
-     * @param  EntityRepo  $entityRepo
-     * @param  UserRepo  $userRepo
      * @param  \BookStack\Entities\ExportService  $exportService
      */
     public function __construct(EntityRepo $entityRepo, UserRepo $userRepo, ExportService $exportService)
@@ -36,7 +34,6 @@ class ChapterController extends Controller
     /**
      * Show the form for creating a new chapter.
      *
-     * @param $bookSlug
      * @return Response
      */
     public function create($bookSlug)
@@ -51,8 +48,6 @@ class ChapterController extends Controller
     /**
      * Store a newly created chapter in storage.
      *
-     * @param    $bookSlug
-     * @param  Request  $request
      * @return Response
      */
     public function store($bookSlug, Request $request)
@@ -76,8 +71,6 @@ class ChapterController extends Controller
     /**
      * Display the specified chapter.
      *
-     * @param $bookSlug
-     * @param $chapterSlug
      * @return Response
      */
     public function show($bookSlug, $chapterSlug)
@@ -101,8 +94,6 @@ class ChapterController extends Controller
     /**
      * Show the form for editing the specified chapter.
      *
-     * @param $bookSlug
-     * @param $chapterSlug
      * @return Response
      */
     public function edit($bookSlug, $chapterSlug)
@@ -117,9 +108,6 @@ class ChapterController extends Controller
     /**
      * Update the specified chapter in storage.
      *
-     * @param  Request  $request
-     * @param    $bookSlug
-     * @param    $chapterSlug
      * @return Response
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -138,8 +126,6 @@ class ChapterController extends Controller
     /**
      * Shows the page to confirm deletion of this chapter.
      *
-     * @param $bookSlug
-     * @param $chapterSlug
      * @return \Illuminate\View\View
      */
     public function showDelete($bookSlug, $chapterSlug)
@@ -154,8 +140,6 @@ class ChapterController extends Controller
     /**
      * Remove the specified chapter from storage.
      *
-     * @param $bookSlug
-     * @param $chapterSlug
      * @return Response
      */
     public function destroy($bookSlug, $chapterSlug)
@@ -172,8 +156,6 @@ class ChapterController extends Controller
     /**
      * Show the page for moving a chapter.
      *
-     * @param $bookSlug
-     * @param $chapterSlug
      * @return mixed
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -194,9 +176,6 @@ class ChapterController extends Controller
     /**
      * Perform the move action for a chapter.
      *
-     * @param $bookSlug
-     * @param $chapterSlug
-     * @param  Request  $request
      * @return mixed
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -238,8 +217,6 @@ class ChapterController extends Controller
     /**
      * Show the Restrictions view.
      *
-     * @param $bookSlug
-     * @param $chapterSlug
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -259,9 +236,6 @@ class ChapterController extends Controller
     /**
      * Set the restrictions for this chapter.
      *
-     * @param $bookSlug
-     * @param $chapterSlug
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -289,7 +263,7 @@ class ChapterController extends Controller
         $chapter = $this->entityRepo->getBySlug('chapter', $chapterSlug, $bookSlug);
         $pdfContent = $this->exportService->chapterToPdf($chapter);
 
-        return $this->downloadResponse($pdfContent, $chapterSlug.'.pdf');
+        return $this->downloadResponse($pdfContent, $chapterSlug . '.pdf');
     }
 
     /**
@@ -304,7 +278,7 @@ class ChapterController extends Controller
         $chapter = $this->entityRepo->getBySlug('chapter', $chapterSlug, $bookSlug);
         $containedHtml = $this->exportService->chapterToContainedHtml($chapter);
 
-        return $this->downloadResponse($containedHtml, $chapterSlug.'.html');
+        return $this->downloadResponse($containedHtml, $chapterSlug . '.html');
     }
 
     /**
@@ -319,6 +293,6 @@ class ChapterController extends Controller
         $chapter = $this->entityRepo->getBySlug('chapter', $chapterSlug, $bookSlug);
         $chapterText = $this->exportService->chapterToPlainText($chapter);
 
-        return $this->downloadResponse($chapterText, $chapterSlug.'.txt');
+        return $this->downloadResponse($chapterText, $chapterSlug . '.txt');
     }
 }

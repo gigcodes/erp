@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Category;
-use App\CronJobReport;
-use App\Loggers\LogScraper;
-use App\ScrapedProducts;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
+use App\Loggers\LogScraper;
 use Illuminate\Console\Command;
 
 class CategoryMissingReferences extends Command
@@ -78,7 +78,7 @@ class CategoryMissingReferences extends Command
 
                     // Exists?
                     if ($exists == null) {
-                        $exists = Category::where('references', 'LIKE', '%'.$lastCategory.'%')->first();
+                        $exists = Category::where('references', 'LIKE', '%' . $lastCategory . '%')->first();
                     }
 
                     // Still null
@@ -98,7 +98,7 @@ class CategoryMissingReferences extends Command
 
             // Update
             if ($unknownCategory != null && strlen($arrUnknown) > 0) {
-                $unknownCategory->references = $unknownCategory->references.','.$arrUnknown;
+                $unknownCategory->references = $unknownCategory->references . ',' . $arrUnknown;
                 $unknownCategory->save();
             }
 

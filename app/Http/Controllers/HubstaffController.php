@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Article;
-use App\Hubstaff\HubstaffMember;
-use App\Hubstaff\HubstaffProject;
-use App\Hubstaff\HubstaffTask;
-use App\Library\Hubstaff\Src\Hubstaff;
+use Storage;
 use App\User;
 use Exception;
+use App\Article;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
+use App\Hubstaff\HubstaffTask;
+use GuzzleHttp\RequestOptions;
+use App\Hubstaff\HubstaffMember;
+use App\Hubstaff\HubstaffProject;
+use App\Library\Hubstaff\Src\Hubstaff;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Validator;
-use Storage;
 
 define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
 // define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
@@ -150,7 +150,7 @@ class HubstaffController extends Controller
         string $hubstaffProjectDescription,
         bool $shouldRetryOnRefresh = true
     ) {
-        $url = 'https://api.hubstaff.com/v2/projects/'.$hubstaffProjectId;
+        $url = 'https://api.hubstaff.com/v2/projects/' . $hubstaffProjectId;
         $httpClient = new Client();
         try {
             $tokens = $this->getTokens();
@@ -159,7 +159,7 @@ class HubstaffController extends Controller
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                         'Content-Type' => 'application/json',
                     ],
 
@@ -217,7 +217,7 @@ class HubstaffController extends Controller
         $tokens = $this->getTokens();
 
         // $url        = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/tasks?status=active%2Ccompleted';
-        $url = 'https://api.hubstaff.com/v2/organizations/'.config('env.HUBSTAFF_ORG_ID').'/tasks?status=active%2Ccompleted';
+        $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/tasks?status=active%2Ccompleted';
 
         $httpClient = new Client();
         try {
@@ -225,7 +225,7 @@ class HubstaffController extends Controller
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                     ],
                 ]
             );
@@ -324,14 +324,14 @@ class HubstaffController extends Controller
     {
         $tokens = $this->getTokens();
 
-        $url = 'https://api.hubstaff.com/v2/projects/'.$projectId.'/tasks';
+        $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/tasks';
         $httpClient = new Client();
         try {
             $response = $httpClient->post(
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                         'Content-Type' => 'application/json',
                     ],
 
@@ -403,14 +403,14 @@ class HubstaffController extends Controller
     {
         $tokens = $this->getTokens();
 
-        $url = 'https://api.hubstaff.com/v2/tasks/'.$hubstaffTaskId;
+        $url = 'https://api.hubstaff.com/v2/tasks/' . $hubstaffTaskId;
         $httpClient = new Client();
         try {
             $response = $httpClient->get(
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                     ],
                 ]
             );
@@ -482,7 +482,7 @@ class HubstaffController extends Controller
     private function editTaskOnHubstaff(int $hubstaffTaskId, string $taskSummary, int $hubstaffProjectId, int $lockVersion, $shouldRetry = true)
     {
         $tokens = $this->getTokens();
-        $url = 'https://api.hubstaff.com/v2/tasks/'.$hubstaffTaskId;
+        $url = 'https://api.hubstaff.com/v2/tasks/' . $hubstaffTaskId;
 
         $httpClient = new Client();
         try {
@@ -490,7 +490,7 @@ class HubstaffController extends Controller
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                         'Content-Type' => 'application/json',
                     ],
 
@@ -567,7 +567,7 @@ class HubstaffController extends Controller
 
         $http_header = [
             'App-Token: 2YuxAoBm9PHUtruFNYTnA9HhvI3xMEGSU-EICdO5VoM',
-            'Authorization: '.$auth_token,
+            'Authorization: ' . $auth_token,
             'Content-Type: application/x-www-form-urlencoded;charset=UTF-8',
             'Accept: application/json',
         ];
@@ -654,7 +654,7 @@ class HubstaffController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -697,7 +697,7 @@ class HubstaffController extends Controller
         $user = User::orderBy('name');
         if (! empty($request->q)) {
             $user->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%'.$request->q.'%');
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
         }
         $user = $user->paginate(30);

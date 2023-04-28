@@ -1,27 +1,26 @@
-name: Prettier-Code-Formatter
+name: Prettier
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
-  build:
-
+  prettier:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
-      - name: node install
-        run: npm install -g npm@latest
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Prettier Install
-        run: npm install --save-dev --save-exact prettier
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.PERSONAL_TOKEN }}
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.3
+        with:
+          prettier_options: --write **/*.{js,css,md}
+          only_changed: True
+      - name: Push to protected branch
+        uses: CasperWA/push-protected@v2
+        with:
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          unprotect_reviews: true

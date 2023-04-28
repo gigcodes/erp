@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ReplyPushStore extends Model
 {
@@ -12,6 +12,6 @@ class ReplyPushStore extends Model
     protected $guarded = [];
 
     protected $fillable = [
-        "reply_id", "store_id", "platform_id",
+        'reply_id', 'store_id', 'platform_id',
     ];
 }

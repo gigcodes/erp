@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\MagentoDevScripUpdateLog;
 use App\StoreWebsite;
 use Illuminate\Console\Command;
+use App\MagentoDevScripUpdateLog;
 
 class MagentoDevServerScriptUpdate extends Command
 {
@@ -44,7 +44,7 @@ class MagentoDevServerScriptUpdate extends Command
             foreach ($websites as $website) {
                 $folder_name = $this->argument('folder_name');
                 if ($folder_name != '' && $website->server_ip != '') {
-                    $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-dev.sh --server '.$website->server_ip.' --site '.$folder_name;
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $website->server_ip . ' --site ' . $folder_name;
 
                     $allOutput = [];
                     $allOutput[] = $cmd;
@@ -52,9 +52,9 @@ class MagentoDevServerScriptUpdate extends Command
                     if ($result == '') {
                         $result = 'Not any response';
                     } elseif ($result == 0) {
-                        $result = 'Command run success Response '.$result;
+                        $result = 'Command run success Response ' . $result;
                     } elseif ($result == 1) {
-                        $result = 'Command run Fail Response '.$result;
+                        $result = 'Command run Fail Response ' . $result;
                     } else {
                         $result = is_array($result) ? json_encode($result, true) : $result;
                     }

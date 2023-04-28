@@ -17,11 +17,11 @@ class VendorTableSeeder extends Seeder
     {
         // Load Faker
         $faker = \Faker\Factory::create();
-        
+
         $vendorCategoryIds = VendorCategory::get()->pluck('id')->toArray();
 
-        if(!empty($vendorCategoryIds)){
-             // Create 5000 vendors
+        if (! empty($vendorCategoryIds)) {
+            // Create 5000 vendors
             for ($i = 0; $i < 5000; $i++) {
                 $vendor = new Vendor();
                 $vendor->category_id = $vendorCategoryIds[array_rand($vendorCategoryIds, 1)];

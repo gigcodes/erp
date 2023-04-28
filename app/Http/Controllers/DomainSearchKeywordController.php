@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\DomainSearchKeyword;
-use App\SeoKeywordIdea;
-use App\StoreWebsite;
 use Carbon\Carbon;
+use App\StoreWebsite;
+use App\SeoKeywordIdea;
+use App\DomainSearchKeyword;
 use Illuminate\Http\Request;
 
 class DomainSearchKeywordController extends Controller
@@ -29,7 +29,7 @@ class DomainSearchKeywordController extends Controller
         if (isset($request->countries) && $request->countries != '') {
             $SearchAnalytics = $SearchAnalytics->whereIn('database', $request->countries);
         }
-        $keywordsearch = $SearchAnalytics->select('domain_search_keywords.*', 'seo_tools.tool')->where('store_website_id', $store_website_id)->where('domain_search_keywords.created_at', '>', $date.' 00:00:00')->paginate(20);
+        $keywordsearch = $SearchAnalytics->select('domain_search_keywords.*', 'seo_tools.tool')->where('store_website_id', $store_website_id)->where('domain_search_keywords.created_at', '>', $date . ' 00:00:00')->paginate(20);
         $website = StoreWebsite::where('id', $store_website_id)->select('id', 'website')->first();
         $allWebsites = StoreWebsite::select('website', 'id')->get();
         $seoKeywordIdeas = SeoKeywordIdea::where('store_website_id', $store_website_id)->get();

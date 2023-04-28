@@ -12,8 +12,6 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
 
     /**
      * SendgridEventRepository constructor.
-     *
-     * @param  SendgridEvent  $sendgridEvent
      */
     public function __construct(SendgridEvent $sendgridEvent)
     {
@@ -52,7 +50,7 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
 
         if (isset($event['smtp-id'])) {
             $smptpID = str_replace(['<', '>'], '', $event['smtp-id']);
-            \Log::info('SMTP matched with record => '.$smptpID);
+            \Log::info('SMTP matched with record => ' . $smptpID);
             \Log::info('Send grid repo params defined');
             $email = null;
             if (isset($event['email_id'])) {
@@ -62,13 +60,13 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
                 $email = Email::where('origin_id', $smptpID)->first();
             }
             if ($email) {
-                \Log::info('Record found => '.json_encode($email));
+                \Log::info('Record found => ' . json_encode($email));
                 $email->status = $event['event'];
                 $email->message_id = $event['sg_message_id'];
                 $email->save();
             }
         } else {
-            \Log::info('message_id found => '.$event['sg_message_id']);
+            \Log::info('message_id found => ' . $event['sg_message_id']);
             $email = null;
             if (isset($event['email_id'])) {
                 $email = Email::find($event['email_id']);
@@ -78,7 +76,7 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
             }
 
             if ($email) {
-                \Log::info('Record found => '.json_encode($email));
+                \Log::info('Record found => ' . json_encode($email));
                 $email->status = $event['event'];
                 $email->message_id = $event['sg_message_id'];
                 $email->save();

@@ -57,7 +57,7 @@ class UpdateLanguageToGroup extends Command
                 if (! in_array(str_replace('theme_', '', $g->name), $existing_themes)) {
                     $data = explode('_', $g->name);
                     if (count($data) != 2) {
-                        dump($g->name.' skipped');
+                        dump($g->name . ' skipped');
 
                         continue;
                     }
@@ -69,7 +69,7 @@ class UpdateLanguageToGroup extends Command
                     } elseif ($lang_code == 'ge') {
                         $lang_code = 'ka';
                     }
-                    $postURL = 'https://api.livechatinc.com/v2/properties/group/'.$g->id;
+                    $postURL = 'https://api.livechatinc.com/v2/properties/group/' . $g->id;
                     $postData = [
                         'language' => $lang_code,
                     ];
@@ -77,9 +77,9 @@ class UpdateLanguageToGroup extends Command
                     $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'PUT');
                     $response = json_decode($result['response']);
                     if (! isset($response->error)) {
-                        dump($g->id.' '.$g->name.' == '.$lang_code.' lang updated. ', $response);
+                        dump($g->id . ' ' . $g->name . ' == ' . $lang_code . ' lang updated. ', $response);
                     } else {
-                        dump([$g->id.' '.$g->name.' == '.$lang_code.' lang error.', $response]);
+                        dump([$g->id . ' ' . $g->name . ' == ' . $lang_code . ' lang error.', $response]);
                     }
                 }
             }

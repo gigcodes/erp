@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MagentoSetting extends Model
 {
-    protected $fillable = ['scope', 'scope_id', 'store_website_id', 'website_store_id', 'website_store_view_id', 'data_type', 'name', 'path', 'value','value_on_magento', 'created_by', 'status'];
+    protected $fillable = ['scope', 'scope_id', 'store_website_id', 'website_store_id', 'website_store_view_id', 'data_type', 'name', 'path', 'value', 'value_on_magento', 'created_by', 'status'];
 
     /** Stores */
     public function storeview()

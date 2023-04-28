@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use App\LogRequest;
-use App\Setting;
 use Closure;
+use App\Setting;
+use App\LogRequest;
 
 class LogAfterRequest
 {
@@ -12,7 +12,6 @@ class LogAfterRequest
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)

@@ -41,7 +41,7 @@ class ForwardEmail extends Mailable
         }
 
         if (substr($subject, 0, 5) !== $forwardPrefix) {
-            $subject = $forwardPrefix.$subject;
+            $subject = $forwardPrefix . $subject;
         }
 
         $this->from($this->forwardEmail->from);

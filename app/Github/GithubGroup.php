@@ -38,7 +38,7 @@ class GithubGroup extends Model
 
         $repositories = DB::table('github_groups')
             ->join('github_repository_groups', 'github_groups.id', '=', 'github_repository_groups.github_groups_id')
-            ->join('github_repositories', 'github_repositories.id', '='.'github_repository_groups.github_repositories_id')
+            ->join('github_repositories', 'github_repositories.id', '=' . 'github_repository_groups.github_repositories_id')
             ->where('github_groups.id', '=', $groupId)
             ->get();
 

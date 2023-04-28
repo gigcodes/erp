@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\DailyActivity;
 use Carbon\Carbon;
+use App\DailyActivity;
 use Illuminate\Http\Request;
 
 class DailyActivityController extends Controller

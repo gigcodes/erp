@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Partitioning;
 
-use function array_intersect_key;
+use function min;
+use function is_numeric;
 use function array_merge;
 use function array_splice;
-use function is_numeric;
-use function min;
+use function array_intersect_key;
 
 final class TablePartitionDefinition
 {
     /**
      * @param  array|null  $details Details that may be pre-filled
-     * @return array
      */
     public static function getDetails(?array $details = null): array
     {
@@ -25,9 +24,6 @@ final class TablePartitionDefinition
         return $details;
     }
 
-    /**
-     * @return array
-     */
     private static function generateDetails(): array
     {
         $partitionDetails = self::extractDetailsFromRequest();
@@ -52,8 +48,6 @@ final class TablePartitionDefinition
 
     /**
      * Extract some partitioning and subpartitioning parameters from the request
-     *
-     * @return array
      */
     private static function extractDetailsFromRequest(): array
     {
@@ -94,7 +88,6 @@ final class TablePartitionDefinition
 
     /**
      * @param  array  $partitionDetails Details of partitions
-     * @return array
      */
     private static function extractPartitions(array $partitionDetails): array
     {
@@ -116,7 +109,7 @@ final class TablePartitionDefinition
         for ($i = 0; $i < $partitionCount; $i++) {
             if (! isset($partitions[$i])) { // Newly added partition
                 $partitions[$i] = [
-                    'name' => 'p'.$i,
+                    'name' => 'p' . $i,
                     'value_type' => '',
                     'value' => '',
                     'engine' => '',
@@ -131,7 +124,7 @@ final class TablePartitionDefinition
             }
 
             $partition = &$partitions[$i];
-            $partition['prefix'] = 'partitions['.$i.']';
+            $partition['prefix'] = 'partitions[' . $i . ']';
 
             // Changing from HASH/KEY to RANGE/LIST
             if (! isset($partition['value_type'])) {
@@ -173,7 +166,7 @@ final class TablePartitionDefinition
             for ($j = 0; $j < $subpartitionCount; $j++) {
                 if (! isset($subpartitions[$j])) { // Newly added subpartition
                     $subpartitions[$j] = [
-                        'name' => $partition['name'].'_s'.$j,
+                        'name' => $partition['name'] . '_s' . $j,
                         'engine' => '',
                         'comment' => '',
                         'data_directory' => '',
@@ -185,8 +178,8 @@ final class TablePartitionDefinition
                     ];
                 }
 
-                $subpartitions[$j]['prefix'] = 'partitions['.$i.']'
-                    .'[subpartitions]['.$j.']';
+                $subpartitions[$j]['prefix'] = 'partitions[' . $i . ']'
+                    . '[subpartitions][' . $j . ']';
             }
         }
 

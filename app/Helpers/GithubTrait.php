@@ -2,11 +2,11 @@
 
 namespace App\Helpers;
 
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Arr;
+use GuzzleHttp\Exception\ClientException;
 
 trait GithubTrait
 {
@@ -20,11 +20,11 @@ trait GithubTrait
 
     private function pullRequests($repoId, $filters = [])
     {
-        $addedFilters = !empty($filters) ? Arr::query($filters) : "";
+        $addedFilters = ! empty($filters) ? Arr::query($filters) : '';
         $pullRequests = [];
-        $url = 'https://api.github.com/repositories/'.$repoId.'/pulls?per_page=200';
-        if(!empty($addedFilters)){
-            $url .= "&".$addedFilters;
+        $url = 'https://api.github.com/repositories/' . $repoId . '/pulls?per_page=200';
+        if (! empty($addedFilters)) {
+            $url .= '&' . $addedFilters;
         }
         try {
             $client = $this->getGithubClient();
@@ -56,7 +56,7 @@ trait GithubTrait
         //https://api.github.com/repositories/:repoId/compare/:diff
 
         try {
-            $url = 'https://api.github.com/repositories/'.$repoId.'/compare/'.$base.'...'.$branchName;
+            $url = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
             $response = $githubClient->get($url);
         } catch (ClientException $e) {
             if ($e->getResponse()->getStatusCode() == 404) {
@@ -102,7 +102,7 @@ trait GithubTrait
     {
         // /orgs/:org/invitations
         // $url = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/invitations';
-        $url = 'https://api.github.com/orgs/'.config('env.GITHUB_ORG_ID').'/invitations';
+        $url = 'https://api.github.com/orgs/' . config('env.GITHUB_ORG_ID') . '/invitations';
 
         try {
             $this->getGithubClient()->post(
@@ -122,21 +122,22 @@ trait GithubTrait
 
     private function getPullRequestDetail(string $repoId, string $number)
     {
-        $url = 'https://api.github.com/repositories/'.$repoId.'/pulls/'.$number;
+        $url = 'https://api.github.com/repositories/' . $repoId . '/pulls/' . $number;
 
         try {
             $response = $this->client->get($url);
             $pullRequest = json_decode($response->getBody()->getContents());
-                return [
-                    'id' => $pullRequest->number,
-                    'title' => $pullRequest->title,
-                    'number' => $pullRequest->number,
-                    'username' => $pullRequest->user->login,
-                    'userId' => $pullRequest->user->id,
-                    'updated_at' => $pullRequest->updated_at,
-                    'source' => $pullRequest->head->ref,
-                    'mergeable_state' => $pullRequest->mergeable_state,
-                    'destination' => $pullRequest->base->ref,
+
+            return [
+                'id' => $pullRequest->number,
+                'title' => $pullRequest->title,
+                'number' => $pullRequest->number,
+                'username' => $pullRequest->user->login,
+                'userId' => $pullRequest->user->id,
+                'updated_at' => $pullRequest->updated_at,
+                'source' => $pullRequest->head->ref,
+                'mergeable_state' => $pullRequest->mergeable_state,
+                'destination' => $pullRequest->base->ref,
             ];
         } catch (Exception $e) {
         }
@@ -144,25 +145,27 @@ trait GithubTrait
 
     private function closePullRequest(string $repositoryId, string $pullNumber)
     {
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/pulls/'.$pullNumber;
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/pulls/' . $pullNumber;
 
         try {
             $this->client->patch($url,
-            [
-                'json' => [
-                    'state' => "closed"
-                ]
-            ]);
+                [
+                    'json' => [
+                        'state' => 'closed',
+                    ],
+                ]);
             $data['status'] = true;
         } catch (Exception $e) {
             $data['status'] = false;
             $data['error'] = $e->getMessage();
         }
+
         return $data;
     }
+
     private function deleteBranch(string $repositoryId, string $branchName)
     {
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/git/refs/heads/'.$branchName;
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/git/refs/heads/' . $branchName;
 
         try {
             $this->client->delete($url);
@@ -171,31 +174,34 @@ trait GithubTrait
             $data['status'] = false;
             $data['error'] = $e->getMessage();
         }
+
         return $data;
     }
 
     private function getGithubActionRuns(string $repositoryId, $page = 1, $date = null)
     {
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs?page='.$page;
-        if(!empty($date)) {
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/actions/runs?page=' . $page;
+        if (! empty($date)) {
             $url .= "&created={$date}";
         }
 
         try {
             $response = $this->client->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
+
             return $githubAction;
         } catch (Exception $e) {
         }
     }
 
-    private function getGithubActionRunJobs(string $repositoryId,string $runId)
+    private function getGithubActionRunJobs(string $repositoryId, string $runId)
     {
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs/'.$runId.'/jobs';
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/actions/runs/' . $runId . '/jobs';
 
         try {
             $response = $this->client->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
+
             return $githubAction;
         } catch (Exception $e) {
         }
@@ -210,15 +216,15 @@ trait GithubTrait
         try {
             $response = $this->client->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
+
             return $githubAction;
         } catch (Exception $e) {
         }
     }
 
-
     private function rerunAction($repository, $jobId)
     {
-        $url = 'https://api.github.com/repos/'.getenv('GITHUB_ORG_ID')."/".$repository.'/actions/runs/'.$jobId.'/rerun-failed-jobs';
+        $url = 'https://api.github.com/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repository . '/actions/runs/' . $jobId . '/rerun-failed-jobs';
 
         try {
             $this->client->post($url);
@@ -227,6 +233,7 @@ trait GithubTrait
             $data['status'] = false;
             $data['error'] = $e->getMessage();
         }
+
         return $data;
     }
 }

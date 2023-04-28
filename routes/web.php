@@ -11,363 +11,366 @@
 |
  */
 
-use App\Http\Controllers\AccountController;
-use App\Http\Controllers\ActivityConroller;
-use App\Http\Controllers\AdsController;
-use App\Http\Controllers\AffiliateResultController;
-use App\Http\Controllers\AgentController;
-use App\Http\Controllers\AnalyticsController;
-use App\Http\Controllers\ApiResponseMessageController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\AssetsManagerController;
-use App\Http\Controllers\AttributeReplacementController;
-use App\Http\Controllers\AutoCommentHistoryController;
-use App\Http\Controllers\AutoRefreshController;
-use App\Http\Controllers\AutoReplyController;
-use App\Http\Controllers\AutoReplyHashtagsController;
-use App\Http\Controllers\BackLinkController;
-use App\Http\Controllers\BenchmarkController;
-use App\Http\Controllers\BloggerController;
-use App\Http\Controllers\BloggerEmailTemplateController;
-use App\Http\Controllers\BloggerPaymentController;
-use App\Http\Controllers\BloggerProductController;
-use App\Http\Controllers\BrandController;
-use App\Http\Controllers\BrandReviewController;
-use App\Http\Controllers\BrandSizeChartController;
-use App\Http\Controllers\BrandTaggedPostsController;
-use App\Http\Controllers\BroadcastController;
-use App\Http\Controllers\BroadcastMessageController;
-use App\Http\Controllers\BrokenLinkCheckerController;
-use App\Http\Controllers\BudgetController;
-use App\Http\Controllers\BugTrackingController;
-use App\Http\Controllers\BulkCustomerRepliesController;
-use App\Http\Controllers\CaseController;
-use App\Http\Controllers\CaseReceivableController;
-use App\Http\Controllers\CashFlowController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\CategorySegmentController;
-use App\Http\Controllers\ChangeDescriptionController;
-use App\Http\Controllers\CharityController;
-use App\Http\Controllers\ChatBotController;
-use App\Http\Controllers\ChatbotMessageLogsController;
-use App\Http\Controllers\ChatbotTypeErrorLogController;
-use App\Http\Controllers\ChatController;
-use App\Http\Controllers\ChatMessagesController;
-use App\Http\Controllers\CheckListController;
-use App\Http\Controllers\ColdLeadBroadcastsController;
-use App\Http\Controllers\ColdLeadsController;
-use App\Http\Controllers\ColorReferenceController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\CommonController;
-use App\Http\Controllers\CompetitorPageController;
-use App\Http\Controllers\ComplaintController;
-use App\Http\Controllers\CompositionsController;
-use App\Http\Controllers\ContactBloggerController;
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\ContentManagementController;
-use App\Http\Controllers\ConversionRateController;
-use App\Http\Controllers\CountryDutyController;
-use App\Http\Controllers\CouponController;
-use App\Http\Controllers\CourierController;
+use App\Http\Controllers\Seo;
 use App\Http\Controllers\Cron;
-use App\Http\Controllers\CronController;
-use App\Http\Controllers\CroppedImageReferenceController;
-use App\Http\Controllers\CsvTranslatorController;
-use App\Http\Controllers\CustomerCategoryController;
-use App\Http\Controllers\CustomerCharityController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\DailyActivityController;
-use App\Http\Controllers\DailyCashFlowController;
-use App\Http\Controllers\DailyPlannerController;
-use App\Http\Controllers\DatabaseController;
-use App\Http\Controllers\DatabaseTableController;
-use App\Http\Controllers\DBQueryController;
-use App\Http\Controllers\DeliveryApprovalController;
-use App\Http\Controllers\DesignerController;
-use App\Http\Controllers\DetailsController;
-use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
-use App\Http\Controllers\DevelopmentController;
-use App\Http\Controllers\DigitalMarketingController;
-use App\Http\Controllers\DirectMessageController;
-use App\Http\Controllers\DiscountSalePriceController;
-use App\Http\Controllers\DocuemntCategoryController;
-use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\DomainSearchKeywordController;
-use App\Http\Controllers\DubbizleController;
-use App\Http\Controllers\EmailAddressesController;
-use App\Http\Controllers\EmailContentHistoryController;
-use App\Http\Controllers\EmailController;
-use App\Http\Controllers\EmailDataExtractionController;
-use App\Http\Controllers\EncryptController;
+use App\Http\Controllers\Mail;
+use App\Http\Controllers\Github;
+use App\Http\Controllers\Social;
+use App\Http\Controllers\Logging;
+use App\Http\Controllers\Meeting;
+use App\Http\Controllers\gtmetrix;
+use App\Http\Controllers\Hubstaff;
+use App\Http\Controllers\Products;
+use App\Http\Controllers\Marketing;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdsController;
 use App\Http\Controllers\EnvController;
-use App\Http\Controllers\ErpEventController;
+use App\Http\Controllers\GoogleAddWord;
+use App\Http\Controllers\JobController;
+use App\Http\Controllers\OldController;
+use App\Http\Controllers\product_price;
+use App\Http\Controllers\SkuController;
+use App\Http\Controllers\SopController;
+use App\Http\Controllers\TmpController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CaseController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\CronController;
+use App\Http\Controllers\FlowController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LogsController;
+use App\Http\Controllers\PlanController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\scrapperPhyhon;
+use App\Http\Controllers\SizeController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AgentController;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\ImageController;
+use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\MediaController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PleskController;
+use App\Http\Controllers\ReplyController;
+use App\Http\Controllers\ScrapController;
+use App\Http\Controllers\StockController;
+use App\Http\Controllers\TasksController;
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\CommonController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ErpLogController;
 use App\Http\Controllers\ExotelController;
-use App\Http\Controllers\FacebookController;
-use App\Http\Controllers\FacebookPostController;
-use App\Http\Controllers\FailedJobController;
-use App\Http\Controllers\FcmNotificationController;
-use App\Http\Controllers\FlowController;
-use App\Http\Controllers\FlowLogController;
-use App\Http\Controllers\Github;
-use App\Http\Controllers\GmailDataController;
-use App\Http\Controllers\GoogleAddWord;
-use App\Http\Controllers\GoogleAdGroupController;
-use App\Http\Controllers\GoogleAdsAccountController;
-use App\Http\Controllers\GoogleAdsController;
-use App\Http\Controllers\GoogleAffiliateController;
-use App\Http\Controllers\GoogleBigQueryDataController;
-use App\Http\Controllers\GoogleCampaignsController;
-use App\Http\Controllers\GoogleDocController;
-use App\Http\Controllers\GoogleScreencastController;
-use App\Http\Controllers\GoogleDeveloperController;
-use App\Http\Controllers\GoogleDeveloperLogsController;
-use \App\Http\Controllers\GoogleDriveController;
-
-use App\Http\Controllers\GoogleFileTranslator;
-use App\Http\Controllers\GoogleScrapperController;
-use App\Http\Controllers\GoogleSearchController;
-use App\Http\Controllers\GoogleSearchImageController;
-use App\Http\Controllers\GoogleServerController;
-use App\Http\Controllers\GoogleTranslateController;
-use App\Http\Controllers\GoogleTraslationSettingsController;
-use App\Http\Controllers\GoogleWebMasterController;
-use App\Http\Controllers\GTMatrixErrorLogController;
-use App\Http\Controllers\gtmetrix;
-use App\Http\Controllers\HashtagController;
-use App\Http\Controllers\HashtagPostCommentController;
-use App\Http\Controllers\HashtagPostsController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HsCodeController;
-use App\Http\Controllers\Hubstaff;
-use App\Http\Controllers\HubstaffActivitiesController;
-use App\Http\Controllers\HubstaffController;
-use App\Http\Controllers\HubstaffPaymentController;
-use App\Http\Controllers\ImageController;
-use App\Http\Controllers\InfluencersController;
-use App\Http\Controllers\InstagramAutoCommentsController;
-use App\Http\Controllers\InstagramAutomatedMessagesController;
-use App\Http\Controllers\InstagramController;
-use App\Http\Controllers\InstagramPostsController;
-use App\Http\Controllers\InstagramProfileController;
-use App\Http\Controllers\InstructionController;
-use App\Http\Controllers\JobController;
-use App\Http\Controllers\KeywordassignController;
-use App\Http\Controllers\KeywordInstructionController;
-use App\Http\Controllers\KeywordsController;
-use App\Http\Controllers\KeywordToCategoryController;
-use App\Http\Controllers\LandingPageController;
-use App\Http\Controllers\LanguageController;
-use App\Http\Controllers\LaravelLogController;
 use App\Http\Controllers\LawyerController;
-use App\Http\Controllers\LeadOrderController;
-use App\Http\Controllers\LeadsController;
-use App\Http\Controllers\LearningCategoryController;
-use App\Http\Controllers\LearningModuleController;
-use App\Http\Controllers\ListingHistoryController;
-use App\Http\Controllers\ListingPaymentsController;
-use App\Http\Controllers\LiveChatController;
-use App\Http\Controllers\Logging;
-use App\Http\Controllers\LogsController;
-use App\Http\Controllers\LogScraperVsAiController;
-use App\Http\Controllers\MagentoCommandController;
-use App\Http\Controllers\MagentoController;
-use App\Http\Controllers\MagentoModuleApiHistoryController;
-use App\Http\Controllers\MagentoModuleCategoryController;
-use App\Http\Controllers\MagentoModuleController;
-use App\Http\Controllers\MagentoModuleCronJobHistoryController;
-use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
-use App\Http\Controllers\MagentoModuleHistoryController;
-use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
-use App\Http\Controllers\MagentoModuleTypeController;
-use App\Http\Controllers\MagentoProductPushErrors;
-use App\Http\Controllers\MagentoSettingsController;
-use App\Http\Controllers\Mail;
-use App\Http\Controllers\ManageModulesController;
-use App\Http\Controllers\ManageTaskCategoryController;
-use App\Http\Controllers\Marketing;
-use App\Http\Controllers\MasterControlController;
-use App\Http\Controllers\MasterDevTaskController;
-use App\Http\Controllers\MediaController;
-use App\Http\Controllers\Meeting;
-use App\Http\Controllers\MemoryUsesController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\MessageQueueHistoryController;
-use App\Http\Controllers\MissingBrandController;
-use App\Http\Controllers\ModelNameController;
-use App\Http\Controllers\MonetaryAccountController;
-use App\Http\Controllers\NegativeCouponResponseController;
-use App\Http\Controllers\NewDevTaskController;
-use App\Http\Controllers\NewProductInventoryController;
-use App\Http\Controllers\NewsletterController;
-use App\Http\Controllers\NotificaitonContoller;
-use App\Http\Controllers\NotificationQueueController;
-use App\Http\Controllers\OldController;
-use App\Http\Controllers\OldIncomingController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderReportController;
-use App\Http\Controllers\PageNotesCategoriesController;
-use App\Http\Controllers\PageNotesController;
-use App\Http\Controllers\PasswordController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\PictureColorsController;
-use App\Http\Controllers\PinterestAccountAcontroller;
-use App\Http\Controllers\PlanController;
-use App\Http\Controllers\PleskController;
-use App\Http\Controllers\PositionController;
-use App\Http\Controllers\PostmanRequestCreateController;
-use App\Http\Controllers\PreAccountController;
-use App\Http\Controllers\product_price;
-use App\Http\Controllers\ProductApproverController;
-use App\Http\Controllers\ProductAttributeController;
-use App\Http\Controllers\ProductCategoryController;
-use App\Http\Controllers\ProductColorController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProductCropperController;
-use App\Http\Controllers\ProductInventoryController;
-use App\Http\Controllers\ProductListerController;
-use App\Http\Controllers\ProductLocationController;
-use App\Http\Controllers\Products;
-use App\Http\Controllers\ProductSearcherController;
-use App\Http\Controllers\ProductSelectionController;
-use App\Http\Controllers\ProductSupervisorController;
-use App\Http\Controllers\ProductTemplatesController;
-use App\Http\Controllers\ProjectFileManagerController;
-use App\Http\Controllers\PurchaseController;
-use App\Http\Controllers\PurchaseProductController;
-use App\Http\Controllers\PurchaseStatusController;
-use App\Http\Controllers\PushNotificationController;
-use App\Http\Controllers\QuickCustomerController;
-use App\Http\Controllers\QuickReplyController;
-use App\Http\Controllers\QuickSellController;
-use App\Http\Controllers\RedisjobController;
-use App\Http\Controllers\RedisQueueController;
-use App\Http\Controllers\ReferFriendController;
-use App\Http\Controllers\ReferralProgramController;
 use App\Http\Controllers\RefundController;
-use App\Http\Controllers\ReplyController;
-use App\Http\Controllers\ResourceImgController;
-use App\Http\Controllers\ReturnExchangeController;
 use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoutesController;
-use App\Http\Controllers\SaleController;
-use App\Http\Controllers\SalesItemController;
-use App\Http\Controllers\ScrapController;
-use App\Http\Controllers\ScrapLogsController;
-use App\Http\Controllers\ScrappedFacebookUserController;
-use App\Http\Controllers\scrapperPhyhon;
-use App\Http\Controllers\ScrapStatisticsController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SocialController;
+use App\Http\Controllers\ThreadController;
+use App\Http\Controllers\TwilioController;
+use App\Http\Controllers\VendorController;
+use App\Http\Controllers\WatsonController;
+use App\Http\Controllers\ZabbixController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ActivityConroller;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\BloggerController;
+use App\Http\Controllers\CharityController;
+use App\Http\Controllers\ChatBotController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CourierController;
+use App\Http\Controllers\DBQueryController;
+use App\Http\Controllers\DetailsController;
+use App\Http\Controllers\EncryptController;
+use App\Http\Controllers\FaqPushController;
+use App\Http\Controllers\FlowLogController;
+use App\Http\Controllers\HashtagController;
+use App\Http\Controllers\MagentoController;
+use App\Http\Controllers\MailBoxController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Select2Controller;
 use App\Http\Controllers\SemrushController;
-use App\Http\Controllers\SEOAnalyticsController;
 use App\Http\Controllers\SeoToolController;
-use App\Http\Controllers\SERankingController;
 use App\Http\Controllers\SettingController;
-use App\Http\Controllers\ShipmentController;
-use App\Http\Controllers\SimplyDutyCalculationController;
-use App\Http\Controllers\SimplyDutyCategoryController;
-use App\Http\Controllers\SimplyDutyCountryController;
-use App\Http\Controllers\SimplyDutyCurrencyController;
-use App\Http\Controllers\SimplyDutySegmentController;
-use App\Http\Controllers\SitejabberQAController;
-use App\Http\Controllers\SizeController;
-use App\Http\Controllers\SkuController;
-use App\Http\Controllers\SkuFormatController;
-use App\Http\Controllers\Social;
-use App\Http\Controllers\SocialAccountCommentController;
-use App\Http\Controllers\SocialAccountController;
-use App\Http\Controllers\SocialAccountPostController;
-use App\Http\Controllers\SocialController;
-use App\Http\Controllers\SocialTagsController;
-use App\Http\Controllers\SopController;
-use App\Http\Controllers\SopShortcutCreateController;
-use App\Http\Controllers\StockController;
-use App\Http\Controllers\StoreGTMetrixAccountController;
-use App\Http\Controllers\StoreSocialContentStatusController;
-use App\Http\Controllers\StoreWebsiteAnalyticsController;
-use App\Http\Controllers\StoreWebsiteCountryShippingController;
-use App\Http\Controllers\SupplierCategoryController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\SystemSizeController;
-use App\Http\Controllers\TargetLocationController;
-use App\Http\Controllers\TaskCategoriesController;
-use App\Http\Controllers\TaskCategoryController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\TaskHistoryController;
-use App\Http\Controllers\TaskModuleController;
-use App\Http\Controllers\TasksController;
-use App\Http\Controllers\TaskTypesController;
-use App\Http\Controllers\TemplatesController;
-use App\Http\Controllers\TestCaseController;
 use App\Http\Controllers\TestingController;
-use App\Http\Controllers\TestSuitesController;
-use App\Http\Controllers\ThreadController;
-use App\Http\Controllers\TmpController;
 use App\Http\Controllers\TmpTaskController;
-use App\Http\Controllers\TodoListController;
-use App\Http\Controllers\TranslationController;
-use App\Http\Controllers\TwiliochatController;
-use App\Http\Controllers\TwilioController;
-use App\Http\Controllers\TwillioMessageController;
 use App\Http\Controllers\UicheckController;
-use App\Http\Controllers\UpdateLogController;
-use App\Http\Controllers\UserActionsController;
-use App\Http\Controllers\UserAvaibilityController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\UserEventController;
 use App\Http\Controllers\UserLogController;
-use App\Http\Controllers\UserManagementController;
-use App\Http\Controllers\UsersAutoCommentHistoriesController;
-use App\Http\Controllers\UsersFeedbackHrTicketController;
-use App\Http\Controllers\VendorCategoryController;
-use App\Http\Controllers\VendorController;
-use App\Http\Controllers\VendorPaymentController;
-use App\Http\Controllers\VendorResumeController;
-use App\Http\Controllers\VendorSupplierController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\VoucherController;
-use App\Http\Controllers\VoucherCouponController;
-use App\Http\Controllers\WatsonController;
-use App\Http\Controllers\WebNotificationController;
-use App\Http\Controllers\WebsiteLogController;
-use App\Http\Controllers\WeTransferController;
-use App\Http\Controllers\WhatsAppController;
-use App\Http\Controllers\ZabbixController;
-use App\Http\Controllers\SentryLogController;
-use App\Http\Controllers\FaqPushController;
-use App\Http\Controllers\GoogleAdsLogController;
-use App\Http\Controllers\GoogleResponsiveDisplayAdController;
-use App\Http\Controllers\GoogleAppAdController;
-use App\Http\Controllers\GoogleAdGroupKeywordController;
-use App\Http\Controllers\GoogleAdReportController;
-use App\Http\Controllers\UnknownAttributeProductController;
-use App\Http\Controllers\CropRejectedController;
-use App\Http\Controllers\AppConnect\AppConnectController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TimeDoctorController;
-use App\Http\Controllers\TimeDoctorActivitiesController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\YoutubeController;
+use App\Http\Controllers\BackLinkController;
+use App\Http\Controllers\CashFlowController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DatabaseController;
+use App\Http\Controllers\DesignerController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DubbizleController;
+use App\Http\Controllers\ErpEventController;
+use App\Http\Controllers\FacebookController;
+use App\Http\Controllers\HubstaffController;
+use App\Http\Controllers\KeywordsController;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\LiveChatController;
+use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\PositionController;
+use App\Http\Controllers\PurchaseController;
+
+use App\Http\Controllers\RedisjobController;
+use App\Http\Controllers\ShipmentController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TestCaseController;
+use App\Http\Controllers\TodoListController;
+use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\AutoReplyController;
+use App\Http\Controllers\BenchmarkController;
+use App\Http\Controllers\BroadcastController;
+use App\Http\Controllers\CheckListController;
+use App\Http\Controllers\ColdLeadsController;
+use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\FailedJobController;
+use App\Http\Controllers\GmailDataController;
+use App\Http\Controllers\GoogleAdsController;
+use App\Http\Controllers\GoogleDocController;
+use App\Http\Controllers\InstagramController;
+use App\Http\Controllers\LeadOrderController;
+use App\Http\Controllers\ModelNameController;
+use App\Http\Controllers\PageNotesController;
+use App\Http\Controllers\QuickSellController;
+use App\Http\Controllers\SalesItemController;
+use App\Http\Controllers\ScrapLogsController;
+use App\Http\Controllers\SentryLogController;
+use App\Http\Controllers\SERankingController;
+use App\Http\Controllers\SkuFormatController;
+use App\Http\Controllers\TaskTypesController;
+use App\Http\Controllers\TemplatesController;
+use App\Http\Controllers\UpdateLogController;
+use App\Http\Controllers\UserEventController;
+use App\Http\Controllers\GoogleFileTranslator;
+use App\Http\Controllers\LaravelLogController;
+use App\Http\Controllers\MemoryUsesController;
+use App\Http\Controllers\NewDevTaskController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PreAccountController;
+use App\Http\Controllers\QuickReplyController;
+use App\Http\Controllers\RedisQueueController;
+use App\Http\Controllers\SocialTagsController;
+use App\Http\Controllers\SystemSizeController;
+use App\Http\Controllers\TaskModuleController;
+use App\Http\Controllers\TestSuitesController;
+use App\Http\Controllers\TimeDoctorController;
+use App\Http\Controllers\TwiliochatController;
+use App\Http\Controllers\WebsiteLogController;
+use App\Http\Controllers\WeTransferController;
+use App\Http\Controllers\AutoRefreshController;
+use App\Http\Controllers\BrandReviewController;
+use App\Http\Controllers\BugTrackingController;
+use App\Http\Controllers\CountryDutyController;
+use App\Http\Controllers\DevelopmentController;
+use App\Http\Controllers\GoogleAppAdController;
+use App\Http\Controllers\GoogleDriveController;
+use App\Http\Controllers\InfluencersController;
+use App\Http\Controllers\InstructionController;
+use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\NotificaitonContoller;
+use App\Http\Controllers\OldIncomingController;
+use App\Http\Controllers\OrderReportController;
+use App\Http\Controllers\ReferFriendController;
+use App\Http\Controllers\ResourceImgController;
+use App\Http\Controllers\TaskHistoryController;
+use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\UserActionsController;
+use App\Http\Controllers\ChatMessagesController;
+use App\Http\Controllers\CompositionsController;
+use App\Http\Controllers\CropRejectedController;
+use App\Http\Controllers\DailyPlannerController;
+use App\Http\Controllers\FacebookPostController;
+use App\Http\Controllers\GoogleAdsLogController;
+use App\Http\Controllers\GoogleSearchController;
+use App\Http\Controllers\GoogleServerController;
+use App\Http\Controllers\HashtagPostsController;
+use App\Http\Controllers\MissingBrandController;
+use App\Http\Controllers\ProductColorController;
+use App\Http\Controllers\SEOAnalyticsController;
+use App\Http\Controllers\SitejabberQAController;
+use App\Http\Controllers\TaskCategoryController;
+use App\Http\Controllers\VendorResumeController;
+use App\Http\Controllers\AssetsManagerController;
+use App\Http\Controllers\BingWebMasterController;
+use App\Http\Controllers\CsvTranslatorController;
+use App\Http\Controllers\DailyActivityController;
+use App\Http\Controllers\DailyCashFlowController;
+use App\Http\Controllers\DatabaseTableController;
+use App\Http\Controllers\DirectMessageController;
+use App\Http\Controllers\GoogleAdGroupController;
+use App\Http\Controllers\KeywordassignController;
+use App\Http\Controllers\MagentoModuleController;
+use App\Http\Controllers\ManageModulesController;
+use App\Http\Controllers\MasterControlController;
+use App\Http\Controllers\MasterDevTaskController;
+use App\Http\Controllers\PictureColorsController;
+use App\Http\Controllers\ProductListerController;
+use App\Http\Controllers\QuickCustomerController;
+use App\Http\Controllers\SocialAccountController;
+use App\Http\Controllers\VendorPaymentController;
+use App\Http\Controllers\VoucherCouponController;
+use App\Http\Controllers\BloggerPaymentController;
+use App\Http\Controllers\BloggerProductController;
+use App\Http\Controllers\BrandSizeChartController;
+use App\Http\Controllers\CaseReceivableController;
+use App\Http\Controllers\ColorReferenceController;
+use App\Http\Controllers\CompetitorPageController;
+use App\Http\Controllers\ContactBloggerController;
+use App\Http\Controllers\ConversionRateController;
+use App\Http\Controllers\EmailAddressesController;
+use App\Http\Controllers\GoogleAdReportController;
+use App\Http\Controllers\GoogleScrapperController;
+use App\Http\Controllers\InstagramPostsController;
+use App\Http\Controllers\KeywordVariantController;
+use App\Http\Controllers\LearningModuleController;
+use App\Http\Controllers\ListingHistoryController;
+use App\Http\Controllers\LogScraperVsAiController;
+use App\Http\Controllers\MagentoCommandController;
+use App\Http\Controllers\MagentoProductPushErrors;
+use App\Http\Controllers\ProductCropperController;
+use App\Http\Controllers\PurchaseStatusController;
+use App\Http\Controllers\ReturnExchangeController;
+use App\Http\Controllers\TargetLocationController;
+use App\Http\Controllers\TaskCategoriesController;
+use App\Http\Controllers\TwillioMessageController;
+use App\Http\Controllers\UserAvaibilityController;
+use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\VendorCategoryController;
+use App\Http\Controllers\VendorSupplierController;
+use App\Http\Controllers\AffiliateResultController;
+use App\Http\Controllers\CategorySegmentController;
+use App\Http\Controllers\CustomerCharityController;
+use App\Http\Controllers\FcmNotificationController;
+use App\Http\Controllers\GoogleAffiliateController;
+use App\Http\Controllers\GoogleCampaignsController;
+use App\Http\Controllers\GoogleDeveloperController;
+use App\Http\Controllers\GoogleTranslateController;
+use App\Http\Controllers\GoogleWebMasterController;
+use App\Http\Controllers\HubstaffPaymentController;
+use App\Http\Controllers\ListingPaymentsController;
+use App\Http\Controllers\MagentoSettingsController;
+use App\Http\Controllers\MonetaryAccountController;
+use App\Http\Controllers\ProductApproverController;
+use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductLocationController;
+use App\Http\Controllers\ProductSearcherController;
+use App\Http\Controllers\PurchaseProductController;
+use App\Http\Controllers\ReferralProgramController;
+use App\Http\Controllers\ScrapStatisticsController;
+use App\Http\Controllers\WebNotificationController;
+use App\Http\Controllers\BrandTaggedPostsController;
+use App\Http\Controllers\BroadcastMessageController;
+use App\Http\Controllers\CustomerCategoryController;
+use App\Http\Controllers\DeliveryApprovalController;
+use App\Http\Controllers\DigitalMarketingController;
+use App\Http\Controllers\DocuemntCategoryController;
+use App\Http\Controllers\GoogleAdsAccountController;
+use App\Http\Controllers\GoogleScreencastController;
+use App\Http\Controllers\GTMatrixErrorLogController;
+use App\Http\Controllers\InstagramProfileController;
+use App\Http\Controllers\LearningCategoryController;
+use App\Http\Controllers\ProductAttributeController;
+use App\Http\Controllers\ProductInventoryController;
+use App\Http\Controllers\ProductSelectionController;
+use App\Http\Controllers\ProductTemplatesController;
+use App\Http\Controllers\PushNotificationController;
+use App\Http\Controllers\SupplierCategoryController;
+use App\Http\Controllers\AutoReplyHashtagsController;
+use App\Http\Controllers\BrokenLinkCheckerController;
+use App\Http\Controllers\ChangeDescriptionController;
+use App\Http\Controllers\ContentManagementController;
+use App\Http\Controllers\DiscountSalePriceController;
+use App\Http\Controllers\GoogleSearchImageController;
 use App\Http\Controllers\GoogleShoppingAdsController;
+use App\Http\Controllers\KeywordToCategoryController;
+use App\Http\Controllers\MagentoModuleTypeController;
+use App\Http\Controllers\NotificationQueueController;
+use App\Http\Controllers\PinterestAccountAcontroller;
+use App\Http\Controllers\ProductSupervisorController;
+use App\Http\Controllers\SimplyDutyCountryController;
+use App\Http\Controllers\SimplyDutySegmentController;
+use App\Http\Controllers\SocialAccountPostController;
+use App\Http\Controllers\SopShortcutCreateController;
+use App\Http\Controllers\ApiResponseMessageController;
+use App\Http\Controllers\AutoCommentHistoryController;
+use App\Http\Controllers\ChatbotMessageLogsController;
+use App\Http\Controllers\ColdLeadBroadcastsController;
+use App\Http\Controllers\GoogleBigQueryDataController;
+use App\Http\Controllers\HashtagPostCommentController;
+use App\Http\Controllers\HubstaffActivitiesController;
+use App\Http\Controllers\KeywordInstructionController;
+use App\Http\Controllers\ManageTaskCategoryController;
+use App\Http\Controllers\ProjectFileManagerController;
+use App\Http\Controllers\SimplyDutyCategoryController;
+use App\Http\Controllers\SimplyDutyCurrencyController;
+use App\Http\Controllers\BulkCustomerRepliesController;
+use App\Http\Controllers\ChatbotTypeErrorLogController;
+use App\Http\Controllers\DomainSearchKeywordController;
+use App\Http\Controllers\EmailContentHistoryController;
+use App\Http\Controllers\EmailDataExtractionController;
+use App\Http\Controllers\GoogleDeveloperLogsController;
+use App\Http\Controllers\MessageQueueHistoryController;
+use App\Http\Controllers\NewProductInventoryController;
+use App\Http\Controllers\PageNotesCategoriesController;
+use App\Http\Controllers\AttributeReplacementController;
+use App\Http\Controllers\BloggerEmailTemplateController;
+use App\Http\Controllers\GoogleAdGroupKeywordController;
+use App\Http\Controllers\GoogleAdsRemarketingController;
+use App\Http\Controllers\MagentoModuleHistoryController;
+use App\Http\Controllers\PostmanRequestCreateController;
+use App\Http\Controllers\ScrappedFacebookUserController;
+use App\Http\Controllers\SocialAccountCommentController;
+use App\Http\Controllers\StoreGTMetrixAccountController;
+use App\Http\Controllers\TimeDoctorActivitiesController;
+use App\Http\Controllers\AppConnect\AppConnectController;
+use App\Http\Controllers\CroppedImageReferenceController;
+use App\Http\Controllers\InstagramAutoCommentsController;
+use App\Http\Controllers\MagentoModuleCategoryController;
+use App\Http\Controllers\SimplyDutyCalculationController;
+use App\Http\Controllers\StoreWebsiteAnalyticsController;
+use App\Http\Controllers\UsersFeedbackHrTicketController;
+use App\Http\Controllers\GoogleCampaignLocationController;
+use App\Http\Controllers\NegativeCouponResponseController;
+use App\Http\Controllers\MagentoModuleApiHistoryController;
+use App\Http\Controllers\UnknownAttributeProductController;
+use App\Http\Controllers\GoogleTraslationSettingsController;
+use App\Http\Controllers\StoreSocialContentStatusController;
+use App\Http\Controllers\GoogleResponsiveDisplayAdController;
+use App\Http\Controllers\UsersAutoCommentHistoriesController;
+use App\Http\Controllers\InstagramAutomatedMessagesController;
+use App\Http\Controllers\MagentoModuleCronJobHistoryController;
 
 Auth::routes();
 
 Route::prefix('youtube')->middleware('auth')->group(function () {
-Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
-Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
-Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
-Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
-Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
-Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
-Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
+    Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+    Route::get('/get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
+    Route::post('/refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
+    Route::post('/add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
+    Route::get('/edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
+    Route::get('/video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
+    Route::get('/list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
 
-Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
-Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
+    Route::post('/channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
+    Route::post('/video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
 
-Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
-Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
+    Route::get('/video/post', [YoutubeController::class, 'postVideo'])->name('youtubeaccount.post');
+    Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideoId'])->name('commentList');
 });
 // Route::get('/websiteList', [WebsiteController::class, 'index'])->name('websiteList');
 // Route::get('/youtubeRedirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtuberedirect');
@@ -377,13 +380,12 @@ Route::get('/comment-list/{videoId}', [YoutubeController::class, 'CommentByVideo
 
 // Route::get('/ads-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
 
-
-use App\Http\Controllers\GoogleCampaignLocationController;
-use App\Http\Controllers\Seo;
-use App\Http\Controllers\MailBoxController;
-use App\Http\Controllers\BlogController;
-use App\Http\Controllers\BingWebMasterController;
-use App\Http\Controllers\GoogleAdsRemarketingController;
+use App\Http\Controllers\StoreWebsiteCountryShippingController;
+use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
+use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
+use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
+use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
 
@@ -440,7 +442,7 @@ Route::prefix('blog')->middleware('auth')->group(function () {
     Route::delete('/delete/{id}', [BlogController::class, 'destroy'])->name('update-blog.delete');
     Route::get('/history/list', [BlogController::class, 'viewAllHistory'])->name('view-blog-all.history');
     Route::get('/view/{id}', [BlogController::class, 'show'])->name('blog.view');
-
+    Route::get('/contentview/{id}', [BlogController::class, 'contentView'])->name('blog.contentView');
 });
 
 Route::middleware('auth')->group(function () {
@@ -585,7 +587,6 @@ Route::prefix('product')->middleware('auth')->group(function () {
     Route::post('test', [ProductController::class, 'test'])->name('product.test.template');
 });
 
-
 Route::prefix('logging')->middleware('auth')->group(function () {
     Route::any('list/api/logs', [LaravelLogController::class, 'apiLogs'])->name('api-log-list');
     Route::any('list/api/logs/generate-report', [LaravelLogController::class, 'generateReport'])->name('api-log-list-generate-report');
@@ -724,12 +725,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
     Route::resource('compositions', CompositionsController::class);
-    Route::get('incorrect-attributes', [UnknownAttributeProductController::class,'index'])->name('incorrect-attributes');
-    Route::post('attribute-assignment', [UnknownAttributeProductController::class,'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
-    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class,'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
-    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class,'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
-    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class,'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
-    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class,'index'])->name('crop-rejected-final-approval-images');
+    Route::get('incorrect-attributes', [UnknownAttributeProductController::class, 'index'])->name('incorrect-attributes');
+    Route::post('attribute-assignment', [UnknownAttributeProductController::class, 'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
+    Route::post('get-product-attribute-details', [UnknownAttributeProductController::class, 'getProductAttributeDetails'])->name('incorrect-attributes.get_product_attribute_detail');
+    Route::post('get-product-attribute-history', [UnknownAttributeProductController::class, 'getProductAttributeHistory'])->name('incorrect-attributes.get_product_attribute_history');
+    Route::post('update-attribute-assignment', [UnknownAttributeProductController::class, 'updateAttributeAssignment'])->name('incorrect-attributes.update-attribute-assignment');
+    Route::get('crop-rejected-final-approval-images', [CropRejectedController::class, 'index'])->name('crop-rejected-final-approval-images');
 
     Route::post('descriptions/store', [ChangeDescriptionController::class, 'store'])->name('descriptions.store');
 
@@ -995,6 +996,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     //  Route::resource('activity','ActivityConroller');
 
+    Route::get('brand/list', [BrandController::class, 'show'])->name('brand.list'); //Purpose : upload logo - DEVTASK-4278
     Route::get('brand/get_all_images', [BrandController::class, 'get_all_images'])->name('brand.get_all_images'); //Purpose : upload logo - DEVTASK-4278
     Route::get('brand/logo_data', [BrandController::class, 'fetchlogos'])->name('brand.logo_data'); //Purpose : Get Brand Logo - DEVTASK-4278
     Route::post('brand/uploadlogo', [BrandController::class, 'uploadlogo'])->name('brand.uploadlogo'); //Purpose : upload logo - DEVTASK-4278
@@ -1415,7 +1417,6 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/{id}/excel-import', [EmailController::class, 'excelImporter']);
     Route::post('email/{id}/get-file-status', [EmailController::class, 'getFileStatus']);
 
-
     Route::resource('email', EmailController::class);
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
@@ -1432,9 +1433,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/update_email', [EmailController::class, 'updateEmail']);
     Route::resource('mailbox', MailBoxController::class);
 
-    Route::post('email/assign-modal',[EmailController::class,'assignModel'])->name('assignModel');
-    Route::post('email/update-model-color',[EmailController::class,'updateModelColor'])->name('updateModelColor');
-    Route::post('email/getModelNames',[EmailController::class,'getModelNames'])->name('getModelNames');
+    Route::post('email/assign-modal', [EmailController::class, 'assignModel'])->name('assignModel');
+    Route::post('email/update-model-color', [EmailController::class, 'updateModelColor'])->name('updateModelColor');
+    Route::post('email/getModelNames', [EmailController::class, 'getModelNames'])->name('getModelNames');
 
     Route::post('bluckAction', [EmailController::class, 'bluckAction'])->name('bluckAction');
     Route::any('syncroniseEmail', [EmailController::class, 'syncroniseEmail'])->name('syncroniseEmail');
@@ -2163,18 +2164,22 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
             Route::post('cost', [DevelopmentController::class, 'saveAmount'])->name('development.update.cost');
             Route::post('estimate-minutes', [DevelopmentController::class, 'saveEstimateMinutes'])->name('development.update.estimate-minutes');
             Route::post('lead-estimate-minutes', [DevelopmentController::class, 'saveLeadEstimateTime'])->name('development.update.lead-estimate-minutes');
-
+            
             Route::post('lead-estimate-minutes/approve', [DevelopmentController::class, 'approveLeadTimeHistory'])->name('development.approve.lead-estimate-minutes');
         });
-
+        
         Route::prefix('history')->group(function () {
             Route::get('start-date/index', [DevelopmentController::class, 'historyStartDate'])->name('development.history.start-date.index');
             Route::get('estimate-date/index', [DevelopmentController::class, 'historyEstimateDate'])->name('development.history.estimate-date.index');
             Route::get('cost/index', [DevelopmentController::class, 'historyCost'])->name('development.history.cost.index');
-
+            
             Route::post('approve', [DevelopmentController::class, 'historyApproveSubmit'])->name('development-task.history.approve');
             Route::get('approve/history', [DevelopmentController::class, 'historyApproveList'])->name('development-task.history.approve-history');
         });
+        
+        Route::post('upload-file', [DevelopmentController::class, 'uploadFile'])->name('development.upload-file');
+        Route::get('files/record', [DevelopmentController::class, 'getUploadedFilesList'])->name('development.files.record');
+
     });
 
     /*Routes For Social */
@@ -2241,7 +2246,6 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('password/send/email', [PasswordController::class, 'passwordSendEmail'])->name('password.send.email');
     Route::get('password/email/history', [PasswordController::class, 'passwordSendEmailHistory'])->name('password.email.history');
-
 
     //Language Manager
     Route::get('languages', [LanguageController::class, 'index'])->name('language.index');
@@ -2679,13 +2683,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 });
 
-
 /**
-* This route will push the FAQ to series of website with help of API
-*/
+ * This route will push the FAQ to series of website with help of API
+ */
 Route::middleware('auth')->group(function () {
-	Route::post('push/faq', 			[FaqPushController::class, 'pushFaq']);
-	Route::post('push/faq/all', 		[FaqPushController::class, 'pushFaqAll']);
+    Route::post('push/faq', [FaqPushController::class, 'pushFaq']);
+    Route::post('push/faq/all', [FaqPushController::class, 'pushFaqAll']);
 });
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
@@ -2733,7 +2736,7 @@ Route::any('twilio/store-complete-task-record', [TwilioController::class, 'store
 Route::get(
     '/twilio/hangup', [TwilioController::class, 'showHangup'])->name('hangup');
 
-Route::post('twilio/handleIncomingCall', [TwilioController::class, 'handleIncomingCall'])->name('handleIncomingCall');;
+Route::post('twilio/handleIncomingCall', [TwilioController::class, 'handleIncomingCall'])->name('handleIncomingCall');
 
 Route::get('exotel/outgoing', [ExotelController::class, 'call'])->name('exotel.call');
 Route::get('exotel/checkNumber', [ExotelController::class, 'checkNumber']);
@@ -2851,7 +2854,6 @@ Route::middleware('auth')->group(function () {
     Route::post('hubstaff/makePayment', [UserController::class, 'makePayment']);
     Route::get('hubstaff/userlist', [HubstaffController::class, 'userList'])->name('hubstaff.userList');
 
-
     Route::get('time-doctor/projects', [TimeDoctorController::class, 'getProjects'])->name('time-doctor.projects');
     Route::get('time-doctor/tasks', [TimeDoctorController::class, 'getTasks'])->name('time-doctor.tasks');
     Route::get('time-doctor/members', [TimeDoctorController::class, 'userList'])->name('time-doctor.members');
@@ -2915,7 +2917,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/userTrackTime', [TimeDoctorActivitiesController::class, 'userTreckTime'])->name('time-doctor-acitivties.acitivties.userTreckTime');
         });
     });
-
 
     /***
      * use for Postman
@@ -3019,7 +3020,7 @@ Route::middleware('auth')->group(function () {
     Route::post('test-cases/add-test-cases', [TestCaseController::class, 'sendTestCases'])->name('test-cases.sendtestcases');
     Route::get('test-cases/usertest-history/{id}', [TestCaseController::class, 'usertestHistory'])->name('test-cases.usertest-history');
     Route::get('test-cases/user-teststatus-history/{id}', [TestCaseController::class, 'userteststatusHistory'])->name('test-cases.usertest-history');
-	Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
+    Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
 
     Route::get('test-suites', [TestSuitesController::class, 'index'])->name('test-suites.index');
     Route::get('test-suites/records', [TestSuitesController::class, 'records'])->name('test-suites.records');
@@ -3098,7 +3099,6 @@ Route::middleware('auth')->group(function () {
 Route::get('instagram/logs', [InstagramPostsController::class, 'instagramUserLogs'])->name('instagram.logs');
 Route::post('instagram/history', [InstagramPostsController::class, 'history'])->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', [HashtagController::class, 'addmailinglist']);
-
 
 Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('inbox', [SocialAccountController::class, 'inbox'])->name('social.direct-message');
@@ -3903,6 +3903,14 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/dev/delete/attachment', [UicheckController::class, 'deleteDevDocument'])->name('uicheck.dev.delete.attachment');
     Route::post('uicheck/device/status', [UicheckController::class, 'updateDeviceStatus'])->name('uicheck.device.status');
 
+    Route::prefix('variant')->group(function () {
+        Route::post('/', [KeywordVariantController::class, 'create'])->name('add.keyword.variant');
+        Route::get('/', [KeywordVariantController::class, 'index'])->name('list.keyword.variant');
+        Route::delete('/{id}', [KeywordVariantController::class, 'delete'])->name('delete.keyword.variant');
+    });
+
+    Route::get('brand/search', [GoogleSearchController::class, 'searchBrand1'])->name('search.brand');
+
     Route::prefix('uicheck')->group(function () {
         Route::get('get', [UicheckController::class, 'get'])->name('uicheck.get');
         Route::get('responsive', [UicheckController::class, 'responseDevicePage'])->name('uicheck.responsive');
@@ -3931,13 +3939,16 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
-     Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
-     Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
+    Route::get('developer-api/anrfilter', [GoogleDeveloperController::class, 'getDeveloperApianrfilter']);
+    Route::get('developer-api/crashfilter', [GoogleDeveloperController::class, 'getDevelopercrashfilter']);
+    Route::get('/get-keywords', [GoogleSearchController::class, 'index'])->name('google.search-keyword.list');
     Route::resource('/search/keyword', GoogleSearchController::class);
+    Route::post('/search/generate-keyword', [GoogleSearchController::class, 'generateKeywords'])->name('keyword.generate');
     Route::get('/search/keyword-priority', [GoogleSearchController::class, 'markPriority'])->name('google.search.keyword.priority');
     Route::get('/search/keyword', [GoogleSearchController::class, 'index'])->name('google.search.keyword');
     Route::get('/search/results', [GoogleSearchController::class, 'searchResults'])->name('google.search.results');
     Route::get('/search/scrap', [GoogleSearchController::class, 'callScraper'])->name('google.search.keyword.scrap');
+    Route::post('/search/delete/{id?}', [GoogleSearchController::class, 'destroy'])->name('google.search.keyword.delete');
 
     Route::resource('/affiliate/keyword', GoogleAffiliateController::class);
     Route::get('/affiliate/keyword', [GoogleAffiliateController::class, 'index'])->name('google.affiliate.keyword');
@@ -3949,15 +3960,15 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/email/send', [GoogleAffiliateController::class, 'emailSend'])->name('affiliate.email.send');
     Route::get('/affiliate/scrap', [GoogleAffiliateController::class, 'callScraper'])->name('google.affiliate.keyword.scrap');
     //Google Developer API
-// Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
+    // Route::post('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crashget');
 
-Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
-// Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
-Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
+    Route::get('developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash'])->name('google.developer-api.crash');
+    // Route::post('/developer-api/crash', GoogleDeveloperController@getDeveloperApicrash)->name('google.developer-api.crash');
+    Route::get('developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr'])->name('google.developer-api.anr');
 
-Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
+    Route::get('developer-api/logs', [GoogleDeveloperLogsController::class, 'index'])->name('google.developer-api.logs');
 
-     Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
+    Route::get('developer-api/logsfilter', [GoogleDeveloperLogsController::class, 'logsfilter']);
 });
 Route::any('/jobs', [JobController::class, 'index'])->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', [JobController::class, 'delete'])->middleware('auth')->name('jobs.delete');
@@ -4017,7 +4028,6 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/gitDeplodError', [Github\RepositoryController::class, 'getGitMigrationErrorLog'])->name('gitDeplodError');
         Route::get('/branches', [Github\RepositoryController::class, 'branchIndex'])->name('github.branchIndex');
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
-
     });
 });
 
@@ -4912,7 +4922,6 @@ Route::prefix('google-drive-screencast')->name('google-drive-screencast')->middl
     Route::post('/permission-update', [GoogleScreencastController::class, 'driveFilePermissionUpdate'])->name('.permission.update');
     Route::delete('/{id}/destroy', [GoogleScreencastController::class, 'destroy'])->name('.destroy');
     Route::get('/task-files/{taskId}', [GoogleScreencastController::class, 'getTaskDriveFiles']);
-
 });
 
 //Queue Management::
@@ -4928,8 +4937,8 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
     Route::get('/sync', [RedisQueueController::class, 'syncQueues'])->name('redisQueue.sync');
 });
 
-Route::prefix('seo')->middleware('auth')->group(function() {
-    Route::prefix('content')->group(function() {
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::prefix('content')->group(function () {
         Route::get('', [Seo\ContentController::class, 'index'])->name('seo.content.index');
         Route::get('create', [Seo\ContentController::class, 'create'])->name('seo.content.create');
         Route::post('store', [Seo\ContentController::class, 'store'])->name('seo.content.store');
@@ -4938,7 +4947,7 @@ Route::prefix('seo')->middleware('auth')->group(function() {
         Route::get('{id}/show', [Seo\ContentController::class, 'show'])->name('seo.content.show');
     });
 
-    Route::prefix('company')->group(function() {
+    Route::prefix('company')->group(function () {
         Route::get('', [Seo\CompanyController::class, 'index'])->name('seo.company.index');
         Route::get('create', [Seo\CompanyController::class, 'create'])->name('seo.company.create');
         Route::post('store', [Seo\CompanyController::class, 'store'])->name('seo.company.store');
@@ -4946,11 +4955,14 @@ Route::prefix('seo')->middleware('auth')->group(function() {
         Route::post('{id}/update', [Seo\CompanyController::class, 'update'])->name('seo.company.update');
     });
 
-    Route::prefix('company-type')->group(function() {
+    Route::prefix('company-type')->group(function () {
         Route::get('', [Seo\CompanyTypeController::class, 'index'])->name('seo.company-type.index');
-        Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.content-type.store');
+        Route::get('create', [Seo\CompanyTypeController::class, 'create'])->name('seo.company-type.create');
+        Route::post('store', [Seo\CompanyTypeController::class, 'store'])->name('seo.company-type.store');
+        Route::get('edit/{id}', [Seo\CompanyTypeController::class, 'edit'])->name('seo.company-type.edit');
+        Route::post('update/{id}', [Seo\CompanyTypeController::class, 'update'])->name('seo.company-type.update');
+        Route::post('destroy/{id}', [Seo\CompanyTypeController::class, 'destroy'])->name('seo.company-type.destroy');
     });
-
 });
 
 // Task Summary::
@@ -4959,19 +4971,91 @@ Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList')
 Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList');
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
 
-
-
 Route::prefix('appconnect')->middleware('auth')->group(function () {
-Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
-Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
-Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
-Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
-Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
-Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
-Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
-Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
-Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
-Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
-Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
-Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
- });
+    Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
+    Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+    Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
+    Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
+    Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
+    Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+    Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
+    Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
+    Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
+    Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
+    Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
+    Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
+});
+
+Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
+    Route::prefix('providers')->group(function () {
+        Route::get('', [AffiliateMarketingController::class, 'providers'])->name('affiliate-marketing.providers');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProvider'])->name('affiliate-marketing.getProvider');
+        Route::post('create', [AffiliateMarketingController::class, 'createProvider'])->name('affiliate-marketing.createProvider');
+        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProvider'])->name('affiliate-marketing.updateProvider');
+        Route::post('delete', [AffiliateMarketingController::class, 'deleteProvider'])->name('affiliate-marketing.deleteProviders');
+    });
+
+    Route::prefix('provider-accounts')->group(function () {
+        Route::get('', [AffiliateMarketingController::class, 'providerAccounts'])->name('affiliate-marketing.providerAccounts');
+        Route::get('{id}', [AffiliateMarketingController::class, 'getProviderAccount'])->name('affiliate-marketing.getProviderAccount');
+        Route::post('create', [AffiliateMarketingController::class, 'createProviderAccount'])->name('affiliate-marketing.createProviderAccount');
+        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProviderAccount'])->name('affiliate-marketing.updateProviderAccount');
+        Route::post('delete', [AffiliateMarketingController::class, 'deleteProviderAccount'])->name('affiliate-marketing.deleteProviderAccount');
+    });
+
+    Route::prefix('provider-details')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'index'])->name('affiliate-marketing.provider.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'createAffiliateGroup'])->name('affiliate-marketing.provider.createGroup');
+        Route::post('update/{id}', [AffiliateMarketingDataController::class, 'updateAffiliateGroup'])->name('affiliate-marketing.provider.updateGroup');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'getAffiliateGroup'])->name('affiliate-marketing.provider.getGroup');
+        Route::post('sync', [AffiliateMarketingDataController::class, 'syncData'])->name('affiliate-marketing.provider.syncData');
+    });
+
+    Route::prefix('programs')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'programIndex'])->name('affiliate-marketing.provider.program.index');
+        Route::post('programme-sync', [AffiliateMarketingDataController::class, 'programSync'])->name('affiliate-marketing.provider.program.sync');
+    });
+
+    Route::prefix('commissions')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'commissionIndex'])->name('affiliate-marketing.provider.commission.index');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'commissionGet'])->name('affiliate-marketing.provider.commission.get');
+        Route::post('update', [AffiliateMarketingDataController::class, 'commissionUpdate'])->name('affiliate-marketing.provider.commission.update');
+        Route::post('approve/{id}', [AffiliateMarketingDataController::class, 'commissionApproveDisapprove'])->name('affiliate-marketing.provider.commission.approveDisapprove');
+        Route::post('commission-sync', [AffiliateMarketingDataController::class, 'commissionSync'])->name('affiliate-marketing.provider.commission.sync');
+    });
+
+    Route::prefix('affiliates')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'affiliateIndex'])->name('affiliate-marketing.provider.affiliate.index');
+        Route::get('{id}', [AffiliateMarketingDataController::class, 'affiliateGet'])->name('affiliate-marketing.provider.affiliate.get');
+        Route::post('create', [AffiliateMarketingDataController::class, 'affiliateCreate'])->name('affiliate-marketing.provider.affiliate.create');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'affiliateDelete'])->name('affiliate-marketing.provider.affiliate.delete');
+        Route::get('payout-methods/{id}', [AffiliateMarketingDataController::class, 'affiliatePayoutMethods'])->name('affiliate-marketing.provider.affiliate.payoutMethods');
+        Route::post('update/payout-methods/{id}', [AffiliateMarketingDataController::class, 'affiliateUpdatePayoutMethod'])->name('affiliate-marketing.provider.affiliate.updatePayoutMethods');
+        Route::post('add-to-programme', [AffiliateMarketingDataController::class, 'affiliateAddToProgramme'])->name('affiliate-marketing.provider.affiliate.addToProgramme');
+        Route::post('affiliate-sync', [AffiliateMarketingDataController::class, 'affiliateSync'])->name('affiliate-marketing.provider.affiliate.sync');
+    });
+
+    Route::prefix('payments')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'paymentsIndex'])->name('affiliate-marketing.provider.payments.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'paymentsCreate'])->name('affiliate-marketing.provider.payments.create');
+        Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'paymentsCancel'])->name('affiliate-marketing.provider.payments.cancel');
+        Route::post('payments-sync', [AffiliateMarketingDataController::class, 'paymentsSync'])->name('affiliate-marketing.provider.payments.sync');
+    });
+
+    Route::prefix('conversions')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'conversionIndex'])->name('affiliate-marketing.provider.conversion.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'conversionCreate'])->name('affiliate-marketing.provider.conversion.create');
+        Route::post('update', [AffiliateMarketingDataController::class, 'conversionUpdate'])->name('affiliate-marketing.provider.conversion.update');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'conversionDelete'])->name('affiliate-marketing.provider.conversion.delete');
+        Route::post('add-commission', [AffiliateMarketingDataController::class, 'conversionAddCommission'])->name('affiliate-marketing.provider.conversion.addCommission');
+        Route::post('conversion-sync', [AffiliateMarketingDataController::class, 'conversionSync'])->name('affiliate-marketing.provider.conversion.sync');
+    });
+
+    Route::prefix('customer')->group(function () {
+        Route::get('', [AffiliateMarketingDataController::class, 'customerIndex'])->name('affiliate-marketing.provider.customer.index');
+        Route::post('create', [AffiliateMarketingDataController::class, 'customerCreate'])->name('affiliate-marketing.provider.customer.create');
+        Route::post('delete/{id}', [AffiliateMarketingDataController::class, 'customerDelete'])->name('affiliate-marketing.provider.customer.delete');
+        Route::post('cancel/{id}', [AffiliateMarketingDataController::class, 'customerCancelUnCancel'])->name('affiliate-marketing.provider.customer.cancelUncancel');
+        Route::post('customer-sync', [AffiliateMarketingDataController::class, 'customerSync'])->name('affiliate-marketing.provider.customer.sync');
+    });
+});

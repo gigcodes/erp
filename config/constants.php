@@ -60,7 +60,7 @@ return [
     'PRINT_LATER_AUTO_DELETE_DAYS' => 15,
     'AVAILABLE_TIMEZONES' => [
         'Asia/Dubai' => 'Asia/Dubai',
-        'Asia/Kolkata' => 'Asia/Kolkata'
+        'Asia/Kolkata' => 'Asia/Kolkata',
     ],
     'google_indexing_state_enum' => [
         'INDEXING_STATE_UNSPECIFIED' => 'Unknown indexing status.',
@@ -72,14 +72,14 @@ return [
     'google_verdict_enum' => [
         'VERDICT_UNSPECIFIED' => 'Unknown verdict.',
         'PASS' => 'Equivalent to "Valid" for the page or item in Search Console.',
-        'PARTIAL' => "Reserved, no longer in use.",
+        'PARTIAL' => 'Reserved, no longer in use.',
         'FAIL' => 'Equivalent to "Error" or "Invalid" for the page or item in Search Console.',
         'NEUTRAL' => 'Equivalent to "Excluded" for the page or item in Search Console.',
     ],
     'bing_site_role_enum' => [
         0 => 'Administrator',
         1 => 'ReadOnly',
-        2 => 'ReadWrite'
+        2 => 'ReadWrite',
     ],
     'TIME_DOCTOR_API_RESPONSE_MESSAGE' => [
         '401' => 'Time Doctor Account user\'s Token ID is invalid or access is denied.',
@@ -87,6 +87,6 @@ return [
         '409' => 'The same resource of this type has already been registered.',
         '422' => 'Missing value in at least one of required parameters.',
         '404' => 'Something went wrong',
-        '500' => 'Something went wrong'
-    ]
+        '500' => 'Something went wrong',
+    ],
 ];

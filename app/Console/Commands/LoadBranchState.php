@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Github\GitHubBranchState;
-use App\Helpers\GithubTrait;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use App\Helpers\GithubTrait;
 use Illuminate\Console\Command;
+use App\Github\GitHubBranchState;
 
 class LoadBranchState extends Command
 {
@@ -55,7 +55,7 @@ class LoadBranchState extends Command
                 'start_time' => Carbon::now(),
             ]);
             //
-         $repositoryIds = $this->getAllRepositoriesIds();
+            $repositoryIds = $this->getAllRepositoriesIds();
 
             $repoBranches = [];
             foreach ($repositoryIds as $repoId) {
@@ -69,14 +69,14 @@ class LoadBranchState extends Command
             $comparisons = [];
             foreach ($repoBranches as $repoId => $branches) {
                 foreach ($branches as $branch) {
-                     $this->info($branch);
+                    $this->info($branch);
                     $comparison = $this->compareRepoBranches($repoId, $branch);
-                        $filters = [
+                    $filters = [
                         'state' => 'all',
-                        'head' => config('env.GITHUB_ORG_ID').":".$branch
+                        'head' => config('env.GITHUB_ORG_ID') . ':' . $branch,
                     ];
-                    $pullRequests = $this->pullRequests($repoId,$filters);
-                    if(!empty($pullRequests) && count($pullRequests) > 0){
+                    $pullRequests = $this->pullRequests($repoId, $filters);
+                    if (! empty($pullRequests) && count($pullRequests) > 0) {
                         $pullRequest[$repoId][$branch] = $pullRequests[0];
                     }
                     $comparisons[$repoId][$branch] = $comparison;
@@ -86,7 +86,7 @@ class LoadBranchState extends Command
             foreach ($comparisons as $repoId => $branches) {
                 $branchNames = [];
                 foreach ($branches as $branchName => $comparison) {
-                    $this->info($repoId." : ".$branchName);
+                    $this->info($repoId . ' : ' . $branchName);
                     GithubBranchState::updateOrCreate(
                         [
                             'repository_id' => $repoId,
@@ -97,7 +97,7 @@ class LoadBranchState extends Command
                             'branch_name' => $branchName,
                             'ahead_by' => $comparison['ahead_by'],
                             'behind_by' => $comparison['behind_by'],
-                            'status' => !empty($pullRequest[$repoId]) && !empty($pullRequest[$repoId][$branchName]) ? $pullRequest[$repoId][$branchName]['state'] : "",
+                            'status' => ! empty($pullRequest[$repoId]) && ! empty($pullRequest[$repoId][$branchName]) ? $pullRequest[$repoId][$branchName]['state'] : '',
                             'last_commit_author_username' => $comparison['last_commit_author_username'],
                             'last_commit_time' => $comparison['last_commit_time'],
                         ]
@@ -120,7 +120,7 @@ class LoadBranchState extends Command
     {
         //https://api.github.com/orgs/ludxb/repos
         // $url      = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/repos';
-        $url = 'https://api.github.com/orgs/'.config('env.GITHUB_ORG_ID').'/repos';
+        $url = 'https://api.github.com/orgs/' . config('env.GITHUB_ORG_ID') . '/repos';
         $response = $this->githubClient->get($url);
 
         $repositories = json_decode($response->getBody()->getContents());
@@ -136,13 +136,12 @@ class LoadBranchState extends Command
     private function getBranchNamesOfRepository(int $repoId)
     {
         $allBranchNames = [];
-        try{
-            
+        try {
             //https://api.github.com/repositories/:repoId/branches
-            $url = 'https://api.github.com/repositories/'.$repoId.'/branches';
+            $url = 'https://api.github.com/repositories/' . $repoId . '/branches';
             $headResponse = $this->githubClient->head($url);
             $linkHeader = $headResponse->getHeader('Link');
-           
+
             /**
              * <https://api.github.com/repositories/231925646/branches?page=4>; rel="prev", <https://api.github.com/repositories/231925646/branches?page=4>; rel="last", <https://api.github.com/repositories/231925646/branches?page=1>; rel="first"
              */
@@ -158,7 +157,7 @@ class LoadBranchState extends Command
                         break;
                     }
                 }
-    
+
                 //<https://api.github.com/repositories/231925646/branches?page=4>; rel="last"
                 $linkWithAngularBrackets = explode(';', $lastLink)[0];
                 //<https://api.github.com/repositories/231925646/branches?page=4>
@@ -169,35 +168,35 @@ class LoadBranchState extends Command
                 $pageNumberString = explode('?', $linkWithPageNumber)[1];
                 //page=4
                 $totalPages = explode('=', $pageNumberString)[1];
-    
+
                 $totalPages = intval($totalPages);
             }
-            $this->info("totalPages: " .$totalPages);
+            $this->info('totalPages: ' . $totalPages);
             $page = 1;
             while ($page <= $totalPages) {
-                 $this->info("page: " .$page);
+                $this->info('page: ' . $page);
 
-                $response = $this->githubClient->get($url.'?page='.$page);
-    
+                $response = $this->githubClient->get($url . '?page=' . $page);
+
                 $branches = json_decode($response->getBody()->getContents());
-    
+
                 $branchNames = array_map(
                     function ($branch) {
                         return $branch->name;
                     },
                     $branches
                 );
-    
+
                 $allBranchNames = array_merge(
                     $allBranchNames,
                     array_filter($branchNames, function ($name) {
                         return $name != 'master';
                     })
                 );
-    
+
                 $page++;
             }
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             $this->info($e->getMessage());
         }
         $this->info(json_encode($allBranchNames));

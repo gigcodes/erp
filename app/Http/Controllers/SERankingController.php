@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\SERanking;
 use DB;
+use App\SERanking;
 
 class SERankingController extends Controller
 {
@@ -33,7 +33,7 @@ class SERankingController extends Controller
             ],
         ]);
         $httpStatus = null;
-        $results = file_get_contents('https://api4.seranking.com/'.$url, 0, $context);
+        $results = file_get_contents('https://api4.seranking.com/' . $url, 0, $context);
         if (isset($http_response_header)) {
             preg_match('`HTTP/[0-9\.]+\s+([0-9]+)`', $http_response_header[0], $matches);
             $httpStatus = $matches[1];
@@ -69,9 +69,9 @@ class SERankingController extends Controller
         $site_id = 1083512;
         if (! empty($_GET['keyword'])) {
             $keyword = $_GET['keyword'];
-            $keywords = SERanking::where('name', 'like', '%'.$keyword.'%')->get();
+            $keywords = SERanking::where('name', 'like', '%' . $keyword . '%')->get();
         } else {
-            $keywords = $this->getResults('sites/'.$site_id.'/keywords');
+            $keywords = $this->getResults('sites/' . $site_id . '/keywords');
         }
         DB::table('s_e_rankings')->truncate();
         foreach ($keywords as $key => $new_item) {
@@ -85,7 +85,7 @@ class SERankingController extends Controller
                 ]
             );
         }
-        $keyword_stats = $this->getResults('sites/'.$site_id.'/positions');
+        $keyword_stats = $this->getResults('sites/' . $site_id . '/positions');
 
         return View(
             'se-ranking.keywords',
@@ -100,9 +100,9 @@ class SERankingController extends Controller
     {
         $site_id = 1083512;
         $keywords_pos_data = [];
-        $competitors = $this->getResults('competitors/site/'.$site_id);
+        $competitors = $this->getResults('competitors/site/' . $site_id);
         if (! empty($id)) {
-            $keywords_pos_data = $this->getResults('competitors/'.$id.'/positions');
+            $keywords_pos_data = $this->getResults('competitors/' . $id . '/positions');
 
             return View(
                 'se-ranking.comp-key-pos',
@@ -122,7 +122,7 @@ class SERankingController extends Controller
     public function getAnalytics()
     {
         $site_id = 1083512;
-        $analytics = $this->getResults('analytics/'.$site_id.'/potential');
+        $analytics = $this->getResults('analytics/' . $site_id . '/potential');
 
         return View(
             'se-ranking.analytics',
@@ -136,7 +136,7 @@ class SERankingController extends Controller
     public function getBacklinks()
     {
         $site_id = 1083512;
-        $backlinks = $this->getResults('backlinks/'.$site_id.'/stat');
+        $backlinks = $this->getResults('backlinks/' . $site_id . '/stat');
 
         return View(
             'se-ranking.backlinks',
@@ -163,7 +163,7 @@ class SERankingController extends Controller
     public function getSiteAudit()
     {
         $site_id = 1083512;
-        $audit = $this->getResults('audit/'.$site_id.'/report');
+        $audit = $this->getResults('audit/' . $site_id . '/report');
 
         return View(
             'se-ranking.audit',

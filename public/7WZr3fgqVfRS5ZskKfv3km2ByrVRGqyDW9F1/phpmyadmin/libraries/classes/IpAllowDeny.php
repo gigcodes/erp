@@ -8,20 +8,20 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function bin2hex;
+use function min;
 use function dechex;
-use function explode;
-use function hash_equals;
 use function hexdec;
-use function inet_pton;
+use function bin2hex;
+use function explode;
 use function ip2long;
 use function is_array;
+use function inet_pton;
 use function mb_strpos;
-use function mb_strtolower;
 use function mb_substr;
-use function min;
 use function preg_match;
+use function hash_equals;
 use function str_replace;
+use function mb_strtolower;
 use function substr_replace;
 
 /**
@@ -71,7 +71,7 @@ class IpAllowDeny
         if ($match) {
             // performs a mask match
             $ipl = ip2long($ipToTest);
-            $rangel = ip2long($regs[1].'.'.$regs[2].'.'.$regs[3].'.'.$regs[4]);
+            $rangel = ip2long($regs[1] . '.' . $regs[2] . '.' . $regs[3] . '.' . $regs[4]);
 
             $maskl = 0;
 
@@ -267,9 +267,9 @@ class IpAllowDeny
 
         // Provide some useful shortcuts if server gives us address:
         if (Core::getenv('SERVER_ADDR')) {
-            $shortcuts['localnetA'] = Core::getenv('SERVER_ADDR').'/8';
-            $shortcuts['localnetB'] = Core::getenv('SERVER_ADDR').'/16';
-            $shortcuts['localnetC'] = Core::getenv('SERVER_ADDR').'/24';
+            $shortcuts['localnetA'] = Core::getenv('SERVER_ADDR') . '/8';
+            $shortcuts['localnetB'] = Core::getenv('SERVER_ADDR') . '/16';
+            $shortcuts['localnetC'] = Core::getenv('SERVER_ADDR') . '/24';
         }
 
         foreach ($rules as $rule) {

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessagesQuickData;
 use App\Task;
+use App\ChatMessagesQuickData;
 use Illuminate\Console\Command;
 
 // use App\DeveloperTask;

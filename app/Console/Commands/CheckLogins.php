@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
+use Cache;
 use App\User;
 use App\UserLogin;
-use Cache;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class CheckLogins extends Command
@@ -48,7 +48,7 @@ class CheckLogins extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-            \Log::channel('customer')->info(Carbon::now().' begin checking users logins');
+            \Log::channel('customer')->info(Carbon::now() . ' begin checking users logins');
             $users = User::all();
 
             foreach ($users as $user) {
@@ -57,7 +57,7 @@ class CheckLogins extends Command
                     $login = UserLogin::create(['user_id' => $user->id]);
                 }
 
-                if (Cache::has('user-is-online-'.$user->id)) {
+                if (Cache::has('user-is-online-' . $user->id)) {
                     if ($login->logout_at) {
                         UserLogin::create(['user_id' => $user->id, 'login_at' => Carbon::now()]);
                     } elseif (! $login->login_at) {
@@ -70,7 +70,7 @@ class CheckLogins extends Command
                 }
             }
 
-            \Log::channel('customer')->info(Carbon::now().' end of checking users logins');
+            \Log::channel('customer')->info(Carbon::now() . ' end of checking users logins');
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

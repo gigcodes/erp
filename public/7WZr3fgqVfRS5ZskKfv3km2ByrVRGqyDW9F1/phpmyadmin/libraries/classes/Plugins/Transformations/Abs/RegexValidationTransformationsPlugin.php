@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
 use function __;
-use function htmlspecialchars;
-use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\IOTransformationsPlugin;
-use function preg_match;
 use function sprintf;
+use function preg_match;
+use PhpMyAdmin\FieldMetadata;
+use function htmlspecialchars;
+use PhpMyAdmin\Plugins\IOTransformationsPlugin;
 
 /**
  * Provides common methods for all of the regex validation
@@ -29,8 +29,8 @@ abstract class RegexValidationTransformationsPlugin extends IOTransformationsPlu
     {
         return __(
             'Validates the string using regular expression '
-            .'and performs insert only if string matches it. '
-            .'The first option is the Regular Expression.'
+            . 'and performs insert only if string matches it. '
+            . 'The first option is the Regular Expression.'
         );
     }
 

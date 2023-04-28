@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
 use App\HashTag;
-use App\InstagramPosts;
 use App\Setting;
+use App\Category;
+use App\InstagramPosts;
 use Illuminate\Http\Request;
+use App\KeywordSearchVariants;
+use App\Library\Watson\Response;
+use Yajra\DataTables\DataTables;
 
 //use App\InstagramPosts;
 
@@ -42,40 +47,49 @@ class GoogleSearchController extends Controller
             $sortBy = '';
         }*/
 
-        if ($request->term || $request->priority) {
-            if ($request->term != null && $request->priority == 'on') {
-                $keywords = HashTag::query()
+        if ($request->search || $request->priority) {
+            if ($request->search != null && $request->priority == 'on') {
+                $keywords = HashTag::query()->with('creator')
                     ->where('priority', '1')
                     ->where('platforms_id', $this->platformsId)
-                    ->where('hashtag', 'LIKE', "%{$request->term}%")
-                    ->orderBy($sortBy, $orderBy)
-                    ->paginate(Setting::get('pagination'));
+                    ->where('hashtag', 'LIKE', "%{$request->search}%")
+                    ->orderBy($sortBy, $orderBy);
 
-                $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
+                $queryString = 'search=' . $request->search . '&priority=' . $request->priority . '&';
             } elseif ($request->priority == 'on') {
-                $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+                $keywords = HashTag::with('creator')->where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
 
                 $queryString = 'priority=' . $request->priority . '&';
-            } elseif ($request->term != null) {
+            } elseif ($request->search != null) {
                 $keywords = HashTag::query()
-                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->with('creator')
+                    ->where('hashtag', 'LIKE', "%{$request->search}%")
                     ->where('platforms_id', $this->platformsId)
-                    ->orderBy($sortBy, $orderBy)
-                    ->paginate(Setting::get('pagination'));
+                    ->orderBy($sortBy, $orderBy);
+                //->paginate(Setting::get('pagination'));
 
-                $queryString = 'term=' . $request->term . '&';
+                $queryString = 'search=' . $request->search . '&';
             }
         } else {
-            $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+            $keywords = HashTag::with('creator')->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy);
         }
 
-        return view('google.search.index', compact('keywords', 'queryString', 'orderBy'));
+        if ($request->ajax()) {
+            return DataTables::of($keywords->get())
+                ->addIndexColumn()
+                ->make(true);
+        }
+
+        $keywords_total = HashTag::where('platforms_id', $this->platformsId)->count();
+        $new_category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
+        $variants = KeywordSearchVariants::list();
+
+        return view('google.search.index', compact('keywords_total', 'queryString', 'orderBy', 'variants', 'new_category_selection'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      *
      * Create a new hashtag entry
@@ -90,6 +104,7 @@ class GoogleSearchController extends Controller
         $hashtag->hashtag = $request->get('name');
         $hashtag->rating = $request->get('rating') ?? 8;
         $hashtag->platforms_id = $this->platformsId;
+        $hashtag->created_by = \Auth::user()->id;
         $hashtag->save();
 
         return redirect()->back()->with('message', 'Keyword created successfully!');
@@ -98,7 +113,7 @@ class GoogleSearchController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -109,10 +124,10 @@ class GoogleSearchController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         if (is_numeric($id)) {
             $hash = HashTag::findOrFail($id);
@@ -121,13 +136,16 @@ class GoogleSearchController extends Controller
             HashTag::where('hashtag', $id)->delete();
         }
 
-        return redirect()->back()->with('message', 'Keyword has been deleted successfuly!');
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Keyword has been deleted successfully!']);
+        }
+
+        return redirect()->back()->with('message', 'Keyword has been deleted successfully!');
     }
 
     /**
      * function to set priority for keywords
      *
-     * @param \Illuminate\Http\Request $request
      * @return json response with status
      */
     public function markPriority(Request $request)
@@ -216,7 +234,6 @@ class GoogleSearchController extends Controller
      *    "URL": "http://www.searchedweb2.com" }
      * ]
      *
-     * @param \Illuminate\Http\Request $request
      * @return json response status
      */
     public function apiPost(Request $request)
@@ -229,7 +246,7 @@ class GoogleSearchController extends Controller
         // Process input
         if (count($payLoad) == 0) {
             return response()->json([
-                'error' => 'Invalid json'
+                'error' => 'Invalid json',
             ], 400);
         } else {
             $postedData = $payLoad['json'];
@@ -264,33 +281,32 @@ class GoogleSearchController extends Controller
 
         // Return
         return response()->json([
-            'ok'
+            'ok',
         ], 200);
     }
 
     /**
      * function to get google search results
      *
-     * @param \Illuminate\Http\Request $request
      * @return data to view
      */
     public function searchResults(Request $request)
     {
         $queryString = '';
         $orderBy = 'DESC';
-        if (!empty($request->hashtag)) {
+        if (! empty($request->hashtag)) {
             $queryString .= 'hashtag=' . $request->hashtag . '&';
         }
-        if (!empty($request->location)) {
+        if (! empty($request->location)) {
             $queryString .= 'location=' . $request->location . '&';
         }
-        if (!empty($request->post)) {
+        if (! empty($request->post)) {
             $queryString .= 'post=' . $request->post . '&';
         }
-        if (!empty($request->date)) {
+        if (! empty($request->date)) {
             $queryString .= 'date=' . $request->date . '&';
         }
-        if (!empty($request->orderby)) {
+        if (! empty($request->orderby)) {
             $orderBy = $request->orderby;
         }
 
@@ -304,7 +320,7 @@ class GoogleSearchController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('google.search.row_results', compact('posts'))->render(),
-                'links' => (string)$posts->appends($request->all())->render(),
+                'links' => (string) $posts->appends($request->all())->render(),
             ], 200);
         }
 
@@ -315,7 +331,6 @@ class GoogleSearchController extends Controller
     /**
      * function to get google search results
      *
-     * @param \Illuminate\Http\Request $request
      * @return array of search results
      */
     private function getFilteredGoogleSearchResults(Request $request)
@@ -332,22 +347,22 @@ class GoogleSearchController extends Controller
         $instagramPosts->where('source', '=', 'google');
 
         // Apply hashtag filter
-        if (!empty($request->hashtag)) {
+        if (! empty($request->hashtag)) {
             $instagramPosts->where('hash_tags.hashtag', $request->hashtag);
         }
 
         // Apply location filter
-        if (!empty($request->location)) {
+        if (! empty($request->location)) {
             $instagramPosts->where('location', 'LIKE', '%' . $request->location . '%');
         }
 
         // Apply post filter
-        if (!empty($request->post)) {
+        if (! empty($request->post)) {
             $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
         }
 
         // Apply posted at filter
-        if (!empty($request->date)) {
+        if (! empty($request->date)) {
             $instagramPosts->where('posted_at', date('Y-m-d H:i:s', strtotime($request->date)));
         }
 
@@ -358,7 +373,7 @@ class GoogleSearchController extends Controller
     /**
      * function to call google scraper
      *
-     * @param \Illuminate\Http\Request $request , id of keyword to scrap
+     * @param  \Illuminate\Http\Request  $request , id of keyword to scrap
      * @return \Illuminate\Http\JsonResponse, failure
      */
     public function callScraper(Request $request)
@@ -396,10 +411,10 @@ class GoogleSearchController extends Controller
             curl_close($curl);
 
             $result = null;
-            if(!empty($response)) {
+            if (! empty($response)) {
                 $result = json_decode($response);
             }
-            if (empty($err) && !empty($result) && isset($result->error) ) {
+            if (empty($err) && ! empty($result) && isset($result->error)) {
                 $err = $result->message;
             }
 
@@ -407,15 +422,52 @@ class GoogleSearchController extends Controller
         }
     }
 
-//    public function deleteSearch($id)
-//    {
-//      $instaPost = InstagramPosts::find($id);
-//
-//      if($instaPost){
-//        $instaPost->delete();
-//      }
-//
-//      return response()->json(['message' => "delete successfully"]);
-//
-//    }
+    /**
+     * Function for auto generate Keywords from brand, category and sub category
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function generateKeywords(Request $request)
+    {
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', '-1');
+
+        $data = $request->post('data');
+        $brand_list = $data['brand'];
+        $category_list = $data['category'];
+        $variants_list = $data['variants'];
+
+        $category_list = Category::whereIn('id', $category_list)->get()->toArray();
+
+        $string_arr = [];
+        foreach ($brand_list as $val1) {
+            foreach ($category_list as $val2) {
+                foreach ($variants_list as $val3) {
+                    $string_arr['hashtag'] = $val1 . ' ' . $val2['title'] . ' ' . $val3;
+                    $string_arr['platforms_id'] = $this->platformsId;
+                    $string_arr['rating'] = 8;
+                    $string_arr['created_at'] = $string_arr['updated_at'] = date('Y-m-d h:i:s');
+                    $string_arr['created_by'] = \Auth::user()->id;
+                    $check_exist = HashTag::where('hashtag', $string_arr['hashtag'])->count();
+                    if ($check_exist <= 0) {
+                        HashTag::insert($string_arr);
+                    }
+                }
+            }
+        }
+
+        return response()->json(['success' => true], 200);
+    }
+
+    /*public function deleteSearch($id)
+    {
+      $instaPost = InstagramPosts::find($id);
+
+      if($instaPost){
+        $instaPost->delete();
+      }
+
+      return response()->json(['message' => "delete successfully"]);
+
+    }*/
 }

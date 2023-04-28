@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\BloggerEmailTemplate;
 use Illuminate\Http\Request;
+use App\BloggerEmailTemplate;
 
 class BloggerEmailTemplateController extends Controller
 {

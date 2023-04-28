@@ -6,17 +6,17 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use Auth;
+use Exception;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Plank\Mediable\Mediable;
 use App\Hubstaff\HubstaffMember;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Tasks\TaskDueDateHistoryLog;
 use App\Models\Tasks\TaskHistoryForStartDate;
-use Auth;
-use Carbon\Carbon;
-use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Plank\Mediable\Mediable;
 
 class Task extends Model
 {
@@ -284,9 +284,9 @@ class Task extends Model
             $created = 1;
             $assignedUserId = $task->assign_to;
             if ($task->is_statutory != 1) {
-                $message = '#'.$task->id.'. '.$task->task_subject.'. '.$task->task_details;
+                $message = '#' . $task->id . '. ' . $task->task_subject . '. ' . $task->task_details;
             } else {
-                $message = $task->task_subject.'. '.$task->task_details;
+                $message = $task->task_subject . '. ' . $task->task_details;
             }
 
             $params = [
@@ -394,11 +394,11 @@ class Task extends Model
     {
         $old = $this->start_date;
 
-        if(isset($this->due_date) && $this->due_date != "0000-00-00 00:00:00" && isset($new)) {
+        if (isset($this->due_date) && $this->due_date != '0000-00-00 00:00:00' && isset($new)) {
             $newStartDate = Carbon::parse($new);
             $estimateDate = Carbon::parse($this->due_date);
-            if($newStartDate->gte($estimateDate)) {
-                throw new Exception("Start date must be less then Estimate date.");
+            if ($newStartDate->gte($estimateDate)) {
+                throw new Exception('Start date must be less then Estimate date.');
             }
         }
 
@@ -416,11 +416,11 @@ class Task extends Model
     {
         $old = $this->due_date;
 
-        if(isset($this->start_date) && $this->start_date != "0000-00-00 00:00:00" &&isset($new)) {
+        if (isset($this->start_date) && $this->start_date != '0000-00-00 00:00:00' && isset($new)) {
             $startDate = Carbon::parse($this->start_date);
             $newEstimateDate = Carbon::parse($new);
-            if($newEstimateDate->lte($startDate)) {
-                throw new Exception("Estimate date must be greater then start date.");
+            if ($newEstimateDate->lte($startDate)) {
+                throw new Exception('Estimate date must be greater then start date.');
             }
         }
 
@@ -436,6 +436,6 @@ class Task extends Model
 
     public static function getMessagePrefix($obj)
     {
-        return '#TASK-'.$obj->id.'-'.$obj->task_subject.' => ';
+        return '#TASK-' . $obj->id . '-' . $obj->task_subject . ' => ';
     }
 }

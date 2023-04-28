@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Database\Structure;
 
 use function count;
+use PhpMyAdmin\Util;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Controllers\Database\AbstractController;
 use PhpMyAdmin\Controllers\Database\StructureController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
 
 final class AddPrefixTableController extends AbstractController
 {
@@ -43,11 +43,11 @@ final class AddPrefixTableController extends AbstractController
         $selectedCount = count($selected);
 
         for ($i = 0; $i < $selectedCount; $i++) {
-            $newTableName = $_POST['add_prefix'].$selected[$i];
-            $aQuery = 'ALTER TABLE '.Util::backquote($selected[$i])
-                .' RENAME '.Util::backquote($newTableName);
+            $newTableName = $_POST['add_prefix'] . $selected[$i];
+            $aQuery = 'ALTER TABLE ' . Util::backquote($selected[$i])
+                . ' RENAME ' . Util::backquote($newTableName);
 
-            $sql_query .= $aQuery.';'."\n";
+            $sql_query .= $aQuery . ';' . "\n";
             $this->dbi->selectDb($db);
             $this->dbi->query($aQuery);
         }

@@ -9,18 +9,18 @@ namespace PhpMyAdmin\Plugins\Import;
 
 use function __;
 use function count;
+use PhpMyAdmin\File;
 use function implode;
 use function mb_strlen;
+use function preg_replace;
 use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\File;
 use PhpMyAdmin\Plugins\ImportPlugin;
+use PhpMyAdmin\SqlParser\Utils\BufferedQuery;
+use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
+use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
+use PhpMyAdmin\Properties\Options\Items\SelectPropertyItem;
 use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
 use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
-use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
-use PhpMyAdmin\Properties\Options\Items\SelectPropertyItem;
-use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
-use PhpMyAdmin\SqlParser\Utils\BufferedQuery;
-use function preg_replace;
 
 /**
  * Handles the import for the SQL format
@@ -186,7 +186,7 @@ class ImportSql extends ImportPlugin
         }
 
         $dbi->tryQuery(
-            'SET SQL_MODE="'.implode(',', $sql_modes).'"'
+            'SET SQL_MODE="' . implode(',', $sql_modes) . '"'
         );
     }
 }

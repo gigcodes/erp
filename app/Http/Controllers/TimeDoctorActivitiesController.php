@@ -2,43 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\DeveloperTask;
-use App\DeveloperTaskHistory;
-use App\TimeDoctor\TimeDoctorAccount;
-use App\TimeDoctor\TimeDoctorMember;
-use App\TimeDoctor\TimeDoctorProject;
-use App\TimeDoctor\TimeDoctorTask;
-use App\TimeDoctor\TimeDoctorActivity;
-use App\TimeDoctor\TimeDoctorTaskNote;
-use App\TimeDoctor\TimeDoctorTaskEfficiency;
-use App\TimeDoctor\TimeDoctorActivitySummary;
-use App\TimeDoctor\TimeDoctorActivityByPaymentFrequency;
-
-use App\Exports\TimeDoctorActivityReport;
-use App\Exports\TimeDoctorNotificationReport;
-use App\Loggers\TimeDoctorCommandLogMessage;
-use App\Mails\Manual\DocumentEmail;
-use App\PayentMailData;
-use App\Payment;
-use App\PaymentReceipt;
+use DB;
+use Auth;
 use App\Task;
 use App\Team;
 use App\User;
+use App\Payment;
 use App\UserRate;
-use App\UserTrackTime;
-use Auth;
 use Carbon\Carbon;
-use DB;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Library\TimeDoctor\Src\Timedoctor;
+use App\DeveloperTask;
+
+use App\PayentMailData;
+use App\PaymentReceipt;
 use App\UserAvaibility;
+use Illuminate\Http\Request;
+use App\DeveloperTaskHistory;
+use App\TimeDoctor\TimeDoctorTask;
+use App\Mails\Manual\DocumentEmail;
+use Illuminate\Support\Facades\Log;
+use App\TimeDoctor\TimeDoctorMember;
+use Maatwebsite\Excel\Facades\Excel;
+use App\TimeDoctor\TimeDoctorActivity;
+use App\TimeDoctor\TimeDoctorTaskNote;
+use App\Exports\TimeDoctorActivityReport;
+use Illuminate\Support\Facades\Validator;
+use App\Library\TimeDoctor\Src\Timedoctor;
+use App\Loggers\TimeDoctorCommandLogMessage;
+use App\TimeDoctor\TimeDoctorTaskEfficiency;
+use App\Exports\TimeDoctorNotificationReport;
+use App\TimeDoctor\TimeDoctorActivitySummary;
+use App\TimeDoctor\TimeDoctorActivityByPaymentFrequency;
 
 class TimeDoctorActivitiesController extends Controller
 {
     public $timedoctor;
+
     public function __construct()
     {
         $this->timedoctor = Timedoctor::getInstance();
@@ -79,11 +77,11 @@ class TimeDoctorActivitiesController extends Controller
         }
 
         if ($request->start_date != null) {
-            $records = $records->whereDate('start_date', '>=', $request->start_date.' 00:00:00');
+            $records = $records->whereDate('start_date', '>=', $request->start_date . ' 00:00:00');
         }
 
         if ($request->end_date != null) {
-            $records = $records->whereDate('start_date', '<=', $request->end_date.' 23:59:59');
+            $records = $records->whereDate('start_date', '<=', $request->end_date . ' 23:59:59');
         }
 
         $records = $records->select([
@@ -93,10 +91,10 @@ class TimeDoctorActivitiesController extends Controller
             'u.name as total_working_hour',
         ])
             ->orderBy('total_track', 'desc')->get();
-        
+
         /*$records = \App\TimeDoctor\TimeDoctorActivityNotification::join('users as u', 'time_doctor_activity_notifications.user_id', 'u.id');
 
-        $records->leftJoin('user_avaibilities as av', 'time_doctor_activity_notifications.user_id', 'av.user_id');        
+        $records->leftJoin('user_avaibilities as av', 'time_doctor_activity_notifications.user_id', 'av.user_id');
 
         $records = $records->select([
             'time_doctor_activity_notifications.*',
@@ -105,12 +103,11 @@ class TimeDoctorActivitiesController extends Controller
             'u.name as total_working_hour',
         ])
             ->orderBy('total_track', 'desc')->get();*/
-        
+
         $recordsArr = [];
 
         $totalUserTrack = 0;
         $display_user_total_hour = 0;
-
 
         foreach ($records as $row) {
             $totalUserTrack = $totalUserTrack + $row->total_track;
@@ -119,7 +116,7 @@ class TimeDoctorActivitiesController extends Controller
 
             $thours = floor($row->total_track / 3600);
             $tminutes = floor(($row->total_track / 60) % 60);
-            $twork = $thours.':'.sprintf('%02d', $tminutes);
+            $twork = $thours . ':' . sprintf('%02d', $tminutes);
 
             $difference = (($row->daily_working_hour * 60 * 60) - $row->total_track);
 
@@ -144,7 +141,7 @@ class TimeDoctorActivitiesController extends Controller
             if ($latest_message) {
                 $latest_msg = $latest_message->message;
                 if (strlen($latest_message->message) > 20) {
-                    $latest_msg = substr($latest_message->message, 0, 20).'...';
+                    $latest_msg = substr($latest_message->message, 0, 20) . '...';
                 }
             }
             $recordsArr[] = [
@@ -155,7 +152,7 @@ class TimeDoctorActivitiesController extends Controller
                 'start_date' => Carbon::parse($row->start_date)->format('Y-m-d'),
                 'daily_working_hour' => $dwork,
                 'total_working_hour' => $twork,
-                'different' => $sign.$hours.':'.$minutes,
+                'different' => $sign . $hours . ':' . $minutes,
                 'min_percentage' => $row->min_percentage,
                 'actual_percentage' => $row->actual_percentage,
                 'reason' => $row->reason,
@@ -170,7 +167,7 @@ class TimeDoctorActivitiesController extends Controller
         if ($request->user_id) {
             $hrs = floor($totalUserTrack / 3600);
             $mnts = floor(($totalUserTrack / 60) % 60);
-            $display_user_total_hour = $hrs.':'.sprintf('%02d', $mnts);
+            $display_user_total_hour = $hrs . ':' . sprintf('%02d', $mnts);
         }
 
         return response()->json([
@@ -201,11 +198,11 @@ class TimeDoctorActivitiesController extends Controller
         }
 
         if ($request->start_date != null) {
-            $records = $records->whereDate('start_date', '>=', $request->start_date.' 00:00:00');
+            $records = $records->whereDate('start_date', '>=', $request->start_date . ' 00:00:00');
         }
 
         if ($request->end_date != null) {
-            $records = $records->whereDate('start_date', '<=', $request->end_date.' 23:59:59');
+            $records = $records->whereDate('start_date', '<=', $request->end_date . ' 23:59:59');
         }
 
         $records = $records->select([
@@ -215,7 +212,6 @@ class TimeDoctorActivitiesController extends Controller
             'u.name as total_working_hour',
         ])
             ->latest()->get();
-        
 
         $recordsArr = [];
         foreach ($records as $row) {
@@ -223,7 +219,7 @@ class TimeDoctorActivitiesController extends Controller
 
             $thours = floor($row->total_track / 3600);
             $tminutes = floor(($row->total_track / 60) % 60);
-            $twork = $thours.':'.sprintf('%02d', $tminutes);
+            $twork = $thours . ':' . sprintf('%02d', $tminutes);
 
             $difference = (($row->daily_working_hour * 60 * 60) - $row->total_track);
 
@@ -244,7 +240,7 @@ class TimeDoctorActivitiesController extends Controller
                 'start_date' => Carbon::parse($row->start_date)->format('Y-m-d'),
                 'daily_working_hour' => $dwork,
                 'total_working_hour' => $twork,
-                'different' => $sign.$hours.':'.$minutes,
+                'different' => $sign . $hours . ':' . $minutes,
                 'min_percentage' => $row->min_percentage,
                 'actual_percentage' => $row->actual_percentage,
                 'reason' => $row->reason,
@@ -253,14 +249,14 @@ class TimeDoctorActivitiesController extends Controller
             ];
         }
 
-        $filename = 'Report-'.request('start_date').'-To-'.request('end_date').'.csv';
+        $filename = 'Report-' . request('start_date') . '-To-' . request('end_date') . '.csv';
 
         return Excel::download(new TimeDoctorNotificationReport($recordsArr), $filename);
     }
 
     public function notificationReasonSave(Request $request)
     {
-        if ($request->id != null) {            
+        if ($request->id != null) {
             $tdnotification = \App\TimeDoctor\TimeDoctorActivityNotification::find($request->id);
             if ($tdnotification != null) {
                 $tdnotification->reason = $request->reason;
@@ -278,7 +274,7 @@ class TimeDoctorActivitiesController extends Controller
         if (! auth()->user()->isAdmin()) {
             return response()->json(['code' => 500, 'data' => [], 'message' => 'only admin can change status.']);
         }
-        if ($request->id != null) {            
+        if ($request->id != null) {
             $tdnotification = \App\TimeDoctor\TimeDoctorActivityNotification::find($request->id);
             if ($tdnotification != null) {
                 $tdnotification->status = $request->status;
@@ -306,7 +302,7 @@ class TimeDoctorActivitiesController extends Controller
             $data['email'] = $user->email;
             $data['title'] = 'Time Doctor Activities Report';
 
-            $tasks = PaymentReceipt::with('chat_messages', 'user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();            
+            $tasks = PaymentReceipt::with('chat_messages', 'user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
 
             foreach ($tasks as $task) {
                 $task->user;
@@ -360,9 +356,9 @@ class TimeDoctorActivitiesController extends Controller
                 $a['details'] = $task->details;
 
                 if ($task->task_id) {
-                    $category = 'Task #'.$task->task_id;
+                    $category = 'Task #' . $task->task_id;
                 } elseif ($task->developer_task_id) {
-                    $category = 'Devtask #'.$task->developer_task_id;
+                    $category = 'Devtask #' . $task->developer_task_id;
                 } else {
                     $category = 'Manual';
                 }
@@ -470,8 +466,8 @@ class TimeDoctorActivitiesController extends Controller
             $tasks = PaymentReceipt::with('chat_messages', 'user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
 
             $taskIds = PaymentReceipt::with('chat_messages', 'user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->pluck('id');
-            if (isset( $time_doctor_log ) ) {
-                $time_doctor_log->message = $time_doctor_log->message.'-->get payment receipt_in  date '.json_encode($taskIds);
+            if (isset($time_doctor_log)) {
+                $time_doctor_log->message = $time_doctor_log->message . '-->get payment receipt_in  date ' . json_encode($taskIds);
                 $time_doctor_log->save();
             }
             //            dd($taskIds);
@@ -527,9 +523,9 @@ class TimeDoctorActivitiesController extends Controller
                 $a['details'] = $task->details;
 
                 if ($task->task_id) {
-                    $category = 'Task #'.$task->task_id;
+                    $category = 'Task #' . $task->task_id;
                 } elseif ($task->developer_task_id) {
-                    $category = 'Devtask #'.$task->developer_task_id;
+                    $category = 'Devtask #' . $task->developer_task_id;
                 } else {
                     $category = 'Manual';
                 }
@@ -549,7 +545,7 @@ class TimeDoctorActivitiesController extends Controller
             $user_id = $request->user_id ? $request->user_id : null;
             $task_id = $request->task_id ? $request->task_id : null;
             $task_status = $request->task_status ? $request->task_status : null;
-            $developer_task_id = $request->developer_task_id ? $request->developer_task_id : null;            
+            $developer_task_id = $request->developer_task_id ? $request->developer_task_id : null;
 
             $taskIds = [];
             if (! empty($developer_task_id)) {
@@ -588,18 +584,18 @@ class TimeDoctorActivitiesController extends Controller
                         $taskIds[] = $developer_tasks->lead_time_doctor_task_id;
                     }
                 }
-            }            
+            }
 
-            if (! empty($taskIds) || ! empty($task_id) || ! empty($developer_task_id)) {                
+            if (! empty($taskIds) || ! empty($task_id) || ! empty($developer_task_id)) {
                 $query = TimeDoctorActivity::leftJoin('time_doctor_members', 'time_doctor_members.time_doctor_user_id', '=', 'time_doctor_activities.user_id')->whereIn('time_doctor_activities.task_id', $taskIds)->whereDate('time_doctor_activities.starts_at', '>=', $start_date)->whereDate('time_doctor_activities.starts_at', '<=', $end_date);
-            } else {                
+            } else {
                 $query = TimeDoctorActivity::leftJoin('time_doctor_members', 'time_doctor_members.time_doctor_user_id', '=', 'time_doctor_activities.user_id')->whereDate('time_doctor_activities.starts_at', '>=', $start_date)->whereDate('time_doctor_activities.starts_at', '<=', $end_date);
             }
 
             if (Auth::user()->isAdmin()) {
                 $query = $query;
                 $users = User::all()->pluck('name', 'id')->toArray();
-            } else {                
+            } else {
                 $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
 
                 if (! count($members)) {
@@ -621,10 +617,10 @@ class TimeDoctorActivitiesController extends Controller
             time_doctor_activities.user_id,
             SUM(time_doctor_activities.tracked) as total_tracked,DATE(time_doctor_activities.starts_at) as date,time_doctor_members.user_id as system_user_id')
             )->groupBy('date', 'system_user_id')->orderBy('date', 'desc')->get();
-            
-            $activityUsers = collect([]);      
 
-            foreach ($activities as $activity) {                                
+            $activityUsers = collect([]);
+
+            foreach ($activities as $activity) {
                 $a = [];
 
                 $efficiencyObj = TimeDoctorTaskEfficiency::where('user_id', $activity->user_id)->first();
@@ -635,7 +631,7 @@ class TimeDoctorActivitiesController extends Controller
                     $a['user_efficiency'] = $efficiencyObj->user_input;
                     $a['efficiency'] = (Auth::user()->isAdmin()) ? $efficiencyObj->admin_input : $efficiencyObj->user_input;
 
-                    Log::channel('time_doctor_activity_command')->info('check: time doctor activity id > 0'.$efficiencyObj->id.' and ingormattion'.json_encode($a));
+                    Log::channel('time_doctor_activity_command')->info('check: time doctor activity id > 0' . $efficiencyObj->id . ' and ingormattion' . json_encode($a));
                 } else {
                     $a['admin_efficiency'] = '';
                     $a['user_efficiency'] = '';
@@ -666,27 +662,25 @@ class TimeDoctorActivitiesController extends Controller
                     $activity->user_id_data = '';
                 }
 
-                
                 $ac_data = $query->select(
-                            DB::raw('
+                    DB::raw('
                         time_doctor_activities.user_id,
                         SUM(time_doctor_activities.tracked) as total_tracked,DATE(time_doctor_activities.starts_at) as date,time_doctor_members.user_id as system_user_id')
-                        )->where('time_doctor_members.user_id',$activity->system_user_id)->groupBy('date', 'user_id')->orderBy('date', 'desc')->get();
-                
+                )->where('time_doctor_members.user_id', $activity->system_user_id)->groupBy('date', 'user_id')->orderBy('date', 'desc')->get();
+
                 $ac_user_id = [];
                 $ac_user_count = 0;
-                
-                foreach($ac_data as $data){
-                    $ac_user_id[] = "'".$data->user_id."'";
-                }
-                $ac_user_id = implode(',',$ac_user_id);                
 
-                // send time doctor activities           
+                foreach ($ac_data as $data) {
+                    $ac_user_id[] = "'" . $data->user_id . "'";
+                }
+                $ac_user_id = implode(',', $ac_user_id);
+
+                // send time doctor activities
                 $ac = [];
-                if($ac_user_id != ''){
-                    $ac = DB::select(DB::raw("SELECT time_doctor_activities.* FROM time_doctor_activities where DATE(starts_at) = '".$activity->date."' and time_doctor_activities.user_id IN(".$ac_user_id.")"));
+                if ($ac_user_id != '') {
+                    $ac = DB::select(DB::raw("SELECT time_doctor_activities.* FROM time_doctor_activities where DATE(starts_at) = '" . $activity->date . "' and time_doctor_activities.user_id IN(" . $ac_user_id . ')'));
                 }
-
 
                 $totalApproved = 0;
                 $totalPending = 0;
@@ -700,35 +694,35 @@ class TimeDoctorActivitiesController extends Controller
                             $task = DeveloperTask::where('id', $ar->task_id)->first();
                             if ($task) {
                                 $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : 'N/A';
-                                $taskSubject = $ar->task_id.'||#DEVTASK-'.$task->id.'-'.$task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
+                                $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject . "||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
                                 Log::channel('time_doctor_activity_command')->info('task true ');
                             } else {
                                 $task = Task::where('id', $ar->task_id)->first();
                                 if ($task) {
                                     $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : 'N/A';
-                                    $taskSubject = $ar->task_id.'||#TASK-'.$task->id.'-'.$task->task_subject."||#TASK-$task->id||$estMinutes||$task->status||$task->id";
+                                    $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject . "||#TASK-$task->id||$estMinutes||$task->status||$task->id";
                                 }
                             }
-                        } else {                            
-                            $tracked = $ar->tracked;                                                        
-                            $task = DeveloperTask::where('time_doctor_task_id', 'like','%'.$ar->task_id.'%')->orWhere('lead_time_doctor_task_id','like','%'. $ar->task_id.'%')->first();
+                        } else {
+                            $tracked = $ar->tracked;
+                            $task = DeveloperTask::where('time_doctor_task_id', 'like', '%' . $ar->task_id . '%')->orWhere('lead_time_doctor_task_id', 'like', '%' . $ar->task_id . '%')->first();
                             if ($task && empty($task_id)) {
                                 $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : 'N/A';
-                                $taskSubject = $ar->task_id.'||#DEVTASK-'.$task->id.'-'.$task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
+                                $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject . "||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
                             } else {
-                                $task = Task::where('time_doctor_task_id', 'like', '%'.$ar->task_id.'%')->orWhere('lead_time_doctor_task_id', 'like', '%'.$ar->task_id.'%')->first();                                
+                                $task = Task::where('time_doctor_task_id', 'like', '%' . $ar->task_id . '%')->orWhere('lead_time_doctor_task_id', 'like', '%' . $ar->task_id . '%')->first();
                                 if ($task && empty($developer_task_id)) {
                                     $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : 'N/A';
-                                    $taskSubject = $ar->task_id.'||#TASK-'.$task->id.'-'.$task->task_subject."||#TASK-$task->id||$estMinutes||$task->status||$task->id";
+                                    $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject . "||#TASK-$task->id||$estMinutes||$task->status||$task->id";
                                 }
                             }
                         }
                     }
                     $lsTask[] = $taskSubject;
-                }                
-                
-                Log::channel('time_doctor_activity_command')->info('ls task array'.json_encode($lsTask));
-                $a['tasks'] = array_unique($lsTask);     
+                }
+
+                Log::channel('time_doctor_activity_command')->info('ls task array' . json_encode($lsTask));
+                $a['tasks'] = array_unique($lsTask);
 
                 $timeDoctorActivitySummery = TimeDoctorActivitySummary::where('date', $activity->date)->where('user_id', $activity->system_user_id)->orderBy('created_at', 'desc')->first();
 
@@ -925,7 +919,7 @@ class TimeDoctorActivitiesController extends Controller
                         $activityUsers->push($a);
                     }
                     Log::channel('time_doctor_activity_command')->info('end status new condition');
-                } else {                    
+                } else {
                     if ($timeDoctorActivitySummery) {
                         if ($timeDoctorActivitySummery->forworded_person == 'admin') {
                             if ($timeDoctorActivitySummery->final_approval == 1) {
@@ -982,10 +976,9 @@ class TimeDoctorActivitiesController extends Controller
                     $a['user_id_data'] = $activity->user_id_data;
                     $activityUsers->push($a);
                 }
-            }            
-            
+            }
         }
-        
+
         if ($request->submit == 'report_download') {
             $total_amount = 0;
             $total_amount_paid = 0;
@@ -995,16 +988,16 @@ class TimeDoctorActivitiesController extends Controller
                 $total_amount_paid += $value['amount_paid'] ?? 0;
                 $total_balance += $value['balance'] ?? 0;
             }
-            if ( isset( $time_doctor_log )) {
-                $time_doctor_log->message = $time_doctor_log->message.'-->activityUsers '.json_encode($activityUsers);
+            if (isset($time_doctor_log)) {
+                $time_doctor_log->message = $time_doctor_log->message . '-->activityUsers ' . json_encode($activityUsers);
                 $time_doctor_log->save();
             }
 
             $file_data = $this->downloadExcelReport($activityUsers);
-            $path = $file_data;       
+            $path = $file_data;
 
             $today = Carbon::now()->toDateTimeString();
-            $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);            
+            $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
             $storage_path = $path;
 
             PayentMailData::create([
@@ -1018,8 +1011,8 @@ class TimeDoctorActivitiesController extends Controller
                 'payment_date' => $payment_date,
             ]);
 
-            if ( isset( $time_doctor_log )) {
-                $time_doctor_log->message = $time_doctor_log->message.'-->PayentMailData '.json_encode([
+            if (isset($time_doctor_log)) {
+                $time_doctor_log->message = $time_doctor_log->message . '-->PayentMailData ' . json_encode([
                     'user_id' => $user_id,
                     'start_date' => $start_date,
                     'end_date' => $end_date,
@@ -1069,14 +1062,14 @@ class TimeDoctorActivitiesController extends Controller
     public function submitManualRecords(Request $request)
     {
         if ($request->starts_at && $request->starts_at != '' && $request->total_time > 0 && $request->task_id > 0) {
-            $member = TimeDoctorMember::where('user_id', Auth::user()->id)->first();            
+            $member = TimeDoctorMember::where('user_id', Auth::user()->id)->first();
             if ($member) {
-                $firstId = TimeDoctorActivity::orderBy('id', 'asc')->first();                
+                $firstId = TimeDoctorActivity::orderBy('id', 'asc')->first();
                 if ($firstId) {
                     $previd = $firstId->id - 1;
                 } else {
                     $previd = 1;
-                }                
+                }
 
                 if (! $request->user_notes) {
                     $request->user_notes = '';
@@ -1086,7 +1079,7 @@ class TimeDoctorActivitiesController extends Controller
                 $activity->task_id = $request->task_id;
                 $activity->user_id = $member->time_doctor_user_id;
                 $activity->starts_at = $request->starts_at;
-                $activity->tracked = $request->total_time * 60;                
+                $activity->tracked = $request->total_time * 60;
                 $activity->overall = 0;
                 $activity->status = 0;
                 $activity->is_manual = 1;
@@ -1123,18 +1116,17 @@ class TimeDoctorActivitiesController extends Controller
             return response()->json(['message' => 'Time Doctor member not found'], 500);
         }
         $timeReceived = 0;
-        try {            
-
+        try {
             $now = time();
 
             $startString = $starts_at;
             $endString = $ends_at;
             $userIds = $time_doctor_user_id;
             $userIds = explode(',', $userIds);
-            $userIds = array_filter($userIds);            
+            $userIds = array_filter($userIds);
 
-            $start = strtotime($startString.' 00:00:00'.' UTC');
-            $now = strtotime($endString.' 23:59:59'.' UTC');
+            $start = strtotime($startString . ' 00:00:00' . ' UTC');
+            $now = strtotime($endString . ' 23:59:59' . ' UTC');
 
             $diff = $now - $start;
             $dayDiff = round($diff / 86400);
@@ -1147,7 +1139,7 @@ class TimeDoctorActivitiesController extends Controller
                 return response()->json(['message' => 'Can not fetch activities as no activities found'], 500);
             }
             if (! empty($activities)) {
-                foreach( $activities as $activity){                
+                foreach ($activities as $activity) {
                     TimeDoctorActivity::create([
                         'user_id' => $activity['user_id'],
                         'task_id' => is_null($activity['task_id']) ? 0 : $activity['task_id'],
@@ -1164,7 +1156,7 @@ class TimeDoctorActivitiesController extends Controller
 
         $timeReceived = number_format(($timeReceived / 60), 2, '.', '');
 
-        return response()->json(['message' => 'Fetched activities total time : '.$timeReceived], 200);
+        return response()->json(['message' => 'Fetched activities total time : ' . $timeReceived], 200);
     }
 
     public function downloadExcelReport($activityUsers)
@@ -1175,8 +1167,8 @@ class TimeDoctorActivitiesController extends Controller
             $user = User::where('id', Auth::user()->id)->first();
         }
         $activities[] = $activityUsers;
-        
-        $path = 'time_doctor_payment_activity/'.Carbon::now()->format('Y-m-d-H-m-s').'_time_doctor_payment_activity.xlsx';
+
+        $path = 'time_doctor_payment_activity/' . Carbon::now()->format('Y-m-d-H-m-s') . '_time_doctor_payment_activity.xlsx';
         Excel::store(new TimeDoctorActivityReport($activities), $path, 'files');
 
         return $path;
@@ -1189,7 +1181,7 @@ class TimeDoctorActivitiesController extends Controller
         $end_date = $request->end_date ? $request->end_date : date('Y-m-d');
         $user_id = $request->user_id ? $request->user_id : null;
         if ($user_id) {
-            $activityUsers = DB::select(DB::raw('select system_user_id, sum(tracked) as total_tracked,starts_at from (select a.* from (SELECT time_doctor_activities.id,time_doctor_activities.user_id,cast(time_doctor_activities.starts_at as date) as starts_at,time_doctor_activities.status,time_doctor_activities.paid,time_doctor_members.user_id as system_user_id,time_doctor_activities.tracked FROM `time_doctor_activities` left outer join time_doctor_members on time_doctor_members.time_doctor_user_id = time_doctor_activities.user_id where time_doctor_activities.status = 1 and time_doctor_activities.paid = 0 and time_doctor_members.user_id = '.$user_id.') as a left outer join payment_receipts on a.system_user_id = payment_receipts.user_id where a.starts_at <= payment_receipts.date) as b group by starts_at,system_user_id'));
+            $activityUsers = DB::select(DB::raw('select system_user_id, sum(tracked) as total_tracked,starts_at from (select a.* from (SELECT time_doctor_activities.id,time_doctor_activities.user_id,cast(time_doctor_activities.starts_at as date) as starts_at,time_doctor_activities.status,time_doctor_activities.paid,time_doctor_members.user_id as system_user_id,time_doctor_activities.tracked FROM `time_doctor_activities` left outer join time_doctor_members on time_doctor_members.time_doctor_user_id = time_doctor_activities.user_id where time_doctor_activities.status = 1 and time_doctor_activities.paid = 0 and time_doctor_members.user_id = ' . $user_id . ') as a left outer join payment_receipts on a.system_user_id = payment_receipts.user_id where a.starts_at <= payment_receipts.date) as b group by starts_at,system_user_id'));
         } else {
             $activityUsers = DB::select(DB::raw('select system_user_id, sum(tracked) as total_tracked,starts_at from (select a.* from (SELECT time_doctor_activities.id,time_doctor_activities.user_id,cast(time_doctor_activities.starts_at as date) as starts_at,time_doctor_activities.status,time_doctor_activities.paid,time_doctor_members.user_id as system_user_id,time_doctor_activities.tracked FROM `time_doctor_activities` left outer join time_doctor_members on time_doctor_members.time_doctor_user_id = time_doctor_activities.user_id where time_doctor_activities.status = 1 and time_doctor_activities.paid = 0) as a left outer join payment_receipts on a.system_user_id = payment_receipts.user_id where a.starts_at <= payment_receipts.date) as b group by starts_at,system_user_id'));
         }
@@ -1232,7 +1224,7 @@ class TimeDoctorActivitiesController extends Controller
         if ($request->activities && count($request->activities) > 0) {
             $approved = 0;
             foreach ($request->activities as $id) {
-                $timeDoctorActivity = TimeDoctorActivity::where('id', $id)->first();                
+                $timeDoctorActivity = TimeDoctorActivity::where('id', $id)->first();
                 $approved = $approved + $timeDoctorActivity->tracked;
                 $approvedArr[] = $id;
             }
@@ -1253,7 +1245,7 @@ class TimeDoctorActivitiesController extends Controller
             if (! $request->rejection_note) {
                 $request->rejection_note = '';
             } else {
-                $request->rejection_note = $request->previous_remarks.' || '.$request->rejection_note.' ( '.Auth::user()->name.' ) ';
+                $request->rejection_note = $request->previous_remarks . ' || ' . $request->rejection_note . ' ( ' . Auth::user()->name . ' ) ';
             }
 
             $timeDoctorActivitySummery = new TimeDoctorActivitySummary;
@@ -1292,10 +1284,10 @@ class TimeDoctorActivitiesController extends Controller
             FROM 
                 time_doctor_activities 
             where 
-                DATE(starts_at) = "'.$request->date.'" 
-                and user_id = "'.$request->user_id.'"
+                DATE(starts_at) = "' . $request->date . '" 
+                and user_id = "' . $request->user_id . '"
             GROUP BY 
-                hour(starts_at) , day(starts_at)';            
+                hour(starts_at) , day(starts_at)';
 
         $activityrecords = DB::select(
             DB::raw($qry)
@@ -1340,9 +1332,9 @@ class TimeDoctorActivitiesController extends Controller
                 SELECT time_doctor_activities.* 
                 FROM time_doctor_activities 
                 where 
-                    DATE(starts_at) = '".$request->date."' 
-                and user_id = '".$request->user_id."' 
-                and hour(starts_at) = '".$record->onHour."'")
+                    DATE(starts_at) = '" . $request->date . "' 
+                and user_id = '" . $request->user_id . "' 
+                and hour(starts_at) = '" . $record->onHour . "'")
             );
             // _p($activities);
 
@@ -1380,22 +1372,22 @@ class TimeDoctorActivitiesController extends Controller
                     if ($a->is_manual) {
                         $task = DeveloperTask::where('id', $a->task_id)->first();
                         if ($task) {
-                            $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
+                            $taskSubject = '#DEVTASK-' . $task->id . '-' . $task->subject;
                         } else {
                             $task = Task::where('id', $a->task_id)->first();
                             if ($task) {
-                                $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
+                                $taskSubject = '#TASK-' . $task->id . '-' . $task->task_subject;
                             }
                         }
                         $taskStatus = $task->status ?? null;
                     } else {
                         $task = DeveloperTask::where('time_doctor_task_id', $a->task_id)->orWhere('lead_time_doctor_task_id', $a->task_id)->first();
                         if ($task) {
-                            $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
+                            $taskSubject = '#DEVTASK-' . $task->id . '-' . $task->subject;
                         } else {
                             $task = Task::where('time_doctor_task_id', $a->task_id)->orWhere('lead_time_doctor_task_id', $a->task_id)->first();
                             if ($task) {
-                                $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
+                                $taskSubject = '#TASK-' . $task->id . '-' . $task->task_subject;
                             }
                         }
                         $taskStatus = $task->status ?? null;
@@ -1430,7 +1422,6 @@ class TimeDoctorActivitiesController extends Controller
             $taskOwner = true;
         }
         $date = $request->date;
-  
 
         $member = TimeDoctorMember::where('time_doctor_user_id', $request->user_id)->first();
 
@@ -1471,7 +1462,7 @@ class TimeDoctorActivitiesController extends Controller
 
     public function finalSubmit(Request $request)
     {
-        try{
+        try {
             $info_log = [];
             $info_log[] = 'Come to final Submit';
             $approvedArr = [];
@@ -1523,14 +1514,14 @@ class TimeDoctorActivitiesController extends Controller
             $rejection_note = '';
             $prev = '';
             if ($request->previous_remarks) {
-                $prev = $request->previous_remarks.' || ';
+                $prev = $request->previous_remarks . ' || ';
             }
 
-            $rejection_note = $prev.$request->rejection_note;
+            $rejection_note = $prev . $request->rejection_note;
             if ($rejection_note != '') {
-                $rejection_note = $rejection_note.' ( '.Auth::user()->name.' ) ';
+                $rejection_note = $rejection_note . ' ( ' . Auth::user()->name . ' ) ';
             }
-            $info_log[] = 'activities count  -->'.count($request->activities);
+            $info_log[] = 'activities count  -->' . count($request->activities);
             if ($request->activities && count($request->activities) > 0) {
                 $dateWise = [];
                 foreach ($request->activities as $id) {
@@ -1629,7 +1620,7 @@ class TimeDoctorActivitiesController extends Controller
                                 $timeDocActivitySummery->pending_ids = json_encode($pendids);
                                 $timeDocActivitySummery->sender = Auth::user()->id;
                                 $timeDocActivitySummery->receiver = Auth::user()->id;
-                                $timeDocActivitySummery->rejection_note = $rejection_note.PHP_EOL.$timeDocActivitySummery->rejection_note;
+                                $timeDocActivitySummery->rejection_note = $rejection_note . PHP_EOL . $timeDocActivitySummery->rejection_note;
                                 $timeDocActivitySummery->save();
                             } else {
                                 $timeDocActivitySummery = new TimeDoctorActivitySummary;
@@ -1853,38 +1844,38 @@ class TimeDoctorActivitiesController extends Controller
                 $payment_receipt = PaymentReceipt::where('user_id', $user_id)->where('date', $request->date)->first();
 
                 if ($payment_receipt) {
-                    $info_log[] = ' get payment_receipt'.$payment_receipt->id;
+                    $info_log[] = ' get payment_receipt' . $payment_receipt->id;
                     $approved = ($payment_approved ?? 0);
                     $min = $approved / 60;
-                    $info_log[] = ' approved = '.$approved;
-                    $info_log[] = ' min = '.$min;
+                    $info_log[] = ' approved = ' . $approved;
+                    $info_log[] = ' min = ' . $min;
                     $min = number_format($min, 2);
-                    $info_log[] = '  num formate min = '.$min;
+                    $info_log[] = '  num formate min = ' . $min;
                     $hour_rate = $user_rate;
-                    $info_log[] = '  hour_rate = '.$hour_rate;
+                    $info_log[] = '  hour_rate = ' . $hour_rate;
                     $hours = $min / 60;
-                    $info_log[] = '  hours = '.$hours;
+                    $info_log[] = '  hours = ' . $hours;
                     $rate_estimated = $hours * $hour_rate;
-                    $info_log[] = '  rate_estimated = '.$rate_estimated;
+                    $info_log[] = '  rate_estimated = ' . $rate_estimated;
                     $rate_estimated = number_format($rate_estimated, 2);
-                    $info_log[] = 'num formated  rate_estimated = '.$rate_estimated;
+                    $info_log[] = 'num formated  rate_estimated = ' . $rate_estimated;
 
                     PaymentReceipt::where('id', $payment_receipt->id)->update(['worked_minutes' => $min, 'rate_estimated' => $rate_estimated, 'updated_at' => date('Y-m-d H:i:s'), 'hourly_rate' => $hour_rate]);
                 } else {
                     $min = $approved / 60;
-                    $info_log[] = ' min = '.$min;
+                    $info_log[] = ' min = ' . $min;
                     $min = number_format($min, 2);
-                    $info_log[] = '  num formate min = '.$min;
-                    $info_log[] = ' approved = '.$approved;
+                    $info_log[] = '  num formate min = ' . $min;
+                    $info_log[] = ' approved = ' . $approved;
 
                     $hour_rate = $user_rate;
-                    $info_log[] = '  hour_rate = '.$hour_rate;
+                    $info_log[] = '  hour_rate = ' . $hour_rate;
                     $hours = $min / 60;
-                    $info_log[] = '  hours = '.$hours;
+                    $info_log[] = '  hours = ' . $hours;
                     $rate_estimated = $hours * $hour_rate;
-                    $info_log[] = '  rate_estimated = '.$rate_estimated;
+                    $info_log[] = '  rate_estimated = ' . $rate_estimated;
                     $rate_estimated = number_format($rate_estimated, 2);
-                    $info_log[] = 'num formated  rate_estimated = '.$rate_estimated;
+                    $info_log[] = 'num formated  rate_estimated = ' . $rate_estimated;
                     $payment_receipt = new PaymentReceipt;
                     $payment_receipt->date = $request->date;
                     $payment_receipt->worked_minutes = $min;
@@ -1909,26 +1900,25 @@ class TimeDoctorActivitiesController extends Controller
                 }
             }
 
-            \Log::info($info_log);            
+            \Log::info($info_log);
             $requestData = new Request();
             $requestData->setMethod('POST');
             $min = $approved / 60;
             $min = number_format($min, 2);
-            $message = 'Hi, your time for '.$request->date.' has been approved. Total approved time is '.$min.' minutes.';
+            $message = 'Hi, your time for ' . $request->date . ' has been approved. Total approved time is ' . $min . ' minutes.';
             $requestData->request->add(['summery_id' => $timeDocActivitySummery->id, 'message' => $message, 'status' => 1]);
             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'time_approval');
 
             return response()->json([
                 'totalApproved' => $approved,
             ], 200);
-        } catch (\Exception $e){
-            dd( $e );
+        } catch (\Exception $e) {
+            dd($e);
+
             return response()->json([
                 'message' => 'Can not update data',
             ], 500);
-
         }
-
     }
 
     public function activityReport(Request $request)
@@ -1948,7 +1938,7 @@ class TimeDoctorActivitiesController extends Controller
 
     public function timeDoctorPaymentReportDownload(Request $request)
     {
-        $file_path = storage_path('app/files').'/'.$request->file;
+        $file_path = storage_path('app/files') . '/' . $request->file;
 
         return response()->download($file_path);
     }
@@ -1967,17 +1957,17 @@ class TimeDoctorActivitiesController extends Controller
             FROM 
                 time_doctor_activities 
             where 
-                DATE(starts_at) = "'.$request->date.'" 
-                and user_id = "'.$request->user_id.'"
+                DATE(starts_at) = "' . $request->date . '" 
+                and user_id = "' . $request->user_id . '"
             GROUP BY 
                 hour(starts_at) , day(starts_at)';
         $activityrecords = DB::select(DB::raw($qry));
 
         $appArr = [];
 
-        foreach ($activityrecords as $record) {            
+        foreach ($activityrecords as $record) {
             $activities = DB::select(DB::raw("SELECT time_doctor_activities.*
-            FROM time_doctor_activities where DATE(starts_at) = '".$request->date."' and user_id = '".$request->user_id."' and hour(starts_at) = '".$record->onHour."'"));
+            FROM time_doctor_activities where DATE(starts_at) = '" . $request->date . "' and user_id = '" . $request->user_id . "' and hour(starts_at) = '" . $record->onHour . "'"));
 
             foreach ($activities as $value) {
                 array_push($appArr, $value->id);
@@ -2083,8 +2073,8 @@ class TimeDoctorActivitiesController extends Controller
             $query->whereIn('time_doctor_activities.task_id', $taskIds);
         }
 
-        $query->where('time_doctor_activities.starts_at', '>=', $start_date.' 00:00:00');
-        $query->where('time_doctor_activities.starts_at', '<=', $end_date.' 23:59:59');
+        $query->where('time_doctor_activities.starts_at', '>=', $start_date . ' 00:00:00');
+        $query->where('time_doctor_activities.starts_at', '<=', $end_date . ' 23:59:59');
 
         if (Auth::user()->isAdmin()) {
             $users = User::orderBy('name')->pluck('name', 'id')->toArray();
@@ -2125,7 +2115,6 @@ class TimeDoctorActivitiesController extends Controller
             $join->on('time_doctor_activity_summaries.created_at', '=', 'td_summary.created_at');
         });
 
-
         $query->orderBy('time_doctor_activities.starts_at', 'desc');
         $query->groupBy(\DB::raw('DATE(time_doctor_activities.starts_at)'), 'time_doctor_activities.user_id');
 
@@ -2149,29 +2138,28 @@ class TimeDoctorActivitiesController extends Controller
         $activities = $query->get();
 
         if ($printExit) {
-            _p(\DB::getQueryLog());            
+            _p(\DB::getQueryLog());
         }
 
         $userTrack = [];
         foreach ($activities as $activity) {
-            
-            $userSchedule = UserAvaibility::where("user_id", $activity->system_user_id)
-                ->whereDate("from", "<=", $activity->date)
-                ->whereDate("to", ">=", $activity->date)
+            $userSchedule = UserAvaibility::where('user_id', $activity->system_user_id)
+                ->whereDate('from', '<=', $activity->date)
+                ->whereDate('to', '>=', $activity->date)
                 ->orderBy('id', 'desc')->limit(1)->first();
 
             $workingTime = 0;
-            if($userSchedule) {
+            if ($userSchedule) {
                 // calculating the working hour for a perticular date
                 try {
                     $start = Carbon::parse($userSchedule->start_time);
                     $end = Carbon::parse($userSchedule->end_time);
                     $workingTime = $end->diffInMinutes($start);
-    
+
                     $lunch_start = Carbon::parse($userSchedule->lunch_time_from);
                     $lunch_end = Carbon::parse($userSchedule->lunch_time_to);
-                    
-                    if(($lunch_start->gte($start) && $lunch_start->lte($end)) && ($lunch_end->gte($start) && $lunch_end->lte($end))) {
+
+                    if (($lunch_start->gte($start) && $lunch_start->lte($end)) && ($lunch_end->gte($start) && $lunch_end->lte($end))) {
                         $lunchTime = $lunch_end->diffInMinutes($lunch_start);
                         $workingTime = $workingTime - $lunchTime;
                     }
@@ -2209,28 +2197,29 @@ class TimeDoctorActivitiesController extends Controller
         ));
     }
 
-    public function timeDoctorTaskTrackDetails(Request $request){        
-        try{
+    public function timeDoctorTaskTrackDetails(Request $request)
+    {
+        try {
             $getUsers = TimeDoctorMember::where('user_id', $request->user_id)->select('time_doctor_user_id')->get();
-            $taskDetail = TimeDoctorTask::where('time_doctor_task_id', $request->task_id)->first();        
+            $taskDetail = TimeDoctorTask::where('time_doctor_task_id', $request->task_id)->first();
             $taskSummery = $taskDetail->summery;
             $taskDesc = $taskDetail->description;
             $getTask = TimeDoctorTask::where('summery', $taskSummery)->where('description', $taskDesc)->select('time_doctor_task_id')->get();
-            $taskID = array_column($getTask->toArray(), 'time_doctor_task_id');        
+            $taskID = array_column($getTask->toArray(), 'time_doctor_task_id');
             $trackedUser = TimeDoctorActivity::whereIn('task_id', $taskID)->get();
-            $tableData = "";
+            $tableData = '';
 
-            foreach( $trackedUser as $key=>$tuser){
-                $tableData .= "<tr><td>".++$key."</td>";
-                $tableData .= "<td>".$tuser->getTimeDoctorAccount->email."</td>";
-                $tableData .= "<td>".number_format($tuser->tracked / 60,2,".",",")."</td></tr>";
+            foreach ($trackedUser as $key => $tuser) {
+                $tableData .= '<tr><td>' . ++$key . '</td>';
+                $tableData .= '<td>' . $tuser->getTimeDoctorAccount->email . '</td>';
+                $tableData .= '<td>' . number_format($tuser->tracked / 60, 2, '.', ',') . '</td></tr>';
             }
-            return response()->json(['status' => true, 'tableData'=>$tableData], 200);
-        } catch (\Exception $e){
+
+            return response()->json(['status' => true, 'tableData' => $tableData], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Can not load data',
             ], 500);
-
         }
     }
 }

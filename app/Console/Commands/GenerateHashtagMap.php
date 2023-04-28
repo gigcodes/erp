@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Explorer\InstagramExplorer;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Services\Explorer\InstagramExplorer;
 
 class GenerateHashtagMap extends Command
 {

@@ -8,9 +8,9 @@
 
 namespace App\Http\Composers;
 
-use App\Http\Controllers\NotificaitonContoller;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\Auth\Guard;
+use App\Http\Controllers\NotificaitonContoller;
 
 class NotificaitonComposer
 {

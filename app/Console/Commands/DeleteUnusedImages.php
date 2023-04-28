@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use Carbon\Carbon;
 use File;
+use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -70,7 +70,7 @@ class DeleteUnusedImages extends Command
                         continue; // continue if the picture is in use
                     }
 
-                    echo 'removed'.basename($file).'<br />';
+                    echo 'removed' . basename($file) . '<br />';
                     unlink($file); // delete if picture isn't in use
                 }
             }

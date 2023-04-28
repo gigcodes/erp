@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class CheckScraperRunningStatus extends Command
@@ -44,7 +44,7 @@ class CheckScraperRunningStatus extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'scrapper-running.sh 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'scrapper-running.sh 2>&1';
 
         $allOutput = [];
         $allOutput[] = $cmd;

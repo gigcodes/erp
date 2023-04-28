@@ -50,13 +50,13 @@ class DeleteCategoriesWithNoProduct extends Command
             if (! empty($unKnownCatArr)) {
                 $storeUnUserCategory = [];
                 foreach ($unKnownCatArr as $key => $unKnownC) {
-                    $this->info('Started for category :'.$unKnownC);
+                    $this->info('Started for category :' . $unKnownC);
                     $deltaCategories[] = $unKnownC;
                     $unKnownCategory->ignore_category = implode(',', array_filter($deltaCategories));
                     $unKnownCategory->save();
                     if (! in_array($unKnownC, $fixedCategories)) {
                         $count = \App\Category::ScrapedProducts($unKnownC);
-                        $this->info("Product count match ({$count}) :".$unKnownC);
+                        $this->info("Product count match ({$count}) :" . $unKnownC);
                         if ($count <= 0) {
                             $storeUnUserCategory[] = $unKnownC;
                             unset($unKnownCatArr[$key]);
@@ -64,7 +64,7 @@ class DeleteCategoriesWithNoProduct extends Command
                             $unKnownCategory->save();
                         }
                     } else {
-                        $this->info('Already fetched record :'.$unKnownC);
+                        $this->info('Already fetched record :' . $unKnownC);
                     }
                 }
             }

@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use Image;
+use App\Tag;
+use Storage;
 use App\Brand;
-use App\Category;
 use App\Images;
 use App\Setting;
-use App\Tag;
-use Auth;
+use App\Category;
 use Carbon\Carbon;
+use Plank\Mediable\Media;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
-use Image;
-use Plank\Mediable\Media;
-use Storage;
 
 class ImageController extends Controller
 {
@@ -80,8 +80,7 @@ class ImageController extends Controller
             $exploded = explode(',', $request->price);
             $min = $exploded[0];
             $max = 0;
-            if(count($exploded) > 1)
-            {
+            if (count($exploded) > 1) {
                 $max = $exploded[1];
             }
 
@@ -90,8 +89,7 @@ class ImageController extends Controller
             }
 
             $price[0] = $min;
-            if(count($exploded) > 1)
-            {
+            if (count($exploded) > 1) {
                 $price[1] = $max;
             }
         }
@@ -169,8 +167,7 @@ class ImageController extends Controller
             $exploded = explode(',', $request->price);
             $min = $exploded[0];
             $max = 0;
-            if(count($exploded) > 1)
-            {
+            if (count($exploded) > 1) {
                 $max = $exploded[1];
             }
 
@@ -179,8 +176,7 @@ class ImageController extends Controller
             }
 
             $price[0] = $min;
-            if(count($exploded) > 1)
-            {
+            if (count($exploded) > 1) {
                 $price[1] = $max;
             }
         }
@@ -192,7 +188,7 @@ class ImageController extends Controller
                                                   ->renderAsDropdown();
         if (! empty(request('product_name'))) {
             $images->leftjoin('products', 'products.id', '=', 'images.product_id');
-            $images->where('products.name', 'like', '%'.request('product_name').'%');
+            $images->where('products.name', 'like', '%' . request('product_name') . '%');
         }
         $images = $images->select('images.*')->orderBy('id', 'desc')
                     ->groupBy(\DB::raw('ifnull(product_id,images.id)'))
@@ -401,7 +397,6 @@ class ImageController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -412,8 +407,8 @@ class ImageController extends Controller
 
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $key => $image) {
-                $filename = time().$key.'.'.$image->getClientOriginalExtension();
-                $location = public_path('uploads/social-media/').$filename;
+                $filename = time() . $key . '.' . $image->getClientOriginalExtension();
+                $location = public_path('uploads/social-media/') . $filename;
 
                 Image::make($image)->encode('jpg', 65)->save($location);
 
@@ -501,7 +496,6 @@ class ImageController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -516,12 +510,11 @@ class ImageController extends Controller
         if ($request->hasfile('image')) {
             Storage::disk('uploads')->delete("social-media/$image->filename");
 
-            $filename = time().'.'.$request->file('image')->getClientOriginalExtension();
-            if(!is_dir(public_path('uploads/social-media/'))) {
-
+            $filename = time() . '.' . $request->file('image')->getClientOriginalExtension();
+            if (! is_dir(public_path('uploads/social-media/'))) {
                 mkdir(public_path('uploads/social-media/'), 0755, true);
             }
-            $location = public_path('uploads/social-media/').$filename;
+            $location = public_path('uploads/social-media/') . $filename;
 
             Image::make($request->file('image'))->encode('jpg', 65)->save($location);
 
@@ -592,7 +585,7 @@ class ImageController extends Controller
 
         $images_array = [];
         foreach ($images as $image) {
-            $path = public_path('uploads/social-media').'/'.$image->filename;
+            $path = public_path('uploads/social-media') . '/' . $image->filename;
             array_push($images_array, $path);
         }
 
@@ -668,7 +661,7 @@ class ImageController extends Controller
         $image = Images::find($id);
 
         if ($image->filename != '') {
-            $path = public_path('uploads/social-media').'/'.$image->filename;
+            $path = public_path('uploads/social-media') . '/' . $image->filename;
         } else {
             $path = $image->getMedia(config('constants.media_tags'))->first()->getAbsolutePath();
         }
@@ -700,7 +693,7 @@ class ImageController extends Controller
             $postData = json_encode($postData);
             $curl = curl_init();
             curl_setopt_array($curl, [
-                CURLOPT_URL => env('NODE_SCRAPER_SERVER').'api/googleSearchImages',
+                CURLOPT_URL => env('NODE_SCRAPER_SERVER') . 'api/googleSearchImages',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,

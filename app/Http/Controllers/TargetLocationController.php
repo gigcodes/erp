@@ -33,7 +33,6 @@ class TargetLocationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -60,7 +59,6 @@ class TargetLocationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\TargetLocation  $targetLocation
      * @return \Illuminate\Http\Response
      */
     public function show(TargetLocation $targetLocation)
@@ -97,8 +95,6 @@ class TargetLocationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\TargetLocation  $targetLocation
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, TargetLocation $targetLocation)
@@ -109,7 +105,6 @@ class TargetLocationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\TargetLocation  $targetLocation
      * @return \Illuminate\Http\Response
      */
     public function destroy(TargetLocation $targetLocation)

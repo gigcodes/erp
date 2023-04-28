@@ -19,11 +19,11 @@ class ReffringDomain extends Model
     {
         $key = env('KEY');
         $apis = [
-            'referring_domains' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_refdomains&target=searchenginejournal.com&target_type=root_domain&export_columns=domain_ascore,domain,backlinks_num,ip,country,first_seen,last_seen&display_limit=5',
+            'referring_domains' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_refdomains&target=searchenginejournal.com&target_type=root_domain&export_columns=domain_ascore,domain,backlinks_num,ip,country,first_seen,last_seen&display_limit=5',
 
-            'referring_ips' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_refips&target=searchenginejournal.com&target_type=root_domain&export_columns=ip,country,domains_num,backlinks_num,first_seen,last_seen&display_limit=5',
+            'referring_ips' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_refips&target=searchenginejournal.com&target_type=root_domain&export_columns=ip,country,domains_num,backlinks_num,first_seen,last_seen&display_limit=5',
 
-            'referring_domains_by_country' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_geo&target=searchenginejournal.com&target_type=root_domain&export_columns=country,domains_num,backlinks_num&display_limit=5',
+            'referring_domains_by_country' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_geo&target=searchenginejournal.com&target_type=root_domain&export_columns=country,domains_num,backlinks_num&display_limit=5',
         ];
 
         if ($column == null) {

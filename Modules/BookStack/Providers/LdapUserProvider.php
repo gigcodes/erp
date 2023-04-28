@@ -2,8 +2,8 @@
 
 namespace Modules\BookStack\Providers;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Modules\BookStack\Auth\Access\LdapService;
 
 class LdapUserProvider implements UserProvider
@@ -23,7 +23,6 @@ class LdapUserProvider implements UserProvider
     /**
      * LdapUserProvider constructor.
      *
-     * @param    $model
      * @param  \BookStack\Auth\LdapService  $ldapService
      */
     public function __construct($model, LdapService $ldapService)
@@ -39,7 +38,7 @@ class LdapUserProvider implements UserProvider
      */
     public function createModel()
     {
-        $class = '\\'.ltrim($this->model, '\\');
+        $class = '\\' . ltrim($this->model, '\\');
 
         return new $class;
     }
@@ -75,7 +74,6 @@ class LdapUserProvider implements UserProvider
     /**
      * Update the "remember me" token for the given user in storage.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
      * @param  string  $token
      * @return void
      */
@@ -90,7 +88,6 @@ class LdapUserProvider implements UserProvider
     /**
      * Retrieve a user by the given credentials.
      *
-     * @param  array  $credentials
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function retrieveByCredentials(array $credentials)
@@ -122,8 +119,6 @@ class LdapUserProvider implements UserProvider
     /**
      * Validate a user against the given credentials.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
-     * @param  array  $credentials
      * @return bool
      */
     public function validateCredentials(Authenticatable $user, array $credentials)

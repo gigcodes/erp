@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\StoreSocialContentStatus;
 use Illuminate\Http\Request;
+use App\StoreSocialContentStatus;
 use Illuminate\Routing\Controller;
 // use App\StoreDevelopment;
 use Illuminate\Support\Facades\Validator;
@@ -45,7 +45,7 @@ class StoreSocialContentStatusController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -99,7 +99,6 @@ class StoreSocialContentStatusController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -134,7 +133,6 @@ class StoreSocialContentStatusController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -150,7 +148,6 @@ class StoreSocialContentStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -174,7 +171,6 @@ class StoreSocialContentStatusController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {

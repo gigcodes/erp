@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\PurchaseProductOrderLog;
 use App\Sop;
-use App\SopCategory;
-use App\SopPermission; // sop category model
 use App\User;
-// use App\Mail\downloadData;
 use Dompdf\Dompdf;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\SopCategory; // sop category model
+use App\SopPermission;
+// use App\Mail\downloadData;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\PurchaseProductOrderLog;
+use Illuminate\Support\Facades\DB;
 
 class SopController extends Controller
 {
@@ -21,8 +21,8 @@ class SopController extends Controller
         // $users = User::limit(10)->get();
         $usersop = Sop::with(['purchaseProductOrderLogs', 'user']);
         if ($request->get('search')) {
-            $usersop = $usersop->where('name', 'like', '%'.$request->get('search').'%')
-                               ->orWhere('content', 'like', '%'.$request->get('search').'%');
+            $usersop = $usersop->where('name', 'like', '%' . $request->get('search') . '%')
+                               ->orWhere('content', 'like', '%' . $request->get('search') . '%');
         }
 
         $usersop = $usersop->limit(25)->paginate(25);
@@ -56,7 +56,6 @@ class SopController extends Controller
     /**
      * Sop category add in table
      *
-     * @param  Request  $request
      * @return void
      */
     public function categoryStore(Request $request)
@@ -190,7 +189,7 @@ class SopController extends Controller
     public function search(Request $request)
     {
         $searchsop = $request->get('search');
-        $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->paginate(10);
+        $usersop = DB::table('sops')->where('name', 'like', '%' . $searchsop . '%')->paginate(10);
 
         return view('products.sop', compact('usersop'));
     }
@@ -199,7 +198,7 @@ class SopController extends Controller
     {
         $searchsop = $request->get('search');
         if (! empty($searchsop)) {
-            $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->get();
+            $usersop = DB::table('sops')->where('name', 'like', '%' . $searchsop . '%')->get();
         } else {
             $usersop = Sop::all();
         }
@@ -207,18 +206,18 @@ class SopController extends Controller
 
         $html = '';
         foreach ($usersop as $key => $value) {
-            $html .= '<tr id="sid'.$value->id.'" class="parent_tr" data-id="'.$value->id.'">
-                        <td class="sop_table_id">'.$value->id.'</td>
-                            <td class="expand-row-msg" data-name="name" data-id="'.$value->id.'">
-                                <span class="show-short-name-'.$value->id.'">'.Str::limit($value->name, 17, '..').'</span>
-                                <span style="word-break:break-all;" class="show-full-name-'.$value->id.' hidden">'.$value->name.'</span>
+            $html .= '<tr id="sid' . $value->id . '" class="parent_tr" data-id="' . $value->id . '">
+                        <td class="sop_table_id">' . $value->id . '</td>
+                            <td class="expand-row-msg" data-name="name" data-id="' . $value->id . '">
+                                <span class="show-short-name-' . $value->id . '">' . Str::limit($value->name, 17, '..') . '</span>
+                                <span style="word-break:break-all;" class="show-full-name-' . $value->id . ' hidden">' . $value->name . '</span>
                             </td>
-                            <td class="expand-row-msg Website-task " data-name="content" data-id="'.$value->id.'">
-                                <span class="show-short-content-{{$value->id}}">'.Str::limit($value->content, 50, '..').'</span>
-                                <span style="word-break:break-all;" class="show-full-content-'.$value->id.' hidden">'.$value->content.'</span>
+                            <td class="expand-row-msg Website-task " data-name="content" data-id="' . $value->id . '">
+                                <span class="show-short-content-{{$value->id}}">' . Str::limit($value->content, 50, '..') . '</span>
+                                <span style="word-break:break-all;" class="show-full-content-' . $value->id . ' hidden">' . $value->content . '</span>
                             </td>
                             <td class="p-1">
-                                <a href="javascript:;" data-id="'.$value->id.'" class="menu_editor_edit btn btn-xs p-2" >
+                                <a href="javascript:;" data-id="' . $value->id . '" class="menu_editor_edit btn btn-xs p-2" >
                                     <i class="fa fa-edit"></i>
                                 </a>
                             </td>
@@ -245,7 +244,7 @@ class SopController extends Controller
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
             $pdf->render();
-            $pdf->stream(date('Y-m-d H:i:s').'SOPData.pdf');
+            $pdf->stream(date('Y-m-d H:i:s') . 'SOPData.pdf');
         }
     }
 

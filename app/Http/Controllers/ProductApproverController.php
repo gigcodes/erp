@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
+use App\Stage;
 use App\Product;
 use App\Setting;
-use App\Stage;
+use App\Category;
 use Carbon\Carbon;
 
 class ProductApproverController extends Controller
@@ -90,7 +90,7 @@ class ProductApproverController extends Controller
                 $reference_sku = $reference->sku;
             }
 
-            $reference_final_sku = $reference_sku.$reference_color;
+            $reference_final_sku = $reference_sku . $reference_color;
 
             if (! empty($product->size)) {
                 $euSize = explode(',', $product->size_eu);
@@ -104,7 +104,7 @@ class ProductApproverController extends Controller
                 foreach ($product_sizes as $size) {
                     if (in_array($size, $reference_array)) {
                         try {
-                            $result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku.'-'.$size, ['status' => 1]);
+                            $result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku . '-' . $size, ['status' => 1]);
                         } catch (\Exception $e) {
                             $errors++;
                         }
@@ -163,7 +163,7 @@ class ProductApproverController extends Controller
                 $reference_sku = $reference->sku;
             }
 
-            $reference_final_sku = $reference_sku.$reference_color;
+            $reference_final_sku = $reference_sku . $reference_color;
 
             if (! empty($product->size)) {
                 $euSize = explode(',', $product->size_eu);
@@ -177,7 +177,7 @@ class ProductApproverController extends Controller
                 foreach ($product_sizes as $size) {
                     if (in_array($size, $reference_array)) {
                         try {
-                            $result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku.'-'.$size, ['status' => 2]);
+                            $result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku . '-' . $size, ['status' => 2]);
                         } catch (\Exception $e) {
                             $errors++;
                         }

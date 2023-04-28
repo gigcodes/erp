@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\CroppedImageReference;
-use App\Helpers\StatusHelper;
-use App\ListingHistory;
 use App\Product;
 use Carbon\Carbon;
+use App\ListingHistory;
+use App\Helpers\StatusHelper;
+use App\CroppedImageReference;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
@@ -75,9 +75,9 @@ class RejectDuplicateImages extends Command
                             continue;
                         }
 
-                        $image = $key->newMedia->directory.'/'.$key->newMedia->filename.'.'.$key->newMedia->extension;
+                        $image = $key->newMedia->directory . '/' . $key->newMedia->filename . '.' . $key->newMedia->extension;
 
-                        $image = public_path('uploads/'.$image);
+                        $image = public_path('uploads/' . $image);
 
                         // Check is directory
                         if (File::isDirectory($_ = "$image")) {

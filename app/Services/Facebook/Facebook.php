@@ -4,8 +4,8 @@ namespace App\Services\Facebook;
 
 use App\Image;
 use App\ImageSchedule;
-use Facebook\Facebook as Fb;
 use Illuminate\Http\File;
+use Facebook\Facebook as Fb;
 
 class Facebook
 {
@@ -44,7 +44,7 @@ class Facebook
     public function getMentions($tag)
     {
         $tagText = $tag->name;
-        $data = $this->facebook->get('ig_hashtag_search?user_id='.$this->instagram_id.'&q='.$tagText, '10606198004.0912694.8a4c5161260e41bb87fd646638d27093');
+        $data = $this->facebook->get('ig_hashtag_search?user_id=' . $this->instagram_id . '&q=' . $tagText, '10606198004.0912694.8a4c5161260e41bb87fd646638d27093');
 
         dd($data);
     }
@@ -64,7 +64,7 @@ class Facebook
             $mediaId = $this->postMediaObject($image);
             if ($mediaId !== false) {
                 $imageIds[] = $image->id;
-                $postMedia['attached_media['.$key.']'] = '{"media_fbid":"'.$mediaId.'"}';
+                $postMedia['attached_media[' . $key . ']'] = '{"media_fbid":"' . $mediaId . '"}';
                 $key++;
             }
 
@@ -94,9 +94,9 @@ class Facebook
         $data['caption'] = $image->schedule->description;
         $data['published'] = 'false';
         $data['access_token'] = $this->page_access_token;
-        $file = public_path().'/uploads/social-media/'.$image->filename;
+        $file = public_path() . '/uploads/social-media/' . $image->filename;
         if (! file_exists($file)) {
-            $file = public_path().'/uploads/'.$image->filename;
+            $file = public_path() . '/uploads/' . $image->filename;
         }
         $file = new File($file);
         $data['source'] = $this->facebook->fileToUpload($file);
@@ -139,13 +139,12 @@ class Facebook
      */
     public function getConversations()
     {
-        $conversation = $this->facebook->get($this->page_id.'/conversations?fields=name,messages{created_time,from,id,message,sticker,tags,to,attachments.limit(1000)},can_reply,id,is_subscribed,link,message_count,participants,senders,subject&limit=1000000', $this->page_access_token);
+        $conversation = $this->facebook->get($this->page_id . '/conversations?fields=name,messages{created_time,from,id,message,sticker,tags,to,attachments.limit(1000)},can_reply,id,is_subscribed,link,message_count,participants,senders,subject&limit=1000000', $this->page_access_token);
 
         return $conversation->getDecodedBody();
     }
 
     /**
-     * @param $id
      * @return array
      *
      * @throws \Facebook\Exceptions\FacebookSDKException
@@ -153,7 +152,7 @@ class Facebook
      */
     public function getConversation($id)
     {
-        $conversation = $this->facebook->get($id.'?fields=id,messages.limit(1000){created_time,from,id,message,to}', $this->page_access_token);
+        $conversation = $this->facebook->get($id . '?fields=id,messages.limit(1000){created_time,from,id,message,to}', $this->page_access_token);
 
         return $conversation->getDecodedBody();
     }

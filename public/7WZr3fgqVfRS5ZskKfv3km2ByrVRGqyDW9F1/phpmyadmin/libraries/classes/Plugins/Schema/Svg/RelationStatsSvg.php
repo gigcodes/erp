@@ -7,9 +7,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\Schema\Svg;
 
-use PhpMyAdmin\Plugins\Schema\RelationStats;
-use function shuffle;
 use function sqrt;
+use function shuffle;
+use PhpMyAdmin\Plugins\Schema\RelationStats;
 
 /**
  * Relation preferences/statistics
@@ -72,7 +72,7 @@ class RelationStatsSvg extends RelationStats
             $this->ySrc,
             $this->xSrc + $this->srcDir * $this->wTick,
             $this->ySrc,
-            'stroke:'.$color.';stroke-width:1;'
+            'stroke:' . $color . ';stroke-width:1;'
         );
         $this->diagram->printElementLine(
             'line',
@@ -80,7 +80,7 @@ class RelationStatsSvg extends RelationStats
             $this->yDest,
             $this->xDest,
             $this->yDest,
-            'stroke:'.$color.';stroke-width:1;'
+            'stroke:' . $color . ';stroke-width:1;'
         );
         $this->diagram->printElementLine(
             'line',
@@ -88,7 +88,7 @@ class RelationStatsSvg extends RelationStats
             $this->ySrc,
             $this->xDest + $this->destDir * $this->wTick,
             $this->yDest,
-            'stroke:'.$color.';stroke-width:1;'
+            'stroke:' . $color . ';stroke-width:1;'
         );
         $root2 = 2 * sqrt(2);
         $this->diagram->printElementLine(
@@ -97,7 +97,7 @@ class RelationStatsSvg extends RelationStats
             $this->ySrc,
             $this->xSrc + $this->srcDir * (0.75 - 1 / $root2) * $this->wTick,
             $this->ySrc + $this->wTick / $root2,
-            'stroke:'.$color.';stroke-width:2;'
+            'stroke:' . $color . ';stroke-width:2;'
         );
         $this->diagram->printElementLine(
             'line',
@@ -105,7 +105,7 @@ class RelationStatsSvg extends RelationStats
             $this->ySrc,
             $this->xSrc + $this->srcDir * (0.75 - 1 / $root2) * $this->wTick,
             $this->ySrc - $this->wTick / $root2,
-            'stroke:'.$color.';stroke-width:2;'
+            'stroke:' . $color . ';stroke-width:2;'
         );
         $this->diagram->printElementLine(
             'line',
@@ -113,7 +113,7 @@ class RelationStatsSvg extends RelationStats
             $this->yDest,
             $this->xDest + $this->destDir * (0.5 + 1 / $root2) * $this->wTick,
             $this->yDest + $this->wTick / $root2,
-            'stroke:'.$color.';stroke-width:2;'
+            'stroke:' . $color . ';stroke-width:2;'
         );
         $this->diagram->printElementLine(
             'line',
@@ -121,7 +121,7 @@ class RelationStatsSvg extends RelationStats
             $this->yDest,
             $this->xDest + $this->destDir * (0.5 + 1 / $root2) * $this->wTick,
             $this->yDest - $this->wTick / $root2,
-            'stroke:'.$color.';stroke-width:2;'
+            'stroke:' . $color . ';stroke-width:2;'
         );
     }
 }

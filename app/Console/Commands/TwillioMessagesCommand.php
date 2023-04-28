@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\MarketingMessage;
-use App\MarketingMessageCustomer;
-use App\MessagingGroup;
-use App\SmsService;
-use Carbon\Carbon;
 use Exception;
-use Illuminate\Console\Command;
+use Carbon\Carbon;
+use App\SmsService;
+use App\MessagingGroup;
 use Twilio\Rest\Client;
+use App\MarketingMessage;
+use Illuminate\Console\Command;
+use App\MarketingMessageCustomer;
 
 class TwillioMessagesCommand extends Command
 {
@@ -79,18 +79,18 @@ class TwillioMessagesCommand extends Command
                                 $lastchar = $appUrl[-1];
 
                                 if (strcmp($lastchar, '/') !== 0) {
-                                    $appUrl = $appUrl.'/';
+                                    $appUrl = $appUrl . '/';
                                 }
 
                                 $client = new Client($account_sid, $auth_token);
-                                $client->messages->create('+'.$marketingMessageCustomer['phone'], [
+                                $client->messages->create('+' . $marketingMessageCustomer['phone'], [
                                     'from' => $twilio_number,
                                     'body' => $message['title'],
-                                    'statusCallback' => $appUrl.'twilio/handleMessageDeliveryStatus/'.$marketingMessageCustomer['customer_id'].'/'.$marketingMessageCustomer['id'],
+                                    'statusCallback' => $appUrl . 'twilio/handleMessageDeliveryStatus/' . $marketingMessageCustomer['customer_id'] . '/' . $marketingMessageCustomer['id'],
                                 ]);
                                 MarketingMessageCustomer::where(['customer_id' => $marketingMessageCustomer['customer_id'], 'marketing_message_id' => $message->id])->update(['is_sent' => 1]);
                             } catch (Exception $e) {
-                                \Log::info('Sending SMS issue #2215 ->'.$e->getMessage());
+                                \Log::info('Sending SMS issue #2215 ->' . $e->getMessage());
                             }
                         }
                         $message->update(['is_sent' => 1]);

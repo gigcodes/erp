@@ -2,9 +2,9 @@
 
 namespace Modules\BookStack\Auth;
 
-use Modules\BookStack\Auth\Permissions\JointPermission;
-use Modules\BookStack\Auth\Permissions\RolePermission;
 use Modules\BookStack\Model;
+use Modules\BookStack\Auth\Permissions\RolePermission;
+use Modules\BookStack\Auth\Permissions\JointPermission;
 
 class Role extends Model
 {
@@ -39,7 +39,6 @@ class Role extends Model
     /**
      * Check if this role has a permission.
      *
-     * @param $permissionName
      * @return bool
      */
     public function hasPermission($permissionName)
@@ -56,8 +55,6 @@ class Role extends Model
 
     /**
      * Add a permission to this role.
-     *
-     * @param  RolePermission  $permission
      */
     public function attachPermission(RolePermission $permission)
     {
@@ -66,8 +63,6 @@ class Role extends Model
 
     /**
      * Detach a single permission from this role.
-     *
-     * @param  RolePermission  $permission
      */
     public function detachPermission(RolePermission $permission)
     {
@@ -77,7 +72,6 @@ class Role extends Model
     /**
      * Get the role object for the specified role.
      *
-     * @param $roleName
      * @return Role
      */
     public static function getRole($roleName)
@@ -88,7 +82,6 @@ class Role extends Model
     /**
      * Get the role object for the specified system role.
      *
-     * @param $roleName
      * @return Role
      */
     public static function getSystemRole($roleName)

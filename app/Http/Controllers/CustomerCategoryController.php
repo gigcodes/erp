@@ -32,7 +32,6 @@ class CustomerCategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -52,7 +51,6 @@ class CustomerCategoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\CustomerCategory  $customerCategory
      * @return \Illuminate\Http\Response
      */
     public function show(CustomerCategory $customerCategory)
@@ -80,7 +78,6 @@ class CustomerCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\CustomerCategory  $customerCategory
      * @return \Illuminate\Http\Response
      */
@@ -93,7 +90,7 @@ class CustomerCategoryController extends Controller
         }
 
         $this->validate($request, [
-            'name' => 'required|unique:customer_categories,id,'.$id,
+            'name' => 'required|unique:customer_categories,id,' . $id,
         ]);
 
         $category->name = $request->get('name');

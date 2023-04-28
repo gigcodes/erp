@@ -2,15 +2,15 @@
 
 namespace Modules\BookStack\Http\Controllers;
 
+use Views;
 use Activity;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\BookStack\Auth\UserRepo;
-use Modules\BookStack\Entities\Bookshelf;
-use Modules\BookStack\Entities\EntityContextManager;
-use Modules\BookStack\Entities\Repos\EntityRepo;
 use Modules\BookStack\Uploads\ImageRepo;
-use Views;
+use Modules\BookStack\Entities\Bookshelf;
+use Modules\BookStack\Entities\Repos\EntityRepo;
+use Modules\BookStack\Entities\EntityContextManager;
 
 class BookshelfController extends Controller
 {
@@ -24,11 +24,6 @@ class BookshelfController extends Controller
 
     /**
      * BookController constructor.
-     *
-     * @param  EntityRepo  $entityRepo
-     * @param  UserRepo  $userRepo
-     * @param  EntityContextManager  $entityContextManager
-     * @param  ImageRepo  $imageRepo
      */
     public function __construct(EntityRepo $entityRepo, UserRepo $userRepo, EntityContextManager $entityContextManager, ImageRepo $imageRepo)
     {
@@ -97,7 +92,6 @@ class BookshelfController extends Controller
     /**
      * Store a newly created bookshelf in storage.
      *
-     * @param  Request  $request
      * @return Response
      *
      * @throws \BookStack\Exceptions\ImageUploadException
@@ -122,7 +116,6 @@ class BookshelfController extends Controller
     /**
      * Display the specified bookshelf.
      *
-     * @param  string  $slug
      * @return Response
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -183,7 +176,6 @@ class BookshelfController extends Controller
     /**
      * Show the form for editing the specified bookshelf.
      *
-     * @param $slug
      * @return Response
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -212,8 +204,6 @@ class BookshelfController extends Controller
     /**
      * Update the specified bookshelf in storage.
      *
-     * @param  Request  $request
-     * @param  string  $slug
      * @return Response
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -240,7 +230,6 @@ class BookshelfController extends Controller
     /**
      * Shows the page to confirm deletion
      *
-     * @param $slug
      * @return \Illuminate\View\View
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -258,7 +247,6 @@ class BookshelfController extends Controller
     /**
      * Remove the specified bookshelf from storage.
      *
-     * @param  string  $slug
      * @return Response
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -281,7 +269,6 @@ class BookshelfController extends Controller
     /**
      * Show the permissions view.
      *
-     * @param  string  $slug
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -302,8 +289,6 @@ class BookshelfController extends Controller
     /**
      * Set the permissions for this bookshelf.
      *
-     * @param  string  $slug
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -323,7 +308,6 @@ class BookshelfController extends Controller
     /**
      * Copy the permissions of a bookshelf to the child books.
      *
-     * @param  string  $slug
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -342,8 +326,6 @@ class BookshelfController extends Controller
     /**
      * Common actions to run on bookshelf update.
      *
-     * @param  Bookshelf  $shelf
-     * @param  Request  $request
      *
      * @throws \BookStack\Exceptions\ImageUploadException
      */

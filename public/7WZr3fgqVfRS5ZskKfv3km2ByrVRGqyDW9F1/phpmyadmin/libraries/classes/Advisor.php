@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function __;
-use function array_merge;
-use function htmlspecialchars;
-use function implode;
-use PhpMyAdmin\Server\SysInfo\SysInfo;
-use function preg_match;
-use function preg_replace_callback;
-use function round;
-use function sprintf;
-use function str_contains;
-use function substr;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Throwable;
+use function __;
+use function round;
+use function substr;
+use function implode;
+use function sprintf;
 use function vsprintf;
+use function preg_match;
+use function array_merge;
+use function str_contains;
+use function htmlspecialchars;
+use function preg_replace_callback;
+use PhpMyAdmin\Server\SysInfo\SysInfo;
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
  * A simple rules engine, that executes the rules in the advisory_rules files.
@@ -190,7 +190,7 @@ class Advisor
     private function setRules(): void
     {
         $isMariaDB = str_contains($this->variables['version'], 'MariaDB');
-        $genericRules = include ROOT_PATH.self::GENERIC_RULES_FILE;
+        $genericRules = include ROOT_PATH . self::GENERIC_RULES_FILE;
 
         if (! $isMariaDB && $this->globals['PMA_MYSQL_INT_VERSION'] >= 80003) {
             $this->rules = $genericRules;
@@ -198,21 +198,15 @@ class Advisor
             return;
         }
 
-        $extraRules = include ROOT_PATH.self::BEFORE_MYSQL80003_RULES_FILE;
+        $extraRules = include ROOT_PATH . self::BEFORE_MYSQL80003_RULES_FILE;
         $this->rules = array_merge($genericRules, $extraRules);
     }
 
-    /**
-     * @return array
-     */
     public function getRunResult(): array
     {
         return $this->runResult;
     }
 
-    /**
-     * @return array
-     */
     public function run(): array
     {
         $this->setVariables();
@@ -230,7 +224,7 @@ class Advisor
      */
     private function storeError(string $description, Throwable $exception): void
     {
-        $this->runResult['errors'][] = $description.' '.sprintf(
+        $this->runResult['errors'][] = $description . ' ' . sprintf(
             __('Error when evaluating: %s'),
             $exception->getMessage()
         );
@@ -324,7 +318,7 @@ class Advisor
 
         if (isset($rule['justification_formula'])) {
             try {
-                $params = $this->evaluateRuleExpression('['.$rule['justification_formula'].']');
+                $params = $this->evaluateRuleExpression('[' . $rule['justification_formula'] . ']');
             } catch (Throwable $e) {
                 $this->storeError(
                     sprintf(__('Failed formatting string for rule \'%s\'.'), $rule['name']),
@@ -374,7 +368,7 @@ class Advisor
      */
     private function replaceLinkURL(array $matches): string
     {
-        return 'href="'.Core::linkURL($matches[2]).'" target="_blank" rel="noopener noreferrer"';
+        return 'href="' . Core::linkURL($matches[2]) . '" target="_blank" rel="noopener noreferrer"';
     }
 
     /**
@@ -385,8 +379,8 @@ class Advisor
      */
     private function replaceVariable(array $matches): string
     {
-        return '<a href="'.Url::getFromRoute('/server/variables', ['filter' => $matches[1]])
-                .'">'.htmlspecialchars($matches[1]).'</a>';
+        return '<a href="' . Url::getFromRoute('/server/variables', ['filter' => $matches[1]])
+                . '">' . htmlspecialchars($matches[1]) . '</a>';
     }
 
     /**
@@ -424,9 +418,9 @@ class Advisor
         $num = round($num, $precision);
 
         if ($num == 0) {
-            $num = '<'. 10 ** (-$precision);
+            $num = '<' . 10 ** (-$precision);
         }
 
-        return $num.' '.$per;
+        return $num . ' ' . $per;
     }
 }

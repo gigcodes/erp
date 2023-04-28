@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Email;
 use App\Supplier;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
-use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use Webklex\PHPIMAP\ClientManager;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class FetchEmails extends Command
 {
@@ -124,8 +124,8 @@ class FetchEmails extends Command
 
                                             $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                                                file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                                                $path = 'email-attachments/'.$attachment->name;
+                                                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                                $path = 'email-attachments/' . $attachment->name;
 
                                                 if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
                                                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
@@ -143,6 +143,9 @@ class FetchEmails extends Command
                                                 $attachments_array[] = $path;
                                             });
 
+                                            $emailData = explode('@', $email->getFrom()[0]->mail);
+                                            $name = $emailData[0];
+
                                             $params = [
                                                 'model_id' => $supplier->id,
                                                 'model_type' => Supplier::class,
@@ -155,6 +158,7 @@ class FetchEmails extends Command
                                                 'template' => 'customer-simple',
                                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
                                                 'created_at' => $email->getDate(),
+                                                'name' => $name,
                                             ];
 
                                             Email::create($params);
@@ -183,8 +187,8 @@ class FetchEmails extends Command
 
                                             $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                                                file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                                                $path = 'email-attachments/'.$attachment->name;
+                                                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                                $path = 'email-attachments/' . $attachment->name;
 
                                                 if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
                                                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
@@ -202,6 +206,9 @@ class FetchEmails extends Command
                                                 $attachments_array[] = $path;
                                             });
 
+                                            $emailData = explode('@', $email->getFrom()[0]->mail);
+                                            $name = $emailData[0];
+
                                             $params = [
                                                 'model_id' => $supplier->id,
                                                 'model_type' => Supplier::class,
@@ -214,6 +221,7 @@ class FetchEmails extends Command
                                                 'template' => 'customer-simple',
                                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
                                                 'created_at' => $email->getDate(),
+                                                'name' => $name,
                                             ];
 
                                             Email::create($params);
@@ -246,8 +254,8 @@ class FetchEmails extends Command
                                     $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                         $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
 
-                                        file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                                        $path = 'email-attachments/'.$attachment->name;
+                                        file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                        $path = 'email-attachments/' . $attachment->name;
 
                                         if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
                                             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
@@ -264,6 +272,9 @@ class FetchEmails extends Command
                                         $attachments_array[] = $path;
                                     });
 
+                                    $emailData = explode('@', $email->getFrom()[0]->mail);
+                                    $name = $emailData[0];
+
                                     $params = [
                                         'model_id' => $supplier->id,
                                         'model_type' => Supplier::class,
@@ -276,6 +287,7 @@ class FetchEmails extends Command
                                         'template' => 'customer-simple',
                                         'additional_data' => json_encode(['attachment' => $attachments_array]),
                                         'created_at' => $email->getDate(),
+                                        'name' => $name,
                                     ];
 
                                     Email::create($params);
@@ -291,7 +303,7 @@ class FetchEmails extends Command
                         }
                     } else {
                         dump('No Agent just Supplier emails');
-                        if($inbox){
+                        if ($inbox) {
                             $emails = $inbox->messages()->where($type['direction'], $supplier->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
 
                             $emails = $emails->leaveUnread()->get();
@@ -311,8 +323,8 @@ class FetchEmails extends Command
 
                                     $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                         $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                                        file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                                        $path = 'email-attachments/'.$attachment->name;
+                                        file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                        $path = 'email-attachments/' . $attachment->name;
 
                                         if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
                                             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
@@ -330,6 +342,9 @@ class FetchEmails extends Command
                                         $attachments_array[] = $path;
                                     });
 
+                                    $emailData = explode('@', $email->getFrom()[0]->mail);
+                                    $name = $emailData[0];
+
                                     $params = [
                                         'model_id' => $supplier->id,
                                         'model_type' => Supplier::class,
@@ -342,12 +357,13 @@ class FetchEmails extends Command
                                         'template' => 'customer-simple',
                                         'additional_data' => json_encode(['attachment' => $attachments_array]),
                                         'created_at' => $email->getDate(),
+                                        'name' => $name,
                                     ];
 
                                     Email::create($params);
                                 }
                             }
-                        }else{
+                        } else {
                             dump('empty inbox');
                         }
                     }

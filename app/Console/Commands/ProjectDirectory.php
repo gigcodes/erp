@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\ProjectFileManager;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 
 class ProjectDirectory extends Command
 {
@@ -45,7 +45,7 @@ class ProjectDirectory extends Command
         $output = shell_exec("tree --du -h . -f -L 6 --sort=size|grep 'M]\|G]' | egrep -v '[0-9]*\.[0-9]M'");
         if (! empty($output)) {
             $lastFolder = null;
-            $this->info('Output : '.$output);
+            $this->info('Output : ' . $output);
 
             foreach (explode(PHP_EOL, $output) as $o) {
                 $directory = explode(']', $o);

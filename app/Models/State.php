@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class State extends Model
 {
@@ -16,7 +16,8 @@ class State extends Model
         'is_active',
     ];
 
-    public function country(){
+    public function country()
+    {
         return $this->belongsTo(Country::class, 'country_id');
     }
 }
