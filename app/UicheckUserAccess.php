@@ -8,7 +8,6 @@ class UicheckUserAccess extends Model
 {
     protected $fillable = ['user_id', 'uicheck_id'];
 
-
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
@@ -20,8 +19,8 @@ class UicheckUserAccess extends Model
             UicheckUserAccess::updateOrCreate([
                 'user_id' => $user_id,
                 'uicheck_id' => $uicheck_id,
-            ],[]);
-        } catch (\Exception $e) {}
+            ], []);
+        } catch (\Exception $e) {
+        }
     }
-
 }

@@ -2,16 +2,16 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\GoogleTranslate;
-use App\Http\Controllers\Controller;
 use App\Language;
 use App\StoreWebsite;
+use App\GoogleTranslate;
 use App\StoreWebsitePage;
-use App\StoreWebsitePagePullLog;
 use Illuminate\Http\Request;
+use App\StoreWebsitePagePullLog;
+use App\Http\Controllers\Controller;
+use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
-use Spatie\Activitylog\Models\Activity;
 
 class PageController extends Controller
 {
@@ -71,8 +71,8 @@ class PageController extends Controller
         // Check for keyword search
         if ($request->keyword != null) {
             $pages = $pages->where(function ($q) use ($request) {
-                $q->where('store_website_pages.title', 'like', '%'.$request->keyword.'%')
-                    ->orWhere('store_website_pages.content', 'like', '%'.$request->keyword.'%');
+                $q->where('store_website_pages.title', 'like', '%' . $request->keyword . '%')
+                    ->orWhere('store_website_pages.content', 'like', '%' . $request->keyword . '%');
             });
         }
 
@@ -116,8 +116,8 @@ class PageController extends Controller
         // Check for keyword search
         if ($request->keyword != null) {
             $pages = $pages->where(function ($q) use ($request) {
-                $q->where('store_website_pages.title', 'like', '%'.$request->keyword.'%')
-                    ->orWhere('store_website_pages.content', 'like', '%'.$request->keyword.'%');
+                $q->where('store_website_pages.title', 'like', '%' . $request->keyword . '%')
+                    ->orWhere('store_website_pages.content', 'like', '%' . $request->keyword . '%');
             });
         }
 
@@ -136,12 +136,12 @@ class PageController extends Controller
         if ($request->is_pushed != '') {
             $pages = $pages->where('store_website_pages.is_pushed', $request->is_pushed);
         }
-        
-        $pages->where('store_website_pages.is_flagged_translation',1);
+
+        $pages->where('store_website_pages.is_flagged_translation', 1);
         $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name'])->paginate();
 
         $items = $pages->items();
-        
+
         $recItems = [];
         foreach ($items as $item) {
             $attributes = $item->getAttributes();
@@ -149,31 +149,30 @@ class PageController extends Controller
             $attributes['stores'] = $attributes['stores'];
             $attributes['original_page'] = \App\StoreWebsitePage::where('url_key', $item->url_key)->where('store_website_id', $item->store_website_id)->where('id', $item->translated_from)->first();
             $recItems[] = $attributes;
-
         }
-        
+
         return response()->json(['code' => 200, 'pageUrl' => $request->page_url, 'data' => $recItems, 'total' => $pages->total(),
             'pagination' => (string) $pages->links(),
         ]);
     }
 
-    public function reviewTranslate(Request $request, $language='')
+    public function reviewTranslate(Request $request, $language = '')
     {
-        
-        $title = 'Pages - Review Translate:'.$language.' | Store Website';
+        $title = 'Pages - Review Translate:' . $language . ' | Store Website';
         $languagesList = Language::pluck('name', 'name')->toArray();
-        if(!empty($languagesList) && $language==''){
+        if (! empty($languagesList) && $language == '') {
             $first = reset($languagesList);
+
             return redirect()->route('store-website.page.review.translate', ['language' => $first]);
         }
 
         $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
         $pages = StoreWebsitePage::join('store_websites as  sw', 'sw.id', 'store_website_pages.store_website_id')
             ->select([\DB::raw("concat(store_website_pages.title,'-',sw.title) as page_name"), 'store_website_pages.id'])
-            ->where('store_website_pages.language',$language)
-            ->where('is_flagged_translation',1)
+            ->where('store_website_pages.language', $language)
+            ->where('is_flagged_translation', 1)
             ->pluck('page_name', 'id');
-        
+
         $languages = Language::pluck('locale', 'code')->toArray(); //
 
         return view('storewebsite::page.review-translate', [
@@ -210,7 +209,7 @@ class PageController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -251,8 +250,7 @@ class PageController extends Controller
             }
 
             $page = \App\StoreWebsitePage::find($records->id);
-            if(is_null($page->translated_from))
-            {
+            if (is_null($page->translated_from)) {
                 $languages = \App\Language::where('status', 1)->get();
                 foreach ($languages as $l) {
                     if (strtolower($page->language) != strtolower($l->name)) {
@@ -337,8 +335,8 @@ class PageController extends Controller
                         //\App\Jobs\PushPageToMagento::dispatch($newPage)->onQueue('magetwo');
                         //StoreWebsitePage::where('id', $newPage->id)->update(['is_pushed' => 1, 'is_latest_version_pushed' => 1]);
 
-                        activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to '.$l->name);
-                        activity()->causedBy(auth()->user())->performedOn($newPage)->log('Parent Page Title:'.$newPage->title.' Page URL Key:'.$newPage->url_key);
+                        activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
+                        activity()->causedBy(auth()->user())->performedOn($newPage)->log('Parent Page Title:' . $newPage->title . ' Page URL Key:' . $newPage->url_key);
                         /*else{
                             $errorMessage[] = "Page not pushed because of page already copied to {$pageExist->url_key} for {$l->name}";
                         }*/
@@ -354,7 +352,6 @@ class PageController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -371,7 +368,6 @@ class PageController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -387,14 +383,13 @@ class PageController extends Controller
         return response()->json(['code' => 500, 'error' => 'Wrong site id!']);
     }
 
-    
     public function push(Request $request, $id)
     {
         $page = StoreWebsitePage::where('id', $id)->first();
 
         if ($page) {
-            $updated_by=auth()->user();
-            \App\Jobs\PushPageToMagento::dispatch($page,$updated_by)->onQueue('magetwo');
+            $updated_by = auth()->user();
+            \App\Jobs\PushPageToMagento::dispatch($page, $updated_by)->onQueue('magetwo');
             StoreWebsitePage::where('id', $id)->update(['is_pushed' => 1, 'is_latest_version_pushed' => 1]);
 
             return response()->json(['code' => 200, 'message' => 'Website send for push']);
@@ -558,8 +553,7 @@ class PageController extends Controller
 
         if ($page) {
             // find the language all active and then check that record page is exist or not
-            if(is_null($page->translated_from))
-            {
+            if (is_null($page->translated_from)) {
                 $languages = \App\Language::where('status', 1)->get();
                 foreach ($languages as $l) {
                     if (strtolower($page->language) != strtolower($l->name)) {
@@ -641,8 +635,8 @@ class PageController extends Controller
                         $newPage->is_flagged_translation = 1;
                         $newPage->save();
 
-                        activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to '.$l->name);
-                        activity()->causedBy(auth()->user())->performedOn($newPage)->log('Parent Page Title:'.$newPage->title.' Page URL Key:'.$newPage->url_key);
+                        activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
+                        activity()->causedBy(auth()->user())->performedOn($newPage)->log('Parent Page Title:' . $newPage->title . ' Page URL Key:' . $newPage->url_key);
                         /*else{
                             $errorMessage[] = "Page not pushed because of page already copied to {$pageExist->url_key} for {$l->name}";
                         }*/
@@ -661,9 +655,9 @@ class PageController extends Controller
         $pages = \App\StoreWebsitePage::where('store_website_id', $id)->get();
         activity()->causedBy(auth()->user())->log('pages pushed');
         if (! $pages->isEmpty()) {
-            $updated_by=auth()->user();
+            $updated_by = auth()->user();
             foreach ($pages as $page) {
-                \App\Jobs\PushPageToMagento::dispatch($page,$updated_by)->onQueue('magetwo');
+                \App\Jobs\PushPageToMagento::dispatch($page, $updated_by)->onQueue('magetwo');
             }
         }
 
@@ -754,7 +748,7 @@ class PageController extends Controller
 
         if ($request->keyword != null) {
             $records = $records->where(function ($q) use ($request) {
-                return $q->where('store_website_pages.url_key', 'like', '%'.$request->keyword.'%');
+                return $q->where('store_website_pages.url_key', 'like', '%' . $request->keyword . '%');
             });
         }
 
@@ -769,7 +763,7 @@ class PageController extends Controller
         $old = $page->platform_id;
         $page->platform_id = request()->platform_id;
         if ($page->save()) {
-            activity()->causedBy(auth()->user())->performedOn($page)->log('page platform id updated from '.$old.' to '.request()->platform_id);
+            activity()->causedBy(auth()->user())->performedOn($page)->log('page platform id updated from ' . $old . ' to ' . request()->platform_id);
 
             return 'success';
         } else {

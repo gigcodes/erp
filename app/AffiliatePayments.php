@@ -12,7 +12,7 @@ class AffiliatePayments extends Model
         'payment_created_at',
         'affiliate_marketer_id',
         'amount',
-        'currency'
+        'currency',
     ];
 
     public function account()

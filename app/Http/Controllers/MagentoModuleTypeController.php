@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MagentoModule\MagentoModuleTypeRequest;
-use App\MagentoModuleCategory;
-use App\MagentoModuleType;
 use App\TaskStatus;
+use App\MagentoModuleType;
 use Illuminate\Http\Request;
+use App\MagentoModuleCategory;
+use App\Http\Requests\MagentoModule\MagentoModuleTypeRequest;
 
 class MagentoModuleTypeController extends Controller
 {
@@ -133,7 +133,6 @@ class MagentoModuleTypeController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  MagentoModuleType  $magento_module_type
      * @return \Illuminate\Http\Response
      */
     public function update(MagentoModuleTypeRequest $request, MagentoModuleType $magento_module_type)
@@ -160,7 +159,6 @@ class MagentoModuleTypeController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  MagentoModuleType  $magento_module_type
      * @return \Illuminate\Http\Response
      */
     public function destroy(MagentoModuleType $magento_module_type)

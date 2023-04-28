@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server;
 
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\StorageEngine;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\StorageEngine;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\AbstractController;
 
 /**
  * Handles viewing storage engine details

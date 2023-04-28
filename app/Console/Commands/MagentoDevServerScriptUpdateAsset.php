@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\AssetMagentoDevScripUpdateLog;
 use App\AssetsManager;
 use Illuminate\Console\Command;
+use App\AssetMagentoDevScripUpdateLog;
 
 class MagentoDevServerScriptUpdateAsset extends Command
 {
@@ -45,16 +45,16 @@ class MagentoDevServerScriptUpdateAsset extends Command
             foreach ($assetmanager as $asset) {
                 $folder_name = $this->argument('folder_name');
                 if ($folder_name != '' && $asset->ip != '') {
-                    $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-dev.sh --server '.$asset->ip.' --site '.$folder_name;
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $asset->ip . ' --site ' . $folder_name;
                     $allOutput = [];
                     $allOutput[] = $cmd;
                     $result = exec($cmd, $allOutput);
                     if ($result == '') {
                         $result = 'Not any response';
                     } elseif ($result == 0) {
-                        $result = 'Command run success Response '.$result;
+                        $result = 'Command run success Response ' . $result;
                     } elseif ($result == 1) {
-                        $result = 'Command run Fail Response '.$result;
+                        $result = 'Command run Fail Response ' . $result;
                     } else {
                         $result = is_array($result) ? json_encode($result, true) : $result;
                     }

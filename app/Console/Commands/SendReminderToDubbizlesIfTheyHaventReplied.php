@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Dubbizle;
+use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
-use App\Dubbizle;
-use App\Http\Controllers\WhatsAppController;
-use Carbon\Carbon;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\WhatsAppController;
 
 class SendReminderToDubbizlesIfTheyHaventReplied extends Command
 {
@@ -74,7 +74,7 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
                     continue;
                 }
 
-                $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= '.$frequency)
+                $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
                     ->where('id', $messagesId->id)
                     ->where('user_id', '>', '0')
                     ->where('approved', '1')

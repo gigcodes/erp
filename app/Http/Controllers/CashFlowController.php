@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\CashFlow;
-use App\Customer;
-use App\File;
-use App\Helpers;
-use App\Loggers\HubstuffCommandLog;
-use App\Loggers\HubstuffCommandLogMessage;
-use App\MonetaryAccount;
-use App\Purchase;
-use App\ReadOnly\CashFlowCategories;
-use App\Setting;
-use App\StoreWebsite;
-use App\User;
-use App\WebsiteStore;
 use Auth;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Storage;
+use App\File;
+use App\User;
+use App\Helpers;
+use App\Setting;
+use App\CashFlow;
+use App\Purchase;
+use Carbon\Carbon;
+use App\StoreWebsite;
+use App\MonetaryAccount;
+use Illuminate\Http\Request;
+use App\Loggers\HubstuffCommandLog;
+use App\ReadOnly\CashFlowCategories;
+use Illuminate\Support\Facades\Validator;
+use App\Loggers\HubstuffCommandLogMessage;
 
 class CashFlowController extends Controller
 {
@@ -34,11 +32,11 @@ class CashFlowController extends Controller
 
         $date_fornightly = Carbon::now()->format('d');
 
-        $cash_flow = CashFlow::with(['user', 'files','website']);
+        $cash_flow = CashFlow::with(['user', 'files', 'website']);
         $website_name = StoreWebsite::get();
 
         if ($request->site_name != '') {
-            $cash_flow->join('store_website_orders', 'cash_flows.cash_flow_able_id', 'store_website_orders.order_id')->join('store_websites', 'store_websites.id', 'store_website_orders.website_id')->whereIn('store_websites.website',$request->site_name);
+            $cash_flow->join('store_website_orders', 'cash_flows.cash_flow_able_id', 'store_website_orders.order_id')->join('store_websites', 'store_websites.id', 'store_website_orders.website_id')->whereIn('store_websites.website', $request->site_name);
         }
 
         if ($request->type != '') {
@@ -121,7 +119,6 @@ class CashFlowController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -161,7 +158,7 @@ class CashFlowController extends Controller
     {
         $file = File::find($id);
 
-        return Storage::disk('uploads')->download('files/'.$file->filename);
+        return Storage::disk('uploads')->download('files/' . $file->filename);
     }
 
     /**
@@ -188,7 +185,6 @@ class CashFlowController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -230,8 +226,8 @@ class CashFlowController extends Controller
 
         $dates = [date('Y-m-d')];
         if ($range_start != '' && $range_end != '') {
-            $cash_flows = $cash_flows->whereBetween('date', [$range_start.' 00:00', $range_end.' 23:59']);
-            $added_capitals_in_between = MonetaryAccount::whereBetween('date', [$range_start.' 00:00', $range_end.' 23:59'])->get();
+            $cash_flows = $cash_flows->whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $added_capitals_in_between = MonetaryAccount::whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59'])->get();
             $data['start_date'] = $range_start;
             $data['end_date'] = $range_end;
         }
@@ -240,7 +236,7 @@ class CashFlowController extends Controller
             $cash_flows = $cash_flows->where('date', date('Y-m-d'));
             $added_capitals_in_between = MonetaryAccount::where('date', date('Y-m-d'))->get();
         }
-        $capitals = $capitals->where('date', '<', $data['start_date'].' 00:00')->get();
+        $capitals = $capitals->where('date', '<', $data['start_date'] . ' 00:00')->get();
         $currencies = Helpers::currencies();
         $opening_balance = [
             'total' => 0,

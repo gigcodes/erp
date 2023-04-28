@@ -11,14 +11,14 @@ class TimeDoctorActivity extends Model
         'user_id',
         'task_id',
         'starts_at',
-        'tracked',        
+        'tracked',
         'overall',
         'time_doctor_payment_account_id',
         'status',
         'paid',
         'is_manual',
         'user_notes',
-        'project_id'
+        'project_id',
     ];
 
     public static function getActivitiesForWeek($week, $year)
@@ -80,7 +80,8 @@ class TimeDoctorActivity extends Model
             ->get();
     }
 
-    public function getTimeDoctorAccount(){        
-        return $this->belongsTo(\App\TimeDoctor\TimeDoctorMember::class,'user_id', 'time_doctor_user_id');
+    public function getTimeDoctorAccount()
+    {
+        return $this->belongsTo(\App\TimeDoctor\TimeDoctorMember::class, 'user_id', 'time_doctor_user_id');
     }
 }

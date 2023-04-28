@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Product;
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\ListingHistory;
-use App\Product;
 use App\Services\Listing\Main;
-use App\Services\Listing\Scrapper;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Services\Listing\Scrapper;
 
 class AutoApproveProductAttribute extends Command
 {
@@ -35,9 +35,6 @@ class AutoApproveProductAttribute extends Command
 
     /**
      * Create a new command instance.
-     *
-     * @param  Main  $listing
-     * @param  Scrapper  $scrapper
      */
     public function __construct(Main $listing, Scrapper $scrapper)
     {
@@ -100,7 +97,7 @@ class AutoApproveProductAttribute extends Command
 
                 $count++;
 
-                $this->info('Approved....'.$count);
+                $this->info('Approved....' . $count);
 
                 $listingHistory = new ListingHistory();
                 $listingHistory->user_id = 109;

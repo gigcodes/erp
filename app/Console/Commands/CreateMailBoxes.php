@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Email;
 
 use Carbon\Carbon;
-use App\Email;
 use App\Models\EmailBox;
+use Illuminate\Console\Command;
 
 class CreateMailBoxes extends Command
 {
@@ -47,33 +47,32 @@ class CreateMailBoxes extends Command
             ->whereNull('email_box_id')
             ->get();
 
-        foreach($emails as $email){
-            try{
-                if(!empty($email->from)){
+        foreach ($emails as $email) {
+            try {
+                if (! empty($email->from)) {
                     $emailArr = str_split($email->from, 1);
-                    $fromEmails = array();
-    
-                    if($emailArr[0] == '['){
+                    $fromEmails = [];
+
+                    if ($emailArr[0] == '[') {
                         $fromEmails = json_decode($email->from, true);
-                    }else{
+                    } else {
                         $fromEmails[] = $email->from;
                     }
-    
-                    foreach($fromEmails as $fromEmail){
+
+                    foreach ($fromEmails as $fromEmail) {
                         $emailArr = explode('@', $fromEmail);
-    
-                        if(isset($emailArr[1])){
+
+                        if (isset($emailArr[1])) {
                             $emailBox = EmailBox::updateOrCreate(
                                 ['box_name' => $emailArr[1]],
                             );
-    
+
                             $email->email_box_id = $emailBox->id;
                             $email->save();
                         }
                     }
                 }
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 //
             }
         }

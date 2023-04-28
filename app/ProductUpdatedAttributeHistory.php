@@ -19,24 +19,24 @@ class ProductUpdatedAttributeHistory extends Model
      * @SWG\Property(property="user_id",type="integer")
      */
     protected $fillable = [
-        'old_value', 'new_value', 'attribute_name', 'attribute_id', 'product_id','user_id',
+        'old_value', 'new_value', 'attribute_name', 'attribute_id', 'product_id', 'user_id',
     ];
-    
+
     public function old_category()
     {
         return $this->belongsTo(Category::class, 'old_value');
     }
-    
+
     public function new_category()
     {
         return $this->belongsTo(Category::class, 'new_value');
     }
-    
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

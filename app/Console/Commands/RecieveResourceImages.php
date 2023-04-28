@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\ResourceCategory;
-use App\ResourceImage;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ResourceImage;
+use App\ResourceCategory;
 use Illuminate\Console\Command;
 use Webklex\PHPIMAP\ClientManager;
 

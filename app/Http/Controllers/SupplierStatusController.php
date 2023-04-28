@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\SupplierStatus;
 use DB;
+use App\SupplierStatus;
 use Illuminate\Http\Request;
 
 class SupplierStatusController extends Controller
@@ -34,7 +34,6 @@ class SupplierStatusController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -65,7 +64,6 @@ class SupplierStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

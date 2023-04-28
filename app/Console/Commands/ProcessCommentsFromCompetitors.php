@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\HashTag;
+use App\Keywords;
 //use App\InstagramPosts;
 //use App\InstagramPostsComments;
-use App\Keywords;
-//use App\Services\Instagram\Hashtags;
 use Carbon\Carbon;
+//use App\Services\Instagram\Hashtags;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 //use InstagramAPI\Instagram;

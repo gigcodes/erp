@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\UsersFeedbackHrTicket;
 use Illuminate\Http\Request;
+use App\UsersFeedbackHrTicket;
 
 class UsersFeedbackHrTicketController extends Controller
 {
@@ -35,7 +35,6 @@ class UsersFeedbackHrTicketController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -81,7 +80,6 @@ class UsersFeedbackHrTicketController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\UsersFeedbackHrTicket  $usersFeedbackHrTicket
      * @return \Illuminate\Http\Response
      */
     public function edit(UsersFeedbackHrTicket $usersFeedbackHrTicket)
@@ -92,8 +90,6 @@ class UsersFeedbackHrTicketController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\UsersFeedbackHrTicket  $usersFeedbackHrTicket
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, UsersFeedbackHrTicket $usersFeedbackHrTicket)
@@ -104,7 +100,6 @@ class UsersFeedbackHrTicketController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\UsersFeedbackHrTicket  $usersFeedbackHrTicket
      * @return \Illuminate\Http\Response
      */
     public function destroy(UsersFeedbackHrTicket $usersFeedbackHrTicket)

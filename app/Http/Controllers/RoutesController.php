@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Routes;
-use Artisan;
 use DB;
+use Artisan;
+use Session;
+use App\Routes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Session;
 
 class RoutesController extends Controller
 {
@@ -30,8 +30,8 @@ class RoutesController extends Controller
         }
         if ($request->search) {
             $request->search = preg_replace('/[\s]+/', '/', $request->search);
-            $query = $query->whereRaw("MATCH(url)AGAINST('".$request->search."')")
-                ->orWhereRaw("MATCH(page_title, page_description)AGAINST('".$request->search."')");
+            $query = $query->whereRaw("MATCH(url)AGAINST('" . $request->search . "')")
+                ->orWhereRaw("MATCH(page_title, page_description)AGAINST('" . $request->search . "')");
             /*$query = $query->where('url', 'LIKE','%'.$request->search.'%')->orWhere('page_title', 'LIKE', '%'.$request->search.'%')
                     ->orWhere('page_description', 'LIKE', '%'.$request->search.'%');*/
         }

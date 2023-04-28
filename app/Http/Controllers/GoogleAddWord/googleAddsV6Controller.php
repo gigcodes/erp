@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers\GoogleAddWord;
 
+use GuzzleHttp\Client;
 use App\GoogleTranslate;
-use App\Http\Controllers\Controller;
-use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
-use Google\Ads\GoogleAds\Lib\V6\GoogleAdsClient;
+use Illuminate\Http\Request;
+use Google\ApiCore\ApiException;
 // use Google\Ads\GoogleAds\Examples\Utils\ArgumentNames;
 // use Google\Ads\GoogleAds\Examples\Utils\ArgumentParser;
-use Google\Ads\GoogleAds\Lib\V6\GoogleAdsClientBuilder;
-use Google\Ads\GoogleAds\Lib\V6\GoogleAdsException;
-use Google\Ads\GoogleAds\Util\V6\ResourceNames;
-use Google\Ads\GoogleAds\V6\Enums\KeywordPlanNetworkEnum\KeywordPlanNetwork;
-use Google\Ads\GoogleAds\V6\Errors\GoogleAdsError;
-use Google\Ads\GoogleAds\V6\Services\GenerateKeywordIdeaResult;
-use Google\Ads\GoogleAds\V6\Services\KeywordAndUrlSeed;
-use Google\Ads\GoogleAds\V6\Services\KeywordSeed;
+use App\Http\Controllers\Controller;
 use Google\Ads\GoogleAds\V6\Services\UrlSeed;
-use Google\ApiCore\ApiException;
-use GuzzleHttp\Client;
-use Illuminate\Http\Request;
+use Google\Ads\GoogleAds\Util\V6\ResourceNames;
+use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
+use Google\Ads\GoogleAds\Lib\V6\GoogleAdsClient;
+use Google\Ads\GoogleAds\V6\Services\KeywordSeed;
+use Google\Ads\GoogleAds\V6\Errors\GoogleAdsError;
+use Google\Ads\GoogleAds\Lib\V6\GoogleAdsException;
+use Google\Ads\GoogleAds\Lib\V6\GoogleAdsClientBuilder;
+use Google\Ads\GoogleAds\V6\Services\KeywordAndUrlSeed;
+use Google\Ads\GoogleAds\V6\Services\GenerateKeywordIdeaResult;
+use Google\Ads\GoogleAds\V6\Enums\KeywordPlanNetworkEnum\KeywordPlanNetwork;
 
 class googleAddsV6Controller extends Controller
 {
@@ -71,7 +71,7 @@ class googleAddsV6Controller extends Controller
         }
         if ($gClient->getAccessToken()) {
             $file = file(storage_path('google_ads_php.ini'));
-            $edit_file = str_replace($file[30], 'refreshToken = "'.$gClient->getAccessToken()['refresh_token'].'"'.PHP_EOL.'', file_get_contents(storage_path('google_ads_php.ini')));
+            $edit_file = str_replace($file[30], 'refreshToken = "' . $gClient->getAccessToken()['refresh_token'] . '"' . PHP_EOL . '', file_get_contents(storage_path('google_ads_php.ini')));
             file_put_contents(storage_path('google_ads_php.ini'), $edit_file);
 
             return redirect()->route('google-keyword-search-v6')->with('success', 'New token generated successfully');

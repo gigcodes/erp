@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\SupplierCategory;
-use App\User;
 use DB;
+use App\User;
+use App\SupplierCategory;
 use Illuminate\Http\Request;
 
 class SupplierCategoryController extends Controller
@@ -35,7 +35,6 @@ class SupplierCategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -66,7 +65,6 @@ class SupplierCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

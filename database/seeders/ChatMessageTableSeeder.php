@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\ChatMessage;
 use App\Customer;
+use App\ChatMessage;
 use Illuminate\Database\Seeder;
 
 class ChatMessageTableSeeder extends Seeder
@@ -23,19 +23,19 @@ class ChatMessageTableSeeder extends Seeder
         $customerIds = Customer::get()->pluck('id')->toArray();
         $customerPhones = Customer::pluck('phone', 'id')->all();
 
-        if(!empty($customerIds)){
+        if (! empty($customerIds)) {
             // Create 100000 contacts
-           for ($i = 0; $i < 2000000; $i++) {
-               $customerId = $customerIds[array_rand($customerIds, 1)];
+            for ($i = 0; $i < 2000000; $i++) {
+                $customerId = $customerIds[array_rand($customerIds, 1)];
 
-               $chatMessage = new ChatMessage();
-               $chatMessage->is_queue = 1;
-               $chatMessage->customer_id = $customerId;
-               $chatMessage->message = $faker->paragraph;
-               $chatMessage->number = $customerPhones[$customerId];
-               $chatMessage->approved = 0;
-               $chatMessage->status = 1;
-               $chatMessage->save();
+                $chatMessage = new ChatMessage();
+                $chatMessage->is_queue = 1;
+                $chatMessage->customer_id = $customerId;
+                $chatMessage->message = $faker->paragraph;
+                $chatMessage->number = $customerPhones[$customerId];
+                $chatMessage->approved = 0;
+                $chatMessage->status = 1;
+                $chatMessage->save();
             }
         }
     }

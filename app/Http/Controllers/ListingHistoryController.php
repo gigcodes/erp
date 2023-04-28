@@ -32,7 +32,6 @@ class ListingHistoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -43,7 +42,6 @@ class ListingHistoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ListingHistory  $listingHistory
      * @return \Illuminate\Http\Response
      */
     public function show(ListingHistory $listingHistory)
@@ -54,7 +52,6 @@ class ListingHistoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ListingHistory  $listingHistory
      * @return \Illuminate\Http\Response
      */
     public function edit(ListingHistory $listingHistory)
@@ -65,8 +62,6 @@ class ListingHistoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ListingHistory  $listingHistory
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ListingHistory $listingHistory)
@@ -77,7 +72,6 @@ class ListingHistoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ListingHistory  $listingHistory
      * @return \Illuminate\Http\Response
      */
     public function destroy(ListingHistory $listingHistory)
@@ -98,7 +92,7 @@ class ListingHistoryController extends Controller
 
         if ($request->keyword != null) {
             $history = $history->where(function ($q) use ($request) {
-                $q->where('listing_histories.action', 'like', '%'.$request->keyword.'%');
+                $q->where('listing_histories.action', 'like', '%' . $request->keyword . '%');
             });
         }
 

@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\Schema\Eps;
 
-use PhpMyAdmin\Plugins\Schema\RelationStats;
 use function sqrt;
+use PhpMyAdmin\Plugins\Schema\RelationStats;
 
 /**
  * Relation preferences/statistics

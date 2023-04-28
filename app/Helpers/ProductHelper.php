@@ -2,20 +2,19 @@
 
 namespace App\Helpers;
 
-use App\AttributeReplacement;
 use App\Brand;
+use App\Product;
 use App\Category;
 use App\GoogleServer;
-use App\Loggers\LogListMagento;
-use App\Product;
-use App\ProductPushErrorLog;
-use App\ProductPushJourney;
-use App\PushToMagentoCondition;
-use App\StoreWebsiteBrand;
-use App\StoreWebsiteCategory;
-use App\SystemSizeManager;
-use App\Helpers\StatusHelper;
 use App\StoreWebsite;
+use App\StoreWebsiteBrand;
+use App\SystemSizeManager;
+use App\ProductPushJourney;
+use App\ProductPushErrorLog;
+use App\AttributeReplacement;
+use App\StoreWebsiteCategory;
+use App\Loggers\LogListMagento;
+use App\PushToMagentoCondition;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductHelper extends Model
@@ -236,11 +235,11 @@ class ProductHelper extends Model
 
         // Check for all dimensions
         if (count($arrMeasurement) == 3) {
-            return $isHeel.'L-'.$arrMeasurement[0].'cm,H-'.$arrMeasurement[1].'cm,D-'.$arrMeasurement[2].'cm';
+            return $isHeel . 'L-' . $arrMeasurement[0] . 'cm,H-' . $arrMeasurement[1] . 'cm,D-' . $arrMeasurement[2] . 'cm';
         } elseif (count($arrMeasurement) == 2) {
-            return $isHeel.$arrMeasurement[0].'cm x '.$arrMeasurement[1].'cm';
+            return $isHeel . $arrMeasurement[0] . 'cm x ' . $arrMeasurement[1] . 'cm';
         } elseif (count($arrMeasurement) == 1) {
-            return $isHeel.'Height: '.$arrMeasurement[0].'cm';
+            return $isHeel . 'Height: ' . $arrMeasurement[0] . 'cm';
         }
 
         // Still here?
@@ -685,10 +684,10 @@ class ProductHelper extends Model
             // Log info
             //
             if (! $log) {
-                $log = LogListMagento::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (NO PRODUCT NAME)', 'emergency', $storeWebsiteId);
+                $log = LogListMagento::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (NO PRODUCT NAME)', 'emergency', $storeWebsiteId);
             }
 
-            ProductPushErrorLog::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (NO PRODUCT NAME)', 'error', $storeWebsiteId, null, null, $log->id);
+            ProductPushErrorLog::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (NO PRODUCT NAME)', 'error', $storeWebsiteId, null, null, $log->id);
             // Return false
             return false;
         }
@@ -697,9 +696,9 @@ class ProductHelper extends Model
             // Log info
             //LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'emergency', $storeWebsiteId);
             if (! $log) {
-                $log = LogListMagento::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (NO SHORT DESCRIPTION)', 'emergency', $storeWebsiteId);
+                $log = LogListMagento::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (NO SHORT DESCRIPTION)', 'emergency', $storeWebsiteId);
             }
-            ProductPushErrorLog::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (NO SHORT DESCRIPTION)', 'error', $storeWebsiteId, null, null, $log->id);
+            ProductPushErrorLog::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (NO SHORT DESCRIPTION)', 'error', $storeWebsiteId, null, null, $log->id);
             // Return false
             return false;
         }
@@ -710,16 +709,16 @@ class ProductHelper extends Model
                 $categoryparent = $categorym->parent;
                 if (! $categoryparent) {
                     if (! $log) {
-                        $log = LogListMagento::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (CATEGORY WRONG SETUP)', 'emergency', $storeWebsiteId);
+                        $log = LogListMagento::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (CATEGORY WRONG SETUP)', 'emergency', $storeWebsiteId);
                     }
-                    ProductPushErrorLog::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (CATEGORY WRONG SETUP)', 'error', $storeWebsiteId, null, null, $log->id);
+                    ProductPushErrorLog::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (CATEGORY WRONG SETUP)', 'error', $storeWebsiteId, null, null, $log->id);
 
                     return false;
                 } elseif (in_array($categoryparent->id, [1, 2, 3, 146])) {
                     if (! $log) {
-                        $log = LogListMagento::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (CATEGORY LEVEL WRONG SETUP)', 'emergency', $storeWebsiteId);
+                        $log = LogListMagento::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (CATEGORY LEVEL WRONG SETUP)', 'emergency', $storeWebsiteId);
                     }
-                    ProductPushErrorLog::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (CATEGORY LEVEL WRONG SETUP)', 'error', $storeWebsiteId, null, null, $log->id);
+                    ProductPushErrorLog::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (CATEGORY LEVEL WRONG SETUP)', 'error', $storeWebsiteId, null, null, $log->id);
 
                     return false;
                 }
@@ -736,9 +735,9 @@ class ProductHelper extends Model
                 // Log info
                 //LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
                 if (! $log) {
-                    $log = LogListMagento::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (PRICE RANGE)', 'emergency', $storeWebsiteId);
+                    $log = LogListMagento::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (PRICE RANGE)', 'emergency', $storeWebsiteId);
                 }
-                ProductPushErrorLog::log($product->id, 'Product ('.$product->id.') with SKU '.$product->sku.' failed (PRICE RANGE)', 'error', $storeWebsiteId, null, null, $log->id);
+                ProductPushErrorLog::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (PRICE RANGE)', 'error', $storeWebsiteId, null, null, $log->id);
                 // Return false
                 return false;
             }
@@ -834,7 +833,7 @@ class ProductHelper extends Model
         if (! empty($quick_sell_groups)) {
             $toBeRun = true;
             $quick_sell_groups = rtrim(ltrim($quick_sell_groups, ','), ',');
-            $product = $product->whereRaw('(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in ('.$quick_sell_groups.') ))');
+            $product = $product->whereRaw('(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (' . $quick_sell_groups . ') ))');
         }
 
         // check able to run queue ?
@@ -891,15 +890,15 @@ class ProductHelper extends Model
 
         return $websiteArray;
     }
-    
+
     public static function getStoreWebsiteNameByTag($id, $product = null)
     {
         $product = ($product) ? $product : Product::find($id);
 
         $brand = $product->brand;
- 
+
         $category = $product->category;
-        
+
         $storeWebsiteIdOfCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->get()->pluck('store_website_id');
         $websiteArray = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->whereIn('store_website_id', $storeWebsiteIdOfCategories)->get()->pluck('store_website_id')->toArray();
 
@@ -912,12 +911,13 @@ class ProductHelper extends Model
                 }
             }
         }
-        $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->where('tag_id',null)->get();
+        $store_websites_of_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->where('tag_id', null)->get();
 
-        $not_null_tags = \App\StoreWebsite::whereIn('id',$websiteArray)->whereNotNull('tag_id')->groupBy('tag_id')->get()->pluck('tag_id');
-        $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id',$not_null_tags)->get();
-        
+        $not_null_tags = \App\StoreWebsite::whereIn('id', $websiteArray)->whereNotNull('tag_id')->groupBy('tag_id')->get()->pluck('tag_id');
+        $store_websites_of_not_null_tags = \App\StoreWebsite::whereIn('tag_id', $not_null_tags)->get();
+
         $finalResult = $store_websites_of_null_tags->merge($store_websites_of_not_null_tags);
+
         return $finalResult;
     }
 
@@ -999,9 +999,10 @@ class ProductHelper extends Model
         }
     }
 
-    public static function getProducts($status, $limit){
+    public static function getProducts($status, $limit)
+    {
         return Product::select('*')
-            ->whereNotNull(['name','short_description'])
+            ->whereNotNull(['name', 'short_description'])
             ->status($status)
             ->groupBy('brand', 'category')
             ->limit($limit)

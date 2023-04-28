@@ -14,7 +14,7 @@ class BacklinkAnchors extends Model
     {
         $key = config('env.SEMRUSH_API');
         $apis = [
-            'anchor' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_anchors&target='.$domain.'&target_type=root_domain&export_columns=anchor,domains_num,backlinks_num,first_seen,last_seen&display_limit=5', ];
+            'anchor' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_anchors&target=' . $domain . '&target_type=root_domain&export_columns=anchor,domains_num,backlinks_num,first_seen,last_seen&display_limit=5', ];
 
         if ($column == null) {
             return $apis;

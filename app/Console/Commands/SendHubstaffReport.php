@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\Helpers\HubstaffTrait;
-use App\Library\Hubstaff\Src\Hubstaff;
-use Carbon\Carbon;
 use DB;
+use Carbon\Carbon;
+use App\ChatMessage;
 use GuzzleHttp\Client;
+use App\Helpers\HubstaffTrait;
 use Illuminate\Console\Command;
+use App\Library\Hubstaff\Src\Hubstaff;
 
 class SendHubstaffReport extends Command
 {
@@ -76,7 +76,7 @@ class SendHubstaffReport extends Command
                     : '0');
 
                 if ($today != '0') {
-                    $message = $user->name.' '.$pastHour.' '.$today;
+                    $message = $user->name . ' ' . $pastHour . ' ' . $today;
                     $hubstaffReport[] = $message;
                 }
             }

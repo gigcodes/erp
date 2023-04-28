@@ -14,8 +14,8 @@ class AddColumnCanonicalUrlToBlogsTable extends Migration
     public function up()
     {
         Schema::table('blogs', function (Blueprint $table) {
-            $table->string("canonical_url", 524)->after('internal_link')->nullable();
-            $table->string("checkmobile_friendliness", 32)->after('canonical_url')->nullable();
+            $table->string('canonical_url', 524)->after('internal_link')->nullable();
+            $table->string('checkmobile_friendliness', 32)->after('canonical_url')->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ class AddColumnCanonicalUrlToBlogsTable extends Migration
     public function down()
     {
         Schema::table('blogs', function (Blueprint $table) {
-            $table->dropColumn("canonical_url");
-            $table->dropColumn("checkmobile_friendliness");
+            $table->dropColumn('canonical_url');
+            $table->dropColumn('checkmobile_friendliness');
         });
     }
 }

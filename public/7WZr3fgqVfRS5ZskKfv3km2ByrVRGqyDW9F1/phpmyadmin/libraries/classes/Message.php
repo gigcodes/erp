@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
+use Stringable;
 use function __;
-use function _ngettext;
-use function array_unshift;
+use function md5;
 use function count;
+use function is_int;
+use function strlen;
 use const ENT_COMPAT;
-use function htmlspecialchars;
+use function sprintf;
 use function is_array;
 use function is_float;
-use function is_int;
-use function md5;
-use function sprintf;
-use Stringable;
-use function strlen;
+use function _ngettext;
+use function array_unshift;
+use function htmlspecialchars;
 
 /**
  * a single message
@@ -164,7 +164,6 @@ class Message implements Stringable
      * @param  string  $string A localized string
      *                       e.g. __('Your SQL query has been
      *                       executed successfully')
-     * @return Message
      *
      * @static
      */
@@ -183,7 +182,6 @@ class Message implements Stringable
      * shorthand for getting a simple error message
      *
      * @param  string  $string A localized string e.g. __('Error')
-     * @return Message
      *
      * @static
      */
@@ -205,7 +203,6 @@ class Message implements Stringable
      *                       e.g. __('The additional features for working with
      *                       linked tables have been deactivated. To find out
      *                       why click %shere%s.')
-     * @return Message
      *
      * @static
      */
@@ -221,7 +218,6 @@ class Message implements Stringable
      *
      * @param  string  $message A localized string
      * @param  int  $type    A numeric representation of the type of message
-     * @return Message
      *
      * @static
      */
@@ -240,7 +236,6 @@ class Message implements Stringable
      * shorthand for getting a customized message
      *
      * @param  int  $rows Number of rows
-     * @return Message
      *
      * @static
      */
@@ -260,7 +255,6 @@ class Message implements Stringable
      * shorthand for getting a customized message
      *
      * @param  int  $rows Number of rows
-     * @return Message
      *
      * @static
      */
@@ -280,7 +274,6 @@ class Message implements Stringable
      * shorthand for getting a customized message
      *
      * @param  int  $rows Number of rows
-     * @return Message
      *
      * @static
      */
@@ -300,7 +293,6 @@ class Message implements Stringable
      * shorthand for getting a customized error message
      *
      * @param  string  $message A localized string
-     * @return Message
      *
      * @static
      */
@@ -315,7 +307,6 @@ class Message implements Stringable
      * shorthand for getting a customized notice message
      *
      * @param  string  $message A localized string
-     * @return Message
      *
      * @static
      */
@@ -330,7 +321,6 @@ class Message implements Stringable
      * shorthand for getting a customized success message
      *
      * @param  string  $message A localized string
-     * @return Message
      *
      * @static
      */
@@ -559,8 +549,6 @@ class Message implements Stringable
 
     /**
      * return all parameters
-     *
-     * @return array
      */
     public function getParams(): array
     {
@@ -569,8 +557,6 @@ class Message implements Stringable
 
     /**
      * return all added messages
-     *
-     * @return array
      */
     public function getAddedMessages(): array
     {
@@ -637,8 +623,8 @@ class Message implements Stringable
     {
         if ($this->hash === null) {
             $this->hash = md5(
-                $this->getNumber().
-                $this->string.
+                $this->getNumber() .
+                $this->string .
                 $this->message
             );
         }
@@ -776,7 +762,7 @@ class Message implements Stringable
             $image = 's_notice';
         }
 
-        $message = self::notice(Html\Generator::getImage($image)).' '.$message;
+        $message = self::notice(Html\Generator::getImage($image)) . ' ' . $message;
 
         return $message;
     }

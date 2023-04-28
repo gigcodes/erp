@@ -2,58 +2,56 @@
 
 namespace App\Http\Controllers\GoogleAddWord;
 
+use Exception;
+use App\GoogleAdsAccount;
+use Illuminate\Http\Request;
+use Google\ApiCore\ApiException;
 use App\Http\Controllers\Controller;
-use Google\AdsApi\AdWords\AdWordsServices;
-use Google\AdsApi\AdWords\AdWordsSessionBuilder;
 use Google\AdsApi\AdWords\v201809\cm\Ad;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupCriterionOperation;
-use Google\AdsApi\AdWords\v201809\cm\BiddableAdGroupCriterion;
+use function League\Uri\UriTemplate\name;
+use Google\AdsApi\Common\Util\MapEntries;
+use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\v201809\cm\Gender;
+use Google\AdsApi\AdWords\v201809\cm\Paging;
+use Google\AdsApi\Common\OAuth2TokenBuilder;
 use Google\AdsApi\AdWords\v201809\cm\Keyword;
+use Google\AdsApi\AdWords\v201809\o\IdeaType;
+use Google\Ads\GoogleAds\V13\Services\UrlSeed;
 use Google\AdsApi\AdWords\v201809\cm\Language;
 use Google\AdsApi\AdWords\v201809\cm\Location;
-use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
 use Google\AdsApi\AdWords\v201809\cm\Operator;
-use Google\AdsApi\AdWords\v201809\cm\Paging;
 use Google\AdsApi\AdWords\v201809\cm\Selector;
+use Google\Ads\GoogleAds\Util\V13\ResourceNames;
+use Google\AdsApi\AdWords\AdWordsSessionBuilder;
+use Google\AdsApi\AdWords\v201809\o\RequestType;
+use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClient;
+use Google\Ads\GoogleAds\V13\Services\KeywordSeed;
 use Google\AdsApi\AdWords\v201809\o\AttributeType;
-use Google\AdsApi\AdWords\v201809\o\IdeaType;
+use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
+use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClientBuilder;
+use Google\Ads\GoogleAds\V13\Services\KeywordAndUrlSeed;
+use Google\AdsApi\AdWords\v201809\o\TargetingIdeaService;
+use Google\AdsApi\AdWords\v201809\o\TargetingIdeaSelector;
+use Google\AdsApi\AdWords\v201809\o\NetworkSearchParameter;
 use Google\AdsApi\AdWords\v201809\o\LanguageSearchParameter;
 use Google\AdsApi\AdWords\v201809\o\LocationSearchParameter;
-use Google\AdsApi\AdWords\v201809\o\NetworkSearchParameter;
-use Google\AdsApi\AdWords\v201809\o\RelatedToQuerySearchParameter;
-use Google\AdsApi\AdWords\v201809\o\RequestType;
-use Google\AdsApi\AdWords\v201809\o\SeedAdGroupIdSearchParameter;
-use Google\AdsApi\AdWords\v201809\o\TargetingIdeaSelector;
-use Google\AdsApi\AdWords\v201809\o\TargetingIdeaService;
-use Google\AdsApi\Common\OAuth2TokenBuilder;
-use Google\AdsApi\Common\Util\MapEntries;
-use Illuminate\Http\Request;
-use App\GoogleAdsAccount;
-use Exception;
-use GetOpt\GetOpt;
-use Google\Ads\GoogleAds\Examples\Utils\ArgumentNames;
-use Google\Ads\GoogleAds\Examples\Utils\ArgumentParser;
-use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClient;
-use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClientBuilder;
-use Google\Ads\GoogleAds\Lib\V13\GoogleAdsException;
-use Google\Ads\GoogleAds\Util\V13\ResourceNames;
-use Google\Ads\GoogleAds\V13\Enums\KeywordPlanNetworkEnum\KeywordPlanNetwork;
-use Google\Ads\GoogleAds\V13\Errors\GoogleAdsError;
+use Google\AdsApi\AdWords\v201809\cm\BiddableAdGroupCriterion;
+use Google\AdsApi\AdWords\v201809\cm\AdGroupCriterionOperation;
 use Google\Ads\GoogleAds\V13\Services\GenerateKeywordIdeaResult;
-use Google\Ads\GoogleAds\V13\Services\KeywordAndUrlSeed;
-use Google\Ads\GoogleAds\V13\Services\KeywordSeed;
-use Google\Ads\GoogleAds\V13\Services\UrlSeed;
-use Google\ApiCore\ApiException;
-use App\Helpers\GoogleAdsHelper;
-use function League\Uri\UriTemplate\name;
+use Google\AdsApi\AdWords\v201809\o\SeedAdGroupIdSearchParameter;
+use Google\AdsApi\AdWords\v201809\o\RelatedToQuerySearchParameter;
+use Google\Ads\GoogleAds\V13\Enums\KeywordPlanNetworkEnum\KeywordPlanNetwork;
 
 class googleAddsController extends Controller
 {
     const PAGE_LIMIT = 500;
+
     private const CUSTOMER_ID = 3814448311;
+
     private const LANGUAGE_ID = 1000;
+
     private const PAGE_URL = null;
+
     private const VIEW_TYPE = 'keyword_view';
 
     public function index(Request $request, AdWordsServices $adWordsServices)
@@ -73,23 +71,23 @@ class googleAddsController extends Controller
                 $network = $request->network;
                 $product = $request->product;
                 $gender = $request->gender;
-    
+
                 $google_search = ($request->google_search == 'true') ? true : false;
                 $search_network = ($request->search_network == 'true') ? true : false;
                 $content_network = ($request->content_network == 'true') ? true : false;
                 $partner_search_network = ($request->partner_search_network == 'true') ? true : false;
-    
+
                 $oAuth2Credential = (new OAuth2TokenBuilder())
                     ->fromFile(storage_path('adsapi_php.ini'))
                     ->build();
-                
+
                 $session = (new AdWordsSessionBuilder())
                        ->fromFile(storage_path('adsapi_php.ini'))
                        ->withOAuth2Credential($oAuth2Credential)
                        ->build();
-    
+
                 $targetingIdeaService = $adWordsServices->get($session, TargetingIdeaService::class);
-    
+
                 // Create selector.
                 $selector = new TargetingIdeaSelector();
                 $selector->setRequestType(RequestType::IDEAS);
@@ -106,12 +104,12 @@ class googleAddsController extends Controller
                         AttributeType::TARGETED_MONTHLY_SEARCHES,
                     ]
                 );
-    
+
                 $paging = new Paging();
                 $paging->setStartIndex(0);
                 $paging->setNumberResults(10);
                 $selector->setPaging($paging);
-    
+
                 $searchParameters = [];
                 // Create related to query search parameter.
                 $relatedToQuerySearchParameter = new RelatedToQuerySearchParameter();
@@ -132,28 +130,28 @@ class googleAddsController extends Controller
                     $languageParameter->setLanguages([$english]);
                     $searchParameters[] = $languageParameter;
                 }
-    
+
                 // Create network search parameter (optional).
                 $networkSetting = new NetworkSetting();
                 $networkSetting->setTargetGoogleSearch($google_search);
                 $networkSetting->setTargetSearchNetwork($search_network);
                 $networkSetting->setTargetContentNetwork($content_network);
                 $networkSetting->setTargetPartnerSearchNetwork($partner_search_network);
-    
+
                 $networkSearchParameter = new NetworkSearchParameter();
                 $networkSearchParameter->setNetworkSetting($networkSetting);
                 $searchParameters[] = $networkSearchParameter;
-    
+
                 // Optional: Set additional criteria for filtering estimates.
                 // See http://code.google.com/apis/adwords/docs/appendix/countrycodes.html
                 // for a detailed list of country codes.
                 // Set targeting criteria. Only locations and languages are supported.
-    
+
                 if (! empty($location)) {
                     // Create language search parameter (optional).
                     // The ID can be found in the documentation:
                     // https://developers.google.com/adwords/api/docs/appendix/languagecodes
-    
+
                     $locationParameter = new LocationSearchParameter();
                     $listLocation = $locationParameter->getLocations();
                     $unitedStates = new Location();
@@ -168,7 +166,7 @@ class googleAddsController extends Controller
                         $seedAdGroupIdSearchParameter->setAdGroupId($adGroupId);
                         $searchParameters[] = $seedAdGroupIdSearchParameter;
                     }
-    
+
                     $genderTarget = new Gender();
                     // ID for "male" criterion. The IDs can be found here:
                     // https://developers.google.com/adwords/api/docs/appendix/genders
@@ -176,23 +174,23 @@ class googleAddsController extends Controller
                     $genderBiddableAdGroupCriterion = new BiddableAdGroupCriterion();
                     $genderBiddableAdGroupCriterion->setAdGroupId($adGroupId);
                     $genderBiddableAdGroupCriterion->setCriterion($genderTarget);
-    
+
                     // Create an ad group criterion operation and add it to the list.
                     $genderBiddableAdGroupCriterionOperation = new AdGroupCriterionOperation();
                     $genderBiddableAdGroupCriterionOperation->setOperand(
                         $genderBiddableAdGroupCriterion
                     );
                     $genderBiddableAdGroupCriterionOperation->setOperator(Operator::ADD);
-    
+
                     $searchParameters[] = $genderBiddableAdGroupCriterionOperation;
                 }
-    
+
                 $selector->setSearchParameters($searchParameters);
                 $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
-    
+
                 // Get keyword ideas.
                 $page = $targetingIdeaService->get($selector);
-    
+
                 // Print out some information for each targeting idea.
                 $entries = $page->getEntries();
                 $finalData = [];
@@ -213,7 +211,7 @@ class googleAddsController extends Controller
                         $extractedFromWebpage = $data[AttributeType::EXTRACTED_FROM_WEBPAGE]->getValue();
                         $ideaType = $data[AttributeType::IDEA_TYPE]->getValue();
                         $tragetedMonthlySearches = $data[AttributeType::TARGETED_MONTHLY_SEARCHES]->getValue();
-    
+
                         $finalData[] = [
                             'keyword' => $keyword,
                             'searchVolume' => $searchVolume,
@@ -226,16 +224,16 @@ class googleAddsController extends Controller
                         ];
                     }
                 }
-    
+
                 if (empty($entries)) {
                     echo "No related keywords were found.\n";
                 }
                 // echo "<pre>"; print_r($finalData); die;
-                $data = ['status' => 'success','data' => $finalData];
+                $data = ['status' => 'success', 'data' => $finalData];
+
                 return $data;
             } catch (\Exception $th) {
-                
-                return ['status' => 'error','message' => $th->getMessage()];
+                return ['status' => 'error', 'message' => $th->getMessage()];
             }
         } else {
             return view('google.google-adds.index', compact('title', 'languages', 'locations'));
@@ -527,48 +525,48 @@ class googleAddsController extends Controller
     }
 
     public function generatekeywordidea(Request $request)
-    {   
+    {
         if (! $request->ajax()) {
             $title = 'Google Keyword Search';
             $languages = $this->getGoogleLanguages();
             $locations = $this->getGooglelocations();
-            return view('google.google-adds.index', compact('languages', 'locations','title'));
+
+            return view('google.google-adds.index', compact('languages', 'locations', 'title'));
         }
 
-        if($request->ajax()){
+        if ($request->ajax()) {
             ini_set('max_execution_time', -1);
-            $account_id ='3814448311'; 
-            $account = GoogleAdsAccount::where('google_customer_id',$account_id)->first();
+            $account_id = '3814448311';
+            $account = GoogleAdsAccount::where('google_customer_id', $account_id)->first();
             if (is_null($account)) {
-                return ['status' => 'error','message' => 'Goolgle Oauth Credencial missing.'];
-            } 
-                try {
-                    $clientId = $account->oauth2_client_id;
-                    $clientSecret = $account->oauth2_client_secret;
-                    $refreshToken = $account->oauth2_refresh_token;
-                    $developerToken = $account->google_adwords_manager_account_developer_token;
-                    $loginCustomerId = $account->google_adwords_manager_account_customer_id;
+                return ['status' => 'error', 'message' => 'Goolgle Oauth Credencial missing.'];
+            }
+            try {
+                $clientId = $account->oauth2_client_id;
+                $clientSecret = $account->oauth2_client_secret;
+                $refreshToken = $account->oauth2_refresh_token;
+                $developerToken = $account->google_adwords_manager_account_developer_token;
+                $loginCustomerId = $account->google_adwords_manager_account_customer_id;
 
-                    $oAuth2Credential = (new OAuth2TokenBuilder())
-                                        ->withClientId($clientId)
-                                        ->withClientSecret($clientSecret)
-                                        ->withRefreshToken($refreshToken)
-                                        ->build();
+                $oAuth2Credential = (new OAuth2TokenBuilder())
+                                    ->withClientId($clientId)
+                                    ->withClientSecret($clientSecret)
+                                    ->withRefreshToken($refreshToken)
+                                    ->build();
 
-                    $googleAdsClient = (new GoogleAdsClientBuilder())
-                                        ->withDeveloperToken($developerToken)
-                                        ->withLoginCustomerId($loginCustomerId)
-                                        ->withOAuth2Credential($oAuth2Credential)
-                                        ->build();
-
-               } catch (Exception $e) {
-                    return ['status' => 'error','message' => $e->getMessage()];
-               }
+                $googleAdsClient = (new GoogleAdsClientBuilder())
+                                    ->withDeveloperToken($developerToken)
+                                    ->withLoginCustomerId($loginCustomerId)
+                                    ->withOAuth2Credential($oAuth2Credential)
+                                    ->build();
+            } catch (Exception $e) {
+                return ['status' => 'error', 'message' => $e->getMessage()];
+            }
             try {
                 if ($request->location) {
-                    return $result = self::runExample($googleAdsClient, $request->viewType ? $request->viewType : self::VIEW_TYPE,self::CUSTOMER_ID, [$request->location], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
+                    return $result = self::runExample($googleAdsClient, $request->viewType ? $request->viewType : self::VIEW_TYPE, self::CUSTOMER_ID, [$request->location], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
                 } else {
-                    return $result = self::runExample($googleAdsClient, $request->viewType ? $request->viewType : self::VIEW_TYPE,self::CUSTOMER_ID, [], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
+                    return $result = self::runExample($googleAdsClient, $request->viewType ? $request->viewType : self::VIEW_TYPE, self::CUSTOMER_ID, [], $request->language ?? self::LANGUAGE_ID, [$request->keyword], self::PAGE_URL);
                 }
             } catch (ApiException $apiException) {
                 printf(
@@ -577,16 +575,17 @@ class googleAddsController extends Controller
                     PHP_EOL
                 );
                 $message = $apiException->getMessage();
-                if(strpos($message, 'Resource has been exhausted') >= 0) {
+                if (strpos($message, 'Resource has been exhausted') >= 0) {
                     $message = 'Google API Quota exhausted, Please check your API Quota or Try after sometime.';
                 }
-                return ['status' => 'error','message' =>$message];
+
+                return ['status' => 'error', 'message' => $message];
                 exit(1);
             }
         }
     }
 
-     /**
+    /**
      * Runs the example.
      *
      * @param  GoogleAdsClient  $googleAdsClient the Google Ads API client
@@ -598,7 +597,7 @@ class googleAddsController extends Controller
      */
     // [START GenerateKeywordIdeas]
 
-    public static function runExample(GoogleAdsClient $googleAdsClient, $viewType = 'keyword_view', int $customerId, array $locationIds, int $languageId, array $keywords, ?string $pageUrl)
+    public static function runExample(GoogleAdsClient $googleAdsClient, $viewType, int $customerId, array $locationIds, int $languageId, array $keywords, ?string $pageUrl)
     {
         $keywordPlanIdeaServiceClient = $googleAdsClient->getKeywordPlanIdeaServiceClient();
         // Make sure that keywords and/or page URL were specified. The request must have exactly one
@@ -650,14 +649,14 @@ class googleAddsController extends Controller
         foreach ($response->iterateAllElements() as $result) {
             /** @var GenerateKeywordIdeaResult $result */
             $translateText = '--';
-            
+
             $finalData[] = [
                 'keyword' => $result->getText(),
                 'avg_monthly_searches' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getAvgMonthlySearches(),
                 'competition' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getCompetition(),
                 'low_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getLowTopOfPageBidMicros(),
                 'high_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getHighTopOfPageBidMicros(),
-                'translate_text' => $translateText
+                'translate_text' => $translateText,
             ];
         }
         $data = ['status' => 'success', 'data' => $finalData];
@@ -668,29 +667,29 @@ class googleAddsController extends Controller
             $alreadyGroupedStrings = [];
 
             $skipWords = ['me', 'this', 'that', 'these', 'those', 'what', 'in', 'which', 'is', 'on'];
-            for ($i = 0; $i < sizeof($finalData); $i++) {
-                $words1 = explode(" ", $finalData[$i]['keyword']);
+            for ($i = 0; $i < count($finalData); $i++) {
+                $words1 = explode(' ', $finalData[$i]['keyword']);
                 $matchString = '';
-                for ($j = 0; $j < sizeof($finalData); $j++) {
-
-                    if ($i == $j) continue;
+                for ($j = 0; $j < count($finalData); $j++) {
+                    if ($i == $j) {
+                        continue;
+                    }
                     if (array_key_exists($finalData[$j]['keyword'], $alreadyGroupedStrings)) {
                         continue;
                     }
-                    $words2 = explode(" ", $finalData[$j]['keyword']);
+                    $words2 = explode(' ', $finalData[$j]['keyword']);
                     $matches = [];
 
-                    for ($k = 0; $k < sizeof($words1); $k++) {
-                        for ($x = 0; $x < sizeof($words2); $x++) {
-                            if (!in_array($words2[$x], $skipWords) && strtolower($words2[$x]) === strtolower($words1[$k])) {
+                    for ($k = 0; $k < count($words1); $k++) {
+                        for ($x = 0; $x < count($words2); $x++) {
+                            if (! in_array($words2[$x], $skipWords) && strtolower($words2[$x]) === strtolower($words1[$k])) {
                                 $matches[] = $words2[$x];
                                 break;
                             }
                         }
                     }
                     $matchString = implode(' ', $matches);
-                    if (!empty($matchString) && sizeof($matches) >= 2 && $matchString !== $keywords[0]) {
-
+                    if (! empty($matchString) && count($matches) >= 2 && $matchString !== $keywords[0]) {
                         if (empty($finalArray[$matchString])) {
                             $finalArray[$matchString] = [];
                         }
@@ -698,7 +697,7 @@ class googleAddsController extends Controller
                         $alreadyGroupedStrings[$finalData[$j]['keyword']] = $finalData[$j];
                     }
                 }
-                if(!empty($matchString) && $matchString !== $keywords[0]) {
+                if (! empty($matchString) && $matchString !== $keywords[0]) {
                     if (empty($finalArray[$matchString])) {
                         $finalArray[$matchString] = [];
                     }
@@ -707,6 +706,7 @@ class googleAddsController extends Controller
             }
             $data = ['status' => 'success', 'data' => $finalArray];
         }
+
         return $data;
     }
 }

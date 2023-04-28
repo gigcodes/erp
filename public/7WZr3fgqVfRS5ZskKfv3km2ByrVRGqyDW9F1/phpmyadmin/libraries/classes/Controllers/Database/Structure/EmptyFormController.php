@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Database\Structure;
 
 use function __;
-use function htmlspecialchars;
-use PhpMyAdmin\Controllers\Database\AbstractController;
 use PhpMyAdmin\Util;
+use function htmlspecialchars;
 use PhpMyAdmin\Utils\ForeignKey;
+use PhpMyAdmin\Controllers\Database\AbstractController;
 
 final class EmptyFormController extends AbstractController
 {
@@ -30,7 +30,7 @@ final class EmptyFormController extends AbstractController
 
         foreach ($selected as $selectedValue) {
             $fullQuery .= 'TRUNCATE ';
-            $fullQuery .= Util::backquote(htmlspecialchars($selectedValue)).';<br>';
+            $fullQuery .= Util::backquote(htmlspecialchars($selectedValue)) . ';<br>';
             $urlParams['selected'][] = $selectedValue;
         }
 

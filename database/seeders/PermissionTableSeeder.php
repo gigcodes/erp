@@ -153,7 +153,7 @@ class PermissionTableSeeder extends Seeder
             'templates-manage',
             'user-roles-manage',
             'users-manage',
-            'assets-manager-create'
+            'assets-manager-create',
         ];
 
         foreach ($permissions as $permission) {

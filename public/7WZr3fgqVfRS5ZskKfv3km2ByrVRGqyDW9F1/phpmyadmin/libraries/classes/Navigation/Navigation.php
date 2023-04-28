@@ -9,24 +9,24 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Navigation;
 
 use function __;
+use function trim;
 use function count;
+use PhpMyAdmin\Url;
+use function strpos;
+use PhpMyAdmin\Util;
 use function defined;
-use function file_exists;
 use function is_bool;
-use function parse_url;
+use PhpMyAdmin\Theme;
 use const PHP_URL_HOST;
+use function parse_url;
+use PhpMyAdmin\Sanitize;
+use PhpMyAdmin\Template;
+use function file_exists;
+use PhpMyAdmin\Server\Select;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Config\PageSettings;
 use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Sanitize;
-use PhpMyAdmin\Server\Select;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Theme;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function strpos;
-use function trim;
 
 /**
  * The navigation panel - displays server, db and table selection tree
@@ -163,16 +163,16 @@ class Navigation
         }
 
         $navTable = Util::backquote($navigationItemsHidingFeature->database)
-            .'.'.Util::backquote($navigationItemsHidingFeature->navigationHiding);
-        $sqlQuery = 'INSERT INTO '.$navTable
-            .'(`username`, `item_name`, `item_type`, `db_name`, `table_name`)'
-            .' VALUES ('
-            ."'".$this->dbi->escapeString($GLOBALS['cfg']['Server']['user'])."',"
-            ."'".$this->dbi->escapeString($itemName)."',"
-            ."'".$this->dbi->escapeString($itemType)."',"
-            ."'".$this->dbi->escapeString($dbName)."',"
-            ."'".(! empty($tableName) ? $this->dbi->escapeString($tableName) : '')
-            ."')";
+            . '.' . Util::backquote($navigationItemsHidingFeature->navigationHiding);
+        $sqlQuery = 'INSERT INTO ' . $navTable
+            . '(`username`, `item_name`, `item_type`, `db_name`, `table_name`)'
+            . ' VALUES ('
+            . "'" . $this->dbi->escapeString($GLOBALS['cfg']['Server']['user']) . "',"
+            . "'" . $this->dbi->escapeString($itemName) . "',"
+            . "'" . $this->dbi->escapeString($itemType) . "',"
+            . "'" . $this->dbi->escapeString($dbName) . "',"
+            . "'" . (! empty($tableName) ? $this->dbi->escapeString($tableName) : '')
+            . "')";
         $this->dbi->tryQueryAsControlUser($sqlQuery);
     }
 
@@ -197,16 +197,16 @@ class Navigation
         }
 
         $navTable = Util::backquote($navigationItemsHidingFeature->database)
-            .'.'.Util::backquote($navigationItemsHidingFeature->navigationHiding);
-        $sqlQuery = 'DELETE FROM '.$navTable
-            .' WHERE'
-            ." `username`='"
-            .$this->dbi->escapeString($GLOBALS['cfg']['Server']['user'])."'"
-            ." AND `item_name`='".$this->dbi->escapeString($itemName)."'"
-            ." AND `item_type`='".$this->dbi->escapeString($itemType)."'"
-            ." AND `db_name`='".$this->dbi->escapeString($dbName)."'"
-            .(! empty($tableName)
-                ? " AND `table_name`='".$this->dbi->escapeString($tableName)."'"
+            . '.' . Util::backquote($navigationItemsHidingFeature->navigationHiding);
+        $sqlQuery = 'DELETE FROM ' . $navTable
+            . ' WHERE'
+            . " `username`='"
+            . $this->dbi->escapeString($GLOBALS['cfg']['Server']['user']) . "'"
+            . " AND `item_name`='" . $this->dbi->escapeString($itemName) . "'"
+            . " AND `item_type`='" . $this->dbi->escapeString($itemType) . "'"
+            . " AND `db_name`='" . $this->dbi->escapeString($dbName) . "'"
+            . (! empty($tableName)
+                ? " AND `table_name`='" . $this->dbi->escapeString($tableName) . "'"
                 : ''
             );
         $this->dbi->tryQueryAsControlUser($sqlQuery);
@@ -245,7 +245,6 @@ class Navigation
     /**
      * @param  string  $database Database name
      * @param  string|null  $table    Table name
-     * @return array
      */
     private function getHiddenItems(string $database, ?string $table): array
     {
@@ -255,13 +254,13 @@ class Navigation
         }
 
         $navTable = Util::backquote($navigationItemsHidingFeature->database)
-            .'.'.Util::backquote($navigationItemsHidingFeature->navigationHiding);
-        $sqlQuery = 'SELECT `item_name`, `item_type` FROM '.$navTable
-            ." WHERE `username`='"
-            .$this->dbi->escapeString($GLOBALS['cfg']['Server']['user'])."'"
-            ." AND `db_name`='".$this->dbi->escapeString($database)."'"
-            ." AND `table_name`='"
-            .(! empty($table) ? $this->dbi->escapeString($table) : '')."'";
+            . '.' . Util::backquote($navigationItemsHidingFeature->navigationHiding);
+        $sqlQuery = 'SELECT `item_name`, `item_type` FROM ' . $navTable
+            . " WHERE `username`='"
+            . $this->dbi->escapeString($GLOBALS['cfg']['Server']['user']) . "'"
+            . " AND `db_name`='" . $this->dbi->escapeString($database) . "'"
+            . " AND `table_name`='"
+            . (! empty($table) ? $this->dbi->escapeString($table) : '') . "'";
         $result = $this->dbi->tryQueryAsControlUser($sqlQuery);
 
         $hidden = [];
@@ -287,12 +286,12 @@ class Navigation
         global $theme;
 
         if ($theme instanceof Theme) {
-            if (@file_exists($theme->getFsPath().'img/logo_left.png')) {
-                return $theme->getPath().'/img/logo_left.png';
+            if (@file_exists($theme->getFsPath() . 'img/logo_left.png')) {
+                return $theme->getPath() . '/img/logo_left.png';
             }
 
-            if (@file_exists($theme->getFsPath().'img/pma_logo2.png')) {
-                return $theme->getPath().'/img/pma_logo2.png';
+            if (@file_exists($theme->getFsPath() . 'img/pma_logo2.png')) {
+                return $theme->getPath() . '/img/pma_logo2.png';
             }
         }
 

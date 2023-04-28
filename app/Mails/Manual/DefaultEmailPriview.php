@@ -2,10 +2,10 @@
 
 namespace App\Mails\Manual;
 
+use Illuminate\Support\Arr;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Arr;
 
 class DefaultEmailPriview extends Mailable
 {

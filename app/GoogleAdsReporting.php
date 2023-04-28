@@ -2,7 +2,6 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class GoogleAdsReporting extends Model
@@ -10,19 +9,19 @@ class GoogleAdsReporting extends Model
     protected $table = 'google_ads_reportings';
 
     protected $fillable = [
-        'google_customer_id', 
-        'adgroup_google_campaign_id', 
-        'google_adgroup_id', 
-        'google_ad_id', 
-        'google_account_id', 
+        'google_customer_id',
+        'adgroup_google_campaign_id',
+        'google_adgroup_id',
+        'google_ad_id',
+        'google_account_id',
         'campaign_type',
-        'impression', 
-        'click', 
-        'cost_micros', 
-        'average_cpc', 
-        'date', 
-        'created_at', 
-        'updated_at', 
+        'impression',
+        'click',
+        'cost_micros',
+        'average_cpc',
+        'date',
+        'created_at',
+        'updated_at',
     ];
 
     public function account()

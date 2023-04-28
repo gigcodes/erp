@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
+use File;
 use App\Product;
 use Carbon\Carbon;
-use File;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class DeleteProducts extends Command

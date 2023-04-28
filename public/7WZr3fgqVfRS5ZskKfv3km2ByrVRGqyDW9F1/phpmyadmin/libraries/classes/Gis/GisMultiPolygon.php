@@ -7,18 +7,18 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Gis;
 
-use function array_merge;
-use function array_slice;
-use function count;
-use function explode;
-use function hexdec;
-use function json_encode;
-use function mb_substr;
-use PhpMyAdmin\Image\ImageWrapper;
-use function round;
-use function str_contains;
 use TCPDF;
 use function trim;
+use function count;
+use function round;
+use function hexdec;
+use function explode;
+use function mb_substr;
+use function array_merge;
+use function array_slice;
+use function json_encode;
+use function str_contains;
+use PhpMyAdmin\Image\ImageWrapper;
 
 /**
  * Handles actions related to GIS MULTIPOLYGON objects
@@ -277,10 +277,10 @@ class GisMultiPolygon extends GisGeometry
                 }
             }
 
-            $polygon_options['id'] = $label.$this->getRandomId();
+            $polygon_options['id'] = $label . $this->getRandomId();
             $row .= '"';
             foreach ($polygon_options as $option => $val) {
-                $row .= ' '.$option.'="'.trim((string) $val).'"';
+                $row .= ' ' . $option . '="' . trim((string) $val) . '"';
             }
 
             $row .= '/>';
@@ -309,12 +309,12 @@ class GisMultiPolygon extends GisGeometry
             'width' => 0.5,
         ];
         $row = 'var style = new ol.style.Style({'
-            .'fill: new ol.style.Fill('.json_encode($fill_style).'),'
-            .'stroke: new ol.style.Stroke('.json_encode($stroke_style).')';
+            . 'fill: new ol.style.Fill(' . json_encode($fill_style) . '),'
+            . 'stroke: new ol.style.Stroke(' . json_encode($stroke_style) . ')';
 
         if (trim($label) !== '') {
             $text_style = ['text' => trim($label)];
-            $row .= ',text: new ol.style.Text('.json_encode($text_style).')';
+            $row .= ',text: new ol.style.Text(' . json_encode($text_style) . ')';
         }
 
         $row .= '});';
@@ -330,11 +330,11 @@ class GisMultiPolygon extends GisGeometry
         // Separate each polygon
         $polygons = explode(')),((', $multipolygon);
 
-        return $row.$this->getPolygonArrayForOpenLayers($polygons, $srid)
-            .'var multiPolygon = new ol.geom.MultiPolygon(polygonArray);'
-            .'var feature = new ol.Feature(multiPolygon);'
-            .'feature.setStyle(style);'
-            .'vectorLayer.addFeature(feature);';
+        return $row . $this->getPolygonArrayForOpenLayers($polygons, $srid)
+            . 'var multiPolygon = new ol.geom.MultiPolygon(polygonArray);'
+            . 'var feature = new ol.Feature(multiPolygon);'
+            . 'feature.setStyle(style);'
+            . 'vectorLayer.addFeature(feature);';
     }
 
     /**
@@ -348,10 +348,10 @@ class GisMultiPolygon extends GisGeometry
     {
         $points_arr = $this->extractPoints($polygon, $scale_data);
 
-        $row = ' M '.$points_arr[0][0].', '.$points_arr[0][1];
+        $row = ' M ' . $points_arr[0][0] . ', ' . $points_arr[0][1];
         $other_points = array_slice($points_arr, 1, count($points_arr) - 2);
         foreach ($other_points as $point) {
-            $row .= ' L '.$point[0].', '.$point[1];
+            $row .= ' L ' . $point[0] . ', ' . $point[1];
         }
 
         $row .= ' Z ';
@@ -395,9 +395,9 @@ class GisMultiPolygon extends GisGeometry
                     $wkt .= (isset($data_row[$k][$i][$j]['x'])
                             && trim((string) $data_row[$k][$i][$j]['x']) != ''
                             ? $data_row[$k][$i][$j]['x'] : $empty)
-                        .' '.(isset($data_row[$k][$i][$j]['y'])
+                        . ' ' . (isset($data_row[$k][$i][$j]['y'])
                             && trim((string) $data_row[$k][$i][$j]['y']) != ''
-                            ? $data_row[$k][$i][$j]['y'] : $empty).',';
+                            ? $data_row[$k][$i][$j]['y'] : $empty) . ',';
                 }
 
                 $wkt = mb_substr($wkt, 0, -1);
@@ -410,7 +410,7 @@ class GisMultiPolygon extends GisGeometry
 
         $wkt = mb_substr($wkt, 0, -1);
 
-        return $wkt.')';
+        return $wkt . ')';
     }
 
     /**
@@ -473,7 +473,7 @@ class GisMultiPolygon extends GisGeometry
 
             $wkt .= '('; // start of outer ring
             foreach ($ring['points'] as $point) {
-                $wkt .= $point['x'].' '.$point['y'].',';
+                $wkt .= $point['x'] . ' ' . $point['y'] . ',';
             }
 
             $wkt = mb_substr($wkt, 0, -1);
@@ -484,7 +484,7 @@ class GisMultiPolygon extends GisGeometry
                 foreach ($ring['inner'] as $j) {
                     $wkt .= ',('; // start of inner ring
                     foreach ($row_data['parts'][$j]['points'] as $innerPoint) {
-                        $wkt .= $innerPoint['x'].' '.$innerPoint['y'].',';
+                        $wkt .= $innerPoint['x'] . ' ' . $innerPoint['y'] . ',';
                     }
 
                     $wkt = mb_substr($wkt, 0, -1);
@@ -497,7 +497,7 @@ class GisMultiPolygon extends GisGeometry
 
         $wkt = mb_substr($wkt, 0, -1);
 
-        return $wkt.')';
+        return $wkt . ')';
     }
 
     /**

@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\AutoCommentHistory;
-use App\AutoReplyHashtags;
+use Carbon\Carbon;
 use App\CronJobReport;
+use App\AutoReplyHashtags;
 //use App\InstagramAutoComments;
 //use App\Services\Instagram\Hashtags;
-use Carbon\Carbon;
+use App\AutoCommentHistory;
 //use InstagramAPI\Instagram;
 use Illuminate\Console\Command;
 
@@ -85,7 +85,7 @@ class AutoCommentBot extends Command
                 }
 
                 $caption = $post->caption;
-                $caption = str_replace(['#', '@', '!', '-'.'/'], ' ', $caption);
+                $caption = str_replace(['#', '@', '!', '-' . '/'], ' ', $caption);
                 $caption = explode(' ', $caption);
 
 //                $comment = $comment->where(function ($query) use ($caption) {

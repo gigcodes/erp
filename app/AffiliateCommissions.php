@@ -24,7 +24,6 @@ class AffiliateCommissions extends Model
         'finalization_date',
     ];
 
-
     public function account()
     {
         return $this->hasOne(AffiliateProviderAccounts::class, 'affiliate_account_id', 'id');

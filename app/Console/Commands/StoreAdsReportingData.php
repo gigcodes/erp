@@ -3,18 +3,12 @@
 namespace App\Console\Commands;
 
 use App\GoogleAdsAccount;
-use App\GoogleAdsCampaign;
 use App\GoogleAdsReporting;
-use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
-use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
-use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
-use Google\Ads\GoogleAds\Lib\V12\GoogleAdsServerStreamDecorator;
-use Google\Ads\GoogleAds\V12\Enums\KeywordMatchTypeEnum\KeywordMatchType;
-use Google\Ads\GoogleAds\V12\Services\GoogleAdsRow;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Model;
+use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
+use Google\Ads\GoogleAds\Lib\ConfigurationLoader;
+use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
 use Symfony\Component\Config\Definition\Exception\Exception;
-
 
 class StoreAdsReportingData extends Command
 {
@@ -50,26 +44,28 @@ class StoreAdsReportingData extends Command
     public function handle()
     {
         $googleAdsAccounts = GoogleAdsAccount::has('campaigns')->with(['campaigns'])->get();
-        foreach ($googleAdsAccounts as $googleAdsAccount){
+        foreach ($googleAdsAccounts as $googleAdsAccount) {
             $campaignIds = $googleAdsAccount->campaigns->pluck('google_campaign_id')->toArray();
-            if(!empty($campaignIds)){
+            if (! empty($campaignIds)) {
                 $this->getAllCampaignData($googleAdsAccount, $campaignIds);
             }
         }
+
         return 0;
     }
 
     /**
      * @param $googleAdsCampaign
+     *
      * @throws \Google\ApiCore\ApiException
      */
     public function getAllCampaignData($googleAdsAccount, $campaignIds)
     {
-        $campaignIds = implode(",", $campaignIds);
+        $campaignIds = implode(',', $campaignIds);
 
-        $storagepath = storage_path('app/adsapi/'.$googleAdsAccount->id.'/'.$googleAdsAccount->config_file_path);        // Get OAuth2 configuration from file.
+        $storagepath = storage_path('app/adsapi/' . $googleAdsAccount->id . '/' . $googleAdsAccount->config_file_path);        // Get OAuth2 configuration from file.
 
-        if(!file_exists($storagepath)){
+        if (! file_exists($storagepath)) {
             return true;
         }
         $oAuth2Configuration = (new ConfigurationLoader())->fromFile($storagepath);
@@ -108,51 +104,49 @@ class StoreAdsReportingData extends Command
         // Iterates over all rows in all messages and prints the requested field values for
         // the keyword in each row.
         foreach ($stream->iterateAllElements() as $googleAdsRow) {
-
             $metrics = $googleAdsRow->getMetrics();
             $campaign = $googleAdsRow->getCampaign();
             $adGroup = $googleAdsRow->getAdGroup();
             $ad = $googleAdsRow->getAdGroupAd()->getAd();
 
             try {
-                $input = array(
-                                'google_customer_id' => $googleAdsAccount->google_customer_id, 
-                                'adgroup_google_campaign_id' => $campaign->getId(), 
-                                'google_adgroup_id' => $adGroup->getId(), 
-                                'google_ad_id' => $ad->getId(), 
-                                'google_account_id' => $googleAdsAccount->id, 
-                                'campaign_type' => self::getCampaignType($campaign->getAdvertisingChannelType()), 
-                                'impression' => $metrics->getImpressions(), 
-                                'click' => $metrics->getClicks(), 
-                                'cost_micros' => $metrics->getCostMicros(), 
-                                'average_cpc' => $metrics->getAverageCpc(), 
-                                'date' => date("Y-m-d"), 
-                            );
+                $input = [
+                    'google_customer_id' => $googleAdsAccount->google_customer_id,
+                    'adgroup_google_campaign_id' => $campaign->getId(),
+                    'google_adgroup_id' => $adGroup->getId(),
+                    'google_ad_id' => $ad->getId(),
+                    'google_account_id' => $googleAdsAccount->id,
+                    'campaign_type' => self::getCampaignType($campaign->getAdvertisingChannelType()),
+                    'impression' => $metrics->getImpressions(),
+                    'click' => $metrics->getClicks(),
+                    'cost_micros' => $metrics->getCostMicros(),
+                    'average_cpc' => $metrics->getAverageCpc(),
+                    'date' => date('Y-m-d'),
+                ];
                 GoogleAdsReporting::updateOrCreate([
-                                        'google_customer_id' => $googleAdsAccount->google_customer_id, 
-                                        'adgroup_google_campaign_id' => $campaign->getId(), 
-                                        'google_adgroup_id' => $adGroup->getId(), 
-                                        'google_ad_id' => $ad->getId(),
-                                        'google_account_id' => $googleAdsAccount->id,
-                                        'date' => date("Y-m-d"),
-                                    ], $input);
+                    'google_customer_id' => $googleAdsAccount->google_customer_id,
+                    'adgroup_google_campaign_id' => $campaign->getId(),
+                    'google_adgroup_id' => $adGroup->getId(),
+                    'google_ad_id' => $ad->getId(),
+                    'google_account_id' => $googleAdsAccount->id,
+                    'date' => date('Y-m-d'),
+                ], $input);
 
-                $this->info('Store reporting data for ad: '. $ad->getId());
-
-            }catch (Exception $exception){
+                $this->info('Store reporting data for ad: ' . $ad->getId());
+            } catch (Exception $exception) {
             }
         }
     }
 
     private function getCampaignType($advertisingChannelTypeId)
     {
-        $data = array(
-                    0 => "UNSPECIFIED",
-                    2 => "SEARCH",
-                    3 => "DISPLAY",
-                    4 => "SHOPPING",
-                    7 => "MULTI_CHANNEL",
-                );
+        $data = [
+            0 => 'UNSPECIFIED',
+            2 => 'SEARCH',
+            3 => 'DISPLAY',
+            4 => 'SHOPPING',
+            7 => 'MULTI_CHANNEL',
+        ];
 
         return $data[$advertisingChannelTypeId] ?? $data[0];
     }

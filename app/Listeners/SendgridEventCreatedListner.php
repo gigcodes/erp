@@ -19,7 +19,6 @@ class SendgridEventCreatedListner
     /**
      * Handle the event.
      *
-     * @param  SendgridEventCreated  $event
      * @return void
      */
     public function handle(SendgridEventCreated $event)

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\LearningModule;
 use Auth;
+use App\LearningModule;
 use Illuminate\Http\Request;
 
 class LearningCategoryController extends Controller

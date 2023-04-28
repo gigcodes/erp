@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
+use DB;
 use App\AutoReply;
 use App\ChatbotKeyword;
-use App\ChatbotKeywordValue;
-use App\ChatbotKeywordValueTypes;
 use App\ChatbotQuestion;
+use App\ChatbotKeywordValue;
 use App\ChatbotQuestionExample;
-use DB;
 use Illuminate\Console\Command;
+use App\ChatbotKeywordValueTypes;
 
 class MergeIntentEntity extends Command
 {
@@ -88,9 +88,9 @@ class MergeIntentEntity extends Command
         } catch (\Exception $e) {
             DB::rollback();
             DB::commit();
-            echo 'Something went wrong, database rolledback succesfully.'.PHP_EOL;
+            echo 'Something went wrong, database rolledback succesfully.' . PHP_EOL;
         }
         DB::commit();
-        echo 'Successful.'.PHP_EOL;
+        echo 'Successful.' . PHP_EOL;
     }
 }

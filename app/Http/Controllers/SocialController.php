@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\AdsSchedules;
+use Session;
 use App\Image;
 use App\Product;
 use App\Setting;
-use App\Social\SocialConfig;
-use Facebook\Facebook;
 use FacebookAds\Api;
+use App\AdsSchedules;
+use Facebook\Facebook;
 use FacebookAds\Object\Ad;
+use App\Social\SocialConfig;
+use Illuminate\Http\Request;
+use App\Helpers\SocialHelper;
 use FacebookAds\Object\AdAccount;
 use FacebookAds\Object\Fields\AdFields;
-use Illuminate\Http\Request;
-use Session;
-use App\Helpers\SocialHelper;
 
 class SocialController extends Controller
 {
@@ -50,7 +50,7 @@ class SocialController extends Controller
             $p = "&time_range={'since':'$request->date_form','until':'$request->date_to'}";
         }
 
-        $query = 'https://graph.facebook.com/v3.2/'.$this->ad_acc_id.'/ads?fields=id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights{campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}&limit=10&access_token='.$this->user_access_token;
+        $query = 'https://graph.facebook.com/v3.2/' . $this->ad_acc_id . '/ads?fields=id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights{campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}&limit=10&access_token=' . $this->user_access_token;
 
         if ($request->has('previous')) {
             $query = $request->get('prev');
@@ -122,7 +122,7 @@ class SocialController extends Controller
         if ($type == 'image') {
             $img = Image::find($aid);
 
-            return '/uploads/social-media/'.$img->filename;
+            return '/uploads/social-media/' . $img->filename;
         }
 
         $pro = Product::find($aid);
@@ -183,7 +183,7 @@ class SocialController extends Controller
 
     public function getAdInsights()
     {
-        $query = 'https://graph.facebook.com/v3.2/'.$this->ad_acc_id.'/campaigns?fields=ads{id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}}&limit=5&access_token='.$this->user_access_token.'';
+        $query = 'https://graph.facebook.com/v3.2/' . $this->ad_acc_id . '/campaigns?fields=ads{id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}}&limit=5&access_token=' . $this->user_access_token . '';
         // Call to Graph api here
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $query);
@@ -292,7 +292,7 @@ class SocialController extends Controller
             $data['posts'] = substr($request->input('previous'), 32);
             $data['posts'] = $this->fb->get($data['posts'])->getGraphEdge();
         } else {
-            $data['posts'] = $this->fb->get(''.$this->page_id.'/feed?fields=id,full_picture,permalink_url,name,description,message,created_time,from,story,likes.limit(0).summary(true),comments.summary(true).filter(stream)&limit=10&access_token='.$this->page_access_token.'')->getGraphEdge();
+            $data['posts'] = $this->fb->get('' . $this->page_id . '/feed?fields=id,full_picture,permalink_url,name,description,message,created_time,from,story,likes.limit(0).summary(true),comments.summary(true).filter(stream)&limit=10&access_token=' . $this->page_access_token . '')->getGraphEdge();
         }
 
         // Making Pagination
@@ -341,7 +341,7 @@ class SocialController extends Controller
         ]);
         $items = explode(',', $request->get('items'));
         $comments = array_map(function ($commmentId) {
-            $comment = $this->fb->get($commmentId.'?fields=id,message,from,can_comment&access_token='.$this->page_access_token)->getDecodedBody();
+            $comment = $this->fb->get($commmentId . '?fields=id,message,from,can_comment&access_token=' . $this->page_access_token)->getDecodedBody();
 
             return $comment;
         }, $items);
@@ -360,7 +360,7 @@ class SocialController extends Controller
         $postId = $request->get('post_id');
 
         $comment = $this->fb
-            ->post($postId.'/comments',
+            ->post($postId . '/comments',
                 [
                     'message' => $message,
                     'fields' => 'id,message,from',
@@ -399,7 +399,7 @@ class SocialController extends Controller
                 $data['source'] = $this->fb->fileToUpload($source);
 
                 // post multi-photo story
-                $multiPhotoPost['attached_media['.$key.']'] = '{"media_fbid":"'.$this->fb->post('/me/photos', $data)->getGraphNode()->asArray()['id'].'"}';
+                $multiPhotoPost['attached_media[' . $key . ']'] = '{"media_fbid":"' . $this->fb->post('/me/photos', $data)->getGraphNode()->asArray()['id'] . '"}';
             }
 
             // Uploading Multi story facebook photo
@@ -421,11 +421,11 @@ class SocialController extends Controller
 
         // Video Case
         elseif ($request->hasFile('video')) {
-            $data['title'] = ''.trim($message).'';
+            $data['title'] = '' . trim($message) . '';
 
-            $data['description'] = ''.trim($request->input('description')).'';
+            $data['description'] = '' . trim($request->input('description')) . '';
 
-            $data['source'] = $this->fb->videoToUpload(''.trim($request->file('video')).'');
+            $data['source'] = $this->fb->videoToUpload('' . trim($request->file('video')) . '');
             // dd($thumb);
 
             if ($request->has('date') && $request->input('date') > date('Y-m-d')) {
@@ -490,7 +490,7 @@ class SocialController extends Controller
     private function getInsights($ad, $p)
     {
         $adId = $ad->id;
-        $url = "https://graph.facebook.com/v3.2/$adId/insights?fields=campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks&access_token=EAAD7Te0j0B8BAJKziYXYZCNZB0i6B9JMBvYULH5kIeH5qm6N9E3DZBoQyZCZC0bxZB4c4Rl5gifAqVa788DRaCWXQ2fNPtKFVnEoKvb5Nm1ufMG5cZCTTzKZAM8qUyaDtT0mmyC0zjhv5S9IJt70tQBpDMRHk9XNYoPTtmBedrvevtPIRPEUKns8feYJMkqHS6EZD".$p;
+        $url = "https://graph.facebook.com/v3.2/$adId/insights?fields=campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks&access_token=EAAD7Te0j0B8BAJKziYXYZCNZB0i6B9JMBvYULH5kIeH5qm6N9E3DZBoQyZCZC0bxZB4c4Rl5gifAqVa788DRaCWXQ2fNPtKFVnEoKvb5Nm1ufMG5cZCTTzKZAM8qUyaDtT0mmyC0zjhv5S9IJt70tQBpDMRHk9XNYoPTtmBedrvevtPIRPEUKns8feYJMkqHS6EZD" . $p;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -513,7 +513,6 @@ class SocialController extends Controller
 
     public function getAdAccount($config, $fb)
     {
-        
         $response = '';
 
         try {
@@ -522,7 +521,8 @@ class SocialController extends Controller
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
             // return $response = $fb->get('/me/adaccounts', $token);  //Old
-            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token); //New using graph API
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token=' . $token); //New using graph API
+
             return $response = SocialHelper::curlGetRequest($url);
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
@@ -535,7 +535,7 @@ class SocialController extends Controller
                     return $key['id'];
                 }
             } catch (\exception $e) {
-                $this->socialPostLog($config->id, $config->platform, 'error', 'not get adaccounts id->'.$e->getMessage());
+                $this->socialPostLog($config->id, $config->platform, 'error', 'not get adaccounts id->' . $e->getMessage());
             }
         }
     }
@@ -543,20 +543,18 @@ class SocialController extends Controller
     // Function for Getting Reports via curl
     public function report(Request $request)
     {
-        if($request->id){
+        if ($request->id) {
             $config = \App\Social\SocialConfig::find($request->id);
-        }else
-
-        $configs = \App\Social\SocialConfig::pluck('name', 'id');
+        } else {
+            $configs = \App\Social\SocialConfig::pluck('name', 'id');
+        }
 
         $resp = '';
         $socialConfigs = SocialConfig::latest()->paginate(Setting::get('pagination'));
-       
-      
+
         foreach ($socialConfigs as $config) {
-           
-            if(isset($config->ads_manager)){
-                $query = 'https://graph.facebook.com/v16.0/'.$config->ads_manager.'/campaigns?fields=ads{id,name,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend}}&limit=3000&access_token='.$config->token.'';
+            if (isset($config->ads_manager)) {
+                $query = 'https://graph.facebook.com/v16.0/' . $config->ads_manager . '/campaigns?fields=ads{id,name,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend}}&limit=3000&access_token=' . $config->token . '';
 
                 // Call to Graph api here
                 $ch = curl_init();
@@ -567,40 +565,37 @@ class SocialController extends Controller
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                 curl_setopt($ch, CURLOPT_POST, 0);
-    
+
                 $resp = curl_exec($ch);
                 $resp = json_decode($resp);
 
                 curl_close($ch);
-                
+
                 $resp->token = $config->id;
-    
-                if(isset($resp->data)){
-                    
+
+                if (isset($resp->data)) {
                     if (isset($resp->error->error_user_msg)) {
                         Session::flash('message', $resp->error->error_user_msg);
                     } elseif (isset($resp->error->message)) {
                         Session::flash('message', $resp->error->message);
                     }
+
                     return view('social.reports', ['resp' => $resp]);
                 }
             }
-           
         }
-        
-        
-       return view('social.reports', ['resp' => $resp]);
+
+        return view('social.reports', ['resp' => $resp]);
     }
 
-    public function reportHistory(Request $request){
-
+    public function reportHistory(Request $request)
+    {
         $socialHistoryData = \App\Social\SocialAdHistory::where('ad_ac_id', $request->id)->get();
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.reports-history', compact('socialHistoryData'))->render(),
             ], 200);
         }
-
     }
     // Get pagination Report()
 
@@ -643,12 +638,10 @@ class SocialController extends Controller
     {
         $resp = '';
         $socialConfigs = SocialConfig::latest()->paginate(Setting::get('pagination'));
-        $adAccountCollection = array();
+        $adAccountCollection = [];
 
         foreach ($socialConfigs as $config) {
-            
-            $query = 'https://graph.facebook.com/v15.0/'.$config->ads_manager.'/campaigns?fields=ads{adcreatives{id,name,thumbnail_url},insights.level(ad).metrics(ctr){cost_per_unique_click,spend,impressions,frequency,reach,unique_clicks,clicks,ctr,ad_name,adset_name,cpc,cpm,cpp,campaign_name,ad_id,adset_id,account_id,account_name}}&access_token='.$config->token.'';
-
+            $query = 'https://graph.facebook.com/v15.0/' . $config->ads_manager . '/campaigns?fields=ads{adcreatives{id,name,thumbnail_url},insights.level(ad).metrics(ctr){cost_per_unique_click,spend,impressions,frequency,reach,unique_clicks,clicks,ctr,ad_name,adset_name,cpc,cpm,cpp,campaign_name,ad_id,adset_id,account_id,account_name}}&access_token=' . $config->token . '';
 
             // Call to Graph api here
             $ch = curl_init();
@@ -663,21 +656,19 @@ class SocialController extends Controller
             $resp = curl_exec($ch);
             $resp = json_decode($resp);
             curl_close($ch);
-            
+
             $resp->token = $config->token;
 
-            if($resp->data){
-                
+            if ($resp->data) {
                 if (isset($resp->error->error_user_msg)) {
                     Session::flash('message', $resp->error->error_user_msg);
                 } elseif (isset($resp->error->message)) {
                     Session::flash('message', $resp->error->message);
                 }
+
                 return view('social.reports', ['resp' => $resp]);
             }
         }
-
-     
 
         return view('social.adcreative-reports', ['resp' => $resp]);
     }
@@ -719,13 +710,13 @@ class SocialController extends Controller
     // end of paginate ad  creative report
 
     // Changing Ad status via curl
-    public function changeAdStatus($ad_id, $status,$config)
+    public function changeAdStatus($ad_id, $status, $config)
     {
         $config = \App\Social\SocialConfig::find($config);
-        $data['access_token'] = $config["token"];
+        $data['access_token'] = $config['token'];
         $data['status'] = $status;
 
-        $url = 'https://graph.facebook.com/v15.0/'.$ad_id;
+        $url = 'https://graph.facebook.com/v15.0/' . $ad_id;
 
         // Call to Graph api here
         $curl = curl_init();
@@ -783,7 +774,7 @@ class SocialController extends Controller
         try {
             $data['access_token'] = $this->user_access_token;
 
-            $url = 'https://graph.facebook.com/v3.2/'.$this->ad_acc_id.'/campaigns';
+            $url = 'https://graph.facebook.com/v3.2/' . $this->ad_acc_id . '/campaigns';
 
             // Call to Graph api here
             $curl = curl_init();
@@ -814,7 +805,7 @@ class SocialController extends Controller
 
     public function createAdset()
     {
-        $query = 'https://graph.facebook.com/v3.2/'.$this->ad_acc_id.'/campaigns?fields=name,id&limit=100&access_token='.$this->user_access_token.'';
+        $query = 'https://graph.facebook.com/v3.2/' . $this->ad_acc_id . '/campaigns?fields=name,id&limit=100&access_token=' . $this->user_access_token . '';
 
         // Call to Graph api here
         $ch = curl_init();
@@ -877,7 +868,7 @@ class SocialController extends Controller
         try {
             $data['access_token'] = $this->user_access_token;
 
-            $url = 'https://graph.facebook.com/v3.2/'.$this->ad_acc_id.'/adsets';
+            $url = 'https://graph.facebook.com/v3.2/' . $this->ad_acc_id . '/adsets';
 
             // Call to Graph api here
             $curl = curl_init();
@@ -910,7 +901,7 @@ class SocialController extends Controller
     // for creating Ad
     public function createAd()
     {
-        $query = 'https://graph.facebook.com/v3.2/'.$this->ad_acc_id.'/?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token='.$this->user_access_token.'';
+        $query = 'https://graph.facebook.com/v3.2/' . $this->ad_acc_id . '/?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token=' . $this->user_access_token . '';
 
         // Call to Graph api here
         $ch = curl_init();
@@ -955,7 +946,7 @@ class SocialController extends Controller
         try {
             $data['access_token'] = $this->user_access_token;
 
-            $url = 'https://graph.facebook.com/v3.2/'.$this->ad_acc_id.'/ads';
+            $url = 'https://graph.facebook.com/v3.2/' . $this->ad_acc_id . '/ads';
 
             // Call to Graph api here
             $curl = curl_init();

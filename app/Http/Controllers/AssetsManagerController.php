@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\AssetMagentoDevScripUpdateLog;
-use App\AssetManamentUpdateLog;
-use App\AssetPlateForm;
-use App\AssetsManager;
-use App\assetUserChangeHistory;
+use DB;
+use Auth;
+use App\User;
+use App\Email;
 use App\CashFlow;
+use App\ChatMessage;
 use App\EmailAddress;
 use App\StoreWebsite;
-use App\User;
-use DB;
-use Illuminate\Http\Request;
+use App\AssetsManager;
+use App\AssetPlateForm;
 use Illuminate\Support\Str;
-use App\Email;
-use Auth;
-use App\ChatMessage;
+use Illuminate\Http\Request;
 use App\AssetManagerLinkUser;
+use App\AssetManamentUpdateLog;
+use App\assetUserChangeHistory;
+use App\AssetMagentoDevScripUpdateLog;
 
 class AssetsManagerController extends Controller
 {
@@ -51,13 +51,13 @@ class AssetsManagerController extends Controller
                 ->leftJoin('whatsapp_configs AS wc', 'wc.id', 'assets_manager.whatsapp_config_id')
                 ->leftJoin('assets_manager_link_user as linkuser', 'linkuser.asset_manager_id', 'assets_manager.id');
 
-        if(!Auth::user()->hasRole('Admin')){
+        if (! Auth::user()->hasRole('Admin')) {
             $assets->where('assets_manager.created_by', Auth::user()->id)->orWhere('linkuser.user_id', Auth::user()->id);
         }
 
         if (! empty($search)) {
             $assets = $assets->where(function ($q) use ($search) {
-                $q->where('assets_manager.name', 'LIKE', '%'.$search.'%')->orWhere('provider_name', 'LIKE', '%'.$search.'%');
+                $q->where('assets_manager.name', 'LIKE', '%' . $search . '%')->orWhere('provider_name', 'LIKE', '%' . $search . '%');
             });
         }
 
@@ -118,12 +118,10 @@ class AssetsManagerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-
         $this->validate($request, [
             'name' => 'required',
             'link' => 'required',
@@ -172,7 +170,7 @@ class AssetsManagerController extends Controller
             //create entry in table cash_flows
             \App\CashFlow::create(
                 [
-                    'description' => 'Asset Manager Payment for '.$insertData->name,
+                    'description' => 'Asset Manager Payment for ' . $insertData->name,
                     'date' => date('Y-m-d'),
                     'amount' => $request->input('amount'),
                     'type' => 'pending',
@@ -221,7 +219,6 @@ class AssetsManagerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -332,10 +329,10 @@ class AssetsManagerController extends Controller
         if (count($paymentData) > 0) {
             foreach ($paymentData as $history) {
                 $html .= '<tr>';
-                $html .= '<td>'.$i.'</td>';
-                $html .= '<td>'.$history->amount.'</td>';
-                $html .= '<td>'.$history->date.'</td>';
-                $html .= '<td>'.$history->description.'</td>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->amount . '</td>';
+                $html .= '<td>' . $history->date . '</td>';
+                $html .= '<td>' . $history->description . '</td>';
                 $html .= '</tr>';
 
                 $i++;
@@ -371,11 +368,11 @@ class AssetsManagerController extends Controller
         if (count($assetLogs) > 0) {
             foreach ($assetLogs as $assetLog) {
                 $html .= '<tr>';
-                $html .= '<td>'.$assetLog->id.'</td>';
-                $html .= '<td>'.$assetLog->userName.'</td>';
-                $html .= '<td>'.$assetLog->user_name.'</td>';
-                $html .= '<td>'.$assetLog->password.'</td>';
-                $html .= '<td>'.$assetLog->created_at.'</td>';
+                $html .= '<td>' . $assetLog->id . '</td>';
+                $html .= '<td>' . $assetLog->userName . '</td>';
+                $html .= '<td>' . $assetLog->user_name . '</td>';
+                $html .= '<td>' . $assetLog->password . '</td>';
+                $html .= '<td>' . $assetLog->created_at . '</td>';
                 $html .= '</tr>';
                 $i++;
             }
@@ -398,18 +395,18 @@ class AssetsManagerController extends Controller
                 $html = '';
                 foreach ($responseLog as $res) {
                     $html .= '<tr>';
-                    $html .= '<td>'.$res->created_at.'</td>';
-                    $html .= '<td class="expand-row-msg" data-name="ip" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-ip-'.$res->id.'">'.Str::limit($res->ip, 15, '...').'</span>
-                    <span style="word-break:break-all;" class="show-full-ip-'.$res->id.' hidden">'.$res->website.'</span>
+                    $html .= '<td>' . $res->created_at . '</td>';
+                    $html .= '<td class="expand-row-msg" data-name="ip" data-id="' . $res->id . '" style="cursor: grabbing;">
+                    <span class="show-short-ip-' . $res->id . '">' . Str::limit($res->ip, 15, '...') . '</span>
+                    <span style="word-break:break-all;" class="show-full-ip-' . $res->id . ' hidden">' . $res->website . '</span>
                     </td>';
-                    $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 25, '...').'</span>
-                    <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
+                    $html .= '<td class="expand-row-msg" data-name="response" data-id="' . $res->id . '" style="cursor: grabbing;">
+                    <span class="show-short-response-' . $res->id . '">' . Str::limit($res->response, 25, '...') . '</span>
+                    <span style="word-break:break-all;" class="show-full-response-' . $res->id . ' hidden">' . $res->response . '</span>
                     </td>';
-                    $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-command-'.$res->id.'">'.Str::limit($res->command_name, 25, '...').'</span>
-                    <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
+                    $html .= '<td class="expand-row-msg" data-name="command" data-id="' . $res->id . '" style="cursor: grabbing;">
+                    <span class="show-short-command-' . $res->id . '">' . Str::limit($res->command_name, 25, '...') . '</span>
+                    <span style="word-break:break-all;" class="show-full-command-' . $res->id . ' hidden">' . $res->command_name . '</span>
                     </td>';
 
                     $html .= '</tr>';
@@ -460,10 +457,10 @@ class AssetsManagerController extends Controller
         if (count($assetLogs) > 0) {
             foreach ($assetLogs as $assetLog) {
                 $html .= '<tr>';
-                $html .= '<td>'.$assetLog->id.'</td>';
-                $html .= '<td>'.$assetLog->userNameChangeBy.'</td>';
-                $html .= '<td>'.$assetLog->userName.'</td>';
-                $html .= '<td>'.$assetLog->created_at.'</td>';
+                $html .= '<td>' . $assetLog->id . '</td>';
+                $html .= '<td>' . $assetLog->userNameChangeBy . '</td>';
+                $html .= '<td>' . $assetLog->userName . '</td>';
+                $html .= '<td>' . $assetLog->created_at . '</td>';
                 $html .= '</tr>';
                 $i++;
             }
@@ -512,7 +509,6 @@ class AssetsManagerController extends Controller
     /**
      * Send email to given emailId
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function assetsManagerSendEmail(Request $request)
@@ -525,20 +521,20 @@ class AssetsManagerController extends Controller
             $assetsmanager = AssetsManager::where('id', $request->assets_manager_id)->first();
             $usersdetails = User::where('id', $request->user_name)->first();
             $newPassword = Str::random(12);
-            $message =  '';
-            $message .= '<center><h4>Assets Manager Details <h4></center>'. '<br>';
-            $message .= 'Name = '. $assetsmanager->name . '<br>';
-            $message .= 'Capacity = '. $assetsmanager->capacity . '<br>';
-            $message .= 'Password = '. $assetsmanager->password . '<br>';
-            $message .= 'Provider Name = '. $assetsmanager->provider_name . '<br>';
-            $message .= 'Asset Type = '. $assetsmanager->asset_type . '<br>';
-            $message .= 'Category = '. $assetsmanager->category->cat_name . '<br>';
-            $message .= 'Purchase Type = '. $assetsmanager->purchase_type . '<br>';
-            $message .= 'Payment Cycle = '. $assetsmanager->payment_cycle . '<br>';
-            $message .= 'Amount = '. $assetsmanager->amount . '<br>';
-            $message .= 'Currency = '. $assetsmanager->currency . '<br>';
-            $message .= 'Ip = '. $assetsmanager->ip . '<br>';
-            $message .= 'Ip Name = '. $assetsmanager->ip_name . '<br>';
+            $message = '';
+            $message .= '<center><h4>Assets Manager Details <h4></center>' . '<br>';
+            $message .= 'Name = ' . $assetsmanager->name . '<br>';
+            $message .= 'Capacity = ' . $assetsmanager->capacity . '<br>';
+            $message .= 'Password = ' . $assetsmanager->password . '<br>';
+            $message .= 'Provider Name = ' . $assetsmanager->provider_name . '<br>';
+            $message .= 'Asset Type = ' . $assetsmanager->asset_type . '<br>';
+            $message .= 'Category = ' . $assetsmanager->category->cat_name . '<br>';
+            $message .= 'Purchase Type = ' . $assetsmanager->purchase_type . '<br>';
+            $message .= 'Payment Cycle = ' . $assetsmanager->payment_cycle . '<br>';
+            $message .= 'Amount = ' . $assetsmanager->amount . '<br>';
+            $message .= 'Currency = ' . $assetsmanager->currency . '<br>';
+            $message .= 'Ip = ' . $assetsmanager->ip . '<br>';
+            $message .= 'Ip Name = ' . $assetsmanager->ip_name . '<br>';
 
             //Store data in chat_message table.
             $params = [
@@ -550,7 +546,7 @@ class AssetsManagerController extends Controller
             ChatMessage::create($params);
 
             // Store data in email table
-            $from_address = isset($request->from_email) && $request->from_email != ''  ? $request->from_email : config('env.MAIL_FROM_ADDRESS');
+            $from_address = isset($request->from_email) && $request->from_email != '' ? $request->from_email : config('env.MAIL_FROM_ADDRESS');
 
             $email = Email::create([
                 'model_id' => '',
@@ -573,55 +569,51 @@ class AssetsManagerController extends Controller
             $emails->save();
             \Session::flash('error', $th->getMessage());
         }
+
         return redirect()->back();
     }
 
     /**
      * Assets manager record permission
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function assetsManagerRecordPermission(Request $request)
     {
         //Delete existing records
-        $existsRec = AssetManagerLinkUser::select(\DB::raw('group_concat( id) as linkId'))->where("asset_manager_id", $request->assets_manager_id)->first();
-        if(!empty($existsRec->linkId))
-        {
-            AssetManagerLinkUser::whereIn('id', explode(",",$existsRec->linkId))->delete();
+        $existsRec = AssetManagerLinkUser::select(\DB::raw('group_concat( id) as linkId'))->where('asset_manager_id', $request->assets_manager_id)->first();
+        if (! empty($existsRec->linkId)) {
+            AssetManagerLinkUser::whereIn('id', explode(',', $existsRec->linkId))->delete();
         }
 
         //Insert new records
         $assetManagerLinkArr = [];
-        if(isset($request->user_name))
-        {
+        if (isset($request->user_name)) {
             foreach ($request->user_name as $key => $value) {
-                $assetManagerLinkArr[] = [ 'user_id' => $value, 'asset_manager_id' => $request->assets_manager_id];
+                $assetManagerLinkArr[] = ['user_id' => $value, 'asset_manager_id' => $request->assets_manager_id];
             }
             AssetManagerLinkUser::insert($assetManagerLinkArr);
-            if(!empty($existsRec->linkId))
-            {
+            if (! empty($existsRec->linkId)) {
                 \Session::flash('success', 'Permission updated successfully');
-            }else{
+            } else {
                 \Session::flash('success', 'Permission added successfully');
-            } 
-        }else{
+            }
+        } else {
             \Session::flash('success', 'Permission removed successfully');
         }
-        
+
         return redirect()->back();
     }
 
-     /**
+    /**
      * Assets manager link users Ids
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function linkUserList(Request $request)
     {
-        $linkuser = AssetManagerLinkUser::select( \DB::raw('group_concat(DISTINCT user_id) as userids'))->distinct()->where('asset_manager_id', $request->asset_id)->first();
+        $linkuser = AssetManagerLinkUser::select(\DB::raw('group_concat(DISTINCT user_id) as userids'))->distinct()->where('asset_manager_id', $request->asset_id)->first();
+
         return response()->json(['code' => 200, 'data' => $linkuser, 'message' => 'Assets manager data link user data fetch successfully']);
     }
-    
 }

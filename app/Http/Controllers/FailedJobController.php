@@ -28,7 +28,7 @@ class FailedJobController extends Controller
             $jobs->where('exception', '=', $request->exception);
         }
         if ($request->payload != '') {
-            $jobs->Where('payload', 'LIKE', '%'.$request->payload.'%');
+            $jobs->Where('payload', 'LIKE', '%' . $request->payload . '%');
         }
 
         if ($request->failed_at != '') {

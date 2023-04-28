@@ -2,16 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Helpers\CompareImagesHelper;
+use Auth;
 use App\SuggestedProduct;
 use App\SuggestedProductList;
-use Auth;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\DB;
+use App\Helpers\CompareImagesHelper;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 
 class SearchAttachedImagesNew implements ShouldQueue
 {
@@ -61,36 +61,36 @@ class SearchAttachedImagesNew implements ShouldQueue
             } else {
                 $chat_message = \App\ChatMessage::where('id', $id)->first();
                 if ($chat_message) {
-                    $log_comment = $log_comment.'Chat message found with id : '.$chat_message->id.', ';
+                    $log_comment = $log_comment . 'Chat message found with id : ' . $chat_message->id . ', ';
                 }
             }
             if (@file_get_contents($ref_file)) {
-                $log_comment = $log_comment.'File contents found for '.$ref_file.', ';
+                $log_comment = $log_comment . 'File contents found for ' . $ref_file . ', ';
 
-                $log_comment = $log_comment.'Create image started for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Create image started for ' . $ref_file . ', ';
                 $i1 = CompareImagesHelper::createImage($ref_file);
-                $log_comment = $log_comment.'Create image finished for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Create image finished for ' . $ref_file . ', ';
 
-                $log_comment = $log_comment.'Resize image started for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Resize image started for ' . $ref_file . ', ';
                 $i1 = CompareImagesHelper::resizeImage($i1, $ref_file);
-                $log_comment = $log_comment.'Resize image finished for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Resize image finished for ' . $ref_file . ', ';
 
-                $log_comment = $log_comment.'Image filter started for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Image filter started for ' . $ref_file . ', ';
                 imagefilter($i1, IMG_FILTER_GRAYSCALE);
-                $log_comment = $log_comment.'Image filter finished for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Image filter finished for ' . $ref_file . ', ';
 
-                $log_comment = $log_comment.'Color mean value started for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Color mean value started for ' . $ref_file . ', ';
                 $colorMean1 = CompareImagesHelper::colorMeanValue($i1);
-                $log_comment = $log_comment.'Color mean value finished for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Color mean value finished for ' . $ref_file . ', ';
 
-                $log_comment = $log_comment.'Bits started for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Bits started for ' . $ref_file . ', ';
                 $bits1 = CompareImagesHelper::bits($colorMean1);
-                $log_comment = $log_comment.'Bits finished for '.$ref_file.', ';
+                $log_comment = $log_comment . 'Bits finished for ' . $ref_file . ', ';
 
                 $bits = implode($bits1);
                 DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('bits', '!=', 1)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function ($medias) use ($bits, $chat_message, $customer_id, $log_comment) {
                     if ($medias) {
-                        $log_comment = $log_comment.'Medias found with count : '.count($medias).', ';
+                        $log_comment = $log_comment . 'Medias found with count : ' . count($medias) . ', ';
                     }
                     foreach ($medias as $k => $m) {
                         $hammeringDistance = 0;
@@ -109,11 +109,11 @@ class SearchAttachedImagesNew implements ShouldQueue
                                     'chat_message_id' => $chat_message ? $chat_message->id : null,
                                 ]);
                                 $this->first_time = false;
-                                $log_comment = $log_comment.'Suggested product created with customer_id : '.$chat_message ? $chat_message->customer_id : $customer_id.' and chat_message_id : '.$chat_message ? $chat_message->id : 0 .', ';
+                                $log_comment = $log_comment . 'Suggested product created with customer_id : ' . $chat_message ? $chat_message->customer_id : $customer_id . ' and chat_message_id : ' . $chat_message ? $chat_message->id : 0 . ', ';
                             }
                             $mediable = DB::table('mediables')->where('media_id', $m->id)->where('mediable_type', \App\Product::class)->first();
                             if ($mediable) {
-                                $log_comment = $log_comment.'Mediables found for media_id : '.$m->id.', ';
+                                $log_comment = $log_comment . 'Mediables found for media_id : ' . $m->id . ', ';
                                 $log_params['customer_id'] = $chat_message ? $chat_message->customer_id : $customer_id;
                                 SuggestedProductList::create([
                                     'customer_id' => $chat_message ? $chat_message->customer_id : $customer_id,
@@ -122,7 +122,7 @@ class SearchAttachedImagesNew implements ShouldQueue
                                     'chat_message_id' => $chat_message ? $chat_message->id : null,
                                     'suggested_products_id' => $this->suggested_product !== null ? $this->suggested_product->id : null,
                                 ]);
-                                $log_comment = $log_comment.'Suggested product list created for customer_id : '.$chat_message ? $chat_message->customer_id : $customer_id.' and product_id : '.$mediable->mediable_id.', ';
+                                $log_comment = $log_comment . 'Suggested product list created for customer_id : ' . $chat_message ? $chat_message->customer_id : $customer_id . ' and product_id : ' . $mediable->mediable_id . ', ';
                             }
                         }
                     }
@@ -131,18 +131,18 @@ class SearchAttachedImagesNew implements ShouldQueue
 
             $user = Auth::user();
             if ($this->is_matched) {
-                $log_comment = $log_comment.'Image find process is completed, ';
+                $log_comment = $log_comment . 'Image find process is completed, ';
                 $msg = 'Your image find process is completed.';
             } else {
-                $log_comment = $log_comment.'Image find process is completed, No results found, ';
+                $log_comment = $log_comment . 'Image find process is completed, No results found, ';
                 $msg = 'Your image find process is completed, No results found';
             }
 
-            $log_comment = $log_comment.'Send with third party API initiated for number : '.$user->phone.', whatsapp number : '.$user->whatsapp_number.' and message : '.$msg.', ';
+            $log_comment = $log_comment . 'Send with third party API initiated for number : ' . $user->phone . ', whatsapp number : ' . $user->whatsapp_number . ' and message : ' . $msg . ', ';
             app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
-            $log_comment = $log_comment.'Send with third party API completed, ';
+            $log_comment = $log_comment . 'Send with third party API completed, ';
 
-            $log_comment = $log_comment.' . ';
+            $log_comment = $log_comment . ' . ';
             $log_params['comment'] = $log_comment;
 
             if (! empty($log_params['comment']) && $log_params['comment'] != '') {

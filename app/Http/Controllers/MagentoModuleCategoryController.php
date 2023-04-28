@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MagentoModule\MagentoModuleCategoryRequest;
-use App\MagentoModuleCategory;
 use App\TaskStatus;
 use Illuminate\Http\Request;
+use App\MagentoModuleCategory;
+use App\Http\Requests\MagentoModule\MagentoModuleCategoryRequest;
 
 class MagentoModuleCategoryController extends Controller
 {
@@ -128,7 +128,6 @@ class MagentoModuleCategoryController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  MagentoModuleCategory  $magento_module_category
      * @return \Illuminate\Http\Response
      */
     public function update(MagentoModuleCategoryRequest $request, MagentoModuleCategory $magento_module_category)
@@ -155,7 +154,6 @@ class MagentoModuleCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  MagentoModuleCategory  $magento_module_category
      * @return \Illuminate\Http\Response
      */
     public function destroy(MagentoModuleCategory $magento_module_category)

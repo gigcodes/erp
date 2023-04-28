@@ -14,8 +14,6 @@ abstract class UploadService
 
     /**
      * FileService constructor.
-     *
-     * @param $fileSystem
      */
     public function __construct(FileSystem $fileSystem)
     {
@@ -37,7 +35,6 @@ abstract class UploadService
     /**
      * Check whether or not a folder is empty.
      *
-     * @param $path
      * @return bool
      */
     protected function isFolderEmpty($path)

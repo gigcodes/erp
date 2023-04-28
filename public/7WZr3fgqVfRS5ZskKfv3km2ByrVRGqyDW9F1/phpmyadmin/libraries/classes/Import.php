@@ -6,39 +6,39 @@ namespace PhpMyAdmin;
 
 use function __;
 use function abs;
-use function count;
-use function explode;
-use function function_exists;
-use function htmlspecialchars;
-use function implode;
-use function is_array;
-use function is_numeric;
 use function max;
+use function time;
+use function trim;
+use function count;
 use function mb_chr;
 use function mb_ord;
-use function mb_stripos;
-use function mb_strlen;
-use function mb_strpos;
-use function mb_strtoupper;
-use function mb_substr;
-use function mb_substr_count;
-use PhpMyAdmin\SqlParser\Parser;
-use PhpMyAdmin\SqlParser\Statements\DeleteStatement;
-use PhpMyAdmin\SqlParser\Statements\InsertStatement;
-use PhpMyAdmin\SqlParser\Statements\ReplaceStatement;
-use PhpMyAdmin\SqlParser\Statements\UpdateStatement;
-use PhpMyAdmin\SqlParser\Utils\Query;
-use function preg_match;
-use function preg_replace;
-use function sprintf;
-use function str_contains;
-use function str_starts_with;
 use function strcmp;
 use function strlen;
 use function strpos;
 use function substr;
-use function time;
-use function trim;
+use function explode;
+use function implode;
+use function sprintf;
+use function is_array;
+use function mb_strlen;
+use function mb_strpos;
+use function mb_substr;
+use function is_numeric;
+use function mb_stripos;
+use function preg_match;
+use function preg_replace;
+use function str_contains;
+use function mb_strtoupper;
+use function function_exists;
+use function mb_substr_count;
+use function str_starts_with;
+use function htmlspecialchars;
+use PhpMyAdmin\SqlParser\Parser;
+use PhpMyAdmin\SqlParser\Utils\Query;
+use PhpMyAdmin\SqlParser\Statements\DeleteStatement;
+use PhpMyAdmin\SqlParser\Statements\InsertStatement;
+use PhpMyAdmin\SqlParser\Statements\UpdateStatement;
+use PhpMyAdmin\SqlParser\Statements\ReplaceStatement;
 
 /**
  * Library that provides common import functions that are used by import plugins
@@ -154,7 +154,7 @@ class Import
             $aNumRows = (int) $result->numRows();
             $aAffectedRows = (int) @$dbi->affectedRows();
             if ($aNumRows > 0) {
-                $msg .= __('Rows').': '.$aNumRows;
+                $msg .= __('Rows') . ': ' . $aNumRows;
             } elseif ($aAffectedRows > 0) {
                 $message = Message::getMessageForAffectedRows($aAffectedRows);
                 $msg .= $message->getMessage();
@@ -173,7 +173,7 @@ class Import
         }
 
         if (! $sql_query_disabled) {
-            $sql_query .= $msg."\n";
+            $sql_query .= $msg . "\n";
         }
 
         // If a 'USE <db>' SQL-clause was found and the query
@@ -315,8 +315,8 @@ class Import
     ): ?array {
         if (! empty($sql) || ! empty($full)) {
             return [
-                'sql' => $sql.';',
-                'full' => $full.';',
+                'sql' => $sql . ';',
+                'full' => $full . ';',
             ];
         }
 
@@ -600,7 +600,7 @@ class Import
         return [
             $m,
             $d,
-            $m.','.$d,
+            $m . ',' . $d,
         ];
     }
 
@@ -717,7 +717,7 @@ class Import
                 if ($size[self::M] > $oldM || $size[self::D] > $oldD) {
                     /* Take the largest of both types */
                     return (string) (($size[self::M] > $oldM ? $size[self::M] : $oldM)
-                        .','.($size[self::D] > $oldD ? $size[self::D] : $oldD));
+                        . ',' . ($size[self::D] > $oldD ? $size[self::D] : $oldD));
                 }
 
                 return $lastCumulativeSize;
@@ -734,7 +734,7 @@ class Import
                     return $size[self::FULL];
                 }
 
-                return $lastCumulativeSize.','.$size[self::D];
+                return $lastCumulativeSize . ',' . $size[self::D];
             }
 
             if (! isset($lastCumulativeType) || $lastCumulativeType == self::NONE) {
@@ -788,7 +788,7 @@ class Import
                 }
 
                 /* Use $newInt + $oldD as new M */
-                return ($newInt + $oldD).','.$oldD;
+                return ($newInt + $oldD) . ',' . $oldD;
             }
 
             if ($lastCumulativeType == self::BIGINT || $lastCumulativeType == self::INT) {
@@ -1011,9 +1011,9 @@ class Import
         $sql = [];
 
         if ($createDb) {
-            $sql[] = 'CREATE DATABASE IF NOT EXISTS '.Util::backquote($dbName)
-                .' DEFAULT CHARACTER SET '.$charset.' COLLATE '.$collation
-                .';';
+            $sql[] = 'CREATE DATABASE IF NOT EXISTS ' . Util::backquote($dbName)
+                . ' DEFAULT CHARACTER SET ' . $charset . ' COLLATE ' . $collation
+                . ';';
         }
 
         /**
@@ -1081,18 +1081,18 @@ class Import
             for ($i = 0; $i < $numTables; $i++) {
                 $numCols = count($tables[$i][self::COL_NAMES]);
                 $tempSQLStr = 'CREATE TABLE IF NOT EXISTS '
-                .Util::backquote($dbName)
-                .'.'.Util::backquote($tables[$i][self::TBL_NAME]).' (';
+                . Util::backquote($dbName)
+                . '.' . Util::backquote($tables[$i][self::TBL_NAME]) . ' (';
                 for ($j = 0; $j < $numCols; $j++) {
                     $size = $analyses[$i][self::SIZES][$j];
                     if ((int) $size == 0) {
                         $size = 10;
                     }
 
-                    $tempSQLStr .= Util::backquote($tables[$i][self::COL_NAMES][$j]).' '
-                    .$typeArray[$analyses[$i][self::TYPES][$j]];
+                    $tempSQLStr .= Util::backquote($tables[$i][self::COL_NAMES][$j]) . ' '
+                    . $typeArray[$analyses[$i][self::TYPES][$j]];
                     if ($analyses[$i][self::TYPES][$j] != self::GEOMETRY) {
-                        $tempSQLStr .= '('.$size.')';
+                        $tempSQLStr .= '(' . $size . ')';
                     }
 
                     if ($j == count($tables[$i][self::COL_NAMES]) - 1) {
@@ -1102,8 +1102,8 @@ class Import
                     $tempSQLStr .= ', ';
                 }
 
-                $tempSQLStr .= ') DEFAULT CHARACTER SET '.$charset
-                    .' COLLATE '.$collation.';';
+                $tempSQLStr .= ') DEFAULT CHARACTER SET ' . $charset
+                    . ' COLLATE ' . $collation . ';';
 
                 /**
                  * Each SQL statement is executed immediately
@@ -1126,8 +1126,8 @@ class Import
             $numCols = count($tables[$i][self::COL_NAMES]);
             $numRows = count($tables[$i][self::ROWS]);
 
-            $tempSQLStr = 'INSERT INTO '.Util::backquote($dbName).'.'
-                .Util::backquote($tables[$i][self::TBL_NAME]).' (';
+            $tempSQLStr = 'INSERT INTO ' . Util::backquote($dbName) . '.'
+                . Util::backquote($tables[$i][self::TBL_NAME]) . ' (';
 
             for ($m = 0; $m < $numCols; $m++) {
                 $tempSQLStr .= Util::backquote($tables[$i][self::COL_NAMES][$m]);
@@ -1255,16 +1255,16 @@ class Import
         $dbOperationsUrl = Url::getFromRoute('/database/operations', $params);
 
         $message = '<br><br>';
-        $message .= '<strong>'.__(
+        $message .= '<strong>' . __(
             'The following structures have either been created or altered. Here you can:'
-        ).'</strong><br>';
-        $message .= '<ul><li>'.__("View a structure's contents by clicking on its name.").'</li>';
-        $message .= '<li>'.__('Change any of its settings by clicking the corresponding "Options" link.').'</li>';
-        $message .= '<li>'.__('Edit structure by following the "Structure" link.')
-            .'</li>';
+        ) . '</strong><br>';
+        $message .= '<ul><li>' . __("View a structure's contents by clicking on its name.") . '</li>';
+        $message .= '<li>' . __('Change any of its settings by clicking the corresponding "Options" link.') . '</li>';
+        $message .= '<li>' . __('Edit structure by following the "Structure" link.')
+            . '</li>';
         $message .= sprintf(
             '<br><li><a href="%s" title="%s">%s</a> (<a href="%s" title="%s">'
-            .__('Options').'</a>)</li>',
+            . __('Options') . '</a>)</li>',
             $dbUrl,
             sprintf(
                 __('Go to database: %s'),
@@ -1296,9 +1296,9 @@ class Import
             $tableObj = new Table($table[self::TBL_NAME], $dbName);
             if (! $tableObj->isView()) {
                 $message .= sprintf(
-                    '<li><a href="%s" title="%s">%s</a> (<a href="%s" title="%s">'.__(
+                    '<li><a href="%s" title="%s">%s</a> (<a href="%s" title="%s">' . __(
                         'Structure'
-                    ).'</a>) (<a href="%s" title="%s">'.__('Options').'</a>)</li>',
+                    ) . '</a>) (<a href="%s" title="%s">' . __('Options') . '</a>)</li>',
                     $tblUrl,
                     sprintf(
                         __('Go to table: %s'),
@@ -1356,7 +1356,7 @@ class Import
         $error = false;
         $errorMsg = __(
             'Only INSERT, UPDATE, DELETE and REPLACE '
-            .'SQL queries containing transactional engine tables can be rolled back.'
+            . 'SQL queries containing transactional engine tables can be rolled back.'
         );
         foreach ($queries as $sqlQuery) {
             if (empty($sqlQuery)) {
@@ -1447,9 +1447,9 @@ class Import
         }
 
         // Query to check if table exists.
-        $checkTableQuery = 'SELECT * FROM '.Util::backquote($db)
-            .'.'.Util::backquote($table).' '
-            .'LIMIT 1';
+        $checkTableQuery = 'SELECT * FROM ' . Util::backquote($db)
+            . '.' . Util::backquote($table) . ' '
+            . 'LIMIT 1';
 
         $result = $dbi->tryQuery($checkTableQuery);
 
@@ -1471,11 +1471,11 @@ class Import
 
         // Query to check if table is 'Transactional'.
         $checkQuery = 'SELECT `ENGINE` FROM `information_schema`.`tables` '
-            .'WHERE `table_name` = "'.$dbi->escapeString($table).'" '
-            .'AND `table_schema` = "'.$dbi->escapeString($db).'" '
-            .'AND UPPER(`engine`) IN ("'
-            .implode('", "', $transactionalEngines)
-            .'")';
+            . 'WHERE `table_name` = "' . $dbi->escapeString($table) . '" '
+            . 'AND `table_schema` = "' . $dbi->escapeString($db) . '" '
+            . 'AND UPPER(`engine`) IN ("'
+            . implode('", "', $transactionalEngines)
+            . '")';
 
         $result = $dbi->tryQuery($checkQuery);
 
@@ -1521,7 +1521,7 @@ class Import
             $extensions .= $importPlugin->getProperties()->getExtension();
         }
 
-        $matcher = '@\.('.$extensions.')(\.('.$fileListing->supportedDecompressions().'))?$@';
+        $matcher = '@\.(' . $extensions . ')(\.(' . $fileListing->supportedDecompressions() . '))?$@';
 
         $active = isset($GLOBALS['timeout_passed'], $GLOBALS['local_import_file']) && $GLOBALS['timeout_passed']
             ? $GLOBALS['local_import_file']

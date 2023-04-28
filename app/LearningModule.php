@@ -5,9 +5,9 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use Nestable\NestableTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Nestable\NestableTrait;
 
 class LearningModule extends Model
 {

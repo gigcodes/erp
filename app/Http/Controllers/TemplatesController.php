@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Brand;
-use App\Category;
-use App\Helpers\GuzzleHelper;
-use App\Product;
-use App\ProductTemplate;
-use App\Setting;
-use App\Template;
 use DB;
 use File;
-use Illuminate\Http\Request;
+use App\Brand;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Template;
+use App\ProductTemplate;
+use Plank\Mediable\Media;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Helpers\GuzzleHelper;
 use Intervention\Image\ImageManagerStatic as Image;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Plank\Mediable\Media;
 
 class TemplatesController extends Controller
 {
@@ -84,12 +84,12 @@ class TemplatesController extends Controller
 
         $body = ['name' => $request->name, 'tags' => $tags];
 
-        $url = env('BANNER_API_LINK').'/templates/'.$template->uid;
+        $url = env('BANNER_API_LINK') . '/templates/' . $template->uid;
 
         $api_key = env('BANNER_API_KEY');
 
         $headers = [
-            'Authorization' => 'Bearer '.$api_key,
+            'Authorization' => 'Bearer ' . $api_key,
             'Content-Type' => 'application/json',
         ];
 
@@ -100,12 +100,12 @@ class TemplatesController extends Controller
 
     public static function bearBannerTemplates()
     {
-        $url = env('BANNER_API_LINK').'/templates';
+        $url = env('BANNER_API_LINK') . '/templates';
 
         $api_key = env('BANNER_API_KEY');
 
         $headers = [
-            'Authorization' => 'Bearer '.$api_key,
+            'Authorization' => 'Bearer ' . $api_key,
             'Content-Type' => 'application/json',
         ];
 
@@ -143,7 +143,7 @@ class TemplatesController extends Controller
             if ($row->preview_url) {
                 $contents = $this->getImageByCurl($row->preview_url);
 
-                $media = MediaUploader::fromString($contents)->useFilename('template-'.time())->toDirectory('template-images')->upload();
+                $media = MediaUploader::fromString($contents)->useFilename('template-' . time())->toDirectory('template-images')->upload();
 
                 $template->attachMedia($media, config('constants.media_tags'));
             }
@@ -167,7 +167,7 @@ class TemplatesController extends Controller
     {
         $header = $request->header('Authorization', 'default');
 
-        if ($header == 'Bearer '.env('BANNER_WEBHOOK_KEY')) {
+        if ($header == 'Bearer ' . env('BANNER_WEBHOOK_KEY')) {
             $this->updateTemplatesFromBearBanner();
         }
     }
@@ -355,7 +355,7 @@ class TemplatesController extends Controller
             'status' => 'success',
             'productName' => $productData->name,
             'short_description' => Str::limit($productData->short_description, 20, $end = '...'),
-            'price' => '$'.$productData->price,
+            'price' => '$' . $productData->price,
             'product_url' => 'www.test.com',
         ];
         if ($image) {

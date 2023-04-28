@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table\Structure;
 
 use function __;
-use function array_keys;
-use function array_splice;
 use function count;
+use PhpMyAdmin\Util;
 use function implode;
+use function sprintf;
+use PhpMyAdmin\Table;
 use function in_array;
 use function is_array;
-use function mb_strtoupper;
-use PhpMyAdmin\Controllers\Table\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Table;
+use function array_keys;
 use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
-use function sprintf;
 use function str_replace;
+use function array_splice;
+use function mb_strtoupper;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\Table\AbstractController;
 
 final class MoveColumnsController extends AbstractController
 {
@@ -105,7 +105,7 @@ final class MoveColumnsController extends AbstractController
                 $data['Expression'] = is_array($expressions) ? $expressions[$column] : null;
             }
 
-            $changes[] = 'CHANGE '.Table::generateAlter(
+            $changes[] = 'CHANGE ' . Table::generateAlter(
                 $column,
                 $column,
                 mb_strtoupper($extracted_columnspec['type']),

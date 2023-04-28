@@ -1,12 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\ChatBot\Http\Controllers\AnalyticsController;
-use Modules\ChatBot\Http\Controllers\ChatBotController;
 use Modules\ChatBot\Http\Controllers\DialogController;
+use Modules\ChatBot\Http\Controllers\ChatBotController;
 use Modules\ChatBot\Http\Controllers\KeywordController;
 use Modules\ChatBot\Http\Controllers\MessageController;
 use Modules\ChatBot\Http\Controllers\QuestionController;
+use Modules\ChatBot\Http\Controllers\AnalyticsController;
 
 /*
 |--------------------------------------------------------------------------

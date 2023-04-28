@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Marketing\WhatsappConfig;
 use Illuminate\Console\Command;
+use App\Marketing\WhatsappConfig;
 
 class IncrementFrequencyWhatsappConfig extends Command
 {

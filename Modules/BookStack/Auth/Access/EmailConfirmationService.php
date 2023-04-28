@@ -3,8 +3,8 @@
 namespace Modules\BookStack\Auth\Access;
 
 use Modules\BookStack\Auth\User;
-use Modules\BookStack\Exceptions\ConfirmationEmailException;
 use Modules\BookStack\Notifications\ConfirmEmail;
+use Modules\BookStack\Exceptions\ConfirmationEmailException;
 
 class EmailConfirmationService extends UserTokenService
 {
@@ -16,7 +16,6 @@ class EmailConfirmationService extends UserTokenService
      * Create new confirmation for a user,
      * Also removes any existing old ones.
      *
-     * @param  User  $user
      *
      * @throws ConfirmationEmailException
      */
@@ -34,8 +33,6 @@ class EmailConfirmationService extends UserTokenService
 
     /**
      * Check if confirmation is required in this instance.
-     *
-     * @return bool
      */
     public function confirmationRequired(): bool
     {

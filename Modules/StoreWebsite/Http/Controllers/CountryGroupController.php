@@ -59,7 +59,7 @@ class CountryGroupController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -115,7 +115,6 @@ class CountryGroupController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -133,7 +132,6 @@ class CountryGroupController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -157,7 +155,6 @@ class CountryGroupController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {

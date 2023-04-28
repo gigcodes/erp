@@ -7,16 +7,16 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Dbal;
 
-use function array_column;
 use Generator;
-use function is_array;
-use function is_bool;
-use function is_string;
-use function method_exists;
-use const MYSQLI_ASSOC;
 use mysqli_result;
-use PhpMyAdmin\FieldMetadata;
+use function is_bool;
+use function is_array;
+use const MYSQLI_ASSOC;
+use function is_string;
+use function array_column;
+use function method_exists;
 use Webmozart\Assert\Assert;
+use PhpMyAdmin\FieldMetadata;
 
 /**
  * Extension independent database result

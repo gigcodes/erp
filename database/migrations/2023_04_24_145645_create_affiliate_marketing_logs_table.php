@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateAffiliateMarketingLogsTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateAffiliateMarketingLogsTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('affiliate_marketing_logs')) {
+        if (! Schema::hasTable('affiliate_marketing_logs')) {
             Schema::create('affiliate_marketing_logs', function (Blueprint $table) {
                 $table->id();
                 $table->string('user_name', 191)->nullable();

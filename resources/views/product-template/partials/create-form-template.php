@@ -24,7 +24,7 @@
                         <?php
                             foreach ($templateArr as $template) {
                                 $media = $template->lastMedia(config('constants.media_tags'));
-                                echo '<option value="'.$template->id.'" data-image="'.(($media) ? $media->getUrl() : '').'" data-no-of-images="'.$template->no_of_images.'">'.$template->name.'</option>';
+                                echo '<option value="' . $template->id . '" data-image="' . (($media) ? $media->getUrl() : '') . '" data-no-of-images="' . $template->no_of_images . '">' . $template->name . '</option>';
                             }
              ?>
                     </select>
@@ -45,7 +45,7 @@
                         <?php
                   if ($productArr) {
                       foreach ($productArr as $product) {
-                          echo '<option value="'.$product->id.'" data-brand="'.$product->brand.'" data-product-title="'.$product->name.'" selected>'.$product->name.'</option>';
+                          echo '<option value="' . $product->id . '" data-brand="' . $product->brand . '" data-product-title="' . $product->name . '" selected>' . $product->name . '</option>';
                       }
                   }
              ?>

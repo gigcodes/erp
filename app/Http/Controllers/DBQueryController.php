@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\CommandExecutionHistory;
-use App\Jobs\CommandExecution;
-use App\Setting;
-use Auth;
 use DB;
+use Auth;
+use App\Setting;
 use Illuminate\Http\Request;
+use App\Jobs\CommandExecution;
+use App\CommandExecutionHistory;
 
 class DBQueryController extends Controller
 {
@@ -101,7 +101,7 @@ class DBQueryController extends Controller
     public function columns(Request $request)
     {
         $column_array = [];
-        $columns = DB::select('DESCRIBE '.array_keys($request->all())[0].';');
+        $columns = DB::select('DESCRIBE ' . array_keys($request->all())[0] . ';');
         foreach ($columns as $col) {
             $column_array[] = $col;
         }
@@ -114,13 +114,13 @@ class DBQueryController extends Controller
 
     public function confirm(Request $request)
     {
-        $sql_query = 'UPDATE '.$request->table_name.' SET ';
+        $sql_query = 'UPDATE ' . $request->table_name . ' SET ';
 
         $data = $request->all();
         $where_query_exist = 0;
         foreach ($data as $key => $val) {
             if (strpos($key, 'update_') !== false && in_array(str_replace('update_', '', $key), $request->columns)) {
-                $sql_query .= str_replace('update_', '', $key).' = "'.$val.'", ';
+                $sql_query .= str_replace('update_', '', $key) . ' = "' . $val . '", ';
             }
         }
         $sql_query .= ' WHERE ';
@@ -129,7 +129,7 @@ class DBQueryController extends Controller
             if (strpos($key, 'where_') !== false && $val !== null) {
                 $key = str_replace('where_', '', $key);
                 $sql_query .= $where_query_exist ? ' AND ' : '';
-                $sql_query .= $key.' '.$request->criteriaColumnOperators["'".$key."'"].' "'.$val.'"';
+                $sql_query .= $key . ' ' . $request->criteriaColumnOperators["'" . $key . "'"] . ' "' . $val . '"';
                 $where_query_exist = 1;
             }
         }
@@ -144,7 +144,7 @@ class DBQueryController extends Controller
 
     public function deleteConfirm(Request $request)
     {
-        $sql_query = 'DELETE from '.$request->table_name;
+        $sql_query = 'DELETE from ' . $request->table_name;
 
         $data = $request->all();
         $where_query_exist = 0;
@@ -154,7 +154,7 @@ class DBQueryController extends Controller
             if (strpos($key, 'where_') !== false && $val !== null) {
                 $key = str_replace('where_', '', $key);
                 $sql_query .= $where_query_exist ? ' AND ' : '';
-                $sql_query .= $key.' '.$request->criteriaColumnOperators["'".$key."'"].' "'.$val.'"';
+                $sql_query .= $key . ' ' . $request->criteriaColumnOperators["'" . $key . "'"] . ' "' . $val . '"';
                 $where_query_exist = 1;
             }
         }

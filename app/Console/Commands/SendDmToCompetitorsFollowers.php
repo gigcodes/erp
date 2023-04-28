@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CompetitorFollowers;
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\CompetitorFollowers;
 use Illuminate\Console\Command;
 
 //use InstagramAPI\Instagram;

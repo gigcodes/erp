@@ -64,6 +64,11 @@
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
         });
+        
+        page.config.bodyView.on("click",".btn-translate",function(e) {
+            e.preventDefault();
+            page.languageTranslate($(this));
+        });
 
     },
     validationRule : function(response) {
@@ -106,8 +111,30 @@
 
         page.config.bodyView.find("#page-view-result").html(tplHtml);
 
-    }
-    ,
+    },
+    languageTranslate : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/newsletters/"+ele.data("id")+"/translate",
+            method: "POST",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, 'translateResults');
+    },
+    translateResults : function(response) {
+        if(response.code == 200){
+            this.getResults();
+            toastr['success'](response.message, 'success');
+        }else if(response.code == 500){
+            toastr['error'](response.message, 'error');
+            $("#loading-image").hide();
+        }else{
+            toastr['error']('Oops.something went wrong', 'error');
+            $("#loading-image").hide();
+        }
+        
+    },
     deleteRecord : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/newsletters/"+ele.data("id")+"/delete",

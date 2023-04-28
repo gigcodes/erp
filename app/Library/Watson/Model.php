@@ -2,23 +2,23 @@
 
 namespace App\Library\Watson;
 
-use App\ChatbotDialog;
-use App\ChatbotDialogErrorLog;
-use App\ChatbotErrorLog;
-use App\ChatbotKeyword;
-use App\ChatbotKeywordValue;
-use App\ChatbotQuestion;
-use App\ChatbotQuestionExample;
 use App\ChatMessage;
-use App\Jobs\ManageWatson;
-use App\Jobs\ManageWatsonAssistant;
-use App\Library\Watson\Language\Assistant\V2\AssistantService;
-use App\Library\Watson\Language\Workspaces\V1\DialogService;
-use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
-use App\Library\Watson\Language\Workspaces\V1\IntentService;
-use App\Library\Watson\Language\Workspaces\V1\LogService;
+use App\ChatbotDialog;
 use App\WatsonAccount;
+use App\ChatbotKeyword;
+use App\ChatbotErrorLog;
+use App\ChatbotQuestion;
 use App\WatsonWorkspace;
+use App\Jobs\ManageWatson;
+use App\ChatbotKeywordValue;
+use App\ChatbotDialogErrorLog;
+use App\ChatbotQuestionExample;
+use App\Jobs\ManageWatsonAssistant;
+use App\Library\Watson\Language\Workspaces\V1\LogService;
+use App\Library\Watson\Language\Workspaces\V1\DialogService;
+use App\Library\Watson\Language\Workspaces\V1\IntentService;
+use App\Library\Watson\Language\Assistant\V2\AssistantService;
+use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
 
 class Model
 {
@@ -577,7 +577,7 @@ class Model
                 \App\ChatbotMessageLogResponse::StoreLogResponse([
                     'chatbot_message_log_id' => $chat_message_log_id,
                     'request' => '',
-                    'response' => 'Watson assistant function send message customer function response found. => '.json_encode($result),
+                    'response' => 'Watson assistant function send message customer function response found. => ' . json_encode($result),
                     'status' => 'success',
                 ]);
             }
@@ -590,7 +590,7 @@ class Model
                         \App\ChatbotMessageLogResponse::StoreLogResponse([
                             'chatbot_message_log_id' => $chat_message_log_id,
                             'request' => '',
-                            'response' => 'Watson assistant function send message customer function response found. => '.json_encode($result),
+                            'response' => 'Watson assistant function send message customer function response found. => ' . json_encode($result),
                             'status' => 'success',
                         ]);
                     }
@@ -603,20 +603,20 @@ class Model
                 \App\ChatbotMessageLogResponse::StoreLogResponse([
                     'chatbot_message_log_id' => $chat_message_log_id,
                     'request' => '',
-                    'response' => 'Watson assistant function send message customer function response is valid. => '.$chatResponse->isValid(),
+                    'response' => 'Watson assistant function send message customer function response is valid. => ' . $chatResponse->isValid(),
                     'status' => 'success',
                 ]);
             }
 
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
-                \Log::channel('chatapi')->info('##CHAT_ACTION## '.json_encode($result));
+                \Log::channel('chatapi')->info('##CHAT_ACTION## ' . json_encode($result));
 
                 if (isset($chat_message_log_id)) {
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
                         'chatbot_message_log_id' => $chat_message_log_id,
                         'request' => '',
-                        'response' => 'Watson assistant function assign action response. => '.json_encode($result),
+                        'response' => 'Watson assistant function assign action response. => ' . json_encode($result),
                         'status' => 'success',
                     ]);
                 }
@@ -635,7 +635,7 @@ class Model
                             'message_application_id' => $message_application_id,
                             'chatbot_question' => $inputText,
                             'chatbot_params' => isset($result['medias']) ? $result['medias'] : [],
-                            'ticket_id' => !is_null($messageModel->ticket_id) ? $messageModel->ticket_id : null,
+                            'ticket_id' => ! is_null($messageModel->ticket_id) ? $messageModel->ticket_id : null,
                         ];
 
                         switch ($result['action']) {

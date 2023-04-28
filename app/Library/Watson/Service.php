@@ -71,7 +71,7 @@ class Service implements ServiceInterface
         $url = $this->normalizeUrlEndBar($this->getUrl());
         $version = $this->normalizeUrlEndBar($this->getVersion());
 
-        return $url.$version;
+        return $url . $version;
     }
 
     /**
@@ -115,12 +115,11 @@ class Service implements ServiceInterface
      *
      * If not end with '/', add then
      *
-     * @param $string
      * @return string
      */
     protected function normalizeUrlEndBar($string)
     {
-        return (substr($string, -1) != '/') ? $string.'/' : $string;
+        return (substr($string, -1) != '/') ? $string . '/' : $string;
     }
 
     /**

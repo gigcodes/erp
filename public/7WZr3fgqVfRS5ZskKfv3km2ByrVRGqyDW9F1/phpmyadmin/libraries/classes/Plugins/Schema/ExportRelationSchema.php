@@ -9,11 +9,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Schema;
 
 use function __;
-use function htmlspecialchars;
-use PhpMyAdmin\ConfigStorage\Relation;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
 use function rawurldecode;
+use function htmlspecialchars;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * This class is inherited by all schema classes
@@ -249,16 +249,16 @@ class ExportRelationSchema
 
         $pdfFeature = $this->relation->getRelationParameters()->pdfFeature;
 
-        $filename = $this->db.$extension;
+        $filename = $this->db . $extension;
         // Get the name of this page to use as filename
         if ($this->pageNumber != -1 && ! $this->offline && $pdfFeature !== null) {
             $_name_sql = 'SELECT page_descr FROM '
-                .Util::backquote($pdfFeature->database).'.'
-                .Util::backquote($pdfFeature->pdfPages)
-                .' WHERE page_nr = '.$this->pageNumber;
+                . Util::backquote($pdfFeature->database) . '.'
+                . Util::backquote($pdfFeature->pdfPages)
+                . ' WHERE page_nr = ' . $this->pageNumber;
             $_name_rs = $dbi->queryAsControlUser($_name_sql);
             $_name_row = $_name_rs->fetchRow();
-            $filename = $_name_row[0].$extension;
+            $filename = $_name_row[0] . $extension;
         }
 
         return $filename;
@@ -287,7 +287,7 @@ class ExportRelationSchema
             'server' => $GLOBALS['server'],
             'page' => $pageNumber,
         ]);
-        echo '">'.__('Back').'</a>';
+        echo '">' . __('Back') . '</a>';
         echo "\n";
         exit;
     }
