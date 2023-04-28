@@ -5,9 +5,9 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Plank\Mediable\Mediable;
 
 class StoreWebsite extends Model
 {
@@ -142,7 +142,7 @@ class StoreWebsite extends Model
         $url = $this->website;
         $parsed = parse_url($url);
         if (empty($parsed['scheme'])) {
-            return $urlStr = 'http://'.ltrim($url, '/');
+            return $urlStr = 'http://' . ltrim($url, '/');
         }
 
         return $url;
@@ -225,11 +225,13 @@ class StoreWebsite extends Model
         return $this->hasMany(\App\ReturnExchangeStatus::class, 'store_website_id', 'id');
     }
 
-    public function     tags(){
-        return $this->hasOne(\App\Models\WebsiteStoreTag::class, 'id', 'tag_id')->select('id','tags');        
+    public function tags()
+    {
+        return $this->hasOne(\App\Models\WebsiteStoreTag::class, 'id', 'tag_id')->select('id', 'tags');
     }
 
-    public function getAllTaggedWebsite($tag_id) {
-        return self::where(["tag_id" => $tag_id])->select('tag_id','id')->whereNotNull("tag_id")->get();
+    public function getAllTaggedWebsite($tag_id)
+    {
+        return self::where(['tag_id' => $tag_id])->select('tag_id', 'id')->whereNotNull('tag_id')->get();
     }
 }

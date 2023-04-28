@@ -35,14 +35,14 @@ class ServersForm extends BaseForm
                 'Servers' => [
                     1 => [
                         'auth_type',
-                        ':group:'.__('Config authentication'),
+                        ':group:' . __('Config authentication'),
                         'user',
                         'password',
                         ':group:end',
-                        ':group:'.__('HTTP authentication'),
+                        ':group:' . __('HTTP authentication'),
                         'auth_http_realm',
                         ':group:end',
-                        ':group:'.__('Signon authentication'),
+                        ':group:' . __('Signon authentication'),
                         'SignonSession',
                         'SignonURL',
                         'LogoutURL',

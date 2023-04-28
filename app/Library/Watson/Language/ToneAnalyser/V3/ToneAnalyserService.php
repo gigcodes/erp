@@ -2,8 +2,8 @@
 
 namespace App\Library\Watson\Language\ToneAnalyser\V3;
 
-use App\Library\Watson\Response;
 use App\Library\Watson\Service;
+use App\Library\Watson\Response;
 
 class ToneAnalyserService extends Service
 {
@@ -41,7 +41,7 @@ class ToneAnalyserService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl().'/tone',
+            $this->getMountedUrl() . '/tone',
             ['query' => ['version' => $version, 'text' => $textToAnalyse]]
         );
     }

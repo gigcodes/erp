@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\PushNotification;
-use App\Supplier;
-use App\Vendor;
 use Cache;
+use App\Vendor;
+use App\Supplier;
 use Carbon\Carbon;
+use App\PushNotification;
 use Illuminate\Http\Request;
 
 class MasterControlController extends Controller
@@ -146,7 +146,6 @@ class MasterControlController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -179,7 +178,6 @@ class MasterControlController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

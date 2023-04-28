@@ -8,17 +8,17 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Export;
 
 use function __;
-use function array_key_exists;
 use function is_numeric;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\ExportPlugin;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
-use PhpMyAdmin\Properties\Options\Items\HiddenPropertyItem;
-use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
 use function str_replace;
 use function stripslashes;
+use PhpMyAdmin\FieldMetadata;
+use function array_key_exists;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Plugins\ExportPlugin;
+use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
+use PhpMyAdmin\Properties\Options\Items\HiddenPropertyItem;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
 
 /**
  * Handles the export for the YAML format
@@ -66,7 +66,7 @@ class ExportYaml extends ExportPlugin
      */
     public function exportHeader(): bool
     {
-        $this->export->outputHandler('%YAML 1.1'.$GLOBALS['crlf'].'---'.$GLOBALS['crlf']);
+        $this->export->outputHandler('%YAML 1.1' . $GLOBALS['crlf'] . '---' . $GLOBALS['crlf']);
 
         return true;
     }
@@ -76,7 +76,7 @@ class ExportYaml extends ExportPlugin
      */
     public function exportFooter(): bool
     {
-        $this->export->outputHandler('...'.$GLOBALS['crlf']);
+        $this->export->outputHandler('...' . $GLOBALS['crlf']);
 
         return true;
     }
@@ -158,10 +158,10 @@ class ExportYaml extends ExportPlugin
 
             // Output table name as comment if this is the first record of the table
             if ($record_cnt == 1) {
-                $buffer = '# '.$db_alias.'.'.$table_alias.$crlf;
-                $buffer .= '-'.$crlf;
+                $buffer = '# ' . $db_alias . '.' . $table_alias . $crlf;
+                $buffer .= '-' . $crlf;
             } else {
-                $buffer = '-'.$crlf;
+                $buffer = '-' . $crlf;
             }
 
             for ($i = 0; $i < $columns_cnt; $i++) {
@@ -170,14 +170,14 @@ class ExportYaml extends ExportPlugin
                 }
 
                 if ($record[$i] === null) {
-                    $buffer .= '  '.$columns[$i].': null'.$crlf;
+                    $buffer .= '  ' . $columns[$i] . ': null' . $crlf;
 
                     continue;
                 }
 
                 $isNotString = isset($fieldsMeta[$i]) && $fieldsMeta[$i]->isNotType(FieldMetadata::TYPE_STRING);
                 if (is_numeric($record[$i]) && $isNotString) {
-                    $buffer .= '  '.$columns[$i].': '.$record[$i].$crlf;
+                    $buffer .= '  ' . $columns[$i] . ': ' . $record[$i] . $crlf;
 
                     continue;
                 }
@@ -197,7 +197,7 @@ class ExportYaml extends ExportPlugin
                     ],
                     $record[$i]
                 );
-                $buffer .= '  '.$columns[$i].': "'.$record[$i].'"'.$crlf;
+                $buffer .= '  ' . $columns[$i] . ': "' . $record[$i] . '"' . $crlf;
             }
 
             if (! $this->export->outputHandler($buffer)) {

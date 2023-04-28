@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\SimplyDutyCountry;
 use App\StoreWebsite;
-use App\StoreWebsitesCountryShipping;
+use App\SimplyDutyCountry;
 use Illuminate\Http\Request;
+use App\StoreWebsitesCountryShipping;
 
 class StoreWebsiteCountryShippingController extends Controller
 {
@@ -24,7 +24,7 @@ class StoreWebsiteCountryShippingController extends Controller
 
             return view('store-website-country-shipping.index', compact('dataList'));
         } catch (Exception $e) {
-            \Log::error('Shipping page ::'.$e->getMessage());
+            \Log::error('Shipping page ::' . $e->getMessage());
         }
     }
 
@@ -58,11 +58,11 @@ class StoreWebsiteCountryShippingController extends Controller
             } else {
                 $countyCode = SimplyDutyCountry::where('country_name', $request->country_name)->first();
                 $storeWebsites = StoreWebsite::where('id', $request->store_website_id)->first();
-                $url = $storeWebsites->magento_url.'/default/rest/all/V1/shippingcost/';
+                $url = $storeWebsites->magento_url . '/default/rest/all/V1/shippingcost/';
                 $api_key = $storeWebsites->api_token;
 
                 $headers = [
-                    'Authorization' => 'Bearer '.$api_key,
+                    'Authorization' => 'Bearer ' . $api_key,
                     'Content-Type' => 'application/json',
                 ];
 
@@ -130,12 +130,12 @@ class StoreWebsiteCountryShippingController extends Controller
         $data = StoreWebsitesCountryShipping::whereId($id)->first();
         $storeWebsites = StoreWebsite::where('id', $data->store_website_id)->first();
 
-        $url = $storeWebsites->magento_url.'/default/rest/all/V1/shippingcost/delete';
+        $url = $storeWebsites->magento_url . '/default/rest/all/V1/shippingcost/delete';
         $api_key = $storeWebsites->api_token;
 
         $pushMagentoArr = ['ship_id' => $data->ship_id];
         $headers = [
-            'Authorization' => 'Bearer '.$api_key,
+            'Authorization' => 'Bearer ' . $api_key,
             'Content-Type' => 'application/json',
         ];
         $response = \App\Helpers\GuzzleHelper::post($url, $pushMagentoArr, $headers);

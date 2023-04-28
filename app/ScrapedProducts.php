@@ -6,8 +6,8 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use App\Helpers\ProductHelper;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class ScrapedProducts extends Model
 {
@@ -81,7 +81,7 @@ class ScrapedProducts extends Model
 
         // Loop over array
         foreach ($arrBulkJson as $json) {
-            try{
+            try {
                 // Excel?
                 if ($isExcel == 1) {
                     // No title set? Continue to the next, it's probably the nextExcelStatus field
@@ -189,9 +189,7 @@ class ScrapedProducts extends Model
                         $count++;
                     }
                 }
-            }
-            catch(\Exception $e){
-                
+            } catch(\Exception $e) {
             }
         }
 
@@ -211,9 +209,9 @@ class ScrapedProducts extends Model
 
     public static function matchedColors($name)
     {
-        $q = '"color":"'.$name.'"';
+        $q = '"color":"' . $name . '"';
 
-        return \App\Product::where('sp.properties', 'like', '%'.$q.'%')
+        return \App\Product::where('sp.properties', 'like', '%' . $q . '%')
         ->join('scraped_products as sp', 'sp.sku', 'products.sku')
         ->where('products.color', '')
         ->select('products.*')
@@ -222,9 +220,9 @@ class ScrapedProducts extends Model
 
     public static function matchedComposition($name)
     {
-        $q = '"'.$name.'"';
+        $q = '"' . $name . '"';
 
-        return \App\Product::where('sp.properties', 'like', '%'.$q.'%')
+        return \App\Product::where('sp.properties', 'like', '%' . $q . '%')
         ->join('scraped_products as sp', 'sp.sku', 'products.sku')
         ->where('products.composition', '')
         ->select('products.*')
@@ -233,9 +231,9 @@ class ScrapedProducts extends Model
 
     public static function matchedCategory($name)
     {
-        $q = '"'.$name.'"';
+        $q = '"' . $name . '"';
 
-        return \App\Product::where('sp.properties', 'like', '%'.$q.'%')
+        return \App\Product::where('sp.properties', 'like', '%' . $q . '%')
         ->join('scraped_products as sp', 'sp.sku', 'products.sku')
         ->where(function ($q) {
             $q->whereNull('products.category')->orWhere('products.category', '<=', 1);
@@ -246,9 +244,9 @@ class ScrapedProducts extends Model
 
     public static function matchedSizes($name)
     {
-        $q = '"'.$name.'"';
+        $q = '"' . $name . '"';
 
-        return \App\Product::where('sp.properties', 'like', '%'.$q.'%')
+        return \App\Product::where('sp.properties', 'like', '%' . $q . '%')
         ->join('scraped_products as sp', 'sp.sku', 'products.sku')
         ->select('products.*')
         ->get();

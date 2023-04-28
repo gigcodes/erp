@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Host;
 use App\Problem;
-use App\ZabbixHistory;
 use Carbon\Carbon;
+use App\ZabbixHistory;
 use Illuminate\Http\Request;
 
 class ZabbixController extends Controller
@@ -23,31 +23,27 @@ class ZabbixController extends Controller
 
     public function problems(Request $request)
     {
-        $search_data =  Problem::orderBy('id', 'asc')->get();
+        $search_data = Problem::orderBy('id', 'asc')->get();
 
         $problems = Problem::orderBy('id', 'asc');
 
-        if(!empty($request->host_name))
-        {
-            $problems->where('hostname',$request->host_name);
+        if (! empty($request->host_name)) {
+            $problems->where('hostname', $request->host_name);
         }
-        if(!empty($request->problem))
-        {
-            $problems->where('name',$request->problem);
+        if (! empty($request->problem)) {
+            $problems->where('name', $request->problem);
         }
-        if(!empty($request->event_id))
-        {
-            $problems->where('eventid',$request->event_id);
+        if (! empty($request->event_id)) {
+            $problems->where('eventid', $request->event_id);
         }
-        if(!empty($request->object_id))
-        {
-            $problems->where('objectid',$request->object_id);
+        if (! empty($request->object_id)) {
+            $problems->where('objectid', $request->object_id);
         }
         $problems = $problems->paginate(25)->appends(request()->except(['page']));
 
         $totalentries = count($problems);
 
-        return view('zabbix.problem',compact('problems','totalentries','search_data'));
+        return view('zabbix.problem', compact('problems', 'totalentries', 'search_data'));
     }
 
     public function history(Request $request)

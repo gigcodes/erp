@@ -2,33 +2,37 @@
 
 namespace App\Http\Controllers\Seo;
 
-use App\Http\Controllers\Controller;
-use App\Models\Seo\SeoHistory;
-use Illuminate\Http\Request;
-use App\StoreWebsite;
-use App\Models\Seo\SeoProcessStatus;
 use App\User;
+use App\StoreWebsite;
+use Illuminate\Http\Request;
+use App\Models\Seo\SeoHistory;
 use App\Models\Seo\SeoProcess;
-use App\Models\Seo\SeoKeywordRemark;
-use App\Models\Seo\SeoProcessKeyword;
-use App\Models\Seo\SeoProcessRemark;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
+use App\Http\Controllers\Controller;
+use App\Models\Seo\SeoProcessRemark;
+use App\Models\Seo\SeoProcessStatus;
+use App\Models\Seo\SeoProcessKeyword;
 
 class ContentController extends Controller
 {
-    private $route = "seo/content";
-    private $view = "seo/content";
-    private $moduleName = "SEO Content";
+    private $route = 'seo/content';
+
+    private $view = 'seo/content';
+
+    private $moduleName = 'SEO Content';
 
     public function index(Request $request)
     {
-        if($request->ajax()) {   
+        if($request->ajax()) { 
+            if($request->type == 'GET_HISTORY') {
+                return $this->renderPriceHistory();
+            }  
             return $this->getAjaxSeoProcess();
         }
         $data['websites'] = StoreWebsite::select('id', 'website')->get();
         $data['users'] = User::select('id', 'name')->get();
         $data['moduleName'] = $this->moduleName;
+
         return view("{$this->view}/index", $data);
     }
 
@@ -39,6 +43,7 @@ class ContentController extends Controller
         $data['users'] = User::select('id', 'name')->get();
         $data['moduleName'] = $this->moduleName;
         $html = view("$this->route/ajax/create", $data)->render();
+
         return response()->json([
             'success' => true,
             'data' => $html,
@@ -59,7 +64,7 @@ class ContentController extends Controller
             'seo_process_status_id' => $request->seo_process_status_id,
             'live_status_link' => $request->live_status_link,
             'published_at' => $request->published_at,
-            'status' => $request->status
+            'status' => $request->status,
         ]);
         $this->addPriceHistory($seoProcess, true);
         $this->addUserHistory($seoProcess, true);
@@ -69,16 +74,17 @@ class ContentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "SEO Content Added Successfully."
+            'message' => 'SEO Content Added Successfully.',
         ]);
     }
 
-    public function show(Request $request,int $id)
+    public function show(Request $request, int $id)
     {
-        if($request->ajax()) {
-            if($request->type == 'GET_HISTORY') {
+        if ($request->ajax()) {
+            if ($request->type == 'GET_HISTORY') {
                 return $this->renderPriceHistory();
             }
+
             return $this->renderTeamStatus();
         }
         $data['seoProcess'] = SeoProcess::find($id);
@@ -86,24 +92,26 @@ class ContentController extends Controller
         $data['seoProcessStatus'] = SeoProcessStatus::all();
         $data['users'] = User::select('id', 'name')->get();
         $data['moduleName'] = $this->moduleName;
+
         return view("{$this->view}/view", $data);
     }
 
     public function edit(Request $request, int $id)
-    {      
+    {
         $data['seoProcess'] = SeoProcess::find($id);
         $data['storeWebsites'] = StoreWebsite::select('id', 'website')->get();
         $data['seoProcessStatus'] = SeoProcessStatus::all();
         $data['users'] = User::select('id', 'name')->get();
         $data['moduleName'] = $this->moduleName;
         $html = view("{$this->view}/ajax/edit", $data)->render();
+
         return response()->json([
             'success' => true,
             'data' => $html,
         ]);
     }
 
-    public function update(Request $request, int $id) 
+    public function update(Request $request, int $id)
     {
         DB::beginTransaction();
         $seoProcess = SeoProcess::find($id);
@@ -112,13 +120,15 @@ class ContentController extends Controller
         $seoProcess->update([
             'website_id' => $request->website_id,
             'user_id' => $request->user_id,
+            'word_count' => $request->word_count,
+            'suggestion' => $request->suggestion,
             'price' => $request->price,
             'is_price_approved' => $request->is_price_approved ?? 0,
             'google_doc_link' => $request->google_doc_link,
             'seo_process_status_id' => $request->seo_process_status_id,
             'live_status_link' => $request->live_status_link,
             'published_at' => $request->published_at,
-            'status' => $request->status
+            'status' => $request->status,
         ]);
         $this->addKeywordData($seoProcess);
         $this->addChecklistData($seoProcess);
@@ -126,17 +136,17 @@ class ContentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "SEO Content Updated Successfully."
+            'message' => 'SEO Content Updated Successfully.',
         ]);
     }
 
     private function addKeywordData(SeoProcess $seoProcess)
-    {   
+    {
         $request = request();
-        if(!empty($request->keyword)) {
+        if (! empty($request->keyword)) {
             $seoKeyword = [];
             $seoProcess->keywords()->delete();
-            foreach($request->keyword as $ky => $keyword) {
+            foreach ($request->keyword as $ky => $keyword) {
                 $seoKeyword[] = new SeoProcessKeyword([
                     'name' => $keyword,
                     'index' => $ky + 1,
@@ -149,11 +159,11 @@ class ContentController extends Controller
     private function addChecklistData(SeoProcess $seoProcess)
     {
         $request = request();
-        if(!empty($request->seo_checklist)) {
+        if (! empty($request->seo_checklist)) {
             $checklist = [];
             $seoProcess->seoChecklist()->delete();
             $cnt = 1;
-            foreach($request->seo_checklist as $ky => $item) {
+            foreach ($request->seo_checklist as $ky => $item) {
                 $checklist[] = new SeoProcessRemark([
                     'seo_process_status_id' => $ky,
                     'remark' => $item,
@@ -164,11 +174,11 @@ class ContentController extends Controller
             $seoProcess->seoChecklist()->saveMany($checklist);
         }
 
-        if(!empty($request->publish_checklist)) {
+        if (! empty($request->publish_checklist)) {
             $checklist = [];
             $seoProcess->publishChecklist()->delete();
             $cnt = 1;
-            foreach($request->publish_checklist as $ky => $item) {
+            foreach ($request->publish_checklist as $ky => $item) {
                 $checklist[] = new SeoProcessRemark([
                     'seo_process_status_id' => $ky,
                     'remark' => $item,
@@ -186,120 +196,137 @@ class ContentController extends Controller
         $request = request();
         $seoProcess = SeoProcess::with(['website:id,website', 'user:id,name']);
         $filter = (object) $request->filter;
-        if(!empty($filter->website_id)) {
+        if (! empty($filter->website_id)) {
             $seoProcess = $seoProcess->where('website_id', $filter->website_id);
         }
 
-        if(!empty($filter->price_status)) {
-            if($filter->price_status == 1) {
+        if (! empty($filter->price_status)) {
+            if ($filter->price_status == 1) {
                 $seoProcess = $seoProcess->where('is_price_approved', $filter->price_status);
             } else {
                 $seoProcess = $seoProcess->where('is_price_approved', 0);
             }
         }
 
-        if(!empty($filter->user_id)) {
+        if (! empty($filter->user_id)) {
             $seoProcess = $seoProcess->where('user_id', $filter->user_id);
         }
 
-        if(!empty($filter->status)) {
+        if (! empty($filter->status)) {
             $seoProcess = $seoProcess->where('status', $filter->status);
         }
 
-        if($auth->hasRole(['user'])) {
+        if ($auth->hasRole(['user'])) {
             $seoProcess = $seoProcess->where('user_id', $auth->id);
         }
         $datatable = datatables()->eloquent($seoProcess)
-            ->addColumn('actions', function($val) use($auth) {
+            ->addColumn('actions', function ($val) use ($auth) {
                 $editUrl = route('seo.content.edit', $val->id);
                 $showUrl = route('seo.content.show', $val->id);
                 $actions = '';
-                if($auth->hasRole(['Admin', 'user'])) {
+                if ($auth->hasRole(['Admin', 'user', 'Seo Head'])) {
                     $actions .= "<a href='javascript:;' data-url='{$editUrl}' class='btn btn-secondary btn-sm editBtn'>Edit</a>";
                 }
+
                 return $actions;
             })
-            ->addColumn('user_id', function($val) {
-                return $val->user->name ?? '-';
+            ->addColumn('user_id', function($val) use ($auth) {
+                $user = ($val->user->name ?? '-');
+                if($auth->hasRole(['Admin'])) {
+                    $historyImg = asset('images/history.png');
+                    $user .= "<button class='btn btn-image search ui-autocomplete-input userHistoryBtn' data-type='user' data-id='{$val->id}' style='cursor: default'>";
+                    $user .= "<img src='{$historyImg}' style='width:30px !important' />";
+                    $user .= "</button>";
+                }
+                return $user;
             })
-            ->addColumn('website_id', function($val) {
+            ->addColumn('website_id', function ($val) {
                 return $val->website->website ?? '-';
             })
-            ->editColumn('status', function($val) {
+            ->editColumn('status', function ($val) {
                 $status = '';
-                if($val->status == 'planned') {
+                if ($val->status == 'planned') {
                     $status = "<span class='badge btn'>Planned</span>";
                 } else {
                     $status = "<span class='badge btn'>Admin approve</span>";
                 }
+
                 return $status;
-            })
-            ->editColumn('user_id', function($val) {
-                return $val->user->name ?? '-';
             })
             ->editColumn('website_id', function($val) {
                 return $val->website->website ?? '-';
             })
-            ->addColumn('keywords', function($val) {
-                if(!empty($val->keywords)) {
+            ->addColumn('keywords', function ($val) {
+                if (! empty($val->keywords)) {
                     $keyword = "<ul class='list-group'>";
-                    foreach($val->keywords as $item) {
-                        $keyword .= "<li class='list-group-item bg-custom-gray'>" . ($item->name ?? '-') . "</li>";
+                    foreach ($val->keywords as $item) {
+                        $keyword .= "<li class='list-group-item bg-custom-gray'>" . ($item->name ?? '-') . '</li>';
                     }
-                    $keyword .= "</ul>";
+                    $keyword .= '</ul>';
+
                     return $keyword;
                 }
+
                 return '-';
             })
-            ->addColumn('seoChecklist', function($val) {
+            ->addColumn('seoChecklist', function ($val) {
                 $checkList = "<ul class='list-group'>";
-                foreach($val->seoChecklist as $item) {
-                    $checkList .= "<li class='list-group-item bg-custom-gray'>" . "<b>" . ($item->processStatus->label ?? '-') . "</b>" . "<br>" . ($item->remark ?? '-') . "</li>";
+                foreach ($val->seoChecklist as $item) {
+                    $checkList .= "<li class='list-group-item bg-custom-gray'>" . '<b>' . ($item->processStatus->label ?? '-') . '</b>' . '<br>' . ($item->remark ?? '-') . '</li>';
                 }
-                $checkList .= "</ul>";
+                $checkList .= '</ul>';
+
                 return $checkList;
             })
-            ->addColumn('publishChecklist', function($val) {
+            ->addColumn('publishChecklist', function ($val) {
                 $checkList = "<ul class='list-group'>";
-                foreach($val->publishChecklist as $item) {
-                    $checkList .= "<li class='list-group-item bg-custom-gray'>" . "<b>" . ($item->processStatus->label ?? '-') . "</b>" . "<br>" . ($item->remark ?? '-') . "</li>";
+                foreach ($val->publishChecklist as $item) {
+                    $checkList .= "<li class='list-group-item bg-custom-gray'>" . '<b>' . ($item->processStatus->label ?? '-') . '</b>' . '<br>' . ($item->remark ?? '-') . '</li>';
                 }
-                $checkList .= "</ul>";
+                $checkList .= '</ul>';
+
                 return $checkList;
             })
-            ->addColumn('documentLink', function($val) {
+            ->addColumn('documentLink', function ($val) {
                 return "<a target='_blank' href='{$val->google_doc_link}'>{$val->google_doc_link}</a>";
             })
             ->addColumn('liveStatusLink', function($val) {
-                return "<a target='_blank' href='{$val->google_doc_link}'>{$val->google_doc_link}</a>";
+                return "<a target='_blank' href='{$val->live_status_link}'>{$val->live_status_link}</a>";
             })
-            ->editColumn('price', function($val) use($auth) {
+            ->editColumn('price', function ($val) use ($auth) {
                 $price = "<b>{$val->price}</b>";
-                if($auth->hasRole(['Admin'])) {
-                    if($val->is_price_approved) {
-                        $price .= "<br> <i>Approved</i>";
+                if ($auth->hasRole(['Admin'])) {
+                    if ($val->is_price_approved) {
+                        $price .= '<br> <i>Approved</i>';
                     }
+                    $historyImg = asset('images/history.png');
+                    $price .= "<button class='btn btn-image search ui-autocomplete-input priceHistoryBtn' data-type='price' data-id='{$val->id}' style='cursor: default'>";
+                    $price .= "<img src='{$historyImg}' style='width:30px !important' />";
+                    $price .= "</button>";
                 }
+
                 return $price;
             })
-            ->addColumn('seoStatus', function($val) {
+            ->addColumn('seoStatus', function ($val) {
                 return $val->seoStatus->label ?? '-';
             })
-            ->rawColumns(['actions', 'status', 'keywords', 'seoChecklist', 'publishChecklist', 'documentLink', 'liveStatusLink', 'price'])
+            ->rawColumns(['actions', 'status', 'keywords', 'seoChecklist', 'publishChecklist', 'documentLink', 'liveStatusLink', 'price', 'user_id'])
             ->addIndexColumn()
             ->make();
+
         return $datatable;
     }
 
     private function renderTeamStatus()
     {
         $data['seoKeyword'] = null;
-        if(!empty(request()->keywordId)) {
+        if (! empty(request()->keywordId)) {
             $data['seoKeyword'] = SeoKeyword::find(request()->keywordId);
         }
         $data['statusType'] = request()->statusType;
         $data['seoProcessStatus'] = SeoProcessStatus::all();
         $html = view("{$this->view}/team-status-ajax", $data)->render();
+
         return response()->json([
             'success' => true,
             'data' => $html,
@@ -309,7 +336,7 @@ class ContentController extends Controller
     private function addPriceHistory(SeoProcess $seoProcess, bool $isUpdate)
     {
         $request = request();
-        if($request->price != $seoProcess->price || $isUpdate) {
+        if ($request->price != $seoProcess->price || $isUpdate) {
             SeoHistory::create([
                 'user_id' => auth()->id(),
                 'type' => 'price',
@@ -322,7 +349,7 @@ class ContentController extends Controller
     private function addUserHistory(SeoProcess $seoProcess, bool $isUpdate)
     {
         $request = request();
-        if($request->user_id != $seoProcess->user_id || $isUpdate) {
+        if ($request->user_id != $seoProcess->user_id || $isUpdate) {
             SeoHistory::create([
                 'user_id' => auth()->id(),
                 'type' => 'user',
@@ -338,10 +365,11 @@ class ContentController extends Controller
         $data['seoHistory'] = SeoHistory::query()->where('seo_process_id', $request->seoProcessId)
             ->where('type', $request->seoType)->get();
         $data['seoType'] = $request->seoType;
-        $html = view("$this->view/history", $data)->render();
+        $html = view("$this->view/ajax/history", $data)->render();
         return response()->json([
             'success' => true,
             'data' => $html,
+            'title' => ucfirst($request->seoType) . " History",
         ]);
     }
 }

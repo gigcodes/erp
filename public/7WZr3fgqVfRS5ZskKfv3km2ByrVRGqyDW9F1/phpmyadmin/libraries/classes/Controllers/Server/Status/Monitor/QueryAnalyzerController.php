@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server\Status\Monitor;
 
-use PhpMyAdmin\Controllers\Server\Status\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Url;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Server\Status\Data;
 use PhpMyAdmin\Server\Status\Monitor;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
+use PhpMyAdmin\Controllers\Server\Status\AbstractController;
 
 final class QueryAnalyzerController extends AbstractController
 {

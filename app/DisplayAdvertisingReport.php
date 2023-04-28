@@ -21,21 +21,21 @@ class DisplayAdvertisingReport extends Model
     {
         $key = env('KEY');
         $apis = [
-            'publisher_display_ads' => 'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=publisher_text_ads',
+            'publisher_display_ads' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=publisher_text_ads',
 
-            'advertisers' => 'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=publisher_advertiser',
+            'advertisers' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=publisher_advertiser',
 
-            'publishers' => 'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_publishers',
+            'publishers' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=advertiser_publishers',
 
-            'advertiser_display_ads' => 'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_text_ads',
+            'advertiser_display_ads' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=advertiser_text_ads',
 
-            'landing_pages' => 'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_landings',
+            'landing_pages' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=advertiser_landings',
 
-            'advertiser_display_ads_on_a_publishers_website' => 'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&advertiser_domain=ebay.com&publisher_domain=urbandictionary.com&type=advertiser_publisher_text_ads',
+            'advertiser_display_ads_on_a_publishers_website' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&advertiser_domain=ebay.com&publisher_domain=urbandictionary.com&type=advertiser_publisher_text_ads',
 
-            'advertisers_rank' => 'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_rank',
+            'advertisers_rank' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=advertiser_rank',
 
-            'publishers_rank' => 'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=publisher_rank',
+            'publishers_rank' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=publisher_rank',
         ];
 
         if ($column == null) {

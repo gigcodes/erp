@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\UserLogin;
 use Auth;
 use Cache;
-use Carbon\Carbon;
 use Closure;
+use App\UserLogin;
+use Carbon\Carbon;
 use Illuminate\Session\Store;
 
 class LogLastUserActivity
@@ -24,14 +24,13 @@ class LogLastUserActivity
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         if (Auth::check()) {
             $expiresAt = Carbon::now()->addMinutes(5);
-            $cacheKey = 'user-is-online-'.Auth::user()->id;
+            $cacheKey = 'user-is-online-' . Auth::user()->id;
 
             // cache with 5 min expiry.
             $lastLogin = Cache::has($cacheKey, true, $expiresAt);

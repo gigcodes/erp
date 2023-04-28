@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function array_fill;
 use function count;
-use function is_array;
-use PhpMyAdmin\Config\PageSettings;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\DbTableExists;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\InsertEdit;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
-use function str_contains;
 use function strlen;
 use function strpos;
+use function is_array;
+use function array_fill;
+use PhpMyAdmin\Template;
+use function str_contains;
+use PhpMyAdmin\InsertEdit;
+use PhpMyAdmin\DbTableExists;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Config\PageSettings;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Displays form for editing and inserting new table rows.
@@ -99,7 +99,7 @@ class ChangeController extends AbstractController
             $urlParams['table'] = $table;
         }
 
-        $errorUrl = $GLOBALS['goto'].Url::getCommon(
+        $errorUrl = $GLOBALS['goto'] . Url::getCommon(
             $urlParams,
             ! str_contains($GLOBALS['goto'], '?') ? '?' : '&'
         );
@@ -200,7 +200,7 @@ class ChangeController extends AbstractController
             }
 
             $jsvkey = $row_id;
-            $vkey = '[multi_edit]['.$jsvkey.']';
+            $vkey = '[multi_edit][' . $jsvkey . ']';
 
             $current_result = (isset($result) && is_array($result) && isset($result[$row_id])
                 ? $result[$row_id]
@@ -260,7 +260,7 @@ class ChangeController extends AbstractController
         ]);
 
         if ($biggest_max_file_size > 0) {
-            $html_output .= '<input type="hidden" name="MAX_FILE_SIZE" value="'.$biggest_max_file_size.'">'."\n";
+            $html_output .= '<input type="hidden" name="MAX_FILE_SIZE" value="' . $biggest_max_file_size . '">' . "\n";
         }
 
         $html_output .= '</form>';

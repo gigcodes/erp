@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddTypeInToPostmanHistorysTable extends Migration
 {
@@ -14,10 +14,10 @@ class AddTypeInToPostmanHistorysTable extends Migration
     public function up()
     {
         Schema::table('postman_historys', function (Blueprint $table) {
-            $table->string("type")->nullable()->after('user_id');
+            $table->string('type')->nullable()->after('user_id');
         });
     }
-    
+
     /**
      * Reverse the migrations.
      *
@@ -26,8 +26,8 @@ class AddTypeInToPostmanHistorysTable extends Migration
     public function down()
     {
         Schema::table('time_doctor_logs', function (Blueprint $table) {
-            $table->dropColumn("dev_task_id");
-            $table->dropColumn("task_id");
+            $table->dropColumn('dev_task_id');
+            $table->dropColumn('task_id');
         });
     }
 }

@@ -30,7 +30,6 @@ class AutomatedMessagesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,7 +40,6 @@ class AutomatedMessagesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\AutomatedMessages  $automatedMessages
      * @return \Illuminate\Http\Response
      */
     public function show(AutomatedMessages $automatedMessages)
@@ -52,7 +50,6 @@ class AutomatedMessagesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\AutomatedMessages  $automatedMessages
      * @return \Illuminate\Http\Response
      */
     public function edit(AutomatedMessages $automatedMessages)
@@ -63,8 +60,6 @@ class AutomatedMessagesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\AutomatedMessages  $automatedMessages
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, AutomatedMessages $automatedMessages)
@@ -75,7 +70,6 @@ class AutomatedMessagesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\AutomatedMessages  $automatedMessages
      * @return \Illuminate\Http\Response
      */
     public function destroy(AutomatedMessages $automatedMessages)

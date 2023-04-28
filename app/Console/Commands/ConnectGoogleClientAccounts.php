@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use Mail;
+use App\User;
 use App\GoogleClientAccount;
+use Illuminate\Console\Command;
 use App\GoogleClientAccountMail;
 use App\GoogleClientNotification;
-use App\User;
-use Illuminate\Console\Command;
-use Mail;
 
 class ConnectGoogleClientAccounts extends Command
 {
@@ -72,7 +72,7 @@ class ConnectGoogleClientAccounts extends Command
                 }
                 $acc->expires_in = $token['expires_in'];
                 $acc->save();
-                dump('acc_id : '.$acc->id.' | acc_name : '.$acc->google_account.' | is connected.');
+                dump('acc_id : ' . $acc->id . ' | acc_name : ' . $acc->google_account . ' | is connected.');
             } else {
                 foreach ($admins as $admin) {
                     // // $msg = 'please connect this client id ' . $acc->GOOGLE_CLIENT_ID; // for whatsapp
@@ -86,7 +86,7 @@ class ConnectGoogleClientAccounts extends Command
                     // }
                     //$html = view('google_client_accounts.index', ['admin' => $admin, 'acc' => $acc]);
 
-                    $msg = 'Google Webmaster:: Your account   has been disconnected. <a href="'.route('googlewebmaster.account.connect', $acc->google_client_account_id).'">Click here</a> to connect';
+                    $msg = 'Google Webmaster:: Your account   has been disconnected. <a href="' . route('googlewebmaster.account.connect', $acc->google_client_account_id) . '">Click here</a> to connect';
 
                     GoogleClientNotification::create([
                         'google_client_id' => $acc->id,
@@ -95,13 +95,13 @@ class ConnectGoogleClientAccounts extends Command
                         'notification_type' => 'error',
                     ]);
 
-                    $msg = 'Google Webmaster:: Your account   has been disconnected. Gogo this link to connect: '.route('googlewebmaster.account.connect', $acc->google_client_account_id);
+                    $msg = 'Google Webmaster:: Your account   has been disconnected. Gogo this link to connect: ' . route('googlewebmaster.account.connect', $acc->google_client_account_id);
 
                     app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($admin['phone'], $admin['whatsapp_number'], $msg); // for whatsapp
 
-                    dump($acc->id.' email sent to '.$admin['name']);
+                    dump($acc->id . ' email sent to ' . $admin['name']);
                 }
-                dump('acc_id : '.$acc->id.' | acc_name : '.$acc->google_account.' | is not connected.');
+                dump('acc_id : ' . $acc->id . ' | acc_name : ' . $acc->google_account . ' | is not connected.');
             }
         }
         dump('ConnectGoogleClientAccounts command ended.');

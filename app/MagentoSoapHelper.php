@@ -5,11 +5,11 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use App\Helpers\ProductHelper;
-use App\Helpers\StatusHelper;
-use App\Helpers\TranslationHelper;
-use App\Loggers\LogListMagento;
 use Carbon\Carbon;
+use App\Helpers\StatusHelper;
+use App\Helpers\ProductHelper;
+use App\Loggers\LogListMagento;
+use App\Helpers\TranslationHelper;
 use Illuminate\Support\Facades\Log;
 
 class MagentoSoapHelper
@@ -48,7 +48,7 @@ class MagentoSoapHelper
             $this->_sessionId = $this->_proxy->login(config('magentoapi.user'), config('magentoapi.password'));
         } catch (\SoapFault $fault) {
             // Log the error
-            LogListMagento::log(null, 'Unable to connect to Magento via SOAP: '.$fault->getMessage(), 'emergency');
+            LogListMagento::log(null, 'Unable to connect to Magento via SOAP: ' . $fault->getMessage(), 'emergency');
 
             // Set session ID to false
             $this->_sessionId = false;
@@ -83,7 +83,7 @@ class MagentoSoapHelper
         // No categories found?
         if (count($categories) == 0) {
             // Log the error
-            LogListMagento::log($product->id, 'No categories found for product ID '.$product->id, 'emergency');
+            LogListMagento::log($product->id, 'No categories found for product ID ' . $product->id, 'emergency');
 
             return false;
         }
@@ -91,7 +91,7 @@ class MagentoSoapHelper
         // Check for readiness to go to Magento
         if (! ProductHelper::checkReadinessForLive($product)) {
             // Write to log file
-            LogListMagento::log($product->id, 'Failed readiness test for product ID '.$product->id, 'emergency');
+            LogListMagento::log($product->id, 'Failed readiness test for product ID ' . $product->id, 'emergency');
 
             // Update product status - sent to manual attribute
             $product->status_id = StatusHelper::$manualAttribute;
@@ -121,7 +121,7 @@ class MagentoSoapHelper
 
         // Create meta description
         $meta = [];
-        $meta['description'] = 'Shop '.$product->brands->name.' '.$product->color.' .. '.$product->composition.' ... '.$product->product_category->title.' Largest collection of luxury products in the world from Solo luxury at special prices';
+        $meta['description'] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
 
         // If sizes are given we create a configurable product and several single child products
         if (! empty($product->size) && $product->size == 'OS') {
@@ -175,7 +175,7 @@ class MagentoSoapHelper
             }
 
             // Set SKU
-            $sku = $product->sku.$product->color;
+            $sku = $product->sku . $product->color;
 
             $productId = $product->id;
 
@@ -227,7 +227,7 @@ class MagentoSoapHelper
 
             // Successful
             if ($result) {
-                $associatedSkus[] = $sku.'-'.$size;
+                $associatedSkus[] = $sku . '-' . $size;
             }
         }
 
@@ -283,7 +283,7 @@ class MagentoSoapHelper
     private function _pushSingleProduct(Product $product, $categories, $meta)
     {
         // Set SKU
-        $sku = $product->sku.$product->color;
+        $sku = $product->sku . $product->color;
 
         $productId = $product->id;
 
@@ -333,7 +333,7 @@ class MagentoSoapHelper
     private function _pushProduct($productType, $sku, $productData = [], $size = null, $productId = null)
     {
         // Set product specific SKU
-        $sku = $sku.(! empty($size) ? '-'.$size : '');
+        $sku = $sku . (! empty($size) ? '-' . $size : '');
 
         // Try to store the product in Magento
         try {
@@ -347,7 +347,7 @@ class MagentoSoapHelper
             );
 
             // Log info
-            Log::channel('listMagento')->info('Product ('.$productType.') with SKU '.$sku.' successfully pushed to Magento');
+            Log::channel('listMagento')->info('Product (' . $productType . ') with SKU ' . $sku . ' successfully pushed to Magento');
             if ($result) {
                 $translated = $this->languageTranslate($result, $productData, $sku, $productId);
                 if ($translated == true) {
@@ -360,14 +360,14 @@ class MagentoSoapHelper
             // Check exception message to see if the product already exists
             if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
                 // Log info
-                Log::channel('listMagento')->info('Product ('.$productType.') with SKU '.$sku.' already exists in Magento');
+                Log::channel('listMagento')->info('Product (' . $productType . ') with SKU ' . $sku . ' already exists in Magento');
 
                 // Return true
                 return true;
             }
 
             // Log alert
-            Log::channel('listMagento')->alert('Product ('.$productType.') with SKU '.$sku.' failed while pushing to Magento. Message: '.$e->getMessage());
+            Log::channel('listMagento')->alert('Product (' . $productType . ') with SKU ' . $sku . ' failed while pushing to Magento. Message: ' . $e->getMessage());
 
             // Return false
             return false;
@@ -407,10 +407,10 @@ class MagentoSoapHelper
                         );
 
                         // Log info
-                        Log::channel('listMagento')->info('Image for product '.$product->id.' with name '.$file['name'].' successfully pushed to Magento');
+                        Log::channel('listMagento')->info('Image for product ' . $product->id . ' with name ' . $file['name'] . ' successfully pushed to Magento');
                     } catch (\SoapFault $e) {
                         // Log alert
-                        Log::channel('listMagento')->alert('Image for product '.$product->id.' with name '.$file['name'].' failed while pushing to Magento with message: '.$e->getMessage());
+                        Log::channel('listMagento')->alert('Image for product ' . $product->id . ' with name ' . $file['name'] . ' failed while pushing to Magento with message: ' . $e->getMessage());
                     }
                 }
             }

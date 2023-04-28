@@ -48,7 +48,7 @@ class AttachProductIdOnScraperProductTables extends Command
                     $sp->product_id = $product->id;
                 } else {
                     $sp->product_id = 0;
-                    echo $sp->sku.' can not found in list'.PHP_EOL;
+                    echo $sp->sku . ' can not found in list' . PHP_EOL;
                 }
                 $sp->save();
             }

@@ -25,12 +25,12 @@ class GraphqlService
             $validLocales = self::getValidLocales()['validLocales'];
             $localeDiffs = self::getValidLocales()['localeDiffs'];
 
-            $endpoint = self::$storeWebsiteUrl.'admin/api/2020-07/graphql.json'; //this is provided by graphcms
+            $endpoint = self::$storeWebsiteUrl . 'admin/api/2020-07/graphql.json'; //this is provided by graphcms
 
             $translations = self::generateTranslations($validLocales, $localeDiffs, $productId, $shopifyProductId);
             if (! count($translations)) {
                 $message = 'missing_product_translations: No translations found in product_translations 
-                table for product with id: '.$productId;
+                table for product with id: ' . $productId;
                 self::addLogs($message);
             }
 
@@ -64,7 +64,7 @@ class GraphqlService
 
             $headers = [];
             $headers[] = 'Content-Type: application/json';
-            $headers[] = 'X-Shopify-Access-Token: '.self::$storeWebsitePwd;
+            $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
 
             $ch = curl_init();
 
@@ -78,7 +78,7 @@ class GraphqlService
             $response = json_decode($response, true);
 
             if (curl_errno($ch)) {
-                echo 'Error:'.curl_error($ch);
+                echo 'Error:' . curl_error($ch);
             }
 
             if (isset($website->id)) {
@@ -88,8 +88,8 @@ class GraphqlService
             $userErrors = isset($response['data']['translationsRegister']['userErrors']);
             if ($userErrors) {
                 foreach ($response['data']['translationsRegister']['userErrors'] as $error) {
-                    $message = $error['code'].': '.$error['message'];
-                    $message .= PHP_EOL.' Data: '.print_r($error['field'], true);
+                    $message = $error['code'] . ': ' . $error['message'];
+                    $message .= PHP_EOL . ' Data: ' . print_r($error['field'], true);
 
                     self::addLogs($message);
                 }
@@ -100,7 +100,7 @@ class GraphqlService
             //add logs
             $result = false;
             $message = 'no_locales: No locales enabled in shopify store. Please visit:
-             '.self::$storeWebsiteUrl.'/admin/apps/content-translation and select "CONFIGURE LANGUAGES"';
+             ' . self::$storeWebsiteUrl . '/admin/apps/content-translation and select "CONFIGURE LANGUAGES"';
             self::addLogs($message);
             if (isset($website->id)) {
                 ProductPushErrorLog::log(null, $productId, $message, 'error', $website->id);
@@ -112,10 +112,10 @@ class GraphqlService
 
     private static function getDataByCurl($query)
     {
-        $endpoint = self::$storeWebsiteUrl.'admin/api/2020-07/graphql.json'; //this is provided by graphcms
+        $endpoint = self::$storeWebsiteUrl . 'admin/api/2020-07/graphql.json'; //this is provided by graphcms
         $headers = [];
         $headers[] = 'Content-Type: application/graphql';
-        $headers[] = 'X-Shopify-Access-Token: '.self::$storeWebsitePwd;
+        $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
 
         $ch = curl_init();
 
@@ -129,7 +129,7 @@ class GraphqlService
         $result = json_decode($result, true);
 
         if (curl_errno($ch)) {
-            echo 'Error:'.curl_error($ch);
+            echo 'Error:' . curl_error($ch);
         }
 
         curl_close($ch);
@@ -238,7 +238,7 @@ class GraphqlService
                 break;
             case 'getTitleDesc': $query = '
             {
-                  product(id: "gid://shopify/Product/'."{$data['shopifyProductId']}".'") {
+                  product(id: "gid://shopify/Product/' . "{$data['shopifyProductId']}" . '") {
                     title
                     description
                     onlineStoreUrl

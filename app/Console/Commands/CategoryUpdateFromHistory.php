@@ -49,7 +49,7 @@ class CategoryUpdateFromHistory extends Command
                 if ($product) {
                     $product->category = $allProduct->category_id;
                     $product->save();
-                    echo $product->id.' DONE'.PHP_EOL;
+                    echo $product->id . ' DONE' . PHP_EOL;
                     // save to product status history
                     \App\ProductStatus::pushRecord($allProduct->product_id, 'MANUAL_CATEGORY');
                 }

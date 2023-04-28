@@ -26,8 +26,8 @@ class WiseBoutiqueScraper extends Scraper
             }
             $brand->name = str_replace(' &amp; ', '&', $brand->name);
             $brand->name = str_replace('&amp;', '&', $brand->name);
-            $this->scrapPage(self::URL['woman'].'-'.strtolower(str_replace(' ', '+', trim($brand->name))).'?n=120');
-            $this->scrapPage(self::URL['man'].'-'.strtolower(str_replace(' ', '+', trim($brand->name))).'?n=120');
+            $this->scrapPage(self::URL['woman'] . '-' . strtolower(str_replace(' ', '+', trim($brand->name))) . '?n=120');
+            $this->scrapPage(self::URL['man'] . '-' . strtolower(str_replace(' ', '+', trim($brand->name))) . '?n=120');
         }
     }
 
@@ -69,7 +69,7 @@ class WiseBoutiqueScraper extends Scraper
             $allLinks->link_count = $allLinks->link_count + 1;
             $allLinks->save();
             $title = $product->getAttribute('title') ?? 'N/A';
-            $link = self::URL['HOMEPAGE'].'/'.$product->getAttribute('href');
+            $link = self::URL['HOMEPAGE'] . '/' . $product->getAttribute('href');
 
             if (! $link) {
                 continue;

@@ -52,15 +52,15 @@ class StoreImageFromScraperProduct extends Command
 
         if (! $images->isEmpty()) {
             foreach ($images as $im) {
-                \Log::info('Product started => '.$im->id);
-                $this->info('Product started => '.$im->id);
+                \Log::info('Product started => ' . $im->id);
+                $this->info('Product started => ' . $im->id);
                 $scrapedProducts = \App\ScrapedProducts::where('sku', $im->sku)->orWhere('product_id', $im->id)->first();
                 if ($scrapedProducts) {
                     // delete image which is original
                     \DB::table('mediables')->where('mediable_type', \App\Product::class)->where('mediable_id', $im->id)->where('tag', 'original')->delete();
                     $listOfImages = $scrapedProducts->images;
                     if (! empty($listOfImages) && is_array($listOfImages)) {
-                        $this->info('Product images found => '.count($listOfImages));
+                        $this->info('Product images found => ' . count($listOfImages));
                         $im->attachImagesToProduct($listOfImages);
                     }
                     if (in_array($im->status_id, [9, 12])) {

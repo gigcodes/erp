@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Table;
 
-use PhpMyAdmin\Controllers\Sql\SqlController;
 use PhpMyAdmin\RecentFavoriteTable;
+use PhpMyAdmin\Controllers\Sql\SqlController;
 
 /**
  * Browse recent and favorite tables chosen from navigation.

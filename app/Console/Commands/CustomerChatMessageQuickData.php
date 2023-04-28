@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessagesQuickData;
 use App\Customer;
+use App\ChatMessagesQuickData;
 use Illuminate\Console\Command;
 
 class CustomerChatMessageQuickData extends Command

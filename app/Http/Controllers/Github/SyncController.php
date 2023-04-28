@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Github;
 
-use App\Github\GithubGroup;
-use App\Github\GithubGroupMember;
-use App\Github\GithubRepository;
-use App\Github\GithubRepositoryGroup;
-use App\Github\GithubRepositoryUser;
-use App\Github\GithubUser;
-use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use DateTime;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
+use App\Github\GithubUser;
+use App\Github\GithubGroup;
+use App\Github\GithubRepository;
+use App\Github\GithubGroupMember;
+use App\Github\GithubRepositoryUser;
+use App\Http\Controllers\Controller;
+use App\Github\GithubRepositoryGroup;
 
 class SyncController extends Controller
 {
@@ -64,7 +64,7 @@ class SyncController extends Controller
     private function refreshGithubRepos()
     {
         // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
-        $url = 'https://api.github.com/orgs/'.config('env.GITHUB_ORG_ID').'/repos?per_page=100';
+        $url = 'https://api.github.com/orgs/' . config('env.GITHUB_ORG_ID') . '/repos?per_page=100';
 
         $response = $this->client->get($url);
 
@@ -101,7 +101,7 @@ class SyncController extends Controller
     private function refreshUsersForOrganization()
     {
         // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/members";
-        $url = 'https://api.github.com/orgs/'.config('env.GITHUB_ORG_ID').'/members';
+        $url = 'https://api.github.com/orgs/' . config('env.GITHUB_ORG_ID') . '/members';
 
         $response = $this->client->get($url);
         $users = json_decode($response->getBody()->getContents());
@@ -132,7 +132,7 @@ class SyncController extends Controller
     private function refreshGithubGroups()
     {
         // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/teams";
-        $url = 'https://api.github.com/orgs/'.config('env.GITHUB_ORG_ID').'/teams';
+        $url = 'https://api.github.com/orgs/' . config('env.GITHUB_ORG_ID') . '/teams';
 
         $response = $this->client->get($url);
 
@@ -163,7 +163,7 @@ class SyncController extends Controller
     private function refreshUserAccessForRepository($repositoryId, $repositoryName)
     {
         // https://api.github.com/repos/:org/:repo/collaborators
-        $url = 'https://api.github.com/repos/'.getenv('GITHUB_ORG_ID').'/'.$repositoryName.'/collaborators';
+        $url = 'https://api.github.com/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators';
         $response = $this->client->get($url);
 
         $userRepositoryAccess = json_decode($response->getBody()->getContents());
@@ -206,7 +206,7 @@ class SyncController extends Controller
     private function refreshUserAccessInTeam($teamId)
     {
         // https://api.github.com/teams/:team_id/members?role=all
-        $url = 'https://api.github.com/teams/'.$teamId.'/members?role=all';
+        $url = 'https://api.github.com/teams/' . $teamId . '/members?role=all';
         $response = $this->client->get($url);
 
         $users = json_decode($response->getBody()->getContents());
@@ -235,7 +235,7 @@ class SyncController extends Controller
     private function refreshRepositoryForTeam($teamId)
     {
         // https://api.github.com/teams/:team_id/repos
-        $url = 'https://api.github.com/teams/'.$teamId.'/repos';
+        $url = 'https://api.github.com/teams/' . $teamId . '/repos';
         $response = $this->client->get($url);
 
         $repos = json_decode($response->getBody()->getContents());

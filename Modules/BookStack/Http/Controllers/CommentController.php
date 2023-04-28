@@ -3,10 +3,10 @@
 namespace Modules\BookStack\Http\Controllers;
 
 use Activity;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Modules\BookStack\Actions\CommentRepo;
 use Modules\BookStack\Entities\Repos\EntityRepo;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CommentController extends Controller
 {
@@ -30,7 +30,6 @@ class CommentController extends Controller
     /**
      * Save a new comment for a Page
      *
-     * @param  Request  $request
      * @param  int  $pageId
      * @param  null|int  $commentId
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
@@ -66,7 +65,6 @@ class CommentController extends Controller
     /**
      * Update an existing comment.
      *
-     * @param  Request  $request
      * @param  int  $commentId
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */

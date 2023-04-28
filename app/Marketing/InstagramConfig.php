@@ -3,8 +3,8 @@
 namespace App\Marketing;
 
 use App\ImQueue;
-use App\MarketingMessageType;
 use Carbon\Carbon;
+use App\MarketingMessageType;
 use Illuminate\Database\Eloquent\Model;
 
 class InstagramConfig extends Model

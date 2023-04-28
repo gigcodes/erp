@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers;
 
-use PhpMyAdmin\BrowseForeigners;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Http\ServerRequest;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Template;
+use PhpMyAdmin\BrowseForeigners;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Http\ServerRequest;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Display selection for relational field values

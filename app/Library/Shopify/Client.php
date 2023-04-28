@@ -2,8 +2,8 @@
 
 namespace App\Library\Shopify;
 
-use App\ProductPushErrorLog;
 use App\StoreWebsite;
+use App\ProductPushErrorLog;
 
 class Client
 {
@@ -58,7 +58,7 @@ class Client
     //please check this yourself
     public function updateProduct($id, $json = null, $collections = null, $store_id = null)
     {
-        $url = '/admin/api/'.$this->_apiVersion.'/products/'.$id.'.json';
+        $url = '/admin/api/' . $this->_apiVersion . '/products/' . $id . '.json';
         // Post data
         return $this->_sendRequestToShopify($url, $json, 'PUT', $store_id);
     }
@@ -80,7 +80,7 @@ class Client
 
             // Loop over fields
             foreach ($postData as $key => $value) {
-                $queryString .= $key.'='.urlencode($value).'&';
+                $queryString .= $key . '=' . urlencode($value) . '&';
             }
 
             // Add queryString to url
@@ -90,12 +90,12 @@ class Client
         if (! empty($store_id)) {
             $store_website = StoreWebsite::where(['id' => $store_id])->first();
             $magentoUrl = str_replace(['https://', 'http://'], '', $store_website->magento_url);
-            $url = str_replace('//', '/', $magentoUrl.$url);
-            $url = 'https://'.$url;
+            $url = str_replace('//', '/', $magentoUrl . $url);
+            $url = 'https://' . $url;
         } else {
             // Add _shopURL if no key is set
             if (! empty($this->_password) && $this->_key == 'APP' && ! stristr($url, $this->_shopUrl)) {
-                $url = 'https://'.$this->_shopUrl.$url;
+                $url = 'https://' . $this->_shopUrl . $url;
             }
         }
 
@@ -127,10 +127,10 @@ class Client
 
         // Set X-Header for apps
         if (! empty($store_id)) {
-            $headers[] = 'X-Shopify-Access-Token: '.$store_website->magento_password;
+            $headers[] = 'X-Shopify-Access-Token: ' . $store_website->magento_password;
         } else {
             if (! empty($this->_password) && $this->_key == 'APP') {
-                $headers[] = 'X-Shopify-Access-Token: '.$this->_password;
+                $headers[] = 'X-Shopify-Access-Token: ' . $this->_password;
             }
         }
 

@@ -8,13 +8,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Schema\Pdf;
 
 use function __;
-use function count;
-use function in_array;
 use function max;
-use PhpMyAdmin\Pdf as PdfLib;
-use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
-use PhpMyAdmin\Plugins\Schema\TableStats;
+use function count;
 use function sprintf;
+use function in_array;
+use PhpMyAdmin\Pdf as PdfLib;
+use PhpMyAdmin\Plugins\Schema\TableStats;
+use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
 
 /**
  * Table preferences/statistics
@@ -103,7 +103,7 @@ class TableStatsPdf extends TableStats
             $ret = sprintf('%.0fx%0.f', $this->width, $this->height);
         }
 
-        return $ret.' '.$this->tableName;
+        return $ret . ' ' . $this->tableName;
     }
 
     /**
@@ -199,7 +199,7 @@ class TableStatsPdf extends TableStats
             $this->diagram->cellScale(
                 $this->width,
                 $this->heightCell,
-                ' '.$field,
+                ' ' . $field,
                 1,
                 1,
                 'L',

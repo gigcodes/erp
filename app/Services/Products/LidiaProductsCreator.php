@@ -2,15 +2,15 @@
 
 namespace App\Services\Products;
 
+use Storage;
 use App\Brand;
-use App\Category;
+use Validator;
 use App\Product;
 use App\Setting;
+use App\Category;
 use App\Supplier;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Storage;
-use Validator;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class LidiaProductsCreator
 {
@@ -174,9 +174,9 @@ class LidiaProductsCreator
         foreach ($images as $image_name) {
             // Storage::disk('uploads')->delete('/social-media/' . $image_name);
 
-            $path = public_path('uploads').'/social-media/'.$image_name;
+            $path = public_path('uploads') . '/social-media/' . $image_name;
             $media = MediaUploader::fromSource($path)
-                                   ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                   ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                    ->upload();
             $product->attachMedia($media, config('constants.media_tags'));
         }

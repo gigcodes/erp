@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Server;
 
 use function count;
+use PhpMyAdmin\Url;
+use PhpMyAdmin\Util;
 use function implode;
 use function is_array;
 use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
 use function str_contains;
 
 /**
@@ -59,21 +59,21 @@ class Select
             } else {
                 $label = $server['host'];
                 if (! empty($server['port'])) {
-                    $label .= ':'.$server['port'];
+                    $label .= ':' . $server['port'];
                 }
             }
 
             if (! empty($server['only_db'])) {
                 if (! is_array($server['only_db'])) {
-                    $label .= ' - '.$server['only_db'];
+                    $label .= ' - ' . $server['only_db'];
                 // try to avoid displaying a too wide selector
                 } elseif (count($server['only_db']) < 4) {
-                    $label .= ' - '.implode(', ', $server['only_db']);
+                    $label .= ' - ' . implode(', ', $server['only_db']);
                 }
             }
 
             if (! empty($server['user']) && $server['auth_type'] === 'config') {
-                $label .= '  ('.$server['user'].')';
+                $label .= '  (' . $server['user'] . ')';
             }
 
             if ($list) {
@@ -84,7 +84,7 @@ class Select
                     ];
                 } else {
                     $scriptName = Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabServer'], 'server');
-                    $href = $scriptName.Url::getCommon(
+                    $href = $scriptName . Url::getCommon(
                         ['server' => $key],
                         ! str_contains($scriptName, '?') ? '?' : '&'
                     );

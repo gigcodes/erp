@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use App\LogExcelImport;
 use App\Product;
+use App\LogExcelImport;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class ProductImport implements ShouldQueue
 {
@@ -78,7 +78,7 @@ class ProductImport implements ShouldQueue
 
                 $count = $itemsAdded['count'];
                 // Log info
-                Log::channel('productUpdates')->info('[Queued job result] Successfully imported Added '.$created.' products and updated '.$updated.' products');
+                Log::channel('productUpdates')->info('[Queued job result] Successfully imported Added ' . $created . ' products and updated ' . $updated . ' products');
                 //Adding Log Status Product Created the LogExcelImport
                 if ($log != '' && $log != null) {
                     $log->number_products_created = $created;

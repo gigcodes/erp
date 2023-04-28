@@ -23,8 +23,6 @@ class Instagram
 
     /**
      * Instagram constructor.
-     *
-     * @param  Facebook  $facebook
      */
     public function __construct(Facebook $facebook)
     {
@@ -45,9 +43,9 @@ class Instagram
     {
         if ($url === null) {
             $params = 'fields'
-                .'='
-                .'id,media_type,media_url,owner{id,username},timestamp,like_count,comments_count,caption';
-            $url = $this->instagram_id.'/media?'.$params;
+                . '='
+                . 'id,media_type,media_url,owner{id,username},timestamp,like_count,comments_count,caption';
+            $url = $this->instagram_id . '/media?' . $params;
         }
 
         try {
@@ -94,7 +92,6 @@ class Instagram
     }
 
     /**
-     * @param $post_id
      * @return array
      * Get the comments + replies for the given post ID
      */
@@ -103,7 +100,7 @@ class Instagram
         $params = '?fields=username,text,timestamp,id,replies{id,username,text}';
         try {
             //get the comments for the post ID
-            $comments = $this->facebook->get($post_id.'/comments'.$params, $this->page_access_token)->getDecodedBody();
+            $comments = $this->facebook->get($post_id . '/comments' . $params, $this->page_access_token)->getDecodedBody();
             $comments = $comments['data'];
         } catch (\Exception $exception) {
             $comments = [];
@@ -123,8 +120,6 @@ class Instagram
     }
 
     /**
-     * @param $postId
-     * @param $message
      * @return array
      * This will post ID to instagram Post
      *
@@ -134,7 +129,7 @@ class Instagram
     {
         //post the comment to facebook - from facebook API - postId required to send the comment
         $comment = $this->facebook
-            ->post($postId.'/comments',
+            ->post($postId . '/comments',
                 [
                     'message' => $message,
                     'fields' => 'id,text,username,timestamp',
@@ -148,8 +143,6 @@ class Instagram
     }
 
     /**
-     * @param $commentId
-     * @param $message
      * @return array
      *
      * @throws \Facebook\Exceptions\FacebookSDKException
@@ -159,7 +152,7 @@ class Instagram
     {
         //send the reply to the comment
         $comment = $this->facebook
-            ->post($commentId.'/replies',
+            ->post($commentId . '/replies',
                 [
                     'message' => $message,
                     'fields' => 'id,text,username,timestamp',
@@ -173,7 +166,6 @@ class Instagram
     }
 
     /**
-     * @param $images
      * @param $message
      * This will post a media to the Instragram sololuxury account
      */
@@ -209,7 +201,6 @@ class Instagram
     }
 
     /**
-     * @param  Image  $image
      * @return bool|mixed|null
      * This will post media object to the facebook server.
      */
@@ -217,13 +208,13 @@ class Instagram
     {
         $data['caption'] = $image->schedule->description;
         $data['access_token'] = $this->page_access_token;
-        $data['image_url'] = url(public_path().'/uploads/social-media/'.$image->filename);
+        $data['image_url'] = url(public_path() . '/uploads/social-media/' . $image->filename);
 
         $containerId = null;
 
         try {
             //send the media objecct to facebook. Required for us because in next step we use this object ID to post on facebook
-            $response = $this->facebook->post($this->instagram_id.'/media', $data)->getDecodedBody();
+            $response = $this->facebook->post($this->instagram_id . '/media', $data)->getDecodedBody();
             if (is_array($response)) {
                 $containerId = $response['id'];
             }
@@ -234,9 +225,6 @@ class Instagram
         return $containerId;
     }
 
-    /**
-     * @return array
-     */
     public function getImageIds(): array
     {
         return $this->imageIds;

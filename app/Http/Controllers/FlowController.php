@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Flow;
-use App\FlowAction;
-use App\FlowCondition;
-use App\FlowMessage;
+use Validator;
 use App\FlowPath;
 use App\FlowType;
-use App\StoreWebsite;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\FlowAction;
+use App\FlowMessage;
+use App\StoreWebsite;
+use App\FlowCondition;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Qoraiche\MailEclipse\MailEclipse;
-use Validator;
 
 class FlowController extends Controller
 {
@@ -65,11 +65,11 @@ class FlowController extends Controller
         $types = ['0' => 'Whatsapp', '3' => 'SMS'];
         $is_queues = ['1' => 'Yes', '0' => 'No'];
         if (request()->message) {
-            $messages->where('message', 'LIKE', '%'.request()->message.'%');
+            $messages->where('message', 'LIKE', '%' . request()->message . '%');
         }
 
         if (request()->message_application_id) {
-            $messages->where('message_application_id', 'LIKE', '%'.request()->message_application_id.'%');
+            $messages->where('message_application_id', 'LIKE', '%' . request()->message_application_id . '%');
         }
 
         if (request()->is_queue) {
@@ -92,11 +92,11 @@ class FlowController extends Controller
         $emails = \App\Email::where('schedule_at', '>', $current_date);
 
         if (request()->from) {
-            $emails->where('from', 'LIKE', '%'.request()->from.'%');
+            $emails->where('from', 'LIKE', '%' . request()->from . '%');
         }
 
         if (request()->to) {
-            $emails->where('to', 'LIKE', '%'.request()->to.'%');
+            $emails->where('to', 'LIKE', '%' . request()->to . '%');
         }
 
         $emails = $emails->paginate(10);
@@ -152,7 +152,7 @@ class FlowController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0].'<br>';
+                $message .= $error[0] . '<br>';
             }
 
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
@@ -181,7 +181,7 @@ class FlowController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0].'<br>';
+                $message .= $error[0] . '<br>';
             }
 
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
@@ -333,8 +333,8 @@ class FlowController extends Controller
         $rViewMail = [];
         if (! empty($mailEclipseTpl)) {
             foreach ($mailEclipseTpl as $mTpl) {
-                $v = MailEclipse::$view_namespace.'::templates.'.$mTpl->template_slug;
-                $rViewMail[$v] = $mTpl->template_name.' ['.$mTpl->template_description.']';
+                $v = MailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
+                $rViewMail[$v] = $mTpl->template_name . ' [' . $mTpl->template_description . ']';
             }
         }
 
@@ -359,7 +359,7 @@ class FlowController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0].'<br>';
+                $message .= $error[0] . '<br>';
             }
 
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);

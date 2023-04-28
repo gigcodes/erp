@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Table;
 
 use function __;
-use PhpMyAdmin\Controllers\Table\StructureController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
 use PhpMyAdmin\Index;
 use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Query\Compatibility;
 use PhpMyAdmin\Query\Generator as QueryGenerator;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
+use PhpMyAdmin\Controllers\Table\StructureController;
 
 final class Indexes
 {

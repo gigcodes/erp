@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
+use function strlen;
 use function is_scalar;
 use function preg_match;
-use function strlen;
 
 /**
  * URL redirector to avoid leaking Referer with some sensitive information.

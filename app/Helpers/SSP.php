@@ -21,7 +21,7 @@ use PDOException;
  */
 
 // REMOVE THIS BLOCK - used for DataTables test environment only!
-$file = $_SERVER['DOCUMENT_ROOT'].'/datatables/pdo.php';
+$file = $_SERVER['DOCUMENT_ROOT'] . '/datatables/pdo.php';
 if (is_file($file)) {
     include $file;
 }
@@ -95,7 +95,7 @@ class SSP
         $limit = '';
 
         if (isset($request['start']) && $request['length'] != -1) {
-            $limit = 'LIMIT '.intval($request['start']).', '.intval($request['length']);
+            $limit = 'LIMIT ' . intval($request['start']) . ', ' . intval($request['length']);
         }
 
         return $limit;
@@ -131,12 +131,12 @@ class SSP
                         'ASC' :
                         'DESC';
 
-                    $orderBy[] = '`'.$column['db'].'` '.$dir;
+                    $orderBy[] = '`' . $column['db'] . '` ' . $dir;
                 }
             }
 
             if (count($orderBy)) {
-                $order = 'ORDER BY '.implode(', ', $orderBy);
+                $order = 'ORDER BY ' . implode(', ', $orderBy);
             }
         }
 
@@ -173,8 +173,8 @@ class SSP
                 $column = $columns[$columnIdx];
 
                 if ($requestColumn['searchable'] == 'true') {
-                    $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
-                    $globalSearch[] = '`'.$column['db'].'` LIKE '.$binding;
+                    $binding = self::bind($bindings, '%' . $str . '%', PDO::PARAM_STR);
+                    $globalSearch[] = '`' . $column['db'] . '` LIKE ' . $binding;
                 }
             }
         }
@@ -190,8 +190,8 @@ class SSP
 
                 if ($requestColumn['searchable'] == 'true' &&
                  $str != '') {
-                    $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
-                    $columnSearch[] = '`'.$column['db'].'` LIKE '.$binding;
+                    $binding = self::bind($bindings, '%' . $str . '%', PDO::PARAM_STR);
+                    $columnSearch[] = '`' . $column['db'] . '` LIKE ' . $binding;
                 }
             }
         }
@@ -200,17 +200,17 @@ class SSP
         $where = '';
 
         if (count($globalSearch)) {
-            $where = '('.implode(' OR ', $globalSearch).')';
+            $where = '(' . implode(' OR ', $globalSearch) . ')';
         }
 
         if (count($columnSearch)) {
             $where = $where === '' ?
                 implode(' AND ', $columnSearch) :
-                $where.' AND '.implode(' AND ', $columnSearch);
+                $where . ' AND ' . implode(' AND ', $columnSearch);
         }
 
         if ($where !== '') {
-            $where = 'WHERE '.$where;
+            $where = 'WHERE ' . $where;
         }
 
         return $where;
@@ -242,7 +242,7 @@ class SSP
 
         // Main query to actually get the data
         $data = self::sql_exec($db, $bindings,
-            'SELECT `'.implode('`, `', self::pluck($columns, 'db'))."`
+            'SELECT `' . implode('`, `', self::pluck($columns, 'db')) . "`
 			 FROM `$table`
 			 $where
 			 $order
@@ -318,21 +318,21 @@ class SSP
 
         if ($whereResult) {
             $where = $where ?
-                $where.' AND '.$whereResult :
-                'WHERE '.$whereResult;
+                $where . ' AND ' . $whereResult :
+                'WHERE ' . $whereResult;
         }
 
         if ($whereAll) {
             $where = $where ?
-                $where.' AND '.$whereAll :
-                'WHERE '.$whereAll;
+                $where . ' AND ' . $whereAll :
+                'WHERE ' . $whereAll;
 
-            $whereAllSql = 'WHERE '.$whereAll;
+            $whereAllSql = 'WHERE ' . $whereAll;
         }
 
         // Main query to actually get the data
         $data = self::sql_exec($db, $bindings,
-            'SELECT `'.implode('`, `', self::pluck($columns, 'db'))."`
+            'SELECT `' . implode('`, `', self::pluck($columns, 'db')) . "`
 			 FROM `$table`
 			 $where
 			 $order
@@ -350,7 +350,7 @@ class SSP
         // Total data set length
         $resTotalLength = self::sql_exec($db, $bindings,
             "SELECT COUNT(`{$primaryKey}`)
-			 FROM   `$table` ".
+			 FROM   `$table` " .
             $whereAllSql
         );
         $recordsTotal = $resTotalLength[0][0];
@@ -390,8 +390,8 @@ class SSP
             );
         } catch (PDOException $e) {
             self::fatal(
-                'An error occurred while connecting to the database. '.
-                'The error reported by the server was: '.$e->getMessage()
+                'An error occurred while connecting to the database. ' .
+                'The error reported by the server was: ' . $e->getMessage()
             );
         }
 
@@ -430,7 +430,7 @@ class SSP
         try {
             $stmt->execute();
         } catch (PDOException $e) {
-            self::fatal('An SQL error occurred: '.$e->getMessage());
+            self::fatal('An SQL error occurred: ' . $e->getMessage());
         }
 
         // Return all
@@ -470,7 +470,7 @@ class SSP
      */
     public static function bind(&$a, $val, $type)
     {
-        $key = ':binding_'.count($a);
+        $key = ':binding_' . count($a);
 
         $a[] = [
             'key' => $key,

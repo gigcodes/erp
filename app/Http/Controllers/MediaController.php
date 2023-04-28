@@ -58,13 +58,13 @@ class MediaController extends Controller
         ];
 
         $validator = Validator::make($request->all(), [
-            'files.*' => 'required|mimetypes:'.implode(',', $validMimeTypes),
+            'files.*' => 'required|mimetypes:' . implode(',', $validMimeTypes),
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => __('The files must be a file of type: ').implode(', ', $validMimeTypes),
+                'message' => __('The files must be a file of type: ') . implode(', ', $validMimeTypes),
             ]);
         } else {
             try {

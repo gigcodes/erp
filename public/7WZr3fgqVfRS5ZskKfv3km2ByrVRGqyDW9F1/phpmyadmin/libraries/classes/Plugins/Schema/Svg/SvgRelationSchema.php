@@ -8,15 +8,15 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Schema\Svg;
 
 use function __;
-use function in_array;
 use function max;
 use function min;
+use function sprintf;
+use function in_array;
+use PhpMyAdmin\Version;
 use PhpMyAdmin\Plugins\Schema\Dia\TableStatsDia;
 use PhpMyAdmin\Plugins\Schema\Eps\TableStatsEps;
-use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
 use PhpMyAdmin\Plugins\Schema\Pdf\TableStatsPdf;
-use PhpMyAdmin\Version;
-use function sprintf;
+use PhpMyAdmin\Plugins\Schema\ExportRelationSchema;
 
 /**
  * RelationStatsSvg Relation Schema Class
@@ -79,7 +79,7 @@ class SvgRelationSchema extends ExportRelationSchema
                 $this->pageNumber
             )
         );
-        $this->diagram->SetAuthor('phpMyAdmin '.Version::VERSION);
+        $this->diagram->SetAuthor('phpMyAdmin ' . Version::VERSION);
         $this->diagram->setFont('Arial');
         $this->diagram->setFontSize(16);
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Twig;
 
+use Twig\TwigFunction;
 use PhpMyAdmin\Transformations;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 
 class TransformationsExtension extends AbstractExtension
 {

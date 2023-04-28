@@ -5,42 +5,42 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Database;
 
 use function __;
-use function array_search;
+use function max;
+use function md5;
 use function ceil;
 use function count;
-use function htmlspecialchars;
+use PhpMyAdmin\Url;
+use function strlen;
+use PhpMyAdmin\Util;
 use function implode;
+use function sprintf;
 use function in_array;
 use function is_string;
-use function max;
 use function mb_substr;
-use function md5;
-use PhpMyAdmin\Charsets;
-use PhpMyAdmin\CheckUserPrivileges;
-use PhpMyAdmin\Config\PageSettings;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\ConfigStorage\RelationCleanup;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\FlashMessages;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Operations;
-use PhpMyAdmin\RecentFavoriteTable;
-use PhpMyAdmin\Replication;
-use PhpMyAdmin\ReplicationInfo;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Sanitize;
-use PhpMyAdmin\StorageEngine;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Tracker;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function preg_match;
-use function preg_quote;
-use function sprintf;
-use function str_replace;
-use function strlen;
 use function strtotime;
 use function urlencode;
+use PhpMyAdmin\Tracker;
+use function preg_match;
+use function preg_quote;
+use PhpMyAdmin\Charsets;
+use PhpMyAdmin\Sanitize;
+use PhpMyAdmin\Template;
+use function str_replace;
+use function array_search;
+use PhpMyAdmin\Operations;
+use PhpMyAdmin\Replication;
+use PhpMyAdmin\FlashMessages;
+use PhpMyAdmin\StorageEngine;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ReplicationInfo;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\CheckUserPrivileges;
+use PhpMyAdmin\Config\PageSettings;
+use PhpMyAdmin\RecentFavoriteTable;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\ConfigStorage\RelationCleanup;
 
 /**
  * Handles database structure logic
@@ -336,7 +336,7 @@ class StructureController extends AbstractController
             $rowCount++;
             if ($tableIsView) {
                 $hiddenFields[] = '<input type="hidden" name="views[]" value="'
-                    .htmlspecialchars($currentTable['TABLE_NAME']).'">';
+                    . htmlspecialchars($currentTable['TABLE_NAME']) . '">';
             }
 
             /*
@@ -398,7 +398,7 @@ class StructureController extends AbstractController
 
             $structureTableRows[] = [
                 'table_name_hash' => md5($currentTable['TABLE_NAME']),
-                'db_table_name_hash' => md5($this->db.'.'.$currentTable['TABLE_NAME']),
+                'db_table_name_hash' => md5($this->db . '.' . $currentTable['TABLE_NAME']),
                 'db' => $this->db,
                 'curr' => $i,
                 'input_class' => implode(' ', $inputClass),
@@ -407,7 +407,7 @@ class StructureController extends AbstractController
                 'may_have_rows' => $mayHaveRows,
                 'browse_table_label_title' => htmlspecialchars($currentTable['TABLE_COMMENT']),
                 'browse_table_label_truename' => $truename,
-                'empty_table_sql_query' => 'TRUNCATE '.Util::backquote($currentTable['TABLE_NAME']),
+                'empty_table_sql_query' => 'TRUNCATE ' . Util::backquote($currentTable['TABLE_NAME']),
                 'empty_table_message_to_show' => urlencode(
                     sprintf(
                         __('Table %s has been emptied.'),
@@ -469,7 +469,7 @@ class StructureController extends AbstractController
 
         $relationParameters = $this->relation->getRelationParameters();
 
-        return $html.$this->template->render('database/structure/table_header', [
+        return $html . $this->template->render('database/structure/table_header', [
             'db' => $this->db,
             'db_is_system_schema' => $this->dbIsSystemSchema,
             'replication' => $replicaInfo['status'],
@@ -545,7 +545,6 @@ class StructureController extends AbstractController
      *
      * @param  array  $currentTable array containing details about the table
      * @param  bool  $tableIsView  whether the table is a view
-     * @return array
      */
     protected function isRowCountApproximated(
         array $currentTable,
@@ -592,7 +591,6 @@ class StructureController extends AbstractController
      *
      * @param  array  $replicaInfo
      * @param  string  $table       table name
-     * @return array
      */
     protected function getReplicationStatus($replicaInfo, string $table): array
     {
@@ -652,8 +650,8 @@ class StructureController extends AbstractController
             if (
                 $this->db == $this->replication->extractDbOrTable($dbTable)
                 && preg_match(
-                    '@^'.
-                    preg_quote(mb_substr($this->replication->extractDbOrTable($dbTable, 'table'), 0, -1), '@').'@',
+                    '@^' .
+                    preg_quote(mb_substr($this->replication->extractDbOrTable($dbTable, 'table'), 0, -1), '@') . '@',
                     $truename
                 )
             ) {
@@ -884,7 +882,6 @@ class StructureController extends AbstractController
      *
      * @param  array  $currentTable current table
      * @param  int  $sumSize      sum size
-     * @return array
      */
     protected function getValuesForMroongaTable(
         array $currentTable,

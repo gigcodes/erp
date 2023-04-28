@@ -33,25 +33,24 @@ class BlogController extends Controller
             if ($request->get('user_id')) {
                 $blogs->where('user_id', $request->get('user_id'));
             }
-            if (!empty($request->get('date'))) {
-
+            if (! empty($request->get('date'))) {
                 $blogs->whereDate('created_at', $request->get('date'));
             }
 
             $blogs->with('user', 'blogsTag');
             $blogs = $blogs->orderBy('id', 'desc')->get();
-            
 
             return Datatables::of($blogs)
                 ->addIndexColumn()
                 ->addColumn('userName', function ($row) {
-                    $user = $row->user ? $row->user->name : "N/A";
+                    $user = $row->user ? $row->user->name : 'N/A';
+
                     return $user;
                 })
                 ->addColumn('no_index', function ($row) {
                     if ($row->no_index === 1) {
                         return 'Yes';
-                    } else if ($row->no_index === 0) {
+                    } elseif ($row->no_index === 0) {
                         return 'No';
                     } else {
                         return '';
@@ -62,7 +61,7 @@ class BlogController extends Controller
                 ->addColumn('no_follow', function ($row) {
                     if ($row->no_follow === 1) {
                         return 'Yes';
-                    } else if ($row->no_follow === 0) {
+                    } elseif ($row->no_follow === 0) {
                         return 'No';
                     } else {
                         return '';
@@ -130,62 +129,58 @@ class BlogController extends Controller
 
                 ->addColumn('checkmobile_friendliness', function ($row) {
                     if ($row->checkmobile_friendliness == 'yes') {
-                        return "Yes";
+                        return 'Yes';
                     } elseif ($row->checkmobile_friendliness == 'no') {
-                        return "No";
+                        return 'No';
                     } else {
-                        return "";
+                        return '';
                     }
                 })
 
                 ->addColumn('internal_link', function ($row) {
                     if ($row->internal_link == 'yes') {
-                        return "Yes";
+                        return 'Yes';
                     } elseif ($row->internal_link == 'no') {
-                        return "No";
+                        return 'No';
                     } else {
-                        return "";
-                    }
-                })
-
-                ->addColumn('external_link', function ($row) {
-                    if ($row->external_link == 'yes') {
-                        return "Yes";
-                    } elseif ($row->external_link == 'no') {
-                        return "No";
-                    } else {
-                        return "";
+                        return '';
                     }
                 })
 
                 ->addColumn('created_at', function ($row) {
-                    $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : "N/A";
+                    $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : 'N/A';
+
                     return $createdDate;
                 })
                 ->addColumn('facebook_date', function ($row) {
-                    $facebookDate = $row->facebook_date ? Carbon::parse($row->facebook_date)->format('Y-m-d') : "N/A";
+                    $facebookDate = $row->facebook_date ? Carbon::parse($row->facebook_date)->format('Y-m-d') : 'N/A';
+
                     return $facebookDate;
                 })
                 ->addColumn('google_date', function ($row) {
-                    $googleDate = $row->google_date ? Carbon::parse($row->google_date)->format('Y-m-d') : "N/A";
+                    $googleDate = $row->google_date ? Carbon::parse($row->google_date)->format('Y-m-d') : 'N/A';
+
                     return $googleDate;
                 })
                 ->addColumn('instagram_date', function ($row) {
-                    $instaDate = $row->instagram_date ? Carbon::parse($row->instagram_date)->format('Y-m-d') : "N/A";
+                    $instaDate = $row->instagram_date ? Carbon::parse($row->instagram_date)->format('Y-m-d') : 'N/A';
+
                     return $instaDate;
                 })
                 ->addColumn('twitter_date', function ($row) {
-                    $twitterDate = $row->twitter_date ? Carbon::parse($row->twitter_date)->format('Y-m-d') : "N/A";
+                    $twitterDate = $row->twitter_date ? Carbon::parse($row->twitter_date)->format('Y-m-d') : 'N/A';
+
                     return $twitterDate;
                 })
                 ->addColumn('bing_date', function ($row) {
-                    $bingDate = $row->bing_date ? Carbon::parse($row->bing_date)->format('Y-m-d') : "N/A";
+                    $bingDate = $row->bing_date ? Carbon::parse($row->bing_date)->format('Y-m-d') : 'N/A';
+
                     return $bingDate;
                 })
 
                 ->addColumn('content', function ($row) {
-
                     $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" id="ViewContent" data-blog-id="' . $row->id . '" class="btn custom-button ViewContent btn-warning btn-sm"><i class="fa fa-eye"></i> Content</a>&nbsp;';
+
                     return $actionBtn;
                 })
 
@@ -207,6 +202,7 @@ class BlogController extends Controller
                 ->addColumn('action', function ($row) {
                     $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-blog-id="' . $row->id . '" id="BlogEditModal" class="btn custom-button BlogEditData btn-warning btn-sm"><i class="fa fa-edit"></i> Edit</a>&nbsp;
                     <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
+
                     return $actionBtn;
                 })
                 ->rawColumns(['action', 'userName', 'plaglarism', 'facebook_date', 'google_date', 'instagram_date', 'twitter_date', 'strong_tag', 'italic_tag', 'checkmobile_friendliness', 'internal_link', 'content'])
@@ -237,32 +233,31 @@ class BlogController extends Controller
         $allTag = Tag::get()->toArray();
         $tagName = array_column($allTag, 'tag');
 
-        $tagName = implode(",", $tagName);
-        $tagName = "['" . str_replace(",", "','", $tagName) . "']";
+        $tagName = implode(',', $tagName);
+        $tagName = "['" . str_replace(',', "','", $tagName) . "']";
+
         return view('blogs.create', compact('users', 'tagName'));
     }
-
 
     public function viewAllHistory(Request $request)
     {
         if ($request->ajax()) {
-
             $blogsHistory = BlogHistory::query();
             if ($request->get('user_id')) {
                 $blogsHistory->where('user_id', $request->get('user_id'));
             }
-            if (!empty($request->get('date'))) {
-
+            if (! empty($request->get('date'))) {
                 $blogsHistory->whereDate('created_at', $request->get('date'));
             }
 
             $blogsHistory->with('user');
+
             return Datatables::of($blogsHistory)
                 ->addIndexColumn()
                 ->addColumn('no_index', function ($row) {
                     if ($row->no_index === 1) {
                         return 'Yes';
-                    } else if ($row->no_index === 0) {
+                    } elseif ($row->no_index === 0) {
                         return 'No';
                     } else {
                         return '';
@@ -271,20 +266,21 @@ class BlogController extends Controller
                 ->addColumn('no_follow', function ($row) {
                     if ($row->no_follow === 1) {
                         return 'Yes';
-                    } else if ($row->no_follow === 0) {
+                    } elseif ($row->no_follow === 0) {
                         return 'No';
                     } else {
                         return '';
                     }
                 })
 
-
                 ->addColumn('created_at', function ($row) {
-                    $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : "N/A";
+                    $createdDate = $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d H:i:s') : 'N/A';
+
                     return $createdDate;
                 })
                 ->addColumn('userName', function ($row) {
-                    $user = $row->user ? $row->user->name : "N/A";
+                    $user = $row->user ? $row->user->name : 'N/A';
+
                     return $user;
                 })
                 ->rawColumns(['userName'])
@@ -292,13 +288,13 @@ class BlogController extends Controller
         }
 
         $users = User::get();
+
         return view('blogs.view-all-history', compact('users'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -333,12 +329,12 @@ class BlogController extends Controller
             $blogHistory = BlogHistory::create([
                 'blog_id' => $blog->id,
                 'plaglarism' => $blog->plaglarism,
-                'user_id' => !empty(Auth::user()->id) ? Auth::user()->id : null,
+                'user_id' => ! empty(Auth::user()->id) ? Auth::user()->id : null,
                 'internal_link' => $blog->internal_link,
                 'external_link' => $blog->external_link,
                 'create_time' => Carbon::now()->format('Y-m-d'),
                 'no_index' => $blog->no_index,
-                'no_follow' => $blog->no_follow
+                'no_follow' => $blog->no_follow,
 
             ]);
 
@@ -392,17 +388,14 @@ class BlogController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-
-
     public function titleTag($titleTags, $blogId)
     {
         foreach ($titleTags as $titleTag) {
-
             $checkTagExistsOrNot = Tag::where('tag', $titleTag)->first();
 
             if (empty($checkTagExistsOrNot)) {
                 $tagAdd = Tag::create([
-                    'tag' => $titleTag
+                    'tag' => $titleTag,
                 ]);
 
                 $blogTag = BlogTag::create([
@@ -425,12 +418,11 @@ class BlogController extends Controller
     public function headerTag($headerTags, $blogId)
     {
         foreach ($headerTags as $headerTag) {
-
             $checkTagExistsOrNot = Tag::where('tag', $headerTag)->first();
 
             if (empty($checkTagExistsOrNot)) {
                 $tagAdd = Tag::create([
-                    'tag' => $headerTag
+                    'tag' => $headerTag,
                 ]);
 
                 $blogTag = BlogTag::create([
@@ -450,16 +442,14 @@ class BlogController extends Controller
         return true;
     }
 
-
     public function italicTag($italicTags, $blogId)
     {
         foreach ($italicTags as $italicTag) {
-
             $checkTagExistsOrNot = Tag::where('tag', $italicTag)->first();
 
             if (empty($checkTagExistsOrNot)) {
                 $tagAdd = Tag::create([
-                    'tag' => $italicTag
+                    'tag' => $italicTag,
                 ]);
 
                 $blogTag = BlogTag::create([
@@ -475,18 +465,18 @@ class BlogController extends Controller
                 ]);
             }
         }
+
         return true;
     }
 
     public function strongTag($strongTags, $blogId)
     {
         foreach ($strongTags as $strongTag) {
-
             $checkTagExistsOrNot = Tag::where('tag', $strongTag)->first();
 
             if (empty($checkTagExistsOrNot)) {
                 $tagAdd = Tag::create([
-                    'tag' => $strongTag
+                    'tag' => $strongTag,
                 ]);
 
                 $blogTag = BlogTag::create([
@@ -502,6 +492,7 @@ class BlogController extends Controller
                 ]);
             }
         }
+
         return true;
     }
 
@@ -509,16 +500,16 @@ class BlogController extends Controller
     {
         $blog = Blog::with('user', 'blogsTag')->where('id', $id)->first();
 
-        if (!empty($blog)) {
+        if (! empty($blog)) {
             $users = User::get();
             $headerTags = $this->headerTagGetWhenEdit($id);
-            $headerTagEditValue = implode(",", $headerTags);
+            $headerTagEditValue = implode(',', $headerTags);
             $titleTags = $this->titleTagGetWhenEdit($id);
-            $titleTagEditValue = implode(",", $titleTags);
+            $titleTagEditValue = implode(',', $titleTags);
             $italicTags = $this->italicTagGetWhenEdit($id);
-            $italicTagEditValue = implode(",", $italicTags);
+            $italicTagEditValue = implode(',', $italicTags);
             $strongTags = $this->strongTagGetWhenEdit($id);
-            $strongTagEditValue = implode(",", $strongTags);
+            $strongTagEditValue = implode(',', $strongTags);
             // $titleTags = $this->titleTagGetWhenEdit($id);
             // $headerTags = $this->headerTagGetWhenEdit($id);
             // $italicTags = $this->italicTagGetWhenEdit($id);
@@ -526,10 +517,9 @@ class BlogController extends Controller
             // $userName = !empty($blog->user->name) ? $blog->user->name : '';
             return view('blogs.show', compact('blog', 'headerTagEditValue', 'titleTagEditValue', 'italicTagEditValue', 'strongTagEditValue', 'users'));
         }
+
         return abort(404);
     }
-
-
 
     /**
      * Show the form for editing the specified resource.
@@ -539,9 +529,8 @@ class BlogController extends Controller
      */
     public function edit($id)
     {
-
         $blog = Blog::where('id', $id)->first();
-        if (!empty($blog)) {
+        if (! empty($blog)) {
             $users = User::get();
 
             // $headerTags = $this->headerTagGetWhenEdit($id);
@@ -581,9 +570,8 @@ class BlogController extends Controller
 
     public function contentView($id)
     {
-
         $blog = Blog::where('id', $id)->first();
-        if (!empty($blog)) {
+        if (! empty($blog)) {
             $returnHTML = view('blogs.Contentview')->with('blog', $blog)->render();
 
             return response()->json(['status' => 'success', 'data' => ['html' => $returnHTML], 'message' => 'Blog'], 200);
@@ -592,19 +580,18 @@ class BlogController extends Controller
         }
     }
 
-
     public function allTagsByTagType($type)
     {
         $tags = [];
         $allTagsType = BlogTag::where('type', $type)->get();
-        if (!empty($allTagsType)) {
+        if (! empty($allTagsType)) {
             foreach ($allTagsType as $value) {
-
-                if (!empty($value->tag->tag)) {
+                if (! empty($value->tag->tag)) {
                     $tags[] = $value->tag->tag;
                 }
             }
         }
+
         return $tags;
     }
 
@@ -615,11 +602,11 @@ class BlogController extends Controller
 
         $headerTags = [];
         foreach ($headerTag as $value) {
-
-            if (!empty($value->tag->tag)) {
+            if (! empty($value->tag->tag)) {
                 $headerTags[] = $value->tag->tag;
             }
         }
+
         return $headerTags;
     }
 
@@ -630,14 +617,13 @@ class BlogController extends Controller
 
         $titleTags = [];
         foreach ($titleTag as $value) {
-
-            if (!empty($value->tag->tag)) {
+            if (! empty($value->tag->tag)) {
                 $titleTags[] = $value->tag->tag;
             }
         }
+
         return $titleTags;
     }
-
 
     public function italicTagGetWhenEdit($blogId)
     {
@@ -646,14 +632,13 @@ class BlogController extends Controller
 
         $italicTags = [];
         foreach ($italicTag as $value) {
-
-            if (!empty($value->tag->tag)) {
+            if (! empty($value->tag->tag)) {
                 $italicTags[] = $value->tag->tag;
             }
         }
+
         return $italicTags;
     }
-
 
     public function strongTagGetWhenEdit($blogId)
     {
@@ -662,26 +647,22 @@ class BlogController extends Controller
 
         $italicTags = [];
         foreach ($italicTag as $value) {
-
-            if (!empty($value->tag->tag)) {
+            if (! empty($value->tag->tag)) {
                 $italicTags[] = $value->tag->tag;
             }
         }
+
         return $italicTags;
     }
-
-
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-
         $blog = Blog::where('id', $id)->first();
 
         if (empty($blog)) {
@@ -722,7 +703,7 @@ class BlogController extends Controller
             'url_structure' => $request->url_structure,
             'url_xml' => $request->url_xml,
             'no_follow' => $request->no_follow,
-            'publish_blog_date' => !empty($request->publish_blog_date) ? Carbon::parse($request->publish_blog_date)->format('Y-m-d') : null,
+            'publish_blog_date' => ! empty($request->publish_blog_date) ? Carbon::parse($request->publish_blog_date)->format('Y-m-d') : null,
             'no_index' => $request->no_index,
             'date' => $request->date,
             'facebook' => $request->facebook,
@@ -760,12 +741,12 @@ class BlogController extends Controller
             BlogHistory::create([
                 'blog_id' => $id,
                 'plaglarism' => $request->plaglarism,
-                'user_id' => !empty(Auth::user()->id) ? Auth::user()->id : null,
+                'user_id' => ! empty(Auth::user()->id) ? Auth::user()->id : null,
                 'internal_link' => $request->internal_link,
                 'external_link' => $request->external_link,
                 'create_time' => Carbon::now()->format('Y-m-d'),
                 'no_index' => $request->no_index,
-                'no_follow' => $request->no_follow
+                'no_follow' => $request->no_follow,
 
             ]);
 

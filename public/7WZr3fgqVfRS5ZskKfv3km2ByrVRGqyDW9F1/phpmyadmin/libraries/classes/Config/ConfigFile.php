@@ -7,12 +7,12 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Config;
 
+use function count;
+use PhpMyAdmin\Core;
+use function is_array;
 use function array_diff;
 use function array_flip;
 use function array_keys;
-use function count;
-use function is_array;
-use PhpMyAdmin\Core;
 use function preg_replace;
 
 /**
@@ -93,7 +93,7 @@ class ConfigFile
         $this->defaultCfg = $settings->toArray();
 
         // load additional config information
-        $this->cfgDb = include ROOT_PATH.'libraries/config.values.php';
+        $this->cfgDb = include ROOT_PATH . 'libraries/config.values.php';
 
         // apply default values overrides
         if (count($this->cfgDb['_overrides'])) {
@@ -104,7 +104,7 @@ class ConfigFile
 
         $this->baseCfg = $baseConfig;
         $this->isInSetup = $baseConfig === null;
-        $this->id = 'ConfigFile'.$GLOBALS['server'];
+        $this->id = 'ConfigFile' . $GLOBALS['server'];
         if (isset($_SESSION[$this->id])) {
             return;
         }
@@ -247,9 +247,9 @@ class ConfigFile
         $result = [];
         foreach ($array as $key => $value) {
             if (is_array($value) && ! isset($value[0])) {
-                $result += $this->getFlatArray($value, $prefix.$key.'/');
+                $result += $this->getFlatArray($value, $prefix . $key . '/');
             } else {
-                $result[$prefix.$key] = $value;
+                $result[$prefix . $key] = $value;
             }
         }
 
@@ -370,8 +370,6 @@ class ConfigFile
 
     /**
      * Returns server list
-     *
-     * @return array
      */
     public function getServers(): array
     {
@@ -390,25 +388,25 @@ class ConfigFile
             return '';
         }
 
-        $path = 'Servers/'.$server;
+        $path = 'Servers/' . $server;
         $dsn = 'mysqli://';
-        if ($this->getValue($path.'/auth_type') === 'config') {
-            $dsn .= $this->getValue($path.'/user');
-            if (! empty($this->getValue($path.'/password'))) {
+        if ($this->getValue($path . '/auth_type') === 'config') {
+            $dsn .= $this->getValue($path . '/user');
+            if (! empty($this->getValue($path . '/password'))) {
                 $dsn .= ':***';
             }
 
             $dsn .= '@';
         }
 
-        if ($this->getValue($path.'/host') !== 'localhost') {
-            $dsn .= $this->getValue($path.'/host');
-            $port = $this->getValue($path.'/port');
+        if ($this->getValue($path . '/host') !== 'localhost') {
+            $dsn .= $this->getValue($path . '/host');
+            $port = $this->getValue($path . '/port');
             if ($port) {
-                $dsn .= ':'.$port;
+                $dsn .= ':' . $port;
             }
         } else {
-            $dsn .= $this->getValue($path.'/socket');
+            $dsn .= $this->getValue($path . '/socket');
         }
 
         return $dsn;
@@ -426,12 +424,12 @@ class ConfigFile
             return '';
         }
 
-        $verbose = $this->get('Servers/'.$id.'/verbose');
+        $verbose = $this->get('Servers/' . $id . '/verbose');
         if (! empty($verbose)) {
             return $verbose;
         }
 
-        $host = $this->get('Servers/'.$id.'/host');
+        $host = $this->get('Servers/' . $id . '/host');
 
         return empty($host) ? 'localhost' : $host;
     }

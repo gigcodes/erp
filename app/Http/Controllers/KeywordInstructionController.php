@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\InstructionCategory;
 use App\KeywordInstruction;
+use App\InstructionCategory;
 use Illuminate\Http\Request;
 
 class KeywordInstructionController extends Controller
@@ -35,7 +35,6 @@ class KeywordInstructionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -57,7 +56,6 @@ class KeywordInstructionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\KeywordInstruction  $keywordInstruction
      * @return \Illuminate\Http\Response
      */
     public function show(KeywordInstruction $keywordInstruction)
@@ -68,7 +66,6 @@ class KeywordInstructionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\KeywordInstruction  $keywordInstruction
      * @return \Illuminate\Http\Response
      */
     public function edit(KeywordInstruction $keywordInstruction)
@@ -85,8 +82,6 @@ class KeywordInstructionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\KeywordInstruction  $keywordInstruction
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, KeywordInstruction $keywordInstruction)
@@ -107,7 +102,6 @@ class KeywordInstructionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\KeywordInstruction  $keywordInstruction
      * @return \Illuminate\Http\Response
      *
      * @throws \Exception

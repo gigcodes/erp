@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
+use File;
+use App\User;
+use App\Setting;
 use App\LaravelLog;
 use App\LogKeyword;
-use App\Setting;
-use App\User;
-use File;
+use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -92,10 +92,10 @@ class LaravelLogController extends Controller
 
     public function liveLogsSingle(Request $request)
     {
-        $filename = '/laravel-'.now()->format('Y-m-d').'.log';
+        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
         //$filename = '/laravel-2020-09-10.log';
         $path = storage_path('logs');
-        $fullPath = $path.$filename;
+        $fullPath = $path . $filename;
         $errSelection = [];
         try {
             $content = File::get($fullPath);
@@ -110,7 +110,7 @@ class LaravelLogController extends Controller
 
             foreach ($match[0] as $value) {
                 foreach ($errorTypeArr as $errType) {
-                    if (preg_match('/'.$errType.'/', $value)) {
+                    if (preg_match('/' . $errType . '/', $value)) {
                         $errSelection[] = $errType;
 
                         break;
@@ -118,24 +118,24 @@ class LaravelLogController extends Controller
                 }
                 if ($request->get('search') && $request->get('search') != '') {
                     //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
-                    if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match('/'.$defaultSearchTerm.'/', $value)) {
+                    if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match('/' . $defaultSearchTerm . '/', $value)) {
                         $str = $value;
                         $temp1 = explode('.', $str);
                         $temp2 = explode(' ', $temp1[0]);
                         $type = $temp2[2];
                         array_push($this->channel_filter, $type);
 
-                        $errors[] = $value.'==='.str_replace('/', '', $filename);
+                        $errors[] = $value . '===' . str_replace('/', '', $filename);
                     }
                 } else {
-                    if (preg_match('/'.$defaultSearchTerm.'/', $value)) {
+                    if (preg_match('/' . $defaultSearchTerm . '/', $value)) {
                         $str = $value;
                         $temp1 = explode('.', $str);
                         $temp2 = explode(' ', $temp1[0]);
                         $type = $temp2[2];
                         array_push($this->channel_filter, $type);
 
-                        $errors[] = $value.'==='.str_replace('/', '', $filename);
+                        $errors[] = $value . '===' . str_replace('/', '', $filename);
                     }
                 }
             }
@@ -168,7 +168,7 @@ class LaravelLogController extends Controller
             $type = $temp2[2];
             $if_available = false;
             if (stripos(strtolower($request->msg), $temp1[1]) !== false) {
-                array_push($final, $temp2[0].$temp2[1]);
+                array_push($final, $temp2[0] . $temp2[1]);
             }
         }
 
@@ -177,10 +177,10 @@ class LaravelLogController extends Controller
 
     public function liveLogs(Request $request)
     {
-        $filename = '/laravel-'.now()->format('Y-m-d').'.log';
+        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
         //$filename = '/laravel-2020-09-10.log';
         $path = storage_path('logs');
-        $fullPath = $path.$filename;
+        $fullPath = $path . $filename;
         $errSelection = [];
         try {
             $content = File::get($fullPath);
@@ -195,7 +195,7 @@ class LaravelLogController extends Controller
 
             foreach ($match[0] as $value) {
                 foreach ($errorTypeArr as $errType) {
-                    if (preg_match('/'.$errType.'/', $value)) {
+                    if (preg_match('/' . $errType . '/', $value)) {
                         $errSelection[] = $errType;
 
                         break;
@@ -203,24 +203,24 @@ class LaravelLogController extends Controller
                 }
                 if ($request->get('search') && $request->get('search') != '') {
                     //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
-                    if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match('/'.$defaultSearchTerm.'/', $value)) {
+                    if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match('/' . $defaultSearchTerm . '/', $value)) {
                         $str = $value;
                         $temp1 = explode('.', $str);
                         $temp2 = explode(' ', $temp1[0]);
                         $type = $temp2[2];
                         array_push($this->channel_filter, $type);
 
-                        $errors[] = $value.'==='.str_replace('/', '', $filename);
+                        $errors[] = $value . '===' . str_replace('/', '', $filename);
                     }
                 } else {
-                    if (preg_match('/'.$defaultSearchTerm.'/', $value)) {
+                    if (preg_match('/' . $defaultSearchTerm . '/', $value)) {
                         $str = $value;
                         $temp1 = explode('.', $str);
                         $temp2 = explode(' ', $temp1[0]);
                         $type = $temp2[2];
                         array_push($this->channel_filter, $type);
 
-                        $errors[] = $value.'==='.str_replace('/', '', $filename);
+                        $errors[] = $value . '===' . str_replace('/', '', $filename);
                     }
                 }
             }
@@ -351,9 +351,9 @@ class LaravelLogController extends Controller
      */
     public function scraperLiveLogs()
     {
-        $filename = '/scraper-'.now()->format('Y-m-d').'.log';
-        $path = storage_path('logs').DIRECTORY_SEPARATOR.'scraper';
-        $fullPath = $path.$filename;
+        $filename = '/scraper-' . now()->format('Y-m-d') . '.log';
+        $path = storage_path('logs') . DIRECTORY_SEPARATOR . 'scraper';
+        $fullPath = $path . $filename;
         $errors = self::getErrors($fullPath);
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -379,7 +379,7 @@ class LaravelLogController extends Controller
                 'issue' => $error,
                 'status' => 'Planned',
                 'module' => 'Cron',
-                'subject' => $issueName.'...',
+                'subject' => $issueName . '...',
                 'assigned_to' => $request->get('assign_to'),
             ]);
 
@@ -411,20 +411,20 @@ class LaravelLogController extends Controller
 
     public function liveLogDownloads()
     {
-        $filename = '/laravel-'.now()->format('Y-m-d').'.log';
+        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
 
         $path = storage_path('logs');
-        $fullPath = $path.$filename;
+        $fullPath = $path . $filename;
 
         return response()->download($fullPath, str_replace('/', '', $filename));
     }
 
     public function liveMagentoDownloads()
     {
-        $filename = '/list-magento-'.now()->format('Y-m-d').'.log';
+        $filename = '/list-magento-' . now()->format('Y-m-d') . '.log';
 
         $path = storage_path('logs');
-        $fullPath = $path.$filename;
+        $fullPath = $path . $filename;
 
         return response()->download($fullPath, str_replace('/', '', $filename));
     }
@@ -486,7 +486,7 @@ class LaravelLogController extends Controller
 
     public function getDirContents($dir, $results = [])
     {
-        $directories = glob($dir.'/*', GLOB_ONLYDIR);
+        $directories = glob($dir . '/*', GLOB_ONLYDIR);
         $allErrorTypes = [];
         $final_result = [];
         foreach ($directories as $dir) {
@@ -501,7 +501,7 @@ class LaravelLogController extends Controller
                             continue;
                         }
                         if ($current_date[0] == $temp[1] && $current_date[1] == $temp[2] && $current_date[2] == str_replace('.log', '', $temp[3])) {
-                            $fullPath = $dir.'/'.$entry;
+                            $fullPath = $dir . '/' . $entry;
                             $content = File::get($fullPath);
                             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
                             $errorTypeArr = ['ERROR', 'INFO', 'WARNING'];
@@ -514,18 +514,18 @@ class LaravelLogController extends Controller
 
                             foreach ($match[0] as $value) {
                                 foreach ($errorTypeArr as $errType) {
-                                    if (preg_match('/'.$errType.'/', $value)) {
+                                    if (preg_match('/' . $errType . '/', $value)) {
                                         $errSelection[] = $errType;
                                         break;
                                     }
                                 }
-                                if (preg_match('/'.$defaultSearchTerm.'/', $value)) {
+                                if (preg_match('/' . $defaultSearchTerm . '/', $value)) {
                                     $str = $value;
                                     $temp1 = explode('.', $str);
                                     $temp2 = explode(' ', $temp1[0]);
                                     $type = $temp2[2];
                                     array_push($this->channel_filter, $type);
-                                    $errors[] = $value.'==='.str_replace('/', '', $entry);
+                                    $errors[] = $value . '===' . str_replace('/', '', $entry);
                                 }
                             }
                             $errors = array_reverse($errors);
@@ -552,7 +552,7 @@ class LaravelLogController extends Controller
             $logs = $logs->where('id', $s);
         }
         if ($s = request('ip')) {
-            $logs = $logs->where('ip', 'like', $s.'%');
+            $logs = $logs->where('ip', 'like', $s . '%');
         }
         if ($s = request('api_name')) {
             if ($s != 'all') {
@@ -575,7 +575,7 @@ class LaravelLogController extends Controller
             }
         }
         if ($s = request('message')) {
-            $logs = $logs->where('message', 'like', '%'.$s.'%');
+            $logs = $logs->where('message', 'like', '%' . $s . '%');
         }
         if ($s = request('status')) {
             if ($s != 'all') {
@@ -629,7 +629,7 @@ class LaravelLogController extends Controller
         if ($request->keyword != '') {
             $keyword = $request->keyword;
             $logsGroupWise = $logsGroupWise->where(function ($q) use ($keyword) {
-                $q->orWhere('request', 'like', '%'.$keyword.'%')->orWhere('response', 'like', '%'.$keyword.'%');
+                $q->orWhere('request', 'like', '%' . $keyword . '%')->orWhere('response', 'like', '%' . $keyword . '%');
             });
         }
 

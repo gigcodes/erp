@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CroppedImageReference;
 use Carbon\Carbon;
+use App\CroppedImageReference;
 use Illuminate\Console\Command;
 
 class CroppedImageReferenceProduct extends Command

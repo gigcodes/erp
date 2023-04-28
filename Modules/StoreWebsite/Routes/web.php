@@ -1,25 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\StoreWebsite\Http\Controllers\BrandController;
-use Modules\StoreWebsite\Http\Controllers\CategoryController;
-use Modules\StoreWebsite\Http\Controllers\CategorySeoController;
-use Modules\StoreWebsite\Http\Controllers\ColorController;
-use Modules\StoreWebsite\Http\Controllers\CountryGroupController;
+use Modules\StoreWebsite\Http\Controllers\SeoController;
 use Modules\StoreWebsite\Http\Controllers\GoalController;
 use Modules\StoreWebsite\Http\Controllers\PageController;
-use Modules\StoreWebsite\Http\Controllers\PaymentResponseController;
-use Modules\StoreWebsite\Http\Controllers\PriceOverrideController;
-use Modules\StoreWebsite\Http\Controllers\SeoController;
+use Modules\StoreWebsite\Http\Controllers\BrandController;
+use Modules\StoreWebsite\Http\Controllers\ColorController;
+use Modules\StoreWebsite\Http\Controllers\WebsiteController;
+use Modules\StoreWebsite\Http\Controllers\CategoryController;
 use Modules\StoreWebsite\Http\Controllers\SiteAssetController;
+use Modules\StoreWebsite\Http\Controllers\CategorySeoController;
+use Modules\StoreWebsite\Http\Controllers\CountryGroupController;
+use Modules\StoreWebsite\Http\Controllers\StoreWebsiteController;
+use Modules\StoreWebsite\Http\Controllers\WebsiteStoreController;
+use Modules\StoreWebsite\Http\Controllers\PriceOverrideController;
+use Modules\StoreWebsite\Http\Controllers\PaymentResponseController;
 use Modules\StoreWebsite\Http\Controllers\SiteAttributesControllers;
 use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentController;
-use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentStatusController;
-use Modules\StoreWebsite\Http\Controllers\StoreWebsiteController;
-use Modules\StoreWebsite\Http\Controllers\StoreWebsiteProductAttributeController;
-use Modules\StoreWebsite\Http\Controllers\WebsiteController;
-use Modules\StoreWebsite\Http\Controllers\WebsiteStoreController;
 use Modules\StoreWebsite\Http\Controllers\WebsiteStoreViewController;
+use Modules\StoreWebsite\Http\Controllers\SiteDevelopmentStatusController;
+use Modules\StoreWebsite\Http\Controllers\StoreWebsiteProductAttributeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,11 +60,11 @@ Route::group([
     Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
 
     // Create Tags for multiple website
-    Route::get('list-tag',     [StoreWebsiteController::class, 'list_tags'])->name('store-website.list_tags');
-    Route::post('create-tag',    [StoreWebsiteController::class, 'create_tags'])->name('store-website.create_tags');
-    Route::post('attach-tag',    [StoreWebsiteController::class, 'attach_tags'])->name('store-website.attach_tags');
+    Route::get('list-tag', [StoreWebsiteController::class, 'list_tags'])->name('store-website.list_tags');
+    Route::post('create-tag', [StoreWebsiteController::class, 'create_tags'])->name('store-website.create_tags');
+    Route::post('attach-tag', [StoreWebsiteController::class, 'attach_tags'])->name('store-website.attach_tags');
 
-    Route::get('attach-tag-store',    [StoreWebsiteController::class, 'attach_tags_store'])->name('store-website.attach_tags_store');
+    Route::get('attach-tag-store', [StoreWebsiteController::class, 'attach_tags_store'])->name('store-website.attach_tags_store');
 
     Route::group([
         'prefix' => '{id}',

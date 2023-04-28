@@ -124,7 +124,7 @@ class PageNotesController extends Controller
 
         //START - Purpose : Add search - DEVTASK-4289
         if ($request->search) {
-            $search = '%'.$request->search.'%';
+            $search = '%' . $request->search . '%';
             $records = $records->where('page_notes.note', 'like', $search);
         }
         //END - DEVTASK-4289

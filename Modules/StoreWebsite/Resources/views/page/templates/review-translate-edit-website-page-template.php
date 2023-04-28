@@ -96,9 +96,9 @@
                         <option value="">-- N/A --</option>
                         <?php
                             foreach (\App\Language::pluck('name', 'name')->toArray() as $k => $l) {
-                                echo "<option {{if data.language == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+                                echo "<option {{if data.language == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
                             }
-                        ?>
+    ?>
                      </select>
                   </div>
               </div>

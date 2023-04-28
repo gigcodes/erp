@@ -8,13 +8,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\TwoFactor;
 
 use function __;
+use PhpMyAdmin\TwoFactor;
 use function extension_loaded;
 use PhpMyAdmin\Plugins\TwoFactorPlugin;
-use PhpMyAdmin\TwoFactor;
-use PragmaRX\Google2FA\Exceptions\IncompatibleWithGoogleAuthenticatorException;
+use PragmaRX\Google2FAQRCode\Google2FA;
 use PragmaRX\Google2FA\Exceptions\InvalidCharactersException;
 use PragmaRX\Google2FA\Exceptions\SecretKeyTooShortException;
-use PragmaRX\Google2FAQRCode\Google2FA;
+use PragmaRX\Google2FA\Exceptions\IncompatibleWithGoogleAuthenticatorException;
 
 /**
  * HOTP and TOTP based two-factor authentication
@@ -89,7 +89,7 @@ class Application extends TwoFactorPlugin
     {
         $secret = $this->twofactor->config['settings']['secret'];
         $inlineUrl = $this->google2fa->getQRCodeInline(
-            'phpMyAdmin ('.$this->getAppId(false).')',
+            'phpMyAdmin (' . $this->getAppId(false) . ')',
             $this->twofactor->user,
             $secret
         );

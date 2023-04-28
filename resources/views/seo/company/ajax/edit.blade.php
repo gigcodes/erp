@@ -5,8 +5,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label class="form-label">Type</label>
-                        <input type="hidden" value="{{ $seoCompany->company_type_id }}" name="type_id">
-                        <select name="type" class="form-control" required data-msg-required="Please select type.">
+                        <select name="type_id" class="form-control" required data-msg-required="Please select type.">
                             <option value="">-- SELECT --</option>
                             @foreach ($companyTypes as $item)
                                 <option value="{{ $item->id }}"  {{ $seoCompany->company_type_id == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
@@ -64,6 +63,24 @@
                     <div class="form-group col-md-4 mt-3">
                         <label class="form-label">Live link</label>
                         <input type="text" name="live_link" class="form-control" required data-msg-required="Please enter live link." value="{{ $seoCompany->live_link }}">
+                    </div>
+                </div>
+
+                <div class="row">
+                    @php
+                        $statusArr = [
+                            'pending',
+                            'approved',
+                            'rejected',
+                        ];
+                    @endphp
+                    <div class="form-group col-md-4 mt-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control" required data-msg-required="Please select status.">
+                            @foreach ($statusArr as $status)
+                                <option value="{{ $status }}" {{ $seoCompany->status == $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
             </form>

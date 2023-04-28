@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Twig;
 
+use Twig\TwigFilter;
 use PhpMyAdmin\Message;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 
 class MessageExtension extends AbstractExtension
 {

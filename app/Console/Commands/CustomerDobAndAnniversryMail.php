@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\EmailAddress;
-use App\Mail\DobAndAnniversaryMail;
-use App\MailinglistTemplate;
-use App\MailinglistTemplateCategory;
-use Illuminate\Console\Command;
 use Mail;
+use App\EmailAddress;
+use App\MailinglistTemplate;
+use Illuminate\Console\Command;
+use App\Mail\DobAndAnniversaryMail;
+use App\MailinglistTemplateCategory;
 
 class CustomerDobAndAnniversryMail extends Command
 {
