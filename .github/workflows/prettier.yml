@@ -19,3 +19,8 @@ jobs:
         with:
           prettier_options: --write **/*.{js,css,md}
           only_changed: True
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply Prettier Changes
+          skip_fetch: true
