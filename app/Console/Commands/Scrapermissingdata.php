@@ -53,7 +53,7 @@ class Scrapermissingdata extends Command
         ->whereRaw(" ( $field is null or $field ='' )")->get();
 
         foreach ($ss as $s) {
-            $msg = $s->scraper_name.' '.$s->totalproduct." Product $title Missing";
+            $msg = $s->scraper_name . ' ' . $s->totalproduct . " Product $title Missing";
             $this->sendmessage($s, $msg);
         }
     }

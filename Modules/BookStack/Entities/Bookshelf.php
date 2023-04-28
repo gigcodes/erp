@@ -44,10 +44,10 @@ class Bookshelf extends Entity
     public function getUrl($path = false)
     {
         if ($path !== false) {
-            return url('/kb/shelves/'.urlencode($this->slug).'/'.trim($path, '/'));
+            return url('/kb/shelves/' . urlencode($this->slug) . '/' . trim($path, '/'));
         }
 
-        return url('/kb/shelves/'.urlencode($this->slug));
+        return url('/kb/shelves/' . urlencode($this->slug));
     }
 
     /**
@@ -87,14 +87,13 @@ class Bookshelf extends Entity
     /**
      * Get an excerpt of this book's description to the specified length or less.
      *
-     * @param  int  $length
      * @return string
      */
     public function getExcerpt(int $length = 100)
     {
         $description = $this->description;
 
-        return mb_strlen($description) > $length ? mb_substr($description, 0, $length - 3).'...' : $description;
+        return mb_strlen($description) > $length ? mb_substr($description, 0, $length - 3) . '...' : $description;
     }
 
     /**
@@ -110,7 +109,6 @@ class Bookshelf extends Entity
     /**
      * Check if this shelf contains the given book.
      *
-     * @param  Book  $book
      * @return bool
      */
     public function contains(Book $book)

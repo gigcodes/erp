@@ -6,8 +6,8 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 
 class DeveloperTaskHistory extends Model
 {

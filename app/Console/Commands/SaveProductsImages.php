@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Console\Command;
+use GuzzleHttp\Cookie\CookieJar;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SaveProductsImages extends Command
@@ -90,7 +90,7 @@ class SaveProductsImages extends Command
                 // dd($product->many_scraped_products);
 
                 foreach ($product->many_scraped_products as $scraped_product) {
-                    dump("$key - Found Scraped Product - ".$product->scraped_products->sku);
+                    dump("$key - Found Scraped Product - " . $product->scraped_products->sku);
 
                     $images = $scraped_product->images;
 
@@ -111,10 +111,10 @@ class SaveProductsImages extends Command
                                     $formatted_final = $to_lower;
                                 } else {
                                     if (strpos(strtolower($to_lower), '.jpg') !== false) {
-                                        $formatted_final = substr($to_lower, 0, strpos(strtolower($to_lower), '.jpg')).'.jpg';
+                                        $formatted_final = substr($to_lower, 0, strpos(strtolower($to_lower), '.jpg')) . '.jpg';
                                     } else {
                                         if (strpos(strtolower($to_lower), '.png') !== false) {
-                                            $formatted_final = substr($to_lower, 0, strpos(strtolower($to_lower), '.png')).'.png';
+                                            $formatted_final = substr($to_lower, 0, strpos(strtolower($to_lower), '.png')) . '.png';
                                         } else {
                                             $formatted_final = $to_lower;
                                         }
@@ -149,13 +149,13 @@ class SaveProductsImages extends Command
                                     ];
 
                                     $response = $guzzle->request('GET', $formatted_final, $params);
-                                    $file_path = public_path().'/uploads/'.'/one.jpg';
+                                    $file_path = public_path() . '/uploads/' . '/one.jpg';
 
                                     file_put_contents($file_path, $response->getBody()->getContents());
 
                                     $media = MediaUploader::fromSource($file_path)
                                         ->useFilename(uniqid(true))
-                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                        ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                         ->upload();
 
                                     unlink($file_path);
@@ -172,13 +172,13 @@ class SaveProductsImages extends Command
                                         ];
 
                                         $response = $guzzle->request('GET', $formatted_final, $params);
-                                        $file_path = public_path().'/uploads/'.'/one.jpg';
+                                        $file_path = public_path() . '/uploads/' . '/one.jpg';
 
                                         file_put_contents($file_path, $response->getBody()->getContents());
 
                                         $media = MediaUploader::fromSource($file_path)
                                             ->useFilename(uniqid(true))
-                                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                             ->upload();
 
                                         unlink($file_path);
@@ -195,20 +195,20 @@ class SaveProductsImages extends Command
                                             ];
 
                                             $response = $guzzle->request('GET', $formatted_final, $params);
-                                            $file_path = public_path().'/uploads/'.'/one.jpg';
+                                            $file_path = public_path() . '/uploads/' . '/one.jpg';
 
                                             file_put_contents($file_path, $response->getBody()->getContents());
 
                                             $media = MediaUploader::fromSource($file_path)
                                                 ->useFilename(uniqid(true))
-                                                ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                                ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                                 ->upload();
 
                                             unlink($file_path);
                                         } else {
                                             $media = MediaUploader::fromSource($formatted_final)
                                                 ->useFilename(uniqid(true))
-                                                ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                                ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                                 ->upload();
                                         }
                                     }
@@ -219,7 +219,7 @@ class SaveProductsImages extends Command
                                 $product->is_without_image = 0;
                                 $product->save();
                             } catch (\Exception $e) {
-                                echo "$key - Couldn't upload image ".$e->getMessage()." - $product->sku \n";
+                                echo "$key - Couldn't upload image " . $e->getMessage() . " - $product->sku \n";
                                 echo "$image_path \n";
                             }
                         }

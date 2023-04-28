@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Library\Hubstaff\Src\Repositories\User;
 use Illuminate\Http\Request;
+use App\Library\Hubstaff\Src\Repositories\User;
 
 class NegativeCouponResponseController extends Controller
 {
@@ -22,7 +22,7 @@ class NegativeCouponResponseController extends Controller
 
         //$negativeCoupons->lefJoin('users', 'nagative_coupon_responses.user_id', 'users.id');
         //$users = \App\User::all();
-        $negativeCouponsData = $negativeCoupons->orderBy('id', 'DESC')->paginate(\App\Setting::get('pagination',25));
+        $negativeCouponsData = $negativeCoupons->orderBy('id', 'DESC')->paginate(\App\Setting::get('pagination', 25));
         //dd($negativeCouponsData);
         return view('negative-coupon-response.index', compact('negativeCouponsData'));
     }
@@ -39,13 +39,13 @@ class NegativeCouponResponseController extends Controller
             $negativeCoupons->where('website', $request->website);
         }
         if ($request->response_text) {
-            $negativeCoupons->where('response', 'like', '%'.$request->response_text.'%');
+            $negativeCoupons->where('response', 'like', '%' . $request->response_text . '%');
         }
         if ($request->user) {
             $negativeCoupons->where('user_id', $request->user);
         }
         //$users = \App\User::where('id', '!=', '');
-        $negativeCouponsData = $negativeCoupons->orderBy('id', 'DESC')->paginate(\App\Setting::get('pagination',25));
+        $negativeCouponsData = $negativeCoupons->orderBy('id', 'DESC')->paginate(\App\Setting::get('pagination', 25));
 
         return view('negative-coupon-response.index', compact('negativeCouponsData'));
     }
@@ -63,7 +63,6 @@ class NegativeCouponResponseController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -96,7 +95,6 @@ class NegativeCouponResponseController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\NagativeCouponResponse  $nagativeCouponResponse
      * @return \Illuminate\Http\Response
      */

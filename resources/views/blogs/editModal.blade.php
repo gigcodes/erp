@@ -1,6 +1,10 @@
 
 
   <script type="text/javascript" src="{{ asset('js/fm-tagator.js') }}"></script>
+
+  <script>
+    CKEDITOR.replace( 'editcontent' );
+  </script>
     
  
 
@@ -48,7 +52,8 @@
                      <div class="col-md-4">
                         <label class="form-label">Content</label>
                         <br>
-                        <div> <button type="button" data-toggle="modal" data-target="#EditContentModal" class="btn btn-primary custom-button">Content</button></div>   
+                         <div class="text-danger" id="EditcontentValidation" style="display:none">Content Field is required.</div>
+                        <div> <button type="button" data-toggle="modal" id ="EditContentDataModal"  class="btn btn-primary custom-button">Content</button></div>   
                     </div>
 
 
@@ -67,7 +72,10 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Internal link</label>
-                        <input type="text" name="internal_link" class="form-control" value="{{$blog->internal_link}}">
+                       <select name="internal_link" class="form-control">
+                                        <option value="yes" {{ $blog->internal_link == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option {{ $blog->internal_link == 'no' ? 'selected' : '' }} value="no">No</option>
+                                    </select>
                          @error('internal_link')
                         <div class="alert text-danger">{{ $message }}</div>
                         @enderror
@@ -95,7 +103,7 @@
                     <div class="col-md-4">
                         <label class="form-label">Title tag</label>
                         <br>
-                        <input id="edit_activate_tagator2" type="text" name="title_tag" class="tagator" value="{{$titleTagEditValue}}" data-tagator-show-all-options-on-focus="true">
+                        <input  type="text" name="title_tag" value="{{$blog->title_tag}}">
                     </div>
 
                     <div class="col-md-4">
@@ -121,7 +129,7 @@
                     <div class="col-md-4">
                        <label class="form-label">Header tag</label>
                         <br>
-                        <input id="edit_activate_tagator2" name="header_tag" type="text" class="tagator" value="{{$headerTagEditValue}}" data-tagator-show-all-options-on-focus="true">
+                        <input  name="header_tag" type="text"  value="{{$blog->header_tag}}">
                     
                     </div>
 
@@ -191,7 +199,7 @@
                             <div class='col-md-4'>
                                     <label class="form-label">Publish Blog Date</label>
                                     <div class='input-group date' id='edit-blog-datetime'>
-                                            <input type='date' class="form-control" name="publish_blog_date" value="{{ date('Y-m-d', strtotime($blog->publish_blog_date)) }}" />
+                                            <input type='date' class="form-control" name="publish_blog_date" value="{{!empty($blog->publish_blog_date) ? date('Y-m-d', strtotime($blog->publish_blog_date)): '' }}" />
                                            
 
                                     </div>
@@ -233,6 +241,24 @@
                                     </div>
                             </div>
 
+                             <div class="col-md-4">
+                                  <label class="form-label">Canonical URL</label>
+                                  <br>
+                                  <input  name="canonical_url" type="text" name="canonical_url" value="{{$blog->canonical_url}}" class="form-control">
+                        
+                                  </div>
+                                  <div class="col-md-4">
+                                 
+                                  <label class="form-label">CheckMobile Friendliness</label>
+
+                                    <select name="checkmobile_friendliness" class="form-control">
+                                        <option value="yes" {{ $blog->checkmobile_friendliness == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option {{ $blog->checkmobile_friendliness == 'no' ? 'selected' : '' }} value="no">No</option>
+                                    </select>
+                                 
+                        
+                                  </div>
+
                               
                 </div> 
 
@@ -240,14 +266,14 @@
                 <div class="row mt-3">
                     <div class="col-md-12">
                           <button type="button" class="btn btn-secondary custom-button" data-dismiss="modal">Close</button>
-                        <button type="submit" class="pull-right btn btn-success btn-rounded btn-lg">Update Blog</button>
+                        <button type="submit" class="pull-right btn btn-success btn-rounded btn-lg" id="UpdateBlogdata">Update Blog</button>
                         {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
                     </div>
                 </div>
 
 
                 <!-- Edit Content Added -->
-            <div class="modal fade" id="EditContentModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
+            <div class="modal fade" id="EditContentModal"  role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
                   <div class="modal-dialog" role="document">
                         <div class="modal-content">
                                   <div class="modal-header">
@@ -255,12 +281,13 @@
                                       
                                   </div>
                                   <div class="modal-body">
-                                          
-                                     <textarea  name="content" rows="20" cols="55">{{$blog->content}}</textarea>
+                                           <input type="text" name="content" value="{{$blog->content}}" id="editcontent"> 
+                                        
+                                     {{--  <textarea id="EditBlogContent"  name="content" rows="20" cols="55">{{$blog->content}}</textarea>  --}}
                                                  
                                   </div>     
                                   <div class="modal-footer">
-                                      <button type="button" class="btn btn-secondary" id="EditContentModalClose">Cancel</button>
+                                      <button type="button" class="btn btn-secondary" id="EditContentModalCloseButton">Cancel</button>
                                       <button type="button" class="btn btn-success"  id="EditContentModalClose">Add</button>
                                       {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
                                   </div>

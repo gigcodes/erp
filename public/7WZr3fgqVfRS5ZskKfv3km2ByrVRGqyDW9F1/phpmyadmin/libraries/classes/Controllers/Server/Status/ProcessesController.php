@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server\Status;
 
-use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Url;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Server\Status\Data;
 use PhpMyAdmin\Server\Status\Processes;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
 
 class ProcessesController extends AbstractController
 {

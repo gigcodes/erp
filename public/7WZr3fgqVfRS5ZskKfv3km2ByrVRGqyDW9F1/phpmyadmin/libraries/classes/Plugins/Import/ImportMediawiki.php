@@ -8,21 +8,21 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Import;
 
 use function __;
+use function trim;
 use function count;
+use function strcmp;
+use function strlen;
+use PhpMyAdmin\File;
 use function explode;
 use function mb_strlen;
 use function mb_strpos;
 use function mb_substr;
-use PhpMyAdmin\File;
 use PhpMyAdmin\Message;
+use function preg_match;
+use function str_replace;
+use function str_contains;
 use PhpMyAdmin\Plugins\ImportPlugin;
 use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
-use function preg_match;
-use function str_contains;
-use function str_replace;
-use function strcmp;
-use function strlen;
-use function trim;
 
 /**
  * Handles the import for the MediaWiki format
@@ -120,7 +120,7 @@ class ImportMediawiki extends ImportPlugin
             // contains only a portion of an actual line from the imported file.
             // Therefore, we have to append it to the last line from the previous
             // chunk. If we are at the first chunk, $last_chunk_line should be empty.
-            $buffer = $last_chunk_line.$buffer;
+            $buffer = $last_chunk_line . $buffer;
 
             // Process the buffer line by line
             $buffer_lines = explode($mediawiki_new_line, $buffer);
@@ -339,7 +339,7 @@ class ImportMediawiki extends ImportPlugin
 
         $result = $dbi->fetchResult('SHOW TABLES');
         // todo check if the name below already exists
-        $table_name = 'TABLE '.(count($result) + 1);
+        $table_name = 'TABLE ' . (count($result) + 1);
     }
 
     /**
@@ -359,7 +359,7 @@ class ImportMediawiki extends ImportPlugin
         // If they are not set, generic names will be given (COL 1, COL 2, etc)
         $num_cols = count($table_row);
         for ($i = 0; $i < $num_cols; $i++) {
-            $table_headers[$i] = 'COL '.($i + 1);
+            $table_headers[$i] = 'COL ' . ($i + 1);
         }
     }
 

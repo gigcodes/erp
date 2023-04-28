@@ -34,8 +34,8 @@ class DomainSearchKeyword extends Model
         $key = config('env.SEMRUSH_API');
         $domain = strtolower($domain);
         $apis = [
-            'organic' => 'https://api.semrush.com/?type=domain_organic&key='.$key.'&display_limit=1&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td&domain='.$domain.'&display_sort=tr_desc&database='.$db,
-            'paid' => 'https://api.semrush.com/?type=domain_adwords&key='.$key.'&display_limit=1&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Vu,Tr,Tc,Co,Nr,Td&domain='.$domain.'&display_sort=po_asc&database='.$db,
+            'organic' => 'https://api.semrush.com/?type=domain_organic&key=' . $key . '&display_limit=1&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=tr_desc&database=' . $db,
+            'paid' => 'https://api.semrush.com/?type=domain_adwords&key=' . $key . '&display_limit=1&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Vu,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=po_asc&database=' . $db,
         ];
 
         if ($column == null) {

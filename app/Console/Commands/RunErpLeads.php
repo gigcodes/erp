@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\ErpLeadsBrand;
 use App\ErpLeadsCategory;
 use App\ErpLeadSendingHistory;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class RunErpLeads extends Command
@@ -52,8 +52,8 @@ class RunErpLeads extends Command
             ->where('c.do_not_disturb', 0)
             ->select(['erp_leads.*', 'c.lead_product_freq'])->get();
 
-        \Log::channel('customer')->info('Found leads'.$leads->count());
-        \Log::info('Found leads'.$leads->count());
+        \Log::channel('customer')->info('Found leads' . $leads->count());
+        \Log::info('Found leads' . $leads->count());
 
         if (! $leads->isEmpty()) {
             foreach ($leads as $lead) {
@@ -96,7 +96,7 @@ class RunErpLeads extends Command
 
                 $allProduts = $products->select(['products.*'])->orderBy('products.created_at', 'desc')->limit($lead_product_limit)->get()->pluck('id')->toArray();
 
-                \Log::info('Count Products'.count($allProduts));
+                \Log::info('Count Products' . count($allProduts));
 
                 if (! empty($products)) {
                     $allProdCounts = count($allProduts);
@@ -117,7 +117,7 @@ class RunErpLeads extends Command
                         }
                     }
 
-                    \Log::info('Count Products ARR'.count($newProdArr));
+                    \Log::info('Count Products ARR' . count($newProdArr));
 
                     if (count($newProdArr) > 0) {
                         $suggestedProduct = \App\SuggestedProduct::create([

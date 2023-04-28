@@ -8,10 +8,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function _ngettext;
 use function count;
-use PhpMyAdmin\ConfigStorage\Relation;
 use function sprintf;
+use function _ngettext;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Class used to output the console

@@ -8,9 +8,9 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
 use function __;
+use function intval;
 use function bin2hex;
 use function chunk_split;
-use function intval;
 use PhpMyAdmin\FieldMetadata;
 use PhpMyAdmin\Plugins\TransformationsPlugin;
 
@@ -28,8 +28,8 @@ abstract class HexTransformationsPlugin extends TransformationsPlugin
     {
         return __(
             'Displays hexadecimal representation of data. Optional first'
-            .' parameter specifies how often space will be added (defaults'
-            .' to 2 nibbles).'
+            . ' parameter specifies how often space will be added (defaults'
+            . ' to 2 nibbles).'
         );
     }
 

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateDeveloperTaskStatusChecklistTable extends Migration
 {
@@ -15,8 +15,8 @@ class CreateDeveloperTaskStatusChecklistTable extends Migration
     {
         Schema::create('developer_task_status_checklists', function (Blueprint $table) {
             $table->id();
-            $table->string('task_status',255)->nullable();
-            $table->string('name',512)->nullable();
+            $table->string('task_status', 255)->nullable();
+            $table->string('name', 512)->nullable();
             $table->timestamps();
         });
     }

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class FetchCompositionToProductsIfTheyAreScraped extends Command
@@ -48,7 +48,7 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
 
             Product::where('composition', '')->orWhereNull('composition')->orderBy('id', 'DESC')->chunk(1000, function ($products) {
                 foreach ($products as $product) {
-                    dump('On -- '.$product->id);
+                    dump('On -- ' . $product->id);
                     $scrapedProducts = $product->many_scraped_products;
                     dump(count($scrapedProducts));
                     if (! count($scrapedProducts)) {
@@ -87,7 +87,7 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                 ->orderBy('id', 'DESC')
                 ->chunk(1000, function ($products) {
                     foreach ($products as $product) {
-                        dump('On -- '.$product->id);
+                        dump('On -- ' . $product->id);
                         $scrapedProducts = $product->many_scraped_products;
                         dump(count($scrapedProducts));
                         if (! count($scrapedProducts)) {
@@ -113,7 +113,7 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                 ->orderBy('id', 'DESC')
                 ->chunk(1000, function ($products) {
                     foreach ($products as $product) {
-                        dump('On -- '.$product->id);
+                        dump('On -- ' . $product->id);
                         $scrapedProducts = $product->many_scraped_products;
                         dump(count($scrapedProducts));
                         if (! count($scrapedProducts)) {

@@ -35,7 +35,6 @@ class InstagramAutomatedMessagesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      * SImply create the message
      */
@@ -95,7 +94,6 @@ class InstagramAutomatedMessagesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
 //     * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
      * @return \Illuminate\Http\Response
      */
@@ -120,7 +118,6 @@ class InstagramAutomatedMessagesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

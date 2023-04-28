@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Console\Command;
+use GuzzleHttp\Cookie\CookieJar;
 
 class ImportGiglioImages extends Command
 {
@@ -61,7 +61,7 @@ class ImportGiglioImages extends Command
 
             $response = $guzzle->request('GET', 'https://img.giglio.com/images/prodZoom/A66167.001_1.jpg', $params);
 
-            file_put_contents(__DIR__.'/one.jpg', $response->getBody()->getContents());
+            file_put_contents(__DIR__ . '/one.jpg', $response->getBody()->getContents());
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

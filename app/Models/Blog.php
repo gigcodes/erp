@@ -14,6 +14,8 @@ class Blog extends Model
         'content',
         'plaglarism',
         'internal_link',
+        'header_tag',
+        'title_tag',
         'external_link',
         'meta_desc',
         'url_structure',
@@ -21,6 +23,8 @@ class Blog extends Model
         'publish_blog_date',
         'no_index',
         'no_follow',
+        'canonical_url',
+        'checkmobile_friendliness',
         'date',
         'facebook',
         'facebook_date',
@@ -45,6 +49,4 @@ class Blog extends Model
     {
         return $this->hasOne(\App\User::class, 'id', 'user_id');
     }
-
-    
 }

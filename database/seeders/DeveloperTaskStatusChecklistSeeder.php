@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\DeveloperTaskStatusChecklist;
 use Illuminate\Database\Seeder;
+use App\Models\DeveloperTaskStatusChecklist;
 
 class DeveloperTaskStatusChecklistSeeder extends Seeder
 {
@@ -12,7 +12,6 @@ class DeveloperTaskStatusChecklistSeeder extends Seeder
      *
      * @return void
      */
-
     public function run()
     {
         $checklist = [
@@ -49,7 +48,7 @@ class DeveloperTaskStatusChecklistSeeder extends Seeder
                 'name' => 'PR Link',
             ],
         ];
-        foreach($checklist as $list){
+        foreach ($checklist as $list) {
             DeveloperTaskStatusChecklist::create($list);
         }
     }

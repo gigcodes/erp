@@ -52,7 +52,7 @@ class wetransferQueue extends Command
                         $filename_list = [];
                         $zip = new \ZipArchive;
 
-                        if ($zip->open(public_path('wetransfer/'.$file)) === true) {
+                        if ($zip->open(public_path('wetransfer/' . $file)) === true) {
                             for ($i = 0; $i < $zip->count(); $i++) {
                                 $filename_list[] = $zip->getNameIndex($i);
                             }
@@ -150,7 +150,7 @@ class wetransferQueue extends Command
             $data['intent'] = 'entire_transfer';
             $data['security_hash'] = $securityhash;
 
-            $curlURL = $WETRANSFER_API_URL.$transferId.'/download';
+            $curlURL = $WETRANSFER_API_URL . $transferId . '/download';
 
             $cookie = 'cookie.txt';
             $url = 'https://wetransfer.com/';
@@ -159,8 +159,8 @@ class wetransferQueue extends Command
             curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_COOKIESESSION, true);
-            curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/'.$cookie);
-            curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/'.$cookie);
+            curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/' . $cookie);
+            curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/' . $cookie);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($ch);
             if (curl_errno($ch)) {
@@ -180,7 +180,7 @@ class wetransferQueue extends Command
             }
 
             $headers[] = 'Content-Type: application/json';
-            $headers[] = 'X-CSRF-Token:'.$token;
+            $headers[] = 'X-CSRF-Token:' . $token;
 
             curl_setopt($ch, CURLOPT_URL, $curlURL);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -203,7 +203,7 @@ class wetransferQueue extends Command
                 mkdir(public_path('wetransfer'), 0777, true);
             }
             // $file = file_put_contents( storage_path('app/files/email-attachments/'.$file_name), file_get_contents($url));
-            $file = file_put_contents(public_path('wetransfer/'.$file_name), file_get_contents($url));
+            $file = file_put_contents(public_path('wetransfer/' . $file_name), file_get_contents($url));
 
             // $zip  = new \ZipArchive;
             // $zip->open( public_path( 'wetransfer/'.$file_name ) );

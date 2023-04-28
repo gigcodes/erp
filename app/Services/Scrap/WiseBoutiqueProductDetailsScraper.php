@@ -2,16 +2,16 @@
 
 namespace App\Services\Scrap;
 
-use App\Brand;
-use App\Category;
-use App\Product;
-use App\ScrapedProducts;
-use App\ScrapEntries;
-use App\Setting;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
+use App\Brand;
 use Validator;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\ScrapEntries;
+use App\ScrapedProducts;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class WiseBoutiqueProductDetailsScraper extends Scraper
 {
@@ -148,9 +148,9 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 $old_product->detachMediaTags(config('constants.media_tags'));
 
                 foreach ($product->images as $image_name) {
-                    $path = public_path('uploads').'/social-media/'.$image_name;
+                    $path = public_path('uploads') . '/social-media/' . $image_name;
                     $media = MediaUploader::fromSource($path)
-                                          ->toDirectory('product/'.floor($old_product->id / config('constants.image_per_folder')))
+                                          ->toDirectory('product/' . floor($old_product->id / config('constants.image_per_folder')))
                                           ->upload();
                     $old_product->attachMedia($media, config('constants.media_tags'));
                 }
@@ -235,9 +235,9 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 $new_product->save();
 
                 foreach ($product->images as $image_name) {
-                    $path = public_path('uploads').'/social-media/'.$image_name;
+                    $path = public_path('uploads') . '/social-media/' . $image_name;
                     $media = MediaUploader::fromSource($path)
-                                          ->toDirectory('product/'.floor($old_product->id / config('constants.image_per_folder')))
+                                          ->toDirectory('product/' . floor($old_product->id / config('constants.image_per_folder')))
                                           ->upload();
                     $new_product->attachMedia($media, config('constants.media_tags'));
                 }
@@ -391,9 +391,9 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             $product->save();
 
             foreach ($images as $image_name) {
-                $path = public_path('uploads').'/social-media/'.$image_name;
+                $path = public_path('uploads') . '/social-media/' . $image_name;
                 $media = MediaUploader::fromSource($path)
-                                      ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                      ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                       ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }
@@ -454,7 +454,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $content = [];
 
         foreach ($images as $image) {
-            $content[] = 'https://www.wiseboutique.com'.trim($image->getAttribute('href'));
+            $content[] = 'https://www.wiseboutique.com' . trim($image->getAttribute('href'));
         }
 
         return $this->downloadImages($content, 'wiseboutique');
@@ -505,8 +505,8 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 continue;
             }
 
-            $fileName = $prefix.'_'.md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }

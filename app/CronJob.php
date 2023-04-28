@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -41,7 +41,7 @@ class CronJob extends Model
         $cron->last_error = $error;
         $cron->save();
 
-        $issueName = strtoupper(self::CRON_ISSUE_SUBJECT_PREFIX.$signature);
+        $issueName = strtoupper(self::CRON_ISSUE_SUBJECT_PREFIX . $signature);
 
         $hasAssignedIssue = DeveloperTask::where('subject', $issueName)->where('is_resolved', 0)->first();
 

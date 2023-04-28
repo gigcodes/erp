@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Console\ConfirmableTrait;
-use Illuminate\Queue\QueueManager;
 use Illuminate\Support\Arr;
+use Illuminate\Console\Command;
 use Overrides\RedisJobRepository;
+use Illuminate\Queue\QueueManager;
+use Illuminate\Console\ConfirmableTrait;
 
 //use Illuminate\Queue\LuaScripts;
 //use Laravel\Horizon\LuaScripts;
@@ -50,7 +50,7 @@ class HorizonClear extends Command
         // @todo this clear command is not clearing queues from redis cli.
         $count = $jobRepository->clear($queue);
 
-        $this->line('<info>Cleared '.$count.' jobs from the ['.$queue.'] queue</info> ');
+        $this->line('<info>Cleared ' . $count . ' jobs from the [' . $queue . '] queue</info> ');
 
         return 0;
     }

@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use Response;
+use App\Setting;
 use App\Analytics;
-use App\AnalyticsCustomerBehaviour;
-use App\AnalyticsSummary;
+use App\LinksToPost;
 use App\ArticleCategory;
-use App\GoogleAnalyticData;
 // use App\GoogleAnalytics;
+use App\AnalyticsSummary;
+use App\GoogleAnalyticData;
+use App\GoogleAnalyticsUser;
+use Illuminate\Http\Request;
+use App\StoreWebsiteAnalytic;
 use App\GoogleAnalyticsAudience;
-use App\GoogleAnalyticsGeoNetwork;
 use App\GoogleAnalyticsHistories;
+use App\GoogleAnalyticsGeoNetwork;
+use App\AnalyticsCustomerBehaviour;
 use App\GoogleAnalyticsPageTracking;
 use App\GoogleAnalyticsPlatformDevice;
-use App\GoogleAnalyticsUser;
-use App\LinksToPost;
-use App\Setting;
-use App\StoreWebsiteAnalytic;
-use Illuminate\Http\Request;
-use Response;
 
 class AnalyticsController extends Controller
 {
@@ -112,13 +112,13 @@ class AnalyticsController extends Controller
         ];
         if (! empty($_GET['location'])) {
             $location = $_GET['location'];
-            $data = AnalyticsSummary::where('country', 'like', '%'.$location.'%')->get()->toArray();
+            $data = AnalyticsSummary::where('country', 'like', '%' . $location . '%')->get()->toArray();
         } elseif (! empty($_GET['brand'])) {
             $data = AnalyticsSummary::where('brand_name', $request['brand'])->get()->toArray();
         } elseif (! empty($_GET['gender'])) {
             $data = AnalyticsSummary::where('gender', $request['gender'])->get()->toArray();
         } else {
-            include app_path().'/Functions/Analytics.php';
+            include app_path() . '/Functions/Analytics.php';
         }
 
         return View('analytics.summary', compact('data', 'brands', 'genders'));
@@ -162,7 +162,7 @@ class AnalyticsController extends Controller
         if (! empty($request['page'])) {
             $data = AnalyticsCustomerBehaviour::where('pages', $request['page'])->get()->toArray();
         } else {
-            include app_path().'/Functions/Analytics.php';
+            include app_path() . '/Functions/Analytics.php';
         }
 
         return View('analytics.customer-behaviour', compact('data', 'pages'));
@@ -173,7 +173,7 @@ class AnalyticsController extends Controller
         \Log::channel('daily')->info('Google Analytics Started running ...');
         $analyticsDataArr = [];
 
-        include app_path().'/Functions/Analytics.php';
+        include app_path() . '/Functions/Analytics.php';
         $data = StoreWebsiteAnalytic::all()->toArray();
         foreach ($data as $value) {
             $ERPlogArray = [
@@ -194,7 +194,7 @@ class AnalyticsController extends Controller
                             'operatingSystem' => $new_item['operatingSystem'],
                             'user_type' => $new_item['user_type'],
                             'time' => $new_item['time'],
-                            'page_path' => $value['website'].$new_item['page_path'],
+                            'page_path' => $value['website'] . $new_item['page_path'],
                             'country' => $new_item['country'],
                             'city' => $new_item['city'],
                             'social_network' => $new_item['social_network'],
@@ -233,7 +233,7 @@ class AnalyticsController extends Controller
         \Log::channel('daily')->info('Google Analytics Cron running ...');
         $analyticsDataArr = [];
 
-        include app_path().'/Functions/Analytics_user.php';
+        include app_path() . '/Functions/Analytics_user.php';
         $data = StoreWebsiteAnalytic::all()->toArray();
 
         foreach ($data as $value) {
@@ -249,11 +249,11 @@ class AnalyticsController extends Controller
                 if (! empty($value['view_id']) && ! empty($value['google_service_account_json'])) {
                     $response = getReportRequest($analytics, $value);
                     //  \Log::info('google-analytics  response');
-                    \Log::info('google-analytics  response -->'.json_encode($response));
+                    \Log::info('google-analytics  response -->' . json_encode($response));
                     extract($response);
 
                     $resultData = getGoogleAnalyticData($analyticsObj, $requestObj);
-                    \Log::info('google-analytics  resultData -->'.json_encode($resultData));
+                    \Log::info('google-analytics  resultData -->' . json_encode($resultData));
                     $resultPageTrackingData = printGoogleAnalyticResults($resultData, $value['id']);
 
                     // This Code Is Not Required Because We Put All Of Below Entry In A Single Table (google_analytics_datas).
@@ -301,7 +301,7 @@ class AnalyticsController extends Controller
                     'created_at' => now(),
                 ];
                 GoogleAnalyticsHistories::insert($history);
-                \Log::error('google-analytics :: '.$e->getMessage());
+                \Log::error('google-analytics :: ' . $e->getMessage());
             }
         }
     }

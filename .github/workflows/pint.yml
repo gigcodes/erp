@@ -1,0 +1,27 @@
+name: Laravel Pint
+on:
+  push:
+    branches: ["master"]
+jobs:
+  pint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        env:
+          COMPOSER_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - name: Install Composer Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Launch Pint inspection
+        run: ./vendor/bin/pint
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply Laravel Pint Changes
+          skip_fetch: true

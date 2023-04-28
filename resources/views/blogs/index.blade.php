@@ -32,6 +32,9 @@
     align-items: center;
     gap: 5px;
 }
+  #blog_listing_filter {
+    margin-right: 7px;
+}
     
 	</style>
 
@@ -67,7 +70,28 @@
                   </div>
               </div>
           </div> 
-        </div>  
+        </div>
+
+
+              {{--  Content View Modal --}}
+        <div class="modal fade" id="ViewContentModal" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">       
+          <div class="modal-dialog modal-lg" role="document" >
+              <div class="modal-content">
+                  <div class="modal-header">
+                    Content View
+                      
+                  </div>
+                  <div class="modal-body DataContentView">
+                    
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="ViewContentModalHide">Close</button>
+                 
+                   
+                </div>
+              </div>
+          </div> 
+        </div>    
 
         {{--   Add Modal Popup         --}}
       <div class="modal fade" id="addBlogModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
@@ -119,6 +143,7 @@
                       
                        <div class="col-md-4">
                             <label class="form-label">Content</label>
+                              <div class="text-danger" id="AddcontentValidation" style="display:none">Content Field is required.</div>
                             <br>
                              <div class="col-md-5"> <button type="button" data-toggle="modal" data-target="#ContentModal" class="btn btn-primary custom-button">Content</button></div>
                        
@@ -142,7 +167,13 @@
 
                         <div class="col-md-4">
                             <label class="form-label">Internal link</label>
-                            <input type="text" name="internal_link" class="form-control" value="{{ old('internal_link') }}">
+                         
+                             <select name="internal_link" class="form-control">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+
+                           
                             @error('internal_link')
                             <div class="alert text-danger">{{ $message }}</div>
                             @enderror
@@ -166,7 +197,7 @@
                         <div class="col-md-4">
                             <label class="form-label">Title tag</label>
                             <br>
-                            <input id="activate_tagator2" type="text" name="title_tag" class="tagator" value="{{ old('title_tag') }}" data-tagator-show-all-options-on-focus="true" data-tagator-autocomplete={{$tagName}}>
+                            <input  type="text" name="title_tag" value="{{ old('title_tag') }}">
                         </div>
 
                         <div class="col-md-4">
@@ -188,7 +219,7 @@
                         <div class="col-md-4">
                           <label class="form-label">Header tag</label>
                             <br>
-                            <input id="activate_tagator2" name="header_tag" type="text" class="tagator" value="{{ old('header_tag') }}" data-tagator-show-all-options-on-focus="true" data-tagator-autocomplete={{$tagName}}>
+                            <input  name="header_tag" type="text" value="{{ old('header_tag') }}">
                         
                         </div>
 
@@ -303,6 +334,24 @@
                                         </div>
                                 </div>
 
+                                  <div class="col-md-4">
+                                  <label class="form-label">Canonical URL</label>
+                                  <br>
+                                  <input  name="canonical_url" type="text" name="canonical_url" value="{{ old('canonical_url') }}" class="form-control">
+                        
+                                  </div>
+                                  <div class="col-md-4">
+                                 
+                                  <label class="form-label">CheckMobile Friendliness</label>
+                                  <select name="checkmobile_friendliness" class="form-control">
+                                      <option value="yes">Yes</option>
+                                      <option value="no">No</option>
+                                  </select>
+                                 
+                        
+                                  </div>
+
+
                                   
                     </div> 
 
@@ -310,7 +359,7 @@
                     <div class="row mt-3">
                         <div class="col-md-12">
                               <button type="button" class="btn btn-secondary custom-button" data-dismiss="modal">Close</button>
-                            <button type="submit" class="pull-right btn btn-success btn-rounded btn-lg">Add Blog</button>
+                            <button type="submit" class="pull-right  btn btn-success btn-rounded btn-lg" id="NewBlogCreate">Add Blog</button>
                             {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
                         </div>
                     </div>
@@ -396,7 +445,7 @@
 
 
 <!-- Content Added -->
-            <div class="modal fade" id="ContentModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
+            <div class="modal fade" id="ContentModal" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-rowid="">
                   <div class="modal-dialog" role="document">
                         <div class="modal-content">
                                   <div class="modal-header">
@@ -404,12 +453,13 @@
                                       
                                   </div>
                                   <div class="modal-body">
-                                          
-                                                  <textarea  name="content" rows="20" cols="55"></textarea>
+                                    <input type="hidden" name="content_html" id="content_html">
+                                                <input type="text" name="content" id="content">
+                                                  {{--  <textarea id="AddBlogContent" id="AddcontentCk" name="content"></textarea>  --}}
                                                  
                                   </div>     
                                   <div class="modal-footer">
-                                      <button type="button" class="btn btn-secondary" id="ContentModalHide">Cancel</button>
+                                      <button type="button" class="btn btn-secondary" id="ContentModalHideButton">Cancel</button>
                                       <button type="button" class="btn btn-success"  id="ContentModalHide">Add</button>
                                       {{-- <button type="button" class="btn btn-primary btnSave">Save changes</button> --}}
                                   </div>
@@ -542,6 +592,8 @@
                             <th style="width:10px !important;">userName</th>
                             <th>Idea</th>
                             <th>Keyword</th>
+                            <th>Canonical URL</th>
+                            <th>CheckMobile Friendliness</th>
                             <th>Content</th>
                              <th>No Follow</th>
                             <th>No Index</th>
@@ -622,6 +674,8 @@
                     {data: 'idea', name: 'idea', orderable: false, searchable: true},
                     
                     {data: 'keyword', name: 'keyword', orderable: false, searchable: false},
+                    {data: 'canonical_url', name: 'canonical_url', orderable: false, searchable: false},
+                    {data: 'checkmobile_friendliness', name: 'checkmobile_friendliness', orderable: false, searchable: false},
                     {data: 'content', name: 'content', orderable: false, searchable: true},
                     {data: 'no_index', name: 'no_index', orderable: false, searchable: false},
                     {data: 'no_follow', name: 'no_follow', orderable: false, searchable: false},
@@ -681,6 +735,34 @@
 
        });
 
+       $('#blog_listing').on('click','#ViewContent',function(){
+           
+        var id = $(this).data('blog-id');
+
+        // AJAX request
+        $.ajax({
+            url: 'contentview/'+id,
+            type: 'GET',
+            data: {id: id},
+            dataType: 'json',
+            success: function(response){
+              console.log(response);
+                if(response.status == 'success'){
+                  $('.DataContentView').html("");
+                 $('.DataContentView').append(response.data.html);
+               
+                  $('#ViewContentModal').modal("show");
+                  
+                
+                    
+                }else{
+                     alert("Something went wrong!");
+                }
+            }
+        });
+
+   });
+
           $('.refreshTable').click(function(){
              
                 $('#userId').val('');
@@ -703,6 +785,8 @@
          
         $('#socialShare').modal('hide');
         });
+
+       
         
 
         $("button[data-dismiss-modal=googleBingo]").click(function () {
@@ -710,7 +794,7 @@
         });
 
         $("button[data-dismiss-modal=EditGoogleBing]").click(function () {
-          alert('callBingo');
+        
         $('#edit_google_bingo').modal('hide');
         });
 
@@ -720,23 +804,80 @@
            $('#EditsocialShare').modal('hide');
           });
 
+           $(document).on('click', '#UpdateBlogdata', function(e){
+          var content = $('#editcontent').val().trim();
+           if(content === ''){
+            $('#EditcontentValidation').css('display','block');
+              e.preventDefault();
+             return false;
+           }
+            
+          });
+
+
+        $("#addBlog").submit(function(e){
+               var content = $('#content').val().trim();
+           if(content === ''){
+            $('#AddcontentValidation').css('display','block');
+              e.preventDefault();
+             return false;
+           }
+            
+        });
+
+         
+
            $(document).on('click', '#EditContentModalClose', function(e){
-           $('#EditContentModal').modal('hide');
+            var editorText = CKEDITOR.instances.editcontent.getData();
+            
+            $(document).find('#editcontent').val(editorText);
+            $('#EditContentModal').modal('hide');
+          });
+          $(document).on('click', '#EditContentModalCloseButton', function(e){
+            
+            $('#EditContentModal').modal('hide');
           });
 
           
 
+          
            $(document).on('click', '#ContentModalHide', function(e){
+            var editorText = CKEDITOR.instances.content.getData();
+            
+            $(document).find('#content').val(editorText);
            $('#ContentModal').modal('hide');
           });
+          
+          $(document).on('click', '#ContentModalHideButton', function(e){
+            
+           $('#ContentModal').modal('hide');
+          });
+
+          $(document).on('click', '#ViewContentModalHide', function(e){
+            
+            $('#ViewContentModal').modal('hide');
+           });
+
+          
+
+          
+
+          $(document).on('click', '#EditContentDataModal', function(e){
+
+            var Editcontentvalue = $(document).find('#editcontent').val();
+            
+            CKEDITOR.instances.editcontent.setData(Editcontentvalue)
+      
+            $('#EditContentModal').modal('show');
+          });
+          
 
            $(document).on('click', '#EditGoogleBingo', function(e){
            $('#edit_google_bingo').modal('hide');
           });
        
 
-        
-        
+    
 
         $(document).on("click",".delete-blog",function(e){
           e.preventDefault();

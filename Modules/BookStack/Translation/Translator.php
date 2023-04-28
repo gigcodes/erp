@@ -17,7 +17,6 @@ class Translator extends \Illuminate\Translation\Translator
      * Get the translation for a given key.
      *
      * @param  string  $key
-     * @param  array  $replace
      * @param  string  $locale
      * @return string|array|null
      */
@@ -36,8 +35,6 @@ class Translator extends \Illuminate\Translation\Translator
      * Merge the fallback translations, and base translations if existing,
      * into the provided core key => value array of translations content.
      *
-     * @param  array  $translationArray
-     * @param  string  $key
      * @param  null  $locale
      * @return array
      */

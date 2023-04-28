@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\CategorySegment;
 use App\Setting;
+use App\CategorySegment;
 use Illuminate\Http\Request;
 
 class CategorySegmentController extends Controller
@@ -19,7 +19,7 @@ class CategorySegmentController extends Controller
 
         $keyword = request('keyword');
         if (! empty($keyword)) {
-            $category_segments = $category_segments->where('name', 'like', '%'.$keyword.'%');
+            $category_segments = $category_segments->where('name', 'like', '%' . $keyword . '%');
         }
 
         $category_segments = $category_segments->paginate(Setting::get('pagination'));
@@ -44,7 +44,6 @@ class CategorySegmentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -78,14 +77,13 @@ class CategorySegmentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required|unique:category_segments,name,'.$id,
+            'name' => 'required|unique:category_segments,name,' . $id,
         ]);
         $category_segment = CategorySegment::find($id);
         $category_segment->name = $request->name;

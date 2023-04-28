@@ -2,11 +2,11 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\LogStoreWebsiteAttributes;
 use App\StoreWebsite;
-use App\StoreWebsiteAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\StoreWebsiteAttributes;
+use App\LogStoreWebsiteAttributes;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 
@@ -46,14 +46,14 @@ class SiteAttributesControllers extends Controller
         if (count($paymentData) > 0) {
             foreach ($paymentData as $history) {
                 $html .= '<tr>';
-                $html .= '<td>'.$i.'</td>';
-                $html .= '<td>'.$history->log_case_id.'</td>';
-                $html .= '<td>'.$history->attribute_id.'</td>';
-                $html .= '<td>'.$history->attribute_key.'</td>';
-                $html .= '<td>'.$history->attribute_val.'</td>';
-                $html .= '<td>'.$history->store_website_id.'</td>';
-                $html .= '<td>'.$history->log_msg.'</td>';
-                $html .= '<td>'.$history->updated_at.'</td>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->log_case_id . '</td>';
+                $html .= '<td>' . $history->attribute_id . '</td>';
+                $html .= '<td>' . $history->attribute_key . '</td>';
+                $html .= '<td>' . $history->attribute_val . '</td>';
+                $html .= '<td>' . $history->store_website_id . '</td>';
+                $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '<td>' . $history->updated_at . '</td>';
                 $html .= '</tr>';
 
                 $i++;
@@ -79,7 +79,6 @@ class SiteAttributesControllers extends Controller
      * Store Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function store(Request $request)
     {
@@ -95,7 +94,7 @@ class SiteAttributesControllers extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -132,22 +131,21 @@ class SiteAttributesControllers extends Controller
      * Index Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function records(Request $request)
     {
         $StoreWebsiteAttributesViews = StoreWebsiteAttributes::join('store_websites', 'store_websites.id', 'store_website_attributes.store_website_id');
         if ($request->keyword != null) {
-            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->where('store_websites.title', 'like', '%'.$request->keyword.'%');
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->where('store_websites.title', 'like', '%' . $request->keyword . '%');
         }
         if ($request->attribute_key != null) {
-            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_key', 'like', '%'.$request->attribute_key.'%');
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_key', 'like', '%' . $request->attribute_key . '%');
         }
         if ($request->attribute_val != null) {
-            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_val', 'like', '%'.$request->attribute_val.'%');
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('attribute_val', 'like', '%' . $request->attribute_val . '%');
         }
         if ($request->store_website_id != null) {
-            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('store_website_id', 'like', '%'.$request->store_website_id.'%');
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->orWhere('store_website_id', 'like', '%' . $request->store_website_id . '%');
         }
 
         $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->select(['store_website_attributes.*', 'store_websites.website'])->paginate();
@@ -161,7 +159,6 @@ class SiteAttributesControllers extends Controller
      * Add Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function list(Request $request)
     {
@@ -174,7 +171,6 @@ class SiteAttributesControllers extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -193,7 +189,6 @@ class SiteAttributesControllers extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {

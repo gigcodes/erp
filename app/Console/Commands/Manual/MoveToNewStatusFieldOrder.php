@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\Helpers\OrderHelper;
 use App\Order;
+use App\Helpers\OrderHelper;
 use Illuminate\Console\Command;
 
 class MoveToNewStatusFieldOrder extends Command

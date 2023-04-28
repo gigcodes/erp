@@ -12,9 +12,6 @@ class ColdLeadsImport implements ToCollection, WithHeadingRow
 {
     use Importable;
 
-    /**
-     * @param  Collection  $collection
-     */
     public function collection(Collection $collection)
     {
         foreach ($collection as $lead) {

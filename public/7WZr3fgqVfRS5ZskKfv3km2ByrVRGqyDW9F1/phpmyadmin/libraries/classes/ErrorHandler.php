@@ -4,34 +4,34 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
+use Throwable;
 use function __;
-use function array_splice;
-use function count;
-use function defined;
-use const E_COMPILE_ERROR;
-use const E_COMPILE_WARNING;
-use const E_CORE_ERROR;
-use const E_CORE_WARNING;
-use const E_DEPRECATED;
 use const E_ERROR;
-use const E_NOTICE;
 use const E_PARSE;
-use const E_RECOVERABLE_ERROR;
+use const E_NOTICE;
 use const E_STRICT;
-use const E_USER_DEPRECATED;
+use ErrorException;
+use function count;
+use const E_WARNING;
+use function defined;
+use const E_CORE_ERROR;
+use const E_DEPRECATED;
 use const E_USER_ERROR;
 use const E_USER_NOTICE;
+use const E_CORE_WARNING;
 use const E_USER_WARNING;
-use const E_WARNING;
-use function error_reporting;
-use ErrorException;
-use function headers_sent;
-use function htmlspecialchars;
 use const PHP_VERSION_ID;
+use const E_COMPILE_ERROR;
+use function array_splice;
+use function headers_sent;
+use function trigger_error;
+use const E_COMPILE_WARNING;
+use const E_USER_DEPRECATED;
+use function error_reporting;
+use const E_RECOVERABLE_ERROR;
+use function htmlspecialchars;
 use function set_error_handler;
 use function set_exception_handler;
-use Throwable;
-use function trigger_error;
 
 /**
  * handling errors
@@ -408,8 +408,8 @@ class ErrorHandler
         // there are 'actual' errors to be reported
         if ($GLOBALS['cfg']['SendErrorReports'] !== 'never' && $this->countErrors() != $this->countUserErrors()) {
             // add report button.
-            $retval .= '<form method="post" action="'.Url::getFromRoute('/error-report')
-                    .'" id="pma_report_errors_form"';
+            $retval .= '<form method="post" action="' . Url::getFromRoute('/error-report')
+                    . '" id="pma_report_errors_form"';
             if ($GLOBALS['cfg']['SendErrorReports'] === 'always') {
                 // in case of 'always', generate 'invisible' form.
                 $retval .= ' class="hide"';
@@ -422,24 +422,24 @@ class ErrorHandler
                 'server' => $GLOBALS['server'],
             ]);
             $retval .= '<input type="submit" value="'
-                    .__('Report')
-                    .'" id="pma_report_errors" class="btn btn-primary float-end">'
-                    .'<input type="checkbox" name="always_send"'
-                    .' id="errorReportAlwaysSendCheckbox" value="true">'
-                    .'<label for="errorReportAlwaysSendCheckbox">'
-                    .__('Automatically send report next time')
-                    .'</label>';
+                    . __('Report')
+                    . '" id="pma_report_errors" class="btn btn-primary float-end">'
+                    . '<input type="checkbox" name="always_send"'
+                    . ' id="errorReportAlwaysSendCheckbox" value="true">'
+                    . '<label for="errorReportAlwaysSendCheckbox">'
+                    . __('Automatically send report next time')
+                    . '</label>';
 
             if ($GLOBALS['cfg']['SendErrorReports'] === 'ask') {
                 // add ignore buttons
                 $retval .= '<input type="submit" value="'
-                        .__('Ignore')
-                        .'" id="pma_ignore_errors_bottom" class="btn btn-secondary float-end">';
+                        . __('Ignore')
+                        . '" id="pma_ignore_errors_bottom" class="btn btn-secondary float-end">';
             }
 
             $retval .= '<input type="submit" value="'
-                    .__('Ignore All')
-                    .'" id="pma_ignore_all_errors_bottom" class="btn btn-secondary float-end">';
+                    . __('Ignore All')
+                    . '" id="pma_ignore_all_errors_bottom" class="btn btn-secondary float-end">';
             $retval .= '</form>';
         }
 
@@ -587,7 +587,7 @@ class ErrorHandler
             } else {
                 // send the error reports asynchronously & without asking user
                 $jsCode .= '$("#pma_report_errors_form").submit();'
-                        .'Functions.ajaxShowMessage(
+                        . 'Functions.ajaxShowMessage(
                             Messages.phpErrorsBeingSubmitted, false
                         );';
                 // js code to appropriate focusing,
@@ -600,23 +600,23 @@ class ErrorHandler
             if (! $response->isAjax()) {
                 // js code to show appropriate msgs, event binding & focusing.
                 $jsCode = 'Functions.ajaxShowMessage(Messages.phpErrorsFound);'
-                        .'$("#pma_ignore_errors_popup").on("click", function() {
+                        . '$("#pma_ignore_errors_popup").on("click", function() {
                             Functions.ignorePhpErrors()
                         });'
-                        .'$("#pma_ignore_all_errors_popup").on("click",
+                        . '$("#pma_ignore_all_errors_popup").on("click",
                             function() {
                                 Functions.ignorePhpErrors(false)
                             });'
-                        .'$("#pma_ignore_errors_bottom").on("click", function(e) {
+                        . '$("#pma_ignore_errors_bottom").on("click", function(e) {
                             e.preventDefault();
                             Functions.ignorePhpErrors()
                         });'
-                        .'$("#pma_ignore_all_errors_bottom").on("click",
+                        . '$("#pma_ignore_all_errors_bottom").on("click",
                             function(e) {
                                 e.preventDefault();
                                 Functions.ignorePhpErrors(false)
                             });'
-                        .'$("html, body").animate({
+                        . '$("html, body").animate({
                             scrollTop:$(document).height()
                         }, "slow");';
             }

@@ -2,16 +2,16 @@
 
 namespace App\Services\Scrap;
 
+use Storage;
 use App\Brand;
 use App\Product;
-use App\ScrapedProducts;
-use App\ScrapEntries;
 use App\Setting;
+use App\ScrapEntries;
 use GuzzleHttp\Client;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\ScrapedProducts;
 use Plank\Mediable\Media;
-use Storage;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GebnegozionlineProductDetailsScraper extends Scraper
 {
@@ -184,9 +184,9 @@ class GebnegozionlineProductDetailsScraper extends Scraper
                 $new_product->save();
 
                 foreach ($product->images as $image_name) {
-                    $path = public_path('uploads').'/social-media/'.$image_name;
+                    $path = public_path('uploads') . '/social-media/' . $image_name;
                     $media = MediaUploader::fromSource($path)
-                                          ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                          ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                           ->upload();
                     $new_product->attachMedia($media, config('constants.media_tags'));
                 }
@@ -423,8 +423,8 @@ class GebnegozionlineProductDetailsScraper extends Scraper
                 continue;
             }
 
-            $fileName = $prefix.'_'.md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }

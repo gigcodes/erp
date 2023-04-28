@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\ConfigStorage\RelationCleanup;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Operations;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Sql;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Transformations;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
-use PhpMyAdmin\Utils\ForeignKey;
 use function sprintf;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Operations;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Utils\ForeignKey;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\ConfigStorage\RelationCleanup;
 
 final class DeleteRowsController extends AbstractController
 {
@@ -62,7 +62,7 @@ final class DeleteRowsController extends AbstractController
                     Util::backquote($table),
                     $row
                 );
-                $sql_query .= $query."\n";
+                $sql_query .= $query . "\n";
                 $this->dbi->selectDb($db);
                 $this->dbi->query($query);
             }

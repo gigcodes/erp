@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\StoreWebsite;
 use App\MagentoCommand;
 use App\MagentoCommandRunLog;
-use App\MagentoDevScripUpdateLog;
-use App\StoreWebsite;
 use Illuminate\Console\Command;
-use Exception;
+use App\MagentoDevScripUpdateLog;
 use Illuminate\Support\Facades\Artisan;
 
 class MagentoRunCommand extends Command
@@ -48,7 +47,7 @@ class MagentoRunCommand extends Command
             if ($magCom->website_ids == 'ERP') {
                 $cmd = $magCom->command_type;
                 $contains = \Str::contains($cmd, 'php artisan');
-                if($contains){
+                if ($contains) {
                     $result = '';
                     try {
                         $cmd = str_replace('php artisan', '', $cmd);
@@ -57,17 +56,17 @@ class MagentoRunCommand extends Command
                     } catch (\Exception $e) {
                         $result = $e->getMessage();
                     }
-                }else{
-                    $cmd = 'cd '.base_path().' '.$cmd;
+                } else {
+                    $cmd = 'cd ' . base_path() . ' ' . $cmd;
                     $allOutput = [];
                     $allOutput[] = $cmd;
-                    $result = exec($cmd, $allOutput,$statusCode);
+                    $result = exec($cmd, $allOutput, $statusCode);
                     if ($statusCode == '') {
                         $result = 'Not any response';
                     } elseif ($statusCode == 0) {
-                        $result = 'Command run success Response '.$result;
+                        $result = 'Command run success Response ' . $result;
                     } elseif ($statusCode == 1) {
-                        $result = 'Command run Fail Response '.$result;
+                        $result = 'Command run Fail Response ' . $result;
                     } else {
                         $result = is_array($result) ? json_encode($result, true) : $result;
                     }
@@ -88,19 +87,19 @@ class MagentoRunCommand extends Command
                 foreach ($websites as $website) {
                     if ($magCom->command_name != '' && $website->server_ip != '') {
                         //$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH').$magCom->command_name.' --server ' . $magCom->server_ip.' --type custom --command ' . $website->command_type;
-                        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-commands.sh  --server '.$website->server_ip." --type custom --command '".$magCom->command_type."'";
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command '" . $magCom->command_type . "'";
                         if ($magCom->command_name == 'bin/magento cache:f' || $magCom->command_name == "'bin/magento cache:f'") {
-                            $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-commands.sh  --server '.$website->server_ip." --type custom --command 'bin/magento cache:f'";
+                            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command 'bin/magento cache:f'";
                         }
                         $allOutput = [];
                         $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput,$statusCode);
+                        $result = exec($cmd, $allOutput, $statusCode);
                         if ($statusCode == '') {
                             $result = 'Not any response';
                         } elseif ($statusCode == 0) {
-                            $result = 'Command run success Response '.$result;
+                            $result = 'Command run success Response ' . $result;
                         } elseif ($statusCode == 1) {
-                            $result = 'Command run Fail Response '.$result;
+                            $result = 'Command run Fail Response ' . $result;
                         } else {
                             $result = is_array($result) ? json_encode($result, true) : $result;
                         }
@@ -140,7 +139,7 @@ class MagentoRunCommand extends Command
                     'command_name' => $cmd,
                     'server_ip' => '',
                     'command_type' => $magCom->command_type,
-                    'response' => ' Error '.$e->getMessage(),
+                    'response' => ' Error ' . $e->getMessage(),
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

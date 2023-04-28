@@ -3,6 +3,13 @@
 @section('title', 'Blog History')
 
 @section('styles')
+    <style>
+    #blog-history-list_filter {
+        margin-right: 7px;
+    }
+    </style>
+
+
     <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">

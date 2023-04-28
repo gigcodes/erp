@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessagePhrase;
-use App\ChatMessageWord;
 use Carbon\Carbon;
+use App\ChatMessageWord;
+use App\ChatMessagePhrase;
 use Illuminate\Console\Command;
 
 class MostUsedWordsInChat extends Command

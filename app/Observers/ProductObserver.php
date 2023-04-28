@@ -2,9 +2,9 @@
 
 namespace App\Observers;
 
+use App\Product;
 use App\Customer;
 use App\OutOfStockSubscribe;
-use App\Product;
 
 class ProductObserver
 {
@@ -45,7 +45,6 @@ class ProductObserver
     /**
      * Handle the out of stock subscribe "deleted" event.
      *
-     * @param  \App\OutOfStockSubscribe  $outOfStockSubscribe
      * @return void
      */
     public function deleted(OutOfStockSubscribe $outOfStockSubscribe)
@@ -56,7 +55,6 @@ class ProductObserver
     /**
      * Handle the out of stock subscribe "restored" event.
      *
-     * @param  \App\OutOfStockSubscribe  $outOfStockSubscribe
      * @return void
      */
     public function restored(OutOfStockSubscribe $outOfStockSubscribe)
@@ -67,7 +65,6 @@ class ProductObserver
     /**
      * Handle the out of stock subscribe "force deleted" event.
      *
-     * @param  \App\OutOfStockSubscribe  $outOfStockSubscribe
      * @return void
      */
     public function forceDeleted(OutOfStockSubscribe $outOfStockSubscribe)

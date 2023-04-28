@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-//use App\InstagramThread;
 use App\Setting;
+//use App\InstagramThread;
+use App\ChatMessage;
 use Illuminate\Console\Command;
 //use InstagramAPI\Instagram;
 //use App\InstagramDirectMessagesHistory;

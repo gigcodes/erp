@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\Customer;
 use App\User;
+use App\Customer;
+use App\ChatMessage;
 use Illuminate\Http\Request;
 
 class TwiliochatController extends Controller
@@ -19,13 +19,13 @@ class TwiliochatController extends Controller
         $query = ChatMessage::query();
 
         if ($request->number) {
-            $query = $query->where('number', 'LIKE', '%'.$request->number.'%');
+            $query = $query->where('number', 'LIKE', '%' . $request->number . '%');
         }
         if ($request->send_by) {
-            $query = $query->where('send_by', 'LIKE', '%'.$request->send_by.'%');
+            $query = $query->where('send_by', 'LIKE', '%' . $request->send_by . '%');
         }
         if ($request->message) {
-            $query = $query->where('message', 'LIKE', '%'.$request->message.'%');
+            $query = $query->where('message', 'LIKE', '%' . $request->message . '%');
         }
 
         $chat_message = $query->where('message_application_id', 3)->orderBy('id', 'desc')->paginate(25);
@@ -44,14 +44,14 @@ class TwiliochatController extends Controller
                     $agent = User::where('id', $chat->user_id)->first();
                     $agentInital = $agent ? substr($agent->name, 0, 1) : '';
 
-                    $chat->message = '<div data-chat-id="'.$chat->id.'" class="d-flex mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time"> '.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>';
+                    $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
                 } else {
                     if ($chat->customer_id != '') {
                         $obj = Customer::where('id', $chat->customer_id)->first();
                         $chat->customer_name = $obj->name;
                         $chat->customer_email = $obj->email;
                     }
-                    $chat->message = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time"> '.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>';
+                    $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
                 }
             }
         }

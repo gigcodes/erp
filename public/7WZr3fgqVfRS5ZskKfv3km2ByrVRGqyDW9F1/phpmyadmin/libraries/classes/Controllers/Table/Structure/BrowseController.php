@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table\Structure;
 
 use function __;
-use function implode;
-use PhpMyAdmin\Controllers\Table\AbstractController;
-use PhpMyAdmin\ParseAnalyze;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Sql;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use function implode;
 use function sprintf;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ParseAnalyze;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Controllers\Table\AbstractController;
 
 final class BrowseController extends AbstractController
 {

@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table;
 
 use function __;
-use function array_merge;
-use function is_array;
+use PhpMyAdmin\Url;
 use PhpMyAdmin\Core;
+use PhpMyAdmin\Util;
+use function is_array;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use function array_merge;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Gis\GisVisualization;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
 
 /**
  * Handles creation of the GIS visualizations.

@@ -14,8 +14,6 @@ class UserInviteService extends UserTokenService
     /**
      * Send an invitation to a user to sign into BookStack
      * Removes existing invitation tokens.
-     *
-     * @param  User  $user
      */
     public function sendInvitation(User $user)
     {

@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Hubstaff\HubstaffActivity;
-use App\PaymentReceipt;
+use DB;
 use App\User;
 use App\UserRate;
-use DB;
+use App\PaymentReceipt;
 use Illuminate\Console\Command;
+use App\Hubstaff\HubstaffActivity;
 
 class CreatePreviousPayments extends Command
 {
@@ -73,7 +73,7 @@ class CreatePreviousPayments extends Command
 
                 // Change start date if user last payment exist.
                 if ($lastPayment) {
-                    $start_date = date('Y-m-d', strtotime($lastPayment->date.'+1 days'));
+                    $start_date = date('Y-m-d', strtotime($lastPayment->date . '+1 days'));
                 }
 
                 // Make hubstaff activity paid.
@@ -104,15 +104,15 @@ class CreatePreviousPayments extends Command
             // Commit transaction.
             DB::commit();
             if (! $paidCounts) {
-                echo PHP_EOL.'Not paid hubstaff activities not found.'.PHP_EOL;
+                echo PHP_EOL . 'Not paid hubstaff activities not found.' . PHP_EOL;
             } else {
-                echo PHP_EOL.$paidCounts.' hubstaff activities make paid.'.PHP_EOL;
+                echo PHP_EOL . $paidCounts . ' hubstaff activities make paid.' . PHP_EOL;
             }
-            echo PHP_EOL.'=====DONE===='.PHP_EOL;
+            echo PHP_EOL . '=====DONE====' . PHP_EOL;
         } catch (\Exception $e) {
             echo $e->getMessage();
             DB::rollBack();
-            echo PHP_EOL.'=====FAILED===='.PHP_EOL;
+            echo PHP_EOL . '=====FAILED====' . PHP_EOL;
         }
     }
 }

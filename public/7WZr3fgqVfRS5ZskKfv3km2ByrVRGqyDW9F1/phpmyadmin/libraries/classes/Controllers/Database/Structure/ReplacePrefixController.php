@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Database\Structure;
 
 use function count;
+use PhpMyAdmin\Util;
 use function mb_strlen;
 use function mb_substr;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Controllers\Database\AbstractController;
 use PhpMyAdmin\Controllers\Database\StructureController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
 
 final class ReplacePrefixController extends AbstractController
 {
@@ -51,15 +51,15 @@ final class ReplacePrefixController extends AbstractController
             $subFromPrefix = mb_substr($current, 0, mb_strlen((string) $fromPrefix));
 
             if ($subFromPrefix === $fromPrefix) {
-                $newTableName = $toPrefix.mb_substr($current, mb_strlen((string) $fromPrefix));
+                $newTableName = $toPrefix . mb_substr($current, mb_strlen((string) $fromPrefix));
             } else {
                 $newTableName = $current;
             }
 
-            $aQuery = 'ALTER TABLE '.Util::backquote($selected[$i])
-                .' RENAME '.Util::backquote($newTableName);
+            $aQuery = 'ALTER TABLE ' . Util::backquote($selected[$i])
+                . ' RENAME ' . Util::backquote($newTableName);
 
-            $sql_query .= $aQuery.';'."\n";
+            $sql_query .= $aQuery . ';' . "\n";
             $this->dbi->selectDb($db);
             $this->dbi->query($aQuery);
         }

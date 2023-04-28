@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function _bindtextdomain;
+use function strcmp;
+use function in_array;
+use function setlocale;
 use function _setlocale;
+use function preg_match;
 use function _textdomain;
 use function addcslashes;
-use function function_exists;
-use function in_array;
-use function preg_match;
-use function setlocale;
-use function str_contains;
 use function str_replace;
-use function strcmp;
+use function str_contains;
+use function _bindtextdomain;
+use function function_exists;
 
 /**
  * Language object
@@ -87,7 +87,7 @@ class Language
     public function getName()
     {
         if (! empty($this->native)) {
-            return $this->native.' - '.$this->name;
+            return $this->native . ' - ' . $this->name;
         }
 
         return $this->name;
@@ -140,8 +140,8 @@ class Language
     public function matchesAcceptLanguage($header): bool
     {
         $pattern = '/^('
-            .addcslashes($this->regex, '/')
-            .')(;q=[0-9]\\.[0-9])?$/i';
+            . addcslashes($this->regex, '/')
+            . ')(;q=[0-9]\\.[0-9])?$/i';
 
         return (bool) preg_match($pattern, $header);
     }
@@ -154,8 +154,8 @@ class Language
     public function matchesUserAgent($header): bool
     {
         $pattern = '/(\(|\[|;[[:space:]])('
-            .addcslashes($this->regex, '/')
-            .')(;|\]|\))/i';
+            . addcslashes($this->regex, '/')
+            . ')(;|\]|\))/i';
 
         return (bool) preg_match($pattern, $header);
     }

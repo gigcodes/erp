@@ -2,8 +2,8 @@
 
 namespace Modules\BookStack\Providers;
 
-use Illuminate\Pagination\PaginationServiceProvider as IlluminatePaginationServiceProvider;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\PaginationServiceProvider as IlluminatePaginationServiceProvider;
 
 class PaginationServiceProvider extends IlluminatePaginationServiceProvider
 {

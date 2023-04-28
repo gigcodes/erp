@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\ResourceCategory;
-use App\ResourceImage;
 use Auth;
+use App\ResourceImage;
+use App\ResourceCategory;
 use Illuminate\Http\Request;
 
 class ResourceImgController extends Controller
@@ -91,7 +91,7 @@ class ResourceImgController extends Controller
         if ($request->hasFile('image')) {
             $images = $request->file('image');
             foreach ($images as $image) {
-                $name = uniqid().time().'.'.$image->getClientOriginalExtension();
+                $name = uniqid() . time() . '.' . $image->getClientOriginalExtension();
                 $destinationPath = public_path('/category_images');
                 $image->move($destinationPath, $name);
                 $input['images'][] = $name;
@@ -113,11 +113,11 @@ class ResourceImgController extends Controller
             if ($request->input('id')) {
                 $ResourceImage = new ResourceImage();
                 $Image = $ResourceImage->find($request->input('id'));
-                $file_path = public_path().'/category_images/'.$Image->image1;
+                $file_path = public_path() . '/category_images/' . $Image->image1;
                 if (isset($Image->image1) && file_exists(@$file_path)) {
                     unlink($file_path);
                 }
-                $file_path = public_path().'/category_images/'.@$Image->image2;
+                $file_path = public_path() . '/category_images/' . @$Image->image2;
                 if (isset($Image->image2) && file_exists(@$file_path)) {
                     unlink($file_path);
                 }
@@ -195,7 +195,7 @@ class ResourceImgController extends Controller
         $output = '';
 
         foreach ($sub as $sub_cat) {
-            $output .= '<option value="'.$sub_cat['id'].'">'.$sub_cat['title'].'</option>';
+            $output .= '<option value="' . $sub_cat['id'] . '">' . $sub_cat['title'] . '</option>';
         }
         echo $output;
     }

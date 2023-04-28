@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class DeveloperTaskStatusChecklistRemarks extends Model
 {
-    
     protected $fillable = [
         'user_id',
         'task_id',
@@ -28,5 +27,4 @@ class DeveloperTaskStatusChecklistRemarks extends Model
     {
         return $this->belongsTo(\App\DeveloperTask::class);
     }
-
 }

@@ -1,19 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\BookStack\Http\Controllers\AttachmentController;
+use Modules\BookStack\Http\Controllers\Images;
+use Modules\BookStack\Http\Controllers\TagController;
 use Modules\BookStack\Http\Controllers\BookController;
-use Modules\BookStack\Http\Controllers\BookshelfController;
+use Modules\BookStack\Http\Controllers\HomeController;
+use Modules\BookStack\Http\Controllers\PageController;
+use Modules\BookStack\Http\Controllers\UserController;
+use Modules\BookStack\Http\Controllers\SearchController;
 use Modules\BookStack\Http\Controllers\ChapterController;
 use Modules\BookStack\Http\Controllers\CommentController;
-use Modules\BookStack\Http\Controllers\HomeController;
-use Modules\BookStack\Http\Controllers\Images;
-use Modules\BookStack\Http\Controllers\PageController;
-use Modules\BookStack\Http\Controllers\PermissionController;
-use Modules\BookStack\Http\Controllers\SearchController;
 use Modules\BookStack\Http\Controllers\SettingController;
-use Modules\BookStack\Http\Controllers\TagController;
-use Modules\BookStack\Http\Controllers\UserController;
+use Modules\BookStack\Http\Controllers\BookshelfController;
+use Modules\BookStack\Http\Controllers\AttachmentController;
+use Modules\BookStack\Http\Controllers\PermissionController;
 
 /*
 |--------------------------------------------------------------------------

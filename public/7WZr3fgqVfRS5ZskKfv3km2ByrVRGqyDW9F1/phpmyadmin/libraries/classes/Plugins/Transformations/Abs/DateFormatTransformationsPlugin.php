@@ -8,19 +8,19 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
 use function __;
-use function checkdate;
 use function gmdate;
-use function htmlspecialchars;
-use function mb_strlen;
-use function mb_strtolower;
-use function mb_substr;
 use function mktime;
-use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\TransformationsPlugin;
-use PhpMyAdmin\Sanitize;
 use PhpMyAdmin\Util;
-use function preg_match;
+use function checkdate;
+use function mb_strlen;
+use function mb_substr;
 use function strtotime;
+use function preg_match;
+use PhpMyAdmin\Sanitize;
+use function mb_strtolower;
+use PhpMyAdmin\FieldMetadata;
+use function htmlspecialchars;
+use PhpMyAdmin\Plugins\TransformationsPlugin;
 
 /**
  * Provides common methods for all of the date format transformations plugins.
@@ -36,14 +36,14 @@ abstract class DateFormatTransformationsPlugin extends TransformationsPlugin
     {
         return __(
             'Displays a TIME, TIMESTAMP, DATETIME or numeric unix timestamp'
-            .' column as formatted date. The first option is the offset (in'
-            .' hours) which will be added to the timestamp (Default: 0). Use'
-            .' second option to specify a different date/time format string.'
-            .' Third option determines whether you want to see local date or'
-            .' UTC one (use "local" or "utc" strings) for that. According to'
-            .' that, date format has different value - for "local" see the'
-            .' documentation for PHP\'s strftime() function and for "utc" it'
-            .' is done using gmdate() function.'
+            . ' column as formatted date. The first option is the offset (in'
+            . ' hours) which will be added to the timestamp (Default: 0). Use'
+            . ' second option to specify a different date/time format string.'
+            . ' Third option determines whether you want to see local date or'
+            . ' UTC one (use "local" or "utc" strings) for that. According to'
+            . ' that, date format has different value - for "local" see the'
+            . ' documentation for PHP\'s strftime() function and for "utc" it'
+            . ' is done using gmdate() function.'
         );
     }
 
@@ -140,8 +140,8 @@ abstract class DateFormatTransformationsPlugin extends TransformationsPlugin
                 $text = 'INVALID DATE TYPE';
             }
 
-            return '<dfn onclick="alert(\''.Sanitize::jsFormat($source, false).'\');" title="'
-                .htmlspecialchars((string) $source).'">'.htmlspecialchars((string) $text).'</dfn>';
+            return '<dfn onclick="alert(\'' . Sanitize::jsFormat($source, false) . '\');" title="'
+                . htmlspecialchars((string) $source) . '">' . htmlspecialchars((string) $text) . '</dfn>';
         }
 
         return htmlspecialchars((string) $buffer);

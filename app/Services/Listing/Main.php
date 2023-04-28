@@ -28,19 +28,10 @@ class Main
      */
     private $colorChecker;
 
-    /**
-     * @var
-     */
     private $product;
 
     /**
      * Main constructor.
-     *
-     * @param  NameChecker  $nameChecker
-     * @param  CompositionChecker  $compositionChecker
-     * @param  ColorChecker  $colorChecker
-     * @param  SizesChecker  $sizesChecker
-     * @param  ShortDescriptionChecker  $shortDescriptionChecker
      */
     public function __construct(NameChecker $nameChecker, CompositionChecker $compositionChecker, ColorChecker $colorChecker, SizesChecker $sizesChecker, ShortDescriptionChecker $shortDescriptionChecker)
     {
@@ -51,10 +42,6 @@ class Main
         $this->compositionChecker = $compositionChecker;
     }
 
-    /**
-     * @param  Product  $product
-     * @return bool
-     */
     public function validate(Product $product): bool
     {
         $this->product = $product;
@@ -74,9 +61,6 @@ class Main
         return $status;
     }
 
-    /**
-     * @return bool
-     */
     public function isSizeCorrect(): bool
     {
         $size = $this->sizeChecker->check($this->product);
@@ -84,9 +68,6 @@ class Main
         return $size;
     }
 
-    /**
-     * @return bool
-     */
     public function isColorCorrect(): bool
     {
         $color = $this->colorChecker->check($this->product);
@@ -94,9 +75,6 @@ class Main
         return $color;
     }
 
-    /**
-     * @return bool
-     */
     public function isCompositionCorrect(): bool
     {
         $composition = $this->compositionChecker->check($this->product);
@@ -104,9 +82,6 @@ class Main
         return $composition;
     }
 
-    /**
-     * @return bool
-     */
     public function isShortDescriptionCorrect(): bool
     {
         $description = $this->descriptionChecker->check($this->product);
@@ -114,9 +89,6 @@ class Main
         return $description;
     }
 
-    /**
-     * @return bool
-     */
     public function isNameCorrect(): bool
     {
         $name = $this->nameChecker->check($this->product);
@@ -124,9 +96,6 @@ class Main
         return $name;
     }
 
-    /**
-     * @return bool
-     */
     public function areMeasurementsCorrect(): bool
     {
         $meas = $this->product->lmeasurement && $this->product->hmeasurement && $this->product->dmeasurement;

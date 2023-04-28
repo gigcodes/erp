@@ -7,15 +7,15 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Gis;
 
-use function count;
-use function explode;
-use function hexdec;
-use function json_encode;
-use function mb_substr;
-use PhpMyAdmin\Image\ImageWrapper;
-use function round;
 use TCPDF;
 use function trim;
+use function count;
+use function round;
+use function hexdec;
+use function explode;
+use function mb_substr;
+use function json_encode;
+use PhpMyAdmin\Image\ImageWrapper;
 
 /**
  * Handles actions related to GIS MULTILINESTRING objects
@@ -221,13 +221,13 @@ class GisMultiLineString extends GisGeometry
 
             $row .= '<polyline points="';
             foreach ($points_arr as $point) {
-                $row .= $point[0].','.$point[1].' ';
+                $row .= $point[0] . ',' . $point[1] . ' ';
             }
 
             $row .= '"';
-            $line_options['id'] = $label.$this->getRandomId();
+            $line_options['id'] = $label . $this->getRandomId();
             foreach ($line_options as $option => $val) {
-                $row .= ' '.$option.'="'.trim((string) $val).'"';
+                $row .= ' ' . $option . '="' . trim((string) $val) . '"';
             }
 
             $row .= '/>';
@@ -255,10 +255,10 @@ class GisMultiLineString extends GisGeometry
         ];
 
         $row = 'var style = new ol.style.Style({'
-            .'stroke: new ol.style.Stroke('.json_encode($stroke_style).')';
+            . 'stroke: new ol.style.Stroke(' . json_encode($stroke_style) . ')';
         if (trim($label) !== '') {
             $text_style = ['text' => trim($label)];
-            $row .= ', text: new ol.style.Text('.json_encode($text_style).')';
+            $row .= ', text: new ol.style.Text(' . json_encode($text_style) . ')';
         }
 
         $row .= '});';
@@ -274,11 +274,11 @@ class GisMultiLineString extends GisGeometry
         // Separate each linestring
         $linestirngs = explode('),(', $multilinestirng);
 
-        return $row.$this->getLineArrayForOpenLayers($linestirngs, $srid)
-            .'var multiLineString = new ol.geom.MultiLineString(arr);'
-            .'var feature = new ol.Feature({geometry: multiLineString});'
-            .'feature.setStyle(style);'
-            .'vectorLayer.addFeature(feature);';
+        return $row . $this->getLineArrayForOpenLayers($linestirngs, $srid)
+            . 'var multiLineString = new ol.geom.MultiLineString(arr);'
+            . 'var feature = new ol.Feature({geometry: multiLineString});'
+            . 'feature.setStyle(style);'
+            . 'vectorLayer.addFeature(feature);';
     }
 
     /**
@@ -310,9 +310,9 @@ class GisMultiLineString extends GisGeometry
                 $wkt .= (isset($data_row[$i][$j]['x'])
                         && trim((string) $data_row[$i][$j]['x']) != ''
                         ? $data_row[$i][$j]['x'] : $empty)
-                    .' '.(isset($data_row[$i][$j]['y'])
+                    . ' ' . (isset($data_row[$i][$j]['y'])
                         && trim((string) $data_row[$i][$j]['y']) != ''
-                        ? $data_row[$i][$j]['y'] : $empty).',';
+                        ? $data_row[$i][$j]['y'] : $empty) . ',';
             }
 
             $wkt = mb_substr($wkt, 0, -1);
@@ -321,7 +321,7 @@ class GisMultiLineString extends GisGeometry
 
         $wkt = mb_substr($wkt, 0, -1);
 
-        return $wkt.')';
+        return $wkt . ')';
     }
 
     /**
@@ -336,7 +336,7 @@ class GisMultiLineString extends GisGeometry
         for ($i = 0; $i < $row_data['numparts']; $i++) {
             $wkt .= '(';
             foreach ($row_data['parts'][$i]['points'] as $point) {
-                $wkt .= $point['x'].' '.$point['y'].',';
+                $wkt .= $point['x'] . ' ' . $point['y'] . ',';
             }
 
             $wkt = mb_substr($wkt, 0, -1);
@@ -345,7 +345,7 @@ class GisMultiLineString extends GisGeometry
 
         $wkt = mb_substr($wkt, 0, -1);
 
-        return $wkt.')';
+        return $wkt . ')';
     }
 
     /**

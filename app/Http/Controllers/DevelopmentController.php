@@ -2,59 +2,59 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use File;
+use Storage;
+use App\Task;
+use App\Team;
+use App\User;
+use Response;
+use App\Issue;
+use Exception;
+use App\Helpers;
+use App\Setting;
+use App\UserRate;
+use App\TaskTypes;
+use Carbon\Carbon;
+use App\TaskStatus;
 use App\ChatMessage;
-use App\DeveloperComment;
+use App\TaskMessage;
+use App\TasksHistory;
 use App\DeveloperCost;
-use App\DeveloperModule;
 use App\DeveloperTask;
+use GuzzleHttp\Client;
+use App\LogChatMessage;
+use App\PaymentReceipt;
+use App\TaskAttachment;
+use App\DeveloperModule;
+use App\HubstaffHistory;
+use App\TaskUserHistory;
+use App\DeveloperComment;
+use App\PushNotification;
+use Plank\Mediable\Media;
+use App\MeetingAndOtherTime;
+use Illuminate\Http\Request;
 use App\DeveloperTaskComment;
 use App\DeveloperTaskHistory;
 use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubRepository;
 use App\GoogleScreencast;
-use App\Helpers;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
-use App\Hubstaff\HubstaffMember;
-use App\Hubstaff\HubstaffProject;
 use App\Hubstaff\HubstaffTask;
-use App\HubstaffHistory;
-use App\Issue;
 use App\Jobs\UploadGoogleDriveScreencast;
-use App\LogChatMessage;
-use App\MeetingAndOtherTime;
 use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
-use App\PaymentReceipt;
-use App\PushNotification;
-use App\Setting;
-use App\Task;
-use App\TaskAttachment;
-use App\TaskMessage;
-use App\TasksHistory;
-use App\TaskStatus;
-use App\TaskTypes;
-use App\TaskUserHistory;
-use App\Team;
-use App\User;
-use App\UserRate;
-use Auth;
-use Carbon\Carbon;
-use Exception;
-use File;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use App\Hubstaff\HubstaffMember;
+use App\Hubstaff\HubstaffProject;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Plank\Mediable\Media;
-use Response;
-use Storage;
 use App\Library\TimeDoctor\Src\Timedoctor;
 use App\Models\DeveloperTaskStatusChecklist;
 use App\Models\DeveloperTaskStatusChecklistRemarks;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class DevelopmentController extends Controller
 {
@@ -211,7 +211,7 @@ class DevelopmentController extends Controller
             $message = '';
             $i = 1;
             foreach ($developerTask as $value) {
-                $message .= $i.' : #Task-'.$value->id.'-'.$value->subject."\n";
+                $message .= $i . ' : #Task-' . $value->id . '-' . $value->subject . "\n";
                 $i++;
             }
             if (! empty($message)) {
@@ -222,9 +222,9 @@ class DevelopmentController extends Controller
 
                 $string = '';
                 if (! empty($request->get('global_remarkes', null))) {
-                    $string .= $request->get('global_remarkes')."\n";
+                    $string .= $request->get('global_remarkes') . "\n";
                 }
-                $string .= "Task Priority is : \n".$message;
+                $string .= "Task Priority is : \n" . $message;
 
                 $params['message'] = $string;
                 $params['status'] = 2;
@@ -327,7 +327,7 @@ class DevelopmentController extends Controller
         $task->status = 'In Progress';
         $hour = $request->get('hour') ?? '00';
         $minutes = $request->get('mimutes') ?? '00';
-        $task->estimate_time = $date.' '."$hour:$minutes:00 ";
+        $task->estimate_time = $date . ' ' . "$hour:$minutes:00 ";
         $task->start_time = Carbon::now()->toDateTimeString();
         $task->save();
 
@@ -447,7 +447,7 @@ class DevelopmentController extends Controller
 
         $whereCondition = '';
         if ($request->get('subject') != '') {
-            $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
+            $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
                 $query->where('developer_tasks.id', 'LIKE', "%$subject%")
@@ -462,7 +462,7 @@ class DevelopmentController extends Controller
         $issues = $issues->leftJoin(
             DB::raw('(SELECT MAX(id) as  max_id, issue_id, message
             FROM `chat_messages` where issue_id > 0
-             '.$whereCondition.' GROUP BY issue_id )
+             ' . $whereCondition . ' GROUP BY issue_id )
              m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
 
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
@@ -513,7 +513,7 @@ class DevelopmentController extends Controller
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
         $statusList = Cache::remember('task_status_select_name', 60 * 60 * 24 * 7, function () {
-          return TaskStatus::select('name')->pluck('name', 'name')->toArray();
+            return TaskStatus::select('name')->pluck('name', 'name')->toArray();
         });
 
         /*$statusList = array_merge([
@@ -542,7 +542,7 @@ class DevelopmentController extends Controller
             ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
             ->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = Cache::remember('User::whereIn::'.implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
+        $userModel = Cache::remember('User::whereIn::' . implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
             return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         });
         $countPlanned = [];
@@ -563,7 +563,7 @@ class DevelopmentController extends Controller
             ->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
-        $userModel = Cache::remember('User::whereIn::'.implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
+        $userModel = Cache::remember('User::whereIn::' . implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
             return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         });
         $countInProgress = [];
@@ -617,8 +617,8 @@ class DevelopmentController extends Controller
         });
 
         $checkList = [];
-        $checkListArray = DeveloperTaskStatusChecklist::select("id","name","task_status")->get()->toArray();
-        foreach($checkListArray as $list){
+        $checkListArray = DeveloperTaskStatusChecklist::select('id', 'name', 'task_status')->get()->toArray();
+        foreach ($checkListArray as $list) {
             $checkList[$list['task_status']][] = $list;
         }
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
@@ -675,11 +675,11 @@ class DevelopmentController extends Controller
         }
 
         if (@$inputs['subject']) {
-            $issues->where('subject', 'like', '%'.$inputs['subject'].'%');
+            $issues->where('subject', 'like', '%' . $inputs['subject'] . '%');
         }
 
         if (@$inputs['task']) {
-            $issues->where('task', 'like', '%'.$inputs['task'].'%');
+            $issues->where('task', 'like', '%' . $inputs['task'] . '%');
         }
 
         if (@$inputs['user_id']) {
@@ -750,7 +750,7 @@ class DevelopmentController extends Controller
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
 
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 '.$whereCondition.' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         if ($request->get('last_communicated', 'off') == 'on') {
             $issues = $issues->orderBy('chat_messages.id', 'desc');
@@ -827,7 +827,7 @@ class DevelopmentController extends Controller
             $endTime = Carbon::parse($value->end_time);
             $totalDuration = $endTime->diffInMinutes($startTime);
             $task_csv['Tracked Time'] = $totalDuration;
-            $task_csv['Difference'] = ($totalDuration - $value->estimate_minutes > 0 ? $totalDuration - $value->estimate_minutes : '+'.abs($totalDuration - $value->estimate_minutes));
+            $task_csv['Difference'] = ($totalDuration - $value->estimate_minutes > 0 ? $totalDuration - $value->estimate_minutes : '+' . abs($totalDuration - $value->estimate_minutes));
             array_push($tasks_csv, $task_csv);
         }
 
@@ -841,7 +841,7 @@ class DevelopmentController extends Controller
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Cache-Control: private', false);
         header('Content-Type: text/csv');
-        header('Content-Disposition: attachment;filename='.$fileName);
+        header('Content-Disposition: attachment;filename=' . $fileName);
         if (isset($assocDataArray['0'])) {
             $fp = fopen('php://output', 'w');
             fputcsv($fp, array_keys($assocDataArray['0']));
@@ -896,13 +896,13 @@ class DevelopmentController extends Controller
         $whereCondition = '';
         if ($request->get('subject') != '') {
             $subject = explode(',', $request->get('subject'));
-            foreach($subject as $termSubject) {
-                $whereCondition .= ' and message like  "%'.$request->get('subject').'%"';
+            foreach ($subject as $termSubject) {
+                $whereCondition .= ' and message like  "%' . $request->get('subject') . '%"';
             }
             $issues = $issues->where(function ($query) use ($subject) {
                 $query->whereIn('developer_tasks.id', $subject)
-                ->orWhere(function($query) use($subject) {
-                    foreach($subject as $termSubject) {
+                ->orWhere(function ($query) use ($subject) {
+                    foreach ($subject as $termSubject) {
                         $query->orWhere('subject', 'like', "%$termSubject%")->orWhere('task', 'like', "%$termSubject%")->orWhere('chat_messages.message', 'LIKE', "%$termSubject%");
                     }
                 });
@@ -911,7 +911,7 @@ class DevelopmentController extends Controller
         // if ($request->get('language') != '') {
         //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
         // }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 '.$whereCondition.' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
         if ($request->get('last_communicated', 'off') == 'on') {
@@ -1064,7 +1064,7 @@ class DevelopmentController extends Controller
             'countInProgress' => $countInProgress,
             'statusList' => $statusList,
             'userslist' => $userslist,
-            'time_doctor_projects' => $time_doctor_projects
+            'time_doctor_projects' => $time_doctor_projects,
             // 'languages' => $languages
         ]);
     }
@@ -1081,7 +1081,7 @@ class DevelopmentController extends Controller
 
         $whereCondition = '';
         if ($request->get('subject') != '') {
-            $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
+            $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
                 $task_id = explode(',', $subject);
@@ -1094,7 +1094,7 @@ class DevelopmentController extends Controller
                 }
             });
         }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 '.$whereCondition.' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         if ($request->get('last_communicated', 'off') == 'on') {
             $issues = $issues->orderBy('chat_messages.id', 'desc');
@@ -1330,10 +1330,10 @@ class DevelopmentController extends Controller
         if (Auth::user()->hasRole('Admin')) {
             $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)');
         } elseif ($isTeamLeader) {
-            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN ('.$team_members_array_unique_ids.'))');
+            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN (' . $team_members_array_unique_ids . '))');
         } else {
             $login_user_id = auth()->user()->id;
-            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN ('.$login_user_id.'))');
+            $task->whereRaw('tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1 AND id IN (' . $login_user_id . '))');
         }
 
         if ($type == 'issue') {
@@ -1391,14 +1391,14 @@ class DevelopmentController extends Controller
         // $task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition = $whereTaskCondition = '';
         if ($request->get('subject') != '') {
-            $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
+            $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
                 $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere('task', 'LIKE', "%$subject%")
                     ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
             });
 
-            $whereTaskCondition = ' and message like  "%'.$request->get('subject').'%"';
+            $whereTaskCondition = ' and message like  "%' . $request->get('subject') . '%"';
             $task = $task->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
                 $query->where('tasks.id', 'LIKE', "%$subject%")->orWhere('task_subject', 'LIKE', "%$subject%")->orWhere('task_details', 'LIKE', "%$subject%")
@@ -1406,7 +1406,7 @@ class DevelopmentController extends Controller
             });
         }
 
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 '.$whereCondition.' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
         if ($request->get('last_communicated', 'off') == 'on') {
@@ -1415,7 +1415,7 @@ class DevelopmentController extends Controller
 
         $issues = $issues->select('developer_tasks.*', 'chat_messages.message');
 
-        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 '.$whereTaskCondition.' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
+        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         $task = $task->select('tasks.*', 'chat_messages.message');
 
@@ -1519,9 +1519,9 @@ class DevelopmentController extends Controller
         if (count($chatmessages) > 0) {
             foreach ($chatmessages as $history) {
                 $html .= '<tr>';
-                $html .= '<td>'.$i.'</td>';
-                $html .= '<td>'.$history->message.'</td>';
-                $html .= '<td>'.$history->created_at.'</td>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
                 $html .= '</tr>';
 
                 $i++;
@@ -1548,11 +1548,11 @@ class DevelopmentController extends Controller
         if (count($chatmessages) > 0) {
             foreach ($chatmessages as $history) {
                 $html .= '<tr>';
-                $html .= '<td>'.$i.'</td>';
-                $html .= '<td>'.$history->log_case_id.'</td>';
-                $html .= '<td>'.$history->message.'</td>';
-                $html .= '<td>'.$history->log_msg.'</td>';
-                $html .= '<td>'.$history->created_at.'</td>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->log_case_id . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
                 $html .= '</tr>';
 
                 $i++;
@@ -1735,7 +1735,7 @@ class DevelopmentController extends Controller
             $i = 1;
             foreach ($issues as $value) {
                 $mode = ($value->task_type_id == 3) ? '#ISSUE-' : '#TASK-';
-                $message .= $i.' : '.$mode.$value->id.'-'.$value->subject."\n";
+                $message .= $i . ' : ' . $mode . $value->id . '-' . $value->subject . "\n";
                 $i++;
             }
             if (! empty($message)) {
@@ -1746,9 +1746,9 @@ class DevelopmentController extends Controller
 
                 $string = '';
                 if (! empty($request->get('global_remarkes', null))) {
-                    $string .= $request->get('global_remarkes')."\n";
+                    $string .= $request->get('global_remarkes') . "\n";
                 }
-                $string .= "Issue Priority is : \n".$message;
+                $string .= "Issue Priority is : \n" . $message;
 
                 $params['message'] = $string;
                 $params['status'] = 2;
@@ -1822,7 +1822,7 @@ class DevelopmentController extends Controller
     private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
         $tokens = $this->getTokens();
-        $url = 'https://api.hubstaff.com/v2/projects/'.$projectId.'/tasks';
+        $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/tasks';
         $httpClient = new Client();
         try {
             $body = [
@@ -1840,7 +1840,7 @@ class DevelopmentController extends Controller
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                         'Content-Type' => 'application/json',
                     ],
 
@@ -1872,23 +1872,23 @@ class DevelopmentController extends Controller
         $check_entry = 0;
         $project_data = [];
         $project_data['time_doctor_project'] = $projectId;
-        $project_data['time_doctor_task_name'] = $task['subject'] ?? "";
-        $project_data['time_doctor_task_description'] = $task['task'] ?? "";
+        $project_data['time_doctor_task_name'] = $task['subject'] ?? '';
+        $project_data['time_doctor_task_description'] = $task['task'] ?? '';
 
         if ($type == 'DEVTASK') {
-            $message = '#DEVTASK-'.$task->id.' => '.$task->subject;
+            $message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
             $assignedToId = $assignTo;
         } elseif ($type == 'TASK') {
-            $message = '#TASK-'.$task->id.' => '.$task->task_subject.'. '.$task->task_details;
+            $message = '#TASK-' . $task->id . ' => ' . $task->task_subject . '. ' . $task->task_details;
             $assignedToId = $assignTo;
         } else {
             return false;
         }
 
         // $assignUsersData = \App\TimeDoctor\TimeDoctorMember::where('user_id', $assignedToId)->get();
-        $assignUsersData = \App\TimeDoctor\TimeDoctorAccount::find( $accountId );        
+        $assignUsersData = \App\TimeDoctor\TimeDoctorAccount::find($accountId);
 
-        $timedoctor = Timedoctor::getInstance();        
+        $timedoctor = Timedoctor::getInstance();
 
         $companyId = $assignUsersData->company_id;
         $accessToken = $assignUsersData->auth_token;
@@ -1897,7 +1897,7 @@ class DevelopmentController extends Controller
         if (env('PRODUCTION', true)) {
             $timeDoctorTaskId = '';
             $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data, $task->id, $type);
-            if (!empty($timeDoctorTaskResponse['data'])) {
+            if (! empty($timeDoctorTaskResponse['data'])) {
                 $timeDoctorTaskId = $timeDoctorTaskResponse['data']['id'];
             }
         } else {
@@ -1928,11 +1928,11 @@ class DevelopmentController extends Controller
      */
     private function createBranchOnGithub($repositoryId, $taskId, $taskTitle, $branchName = 'master')
     {
-        $newBranchName = 'DEVTASK-'.$taskId;
+        $newBranchName = 'DEVTASK-' . $taskId;
 
         // get the master branch SHA
         // https://api.github.com/repositories/:repoId/branches/master
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/branches/'.$branchName;
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/branches/' . $branchName;
         try {
             $response = $this->githubClient->get($url);
             $masterSha = json_decode($response->getBody()->getContents())->commit->sha;
@@ -1942,13 +1942,13 @@ class DevelopmentController extends Controller
 
         // create a branch
         // https://api.github.com/repositories/:repo/git/refs
-        $url = 'https://api.github.com/repositories/'.$repositoryId.'/git/refs';
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/git/refs';
         try {
             $this->githubClient->post(
                 $url,
                 [
                     RequestOptions::BODY => json_encode([
-                        'ref' => 'refs/heads/'.$newBranchName,
+                        'ref' => 'refs/heads/' . $newBranchName,
                         'sha' => $masterSha,
                     ]),
                 ]
@@ -1968,7 +1968,6 @@ class DevelopmentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -2149,8 +2148,8 @@ class DevelopmentController extends Controller
         $data['created_by'] = loginId();
 
         if ($data['parent_review_task_id'] ?? 0) {
-            $data['subject'] = $data['subject'].' - #REVIEW_TASK';
-            $data['task'] = $data['task'].' - #REVIEW_TASK';
+            $data['subject'] = $data['subject'] . ' - #REVIEW_TASK';
+            $data['task'] = $data['task'] . ' - #REVIEW_TASK';
         }
         $task = DeveloperTask::create($data);
 
@@ -2187,7 +2186,7 @@ class DevelopmentController extends Controller
 
         // SEND MESSAGE
         if (is_string($newBranchName)) {
-            $message = $task->task.PHP_EOL.'A new branch '.$newBranchName." has been created. Please pull the current code and run 'git checkout ".$newBranchName."' to work in that branch.";
+            $message = $task->task . PHP_EOL . 'A new branch ' . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
         } else {
             $message = $task->task;
         }
@@ -2203,7 +2202,7 @@ class DevelopmentController extends Controller
             $task->responsible_user_id,
             $task->team_lead_id,
             $task->tester_id,
-        ], ' [ '.$loggedUser->name.' ] - '.$message);
+        ], ' [ ' . $loggedUser->name . ' ] - ' . $message);
 
         $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') ?: 0;
 
@@ -2214,12 +2213,12 @@ class DevelopmentController extends Controller
 
         $summary = substr($task->task, 0, 200);
         if ($data['task_type_id'] == 1) {
-            $taskSummery = '#DEVTASK-'.$task->id.' => '.$summary;
+            $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
         } else {
-            $taskSummery = '#TASK-'.$task->id.' => '.$summary;
+            $taskSummery = '#TASK-' . $task->id . ' => ' . $summary;
         }
 
-        if(isset($data['task_for']) && $data['task_for'] == 'time_doctor'){
+        if (isset($data['task_for']) && $data['task_for'] == 'time_doctor') {
             $this->timeDoctorActions('DEVTASK', $task, $data['time_doctor_project'], $data['time_doctor_account'], $data['assigned_to']);
         } else {
             $hubstaffTaskId = '';
@@ -2320,7 +2319,7 @@ class DevelopmentController extends Controller
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                    ->toDirectory('issue/'.floor($task->id / config('constants.image_per_folder')))
+                    ->toDirectory('issue/' . floor($task->id / config('constants.image_per_folder')))
                     ->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
             }
@@ -2449,7 +2448,6 @@ class DevelopmentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -2469,7 +2467,7 @@ class DevelopmentController extends Controller
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                    ->toDirectory('developertask/'.floor($task->id / config('constants.image_per_folder')))
+                    ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
                     ->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
             }
@@ -2672,7 +2670,7 @@ class DevelopmentController extends Controller
     {
         $tokens = $this->getTokens();
 
-        $url = 'https://api.hubstaff.com/v2/tasks/'.$hubstaffTaskId;
+        $url = 'https://api.hubstaff.com/v2/tasks/' . $hubstaffTaskId;
 
         $httpClient = new Client();
 
@@ -2681,7 +2679,7 @@ class DevelopmentController extends Controller
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                     ],
                 ]
             );
@@ -2713,7 +2711,7 @@ class DevelopmentController extends Controller
 
         $tokens = $this->getTokens();
 
-        $url = 'https://api.hubstaff.com/v2/tasks/'.$hubstaffTaskId;
+        $url = 'https://api.hubstaff.com/v2/tasks/' . $hubstaffTaskId;
 
         $httpClient = new Client();
 
@@ -2727,7 +2725,7 @@ class DevelopmentController extends Controller
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer '.$tokens->access_token,
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
                         'Content-Type' => 'application/json',
                     ],
 
@@ -2779,9 +2777,9 @@ class DevelopmentController extends Controller
 
         $summary = substr($issue->task, 0, 200);
         if ($issue->task_type_id == 1) {
-            $taskSummery = '#DEVTASK-'.$issue->id.' => '.$summary;
+            $taskSummery = '#DEVTASK-' . $issue->id . ' => ' . $summary;
         } else {
-            $taskSummery = '#TASK-'.$issue->id.' => '.$summary;
+            $taskSummery = '#TASK-' . $issue->id . ' => ' . $summary;
         }
         if ($hubstaffUserId) {
             $hubstaffTaskId = $this->createHubstaffTask(
@@ -2863,9 +2861,9 @@ class DevelopmentController extends Controller
 
         $summary = substr($issue->task, 0, 200);
         if ($issue->task_type_id == 1) {
-            $taskSummery = '#DEVTASK-'.$issue->id.' => '.$summary;
+            $taskSummery = '#DEVTASK-' . $issue->id . ' => ' . $summary;
         } else {
-            $taskSummery = '#TASK-'.$issue->id.' => '.$summary;
+            $taskSummery = '#TASK-' . $issue->id . ' => ' . $summary;
         }
         if ($hubstaffUserId) {
             $hubstaffTaskId = $this->createHubstaffTask(
@@ -2968,9 +2966,9 @@ class DevelopmentController extends Controller
 
         $summary = substr($issue->task, 0, 200);
         if ($issue->task_type_id == 1) {
-            $taskSummery = '#DEVTASK-'.$issue->id.' => '.$summary;
+            $taskSummery = '#DEVTASK-' . $issue->id . ' => ' . $summary;
         } else {
-            $taskSummery = '#TASK-'.$issue->id.' => '.$summary;
+            $taskSummery = '#TASK-' . $issue->id . ' => ' . $summary;
         }
         if ($hubstaffUserId) {
             $hubstaffTaskId = $this->createHubstaffTask(
@@ -3098,7 +3096,7 @@ class DevelopmentController extends Controller
                 if ($dev_task_user && $dev_task_user->fixed_price_user_or_job == 0) {
                     return response()->json([
                         // 'message'    => 'Please provide salary payment method for user. '
-                        'message' => 'Please provide salary payment method for '.$dev_task_user->name.' .',
+                        'message' => 'Please provide salary payment method for ' . $dev_task_user->name . ' .',
                     ], 500);
                 }
                 // dd($dev_task_user);
@@ -3143,7 +3141,7 @@ class DevelopmentController extends Controller
                     } else {
                         return response()->json([
                             // 'message'   => 'Please provide hourly rate of user.'
-                            'message' => 'Please provide hourly rate for '.$dev_task_user->name.' .',
+                            'message' => 'Please provide hourly rate for ' . $dev_task_user->name . ' .',
                         ], 500);
                     }
                     $payment_receipt = new PaymentReceipt;
@@ -3197,26 +3195,25 @@ class DevelopmentController extends Controller
                 $issue->actual_end_date = date('Y-m-d H:i:s');
             }
             if ($issue->status == DeveloperTask::DEV_TASK_STATUS_USER_COMPLETE) {
-
-                if(isset($request->checklist)){
-                    $statusMsg = "Status has been updated : From ".$old_status." To ".DeveloperTask::DEV_TASK_STATUS_USER_COMPLETE."\n";
-                    $msg = "";
-                    foreach($request->checklist as $key => $list){
+                if (isset($request->checklist)) {
+                    $statusMsg = 'Status has been updated : From ' . $old_status . ' To ' . DeveloperTask::DEV_TASK_STATUS_USER_COMPLETE . "\n";
+                    $msg = '';
+                    foreach ($request->checklist as $key => $list) {
                         $checkList = DeveloperTaskStatusChecklist::find($key);
-                        if(!empty($checkList)){
+                        if (! empty($checkList)) {
                             DeveloperTaskStatusChecklistRemarks::create([
                                 'user_id' => Auth::id(),
                                 'task_id' => $issue->id,
                                 'developer_task_status_checklist_id' => $key,
-                                'remark' => $list
+                                'remark' => $list,
                             ]);
-                            $msg .= $checkList['name']." => ".$list."\n";
+                            $msg .= $checkList['name'] . ' => ' . $list . "\n";
                         }
                     }
 
-                    $message = !empty($msg) ? $statusMsg.$msg : "";
+                    $message = ! empty($msg) ? $statusMsg . $msg : '';
 
-                    if(!empty($message)){
+                    if (! empty($message)) {
                         ChatMessage::create([
                             'user_id' => Auth::user()->id,
                             'developer_task_id' => $issue->id,
@@ -3305,7 +3302,7 @@ class DevelopmentController extends Controller
             $task->save();
 
             $time = $history->new_value !== null ? $history->new_value : $history->old_value;
-            $msg = 'TIME APPROVED FOR TASK '.'#DEVTASK-'.$task->id.'-'.$task->subject.' - '.$time.' MINS';
+            $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' . $time . ' MINS';
 
             $user = User::find($request->user_id);
             $admin = Auth::user();
@@ -3392,7 +3389,7 @@ class DevelopmentController extends Controller
             $receiver_user_phone = $user->phone;
             if ($receiver_user_phone) {
                 $task = DeveloperTask::find($request->id);
-                $msg = 'PLS ADD ESTIMATED TIME FOR TASK  '.'#DEVTASK-'.$task->id.'-'.$task->subject;
+                $msg = 'PLS ADD ESTIMATED TIME FOR TASK  ' . '#DEVTASK-' . $task->id . '-' . $task->subject;
                 $chat = ChatMessage::create([
                     'number' => $receiver_user_phone,
                     'user_id' => $user->id,
@@ -3420,7 +3417,7 @@ class DevelopmentController extends Controller
             $receiver_user_phone = $user->phone;
             if ($receiver_user_phone) {
                 $task = DeveloperTask::find($request->id);
-                $msg = 'TIME NOT APPROVED REVISE THE ESTIMATED TIME FOR TASK '.'#DEVTASK-'.$task->id.'-'.$task->subject;
+                $msg = 'TIME NOT APPROVED REVISE THE ESTIMATED TIME FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject;
                 $chat = ChatMessage::create([
                     'number' => $receiver_user_phone,
                     'user_id' => $user->id,
@@ -3589,16 +3586,16 @@ class DevelopmentController extends Controller
         $task = DeveloperTask::find($task_id);
         if ($request->hasfile('attached_document')) {
             foreach ($request->file('attached_document') as $image) {
-                $name = time().'_'.$image->getClientOriginalName();
+                $name = time() . '_' . $image->getClientOriginalName();
                 $new_id = floor($task_id / 1000);
                 //                $path = public_path().'/developer-task' . $task_id;
                 //                if (!file_exists($path)) {
                 //                    $this->makeDirectory($path);
                 //                }
 
-                $dirname = public_path().'/uploads/developer-task/'.$new_id;
+                $dirname = public_path() . '/uploads/developer-task/' . $new_id;
                 if (file_exists($dirname)) {
-                    $dirname2 = public_path().'/uploads/developer-task/'.$new_id.'/'.$task_id;
+                    $dirname2 = public_path() . '/uploads/developer-task/' . $new_id . '/' . $task_id;
                     if (file_exists($dirname2) == false) {
                         mkdir($dirname2, 0777);
                     }
@@ -3611,9 +3608,9 @@ class DevelopmentController extends Controller
         }
         if (! empty($request->file('attached_document'))) {
             foreach ($request->file('attached_document') as $file) {
-                $name = time().'_'.$file->getClientOriginalName();
+                $name = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('images/task_files/'), $name);
-                $filepath[] = 'images/task_files/'.$name;
+                $filepath[] = 'images/task_files/' . $name;
                 $task_attachment = new TaskAttachment;
                 $task_attachment->task_id = $task_id;
                 $task_attachment->name = $name;
@@ -3630,7 +3627,7 @@ class DevelopmentController extends Controller
     {
         $file_name = $request->input('file_name');
         //PDF file is stored under project/public/download/info.pdf
-        $file = public_path().'/images/task_files/'.$file_name;
+        $file = public_path() . '/images/task_files/' . $file_name;
         $ext = substr($file_name, strrpos($file_name, '.') + 1);
         $headers = [];
         if ($ext == 'pdf') {
@@ -3748,12 +3745,12 @@ class DevelopmentController extends Controller
                 if ($request->hasfile('files')) {
                     foreach ($request->file('files') as $files) {
                         $media = MediaUploader::fromSource($files)
-                            ->toDirectory('developertask/'.floor($devTask->id / config('constants.image_per_folder')))
+                            ->toDirectory('developertask/' . floor($devTask->id / config('constants.image_per_folder')))
                             ->upload();
                         $devDocuments->attachMedia($media, config('constants.media_tags'));
                     }
 
-                    $message = '[ '.$loggedUser->name.' ] - #DEVTASK-'.$devTask->id.' - '.$devTask->subject." \n\n".'New attchment(s) called '.$subject.' has been added. Please check and give your comment or fix it if any issue.';
+                    $message = '[ ' . $loggedUser->name . ' ] - #DEVTASK-' . $devTask->id . ' - ' . $devTask->subject . " \n\n" . 'New attchment(s) called ' . $subject . ' has been added. Please check and give your comment or fix it if any issue.';
 
                     MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message);
                 }
@@ -3787,7 +3784,6 @@ class DevelopmentController extends Controller
      *
      * @ajax Request
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\Response
      */
     public function changeModule(Request $request)
@@ -3867,11 +3863,11 @@ class DevelopmentController extends Controller
         $id = $request->id;
         $type = $request->type;
         if ($type == 'lead') {
-            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.master_user_id,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.lead_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.master_user_id where developer_tasks.id = '.$id.' group by task_id,starts_at'));
+            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.master_user_id,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.lead_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.master_user_id where developer_tasks.id = ' . $id . ' group by task_id,starts_at'));
         } elseif ($type == 'tester') {
-            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.tester_id,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.tester_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.tester_id where developer_tasks.id = '.$id.' group by task_id,starts_at'));
+            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.tester_id,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.tester_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.tester_id where developer_tasks.id = ' . $id . ' group by task_id,starts_at'));
         } else {
-            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.assigned_to,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.assigned_to where developer_tasks.id = '.$id.' group by task_id,starts_at'));
+            $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.assigned_to,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.assigned_to where developer_tasks.id = ' . $id . ' group by task_id,starts_at'));
         }
 
         return response()->json(['histories' => $task_histories]);
@@ -3881,7 +3877,7 @@ class DevelopmentController extends Controller
     {
         $task = DeveloperTask::find($request->id);
         if ($task) {
-            if($request->task_for == "hubstaff"){
+            if ($request->task_for == 'hubstaff') {
                 if ($request->type == 'developer') {
                     $user_id = $task->assigned_to;
                 } elseif ($request->type == 'tester') {
@@ -3898,7 +3894,7 @@ class DevelopmentController extends Controller
                 if ($assignedUser) {
                     $hubstaffUserId = $assignedUser->hubstaff_user_id;
                 }
-                $taskSummery = '#DEVTASK-'.$task->id.' => '.$task->subject;
+                $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
                 // $hubstaffUserId = 901839;
                 if ($hubstaffUserId) {
                     $hubstaffTaskId = $this->createHubstaffTask(
@@ -3959,10 +3955,11 @@ class DevelopmentController extends Controller
                             $message = 'Time doctor task created successfully';
                             break;
                     }
+
                     return response()->json([
                         'message' => $message,
                     ], $timeDoctorTaskResponse['code']);
-                } 
+                }
             }
 
             return response()->json([
@@ -4262,7 +4259,7 @@ class DevelopmentController extends Controller
         if ($new = request('value')) {
             try {
                 if ($single = DeveloperTask::find(request('id'))) {
-                    $params['message'] = 'Estimated Start Datetime: '.$new;
+                    $params['message'] = 'Estimated Start Datetime: ' . $new;
                     $params['user_id'] = Auth::user()->id;
                     $params['developer_task_id'] = $single->id;
                     $params['approved'] = 1;
@@ -4270,7 +4267,7 @@ class DevelopmentController extends Controller
                     $params['sent_to_user_id'] = $single->user_id;
                     ChatMessage::create($params);
                     $single->updateStartDate($new);
-    
+
                     return respJson(200, 'Successfully updated.');
                 }
             } catch (\Exception $e) {
@@ -4288,7 +4285,7 @@ class DevelopmentController extends Controller
         if ($new = request('value')) {
             try {
                 if ($single = DeveloperTask::find(request('id'))) {
-                    $params['message'] = 'Estimated Start Datetime: '.$new;
+                    $params['message'] = 'Estimated Start Datetime: ' . $new;
                     $params['user_id'] = Auth::user()->id;
                     $params['developer_task_id'] = $single->id;
                     $params['approved'] = 1;
@@ -4296,7 +4293,7 @@ class DevelopmentController extends Controller
                     $params['sent_to_user_id'] = $single->user_id;
                     ChatMessage::create($params);
                     $single->updateEstimateDate($new);
-    
+
                     return respJson(200, 'Successfully updated.');
                 }
             } catch (\Exception $e) {
@@ -4313,7 +4310,7 @@ class DevelopmentController extends Controller
     {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
-                $params['message'] = 'Estimated End Datetime: '.$new;
+                $params['message'] = 'Estimated End Datetime: ' . $new;
                 $params['user_id'] = Auth::user()->id;
                 $params['developer_task_id'] = $single->id;
                 $params['approved'] = 1;
@@ -4339,7 +4336,7 @@ class DevelopmentController extends Controller
 
                 $single->cost = $new;
                 $single->save();
-                $params['message'] = 'New Cost: '.$new;
+                $params['message'] = 'New Cost: ' . $new;
                 $params['user_id'] = Auth::user()->id;
                 $params['developer_task_id'] = $single->id;
                 $params['approved'] = 1;
@@ -4374,7 +4371,7 @@ class DevelopmentController extends Controller
             $issue->status = DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED;
             $issue->save();
             // _p($issue->toArray(), 1);
-            $params['message'] = 'Estimated Time: '.$new.' Mins, Remark:'.$remark;
+            $params['message'] = 'Estimated Time: ' . $new . ' Mins, Remark:' . $remark;
             $params['user_id'] = Auth::user()->id;
             $params['developer_task_id'] = $issue->id;
             $params['approved'] = 1;
@@ -4394,10 +4391,10 @@ class DevelopmentController extends Controller
 
             if (Auth::user()->isAdmin()) {
                 $user = User::find($issue->user_id);
-                $msg = 'TIME ESTIMATED BY ADMIN FOR TASK '.'#DEVTASK-'.$issue->id.'-'.$issue->subject.' '.$new.' MINS';
+                $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $issue->id . '-' . $issue->subject . ' ' . $new . ' MINS';
             } else {
                 $user = User::find($issue->master_user_id);
-                $msg = 'TIME ESTIMATED BY USER FOR TASK '.'#DEVTASK-'.$issue->id.'-'.$issue->subject.' '.$new.' MINS';
+                $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' . $issue->subject . ' ' . $new . ' MINS';
             }
 
             if ($user) {
@@ -4509,20 +4506,20 @@ class DevelopmentController extends Controller
             foreach ($list as $single) {
                 if (in_array($key, $needApprovals)) {
                     $html[] = '<tr>
-                        <td><input type="radio" name="radio_for_approve" value="'.$single->id.'" '.($single->is_approved ? 'checked' : '').' style="height:auto;" /></td>
-                        <td>'.$single->id.'</td>
-                        <td>'.($single->user ? $single->user->name : '-').'</td>
-                        <td>'.$single->old_value.'</td>
-                        <td>'.$single->new_value.'</td>
-                        <td>'.$single->created_at.'</td>
+                        <td><input type="radio" name="radio_for_approve" value="' . $single->id . '" ' . ($single->is_approved ? 'checked' : '') . ' style="height:auto;" /></td>
+                        <td>' . $single->id . '</td>
+                        <td>' . ($single->user ? $single->user->name : '-') . '</td>
+                        <td>' . $single->old_value . '</td>
+                        <td>' . $single->new_value . '</td>
+                        <td>' . $single->created_at . '</td>
                     </tr>';
                 } else {
                     $html[] = '<tr>
-                        <td>'.$single->id.'</td>
-                        <td>'.($single->user ? $single->user->name : '-').'</td>
-                        <td>'.$single->old_value.'</td>
-                        <td>'.$single->new_value.'</td>
-                        <td>'.$single->created_at.'</td>
+                        <td>' . $single->id . '</td>
+                        <td>' . ($single->user ? $single->user->name : '-') . '</td>
+                        <td>' . $single->old_value . '</td>
+                        <td>' . $single->new_value . '</td>
+                        <td>' . $single->created_at . '</td>
                     </tr>';
                 }
             }
@@ -4602,10 +4599,10 @@ class DevelopmentController extends Controller
         if (isset($list) && $list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
-                    <td>'.$single->parent_id.'</td>
-                    <td>'.($single->approvedByName() ?: '-').'</td>
-                    <td>'.$single->value.'</td>
-                    <td>'.$single->created_at.'</td>
+                    <td>' . $single->parent_id . '</td>
+                    <td>' . ($single->approvedByName() ?: '-') . '</td>
+                    <td>' . $single->value . '</td>
+                    <td>' . $single->created_at . '</td>
                 </tr>';
             }
         } else {
@@ -4621,7 +4618,6 @@ class DevelopmentController extends Controller
     /**
      * function to show the user wise development task's statuses counts.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -4690,7 +4686,6 @@ class DevelopmentController extends Controller
     /**
      * function to show all the task list based on specific status and user
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $user_id, $status
      * @return \Illuminate\Http\Response
      */
@@ -4704,7 +4699,6 @@ class DevelopmentController extends Controller
     /**
      * Function to get user's name - it's use for lazy loading of users data
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function usersList(Request $request)
@@ -4712,7 +4706,7 @@ class DevelopmentController extends Controller
         $users = User::orderBy('name');
         if (! empty($request->q)) {
             $users->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%'.$request->q.'%');
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
         }
         $users = $users->paginate(30);
@@ -4725,6 +4719,7 @@ class DevelopmentController extends Controller
                 'text' => $user->name,
             ];
         }
+
         return response()->json($result);
     }
 

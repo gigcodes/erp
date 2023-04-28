@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function closedir;
 use function count;
-use const E_USER_ERROR;
-use function explode;
-use function file_exists;
 use function is_dir;
-use function opendir;
-use function preg_grep;
-use function readdir;
-use function strtolower;
-use function trigger_error;
 use function uasort;
+use function explode;
+use function opendir;
+use function readdir;
 use function ucfirst;
+use function closedir;
+use const E_USER_ERROR;
+use function preg_grep;
+use function strtolower;
+use function file_exists;
+use function trigger_error;
 
 /**
  * Language selection manager
@@ -764,8 +764,8 @@ class LanguageManager
         /* Process all files */
         while (($file = readdir($handle)) !== false) {
             $path = LOCALE_PATH
-                .'/'.$file
-                .'/LC_MESSAGES/phpmyadmin.mo';
+                . '/' . $file
+                . '/LC_MESSAGES/phpmyadmin.mo';
             if ($file === '.' || $file === '..' || ! @file_exists($path)) {
                 continue;
             }
@@ -791,7 +791,7 @@ class LanguageManager
                 $this->availableLocales = $this->listLocaleDir();
             } else {
                 $this->availableLocales = preg_grep(
-                    '@'.$GLOBALS['config']->get('FilterLanguages').'@',
+                    '@' . $GLOBALS['config']->get('FilterLanguages') . '@',
                     $this->listLocaleDir()
                 );
             }

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -82,10 +82,10 @@ class CronScraperNotRunning extends Command
                 // Loop over suppliers
                 foreach ($allSuppliers as $supplier) {
                     // Create message
-                    $message = '['.date('d-m-Y H:i:s').'] Scraper not running: '.$supplier->supplier;
+                    $message = '[' . date('d-m-Y H:i:s') . '] Scraper not running: ' . $supplier->supplier;
 
                     // Output debug message
-                    dump('Scraper not running: '.$supplier->supplier);
+                    dump('Scraper not running: ' . $supplier->supplier);
 
                     // Try to send message
                     try {

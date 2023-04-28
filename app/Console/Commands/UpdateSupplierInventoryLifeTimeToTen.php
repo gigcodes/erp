@@ -42,9 +42,9 @@ class UpdateSupplierInventoryLifeTimeToTen extends Command
 
         $scrapers = Scraper::whereNotNull('scraper_name')->whereNotNull('server_id')->where('inventory_lifetime', '!=', 0)->get();
         foreach ($scrapers as $scraper) {
-            dump('Scraper Found '.$scraper->scraper_name);
+            dump('Scraper Found ' . $scraper->scraper_name);
             $scraper->inventory_lifetime = $days;
-            dump('Updated inventory_lifetime to '.$days);
+            dump('Updated inventory_lifetime to ' . $days);
             $scraper->save();
         }
     }

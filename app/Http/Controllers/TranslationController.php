@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Loggers\TranslateLog;
-use App\Translations;
 use Exception;
+use App\Translations;
 use Illuminate\Http\Request;
+use App\Loggers\TranslateLog;
 
 class TranslationController extends Controller
 {
@@ -22,9 +22,9 @@ class TranslationController extends Controller
             $query = $query->where('id', $request->id);
         }
         if ($request->term) {
-            $query = $query->where('text_original', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('created_at', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('updated_at', 'LIKE', '%'.$request->term.'%');
+            $query = $query->where('text_original', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
         }
 
         $data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
@@ -57,7 +57,6 @@ class TranslationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -70,7 +69,7 @@ class TranslationController extends Controller
         ]);
         $insert = Translations::create($request->except('_token'));
 
-        return redirect()->to('/translation/'.$insert->id.'/edit')->with('success', 'Translation created successfully');
+        return redirect()->to('/translation/' . $insert->id . '/edit')->with('success', 'Translation created successfully');
     }
 
     /**
@@ -102,7 +101,6 @@ class TranslationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -134,13 +132,13 @@ class TranslationController extends Controller
         return redirect()->route('translation.list')
             ->with('success', 'Translation deleted successfully');
     }
-    
+
     public function translateLogDelete($id)
     {
         $translateLog = TranslateLog::find($id);
         $translateLog->delete();
 
-        return redirect()->route('translation.log')
+        return redirect()->back()
             ->with('success', 'Translation Log deleted successfully');
     }
 
@@ -151,11 +149,15 @@ class TranslationController extends Controller
         if ($request->id) {
             $query = $query->where('id', $request->id);
         }
+        if ($request->account_id) {
+            $query = $query->where('google_traslation_settings_id', $request->account_id);
+        }
+
         if ($request->search) {
-            $query = $query->where('messages', 'LIKE', '%'.$request->search.'%')
-                    ->orWhere('created_at', 'LIKE', '%'.$request->search.'%')
-                    ->orWhere('updated_at', 'LIKE', '%'.$request->search.'%');
-        } 
+            $query = $query->where('messages', 'LIKE', '%' . $request->search . '%')
+                    ->orWhere('created_at', 'LIKE', '%' . $request->search . '%')
+                    ->orWhere('updated_at', 'LIKE', '%' . $request->search . '%');
+        }
 
         $data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
         if ($request->ajax()) {
@@ -168,8 +170,6 @@ class TranslationController extends Controller
 
         return view('translation.log', compact('data'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
-
-               
     }
 
     /**
@@ -180,9 +180,12 @@ class TranslationController extends Controller
         try {
             if (isset($request->id)) {
                 TranslateLog::find($request->id)->delete();
+
                 return true;
             }
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
+
         return false;
     }
 }

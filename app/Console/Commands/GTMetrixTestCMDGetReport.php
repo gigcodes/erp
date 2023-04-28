@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\GTMatrixErrorLog;
 use App\GTMetrixCategories;
-use App\StoreGTMetrixAccount;
 use App\StoreViewsGTMetrix;
-use Carbon\Carbon;
-use Entrecore\GTMetrixClient\GTMetrixClient;
+use App\StoreGTMetrixAccount;
 use Illuminate\Console\Command;
+use Entrecore\GTMetrixClient\GTMetrixClient;
 
 class GTMetrixTestCMDGetReport extends Command
 {
@@ -66,7 +66,7 @@ class GTMetrixTestCMDGetReport extends Command
             }
             $curl = curl_init();
             curl_setopt_array($curl, [
-                CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$value->website_url.'&key='.$Api_key,
+                CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $value->website_url . '&key=' . $Api_key,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -86,8 +86,8 @@ class GTMetrixTestCMDGetReport extends Command
             curl_close($curl);
             if ($err) {
                 $this->GTMatrixError($value->id, 'pagespeed', 'API response error', $err);
-                \Log::info('PageSpeedInsight :: Something went Wrong Not able to fetch site  Result'.$err);
-                echo 'cURL Error #:'.$err;
+                \Log::info('PageSpeedInsight :: Something went Wrong Not able to fetch site  Result' . $err);
+                echo 'cURL Error #:' . $err;
             } else {
                 //echo $response;
                 \Log::info(print_r(['Pagespeed Insight Result started to fetch'], true));
@@ -96,10 +96,10 @@ class GTMetrixTestCMDGetReport extends Command
                 // $pdfFile     = public_path() . $pdfFileName;
                 // file_put_contents($pdfFile,$response);
 
-                $JsonfileName = '/uploads/speed-insight/'.$value->test_id.'_pagespeedInsight.json';
-                $Jsonfile = public_path().$JsonfileName;
+                $JsonfileName = '/uploads/speed-insight/' . $value->test_id . '_pagespeedInsight.json';
+                $Jsonfile = public_path() . $JsonfileName;
                 if (! file_exists($JsonfileName)) {
-                    $this->GTMatrixError($value->id, 'pagespeed', 'File not found', $value->test_id.'_pagespeedInsight.json');
+                    $this->GTMatrixError($value->id, 'pagespeed', 'File not found', $value->test_id . '_pagespeedInsight.json');
                 }
                 file_put_contents($Jsonfile, $response);
                 $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
@@ -142,7 +142,7 @@ class GTMetrixTestCMDGetReport extends Command
                 curl_setopt_array($curl, [
                     CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_USERPWD => $value->account_id.':'.'',
+                    CURLOPT_USERPWD => $value->account_id . ':' . '',
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
                     CURLOPT_TIMEOUT => 0,
@@ -181,7 +181,7 @@ class GTMetrixTestCMDGetReport extends Command
                         curl_setopt_array($curl, [
                             CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                             CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_USERPWD => $ValueData['account_id'].':'.'',
+                            CURLOPT_USERPWD => $ValueData['account_id'] . ':' . '',
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
                             CURLOPT_TIMEOUT => 0,
@@ -234,7 +234,7 @@ class GTMetrixTestCMDGetReport extends Command
                     if (! empty($resources['report_pdf'])) {
                         $ch = curl_init($resources['report_pdf']);
                         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                        curl_setopt($ch, CURLOPT_USERPWD, $username.':'.$password);
+                        curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 0);
                         //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
@@ -250,8 +250,8 @@ class GTMetrixTestCMDGetReport extends Command
 
                         \Log::info(print_r(['Result started to fetch'], true));
 
-                        $fileName = '/uploads/gt-matrix/'.$value->test_id.'.pdf';
-                        $file = public_path().$fileName;
+                        $fileName = '/uploads/gt-matrix/' . $value->test_id . '.pdf';
+                        $file = public_path() . $fileName;
                         file_put_contents($file, $result);
                         $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
 
@@ -270,7 +270,7 @@ class GTMetrixTestCMDGetReport extends Command
                     if (! empty($resources['pagespeed'])) {
                         $ch = curl_init($resources['pagespeed']);
                         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                        curl_setopt($ch, CURLOPT_USERPWD, $username.':'.$password);
+                        curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 0);
                         //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
@@ -286,8 +286,8 @@ class GTMetrixTestCMDGetReport extends Command
 
                         \Log::info(print_r(['Result started to fetch pagespeed json'], true));
 
-                        $fileName = '/uploads/gt-matrix/'.$value->test_id.'_pagespeed.json';
-                        $file = public_path().$fileName;
+                        $fileName = '/uploads/gt-matrix/' . $value->test_id . '_pagespeed.json';
+                        $file = public_path() . $fileName;
                         file_put_contents($file, $result);
                         $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
 
@@ -316,7 +316,7 @@ class GTMetrixTestCMDGetReport extends Command
                     if (! empty($resources['yslow'])) {
                         $ch = curl_init($resources['yslow']);
                         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                        curl_setopt($ch, CURLOPT_USERPWD, $username.':'.$password);
+                        curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 0);
                         //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
@@ -332,8 +332,8 @@ class GTMetrixTestCMDGetReport extends Command
 
                         \Log::info(print_r(['Result started to fetch yslow json'], true));
 
-                        $fileName = '/uploads/gt-matrix/'.$value->test_id.'_yslow.json';
-                        $file = public_path().$fileName;
+                        $fileName = '/uploads/gt-matrix/' . $value->test_id . '_yslow.json';
+                        $file = public_path() . $fileName;
                         file_put_contents($file, $result);
                         $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
 

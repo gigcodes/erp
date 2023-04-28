@@ -19,25 +19,25 @@ class KeywordReport extends Model
     {
         $key = env('KEY');
         $apis = [
-            'keyword_overview_all_database' => 'https://api.semrush.com/?type=phrase_all&key='.$key.'&phrase=seo&export_columns=Dt,Db,Ph,Nq,Cp,Co,Nr',
+            'keyword_overview_all_database' => 'https://api.semrush.com/?type=phrase_all&key=' . $key . '&phrase=seo&export_columns=Dt,Db,Ph,Nq,Cp,Co,Nr',
 
-            'keyword_overview_one_database' => 'https://api.semrush.com/?type=phrase_this&key='.$key.'&phrase=seo&export_columns=Ph,Nq,Cp,Co,Nr,Td&database='.$db,
+            'keyword_overview_one_database' => 'https://api.semrush.com/?type=phrase_this&key=' . $key . '&phrase=seo&export_columns=Ph,Nq,Cp,Co,Nr,Td&database=' . $db,
 
-            'batch_keyword_overview_one_database' => 'https://api.semrush.com/?type=phrase_these&key='.$key.'&phrase=ebay;seo&export_columns=Ph,Nq,Cp,Co,Nr,Td&database='.$db,
+            'batch_keyword_overview_one_database' => 'https://api.semrush.com/?type=phrase_these&key=' . $key . '&phrase=ebay;seo&export_columns=Ph,Nq,Cp,Co,Nr,Td&database=' . $db,
 
-            'organic_results' => 'https://api.semrush.com/?type=phrase_organic&key='.$key.'&phrase=seo&export_columns=Dn,Ur,Fk,Fp&database='.$db.'&display_limit=10',
+            'organic_results' => 'https://api.semrush.com/?type=phrase_organic&key=' . $key . '&phrase=seo&export_columns=Dn,Ur,Fk,Fp&database=' . $db . '&display_limit=10',
 
-            'paid_results' => 'https://api.semrush.com/?type=phrase_adwords&key='.$key.'&phrase=seo&export_columns=Dn,Ur,Vu&database='.$db.'&display_limit=10',
+            'paid_results' => 'https://api.semrush.com/?type=phrase_adwords&key=' . $key . '&phrase=seo&export_columns=Dn,Ur,Vu&database=' . $db . '&display_limit=10',
 
-            'related_keyword' => 'https://api.semrush.com/?type=phrase_related&key='.$key.'&phrase=seo&export_columns=Ph,Nq,Cp,Co,Nr,Td,Rr,Fk&database='.$db.'&display_limit=10&display_sort=nq_desc&display_filter=%2B|Nq|Lt|1000',
+            'related_keyword' => 'https://api.semrush.com/?type=phrase_related&key=' . $key . '&phrase=seo&export_columns=Ph,Nq,Cp,Co,Nr,Td,Rr,Fk&database=' . $db . '&display_limit=10&display_sort=nq_desc&display_filter=%2B|Nq|Lt|1000',
 
-            'keyword_ads_history' => 'https://api.semrush.com/?type=phrase_adwords_historical&key='.$key.'&display_limit=1&export_columns=Dn,Dt,Po,Ur,Tt,Ds,Vu&phrase=movie&database='.$db,
+            'keyword_ads_history' => 'https://api.semrush.com/?type=phrase_adwords_historical&key=' . $key . '&display_limit=1&export_columns=Dn,Dt,Po,Ur,Tt,Ds,Vu&phrase=movie&database=' . $db,
 
-            'broad_match_keywords' => 'https://api.semrush.com/?type=phrase_fullsearch&key='.$key.'&phrase=seo&export_columns=Ph,Nq,Cp,Co,Nr,Td,Fk&database='.$db.'&display_limit=10&display_sort=nq_desc&display_filter=%2B|Nq|Lt|1000',
+            'broad_match_keywords' => 'https://api.semrush.com/?type=phrase_fullsearch&key=' . $key . '&phrase=seo&export_columns=Ph,Nq,Cp,Co,Nr,Td,Fk&database=' . $db . '&display_limit=10&display_sort=nq_desc&display_filter=%2B|Nq|Lt|1000',
 
-            'phrase_questions' => 'https://api.semrush.com/?type=phrase_questions&key='.$key.'&phrase=seo&export_columns=Ph,Nq,Cp,Co,Nr,Td&database='.$db.'&display_limit=10&display_sort=nq_desc&display_filter=%2B|Nq|Lt|1000',
+            'phrase_questions' => 'https://api.semrush.com/?type=phrase_questions&key=' . $key . '&phrase=seo&export_columns=Ph,Nq,Cp,Co,Nr,Td&database=' . $db . '&display_limit=10&display_sort=nq_desc&display_filter=%2B|Nq|Lt|1000',
 
-            'keyword_difficulty' => 'https://api.semrush.com/?type=phrase_kdi&key='.$key.'&export_columns=Ph,Kd&phrase=ebay;seo&database='.$db,
+            'keyword_difficulty' => 'https://api.semrush.com/?type=phrase_kdi&key=' . $key . '&export_columns=Ph,Kd&phrase=ebay;seo&database=' . $db,
         ];
 
         if ($column == null) {

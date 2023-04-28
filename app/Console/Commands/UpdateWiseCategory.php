@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Category;
-use App\CronJobReport;
 use App\Product;
-use App\ScrapedProducts;
+use App\Category;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 
 class UpdateWiseCategory extends Command

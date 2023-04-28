@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use DB;
 use File;
-use Illuminate\Console\Command;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Console\Command;
 
 class ScrapLogs extends Command
 {
@@ -57,7 +57,7 @@ class ScrapLogs extends Command
             $day_of_file = explode('-', $val->getFilename());
             if (Str::contains(end($day_of_file), $yesterdayDate) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
                 // $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
-                $file_path_new = config('env.SCRAP_LOGS_FOLDER').'/'.$val->getRelativepath().'/'.$val->getFilename();
+                $file_path_new = config('env.SCRAP_LOGS_FOLDER') . '/' . $val->getRelativepath() . '/' . $val->getFilename();
 
                 $file = file($file_path_new);
 

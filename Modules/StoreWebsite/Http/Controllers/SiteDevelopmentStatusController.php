@@ -2,9 +2,9 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\SiteDevelopmentStatus;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
+use App\SiteDevelopmentStatus;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 
@@ -51,7 +51,7 @@ class SiteDevelopmentStatusController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -85,7 +85,6 @@ class SiteDevelopmentStatusController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -116,7 +115,6 @@ class SiteDevelopmentStatusController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -132,7 +130,6 @@ class SiteDevelopmentStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -156,7 +153,6 @@ class SiteDevelopmentStatusController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {

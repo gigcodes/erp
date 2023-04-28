@@ -9,16 +9,16 @@ namespace PhpMyAdmin\Plugins\Auth;
 
 use function __;
 use function count;
+use PhpMyAdmin\Util;
 use function defined;
+use function sprintf;
 use const E_USER_NOTICE;
 use const E_USER_WARNING;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Plugins\AuthenticationPlugin;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Server\Select;
-use PhpMyAdmin\Util;
-use function sprintf;
 use function trigger_error;
+use PhpMyAdmin\Server\Select;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Plugins\AuthenticationPlugin;
 
 /**
  * Handles the config authentication method
@@ -105,8 +105,8 @@ class AuthenticationConfig extends AuthenticationPlugin
                 echo '<p>' , sprintf(
                     __(
                         'You probably did not create a configuration file.'
-                        .' You might want to use the %1$ssetup script%2$s to'
-                        .' create one.'
+                        . ' You might want to use the %1$ssetup script%2$s to'
+                        . ' create one.'
                     ),
                     '<a href="setup/">',
                     '</a>'
@@ -126,10 +126,10 @@ class AuthenticationConfig extends AuthenticationPlugin
                 trigger_error(
                     __(
                         'phpMyAdmin tried to connect to the MySQL server, and the'
-                        .' server rejected the connection. You should check the'
-                        .' host, username and password in your configuration and'
-                        .' make sure that they correspond to the information given'
-                        .' by the administrator of the MySQL server.'
+                        . ' server rejected the connection. You should check the'
+                        . ' host, username and password in your configuration and'
+                        . ' make sure that they correspond to the information given'
+                        . ' by the administrator of the MySQL server.'
                     ),
                     E_USER_WARNING
                 );

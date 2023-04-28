@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\StatusHelper;
 use Carbon\Carbon;
+use App\Helpers\StatusHelper;
 use Illuminate\Console\Command;
 
 class GenerateProductPricingJson extends Command
@@ -68,7 +68,7 @@ class GenerateProductPricingJson extends Command
             }
         }
 
-        if (! \Storage::disk('uploads')->put('pricing-'.date('Y-m-d').'.json', json_encode($priceReturn))) {
+        if (! \Storage::disk('uploads')->put('pricing-' . date('Y-m-d') . '.json', json_encode($priceReturn))) {
             return false;
         }
 

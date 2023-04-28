@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Database;
 
+use stdClass;
 use function __;
 use function count;
 use function intval;
+use PhpMyAdmin\Util;
 use function is_array;
-use function json_decode;
-use function json_encode;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Database\Designer\DesignerTable;
-use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Message;
 use PhpMyAdmin\Plugins;
 use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
-use stdClass;
+use function json_decode;
+use function json_encode;
 use function str_contains;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Database\Designer\DesignerTable;
 
 /**
  * Set of functions related to database designer
@@ -96,10 +96,10 @@ class Designer
         }
 
         $page_query = 'SELECT `page_nr`, `page_descr` FROM '
-            .Util::backquote($pdfFeature->database).'.'
-            .Util::backquote($pdfFeature->pdfPages)
-            ." WHERE db_name = '".$this->dbi->escapeString($db)."'"
-            .' ORDER BY `page_descr`';
+            . Util::backquote($pdfFeature->database) . '.'
+            . Util::backquote($pdfFeature->pdfPages)
+            . " WHERE db_name = '" . $this->dbi->escapeString($db) . "'"
+            . ' ORDER BY `page_descr`';
         $page_rs = $this->dbi->tryQueryAsControlUser($page_query);
 
         if (! $page_rs) {
@@ -160,11 +160,11 @@ class Designer
         $databaseDesignerSettingsFeature = $this->relation->getRelationParameters()->databaseDesignerSettingsFeature;
         if ($databaseDesignerSettingsFeature !== null) {
             $query = 'SELECT `settings_data` FROM '
-                .Util::backquote($databaseDesignerSettingsFeature->database).'.'
-                .Util::backquote($databaseDesignerSettingsFeature->designerSettings)
-                .' WHERE '.Util::backquote('username').' = "'
-                .$dbi->escapeString($GLOBALS['cfg']['Server']['user'])
-                .'";';
+                . Util::backquote($databaseDesignerSettingsFeature->database) . '.'
+                . Util::backquote($databaseDesignerSettingsFeature->designerSettings)
+                . ' WHERE ' . Util::backquote('username') . ' = "'
+                . $dbi->escapeString($GLOBALS['cfg']['Server']['user'])
+                . '";';
 
             $result = $this->dbi->fetchSingleRow($query);
             if (is_array($result)) {
@@ -252,7 +252,7 @@ class Designer
             $table_name = $designerTable->getDbTableString();
             $limit = count($tab_column[$table_name]['COLUMN_ID']);
             for ($j = 0; $j < $limit; $j++) {
-                $table_column_name = $table_name.'.'.$tab_column[$table_name]['COLUMN_NAME'][$j];
+                $table_column_name = $table_name . '.' . $tab_column[$table_name]['COLUMN_NAME'][$j];
                 if (isset($tables_pk_or_unique_keys[$table_column_name])) {
                     $columns_type[$table_column_name] = 'designer/FieldKey_small';
                 } else {
@@ -338,7 +338,7 @@ class Designer
             $tableName = $designerTable->getDbTableString();
             $limit = count($tabColumn[$tableName]['COLUMN_ID']);
             for ($j = 0; $j < $limit; $j++) {
-                $tableColumnName = $tableName.'.'.$tabColumn[$tableName]['COLUMN_NAME'][$j];
+                $tableColumnName = $tableName . '.' . $tabColumn[$tableName]['COLUMN_NAME'][$j];
                 if (isset($tablesPkOrUniqueKeys[$tableColumnName])) {
                     $columnsType[$tableColumnName] = 'designer/FieldKey_small';
                 } else {

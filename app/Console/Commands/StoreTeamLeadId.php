@@ -48,7 +48,7 @@ class StoreTeamLeadId extends Command
                     if ($team) {
                         $dt->team_lead_id = $team->user_id;
                         $dt->save();
-                        echo $dt->id.' updated to team lead id : '.$dt->team_lead_id;
+                        echo $dt->id . ' updated to team lead id : ' . $dt->team_lead_id;
                         echo PHP_EOL;
                     }
                 }

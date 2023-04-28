@@ -7,11 +7,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins;
 
+use function strlen;
 use PhpMyAdmin\File;
 use PhpMyAdmin\Import;
-use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
 use PhpMyAdmin\Properties\Plugins\PluginPropertyItem;
-use function strlen;
+use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
 
 /**
  * Provides a common interface that will have to be implemented by all of the

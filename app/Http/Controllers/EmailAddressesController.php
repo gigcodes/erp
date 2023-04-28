@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Email;
-use App\EmailAddress;
-use App\EmailRunHistories;
-use App\Exports\EmailFailedReport;
-use App\StoreWebsite;
 use App\User;
+use App\Email;
 use Carbon\Carbon;
-use EmailReplyParser\Parser\EmailParser;
-use Illuminate\Http\Request;
+use App\EmailAddress;
+use App\StoreWebsite;
+use App\EmailRunHistories;
 use Illuminate\Support\Str;
-use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\Request;
+use App\Exports\EmailFailedReport;
 use Webklex\PHPIMAP\ClientManager;
+use Maatwebsite\Excel\Facades\Excel;
+use EmailReplyParser\Parser\EmailParser;
 
 class EmailAddressesController extends Controller
 {
@@ -39,15 +39,15 @@ class EmailAddressesController extends Controller
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption', 'send_grid_token'];
 
         if ($request->keyword) {
-            $query->orWhere('driver', 'LIKE', '%'.$request->keyword.'%')
-                ->orWhere('port', 'LIKE', '%'.$request->keyword.'%')
-                ->orWhere('encryption', 'LIKE', '%'.$request->keyword.'%')
-                ->orWhere('send_grid_token', 'LIKE', '%'.$request->keyword.'%')
-                ->orWhere('host', 'LIKE', '%'.$request->keyword.'%');
+            $query->orWhere('driver', 'LIKE', '%' . $request->keyword . '%')
+                ->orWhere('port', 'LIKE', '%' . $request->keyword . '%')
+                ->orWhere('encryption', 'LIKE', '%' . $request->keyword . '%')
+                ->orWhere('send_grid_token', 'LIKE', '%' . $request->keyword . '%')
+                ->orWhere('host', 'LIKE', '%' . $request->keyword . '%');
         }
 
         if ($request->username != '') {
-            $query->where('username', 'LIKE', '%'.$request->username.'%');
+            $query->where('username', 'LIKE', '%' . $request->username . '%');
         }
 
         if ($request->website_id != '') {
@@ -70,7 +70,7 @@ class EmailAddressesController extends Controller
 
         $ops = '';
         foreach ($users as $key => $user) {
-            $ops .= '<option class="form-control" value="'.$user['id'].'">'.$user['name'].'</option>';
+            $ops .= '<option class="form-control" value="' . $user['id'] . '">' . $user['name'] . '</option>';
         }
         //dd($ops);
         if ($request->ajax()) {
@@ -111,7 +111,6 @@ class EmailAddressesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -165,7 +164,6 @@ class EmailAddressesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -236,11 +234,11 @@ class EmailAddressesController extends Controller
                 $status = ($runHistory->is_success == 0) ? 'Failed' : 'Success';
                 $message = empty($runHistory->message) ? '-' : $runHistory->message;
                 $history .= '<tr>
-                <td>'.$runHistory->id.'</td>
-                <td>'.$runHistory->from_name.'</td>
-                <td>'.$status.'</td>
-                <td>'.$message.'</td>
-                <td>'.$runHistory->created_at->format('Y-m-d H:i:s').'</td>
+                <td>' . $runHistory->id . '</td>
+                <td>' . $runHistory->from_name . '</td>
+                <td>' . $status . '</td>
+                <td>' . $message . '</td>
+                <td>' . $runHistory->created_at->format('Y-m-d H:i:s') . '</td>
                 </tr>';
             }
         } else {
@@ -299,7 +297,7 @@ class EmailAddressesController extends Controller
                     'email' => $analytic->email,
                     'last_error' => $analytic->last_error,
                     'last_error_at' => $analytic->last_error_at,
-                    'credential' => $analytic->account_id.' - '.$analytic->view_id,
+                    'credential' => $analytic->account_id . ' - ' . $analytic->view_id,
                     'store_website' => $analytic->website,
                     'status' => 'N/A',
                     'type' => 'Google Analytics',
@@ -330,11 +328,11 @@ class EmailAddressesController extends Controller
                     $status = ($row->history_last_message->is_success == 0) ? 'Failed' : 'Success';
                     $message = $row->history_last_message->message ?? '-';
                     $history .= '<tr>
-                    <td>'.$row->history_last_message->id.'</td>
-                    <td>'.$row->from_name.'</td>
-                    <td>'.$status.'</td>
-                    <td>'.$message.'</td>
-                    <td>'.$row->history_last_message->created_at->format('Y-m-d H:i:s').'</td>
+                    <td>' . $row->history_last_message->id . '</td>
+                    <td>' . $row->from_name . '</td>
+                    <td>' . $status . '</td>
+                    <td>' . $message . '</td>
+                    <td>' . $row->history_last_message->created_at->format('Y-m-d H:i:s') . '</td>
                     </tr>';
                 }
             }
@@ -371,7 +369,7 @@ class EmailAddressesController extends Controller
                 ];
             }
         }
-        $filename = 'Report-Email-failed'.'.csv';
+        $filename = 'Report-Email-failed' . '.csv';
 
         return Excel::download(new EmailFailedReport($recordsArr), $filename);
     }
@@ -406,7 +404,7 @@ class EmailAddressesController extends Controller
         $number = $user->phone;
         $whatsappnumber = '971502609192';
 
-        $message = 'Password For '.$emailDetail->username.'is: '.$emailDetail->password;
+        $message = 'Password For ' . $emailDetail->username . 'is: ' . $emailDetail->password;
 
         $whatsappmessage = new WhatsAppController();
         $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
@@ -440,7 +438,7 @@ class EmailAddressesController extends Controller
         $search = $request->search;
 
         if ($search != null) {
-            $emailAddress = EmailAddress::where('username', 'Like', '%'.$search.'%')->orWhere('password', 'Like', '%'.$search.'%')->get();
+            $emailAddress = EmailAddress::where('username', 'Like', '%' . $search . '%')->orWhere('password', 'Like', '%' . $search . '%')->get();
         } else {
             $emailAddress = EmailAddress::get();
         }
@@ -465,10 +463,10 @@ class EmailAddressesController extends Controller
             return redirect()->back();
         }
     }
-    public function singleEmailRunCron(Request $request){
 
+    public function singleEmailRunCron(Request $request)
+    {
         $emailAddresses = EmailAddress::where('id', $request->get('id'))->first();
-
 
         $emailAddress = $emailAddresses;
         try {
@@ -521,11 +519,10 @@ class EmailAddressesController extends Controller
                 } else {
                     $emails = ($inbox) ? $inbox->messages() : '';
                 }
-                if($emails){
+                if ($emails) {
                     $emails = $emails->all()->get();
                     foreach ($emails as $email) {
-                        try
-                        {
+                        try {
                             $reference_id = $email->references;
                             $origin_id = $email->message_id;
 
@@ -544,7 +541,7 @@ class EmailAddressesController extends Controller
                             }
 
                             $email_subject = $email->getSubject();
-                            \Log::channel('customer')->info('Subject  => '.$email_subject);
+                            \Log::channel('customer')->info('Subject  => ' . $email_subject);
 
                             //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                             $attachments_array = [];
@@ -552,17 +549,17 @@ class EmailAddressesController extends Controller
                             $fromThis = $email->getFrom()[0]->mail;
                             $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                                file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                                $path = 'email-attachments/'.$attachment->name;
+                                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                $path = 'email-attachments/' . $attachment->name;
 
                                 $attachments_array[] = $path;
 
                                 /*start 3215 attachment fetch from DHL mail */
-                                \Log::channel('customer')->info('Match Start  => '.$email_subject);
+                                \Log::channel('customer')->info('Match Start  => ' . $email_subject);
 
                                 $findFromEmail = explode('@', $fromThis);
                                 if (strpos(strtolower($email_subject), 'your copy invoice') !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
-                                    \Log::channel('customer')->info('Match Found  => '.$email_subject);
+                                    \Log::channel('customer')->info('Match Found  => ' . $email_subject);
                                     $this->getEmailAttachedFileData($attachment->name);
                                 }
                                 /*end 3215 attachment fetch from DHL mail */
@@ -581,10 +578,7 @@ class EmailAddressesController extends Controller
                             // Get model id and model type
 
                             extract($this->getModel($model_email, $email_list));
-                            /**
-                             * @var $model_id
-                             * @var $model_type
-                             */
+
                             $subject = explode('#', $email_subject);
                             if (isset($subject[1]) && ! empty($subject[1])) {
                                 $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
@@ -600,7 +594,7 @@ class EmailAddressesController extends Controller
                                 'origin_id' => $origin_id,
                                 'reference_id' => $reference_id,
                                 'type' => $type['type'],
-                                'seen' => isset($email->getFlags()['seen'])?$email->getFlags()['seen']:0,
+                                'seen' => isset($email->getFlags()['seen']) ? $email->getFlags()['seen'] : 0,
                                 'from' => $email->getFrom()[0]->mail,
                                 'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
                                 'subject' => $email->getSubject(),
@@ -704,18 +698,16 @@ class EmailAddressesController extends Controller
                                     }
                                 }
                             }
-
                         } catch (\Exception $e) {
-                            \Log::error('error while fetching some emails for '.$emailAddress->username.' Error Message: '.$e->getMessage());
+                            \Log::error('error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage());
                             $historyParam = [
                                 'email_address_id' => $emailAddress->id,
                                 'is_success' => 0,
-                                'message' => 'error while fetching some emails for '.$emailAddress->username.' Error Message: '.$e->getMessage(),
+                                'message' => 'error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage(),
                             ];
                             EmailRunHistories::create($historyParam);
                         }
                     }
-
                 }
             }
 
@@ -739,5 +731,4 @@ class EmailAddressesController extends Controller
             throw new \Exception($e->getMessage());
         }
     }
-
 }

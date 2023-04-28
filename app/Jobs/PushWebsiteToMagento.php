@@ -3,10 +3,10 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class PushWebsiteToMagento implements ShouldQueue
 {
@@ -43,7 +43,7 @@ class PushWebsiteToMagento implements ShouldQueue
             $website = $this->_website;
 
             if ($website) {
-                \Log::channel('productUpdates')->info('Website pushed start'.$website->id);
+                \Log::channel('productUpdates')->info('Website pushed start' . $website->id);
 
                 $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsite([
                     'type' => 'website',
@@ -52,7 +52,7 @@ class PushWebsiteToMagento implements ShouldQueue
                 ], $website->storeWebsite);
 
                 if (! empty($id) && is_numeric($id)) {
-                    \Log::channel('productUpdates')->info('Website pushed with id : '.$id);
+                    \Log::channel('productUpdates')->info('Website pushed with id : ' . $id);
                     $website->platform_id = $id;
 
                     if ($website->save()) {
@@ -69,7 +69,7 @@ class PushWebsiteToMagento implements ShouldQueue
                                 ], $website->storeWebsite);
 
                                 if (! empty($id) && is_numeric($id)) {
-                                    \Log::channel('productUpdates')->info('Website Store pushed =>'.$id);
+                                    \Log::channel('productUpdates')->info('Website Store pushed =>' . $id);
 
                                     $store->platform_id = $id;
                                     if ($store->save()) {
@@ -87,7 +87,7 @@ class PushWebsiteToMagento implements ShouldQueue
                                                 ], $website->storeWebsite);
 
                                                 if (! empty($id) && is_numeric($id)) {
-                                                    \Log::channel('productUpdates')->info('Website Store view pushed =>'.$id);
+                                                    \Log::channel('productUpdates')->info('Website Store view pushed =>' . $id);
 
                                                     $sView->platform_id = $id;
                                                     $sView->save();

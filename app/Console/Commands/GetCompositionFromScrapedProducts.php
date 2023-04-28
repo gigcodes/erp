@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\CronJobReport;
 use Illuminate\Support\Str;
+use Illuminate\Console\Command;
 
 class GetCompositionFromScrapedProducts extends Command
 {

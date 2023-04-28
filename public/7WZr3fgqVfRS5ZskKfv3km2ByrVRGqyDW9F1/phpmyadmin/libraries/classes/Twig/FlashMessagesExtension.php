@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Twig;
 
+use Twig\TwigFunction;
 use PhpMyAdmin\FlashMessages;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 
 final class FlashMessagesExtension extends AbstractExtension
 {

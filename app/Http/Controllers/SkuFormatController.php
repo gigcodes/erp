@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
+use DataTables;
 use App\Category;
 use App\SkuFormat;
-use DataTables;
 use Illuminate\Http\Request;
 
 class SkuFormatController extends Controller
@@ -38,7 +38,6 @@ class SkuFormatController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -68,7 +67,6 @@ class SkuFormatController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\SkuFormat  $skuFormat
      * @return \Illuminate\Http\Response
      */
     public function show(SkuFormat $skuFormat)
@@ -79,7 +77,6 @@ class SkuFormatController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SkuFormat  $skuFormat
      * @return \Illuminate\Http\Response
      */
     public function edit(SkuFormat $skuFormat)
@@ -90,7 +87,6 @@ class SkuFormatController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\SkuFormat  $skuFormat
      * @return \Illuminate\Http\Response
      */
@@ -123,7 +119,6 @@ class SkuFormatController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SkuFormat  $skuFormat
      * @return \Illuminate\Http\Response
      */
     public function destroy(SkuFormat $skuFormat)
@@ -138,13 +133,13 @@ class SkuFormatController extends Controller
 
             return Datatables::of($skulogs)
                 ->addColumn('category', function ($skulogs) {
-                    return '<h6>'.$skulogs->category->name.'</h6>';
+                    return '<h6>' . $skulogs->category->name . '</h6>';
                 })
                 ->addColumn('brand', function ($skulogs) {
                     return $skulogs->brand->name;
                 })
                 ->addColumn('actions', function ($skulogs) {
-                    return '<button class=btn btn-default" onclick="editSKU('.$skulogs->id.')">Edit</button>';
+                    return '<button class=btn btn-default" onclick="editSKU(' . $skulogs->id . ')">Edit</button>';
                 })
                 ->rawColumns(['category'])
                 ->rawColumns(['brand'])
@@ -161,7 +156,7 @@ class SkuFormatController extends Controller
                     return $skulogs->brand->name;
                 })
                 ->addColumn('actions', function ($skulogs) {
-                    return '<button class=btn btn-default" onclick="editSKU('.$skulogs->id.')">Edit</button><button class=btn btn-default" onclick="showHistory('.$skulogs->id.')">History</button>';
+                    return '<button class=btn btn-default" onclick="editSKU(' . $skulogs->id . ')">Edit</button><button class=btn btn-default" onclick="showHistory(' . $skulogs->id . ')">History</button>';
                 })
                 ->rawColumns(['category'])
                 ->rawColumns(['brand'])

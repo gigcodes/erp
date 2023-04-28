@@ -8,21 +8,21 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
 use function __;
-use function count;
-use const E_USER_DEPRECATED;
-use function fclose;
 use function feof;
+use function count;
 use function fgets;
+use function fclose;
 use function fwrite;
-use function htmlspecialchars;
-use function is_resource;
-use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\TransformationsPlugin;
-use function proc_close;
-use function proc_open;
-use function sprintf;
 use function strlen;
+use function sprintf;
+use function proc_open;
+use function proc_close;
+use function is_resource;
 use function trigger_error;
+use const E_USER_DEPRECATED;
+use PhpMyAdmin\FieldMetadata;
+use function htmlspecialchars;
+use PhpMyAdmin\Plugins\TransformationsPlugin;
 
 /**
  * Provides common methods for all of the external transformations plugins.
@@ -38,17 +38,17 @@ abstract class ExternalTransformationsPlugin extends TransformationsPlugin
     {
         return __(
             'LINUX ONLY: Launches an external application and feeds it the column'
-            .' data via standard input. Returns the standard output of the'
-            .' application. The default is Tidy, to pretty-print HTML code.'
-            .' For security reasons, you have to manually edit the file'
-            .' libraries/classes/Plugins/Transformations/Abs/ExternalTransformationsPlugin.php'
-            .' and list the tools you want to make available.'
-            .' The first option is then the number of the program you want to'
-            .' use. The second option should be blank for historical reasons.'
-            .' The third option, if set to 1, will convert the output using'
-            .' htmlspecialchars() (Default 1). The fourth option, if set to 1,'
-            .' will prevent wrapping and ensure that the output appears all on'
-            .' one line (Default 1).'
+            . ' data via standard input. Returns the standard output of the'
+            . ' application. The default is Tidy, to pretty-print HTML code.'
+            . ' For security reasons, you have to manually edit the file'
+            . ' libraries/classes/Plugins/Transformations/Abs/ExternalTransformationsPlugin.php'
+            . ' and list the tools you want to make available.'
+            . ' The first option is then the number of the program you want to'
+            . ' use. The second option should be blank for historical reasons.'
+            . ' The third option, if set to 1, will convert the output using'
+            . ' htmlspecialchars() (Default 1). The fourth option, if set to 1,'
+            . ' will prevent wrapping and ensure that the output appears all on'
+            . ' one line (Default 1).'
         );
     }
 
@@ -117,8 +117,8 @@ abstract class ExternalTransformationsPlugin extends TransformationsPlugin
             trigger_error(sprintf(
                 __(
                     'You are using the external transformation command line'
-                    .' options field, which has been deprecated for security reasons.'
-                    .' Add all command line options directly to the definition in %s.'
+                    . ' options field, which has been deprecated for security reasons.'
+                    . ' Add all command line options directly to the definition in %s.'
                 ),
                 '[code]libraries/classes/Plugins/Transformations/Abs/ExternalTransformationsPlugin.php[/code]'
             ), E_USER_DEPRECATED);
@@ -136,7 +136,7 @@ abstract class ExternalTransformationsPlugin extends TransformationsPlugin
                 'w',
             ],
         ];
-        $process = proc_open($program.' '.$options[1], $descriptorspec, $pipes);
+        $process = proc_open($program . ' ' . $options[1], $descriptorspec, $pipes);
         if (is_resource($process)) {
             fwrite($pipes[0], $buffer);
             fclose($pipes[0]);

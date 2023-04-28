@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function count;
-use PhpMyAdmin\SqlParser\Utils\Query;
 use function strcasecmp;
+use PhpMyAdmin\SqlParser\Utils\Query;
 
 /**
  * PhpMyAdmin\ParseAnalyze class

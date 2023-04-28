@@ -2,9 +2,6 @@
 
 namespace App;
 
-use App\Customer;
-use App\TwilioActiveNumber;
-use App\WatsonAccount;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -93,17 +90,17 @@ class CallBusyMessage extends Model
             // $url = 'https://api.eu-gb.speech-to-text.watson.cloud.ibm.com/instances/9e2e85a8-4bea-4070-b3d3-cef36b5697f0';
 
             // If store id not found
-            if($store_website_id == 0) {
+            if ($store_website_id == 0) {
                 // Check To number is exist in DB
                 $twilioActive = TwilioActiveNumber::where('phone_number', $to)->first();
 
-                if(!empty($twilioActive)) {
+                if (! empty($twilioActive)) {
                     $store_website_id = $twilioActive->assigned_stores->store_website_id ?? 0;
                 } else {
                     // Check From number is exist in DB
                     $customerInfo = Customer::where('phone', str_replace('+', '', $from))->first();
 
-                    if(!empty($customerInfo)) {
+                    if (! empty($customerInfo)) {
                         $store_website_id = $customerInfo->store_website_id ?? 0;
                     }
                 }
@@ -113,12 +110,12 @@ class CallBusyMessage extends Model
             $watsonAccount = WatsonAccount::where('store_website_id', $store_website_id)->first();
 
             // Check if watson account is linked with store website
-            if(empty($watsonAccount)) {
+            if (empty($watsonAccount)) {
                 return '';
             }
 
             // Watson account is linked but speech to text URL not available
-            if(empty($watsonAccount->speech_to_text_url) || empty($watsonAccount->speech_to_text_api_key)) {
+            if (empty($watsonAccount->speech_to_text_url) || empty($watsonAccount->speech_to_text_api_key)) {
                 return '';
             }
 
@@ -127,13 +124,13 @@ class CallBusyMessage extends Model
 
             $ch = curl_init();
             $file = file_get_contents($recording_url);
-            curl_setopt($ch, CURLOPT_URL, $url.'/v1/recognize?model=en-US_NarrowbandModel');
+            curl_setopt($ch, CURLOPT_URL, $url . '/v1/recognize?model=en-US_NarrowbandModel');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
 
             curl_setopt($ch, CURLOPT_POSTFIELDS, $file);
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_USERPWD, 'apikey'.':'.$apiKey);
+            curl_setopt($ch, CURLOPT_USERPWD, 'apikey' . ':' . $apiKey);
 
             $headers = [];
             $headers[] = 'Content-Type: application/octet-stream';
@@ -141,13 +138,13 @@ class CallBusyMessage extends Model
 
             $result = curl_exec($ch);
             if (curl_errno($ch)) {
-                echo 'Error:'.curl_error($ch);
+                echo 'Error:' . curl_error($ch);
             }
             curl_close($ch);
             $result = json_decode($result);
 
             // If result found
-            if(!empty($result->results) && count($result->results) > 0) {
+            if (! empty($result->results) && count($result->results) > 0) {
                 return $result->results[0]->alternatives[0]->transcript;
             } else {
                 return '';
