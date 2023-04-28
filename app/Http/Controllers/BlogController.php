@@ -210,7 +210,7 @@ class BlogController extends Controller
                     <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
                     return $actionBtn;
                 })
-                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'strong_tag','italic_tag','checkmobile_friendliness','internal_link','content','xmldownload'])
+                ->rawColumns(['action', 'userName','plaglarism', 'facebook_date','google_date','instagram_date','twitter_date', 'strong_tag','italic_tag','checkmobile_friendliness','internal_link','content'])
                 ->make(true);
         }
 
@@ -688,7 +688,7 @@ class BlogController extends Controller
     {
         
         $blog = Blog::where('id', $id)->first();
-        $urltoXml = $request->url_xml;
+      
         if (empty($blog)) {
             return redirect()->route('blog.index')->with('error', 'Blog Not Found!');
         }
