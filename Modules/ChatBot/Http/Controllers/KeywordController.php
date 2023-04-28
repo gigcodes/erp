@@ -3,14 +3,14 @@
 namespace Modules\ChatBot\Http\Controllers;
 
 use App\ChatbotKeyword;
-use App\ChatbotKeywordValue;
-use App\ChatbotKeywordValueTypes;
 use App\ChatbotQuestion;
-use App\Library\Watson\Model as WatsonManager;
+use App\ChatbotKeywordValue;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\ChatbotKeywordValueTypes;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Library\Watson\Model as WatsonManager;
 
 class KeywordController extends Controller
 {
@@ -195,7 +195,7 @@ class KeywordController extends Controller
     {
         dd('We are not using this page anymore');
         $keyword = request('term', '');
-        $allKeyword = ChatbotKeyword::where('keyword', 'like', '%'.$keyword.'%')->limit(10)->get();
+        $allKeyword = ChatbotKeyword::where('keyword', 'like', '%' . $keyword . '%')->limit(10)->get();
 
         $allKeywordList = [];
         if (! $allKeyword->isEmpty()) {

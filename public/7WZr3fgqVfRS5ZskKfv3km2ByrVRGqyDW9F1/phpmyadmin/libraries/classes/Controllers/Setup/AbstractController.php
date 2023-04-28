@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Setup;
 
 use function in_array;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\Config\ConfigFile;
 use PhpMyAdmin\Config\Forms\BaseForm;
 use PhpMyAdmin\Config\Forms\Setup\SetupFormList;
-use PhpMyAdmin\Template;
 
 abstract class AbstractController
 {
@@ -24,9 +24,6 @@ abstract class AbstractController
         $this->template = $template;
     }
 
-    /**
-     * @return array
-     */
     protected function getPages(): array
     {
         $ignored = [

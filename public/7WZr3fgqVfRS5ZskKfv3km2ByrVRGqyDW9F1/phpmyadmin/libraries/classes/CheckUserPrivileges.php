@@ -9,11 +9,11 @@ namespace PhpMyAdmin;
 
 use function mb_strpos;
 use function mb_substr;
-use PhpMyAdmin\Query\Utilities;
-use PhpMyAdmin\Utils\SessionCache;
 use function preg_match;
 use function preg_replace;
 use function str_contains;
+use PhpMyAdmin\Query\Utilities;
+use PhpMyAdmin\Utils\SessionCache;
 
 /**
  * PhpMyAdmin\CheckUserPrivileges class
@@ -35,7 +35,6 @@ class CheckUserPrivileges
      * Extracts details from a result row of a SHOW GRANT query
      *
      * @param  string  $row grant row
-     * @return array
      */
     public function getItemsFromShowGrantsRow(string $row): array
     {
@@ -252,11 +251,11 @@ class CheckUserPrivileges
 
             // does this db exist?
             if (
-                (! preg_match('/'.$re0.'%|_/', $showGrantsDbName)
+                (! preg_match('/' . $re0 . '%|_/', $showGrantsDbName)
                 || preg_match('/\\\\%|\\\\_/', $showGrantsDbName))
                 && ($this->dbi->tryQuery(
-                    'USE '.preg_replace(
-                        '/'.$re1.'(%|_)/',
+                    'USE ' . preg_replace(
+                        '/' . $re1 . '(%|_)/',
                         '\\1\\3',
                         $dbNameToTest
                     )
@@ -270,8 +269,8 @@ class CheckUserPrivileges
              * Do not handle the underscore wildcard
              * (this case must be rare anyway)
              */
-            $GLOBALS['db_to_create'] = preg_replace('/'.$re0.'%/', '\\1', $showGrantsDbName);
-            $GLOBALS['db_to_create'] = preg_replace('/'.$re1.'(%|_)/', '\\1\\3', $GLOBALS['db_to_create']);
+            $GLOBALS['db_to_create'] = preg_replace('/' . $re0 . '%/', '\\1', $showGrantsDbName);
+            $GLOBALS['db_to_create'] = preg_replace('/' . $re1 . '(%|_)/', '\\1\\3', $GLOBALS['db_to_create']);
             $GLOBALS['is_create_db_priv'] = true;
 
             /**

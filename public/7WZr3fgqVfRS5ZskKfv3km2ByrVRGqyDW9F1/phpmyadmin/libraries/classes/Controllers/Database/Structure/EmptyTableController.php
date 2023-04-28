@@ -6,20 +6,20 @@ namespace PhpMyAdmin\Controllers\Database\Structure;
 
 use function __;
 use function count;
+use PhpMyAdmin\Sql;
+use PhpMyAdmin\Util;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Operations;
+use PhpMyAdmin\FlashMessages;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Utils\ForeignKey;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\ConfigStorage\Relation;
 use PhpMyAdmin\ConfigStorage\RelationCleanup;
 use PhpMyAdmin\Controllers\Database\AbstractController;
 use PhpMyAdmin\Controllers\Database\StructureController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\FlashMessages;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Operations;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Sql;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Transformations;
-use PhpMyAdmin\Util;
-use PhpMyAdmin\Utils\ForeignKey;
 
 final class EmptyTableController extends AbstractController
 {
@@ -84,7 +84,7 @@ final class EmptyTableController extends AbstractController
             $aQuery = 'TRUNCATE ';
             $aQuery .= Util::backquote($selected[$i]);
 
-            $sql_query .= $aQuery.';'."\n";
+            $sql_query .= $aQuery . ';' . "\n";
             $this->dbi->selectDb($db);
             $this->dbi->query($aQuery);
         }

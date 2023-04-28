@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Server;
 
 use function __;
-use PhpMyAdmin\CheckUserPrivileges;
-use PhpMyAdmin\ConfigStorage\Features\ConfigurableMenusFeature;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
+use function strlen;
 use PhpMyAdmin\Util;
 use function sprintf;
-use function strlen;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\CheckUserPrivileges;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Controllers\AbstractController;
+use PhpMyAdmin\ConfigStorage\Features\ConfigurableMenusFeature;
 
 final class UserGroupsFormController extends AbstractController
 {
@@ -42,7 +42,7 @@ final class UserGroupsFormController extends AbstractController
         if (! isset($_GET['username']) || strlen((string) $_GET['username']) === 0) {
             $this->response->setRequestStatus(false);
             $this->response->setHttpResponseCode(400);
-            $this->response->addJSON('message', __('Missing parameter:').' username');
+            $this->response->addJSON('message', __('Missing parameter:') . ' username');
 
             return;
         }
@@ -74,9 +74,9 @@ final class UserGroupsFormController extends AbstractController
         ConfigurableMenusFeature $configurableMenusFeature
     ): string {
         $groupTable = Util::backquote($configurableMenusFeature->database)
-            .'.'.Util::backquote($configurableMenusFeature->userGroups);
+            . '.' . Util::backquote($configurableMenusFeature->userGroups);
         $userTable = Util::backquote($configurableMenusFeature->database)
-            .'.'.Util::backquote($configurableMenusFeature->users);
+            . '.' . Util::backquote($configurableMenusFeature->users);
 
         $sqlQuery = sprintf(
             'SELECT `usergroup` FROM %s WHERE `username` = \'%s\'',
@@ -86,7 +86,7 @@ final class UserGroupsFormController extends AbstractController
         $userGroup = $this->dbi->fetchValue($sqlQuery, 0, DatabaseInterface::CONNECT_CONTROL);
 
         $allUserGroups = [];
-        $sqlQuery = 'SELECT DISTINCT `usergroup` FROM '.$groupTable;
+        $sqlQuery = 'SELECT DISTINCT `usergroup` FROM ' . $groupTable;
         $result = $this->dbi->tryQueryAsControlUser($sqlQuery);
         if ($result) {
             while ($row = $result->fetchRow()) {

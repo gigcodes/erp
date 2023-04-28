@@ -10,13 +10,13 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Google\Service\YouTube\Resource\Youtube;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 
 class FetchYoutubeChannelData implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $inputs;
+
     /**
      * Create a new job instance.
      *
@@ -26,29 +26,26 @@ class FetchYoutubeChannelData implements ShouldQueue
     {
         $this->inputs = $inputs;
         $refreshToken = $inputs['oauth2_refresh_token'];
-      
+
         // this id is a Which is Create a New Data for create channel.
         $id = $inputs['id'];
-        $youTubeChanelData = YoutubeChannel::where('id',$id)->first();
-      
+        $youTubeChanelData = YoutubeChannel::where('id', $id)->first();
+
         $accessToken = Helper::getAccessTokenFromRefreshToken($refreshToken, $id);
         $getChannelData = Helper::getChanelData($accessToken, $id);
-       
-        $youTubeChanelData->subscribe_count = !empty($getChannelData['statistics']['subscriberCount']) ? $getChannelData['statistics']['subscriberCount']: null;
-        $youTubeChanelData->video_count = !empty($getChannelData['statistics']['videoCount']) ? $getChannelData['statistics']['videoCount']: null;
-        $youTubeChanelData->chanelId =  !empty($getChannelData['id']) ? $getChannelData['id']: null;
-        $youTubeChanelData->chanel_name =  !empty($getChannelData['snippet']['title']) ? $getChannelData['snippet']['title']: null;
+
+        $youTubeChanelData->subscribe_count = ! empty($getChannelData['statistics']['subscriberCount']) ? $getChannelData['statistics']['subscriberCount'] : null;
+        $youTubeChanelData->video_count = ! empty($getChannelData['statistics']['videoCount']) ? $getChannelData['statistics']['videoCount'] : null;
+        $youTubeChanelData->chanelId = ! empty($getChannelData['id']) ? $getChannelData['id'] : null;
+        $youTubeChanelData->chanel_name = ! empty($getChannelData['snippet']['title']) ? $getChannelData['snippet']['title'] : null;
         // $checkChanelExistOrNot = Helper::channelExistsOrNot($youTubeChanelData->chanelId);
         // if(!empty($checkChanelExistOrNot)){
         //     return redirect()->to('/youtube/add-chanel')->with('actError', 'Channel Already Exist.');
         // }
         $youTubeChanelData->save();
-        if(!empty($youTubeChanelData->chanelId))
-        {
+        if (! empty($youTubeChanelData->chanelId)) {
             Helper::getVideoAndInsertDB($id, $accessToken, $youTubeChanelData->chanelId);
         }
-       
-       
     }
 
     /**
@@ -58,6 +55,5 @@ class FetchYoutubeChannelData implements ShouldQueue
      */
     public function handle()
     {
-        
     }
 }

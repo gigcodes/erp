@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Server\SysInfo;
 
-use function explode;
-use function is_readable;
-use function shell_exec;
 use function trim;
+use function explode;
+use function shell_exec;
+use function is_readable;
 
 /**
  * SunOS based SysInfo class
@@ -30,7 +30,7 @@ class SunOs extends Base
     private function kstat($key)
     {
         /** @psalm-suppress ForbiddenCode */
-        $m = shell_exec('kstat -p d '.$key);
+        $m = shell_exec('kstat -p d ' . $key);
 
         if ($m) {
             [, $value] = explode("\t", trim($m), 2);

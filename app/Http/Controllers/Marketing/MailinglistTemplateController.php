@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\Http\Controllers\Controller;
-use App\MailinglistTemplate;
-use App\MailinglistTemplateCategory;
-use App\MailingTemplateFile;
-use App\MailingTemplateFilesHistory;
-use App\StoreWebsite;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Qoraiche\MailEclipse\MailEclipse;
 use View;
+use App\StoreWebsite;
+use Illuminate\Support\Str;
+use App\MailinglistTemplate;
+use App\MailingTemplateFile;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\MailinglistTemplateCategory;
+use App\MailingTemplateFilesHistory;
+use Qoraiche\MailEclipse\MailEclipse;
+use Illuminate\Support\Facades\Validator;
 
 class MailinglistTemplateController extends Controller
 {
@@ -31,12 +31,10 @@ class MailinglistTemplateController extends Controller
 
         // get all templates for mail
         $mailEclipseTpl = mailEclipse::getTemplates();
-        $rViewMail      = [];
-        if(!empty($mailEclipseTpl))
-        {
-            foreach($mailEclipseTpl as $mTpl)
-            {
-                $v             = mailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
+        $rViewMail = [];
+        if (! empty($mailEclipseTpl)) {
+            foreach ($mailEclipseTpl as $mTpl) {
+                $v = mailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
                 $rViewMail[$v] = $mTpl->template_name . ' [' . $mTpl->template_description . ']';
             }
         }
@@ -52,41 +50,35 @@ class MailinglistTemplateController extends Controller
     {
         //        dd($request->term);
         $query = MailinglistTemplate::whereHas(
-            'category', function ($query) use ($request){
-            if(isset($request->MailingListCategory) && $request->MailingListCategory != '')
-            {
-                $query->where('id', $request->MailingListCategory);
+            'category', function ($query) use ($request) {
+                if (isset($request->MailingListCategory) && $request->MailingListCategory != '') {
+                    $query->where('id', $request->MailingListCategory);
+                }
             }
-        }
         )->whereHas(
-            'storeWebsite', function ($query) use ($request){
-            if(isset($request->StoreWebsite) && $request->StoreWebsite != '')
-            {
-                $query->where('id', $request->StoreWebsite);
+            'storeWebsite', function ($query) use ($request) {
+                if (isset($request->StoreWebsite) && $request->StoreWebsite != '') {
+                    $query->where('id', $request->StoreWebsite);
+                }
             }
-        }
         )->where(
-            function ($query) use ($request){
-                if(!empty($request->term))
-                {
+            function ($query) use ($request) {
+                if (! empty($request->term)) {
                     $query->where('name', 'LIKE', '%' . $request->term . '%')
                     ->orWhere('mail_class', 'LIKE', '%' . $request->term . '%')
                     ->orWhere('mail_tpl', 'LIKE', '%' . $request->term . '%');
 //                dd($query);
                 }
 
-                if(!empty($request->date))
-                {
+                if (! empty($request->date)) {
                     $query->where('created_at', 'LIKE', '%' . $request->date . '%');
                 }
 
                 // pawan added for filter if key value is found on change
-                if(isset($request->MailingListCategory) && $request->MailingListCategory != '')
-                {
+                if (isset($request->MailingListCategory) && $request->MailingListCategory != '') {
                     $query->where('category_id', $request->MailingListCategory);
                 }
-                if(isset($request->StoreWebsite) && $request->StoreWebsite != '')
-                {
+                if (isset($request->StoreWebsite) && $request->StoreWebsite != '') {
                     $query->where('store_website_id', $request->StoreWebsite);
                 }
                 //end
@@ -97,8 +89,8 @@ class MailinglistTemplateController extends Controller
             [
                 'mailings' => view(
                     'partials.mailing-template.list', [
-                    'mailings' => $query,
-                ]
+                        'mailings' => $query,
+                    ]
                 )->render(),
             ]
         );
@@ -108,12 +100,10 @@ class MailinglistTemplateController extends Controller
     {
         $query = MailinglistTemplate::query();
 
-        if($request->term)
-        {
+        if ($request->term) {
             $query->where('name', 'LIKE', '%' . $request->term . '%')->orWhere('mail_class', 'LIKE', '%' . $request->term . '%')->orWhere('mail_tpl', 'LIKE', '%' . $request->term . '%');
         }
-        if($request->date)
-        {
+        if ($request->date) {
             $query->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
 
@@ -123,8 +113,8 @@ class MailinglistTemplateController extends Controller
             [
                 'mailings' => view(
                     'partials.mailing-template.list', [
-                    'mailings' => $query,
-                ]
+                        'mailings' => $query,
+                    ]
                 )->render(),
             ]
         );
@@ -136,20 +126,19 @@ class MailinglistTemplateController extends Controller
 
         $validator = Validator::make(
             $request->all(), [
-            'name' => 'required|string',
-            //'mail_class' => 'required|string',
-            'mail_tpl' => 'required|string',
-            //'image_count' => 'required|numeric',
-            //'text_count' => 'required|numeric',
-            //'image' => 'required|image',
-            /*       'file' => 'required|image',*/
-            'category' => 'nullable|numeric',
-            'store_website' => 'nullable|numeric',
-        ]
+                'name' => 'required|string',
+                //'mail_class' => 'required|string',
+                'mail_tpl' => 'required|string',
+                //'image_count' => 'required|numeric',
+                //'text_count' => 'required|numeric',
+                //'image' => 'required|image',
+                /*       'file' => 'required|image',*/
+                'category' => 'nullable|numeric',
+                'store_website' => 'nullable|numeric',
+            ]
         );
 
-        if($validator->fails())
-        {
+        if ($validator->fails()) {
             return response()->json(['errors' => $validator->getMessageBag()->toArray()]);
         }
 
@@ -161,19 +150,17 @@ class MailinglistTemplateController extends Controller
         // $mailFile = mailEclipse::getMailable("namespace", $data['mail_class'])->first();
 
         $id = $request->get('id');
-        if($id > 0)
-        {
+        if ($id > 0) {
             $mailing_item = MailinglistTemplate::where('id', $id)->first();
         }
 
         // check if there is mailing item
-        if(empty($mailing_item))
-        {
+        if (empty($mailing_item)) {
             $mailing_item = new MailinglistTemplate();
         }
 
-        $mailing_item->name            = $data['name'];
-        $mailing_item->subject         = $data['subject'];
+        $mailing_item->name = $data['name'];
+        $mailing_item->subject = $data['subject'];
         $mailing_item->static_template = $data['static_template'];
 
         // if($mailFile) {
@@ -190,47 +177,42 @@ class MailinglistTemplateController extends Controller
         //     }
         // }
 
-        $mailing_item->mail_tpl    = isset($data['mail_tpl']) ? $data['mail_tpl'] : null;
+        $mailing_item->mail_tpl = isset($data['mail_tpl']) ? $data['mail_tpl'] : null;
         $mailing_item->image_count = isset($data['image_count']) ? $data['image_count'] : 0;
-        $mailing_item->text_count  = isset($data['text_count']) ? $data['text_count'] : 0;
+        $mailing_item->text_count = isset($data['text_count']) ? $data['text_count'] : 0;
 
-        $mailing_item->category_id      = $request->category;
+        $mailing_item->category_id = $request->category;
         $mailing_item->store_website_id = $request->store_website;
 
-        $mailing_item->salutation   = $request->salutation;
+        $mailing_item->salutation = $request->salutation;
         $mailing_item->introduction = $request->introduction;
 
         $mailing_item->from_email = $request->from_email;
-        $mailing_item->html_text  = $request->html_text;
+        $mailing_item->html_text = $request->html_text;
 
         $mailing_item->save();
 
         // this is related to image upload
 
         $path = 'mailinglist/email-templates/' . $mailing_item->id;
-        if(!file_exists($path))
-        {
+        if (! file_exists($path)) {
             mkdir($path, 0777, true);
         }
         $filename = date('U') . Str::random(10);
 
-        if(!empty($_FILES['image']))
-        {
-            $ext  = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        if (! empty($_FILES['image'])) {
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $path = $path . '/' . $filename . '.' . $ext;
-            if(move_uploaded_file($_FILES['image']['tmp_name'], $path))
-            {
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
                 $mailing_item->example_image = $path;
                 $mailing_item->save();
             }
         }
         $filename = date('U') . Str::random(10);
-        if(!empty($_FILES['logo']))
-        {
-            $ext  = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
+        if (! empty($_FILES['logo'])) {
+            $ext = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
             $path = $path . '/' . $filename . '.' . $ext;
-            if(move_uploaded_file($_FILES['image']['tmp_name'], $path))
-            {
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
                 $mailing_item->logo = $path;
                 $mailing_item->save();
             }
@@ -240,8 +222,8 @@ class MailinglistTemplateController extends Controller
             [
                 'item' => view(
                     'partials.mailing-template.store', [
-                    'item' => $mailing_item,
-                ]
+                        'item' => $mailing_item,
+                    ]
                 )->render(),
             ]
         );
@@ -251,8 +233,7 @@ class MailinglistTemplateController extends Controller
     {
         $mltemplate = MailinglistTemplate::where('id', $id)->first();
         // check mailing list template
-        if($mltemplate)
-        {
+        if ($mltemplate) {
             $mltemplate->delete();
         }
 
@@ -267,12 +248,11 @@ class MailinglistTemplateController extends Controller
 
     public function images_file(Request $request)
     {
-        $id    = $request->id;
-        $rs    = MailingTemplateFilesHistory::where('mailing_id', $id)->orderBy('created_at', 'desc')->get();
+        $id = $request->id;
+        $rs = MailingTemplateFilesHistory::where('mailing_id', $id)->orderBy('created_at', 'desc')->get();
         $table = " <table class='table table-bordered' > <thead> <tr>";
         $table .= '<th>Date</th><th>Old Path</th><th>New Path</th></tr></thead><tbody>';
-        foreach($rs as $r)
-        {
+        foreach ($rs as $r) {
             $table .= '<tr><td>' . date('d-m-Y', strtotime($r->created_at)) . '</td>';
             $table .= '<td>' . $r->old_path . '</td>';
             $table .= "<td><a download='path_" . $r->id . ".jpg' href='" . asset($r->new_path) . "' title='path'>
@@ -284,28 +264,24 @@ class MailinglistTemplateController extends Controller
 
     public function saveimagesfile(Request $request)
     {
-        $id         = $request->id;
+        $id = $request->id;
         $mltemplate = MailinglistTemplate::where('id', $id)->first();
 
         $path = 'mailinglist/email-templates/' . $id;
-        if(!file_exists($path))
-        {
+        if (! file_exists($path)) {
             mkdir($path, 0777, true);
         }
 
         $filename = date('U') . Str::random(10);
-        if(!empty($_FILES['image']))
-        {
-            $ext  = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        if (! empty($_FILES['image'])) {
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $path = $path . '/' . $filename . '.' . $ext;
-            if(move_uploaded_file($_FILES['image']['tmp_name'], $path))
-            {
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
             }
         }
 
         $m = MailingTemplateFile::where('mailing_id', $id)->first();
-        if($m)
-        {
+        if ($m) {
             MailingTemplateFilesHistory::insert(
                 [
                     'mailing_id' => $id,
@@ -317,9 +293,7 @@ class MailinglistTemplateController extends Controller
             );
             $m->path = $path;
             $m->save();
-        }
-        else
-        {
+        } else {
             MailingTemplateFile::insert(
                 [
                     'mailing_id' => $id,

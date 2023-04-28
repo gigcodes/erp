@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
+use function min;
+use function trim;
 use function count;
+use function intval;
+use function strlen;
 use function implode;
 use function in_array;
-use function intval;
 use function json_decode;
-use function min;
-use PhpMyAdmin\Html\Generator;
 use function preg_replace;
-use function strlen;
-use function trim;
+use PhpMyAdmin\Html\Generator;
 
 /**
  * Set of functions for /table/create and /table/add-field
@@ -79,7 +79,7 @@ class CreateAddField
                 continue;
             }
 
-            $definition = $this->getStatementPrefix($isCreateTable).
+            $definition = $this->getStatementPrefix($isCreateTable) .
                     Table::generateFieldSpec(
                         trim($_POST['field_name'][$i]),
                         $_POST['field_type'][$i],
@@ -132,13 +132,13 @@ class CreateAddField
 
             if (! empty($_POST['after_field'])) {
                 return ' AFTER '
-                        .Util::backquote($_POST['after_field']);
+                        . Util::backquote($_POST['after_field']);
             }
 
             return ' ';
         }
 
-        return ' AFTER '.Util::backquote($_POST['field_name'][$previousField]);
+        return ' AFTER ' . Util::backquote($_POST['field_name'][$previousField]);
     }
 
     /**
@@ -160,10 +160,10 @@ class CreateAddField
             return '';
         }
 
-        $sqlQuery = $this->getStatementPrefix($isCreateTable).$indexChoice;
+        $sqlQuery = $this->getStatementPrefix($isCreateTable) . $indexChoice;
 
         if (! empty($index['Key_name']) && $index['Key_name'] !== 'PRIMARY') {
-            $sqlQuery .= ' '.Util::backquote($index['Key_name']);
+            $sqlQuery .= ' ' . Util::backquote($index['Key_name']);
         }
 
         $indexFields = [];
@@ -173,14 +173,14 @@ class CreateAddField
                 continue;
             }
 
-            $indexFields[$key] .= '('.$column['size'].')';
+            $indexFields[$key] .= '(' . $column['size'] . ')';
         }
 
-        $sqlQuery .= ' ('.implode(', ', $indexFields).')';
+        $sqlQuery .= ' (' . implode(', ', $indexFields) . ')';
 
         if ($index['Key_block_size']) {
             $sqlQuery .= ' KEY_BLOCK_SIZE = '
-                 .$this->dbi->escapeString($index['Key_block_size']);
+                 . $this->dbi->escapeString($index['Key_block_size']);
         }
 
         // specifying index type is allowed only for primary, unique and index only
@@ -189,15 +189,15 @@ class CreateAddField
             && $index['Index_choice'] !== 'FULLTEXT'
             && in_array($index['Index_type'], Index::getIndexTypes())
         ) {
-            $sqlQuery .= ' USING '.$index['Index_type'];
+            $sqlQuery .= ' USING ' . $index['Index_type'];
         }
 
         if ($index['Index_choice'] === 'FULLTEXT' && $index['Parser']) {
-            $sqlQuery .= ' WITH PARSER '.$this->dbi->escapeString($index['Parser']);
+            $sqlQuery .= ' WITH PARSER ' . $this->dbi->escapeString($index['Parser']);
         }
 
         if ($index['Index_comment']) {
-            $sqlQuery .= " COMMENT '".$this->dbi->escapeString($index['Index_comment'])."'";
+            $sqlQuery .= " COMMENT '" . $this->dbi->escapeString($index['Index_comment']) . "'";
         }
 
         return $sqlQuery;
@@ -282,9 +282,9 @@ class CreateAddField
             && ! empty($_POST['partition_count'])
             && $_POST['partition_count'] > 1
         ) {
-            $sqlQuery .= ' PARTITION BY '.$_POST['partition_by']
-                .' ('.$_POST['partition_expr'].')'
-                .' PARTITIONS '.$_POST['partition_count'];
+            $sqlQuery .= ' PARTITION BY ' . $_POST['partition_by']
+                . ' (' . $_POST['partition_expr'] . ')'
+                . ' PARTITIONS ' . $_POST['partition_count'];
         }
 
         if (
@@ -293,9 +293,9 @@ class CreateAddField
             && ! empty($_POST['subpartition_count'])
             && $_POST['subpartition_count'] > 1
         ) {
-            $sqlQuery .= ' SUBPARTITION BY '.$_POST['subpartition_by']
-               .' ('.$_POST['subpartition_expr'].')'
-               .' SUBPARTITIONS '.$_POST['subpartition_count'];
+            $sqlQuery .= ' SUBPARTITION BY ' . $_POST['subpartition_by']
+               . ' (' . $_POST['subpartition_expr'] . ')'
+               . ' SUBPARTITIONS ' . $_POST['subpartition_count'];
         }
 
         if (! empty($_POST['partitions'])) {
@@ -304,7 +304,7 @@ class CreateAddField
                 $partitions[] = $this->getPartitionDefinition($partition);
             }
 
-            $sqlQuery .= ' ('.implode(', ', $partitions).')';
+            $sqlQuery .= ' (' . implode(', ', $partitions) . ')';
         }
 
         return $sqlQuery;
@@ -321,47 +321,47 @@ class CreateAddField
         array $partition,
         bool $isSubPartition = false
     ): string {
-        $sqlQuery = ' '.($isSubPartition ? 'SUB' : '').'PARTITION ';
+        $sqlQuery = ' ' . ($isSubPartition ? 'SUB' : '') . 'PARTITION ';
         $sqlQuery .= $partition['name'];
 
         if (! empty($partition['value_type'])) {
-            $sqlQuery .= ' VALUES '.$partition['value_type'];
+            $sqlQuery .= ' VALUES ' . $partition['value_type'];
 
             if ($partition['value_type'] !== 'LESS THAN MAXVALUE') {
-                $sqlQuery .= ' ('.$partition['value'].')';
+                $sqlQuery .= ' (' . $partition['value'] . ')';
             }
         }
 
         if (! empty($partition['engine'])) {
-            $sqlQuery .= ' ENGINE = '.$partition['engine'];
+            $sqlQuery .= ' ENGINE = ' . $partition['engine'];
         }
 
         if (! empty($partition['comment'])) {
-            $sqlQuery .= " COMMENT = '".$partition['comment']."'";
+            $sqlQuery .= " COMMENT = '" . $partition['comment'] . "'";
         }
 
         if (! empty($partition['data_directory'])) {
-            $sqlQuery .= " DATA DIRECTORY = '".$partition['data_directory']."'";
+            $sqlQuery .= " DATA DIRECTORY = '" . $partition['data_directory'] . "'";
         }
 
         if (! empty($partition['index_directory'])) {
-            $sqlQuery .= " INDEX_DIRECTORY = '".$partition['index_directory']."'";
+            $sqlQuery .= " INDEX_DIRECTORY = '" . $partition['index_directory'] . "'";
         }
 
         if (! empty($partition['max_rows'])) {
-            $sqlQuery .= ' MAX_ROWS = '.$partition['max_rows'];
+            $sqlQuery .= ' MAX_ROWS = ' . $partition['max_rows'];
         }
 
         if (! empty($partition['min_rows'])) {
-            $sqlQuery .= ' MIN_ROWS = '.$partition['min_rows'];
+            $sqlQuery .= ' MIN_ROWS = ' . $partition['min_rows'];
         }
 
         if (! empty($partition['tablespace'])) {
-            $sqlQuery .= ' TABLESPACE = '.$partition['tablespace'];
+            $sqlQuery .= ' TABLESPACE = ' . $partition['tablespace'];
         }
 
         if (! empty($partition['node_group'])) {
-            $sqlQuery .= ' NODEGROUP = '.$partition['node_group'];
+            $sqlQuery .= ' NODEGROUP = ' . $partition['node_group'];
         }
 
         if (! empty($partition['subpartitions'])) {
@@ -370,7 +370,7 @@ class CreateAddField
                 $subpartitions[] = $this->getPartitionDefinition($subpartition, true);
             }
 
-            $sqlQuery .= ' ('.implode(', ', $subpartitions).')';
+            $sqlQuery .= ' (' . implode(', ', $subpartitions) . ')';
         }
 
         return $sqlQuery;
@@ -388,12 +388,12 @@ class CreateAddField
         $sqlStatement = $this->getColumnCreationStatements(true);
 
         // Builds the 'create table' statement
-        $sqlQuery = 'CREATE TABLE '.Util::backquote($db).'.'
-            .Util::backquote(trim($table)).' ('.$sqlStatement.')';
+        $sqlQuery = 'CREATE TABLE ' . Util::backquote($db) . '.'
+            . Util::backquote(trim($table)) . ' (' . $sqlStatement . ')';
 
         // Adds table type, character set, comments and partition definition
         if (! empty($_POST['tbl_storage_engine']) && ($_POST['tbl_storage_engine'] !== 'Default')) {
-            $sqlQuery .= ' ENGINE = '.$this->dbi->escapeString($_POST['tbl_storage_engine']);
+            $sqlQuery .= ' ENGINE = ' . $this->dbi->escapeString($_POST['tbl_storage_engine']);
         }
 
         if (! empty($_POST['tbl_collation'])) {
@@ -406,12 +406,12 @@ class CreateAddField
             && $_POST['tbl_storage_engine'] === 'FEDERATED'
         ) {
             $sqlQuery .= " CONNECTION = '"
-                .$this->dbi->escapeString($_POST['connection'])."'";
+                . $this->dbi->escapeString($_POST['connection']) . "'";
         }
 
         if (! empty($_POST['comment'])) {
             $sqlQuery .= ' COMMENT = \''
-                .$this->dbi->escapeString($_POST['comment']).'\'';
+                . $this->dbi->escapeString($_POST['comment']) . '\'';
         }
 
         $sqlQuery .= $this->getPartitionsDefinition();
@@ -455,13 +455,13 @@ class CreateAddField
         // get column addition statements
         $sqlStatement = $this->getColumnCreationStatements(false);
 
-        $sqlQuery = 'ALTER TABLE '.
-            Util::backquote($table).' '.$sqlStatement;
+        $sqlQuery = 'ALTER TABLE ' .
+            Util::backquote($table) . ' ' . $sqlStatement;
         if (isset($_POST['online_transaction'])) {
             $sqlQuery .= ', ALGORITHM=INPLACE, LOCK=NONE';
         }
 
-        return $sqlQuery.';';
+        return $sqlQuery . ';';
     }
 
     /**
@@ -481,7 +481,7 @@ class CreateAddField
         if (! $this->dbi->selectDb($db)) {
             Generator::mysqlDie(
                 $this->dbi->getError(),
-                'USE '.Util::backquote($db),
+                'USE ' . Util::backquote($db),
                 false,
                 $errorUrl
             );

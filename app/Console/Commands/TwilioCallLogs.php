@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Voip\Twilio;
 use Carbon\Carbon;
+use App\Voip\Twilio;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class TwilioCallLogs extends Command

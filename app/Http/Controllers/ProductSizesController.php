@@ -30,7 +30,6 @@ class ProductSizesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,7 +40,6 @@ class ProductSizesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ProductSizes  $productSizes
      * @return \Illuminate\Http\Response
      */
     public function show(ProductSizes $productSizes)
@@ -52,7 +50,6 @@ class ProductSizesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ProductSizes  $productSizes
      * @return \Illuminate\Http\Response
      */
     public function edit(ProductSizes $productSizes)
@@ -63,8 +60,6 @@ class ProductSizesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ProductSizes  $productSizes
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ProductSizes $productSizes)
@@ -75,7 +70,6 @@ class ProductSizesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ProductSizes  $productSizes
      * @return \Illuminate\Http\Response
      */
     public function destroy(ProductSizes $productSizes)

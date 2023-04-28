@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Table\Structure;
 
-use function _ngettext;
+use function trim;
 use function count;
 use function implode;
-use PhpMyAdmin\Controllers\Table\AbstractController;
-use PhpMyAdmin\SqlParser\Context;
 use function sprintf;
-use function trim;
+use function _ngettext;
+use PhpMyAdmin\SqlParser\Context;
+use PhpMyAdmin\Controllers\Table\AbstractController;
 
 final class ReservedWordCheckController extends AbstractController
 {

@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\DeveloperTask;
 use App\Sop;
 use App\Task;
 use App\User;
+use App\DeveloperTask;
+use App\UserFeedbackStatus;
+use Illuminate\Http\Request;
 use App\UserFeedbackCategory;
 use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
-use App\UserFeedbackStatus;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class UserManagementController extends Controller
 {
@@ -106,24 +105,21 @@ class UserManagementController extends Controller
             }
             $sop = UserFeedbackCategorySopHistory::where('category_id', $request->cat_id)->get();
             $html = '';
-            if($sop)
-            {
-                foreach($sop as $value) {
+            if ($sop) {
+                foreach ($sop as $value) {
                     $sop_data = Sop::where('id', $value->sops_id)->first();
-                    $html.= "<tr><td>". $value->id ."</td><td>". $value->sop . "</td>";
-                    if(!empty($sop_data))
-                    {
-
-                        $html.= "<td class='expand-row-msg' data-name='content' data-id='$value->id'>
-                                <div class='sop-short-content-$value->id'>". \Str::of($sop_data->content)->limit(25, '...') ."</div>
-                                <div style='word-break:break-all;' class='sop-full-content-$value->id hidden'>".$sop_data->content."</div></td>";
-                    }else{
-                        $html.= "<td></td>";
+                    $html .= '<tr><td>' . $value->id . '</td><td>' . $value->sop . '</td>';
+                    if (! empty($sop_data)) {
+                        $html .= "<td class='expand-row-msg' data-name='content' data-id='$value->id'>
+                                <div class='sop-short-content-$value->id'>" . \Str::of($sop_data->content)->limit(25, '...') . "</div>
+                                <div style='word-break:break-all;' class='sop-full-content-$value->id hidden'>" . $sop_data->content . '</div></td>';
+                    } else {
+                        $html .= '<td></td>';
                     }
-                    $html.="</tr>";
+                    $html .= '</tr>';
                 }
-            }else{
-                $html.= '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+            } else {
+                $html .= '<tr><td colspan="4" class="text-center">No data found</td></tr>';
             }
 //            dd($html);
 

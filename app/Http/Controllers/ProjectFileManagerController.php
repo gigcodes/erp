@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\ProjectFileManager;
-use App\ProjectFileManagerHistory;
-use App\Setting;
-use App\User;
 use DB;
 use File;
+use App\User;
+use App\Setting;
+use App\ProjectFileManager;
 use Illuminate\Http\Request;
+use App\ProjectFileManagerHistory;
 
 class ProjectFileManagerController extends Controller
 {
@@ -36,7 +36,7 @@ class ProjectFileManagerController extends Controller
 
         $query = ProjectFileManager::query();
         if ($request->search) {
-            $query = $query->where('name', 'LIKE', '%'.$request->search.'%')->orWhere('parent', 'LIKE', '%'.$request->search.'%');
+            $query = $query->where('name', 'LIKE', '%' . $request->search . '%')->orWhere('parent', 'LIKE', '%' . $request->search . '%');
         }
         $projectDirectoryData = $query->orderByRaw('CAST(size AS DECIMAL(10,2)) DESC')->paginate(25)->appends(request()->except(['page']));
 
@@ -152,7 +152,7 @@ class ProjectFileManagerController extends Controller
     {
         $size = 0;
 
-        foreach (glob(rtrim($dir, '/').'/*', GLOB_NOSORT) as $each) {
+        foreach (glob(rtrim($dir, '/') . '/*', GLOB_NOSORT) as $each) {
             $size += is_file($each) ? filesize($each) : self::folderSize($each);
         }
 
@@ -165,7 +165,7 @@ class ProjectFileManagerController extends Controller
         $id = $request->get('id');
         $fileManager = \App\ProjectFileManager::find($id);
         if ($fileManager) {
-            $path = base_path().DIRECTORY_SEPARATOR.(str_replace('./', '', $fileManager->name));
+            $path = base_path() . DIRECTORY_SEPARATOR . (str_replace('./', '', $fileManager->name));
             $file_size = 0;
             $old_size = $fileManager->size;
 
@@ -180,7 +180,7 @@ class ProjectFileManagerController extends Controller
             $increase_size = (($old_size * $limit_rec) / 100);
 
             if (is_dir($path)) {
-                $io = popen('/usr/bin/du -sk '.$path, 'r');
+                $io = popen('/usr/bin/du -sk ' . $path, 'r');
                 $size = fgets($io, 4096);
                 $new_size = substr($size, 0, strpos($size, "\t"));
                 pclose($io);
@@ -200,8 +200,8 @@ class ProjectFileManagerController extends Controller
                 $param = [
                     'project_id' => $id,
                     'name' => $fileManager->name,
-                    'old_size' => $old_size.'MB',
-                    'new_size' => $new_size.'MB',
+                    'old_size' => $old_size . 'MB',
+                    'new_size' => $new_size . 'MB',
                     'user_id' => \Auth::user()->id,
                 ];
 
@@ -211,7 +211,7 @@ class ProjectFileManagerController extends Controller
             $both_size = ($old_size + $increase_size);
 
             if ($new_size >= $both_size) {
-                $message = 'Project Directory Size increase in Path = '.$fileManager->name.','.' OldSize = '.$old_size.'MB'.' And '.'NewSize = '.$new_size.'MB';
+                $message = 'Project Directory Size increase in Path = ' . $fileManager->name . ',' . ' OldSize = ' . $old_size . 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB';
 
                 $users = User::get();
                 foreach ($users as $user) {
@@ -224,10 +224,10 @@ class ProjectFileManagerController extends Controller
                 $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 0]);
             }
 
-            return response()->json(['code' => 200, 'message' => 'Current size is : '.$new_size, 'size' => $new_size.'(MB)']);
+            return response()->json(['code' => 200, 'message' => 'Current size is : ' . $new_size, 'size' => $new_size . '(MB)']);
         }
 
-        return response()->json(['code' => 500, 'message' => 'Current size is : '.$new_size]);
+        return response()->json(['code' => 500, 'message' => 'Current size is : ' . $new_size]);
     }
 
     public function sizelogHistory(Request $request)
@@ -255,7 +255,7 @@ class ProjectFileManagerController extends Controller
         $id = $request->get('id');
         $fileManager = \App\ProjectFileManager::find($id);
         if ($fileManager) {
-            $path = base_path().DIRECTORY_SEPARATOR.(str_replace('./', '', $fileManager->name));
+            $path = base_path() . DIRECTORY_SEPARATOR . (str_replace('./', '', $fileManager->name));
             if (! is_dir($path)) {
                 if (! is_writable($path)) {
                     return response()->json(['code' => 500, 'message' => "{$path} is not writeable"]);
@@ -277,7 +277,7 @@ class ProjectFileManagerController extends Controller
     {
         $name = $request->get('name');
 
-        $path = base_path().DIRECTORY_SEPARATOR.(str_replace('./', '', $name));
+        $path = base_path() . DIRECTORY_SEPARATOR . (str_replace('./', '', $name));
         $files = File::files($path);
 
         $file_size_arr = [];
@@ -287,8 +287,8 @@ class ProjectFileManagerController extends Controller
 
             $base = log($value->getSize()) / log(1024);
             $suffix = ['', 'k', 'M', 'G', 'T'][floor($base)];
-            $size = pow(1024, $base - floor($base)).$suffix;
-            $File_size = round($size, 2).' '.$suffix;
+            $size = pow(1024, $base - floor($base)) . $suffix;
+            $File_size = round($size, 2) . ' ' . $suffix;
 
             $file_size_arr[$key]['file_size'] = $File_size;
             // dd($File_size);

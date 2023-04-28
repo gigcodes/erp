@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\AttributeReplacement;
-use App\CronJobReport;
 use App\Product;
-use App\ProductStatus;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\CronJobReport;
+use App\ProductStatus;
 use Illuminate\Support\Str;
+use App\AttributeReplacement;
+use Illuminate\Console\Command;
 
 class ReplaceTextsFromProduct extends Command
 {
@@ -63,7 +63,7 @@ class ReplaceTextsFromProduct extends Command
                 // Loop over products
                 foreach ($products as $product) {
                     // Output information
-                    echo 'Checking product '.$product->id."\n";
+                    echo 'Checking product ' . $product->id . "\n";
 
                     // Loop over replacements
                     foreach ($replacements as $replacement) {

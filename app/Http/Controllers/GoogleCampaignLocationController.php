@@ -2,31 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Exception;
 
-use Google\Ads\GoogleAds\V12\Services\SuggestGeoTargetConstantsRequest\LocationNames;
-use Google\Ads\GoogleAds\V12\Enums\GeoTargetConstantStatusEnum\GeoTargetConstantStatus;
-use Google\Ads\GoogleAds\V12\Resources\CampaignCriterion;
+use App\Models\City;
+use App\Models\State;
+use App\Models\Country;
+use App\GoogleAdsCampaign;
+
+use Illuminate\Http\Request;
+use App\Helpers\GoogleAdsHelper;
+use App\Models\GoogleCampaignLocation;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
 use Google\Ads\GoogleAds\V12\Services\CampaignCriterionOperation;
 
-use App\Models\Country;
-use App\Models\State;
-use App\Models\City;
-use App\Models\GoogleCampaignLocation;
-use App\GoogleAdsCampaign;
+use Google\Ads\GoogleAds\V12\Services\SuggestGeoTargetConstantsRequest\LocationNames;
 
-use App\Helpers\GoogleAdsHelper;
-
-use App\Http\Controllers\GoogleCampaignsController;
-
-use Exception;
+use Google\Ads\GoogleAds\V12\Enums\GeoTargetConstantStatusEnum\GeoTargetConstantStatus;
 
 class GoogleCampaignLocationController extends Controller
 {
     public function getAccountDetail($campaignId)
     {
-        $campaignDetail = GoogleAdsCampaign::with('account')->where('google_campaign_id', $campaignId)->where('channel_type','SEARCH')->first();
+        $campaignDetail = GoogleAdsCampaign::with('account')->where('google_campaign_id', $campaignId)->where('channel_type', 'SEARCH')->first();
         if ($campaignDetail->exists() > 0) {
             return [
                 'account_id' => $campaignDetail->account_id,
@@ -46,14 +43,14 @@ class GoogleCampaignLocationController extends Controller
         $campaign_name = $acDetail['campaign_name'];
         $google_map_api_key = $acDetail['google_map_api_key'];
 
-        $where = array(
-                    'adgroup_google_campaign_id' => $campaignId,
-                );
+        $where = [
+            'adgroup_google_campaign_id' => $campaignId,
+        ];
 
         $locations = GoogleCampaignLocation::where($where);
 
         if ($request->address) {
-            $locations = $locations->where('address', 'LIKE', '%'.$request->address.'%');
+            $locations = $locations->where('address', 'LIKE', '%' . $request->address . '%');
         }
 
         $locations = $locations->orderby('id', 'desc')->paginate(25)->appends(request()->except(['page']));
@@ -68,30 +65,30 @@ class GoogleCampaignLocationController extends Controller
 
         $totalEntries = $locations->total();
 
-        // Insert google ads log 
-        $input = array(
-                    'type' => 'SUCCESS',
-                    'module' => 'Campaign location',
-                    'message' => "Viewed campaign location listing for ". $campaign_name
-                );
+        // Insert google ads log
+        $input = [
+            'type' => 'SUCCESS',
+            'module' => 'Campaign location',
+            'message' => 'Viewed campaign location listing for ' . $campaign_name,
+        ];
         insertGoogleAdsLog($input);
 
         return view('google_campaign_location.index', [
-                                                        'locations' => $locations,
-                                                        'totalNumEntries' => $totalEntries,
-                                                        'campaignId' => $campaignId,
-                                                        'account_id' => $account_id,
-                                                        'campaign_name' => $campaign_name,
-                                                        'google_map_api_key' => $google_map_api_key
-                                                    ]);
+            'locations' => $locations,
+            'totalNumEntries' => $totalEntries,
+            'campaignId' => $campaignId,
+            'account_id' => $account_id,
+            'campaign_name' => $campaign_name,
+            'google_map_api_key' => $google_map_api_key,
+        ]);
     }
 
     // create location
     public function createLocation(Request $request, $campaignId)
     {
-        $rules = array(
-                    'target_location' => 'required'
-                );
+        $rules = [
+            'target_location' => 'required',
+        ];
         $this->validate($request, $rules);
 
         $acDetail = $this->getAccountDetail($campaignId);
@@ -106,83 +103,82 @@ class GoogleCampaignLocationController extends Controller
             $googleCampaignsController = new GoogleCampaignsController;
 
             // Start Target Location
-            if(@$request->target_location == "other"){
-                if(@$request->target_location_type == "radius"){
+            if (@$request->target_location == 'other') {
+                if (@$request->target_location_type == 'radius') {
                     $addedLocation = $googleCampaignsController::addLocationWithRadius(
-                                                        $googleAdsClient, 
-                                                        $customerId, 
-                                                        $campaignId, 
-                                                        @$request->target_location_address, 
-                                                        @$request->target_location_distance, 
-                                                        @$request->target_location_radius_units
-                                                    );
+                        $googleAdsClient,
+                        $customerId,
+                        $campaignId,
+                        @$request->target_location_address,
+                        @$request->target_location_distance,
+                        @$request->target_location_radius_units
+                    );
 
-                    if(!empty($addedLocation)){
-                        $locationArr = array(
-                                            'google_customer_id' => $customerId,
-                                            'adgroup_google_campaign_id' => $campaignId,
-                                            'google_location_id' => $addedLocation['location_id'],
-                                            'type' => $request->target_location_type,
-                                            'address' => @$request->target_location_address,
-                                            'distance' => @$request->target_location_distance,
-                                            'radius_units' => @$request->target_location_radius_units,
-                                            'is_target' => true,
-                                        );
+                    if (! empty($addedLocation)) {
+                        $locationArr = [
+                            'google_customer_id' => $customerId,
+                            'adgroup_google_campaign_id' => $campaignId,
+                            'google_location_id' => $addedLocation['location_id'],
+                            'type' => $request->target_location_type,
+                            'address' => @$request->target_location_address,
+                            'distance' => @$request->target_location_distance,
+                            'radius_units' => @$request->target_location_radius_units,
+                            'is_target' => true,
+                        ];
 
                         GoogleCampaignLocation::create($locationArr);
                     }
-                }else{
-
-                    $search = "";
-                    if(@$request->city_id){
+                } else {
+                    $search = '';
+                    if (@$request->city_id) {
                         $city = City::find($request->city_id);
-                        $search .= @$city->name ? $city->name : "";
+                        $search .= @$city->name ? $city->name : '';
                     }
 
-                    if(@$request->state_id){
+                    if (@$request->state_id) {
                         $state = State::find($request->state_id);
-                        $search .= @$state->name ? ",". $state->name : "";
+                        $search .= @$state->name ? ',' . $state->name : '';
                     }
 
-                    if(@$request->country_id){
+                    if (@$request->country_id) {
                         $country = Country::find($request->country_id);
-                        $search .= @$country->name ? ",". $country->name : "";
+                        $search .= @$country->name ? ',' . $country->name : '';
                     }
 
-                    if(!empty($search)){
-                        $geoTargetConstant = $googleCampaignsController::getGeoTargetConstant($googleAdsClient, $search); 
+                    if (! empty($search)) {
+                        $geoTargetConstant = $googleCampaignsController::getGeoTargetConstant($googleAdsClient, $search);
 
-                        if(!empty($geoTargetConstant)){
+                        if (! empty($geoTargetConstant)) {
                             $addedLocation = $googleCampaignsController::addLocation(
-                                                                $googleAdsClient, 
-                                                                $customerId, 
-                                                                $campaignId, 
-                                                                $geoTargetConstant['location_id'],
-                                                                (@$request->is_target == 0 ? true : false)
-                                                            );
+                                $googleAdsClient,
+                                $customerId,
+                                $campaignId,
+                                $geoTargetConstant['location_id'],
+                                (@$request->is_target == 0 ? true : false)
+                            );
 
-                            if(!empty($addedLocation)){
-                                $locationArr = array(
-                                                    'google_customer_id' => $customerId,
-                                                    'adgroup_google_campaign_id' => $campaignId,
-                                                    'google_location_id' => $addedLocation['location_id'],
-                                                    'type' => $request->target_location_type,
-                                                    'country_id' => @$request->country_id,
-                                                    'state_id' => @$request->state_id,
-                                                    'city_id' => @$request->city_id,
-                                                    'address' => $search,
-                                                    'is_target' => @$request->is_target,
-                                                );
+                            if (! empty($addedLocation)) {
+                                $locationArr = [
+                                    'google_customer_id' => $customerId,
+                                    'adgroup_google_campaign_id' => $campaignId,
+                                    'google_location_id' => $addedLocation['location_id'],
+                                    'type' => $request->target_location_type,
+                                    'country_id' => @$request->country_id,
+                                    'state_id' => @$request->state_id,
+                                    'city_id' => @$request->city_id,
+                                    'address' => $search,
+                                    'is_target' => @$request->is_target,
+                                ];
 
                                 GoogleCampaignLocation::create($locationArr);
                             }
                         }
                     }
                 }
-            }else{
+            } else {
                 $locations = GoogleCampaignLocation::where('adgroup_google_campaign_id', $campaignId)->get();
 
-                foreach($locations as $location){
+                foreach ($locations as $location) {
                     // Creates campaign criterion resource name.
                     $campaignCriterionResourceName =
                         ResourceNames::forCampaignCriterion($customerId, $campaignId, $location->google_location_id);
@@ -205,26 +201,26 @@ class GoogleCampaignLocationController extends Controller
             }
             // End Target Location
 
-            // Insert google ads log 
-            $input = array(
-                        'type' => 'SUCCESS',
-                        'module' => 'Campaign Location',
-                        'message' => "Created campaign location for ". $campaign_name,
-                        'response' => json_encode($request->all())
-                    );
+            // Insert google ads log
+            $input = [
+                'type' => 'SUCCESS',
+                'module' => 'Campaign Location',
+                'message' => 'Created campaign location for ' . $campaign_name,
+                'response' => json_encode($request->all()),
+            ];
             insertGoogleAdsLog($input);
 
-            return redirect('google-campaigns/'.$campaignId.'/google-campaign-location')->with('actSuccess', 'Location added successfully');
+            return redirect('google-campaigns/' . $campaignId . '/google-campaign-location')->with('actSuccess', 'Location added successfully');
         } catch (Exception $e) {
-
-            // Insert google ads log 
-            $input = array(
-                        'type' => 'ERROR',
-                        'module' => 'Campaign Location',
-                        'message' => "Create campaign location > ". $e->getMessage()
-                    );
+            // Insert google ads log
+            $input = [
+                'type' => 'ERROR',
+                'module' => 'Campaign Location',
+                'message' => 'Create campaign location > ' . $e->getMessage(),
+            ];
             insertGoogleAdsLog($input);
-            return redirect('google-campaigns/'.$campaignId.'/google-campaign-location')->with('actError', $this->exceptionError);
+
+            return redirect('google-campaigns/' . $campaignId . '/google-campaign-location')->with('actError', $this->exceptionError);
         }
     }
 
@@ -237,15 +233,14 @@ class GoogleCampaignLocationController extends Controller
 
         // $storagepath = $this->getstoragepath($account_id);
 
-        $where = array(
-                    'adgroup_google_campaign_id' => $campaignId,
-                    'google_location_id' => $locationId,
-                );
+        $where = [
+            'adgroup_google_campaign_id' => $campaignId,
+            'google_location_id' => $locationId,
+        ];
 
         $location = GoogleCampaignLocation::where($where)->firstOrFail();
 
         try {
-
             try {
                 // Generate a refreshable OAuth2 credential for authentication.
                 $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
@@ -266,35 +261,32 @@ class GoogleCampaignLocationController extends Controller
                 );
 
                 $removedCampaignCriterion = $response->getResults()[0];
-                
             } catch (Exception $e) {
-                
             }
 
-            // Insert google ads log 
-            $input = array(
-                        'type' => 'SUCCESS',
-                        'module' => 'Campaign Location',
-                        'message' => "Deleted campaign location for ". $location->campaign->campaign_name,
-                        'response' => json_encode($location)
-                    );
+            // Insert google ads log
+            $input = [
+                'type' => 'SUCCESS',
+                'module' => 'Campaign Location',
+                'message' => 'Deleted campaign location for ' . $location->campaign->campaign_name,
+                'response' => json_encode($location),
+            ];
 
             $location->delete();
 
             insertGoogleAdsLog($input);
 
-            return redirect('google-campaigns/'.$campaignId.'/google-campaign-location')->with('actSuccess', 'Location deleted successfully');
+            return redirect('google-campaigns/' . $campaignId . '/google-campaign-location')->with('actSuccess', 'Location deleted successfully');
         } catch (Exception $e) {
-
-            // Insert google ads log 
-            $input = array(
-                        'type' => 'ERROR',
-                        'module' => 'Campaign Location',
-                        'message' => 'Delete campaign location > ' . $e->getMessage(),
-                    );
+            // Insert google ads log
+            $input = [
+                'type' => 'ERROR',
+                'module' => 'Campaign Location',
+                'message' => 'Delete campaign location > ' . $e->getMessage(),
+            ];
             insertGoogleAdsLog($input);
 
-            return redirect('google-campaigns/'.$campaignId.'/google-campaign-location')->with('actError', $this->exceptionError);
+            return redirect('google-campaigns/' . $campaignId . '/google-campaign-location')->with('actError', $this->exceptionError);
         }
     }
 
@@ -303,21 +295,21 @@ class GoogleCampaignLocationController extends Controller
     {
         $records = Country::orderby('name', 'ASC');
 
-        if(!empty($request->search)){
-            $records->where('name', 'LIKE', '%'.$request->search.'%');
+        if (! empty($request->search)) {
+            $records->where('name', 'LIKE', '%' . $request->search . '%');
         }
 
         $records = $records->paginate(50);
 
-        $response = array();
-        foreach($records as $record){
-            $response[] = array(
-                            'id' => $record->id,
-                            'text' => $record->name,
-                        );
+        $response = [];
+        foreach ($records as $record) {
+            $response[] = [
+                'id' => $record->id,
+                'text' => $record->name,
+            ];
         }
 
-        return [ 'result'=> $response, 'pagination' => [ 'more' => $records->nextPageUrl() ? true : false ]];
+        return ['result' => $response, 'pagination' => ['more' => $records->nextPageUrl() ? true : false]];
     }
 
     // get states
@@ -325,21 +317,21 @@ class GoogleCampaignLocationController extends Controller
     {
         $records = State::where('country_id', $request->country_id)->orderby('name', 'ASC');
 
-        if(!empty($request->search)){
-            $records->where('name', 'LIKE', '%'.$request->search.'%');
+        if (! empty($request->search)) {
+            $records->where('name', 'LIKE', '%' . $request->search . '%');
         }
 
         $records = $records->paginate(50);
 
-        $response = array();
-        foreach($records as $record){
-            $response[] = array(
-                            'id' => $record->id,
-                            'text' => $record->name,
-                        );
+        $response = [];
+        foreach ($records as $record) {
+            $response[] = [
+                'id' => $record->id,
+                'text' => $record->name,
+            ];
         }
 
-        return [ 'result'=> $response, 'pagination' => [ 'more' => $records->nextPageUrl() ? true : false ]];
+        return ['result' => $response, 'pagination' => ['more' => $records->nextPageUrl() ? true : false]];
     }
 
     // get cities
@@ -347,21 +339,21 @@ class GoogleCampaignLocationController extends Controller
     {
         $records = City::where('state_id', $request->state_id)->orderby('name', 'ASC');
 
-        if(!empty($request->search)){
-            $records->where('name', 'LIKE', '%'.$request->search.'%');
+        if (! empty($request->search)) {
+            $records->where('name', 'LIKE', '%' . $request->search . '%');
         }
 
         $records = $records->paginate(50);
 
-        $response = array();
-        foreach($records as $record){
-            $response[] = array(
-                            'id' => $record->id,
-                            'text' => $record->name,
-                        );
+        $response = [];
+        foreach ($records as $record) {
+            $response[] = [
+                'id' => $record->id,
+                'text' => $record->name,
+            ];
         }
 
-        return [ 'result'=> $response, 'pagination' => [ 'more' => $records->nextPageUrl() ? true : false ]];
+        return ['result' => $response, 'pagination' => ['more' => $records->nextPageUrl() ? true : false]];
     }
 
     // get address
@@ -375,26 +367,25 @@ class GoogleCampaignLocationController extends Controller
         $response = $geoTargetConstantServiceClient->suggestGeoTargetConstants([
             // 'locale' => $locale,
             // 'countryCode' => $countryCode,
-            'locationNames' => new LocationNames(['names' => [$request->search]])
+            'locationNames' => new LocationNames(['names' => [$request->search]]),
         ]);
 
         // Iterates over all geo target constant suggestion objects and prints the requested field
         // values for each one.
-        $result = array();
+        $result = [];
         foreach ($response->getGeoTargetConstantSuggestions() as $geoTargetConstantSuggestion) {
-            
             $status = GeoTargetConstantStatus::name(
-                    $geoTargetConstantSuggestion->getGeoTargetConstant()->getStatus()
-                );
+                $geoTargetConstantSuggestion->getGeoTargetConstant()->getStatus()
+            );
 
-            if($status == "ENABLED"){
-                $result[] = array(
-                            'id' => $geoTargetConstantSuggestion->getGeoTargetConstant()->getCanonicalName(),
-                            'text' => $geoTargetConstantSuggestion->getGeoTargetConstant()->getCanonicalName(),
-                        );
+            if ($status == 'ENABLED') {
+                $result[] = [
+                    'id' => $geoTargetConstantSuggestion->getGeoTargetConstant()->getCanonicalName(),
+                    'text' => $geoTargetConstantSuggestion->getGeoTargetConstant()->getCanonicalName(),
+                ];
             }
         }
 
-        return [ 'result'=> $result];
+        return ['result' => $result];
     }
 }

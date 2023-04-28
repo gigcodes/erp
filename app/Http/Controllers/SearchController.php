@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
-use App\ColorReference;
-use App\Product;
-use App\Setting;
-use App\Stage;
 use Auth;
 use Cache;
+use App\Stage;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\ColorReference;
 use Illuminate\Http\Request;
 
 class SearchController extends Controller
@@ -63,21 +63,21 @@ class SearchController extends Controller
 
         $products = (new Product())->newQuery()->latest();
 
-        Cache::forget('filter-brand-'.Auth::id());
+        Cache::forget('filter-brand-' . Auth::id());
         if ($request->brand[0] != null) {
             $products = $products->whereIn('brand', $request->brand);
             $data['brand'] = $request->brand[0];
-            Cache::put('filter-brand-'.Auth::id(), $data['brand'], 7200);
+            Cache::put('filter-brand-' . Auth::id(), $data['brand'], 7200);
         }
 
-        Cache::forget('filter-color-'.Auth::id());
+        Cache::forget('filter-color-' . Auth::id());
         if ($request->color[0] != null) {
             $products = $products->whereIn('color', $request->color);
             $data['color'] = $request->color[0];
-            Cache::put('filter-color-'.Auth::id(), $data['color'], 7200);
+            Cache::put('filter-color-' . Auth::id(), $data['color'], 7200);
         }
 
-        Cache::forget('filter-category-'.Auth::id());
+        Cache::forget('filter-category-' . Auth::id());
         if ($request->category[0] != null && $request->category[0] != 1) {
             $category_children = [];
 
@@ -107,37 +107,37 @@ class SearchController extends Controller
 
             $products = $products->whereIn('category', $category_children);
             $data['category'] = $request->category[0];
-            Cache::put('filter-category-'.Auth::id(), $data['category'], 7200);
+            Cache::put('filter-category-' . Auth::id(), $data['category'], 7200);
         }
 
-        Cache::forget('filter-price-min-'.Auth::id());
+        Cache::forget('filter-price-min-' . Auth::id());
         if ($request->price_min != null) {
             $products = $products->where('price_inr_special', '>=', $request->price_min);
-            Cache::put('filter-price-min-'.Auth::id(), $request->price_min, 7200);
+            Cache::put('filter-price-min-' . Auth::id(), $request->price_min, 7200);
         }
 
-        Cache::forget('filter-price-max-'.Auth::id());
+        Cache::forget('filter-price-max-' . Auth::id());
         if ($request->price_max != null) {
             $products = $products->where('price_inr_special', '<=', $request->price_max);
-            Cache::put('filter-price-max-'.Auth::id(), $request->price_max, 7200);
+            Cache::put('filter-price-max-' . Auth::id(), $request->price_max, 7200);
         }
 
-        Cache::forget('filter-supplier-'.Auth::id());
+        Cache::forget('filter-supplier-' . Auth::id());
         if ($request->supplier[0] != null) {
             $suppliers_list = implode(',', $request->supplier);
 
             $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
             $data['supplier'] = $request->supplier;
-            Cache::put('filter-supplier-'.Auth::id(), $data['supplier'], 7200);
+            Cache::put('filter-supplier-' . Auth::id(), $data['supplier'], 7200);
         }
 
-        Cache::forget('filter-size-'.Auth::id());
+        Cache::forget('filter-size-' . Auth::id());
         if (trim($request->size) != '') {
             $products = $products->whereNotNull('size')->where(function ($query) use ($request) {
                 $query->where('size', $request->size)->orWhere('size', 'LIKE', "%$request->size,")->orWhere('size', 'LIKE', "%,$request->size,%");
             });
             $data['size'] = $request->size;
-            Cache::put('filter-size-'.Auth::id(), $data['size'], 7200);
+            Cache::put('filter-size-' . Auth::id(), $data['size'], 7200);
         }
 
         if ($request->location[0] != null) {
@@ -162,7 +162,7 @@ class SearchController extends Controller
             $data['type'] = $request->type[0];
         }
 
-        Cache::forget('filter-date-'.Auth::id());
+        Cache::forget('filter-date-' . Auth::id());
         if ($request->date != '') {
             if (isset($products)) {
                 if ($request->type[0] != null && $request->type[0] == 'uploaded') {
@@ -172,7 +172,7 @@ class SearchController extends Controller
                 }
             }
             $data['date'] = $request->date;
-            Cache::put('filter-date-'.Auth::id(), $data['date'], 7200);
+            Cache::put('filter-date-' . Auth::id(), $data['date'], 7200);
         }
 
         if (trim($term) != '') {
@@ -227,7 +227,7 @@ class SearchController extends Controller
         }
 
         if (! empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
-            $products = $products->whereRaw('(id in (select product_id from product_quicksell_groups where quicksell_group_id in ('.implode(',', $request->quick_sell_groups).') ))');
+            $products = $products->whereRaw('(id in (select product_id from product_quicksell_groups where quicksell_group_id in (' . implode(',', $request->quick_sell_groups) . ') ))');
         }
 
         // select fields..
@@ -265,11 +265,11 @@ class SearchController extends Controller
             $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
             $childs = Category::where('parent_id', $category->id)->get();
             foreach ($childs as $child) {
-                $categoryArray[] = ['id' => $child->id, 'value' => $category->title.' '.$child->title];
+                $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' ' . $child->title];
                 $grandChilds = Category::where('parent_id', $child->id)->get();
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
-                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title.' '.$child->title.' '.$grandChild->title];
+                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' ' . $child->title . ' ' . $grandChild->title];
                     }
                 }
             }

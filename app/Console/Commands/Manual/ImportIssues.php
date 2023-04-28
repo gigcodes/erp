@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\ChatMessage;
-use App\DeveloperTask;
-use App\ErpPriority;
 use App\Issue;
 use Carbon\Carbon;
+use App\ChatMessage;
+use App\ErpPriority;
+use App\DeveloperTask;
 use Illuminate\Console\Command;
 
 class ImportIssues extends Command

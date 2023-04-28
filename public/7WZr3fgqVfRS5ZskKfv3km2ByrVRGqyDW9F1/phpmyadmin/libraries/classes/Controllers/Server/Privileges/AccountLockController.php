@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server\Privileges;
 
-use function __;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\Http\ServerRequest;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Server\Privileges\AccountLocking;
-use PhpMyAdmin\Template;
 use Throwable;
+use function __;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Http\ServerRequest;
+use PhpMyAdmin\Controllers\AbstractController;
+use PhpMyAdmin\Server\Privileges\AccountLocking;
 
 final class AccountLockController extends AbstractController
 {

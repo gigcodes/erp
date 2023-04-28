@@ -10,19 +10,19 @@ namespace PhpMyAdmin\Plugins\Export;
 use function __;
 use function bin2hex;
 use function explode;
+use PhpMyAdmin\Version;
 use function json_encode;
+use function stripslashes;
 use const JSON_PRETTY_PRINT;
+use PhpMyAdmin\FieldMetadata;
 use const JSON_UNESCAPED_UNICODE;
 use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\FieldMetadata;
 use PhpMyAdmin\Plugins\ExportPlugin;
+use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
+use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
+use PhpMyAdmin\Properties\Options\Items\HiddenPropertyItem;
 use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
 use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
-use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
-use PhpMyAdmin\Properties\Options\Items\HiddenPropertyItem;
-use PhpMyAdmin\Properties\Plugins\ExportPluginProperties;
-use PhpMyAdmin\Version;
-use function stripslashes;
 
 /**
  * Handles the export for the JSON format
@@ -116,7 +116,7 @@ class ExportJson extends ExportPlugin
             return false;
         }
 
-        return $this->export->outputHandler('['.$crlf.$data.','.$crlf);
+        return $this->export->outputHandler('[' . $crlf . $data . ',' . $crlf);
     }
 
     /**
@@ -126,7 +126,7 @@ class ExportJson extends ExportPlugin
     {
         global $crlf;
 
-        return $this->export->outputHandler(']'.$crlf);
+        return $this->export->outputHandler(']' . $crlf);
     }
 
     /**
@@ -148,7 +148,7 @@ class ExportJson extends ExportPlugin
             return false;
         }
 
-        return $this->export->outputHandler($data.','.$crlf);
+        return $this->export->outputHandler($data . ',' . $crlf);
     }
 
     /**
@@ -242,7 +242,7 @@ class ExportJson extends ExportPlugin
     ): bool {
         [$header, $footer] = explode('"@@DATA@@"', $buffer);
 
-        if (! $this->export->outputHandler($header.$crlf.'['.$crlf)) {
+        if (! $this->export->outputHandler($header . $crlf . '[' . $crlf)) {
             return false;
         }
 
@@ -269,7 +269,7 @@ class ExportJson extends ExportPlugin
 
             // Output table name as comment if this is the first record of the table
             if ($record_cnt > 1) {
-                if (! $this->export->outputHandler(','.$crlf)) {
+                if (! $this->export->outputHandler(',' . $crlf)) {
                     return false;
                 }
             }
@@ -295,7 +295,7 @@ class ExportJson extends ExportPlugin
                     $record[$i] !== null
                 ) {
                     // export GIS and blob types as hex
-                    $record[$i] = '0x'.bin2hex($record[$i]);
+                    $record[$i] = '0x' . bin2hex($record[$i]);
                 }
 
                 $data[$columns[$i]] = $record[$i];
@@ -311,7 +311,7 @@ class ExportJson extends ExportPlugin
             }
         }
 
-        return $this->export->outputHandler($crlf.']'.$crlf.$footer.$crlf);
+        return $this->export->outputHandler($crlf . ']' . $crlf . $footer . $crlf);
     }
 
     /**

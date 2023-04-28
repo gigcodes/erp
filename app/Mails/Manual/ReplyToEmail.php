@@ -45,7 +45,7 @@ class ReplyToEmail extends Mailable
         $replyPrefix = 'Re: ';
         $subject = substr($emailToReply->subject, 0, 4) === $replyPrefix
             ? $emailToReply->subject
-            : $replyPrefix.$emailToReply->subject;
+            : $replyPrefix . $emailToReply->subject;
 
         $this->to($emailToReply->from);
         $this->from($emailToReply->to);
@@ -53,7 +53,7 @@ class ReplyToEmail extends Mailable
         $this->subject($subject);
 
         $this->withSwiftMessage(function ($message) use ($emailToReply) {
-            $references = $emailToReply->reference_id.'<'.$emailToReply->origin_id.'>';
+            $references = $emailToReply->reference_id . '<' . $emailToReply->origin_id . '>';
             $message->getHeaders()->addTextHeader('In-Reply-To', $emailToReply->origin_id);
             $message->getHeaders()->addTextHeader('References', $references);
         });

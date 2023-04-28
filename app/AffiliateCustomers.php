@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AffiliateCustomers extends Model
 {
     protected $table = 'affiliates_customers';
+
     protected $fillable = [
         'affiliate_account_id',
         'customer_id',
@@ -22,7 +23,7 @@ class AffiliateCustomers extends Model
         'affiliate_marketer_id',
         'affiliate_meta_data',
         'meta_data',
-        'warnings'
+        'warnings',
     ];
 
     public function account()

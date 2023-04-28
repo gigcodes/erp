@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Database;
 
+use PhpMyAdmin\Url;
+use function strlen;
+use PhpMyAdmin\Util;
 use function in_array;
-use PhpMyAdmin\CheckUserPrivileges;
-use PhpMyAdmin\Database\Routines;
-use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\DbTableExists;
 use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function strlen;
+use PhpMyAdmin\Database\Routines;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\CheckUserPrivileges;
 
 /**
  * Routines management.

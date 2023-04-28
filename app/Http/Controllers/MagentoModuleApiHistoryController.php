@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MagentoModule\MagentoModuleApiHistoryRequest;
 use App\MagentoModuleApiHistory;
+use App\Http\Requests\MagentoModule\MagentoModuleApiHistoryRequest;
 
 class MagentoModuleApiHistoryController extends Controller
 {

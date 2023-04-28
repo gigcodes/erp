@@ -2,10 +2,10 @@
 
 namespace App\Services\Scrap;
 
-use App\Brand;
-use App\ScrapedProducts;
-use App\ScrapEntries;
 use Storage;
+use App\Brand;
+use App\ScrapEntries;
+use App\ScrapedProducts;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
 class ToryDetailsScraper extends Scraper
@@ -37,8 +37,6 @@ class ToryDetailsScraper extends Scraper
     }
 
     /**
-     * @param  ScrapEntries  $scrapEntry
-     *
      * @throws \Exception
      */
     private function getProductDetails(ScrapEntries $scrapEntry): void
@@ -199,8 +197,8 @@ class ToryDetailsScraper extends Scraper
                 continue;
             }
 
-            $fileName = $prefix.'_'.md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }

@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\CronJobReport;
-//use App\Services\Instagram\Broadcast;
 use Carbon\Carbon;
+//use App\Services\Instagram\Broadcast;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class CreateCustomerIfColdLeadReplied extends Command

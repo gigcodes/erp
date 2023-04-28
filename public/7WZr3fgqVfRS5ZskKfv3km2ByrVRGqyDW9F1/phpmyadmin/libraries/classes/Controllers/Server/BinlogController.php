@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server;
 
-use function array_key_exists;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use function array_key_exists;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Controllers\AbstractController;
 
 /**
  * Handles viewing binary logs
@@ -122,10 +122,10 @@ class BinlogController extends AbstractController
     ): string {
         $sqlQuery = 'SHOW BINLOG EVENTS';
         if (! empty($log)) {
-            $sqlQuery .= ' IN \''.$log.'\'';
+            $sqlQuery .= ' IN \'' . $log . '\'';
         }
 
-        $sqlQuery .= ' LIMIT '.$position.', '.$maxRows;
+        $sqlQuery .= ' LIMIT ' . $position . ', ' . $maxRows;
 
         return $sqlQuery;
     }

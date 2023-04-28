@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\ColdLeadBroadcasts;
+use Carbon\Carbon;
 use App\CronJobReport;
 //use App\Services\Instagram\Broadcast;
-use Carbon\Carbon;
+use App\ColdLeadBroadcasts;
 use Illuminate\Console\Command;
 
 class SendBroadcastMessageToColdLeads extends Command

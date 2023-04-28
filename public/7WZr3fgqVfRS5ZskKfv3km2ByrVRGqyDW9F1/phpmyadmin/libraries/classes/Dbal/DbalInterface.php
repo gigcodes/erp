@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Dbal;
 
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Table;
 use PhpMyAdmin\FieldMetadata;
 use PhpMyAdmin\SystemDatabase;
-use PhpMyAdmin\Table;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * Main interface for database interactions
@@ -128,7 +128,6 @@ interface DbalInterface
      * @param  int  $limit_offset starting offset for LIMIT
      * @param  bool|int  $limit_count  row count for LIMIT or true
      *                                  for $GLOBALS['cfg']['MaxDbList']
-     * @return array
      *
      * @todo    move into ListDatabase?
      */
@@ -147,7 +146,6 @@ interface DbalInterface
      *
      * @param  string  $sql_query    target SQL query to get columns
      * @param  array  $view_columns alias for columns
-     * @return array
      */
     public function getColumnMapFromSql(string $sql_query, array $view_columns = []): array;
 
@@ -159,7 +157,6 @@ interface DbalInterface
      * @param  string|null  $table    name of table to retrieve columns from
      * @param  string|null  $column   name of specific column
      * @param  mixed  $link     mysql link resource
-     * @return array
      */
     public function getColumnsFull(
         ?string $database = null,
@@ -222,7 +219,6 @@ interface DbalInterface
      * @param  string  $database name of database
      * @param  string  $table    name of the table whose indexes are to be retrieved
      * @param  mixed  $link     mysql link resource
-     * @return array
      */
     public function getTableIndexes(
         string $database,

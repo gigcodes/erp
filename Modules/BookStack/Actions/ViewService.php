@@ -3,9 +3,9 @@
 namespace Modules\BookStack\Actions;
 
 use Illuminate\Support\Collection;
-use Modules\BookStack\Auth\Permissions\PermissionService;
 use Modules\BookStack\Entities\Entity;
 use Modules\BookStack\Entities\EntityProvider;
+use Modules\BookStack\Auth\Permissions\PermissionService;
 
 class ViewService
 {
@@ -20,7 +20,6 @@ class ViewService
      *
      * @param  \BookStack\Actions\View  $view
      * @param  \BookStack\Auth\Permissions\PermissionService  $permissionService
-     * @param  EntityProvider  $entityProvider
      */
     public function __construct(View $view, PermissionService $permissionService, EntityProvider $entityProvider)
     {
@@ -32,7 +31,6 @@ class ViewService
     /**
      * Add a view to the given entity.
      *
-     * @param  Entity  $entity
      * @return int
      */
     public function add(Entity $entity)
@@ -61,8 +59,6 @@ class ViewService
     /**
      * Get the entities with the most views.
      *
-     * @param  int  $count
-     * @param  int  $page
      * @param  string|array  $filterModels
      * @param  string  $action - used for permission checking
      * @return Collection

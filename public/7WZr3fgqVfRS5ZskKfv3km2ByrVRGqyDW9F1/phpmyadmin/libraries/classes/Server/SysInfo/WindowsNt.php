@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Server\SysInfo;
 
-use function class_exists;
 use COM;
+use function trim;
 use function count;
 use function in_array;
 use function is_string;
-use function trim;
+use function class_exists;
 
 /**
  * Windows NT based SysInfo class

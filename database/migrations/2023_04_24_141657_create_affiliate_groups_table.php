@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateAffiliateGroupsTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateAffiliateGroupsTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('affiliate_groups')) {
+        if (! Schema::hasTable('affiliate_groups')) {
             Schema::create('affiliate_groups', function (Blueprint $table) {
                 $table->id();
                 $table->string('title');

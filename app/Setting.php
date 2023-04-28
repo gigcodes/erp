@@ -20,8 +20,6 @@ class Setting extends Model
     /**
      * Add a settings value
      *
-     * @param $key
-     * @param $val
      * @param  string  $type
      * @return bool
      */
@@ -37,7 +35,6 @@ class Setting extends Model
     /**
      * Get a settings value
      *
-     * @param $key
      * @param  null  $default
      * @return bool|int|mixed
      */
@@ -55,8 +52,6 @@ class Setting extends Model
     /**
      * Set a value for setting
      *
-     * @param $key
-     * @param $val
      * @param  string  $type
      * @return bool
      */
@@ -76,7 +71,6 @@ class Setting extends Model
     /**
      * Remove a setting
      *
-     * @param $key
      * @return bool
      */
     public static function remove($key)
@@ -91,8 +85,6 @@ class Setting extends Model
     /**
      * caste value into respective type
      *
-     * @param $val
-     * @param $castTo
      * @return bool|int
      */
     private static function castValue($val, $castTo)

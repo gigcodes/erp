@@ -6,9 +6,9 @@ use App\BrandFans;
 use App\GroupMembers;
 use App\HashtagPosts;
 use App\ScrapInfluencer;
+use Illuminate\Http\Request;
 use App\ScrappedFacebookUser;
 use App\Services\Facebook\Facebook;
-use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class FacebookController extends Controller
@@ -151,7 +151,7 @@ class FacebookController extends Controller
                                 if (! $influencer->hasMedia('instagram-screenshot')) {
                                     $media = MediaUploader::fromString(base64_decode($postJson['Screenshot']))
                                         ->toDisk('uploads')
-                                        ->toDirectory('social-media/instagram-screenshot/'.floor($influencer->id / 1000))
+                                        ->toDirectory('social-media/instagram-screenshot/' . floor($influencer->id / 1000))
                                         ->useFilename($influencer->id)
                                         ->beforeSave(function (\Plank\Mediable\Media $model, $source) {
                                             $model->setAttribute('extension', 'jpg');
@@ -161,7 +161,7 @@ class FacebookController extends Controller
                                 }
                             }
                         } catch (\Exception $e) {
-                            \Log::info('instagram influencer page error => '.$e->getMessage());
+                            \Log::info('instagram influencer page error => ' . $e->getMessage());
                         }
                     }
                 } else {

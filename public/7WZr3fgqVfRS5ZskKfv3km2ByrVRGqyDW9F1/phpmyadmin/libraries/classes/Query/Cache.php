@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Query;
 
-use function array_shift;
 use function count;
-use function is_array;
 use PhpMyAdmin\Util;
+use function is_array;
+use function array_shift;
 
 /**
  * Handles caching results

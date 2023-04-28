@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddABugIdColumnInGoogleDriveScreencastUploadTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddABugIdColumnInGoogleDriveScreencastUploadTable extends Migration
     public function up()
     {
         Schema::table('google_drive_screencast_upload', function (Blueprint $table) {
-            $table->unsignedBigInteger("bug_id")->nullable();
+            $table->unsignedBigInteger('bug_id')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddABugIdColumnInGoogleDriveScreencastUploadTable extends Migration
     public function down()
     {
         Schema::table('google_drive_screencast_upload', function (Blueprint $table) {
-            $table->dropColumn("google_drive_screencast_upload");
+            $table->dropColumn('google_drive_screencast_upload');
         });
     }
 }

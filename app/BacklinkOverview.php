@@ -14,7 +14,7 @@ class BacklinkOverview extends Model
     {
         $key = config('env.SEMRUSH_API');
         $apis = [
-            'overview' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_overview&target='.$domain.'&target_type=root_domain&export_columns=ascore,total,domains_num,urls_num,ips_num,ipclassc_num,follows_num,nofollows_num,sponsored_num,ugc_num,texts_num,images_num,forms_num,frames_num',
+            'overview' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_overview&target=' . $domain . '&target_type=root_domain&export_columns=ascore,total,domains_num,urls_num,ips_num,ipclassc_num,follows_num,nofollows_num,sponsored_num,ugc_num,texts_num,images_num,forms_num,frames_num',
         ];
 
         if ($column == null) {

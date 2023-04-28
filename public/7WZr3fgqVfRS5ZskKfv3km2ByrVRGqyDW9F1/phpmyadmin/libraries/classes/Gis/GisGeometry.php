@@ -7,18 +7,18 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Gis;
 
-use function explode;
-use function floatval;
-use function mb_strripos;
-use function mb_substr;
-use function mt_getrandmax;
-use PhpMyAdmin\Image\ImageWrapper;
-use function preg_match;
-use function random_int;
-use function sprintf;
-use function str_replace;
 use TCPDF;
 use function trim;
+use function explode;
+use function sprintf;
+use function floatval;
+use function mb_substr;
+use function preg_match;
+use function random_int;
+use function mb_strripos;
+use function str_replace;
+use function mt_getrandmax;
+use PhpMyAdmin\Image\ImageWrapper;
 
 /**
  * Base class for all GIS data type classes.
@@ -119,10 +119,10 @@ abstract class GisGeometry
     {
         return sprintf(
             'var minLoc = [%s, %s];'
-            .'var maxLoc = [%s, %s];'
-            .'var ext = ol.extent.boundingExtent([minLoc, maxLoc]);'
-            .'ext = ol.proj.transformExtent(ext, ol.proj.get("EPSG:%s"), ol.proj.get(\'EPSG:3857\'));'
-            .'map.getView().fit(ext, map.getSize());',
+            . 'var maxLoc = [%s, %s];'
+            . 'var ext = ol.extent.boundingExtent([minLoc, maxLoc]);'
+            . 'ext = ol.proj.transformExtent(ext, ol.proj.get("EPSG:%s"), ol.proj.get(\'EPSG:3857\'));'
+            . 'map.getView().fit(ext, map.getSize());',
             $scale_data['minX'],
             $scale_data['minY'],
             $scale_data['maxX'],
@@ -185,11 +185,11 @@ abstract class GisGeometry
         $srid = 0;
         $wkt = '';
 
-        if (preg_match("/^'".$geom_types."\(.*\)',[0-9]*$/i", $value)) {
+        if (preg_match("/^'" . $geom_types . "\(.*\)',[0-9]*$/i", $value)) {
             $last_comma = mb_strripos($value, ',');
             $srid = (int) trim(mb_substr($value, $last_comma + 1));
             $wkt = trim(mb_substr($value, 1, $last_comma - 2));
-        } elseif (preg_match('/^'.$geom_types.'\(.*\)$/i', $value)) {
+        } elseif (preg_match('/^' . $geom_types . '\(.*\)$/i', $value)) {
             $wkt = $value;
         }
 
@@ -276,7 +276,7 @@ abstract class GisGeometry
     protected function getPolygonForOpenLayers(array $polygon, int $srid)
     {
         return $this->getLineArrayForOpenLayers($polygon, $srid, false)
-        .'var polygon = new ol.geom.Polygon(arr);';
+        . 'var polygon = new ol.geom.Polygon(arr);';
     }
 
     /**
@@ -298,7 +298,7 @@ abstract class GisGeometry
         foreach ($lines as $line) {
             $ol_array .= 'var lineArr = [];';
             $points_arr = $this->extractPoints($line, null);
-            $ol_array .= 'var line = '.$this->getLineForOpenLayers($points_arr, $srid, $is_line_string).';';
+            $ol_array .= 'var line = ' . $this->getLineForOpenLayers($points_arr, $srid, $is_line_string) . ';';
             $ol_array .= 'var coord = line.getCoordinates();';
             $ol_array .= 'for (var i = 0; i < coord.length; i++) lineArr.push(coord[i]);';
             $ol_array .= 'arr.push(lineArr);';
@@ -321,9 +321,9 @@ abstract class GisGeometry
         $is_line_string = true
     ) {
         return 'new ol.geom.'
-        .($is_line_string ? 'LineString' : 'LinearRing').'('
-        .$this->getPointsArrayForOpenLayers($points_arr, $srid)
-        .')';
+        . ($is_line_string ? 'LineString' : 'LinearRing') . '('
+        . $this->getPointsArrayForOpenLayers($points_arr, $srid)
+        . ')';
     }
 
     /**
@@ -337,12 +337,12 @@ abstract class GisGeometry
     {
         $ol_array = 'new Array(';
         foreach ($points_arr as $point) {
-            $ol_array .= $this->getPointForOpenLayers($point, $srid).'.getCoordinates(), ';
+            $ol_array .= $this->getPointForOpenLayers($point, $srid) . '.getCoordinates(), ';
         }
 
         $ol_array = mb_substr($ol_array, 0, -2);
 
-        return $ol_array.')';
+        return $ol_array . ')';
     }
 
     /**
@@ -354,9 +354,9 @@ abstract class GisGeometry
      */
     protected function getPointForOpenLayers(array $point, int $srid)
     {
-        return '(new ol.geom.Point(['.$point[0].','.$point[1].'])'
-        .'.transform(ol.proj.get("EPSG:'.$srid.'")'
-        .', ol.proj.get(\'EPSG:3857\')))';
+        return '(new ol.geom.Point([' . $point[0] . ',' . $point[1] . '])'
+        . '.transform(ol.proj.get("EPSG:' . $srid . '")'
+        . ', ol.proj.get(\'EPSG:3857\')))';
     }
 
     protected function getRandomId(): int

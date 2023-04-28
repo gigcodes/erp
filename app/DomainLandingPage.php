@@ -14,7 +14,7 @@ class DomainLandingPage extends Model
     {
         $key = config('env.SEMRUSH_API');
         $apis = [
-            'landing_page' => 'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_landings',
+            'landing_page' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=advertiser_landings',
         ];
 
         if ($column == null) {

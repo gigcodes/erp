@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Social;
 
-use App\Http\Controllers\Controller;
-use App\Setting;
-use App\Social\SocialAd;
-use App\Social\SocialAdCreative;
-use App\Social\SocialConfig;
-use App\Social\SocialPostLog;
 use Crypt;
-use Facebook\Facebook;
-use Illuminate\Http\Request;
-use Response;
 use Session;
+use Response;
+use App\Setting;
+use Facebook\Facebook;
+use App\Social\SocialAd;
+use App\Social\SocialConfig;
+use Illuminate\Http\Request;
 use App\Helpers\SocialHelper;
+use App\Social\SocialPostLog;
+use App\Http\Controllers\Controller;
 
 class SocialAdsController extends Controller
 {
@@ -48,23 +47,19 @@ class SocialAdsController extends Controller
             $ads = SocialAd::latest();
         }
 
-        if(!empty($request->date))
-        {
-            $ads->where('created_at', 'LIKE', '%'.$request->date.'%');
+        if (! empty($request->date)) {
+            $ads->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
 
-        if(!empty($request->name))
-        {
-            $ads->where('name', 'LIKE', '%'.$request->name.'%');
+        if (! empty($request->name)) {
+            $ads->where('name', 'LIKE', '%' . $request->name . '%');
         }
 
-        if(!empty($request->config_name))
-        {
+        if (! empty($request->config_name)) {
             $ads->whereIn('config_id', $request->config_name);
         }
 
-        if(!empty($request->adset_name))
-        {
+        if (! empty($request->adset_name)) {
             $ads->whereIn('ad_set_name', $request->adset_name);
         }
 
@@ -74,12 +69,12 @@ class SocialAdsController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.ads.data', compact('ads', 'configs', 'adsets','ads_data'))->render(),
+                'tbody' => view('social.ads.data', compact('ads', 'configs', 'adsets', 'ads_data'))->render(),
                 'links' => (string) $ads->render(),
             ], 200);
         }
 
-        return view('social.ads.index', compact('ads', 'configs', 'adsets','ads_data'));
+        return view('social.ads.index', compact('ads', 'configs', 'adsets', 'ads_data'));
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
@@ -111,7 +106,6 @@ class SocialAdsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -148,10 +142,9 @@ class SocialAdsController extends Controller
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-                    
                     $data['access_token'] = $this->user_access_token;
-                   // $url = 'https://graph.facebook.com/v15.0/act_723851186073937/ads';
-                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/ads';
+                    // $url = 'https://graph.facebook.com/v15.0/act_723851186073937/ads';
+                    $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/ads';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -190,7 +183,7 @@ class SocialAdsController extends Controller
                 try {
                     //        dd($data);
                     $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/ads';
+                    $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/ads';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -269,7 +262,6 @@ class SocialAdsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\SocialAd  $SocialAd
      * @return \Illuminate\Http\Response
      */
@@ -308,9 +300,9 @@ class SocialAdsController extends Controller
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
         }
         if ($response != '') {
             try {
@@ -321,7 +313,7 @@ class SocialAdsController extends Controller
                     }
                 }
             } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->'.$e->getMessage());
+                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->' . $e->getMessage());
             }
         }
     }
@@ -335,14 +327,14 @@ class SocialAdsController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token);
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token=' . $token);
             $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->' . $e->getMessage());
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->' . $e->getMessage());
         }
         if ($response != '') {
             try {
@@ -351,7 +343,7 @@ class SocialAdsController extends Controller
                     return $key['id'];
                 }
             } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts id->'.$e->getMessage());
+                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts id->' . $e->getMessage());
             }
         }
     }
@@ -403,11 +395,11 @@ class SocialAdsController extends Controller
             'app_secret' => $config->api_secret,
             'default_graph_version' => 'v15.0',
         ]);
-        
+
         $this->ad_acc_id = $config->ads_manager;
         // $this->ad_acc_id = $this->getAdAccount($config, $this->fb, 0);
-       // $this->ad_acc_id = 'act_723851186073937';
-        
+        // $this->ad_acc_id = 'act_723851186073937';
+
         $url = "https://graph.facebook.com/v15.0/$this->ad_acc_id?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token=$token";
 
         $ch = curl_init();

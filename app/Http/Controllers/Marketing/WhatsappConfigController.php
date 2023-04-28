@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\Customer;
-use App\Http\Controllers\Controller;
-use App\ImQueue;
-use App\Marketing\WhatsappConfig;
-use App\Notification;
-use App\Services\Whatsapp\ChatApi\ChatApi;
-use App\Setting;
-use App\StoreWebsite;
 use Crypt;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
+use App\ImQueue;
+use App\Setting;
+use App\Customer;
+use App\Notification;
+use App\StoreWebsite;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Marketing\WhatsappConfig;
+use App\Http\Controllers\Controller;
+use App\Services\Whatsapp\ChatApi\ChatApi;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class WhatsappConfigController extends Controller
 {
@@ -45,17 +45,17 @@ class WhatsappConfigController extends Controller
 
             //if number is not null
             if (request('number') != null) {
-                $query->where('number', 'LIKE', '%'.request('number').'%');
+                $query->where('number', 'LIKE', '%' . request('number') . '%');
             }
 
             //If username is not null
             if (request('username') != null) {
-                $query->where('username', 'LIKE', '%'.request('username').'%');
+                $query->where('username', 'LIKE', '%' . request('username') . '%');
             }
 
             //if provider with is not null
             if (request('provider') != null) {
-                $query->where('provider', 'LIKE', '%'.request('provider').'%');
+                $query->where('provider', 'LIKE', '%' . request('provider') . '%');
             }
 
             //if provider with is not null
@@ -96,7 +96,6 @@ class WhatsappConfigController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -176,7 +175,6 @@ class WhatsappConfigController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\WhatsappConfig  $whatsAppConfig
      * @return \Illuminate\Http\Response
      */
@@ -207,7 +205,6 @@ class WhatsappConfigController extends Controller
     /**
      * Show history page
      *
-     * @param $id
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function history($id, Request $request)
@@ -239,8 +236,6 @@ class WhatsappConfigController extends Controller
     /**
      * Show queue page
      *
-     * @param $id
-     * @param  Request  $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function queue($id, Request $request)
@@ -271,7 +266,6 @@ class WhatsappConfigController extends Controller
     /**
      * Delete all queues from Chat-Api
      *
-     * @param $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|void
      */
     public function clearMessagesQueue($id)
@@ -285,7 +279,6 @@ class WhatsappConfigController extends Controller
     /**
      * Delete single queue
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroyQueue(Request $request)
@@ -326,7 +319,7 @@ class WhatsappConfigController extends Controller
         $url = 'http://136.244.118.102:81/get-barcode';
 
         if ($whatsappConfig->is_use_own == 1) {
-            $url = 'http://167.86.89.241:81/get-barcode?instanceId='.$whatsappConfig->instance_id;
+            $url = 'http://167.86.89.241:81/get-barcode?instanceId=' . $whatsappConfig->instance_id;
         }
 
         // set url
@@ -349,7 +342,7 @@ class WhatsappConfigController extends Controller
             }
             $content = base64_decode($barcode);
 
-            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode-'.Str::random(4))->upload();
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode-' . Str::random(4))->upload();
 
             return Response::json(['success' => true, 'media' => $media->getUrl()]);
         } else {
@@ -367,9 +360,9 @@ class WhatsappConfigController extends Controller
             $ch = curl_init();
 
             if ($whatsappConfig->is_use_own == 1) {
-                $url = 'http://167.86.89.241:81/get-screen?instanceId='.$whatsappConfig->instance_id;
+                $url = 'http://167.86.89.241:81/get-screen?instanceId=' . $whatsappConfig->instance_id;
             } else {
-                $url = env('WHATSAPP_BARCODE_IP').$whatsappConfig->username.'/get-screen';
+                $url = env('WHATSAPP_BARCODE_IP') . $whatsappConfig->username . '/get-screen';
             }
 
             // set url
@@ -392,7 +385,7 @@ class WhatsappConfigController extends Controller
                 $content = base64_decode($barcode->barcode);
             }
 
-            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen'.uniqid(true))->upload();
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen' . uniqid(true))->upload();
 
             return Response::json(['success' => true, 'media' => $media->getUrl()]);
         }
@@ -413,7 +406,7 @@ class WhatsappConfigController extends Controller
 
         $ch = curl_init();
 
-        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/delete-chrome-data';
+        $url = env('WHATSAPP_BARCODE_IP') . ':' . $whatsappConfig->username . '/delete-chrome-data';
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -448,10 +441,10 @@ class WhatsappConfigController extends Controller
 
         $ch = curl_init();
 
-        $url = env('WHATSAPP_BARCODE_IP').$whatsappConfig->username.'/restart-script';
+        $url = env('WHATSAPP_BARCODE_IP') . $whatsappConfig->username . '/restart-script';
 
         if ($whatsappConfig->is_use_own == 1) {
-            $url = 'http://167.86.89.241:81/restart?instanceId='.$whatsappConfig->instance_id;
+            $url = 'http://167.86.89.241:81/restart?instanceId=' . $whatsappConfig->instance_id;
         }
 
         // set url
@@ -497,7 +490,7 @@ class WhatsappConfigController extends Controller
                 }
                 if (! empty($customer)) {
                     $customer->do_not_disturb = 1;
-                    $customer->phone = '-'.$customer->phone;
+                    $customer->phone = '-' . $customer->phone;
                     $customer->update();
                     $count++;
                 }
@@ -541,7 +534,7 @@ class WhatsappConfigController extends Controller
                         if (isset($resInArr) && isset($resInArr['accountStatus']) && $resInArr['accountStatus'] != 'authenticated') {
                             Notification::create([
                                 'role' => 'Whatsapp Config Proivders Authentication',
-                                'message' => 'Current Status : '.$resInArr['accountStatus'],
+                                'message' => 'Current Status : ' . $resInArr['accountStatus'],
                                 'product_id' => '',
                                 'user_id' => $instanceDetails->id,
                                 'sale_id' => '',
@@ -564,7 +557,7 @@ class WhatsappConfigController extends Controller
         $whatsappConfig = WhatsappConfig::find($id);
         $ch = curl_init();
         if ($whatsappConfig->is_use_own == 1) {
-            $url = 'http://167.86.89.241:83/logout?instanceId='.$whatsappConfig->instance_id;
+            $url = 'http://167.86.89.241:83/logout?instanceId=' . $whatsappConfig->instance_id;
             curl_setopt($ch, CURLOPT_URL, $url);
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -589,7 +582,7 @@ class WhatsappConfigController extends Controller
         $whatsappConfig = WhatsappConfig::find($id);
         $ch = curl_init();
         if ($whatsappConfig->is_use_own == 1) {
-            $url = 'http://167.86.89.241:81/get-status?instanceId='.$whatsappConfig->instance_id;
+            $url = 'http://167.86.89.241:81/get-status?instanceId=' . $whatsappConfig->instance_id;
             curl_setopt($ch, CURLOPT_URL, $url);
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

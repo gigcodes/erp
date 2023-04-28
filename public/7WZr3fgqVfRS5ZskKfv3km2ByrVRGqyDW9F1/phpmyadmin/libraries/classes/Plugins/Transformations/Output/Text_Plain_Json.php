@@ -8,10 +8,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Output;
 
 use function __;
-use function htmlspecialchars;
 use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\TransformationsPlugin;
+use function htmlspecialchars;
 use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Plugins\TransformationsPlugin;
 
 /**
  * Handles the json transformation for text plain
@@ -53,9 +53,9 @@ class Text_Plain_Json extends TransformationsPlugin
      */
     public function applyTransformation($buffer, array $options = [], ?FieldMetadata $meta = null)
     {
-        return '<code class="json"><pre>'."\n"
-        .htmlspecialchars($buffer)."\n"
-        .'</pre></code>';
+        return '<code class="json"><pre>' . "\n"
+        . htmlspecialchars($buffer) . "\n"
+        . '</pre></code>';
     }
 
     /* ~~~~~~~~~~~~~~~~~~~~ Getters and Setters ~~~~~~~~~~~~~~~~~~~~ */

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Newsletter;
-use App\NewsletterProduct;
 use App\StoreWebsite;
+use App\NewsletterProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -118,7 +118,7 @@ class NewsletterController extends Controller
         }
 
         if (count($errorMessage) > 0) {
-            return redirect()->route('newsletters.index')->withError('There was some issue for given products : '.implode('<br>', $errorMessage));
+            return redirect()->route('newsletters.index')->withError('There was some issue for given products : ' . implode('<br>', $errorMessage));
         }
 
         return redirect()->route('newsletters.index')->withSuccess('You have successfully added newsletter products!');
@@ -138,7 +138,7 @@ class NewsletterController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -163,7 +163,6 @@ class NewsletterController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -182,7 +181,6 @@ class NewsletterController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -215,7 +213,7 @@ class NewsletterController extends Controller
 
         if ($newsletter) {
             //$template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
-            $template =$newsletter->mailinglistTemplate;
+            $template = $newsletter->mailinglistTemplate;
             if ($template) {
                 $products = $newsletter->products;
                 if (! $products->isEmpty()) {

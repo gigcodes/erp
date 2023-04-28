@@ -7,20 +7,20 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Plugins\TwoFactor;
 
+use stdClass;
+use Throwable;
 use function __;
-use CodeLts\U2F\U2FServer\U2FException;
-use CodeLts\U2F\U2FServer\U2FServer;
 use function is_object;
 use function json_decode;
 use function json_encode;
-use PhpMyAdmin\Plugins\TwoFactorPlugin;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\TwoFactor;
-use stdClass;
-use Throwable;
 use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Twig\Error\RuntimeError;
+use PhpMyAdmin\ResponseRenderer;
+use CodeLts\U2F\U2FServer\U2FServer;
+use CodeLts\U2F\U2FServer\U2FException;
+use PhpMyAdmin\Plugins\TwoFactorPlugin;
 
 /**
  * Hardware key based two-factor authentication

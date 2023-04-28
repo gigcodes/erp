@@ -12,7 +12,6 @@ class SentryAccount extends Model
     protected $fillable = [
         'sentry_token',
         'sentry_organization',
-        'sentry_project'
+        'sentry_project',
     ];
-   
 }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\ScrappedFacebookUser;
 use Illuminate\Http\Request;
+use App\ScrappedFacebookUser;
 
 class ScrappedFacebookUserController extends Controller
 {

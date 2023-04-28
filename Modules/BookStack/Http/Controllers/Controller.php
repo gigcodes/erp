@@ -3,12 +3,12 @@
 namespace Modules\BookStack\Http\Controllers;
 
 use App\User;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
 use Modules\BookStack\Ownable;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 
 abstract class Controller extends BaseController
 {
@@ -58,8 +58,6 @@ abstract class Controller extends BaseController
 
     /**
      * Adds the page title into the view.
-     *
-     * @param $title
      */
     public function setPageTitle($title)
     {
@@ -100,8 +98,6 @@ abstract class Controller extends BaseController
     /**
      * Check the current user's permissions against an ownable item.
      *
-     * @param $permission
-     * @param  Ownable  $ownable
      * @return bool
      */
     protected function checkOwnablePermission($permission, Ownable $ownable)
@@ -116,8 +112,6 @@ abstract class Controller extends BaseController
     /**
      * Check if a user has a permission or bypass if the callback is true.
      *
-     * @param $permissionName
-     * @param $callback
      * @return bool
      */
     protected function checkPermissionOr($permissionName, $callback)
@@ -134,8 +128,6 @@ abstract class Controller extends BaseController
      * Check if the current user has a permission or bypass if the provided user
      * id matches the current user.
      *
-     * @param  string  $permissionName
-     * @param  int  $userId
      * @return bool
      */
     protected function checkPermissionOrCurrentUser(string $permissionName, int $userId)
@@ -160,8 +152,6 @@ abstract class Controller extends BaseController
     /**
      * Create the response for when a request fails validation.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  array  $errors
      * @return \Symfony\Component\HttpFoundation\Response
      */
     protected function buildFailedValidationResponse(Request $request, array $errors)
@@ -178,15 +168,13 @@ abstract class Controller extends BaseController
     /**
      * Create a response that forces a download in the browser.
      *
-     * @param  string  $content
-     * @param  string  $fileName
      * @return \Illuminate\Http\Response
      */
     protected function downloadResponse(string $content, string $fileName)
     {
         return response()->make($content, 200, [
             'Content-Type' => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ]);
     }
 }

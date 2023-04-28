@@ -33,7 +33,7 @@ class OrderConfirmation extends Mailable
      */
     public function build()
     {
-        $subject = 'New Order # '.$this->order->order_id;
+        $subject = 'New Order # ' . $this->order->order_id;
         $order = $this->order;
         $customer = $order->customer;
         $order_products = $order->order_products;

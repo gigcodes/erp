@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Library\Magento\MagentoService;
 use App\Product;
 use App\StoreWebsite;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use App\Library\Magento\MagentoService;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class PushToMagentoJob implements ShouldQueue
 {
@@ -26,8 +26,6 @@ class PushToMagentoJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  Product  $product
-     * @param  StoreWebsite  $website
      * @param  null  $category
      * @param  null  $log
      * @param  null  $mode

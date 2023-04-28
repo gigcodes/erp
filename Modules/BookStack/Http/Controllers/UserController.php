@@ -2,15 +2,15 @@
 
 namespace Modules\BookStack\Http\Controllers;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Str;
-use Modules\BookStack\Auth\Access\SocialAuthService;
-use Modules\BookStack\Auth\Access\UserInviteService;
 use Modules\BookStack\Auth\User;
 use Modules\BookStack\Auth\UserRepo;
-use Modules\BookStack\Exceptions\UserUpdateException;
 use Modules\BookStack\Uploads\ImageRepo;
+use Modules\BookStack\Auth\Access\SocialAuthService;
+use Modules\BookStack\Auth\Access\UserInviteService;
+use Modules\BookStack\Exceptions\UserUpdateException;
 
 class UserController extends Controller
 {
@@ -24,11 +24,6 @@ class UserController extends Controller
 
     /**
      * UserController constructor.
-     *
-     * @param  User  $user
-     * @param  UserRepo  $userRepo
-     * @param  UserInviteService  $inviteService
-     * @param  ImageRepo  $imageRepo
      */
     public function __construct(User $user, UserRepo $userRepo, UserInviteService $inviteService, ImageRepo $imageRepo)
     {
@@ -42,7 +37,6 @@ class UserController extends Controller
     /**
      * Display a listing of the users.
      *
-     * @param  Request  $request
      * @return Response
      */
     public function index(Request $request)
@@ -77,7 +71,6 @@ class UserController extends Controller
     /**
      * Store a newly created user in storage.
      *
-     * @param  Request  $request
      * @return Response
      *
      * @throws UserUpdateException
@@ -150,7 +143,6 @@ class UserController extends Controller
     /**
      * Update the specified user in storage.
      *
-     * @param  Request  $request
      * @param  int  $id
      * @return Response
      *
@@ -164,7 +156,7 @@ class UserController extends Controller
 
         $this->validate($request, [
             'name' => 'min:2',
-            'email' => 'min:2|email|unique:users,email,'.$id,
+            'email' => 'min:2|email|unique:users,email,' . $id,
             'password' => 'min:6|required_with:password_confirm',
             'password-confirm' => 'same:password|required_with:password',
             'setting' => 'array',
@@ -219,7 +211,7 @@ class UserController extends Controller
         $user->save();
         session()->flash('success', trans('settings.users_edit_success'));
 
-        $redirectUrl = userCan('users-manage') ? '/kb/settings/users' : ('/kb/settings/users/'.$user->id);
+        $redirectUrl = userCan('users-manage') ? '/kb/settings/users' : ('/kb/settings/users/' . $user->id);
 
         return redirect($redirectUrl);
     }
@@ -276,7 +268,6 @@ class UserController extends Controller
     /**
      * Show the user profile page
      *
-     * @param $id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function showProfilePage($id)
@@ -298,8 +289,6 @@ class UserController extends Controller
     /**
      * Update the user's preferred book-list display setting.
      *
-     * @param $id
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function switchBookView($id, Request $request)
@@ -310,8 +299,6 @@ class UserController extends Controller
     /**
      * Update the user's preferred shelf-list display setting.
      *
-     * @param $id
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function switchShelfView($id, Request $request)
@@ -323,8 +310,6 @@ class UserController extends Controller
      * For a type of list, switch with stored view type for a user.
      *
      * @param  int  $userId
-     * @param  Request  $request
-     * @param  string  $listName
      * @return \Illuminate\Http\RedirectResponse
      */
     protected function switchViewType($userId, Request $request, string $listName)
@@ -337,7 +322,7 @@ class UserController extends Controller
         }
 
         $user = $this->userRepo->getById($userId);
-        $key = $listName.'_view_type';
+        $key = $listName . '_view_type';
         setting()->putUser($user, $key, $viewType);
 
         return redirect()->back(302, [], "/kb/settings/users/$userId");
@@ -346,9 +331,6 @@ class UserController extends Controller
     /**
      * Change the stored sort type for a particular view.
      *
-     * @param  string  $id
-     * @param  string  $type
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function changeSort(string $id, string $type, Request $request)
@@ -364,9 +346,6 @@ class UserController extends Controller
     /**
      * Update the stored section expansion preference for the given user.
      *
-     * @param  string  $id
-     * @param  string  $key
-     * @param  Request  $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
     public function updateExpansionPreference(string $id, string $key, Request $request)
@@ -380,7 +359,7 @@ class UserController extends Controller
         $newState = $request->get('expand', 'false');
 
         $user = $this->user->findOrFail($id);
-        setting()->putUser($user, 'section_expansion#'.$key, $newState);
+        setting()->putUser($user, 'section_expansion#' . $key, $newState);
 
         return response('', 204);
     }
@@ -388,9 +367,6 @@ class UserController extends Controller
     /**
      * Changed the stored preference for a list sort order.
      *
-     * @param  int  $userId
-     * @param  Request  $request
-     * @param  string  $listName
      * @return \Illuminate\Http\RedirectResponse
      */
     protected function changeListSort(int $userId, Request $request, string $listName)
@@ -408,8 +384,8 @@ class UserController extends Controller
         }
 
         $user = $this->user->findOrFail($userId);
-        $sortKey = $listName.'_sort';
-        $orderKey = $listName.'_sort_order';
+        $sortKey = $listName . '_sort';
+        $orderKey = $listName . '_sort_order';
         setting()->putUser($user, $sortKey, $sort);
         setting()->putUser($user, $orderKey, $order);
 

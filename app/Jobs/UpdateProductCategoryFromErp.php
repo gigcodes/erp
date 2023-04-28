@@ -4,10 +4,10 @@ namespace App\Jobs;
 
 use App\ScrapedProducts;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class UpdateProductCategoryFromErp implements ShouldQueue
 {
@@ -53,7 +53,7 @@ class UpdateProductCategoryFromErp implements ShouldQueue
     public function handle()
     {
         try {
-            self::putLog('Job update product category from erp start time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job update product category from erp start time : ' . date('Y-m-d H:i:s'));
 
             $affectedProducts = ScrapedProducts::matchedCategory($this->from);
 
@@ -78,11 +78,11 @@ class UpdateProductCategoryFromErp implements ShouldQueue
 
             //\Log::info(print_r($sku,true));
 
-            self::putLog('Job update product category from erp end time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job update product category from erp end time : ' . date('Y-m-d H:i:s'));
 
             return true;
         } catch (\Exception $e) {
-            self::putLog('Job update product category from erp end time : '.date('Y-m-d H:i:s').' => '.$e->getMessage());
+            self::putLog('Job update product category from erp end time : ' . date('Y-m-d H:i:s') . ' => ' . $e->getMessage());
             throw new \Exception($e->getMessage());
 
             return false;

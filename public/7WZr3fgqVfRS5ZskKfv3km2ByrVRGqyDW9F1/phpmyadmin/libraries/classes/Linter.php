@@ -8,15 +8,15 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
+use function strlen;
 use function defined;
-use function htmlspecialchars;
+use function sprintf;
 use function mb_strlen;
+use function htmlspecialchars;
 use PhpMyAdmin\SqlParser\Lexer;
 use PhpMyAdmin\SqlParser\Parser;
 use PhpMyAdmin\SqlParser\UtfString;
 use PhpMyAdmin\SqlParser\Utils\Error as ParserError;
-use function sprintf;
-use function strlen;
 
 /**
  * The linter itself.

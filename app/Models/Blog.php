@@ -49,6 +49,4 @@ class Blog extends Model
     {
         return $this->hasOne(\App\User::class, 'id', 'user_id');
     }
-
-    
 }

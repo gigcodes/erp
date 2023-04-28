@@ -2,12 +2,12 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
-use App\ChatbotDialogResponse;
 use App\ChatMessage;
-use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\ChatbotDialogResponse;
 use Illuminate\Routing\Controller;
+use App\Library\Watson\Model as WatsonManager;
 
 class ChatBotController extends Controller
 {

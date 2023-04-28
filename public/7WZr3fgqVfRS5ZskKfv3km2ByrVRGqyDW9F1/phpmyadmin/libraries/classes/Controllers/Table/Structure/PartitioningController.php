@@ -5,26 +5,26 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table\Structure;
 
 use function __;
+use function trim;
 use function count;
-use PhpMyAdmin\Config\PageSettings;
-use PhpMyAdmin\Controllers\Table\AbstractController;
-use PhpMyAdmin\Controllers\Table\StructureController;
-use PhpMyAdmin\CreateAddField;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
+use function strpos;
+use function substr;
+use PhpMyAdmin\Util;
+use function strrpos;
+use PhpMyAdmin\Table;
 use PhpMyAdmin\Message;
-use PhpMyAdmin\Partitioning\TablePartitionDefinition;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\StorageEngine;
+use PhpMyAdmin\CreateAddField;
+use PhpMyAdmin\Html\Generator;
 use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\SqlParser\Parser;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Config\PageSettings;
+use PhpMyAdmin\Controllers\Table\AbstractController;
 use PhpMyAdmin\SqlParser\Statements\CreateStatement;
-use PhpMyAdmin\StorageEngine;
-use PhpMyAdmin\Table;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
-use function strpos;
-use function strrpos;
-use function substr;
-use function trim;
+use PhpMyAdmin\Controllers\Table\StructureController;
+use PhpMyAdmin\Partitioning\TablePartitionDefinition;
 
 final class PartitioningController extends AbstractController
 {
@@ -167,7 +167,7 @@ final class PartitioningController extends AbstractController
         for ($i = 0, $iMax = $partitionDetails['partition_count']; $i < $iMax; $i++) {
             if (! isset($stmt->partitions[$i])) {
                 $partitionDetails['partitions'][$i] = [
-                    'name' => 'p'.$i,
+                    'name' => 'p' . $i,
                     'value_type' => '',
                     'value' => '',
                     'engine' => '',
@@ -204,7 +204,7 @@ final class PartitioningController extends AbstractController
             }
 
             $partition = &$partitionDetails['partitions'][$i];
-            $partition['prefix'] = 'partitions['.$i.']';
+            $partition['prefix'] = 'partitions[' . $i . ']';
 
             if ($partitionDetails['subpartition_count'] <= 1) {
                 continue;
@@ -216,7 +216,7 @@ final class PartitioningController extends AbstractController
             for ($j = 0, $jMax = $partitionDetails['subpartition_count']; $j < $jMax; $j++) {
                 if (! isset($stmt->partitions[$i]->subpartitions[$j])) {
                     $partition['subpartitions'][$j] = [
-                        'name' => $partition['name'].'_s'.$j,
+                        'name' => $partition['name'] . '_s' . $j,
                         'engine' => '',
                         'comment' => '',
                         'data_directory' => '',
@@ -242,8 +242,8 @@ final class PartitioningController extends AbstractController
                 }
 
                 $subpartition = &$partition['subpartitions'][$j];
-                $subpartition['prefix'] = 'partitions['.$i.']'
-                    .'[subpartitions]['.$j.']';
+                $subpartition['prefix'] = 'partitions[' . $i . ']'
+                    . '[subpartitions][' . $j . ']';
             }
         }
 
@@ -252,8 +252,8 @@ final class PartitioningController extends AbstractController
 
     private function updatePartitioning(): void
     {
-        $sql_query = 'ALTER TABLE '.Util::backquote($this->table).' '
-            .$this->createAddField->getPartitionsDefinition();
+        $sql_query = 'ALTER TABLE ' . Util::backquote($this->table) . ' '
+            . $this->createAddField->getPartitionsDefinition();
 
         // Execute alter query
         $result = $this->dbi->tryQuery($sql_query);
@@ -263,7 +263,7 @@ final class PartitioningController extends AbstractController
             $this->response->addJSON(
                 'message',
                 Message::rawError(
-                    __('Query error').':<br>'.$this->dbi->getError()
+                    __('Query error') . ':<br>' . $this->dbi->getError()
                 )
             );
 

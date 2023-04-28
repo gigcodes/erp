@@ -2,15 +2,15 @@
 
 namespace App\Console\Commands;
 
-use App\AutoReply;
-use App\ChatMessage;
-use App\CommunicationHistory;
-use App\CronJobReport;
-use App\Customer;
 use App\Order;
-use App\PrivateView;
-use App\ScheduledMessage;
+use App\Customer;
+use App\AutoReply;
 use Carbon\Carbon;
+use App\ChatMessage;
+use App\PrivateView;
+use App\CronJobReport;
+use App\ScheduledMessage;
+use App\CommunicationHistory;
 use Illuminate\Console\Command;
 
 class AutoMessenger extends Command

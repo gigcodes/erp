@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Database\CentralColumns;
 
-use PhpMyAdmin\Controllers\Database\AbstractController;
-use PhpMyAdmin\Database\CentralColumns;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Database\CentralColumns;
+use PhpMyAdmin\Controllers\Database\AbstractController;
 
 final class PopulateColumnsController extends AbstractController
 {

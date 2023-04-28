@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Shopify;
 
-use App\Http\Controllers\Controller;
-use App\ShopifyHelper;
 use App\StoreWebsite;
+use App\ShopifyHelper;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 /**
  * @author Sukwhinder Singh
@@ -35,7 +35,6 @@ class ShopifyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -68,7 +67,6 @@ class ShopifyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -110,7 +108,6 @@ class ShopifyController extends Controller
     /**
      * Get a webhook event and create orders out of it
      *
-     * @param  Request  $request
      * @return void
      */
     public function setShopifyOrders(Request $request)
@@ -165,7 +162,6 @@ class ShopifyController extends Controller
     /**
      * Get a webhook event and create customers out of it
      *
-     * @param  Request  $request
      * @return void
      */
     public function setShopifyCustomers(Request $request)

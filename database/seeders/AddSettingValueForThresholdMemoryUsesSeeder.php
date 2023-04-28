@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\MemoryUsage;
 use App\Setting;
+use App\MemoryUsage;
 use Illuminate\Database\Seeder;
 
 class AddSettingValueForThresholdMemoryUsesSeeder extends Seeder

@@ -9,19 +9,19 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Auth;
 
 use function __;
-use function base64_decode;
-use function defined;
-use function hash_equals;
-use PhpMyAdmin\Config;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Plugins\AuthenticationPlugin;
-use PhpMyAdmin\ResponseRenderer;
-use function preg_replace;
-use function sprintf;
 use function strcmp;
 use function strpos;
 use function substr;
+use PhpMyAdmin\Core;
+use function defined;
+use function sprintf;
+use PhpMyAdmin\Config;
+use PhpMyAdmin\Message;
+use function hash_equals;
+use function preg_replace;
+use function base64_decode;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Plugins\AuthenticationPlugin;
 
 /**
  * Handles the HTTP authentication methods
@@ -62,7 +62,7 @@ class AuthenticationHttp extends AuthenticationPlugin
                 $server_message = $GLOBALS['cfg']['Server']['verbose'];
             }
 
-            $realm_message = 'phpMyAdmin '.$server_message;
+            $realm_message = 'phpMyAdmin ' . $server_message;
         } else {
             $realm_message = $GLOBALS['cfg']['Server']['auth_http_realm'];
         }
@@ -71,7 +71,7 @@ class AuthenticationHttp extends AuthenticationPlugin
 
         // remove non US-ASCII to respect RFC2616
         $realm_message = preg_replace('/[^\x20-\x7e]/i', '', $realm_message);
-        $response->header('WWW-Authenticate: Basic realm="'.$realm_message.'"');
+        $response->header('WWW-Authenticate: Basic realm="' . $realm_message . '"');
         $response->setHttpResponseCode(401);
 
         /* HTML header */
@@ -213,6 +213,6 @@ class AuthenticationHttp extends AuthenticationPlugin
      */
     public function getLoginFormURL()
     {
-        return './index.php?route=/&old_usr='.$this->user;
+        return './index.php?route=/&old_usr=' . $this->user;
     }
 }

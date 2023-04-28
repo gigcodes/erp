@@ -22,9 +22,6 @@ class FileExcelSheetExport implements WithMultipleSheets
         $this->path = $path;
     }
 
-    /**
-     * @return array
-     */
     public function sheets(): array
     {
     }

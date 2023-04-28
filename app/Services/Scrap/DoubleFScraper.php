@@ -23,8 +23,8 @@ class DoubleFScraper extends Scraper
             }
             $brand->name = str_replace('&amp;', 'E', $brand->name);
             $brand->name = str_replace('&', 'E', $brand->name);
-            $this->scrapPage(self::URL['woman'].strtolower(str_replace(' ', '-', trim($brand->name))).'?limit=1000');
-            $this->scrapPage(self::URL['man'].strtolower(str_replace(' ', '-', trim($brand->name))).'?limit=1000');
+            $this->scrapPage(self::URL['woman'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '?limit=1000');
+            $this->scrapPage(self::URL['man'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '?limit=1000');
         }
     }
 
@@ -59,7 +59,7 @@ class DoubleFScraper extends Scraper
             if ($text === '' || $text === 'designers') {
                 continue;
             }
-            $urls[$text.'_'.$key] = $link->getAttribute('href');
+            $urls[$text . '_' . $key] = $link->getAttribute('href');
         }
 
         foreach ($urls as $itemUrl) {

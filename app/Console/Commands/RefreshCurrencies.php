@@ -49,7 +49,7 @@ class RefreshCurrencies extends Command
 
         //
         $client = new Client;
-        $url = 'http://data.fixer.io/api/latest?base=EUR&access_key='.$fixerApiKey;
+        $url = 'http://data.fixer.io/api/latest?base=EUR&access_key=' . $fixerApiKey;
 
         $response = $client->get($url);
 

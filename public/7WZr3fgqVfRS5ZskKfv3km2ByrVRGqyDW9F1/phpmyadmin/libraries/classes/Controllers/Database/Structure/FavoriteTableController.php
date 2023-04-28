@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Database\Structure;
 
 use function __;
-use function count;
-use function json_decode;
-use function json_encode;
 use function md5;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Controllers\Database\AbstractController;
-use PhpMyAdmin\RecentFavoriteTable;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
+use function sha1;
+use function count;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
-use function sha1;
+use PhpMyAdmin\Template;
+use function json_decode;
+use function json_encode;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\RecentFavoriteTable;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\Controllers\Database\AbstractController;
 
 final class FavoriteTableController extends AbstractController
 {
@@ -113,7 +113,7 @@ final class FavoriteTableController extends AbstractController
             'db' => $this->db,
             'ajax_request' => true,
             'favorite_table' => $favoriteTable,
-            ($alreadyFavorite ? 'remove' : 'add').'_favorite' => true,
+            ($alreadyFavorite ? 'remove' : 'add') . '_favorite' => true,
         ];
 
         $json['user'] = $user;
@@ -121,7 +121,7 @@ final class FavoriteTableController extends AbstractController
         $json['list'] = $favoriteInstance->getHtmlList();
         $json['anchor'] = $this->template->render('database/structure/favorite_anchor', [
             'table_name_hash' => md5($favoriteTable),
-            'db_table_name_hash' => md5($this->db.'.'.$favoriteTable),
+            'db_table_name_hash' => md5($this->db . '.' . $favoriteTable),
             'fav_params' => $favoriteParams,
             'already_favorite' => $alreadyFavorite,
         ]);
@@ -135,7 +135,6 @@ final class FavoriteTableController extends AbstractController
      * @param  RecentFavoriteTable  $favoriteInstance Instance of this class
      * @param  string  $user             The user hash
      * @param  array  $favoriteTables   Existing favorites
-     * @return array
      */
     private function synchronizeFavoriteTables(
         RecentFavoriteTable $favoriteInstance,

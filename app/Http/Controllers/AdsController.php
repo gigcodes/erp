@@ -3,45 +3,45 @@
 namespace App\Http\Controllers;
 
 use App\Ad;
-use App\AdAccount;
-use App\AdCampaign;
 use App\AdGroup;
-use App\GoogleAdsAccount;
+use App\AdAccount;
 use Carbon\Carbon;
+use App\AdCampaign;
+use App\GoogleAdsAccount;
+use Illuminate\Http\Request;
 use Google\AdsApi\AdWords\AdWordsServices;
-use Google\AdsApi\AdWords\AdWordsSessionBuilder;
-use Google\AdsApi\AdWords\v201809\cm\AdGroup as GoogleAdGroup;
+use Google\AdsApi\AdWords\v201809\cm\Level;
+use Google\AdsApi\AdWords\v201809\cm\Money;
+use Google\AdsApi\AdWords\v201809\cm\Budget;
+use Google\AdsApi\AdWords\v201809\cm\CpcBid;
+use Google\AdsApi\Common\OAuth2TokenBuilder;
+use Google\AdsApi\AdWords\v201809\cm\Campaign;
+use Google\AdsApi\AdWords\v201809\cm\Operator;
+use Google\AdsApi\AdWords\v201809\cm\TimeUnit;
 use Google\AdsApi\AdWords\v201809\cm\AdGroupAd;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupAdOperation;
+use Google\AdsApi\AdWords\AdWordsSessionBuilder;
+use Google\AdsApi\AdWords\v201809\cm\FrequencyCap;
+use Google\AdsApi\AdWords\v201809\cm\BudgetService;
+use Google\AdsApi\AdWords\v201809\cm\AdGroupService;
+use Google\AdsApi\AdWords\v201809\cm\ExpandedTextAd;
+use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
+use Google\AdsApi\AdWords\v201809\cm\BudgetOperation;
+use Google\AdsApi\AdWords\v201809\cm\CampaignService;
 use Google\AdsApi\AdWords\v201809\cm\AdGroupAdService;
 use Google\AdsApi\AdWords\v201809\cm\AdGroupOperation;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupService;
-use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelType;
-use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyConfiguration;
-use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyType;
-use Google\AdsApi\AdWords\v201809\cm\Budget;
-use Google\AdsApi\AdWords\v201809\cm\BudgetBudgetDeliveryMethod;
-use Google\AdsApi\AdWords\v201809\cm\BudgetOperation;
-use Google\AdsApi\AdWords\v201809\cm\BudgetService;
-use Google\AdsApi\AdWords\v201809\cm\Campaign;
 use Google\AdsApi\AdWords\v201809\cm\CampaignOperation;
-use Google\AdsApi\AdWords\v201809\cm\CampaignService;
-use Google\AdsApi\AdWords\v201809\cm\CpcBid;
-use Google\AdsApi\AdWords\v201809\cm\ExpandedTextAd;
-use Google\AdsApi\AdWords\v201809\cm\FrequencyCap;
-use Google\AdsApi\AdWords\v201809\cm\Level;
+use Google\AdsApi\AdWords\v201809\cm\AdGroupAdOperation;
+use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyType;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelType;
 use Google\AdsApi\AdWords\v201809\cm\ManualCpcBiddingScheme;
 use Google\AdsApi\AdWords\v201809\cm\ManualCpmBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\Money;
-use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
-use Google\AdsApi\AdWords\v201809\cm\Operator;
 use Google\AdsApi\AdWords\v201809\cm\TargetCpaBiddingScheme;
 use Google\AdsApi\AdWords\v201809\cm\TargetRoasBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\AdGroup as GoogleAdGroup;
 use Google\AdsApi\AdWords\v201809\cm\TargetSpendBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\TimeUnit;
-use Google\AdsApi\Common\OAuth2TokenBuilder;
-use Illuminate\Http\Request;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Google\AdsApi\AdWords\v201809\cm\BudgetBudgetDeliveryMethod;
+use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyConfiguration;
 
 class AdsController extends Controller
 {
@@ -99,7 +99,7 @@ class AdsController extends Controller
             $uploadfile = MediaUploader::fromSource($request->file('config_file'))
                 ->toDestination('adsapi', $account_id)
                 ->upload();
-            $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
+            $getfilename = $uploadfile->filename . '.' . $uploadfile->extension;
             $googleadsAc->config_file = $getfilename;
             $googleadsAc->save();
         }
@@ -125,7 +125,7 @@ class AdsController extends Controller
         $tracking_template_url = isset($request->data['campaign_url']['tracking_tamplate']) ? $request->data['campaign_url']['tracking_tamplate'] : '';
         $final_url_suffix = isset($request->data['campaign_url']['final_url_suffix']) ? $request->data['campaign_url']['final_url_suffix'] : '';
 
-        $configFile = storage_path('app/adsapi/'.$request->account_id.'/'.$adAccount->config_file);
+        $configFile = storage_path('app/adsapi/' . $request->account_id . '/' . $adAccount->config_file);
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile($configFile)
             ->build();
@@ -258,7 +258,7 @@ class AdsController extends Controller
         $adCampaign = AdCampaign::find($request->campaign);
         $adAccount = AdAccount::find($adCampaign->ad_account_id);
 
-        $storagepath = storage_path('app/adsapi/'.$adAccount->id.'/'.$adAccount->config_file);
+        $storagepath = storage_path('app/adsapi/' . $adAccount->id . '/' . $adAccount->config_file);
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
@@ -272,7 +272,7 @@ class AdsController extends Controller
                 /// Create an ad group with required settings and specified status.
                 $adGroup = new GoogleAdGroup();
                 $adGroup->setCampaignId($adCampaign->campaign_id);
-                $adGroup->setName($value['name'].mt_rand());
+                $adGroup->setName($value['name'] . mt_rand());
 
                 // Set bids (required).
                 $bid = new CpcBid();
@@ -329,7 +329,7 @@ class AdsController extends Controller
         $adCampaign = AdCampaign::find($adGroupp->campaign_id);
         $adAccount = AdAccount::find($adCampaign->ad_account_id);
 
-        $storagepath = storage_path('app/adsapi/'.$adAccount->id.'/'.$adAccount->config_file);
+        $storagepath = storage_path('app/adsapi/' . $adAccount->id . '/' . $adAccount->config_file);
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();

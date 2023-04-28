@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
+use GuzzleHttp\Client;
 use App\ScrapedProducts;
+use Illuminate\Console\Command;
 use App\Services\Bots\CucProductDataEmulator;
 use App\Services\Bots\CucProductExistsEmulator;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
-use Illuminate\Console\Command;
 
 class GetCuccuiniDetailsWithEmulator extends Command
 {
@@ -122,6 +122,6 @@ class GetCuccuiniDetailsWithEmulator extends Command
 
     private function setIP(): void
     {
-        $this->IP = '5.61.4.70  '.':'.'8080';
+        $this->IP = '5.61.4.70  ' . ':' . '8080';
     }
 }

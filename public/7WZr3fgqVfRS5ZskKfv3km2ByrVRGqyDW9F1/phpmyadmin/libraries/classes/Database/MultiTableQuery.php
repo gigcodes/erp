@@ -7,17 +7,17 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Database;
 
-use function array_keys;
 use function md5;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\ConfigStorage\RelationCleanup;
-use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\Sql;
+use PhpMyAdmin\Url;
+use function array_keys;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\Operations;
 use PhpMyAdmin\ParseAnalyze;
-use PhpMyAdmin\Sql;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Transformations;
-use PhpMyAdmin\Url;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\ConfigStorage\RelationCleanup;
 
 /**
  * Class to handle database Multi-table querying

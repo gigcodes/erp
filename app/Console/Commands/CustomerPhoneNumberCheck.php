@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Customer;
-use App\Helpers\InstantMessagingHelper;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Helpers\InstantMessagingHelper;
 
 class CustomerPhoneNumberCheck extends Command
 {
@@ -60,7 +60,7 @@ class CustomerPhoneNumberCheck extends Command
                     }
                     $result = InstantMessagingHelper::customerPhoneCheck($customer->phone, 0);
                     if ($result == false) {
-                        dump('Customer Name :'.$customer->name."\n Customer ID: ".$customer->id."\nPhone Number Not Valid:".$customer->phone."\n");
+                        dump('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
                     }
                 }
             } elseif ($type == 'run') {
@@ -75,7 +75,7 @@ class CustomerPhoneNumberCheck extends Command
                     }
                     $result = InstantMessagingHelper::customerPhoneCheck($customer->phone, 1);
                     if ($result == false) {
-                        dump('Customer Name :'.$customer->name."\n Customer ID: ".$customer->id."\nPhone Number Not Valid:".$customer->phone."\n");
+                        dump('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
                     }
                 }
             } else {

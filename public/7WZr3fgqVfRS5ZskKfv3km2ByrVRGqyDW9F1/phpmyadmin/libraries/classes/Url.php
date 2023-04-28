@@ -7,19 +7,19 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function base64_decode;
-use function base64_encode;
-use function htmlentities;
-use function htmlspecialchars;
-use function http_build_query;
-use function in_array;
+use function strtr;
+use function strlen;
 use function ini_get;
+use function in_array;
 use function is_array;
 use function json_encode;
-use PhpMyAdmin\Crypto\Crypto;
+use function htmlentities;
 use function str_contains;
-use function strlen;
-use function strtr;
+use function base64_decode;
+use function base64_encode;
+use PhpMyAdmin\Crypto\Crypto;
+use function htmlspecialchars;
+use function http_build_query;
 
 /**
  * Static methods for URL/hidden inputs generating
@@ -126,7 +126,7 @@ class Url
 
         foreach ($values as $name => $value) {
             if (! empty($pre)) {
-                $name = $pre.'['.$name.']';
+                $name = $pre . '[' . $name . ']';
             }
 
             if (is_array($value)) {
@@ -135,8 +135,8 @@ class Url
                 // do not generate an ending "\n" because
                 // Url::getHiddenInputs() is sometimes called
                 // from a JS document.write()
-                $fields .= '<input type="hidden" name="'.htmlspecialchars((string) $name)
-                    .'" value="'.htmlspecialchars((string) $value).'">';
+                $fields .= '<input type="hidden" name="' . htmlspecialchars((string) $name)
+                    . '" value="' . htmlspecialchars((string) $value) . '">';
             }
         }
 
@@ -226,7 +226,7 @@ class Url
         $query = self::buildHttpQuery($params, $encrypt);
 
         if (($divider !== '?' && $divider !== '&') || strlen($query) > 0) {
-            return $divider.$query;
+            return $divider . $query;
         }
 
         return '';
@@ -345,6 +345,6 @@ class Url
      */
     public static function getFromRoute(string $route, array $additionalParameters = []): string
     {
-        return 'index.php?route='.$route.self::getCommon($additionalParameters, '&');
+        return 'index.php?route=' . $route . self::getCommon($additionalParameters, '&');
     }
 }

@@ -1,15 +1,14 @@
 <?php
 
 use App\User;
-use Modules\BookStack\Auth\Permissions\PermissionService;
 use Modules\BookStack\Ownable;
 use Modules\BookStack\Settings\SettingService;
+use Modules\BookStack\Auth\Permissions\PermissionService;
 
 /**
  * Get the path to a versioned file.
  *
  * @param  string  $file
- * @return string
  *
  * @throws Exception
  */
@@ -27,7 +26,7 @@ function versioned_asset($file = ''): string
         $additional = sha1_file(public_path($file));
     }
 
-    $path = $file.'?version='.urlencode($version).$additional;
+    $path = $file . '?version=' . urlencode($version) . $additional;
 
     return url($path);
 }
@@ -35,8 +34,6 @@ function versioned_asset($file = ''): string
 /**
  * Helper method to get the current User.
  * Defaults to public 'Guest' user if not logged in.
- *
- * @return User
  */
 function user(): User
 {
@@ -45,8 +42,6 @@ function user(): User
 
 /**
  * Check if current user is a signed in user.
- *
- * @return bool
  */
 function signedInUser(): bool
 {
@@ -55,8 +50,6 @@ function signedInUser(): bool
 
 /**
  * Check if the current user has general access.
- *
- * @return bool
  */
 function hasAppAccess(): bool
 {
@@ -68,9 +61,7 @@ function hasAppAccess(): bool
  * If an ownable element is passed in the jointPermissions are checked against
  * that particular item.
  *
- * @param  string  $permission
  * @param  Ownable  $ownable
- * @return bool
  */
 function userCan(string $permission, Ownable $ownable = null): bool
 {
@@ -87,10 +78,6 @@ function userCan(string $permission, Ownable $ownable = null): bool
 /**
  * Check if the current user has the given permission
  * on any item in the system.
- *
- * @param  string  $permission
- * @param  string|null  $entityClass
- * @return bool
  */
 function userCanOnAny(string $permission, string $entityClass = null): bool
 {
@@ -102,7 +89,6 @@ function userCanOnAny(string $permission, string $entityClass = null): bool
 /**
  * Helper to access system settings.
  *
- * @param $key
  * @param  bool  $default
  * @return bool|string|SettingService
  */
@@ -120,7 +106,6 @@ function setting($key = null, $default = false)
  * Get a path to a theme resource.
  *
  * @param  string  $path
- * @return string
  */
 function theme_path($path = ''): string
 {
@@ -129,7 +114,7 @@ function theme_path($path = ''): string
         return '';
     }
 
-    return base_path('themes/'.$theme.($path ? DIRECTORY_SEPARATOR.$path : $path));
+    return base_path('themes/' . $theme . ($path ? DIRECTORY_SEPARATOR . $path : $path));
 }
 
 /**
@@ -139,7 +124,6 @@ function theme_path($path = ''): string
  *
  * Returns an empty string if icon file not found.
  *
- * @param $name
  * @param  array  $attrs
  * @return mixed
  */
@@ -152,11 +136,11 @@ function icon($name, $attrs = [])
     ], $attrs);
     $attrString = ' ';
     foreach ($attrs as $attrName => $attr) {
-        $attrString .= $attrName.'="'.$attr.'" ';
+        $attrString .= $attrName . '="' . $attr . '" ';
     }
 
-    $iconPath = resource_path('icons/'.$name.'.svg');
-    $themeIconPath = theme_path('icons/'.$name.'.svg');
+    $iconPath = resource_path('icons/' . $name . '.svg');
+    $themeIconPath = theme_path('icons/' . $name . '.svg');
     if ($themeIconPath && file_exists($themeIconPath)) {
         $iconPath = $themeIconPath;
     } elseif (! file_exists($iconPath)) {
@@ -165,7 +149,7 @@ function icon($name, $attrs = [])
 
     $fileContents = file_get_contents($iconPath);
 
-    return  str_replace('<svg', '<svg'.$attrString, $fileContents);
+    return  str_replace('<svg', '<svg' . $attrString, $fileContents);
 }
 
 /**
@@ -173,7 +157,6 @@ function icon($name, $attrs = [])
  * Works out the logic to set the correct sorting direction
  * Discards empty parameters and allows overriding.
  *
- * @param $path
  * @param  array  $data
  * @param  array  $overrideData
  * @return string
@@ -195,12 +178,12 @@ function sortUrl($path, $data, $overrideData = [])
         if ($trimmedVal === '') {
             continue;
         }
-        $queryStringSections[] = urlencode($name).'='.urlencode($trimmedVal);
+        $queryStringSections[] = urlencode($name) . '=' . urlencode($trimmedVal);
     }
 
     if (count($queryStringSections) === 0) {
         return $path;
     }
 
-    return url($path.'?'.implode('&', $queryStringSections));
+    return url($path . '?' . implode('&', $queryStringSections));
 }

@@ -2,15 +2,15 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\HubstaffTrait;
-use App\Hubstaff\HubstaffActivity;
-use App\Hubstaff\HubstaffMember;
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
+use App\Helpers\HubstaffTrait;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
-use Illuminate\Http\Request;
+use App\Hubstaff\HubstaffMember;
+use App\Hubstaff\HubstaffActivity;
 
 class LoadHubstaffActivities extends Command
 {
@@ -68,11 +68,11 @@ class LoadHubstaffActivities extends Command
 
             $activities = $this->getActivitiesBetween($startTime, $stopTime);
             if ($activities === false) {
-                echo 'Error in activities'.PHP_EOL;
+                echo 'Error in activities' . PHP_EOL;
 
                 return;
             }
-            echo 'Got activities(count): '.count($activities).PHP_EOL;
+            echo 'Got activities(count): ' . count($activities) . PHP_EOL;
             foreach ($activities as $id => $data) {
                 HubstaffActivity::updateOrCreate(
                     [
@@ -113,15 +113,15 @@ class LoadHubstaffActivities extends Command
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($start, $stop) {
                     // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
-                    $url = 'https://api.hubstaff.com/v2/organizations/'.config('env.HUBSTAFF_ORG_ID').'/activities?time_slot[start]='.$start.'&time_slot[stop]='.$stop;
+                    $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
 
-                    echo $url.PHP_EOL;
+                    echo $url . PHP_EOL;
 
                     return $this->client->get(
                         $url,
                         [
                             RequestOptions::HEADERS => [
-                                'Authorization' => 'Bearer '.$accessToken,
+                                'Authorization' => 'Bearer ' . $accessToken,
                             ],
                         ]
                     );
@@ -147,7 +147,7 @@ class LoadHubstaffActivities extends Command
 
             return $activities;
         } catch (Exception $e) {
-            echo $e->getMessage().PHP_EOL;
+            echo $e->getMessage() . PHP_EOL;
 
             return false;
         }

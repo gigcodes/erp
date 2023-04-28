@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_pop;
 use function count;
-use function htmlspecialchars;
 use function strlen;
+use function array_pop;
+use function htmlspecialchars;
 
 /**
  * Index manipulation class

@@ -5,65 +5,65 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function array_filter;
-use const ARRAY_FILTER_USE_KEY;
-use function array_merge;
-use function array_replace_recursive;
-use function array_slice;
+use const PHP_OS;
+use function md5;
+use function min;
+use function time;
+use function trim;
 use function count;
-use function defined;
-use const DIRECTORY_SEPARATOR;
-use const E_USER_ERROR;
-use function error_get_last;
-use function error_reporting;
-use function explode;
-use function fclose;
-use function file_exists;
-use function filemtime;
-use function fileperms;
 use function fopen;
 use function fread;
-use function function_exists;
-use function gd_info;
-use function get_object_vars;
-use function implode;
-use function ini_get;
+use function mkdir;
+use function rtrim;
+use function fclose;
 use function intval;
 use function is_dir;
 use function is_int;
-use function is_numeric;
-use function is_readable;
-use function is_string;
-use function is_writable;
-use function mb_strstr;
-use function mb_strtolower;
-use function md5;
-use function min;
-use function mkdir;
-use function ob_end_clean;
-use function ob_get_clean;
+use function strlen;
+use function substr;
+use function defined;
+use function explode;
+use function gd_info;
+use function implode;
+use function ini_get;
+use function sprintf;
+use function stripos;
 use function ob_start;
-use function parse_url;
-use const PHP_OS;
+use function realpath;
+use const E_USER_ERROR;
 use const PHP_URL_PATH;
+use function filemtime;
+use function fileperms;
+use function is_string;
+use function mb_strstr;
+use function parse_url;
+use function setcookie;
+use function is_numeric;
+use function preg_match;
+use function strtolower;
 use const PHP_URL_SCHEME;
 use const PHP_VERSION_ID;
-use PhpMyAdmin\Config\Settings;
-use function preg_match;
-use function realpath;
-use function rtrim;
-use function setcookie;
-use function sprintf;
-use function str_contains;
+use function array_merge;
+use function array_slice;
+use function file_exists;
+use function is_readable;
+use function is_writable;
 use function str_replace;
-use function stripos;
-use function strlen;
-use function strtolower;
-use function substr;
-use function sys_get_temp_dir;
-use function time;
+use function array_filter;
+use function ob_end_clean;
+use function ob_get_clean;
+use function str_contains;
+use function mb_strtolower;
 use function trigger_error;
-use function trim;
+use function error_get_last;
+use function error_reporting;
+use function function_exists;
+use function get_object_vars;
+use const DIRECTORY_SEPARATOR;
+use function sys_get_temp_dir;
+use const ARRAY_FILTER_USE_KEY;
+use PhpMyAdmin\Config\Settings;
+use function array_replace_recursive;
 
 /**
  * Configuration handling
@@ -221,7 +221,7 @@ class Config
             $this->set('PMA_USR_BROWSER_AGENT', 'SAFARI');
         // older Safari
         } elseif ($is_mozilla && preg_match('@Safari/([0-9]*)@', $HTTP_USER_AGENT, $log_version)) {
-            $this->set('PMA_USR_BROWSER_VER', $mozilla_version[1].'.'.$log_version[1]);
+            $this->set('PMA_USR_BROWSER_VER', $mozilla_version[1] . '.' . $log_version[1]);
             $this->set('PMA_USR_BROWSER_AGENT', 'SAFARI');
         // Firefox
         } elseif (
@@ -436,7 +436,7 @@ class Config
         $server = $GLOBALS['server'] ?? (! empty($GLOBALS['cfg']['ServerDefault'])
                 ? $GLOBALS['cfg']['ServerDefault']
                 : 0);
-        $cache_key = 'server_'.$server;
+        $cache_key = 'server_' . $server;
         if ($server > 0 && ! isset($isMinimumCommon)) {
             // cache user preferences, use database only when needed
             if (
@@ -692,11 +692,11 @@ class Config
             return;
         }
 
-        $error = '[strong]'.__('Failed to read configuration file!').'[/strong]'
-            .'[br][br]'
-            .__('This usually means there is a syntax error in it, please check any errors shown below.')
-            .'[br][br]'
-            .'[conferr]';
+        $error = '[strong]' . __('Failed to read configuration file!') . '[/strong]'
+            . '[br][br]'
+            . __('This usually means there is a syntax error in it, please check any errors shown below.')
+            . '[br][br]'
+            . '[conferr]';
         trigger_error($error, E_USER_ERROR);
     }
 
@@ -849,7 +849,7 @@ class Config
             $path = parse_url($url, PHP_URL_PATH);
             if (! empty($path)) {
                 if (substr($path, -1) !== '/') {
-                    return $path.'/';
+                    return $path . '/';
                 }
 
                 return $path;
@@ -966,7 +966,7 @@ class Config
                     $httpCookieName,
                     $value,
                     $validity,
-                    $this->getRootPath().'; SameSite='.$cookieSameSite,
+                    $this->getRootPath() . '; SameSite=' . $cookieSameSite,
                     '',
                     $this->isHttps(),
                     $httponly
@@ -1011,7 +1011,7 @@ class Config
      */
     public function getCookieName(string $cookieName): string
     {
-        return $cookieName.($this->isHttps() ? '_https' : '');
+        return $cookieName . ($this->isHttps() ? '_https' : '');
     }
 
     /**
@@ -1061,7 +1061,7 @@ class Config
     {
         $retval = '';
         if (@file_exists($filename)) {
-            $retval .= '<div id="'.$id.'" class="d-print-none">';
+            $retval .= '<div id="' . $id . '" class="d-print-none">';
             ob_start();
             include $filename;
             $retval .= ob_get_clean();
@@ -1106,7 +1106,7 @@ class Config
         if (empty($path)) {
             $path = null;
         } else {
-            $path = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$name;
+            $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $name;
             if (! @is_dir($path)) {
                 @mkdir($path, 0770, true);
             }
@@ -1369,7 +1369,7 @@ class Config
     {
         global $cfg;
 
-        $cacheKey = 'server_'.$server;
+        $cacheKey = 'server_' . $server;
 
         if (! isset($_SESSION['cache'][$cacheKey]['userprefs']['LoginCookieValidity'])) {
             return;

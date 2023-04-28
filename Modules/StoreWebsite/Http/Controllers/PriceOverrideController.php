@@ -35,8 +35,8 @@ class PriceOverrideController extends Controller
 
         if (! empty($request->keyword)) {
             $modal = $modal->where(function ($q) use ($request) {
-                $q->orWhere('c.title', 'like', '%'.$request->keyword.'%')->orWhere('b.name', 'like', '%'.$request->keyword.'%')
-                    ->orWhere('sc.country_name', 'like', '%'.$request->keyword.'%');
+                $q->orWhere('c.title', 'like', '%' . $request->keyword . '%')->orWhere('b.name', 'like', '%' . $request->keyword . '%')
+                    ->orWhere('sc.country_name', 'like', '%' . $request->keyword . '%');
             });
         }
 
@@ -72,7 +72,7 @@ class PriceOverrideController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -204,7 +204,6 @@ class PriceOverrideController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -221,7 +220,6 @@ class PriceOverrideController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -269,7 +267,7 @@ class PriceOverrideController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 

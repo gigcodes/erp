@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\Http\Controllers\Controller;
-use App\Marketing\MarketingPlatform;
+use Response;
 use App\Setting;
 use Illuminate\Http\Request;
-use Response;
+use App\Http\Controllers\Controller;
+use App\Marketing\MarketingPlatform;
 
 class MarketingPlatformController extends Controller
 {
@@ -58,7 +58,6 @@ class MarketingPlatformController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -105,7 +104,6 @@ class MarketingPlatformController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\MarketingPlatform  $marketingPlatform
      * @return \Illuminate\Http\Response
      */

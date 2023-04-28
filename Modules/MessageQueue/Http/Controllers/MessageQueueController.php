@@ -2,15 +2,15 @@
 
 namespace Modules\MessageQueue\Http\Controllers;
 
-use App\ChatMessage;
-use App\Exports\MessageCounterExport;
-use App\Services\Whatsapp\ChatApi\ChatApi;
-use App\Setting;
 use DB;
 use Excel;
+use App\Setting;
+use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\Exports\MessageCounterExport;
+use App\Services\Whatsapp\ChatApi\ChatApi;
 
 class MessageQueueController extends Controller
 {
@@ -71,7 +71,7 @@ class MessageQueueController extends Controller
                 return $q->where('group_id', $group_id);
             })
             ->when($customer_name != '', function ($q) use ($customer_name) {
-                return $q->where('c.name', 'LIKE', '%'.$customer_name.'%');
+                return $q->where('c.name', 'LIKE', '%' . $customer_name . '%');
             })
             ->groupBy('group_id')
             ->orderBy('group_id', 'desc')
@@ -84,7 +84,6 @@ class MessageQueueController extends Controller
     /**
      * This funcrtion is use for delete records
      *
-     * @param  Request  $request
      * @return JsonResponse
      */
     public function deleteMessageQueue(Request $request)
@@ -152,7 +151,7 @@ class MessageQueueController extends Controller
         $data = [];
         foreach ($tempData as $list) {
             $row = null;
-            $row[] = '['.$list->number.']';
+            $row[] = '[' . $list->number . ']';
             $row[] = (int) $list->counter;
             $row[] = date('Y-m-d', strtotime($list->time));
             $data[] = $row;
@@ -195,11 +194,11 @@ class MessageQueueController extends Controller
             ->where('chat_messages.customer_id', '>', 0);
 
         if (! empty($from)) {
-            $chatMessage = $chatMessage->where('c.whatsapp_number', 'like', '%'.$from.'%');
+            $chatMessage = $chatMessage->where('c.whatsapp_number', 'like', '%' . $from . '%');
         }
 
         if (! empty($to)) {
-            $chatMessage = $chatMessage->where('c.phone', 'like', '%'.$to.'%');
+            $chatMessage = $chatMessage->where('c.phone', 'like', '%' . $to . '%');
         }
 
         if ($groupId > 0) {
@@ -207,7 +206,7 @@ class MessageQueueController extends Controller
         }
 
         if (! empty($customerName)) {
-            $chatMessage = $chatMessage->where('c.name', 'like', '%'.$customerName.'%');
+            $chatMessage = $chatMessage->where('c.name', 'like', '%' . $customerName . '%');
         }
 
         if (request('communicated') == 'yes') {
@@ -271,7 +270,7 @@ class MessageQueueController extends Controller
             case 'change_to_broadcast':
                 if (! empty($ids) && is_array($ids)) {
                     \DB::update('update chat_messages as cm join customers as c on c.id = cm.customer_id join whatsapp_configs as wc
-                    on wc.number = c.broadcast_number set cm.is_queue = wc.id where cm.id in ('.implode(',', $ids).');');
+                    on wc.number = c.broadcast_number set cm.is_queue = wc.id where cm.id in (' . implode(',', $ids) . ');');
 
                     return response()->json(['code' => 200, 'message' => 'Updated to broadcast Successfully']);
                 }
@@ -281,7 +280,7 @@ class MessageQueueController extends Controller
                 if (! empty($ids) && is_array($ids)) {
                     $number = $request->get('send_number', '');
                     if (! empty($number)) {
-                        \DB::update("update chat_messages as cm join customers as c on c.id = cm.customer_id set c.whatsapp_number = '".$number."' where cm.id in (".implode(',', $ids).');');
+                        \DB::update("update chat_messages as cm join customers as c on c.id = cm.customer_id set c.whatsapp_number = '" . $number . "' where cm.id in (" . implode(',', $ids) . ');');
                     }
 
                     return response()->json(['code' => 200, 'message' => 'Updated to broadcast Successfully']);
@@ -303,7 +302,7 @@ class MessageQueueController extends Controller
                 break;
             case 'change_to_dnd':
                 if (! empty($ids) && is_array($ids)) {
-                    \DB::update('update chat_messages as cm join customers as c on c.id = cm.customer_id set c.do_not_disturb = 1 where cm.id in ('.implode(',', $ids).');');
+                    \DB::update('update chat_messages as cm join customers as c on c.id = cm.customer_id set c.do_not_disturb = 1 where cm.id in (' . implode(',', $ids) . ');');
 
                     return response()->json(['code' => 200, 'message' => 'Updated to DND Successfully']);
                 }
@@ -424,9 +423,9 @@ class MessageQueueController extends Controller
         // check that if limit overflow then show notification
 
         if (! empty($waitingMessages)) {
-            $msg = 'Following number reached the queue limit : '.'</br>';
+            $msg = 'Following number reached the queue limit : ' . '</br>';
             foreach ($waitingMessages as $k => $wm) {
-                $msg .= $k.' : '.$wm.'</br>';
+                $msg .= $k . ' : ' . $wm . '</br>';
             }
 
             return response()->json(['code' => 500, 'data' => $waitingMessages, 'message' => $msg]);

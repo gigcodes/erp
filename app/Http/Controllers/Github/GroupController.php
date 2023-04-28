@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Github;
 
-use App\Github\GithubGroup;
-use App\Github\GithubGroupMember;
-use App\Github\GithubRepository;
-use App\Github\GithubRepositoryGroup;
-use App\Github\GithubUser;
-use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\RequestOptions;
+use App\Github\GithubUser;
+use App\Github\GithubGroup;
 use Illuminate\Http\Request;
+use GuzzleHttp\RequestOptions;
+use App\Github\GithubRepository;
+use App\Github\GithubGroupMember;
+use App\Http\Controllers\Controller;
+use App\Github\GithubRepositoryGroup;
 use Illuminate\Support\Facades\Route;
+use GuzzleHttp\Exception\ClientException;
 
 class GroupController extends Controller
 {
@@ -96,8 +96,8 @@ class GroupController extends Controller
     private function callApiToAddRepository($groupId, $repoName, $permission)
     {
         // https://api.github.com/organizations/:org_id/team/:team_id/repos/:owner/:repo
-        $url = 'https://api.github.com/organizations/'.getenv('GITHUB_ORG_ID').'/team/'.$groupId.'/repos/'.getenv('GITHUB_ORG_ID').'/'.$repoName;
-        $url = 'https://api.github.com/organizations/'.config('env.GITHUB_ORG_ID').'/team/'.$groupId.'/repos/'.config('env.GITHUB_ORG_ID').'/'.$repoName;
+        $url = 'https://api.github.com/organizations/' . getenv('GITHUB_ORG_ID') . '/team/' . $groupId . '/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repoName;
+        $url = 'https://api.github.com/organizations/' . config('env.GITHUB_ORG_ID') . '/team/' . $groupId . '/repos/' . config('env.GITHUB_ORG_ID') . '/' . $repoName;
 
         try {
             $response = $this->client->put($url);
@@ -156,7 +156,7 @@ class GroupController extends Controller
     {
         // https://api.github.com/organizations/:org_id/team/:team_id/memberships/:username
         // $url = "https://api.github.com/organizations/" . getenv('GITHUB_ORG_ID') . "/team/" . $groupId . "/memberships/". $username;
-        $url = 'https://api.github.com/organizations/'.config('env.GITHUB_ORG_ID').'/team/'.$groupId.'/memberships/'.$username;
+        $url = 'https://api.github.com/organizations/' . config('env.GITHUB_ORG_ID') . '/team/' . $groupId . '/memberships/' . $username;
 
         try {
             $response = $this->client->put(
@@ -184,7 +184,7 @@ class GroupController extends Controller
         $githubUser = GithubUser::find($userId);
 
         //https://api.github.com/teams/:team_id/memberships/:username
-        $url = 'https://api.github.com/teams/'.$groupId.'/memberships/'.$githubUser->username;
+        $url = 'https://api.github.com/teams/' . $groupId . '/memberships/' . $githubUser->username;
         $this->client->delete($url);
 
         GithubGroupMember::where('github_groups_id', $groupId)->where('github_users_id', $userId)->delete();
@@ -201,7 +201,7 @@ class GroupController extends Controller
 
         //https://api.github.com/teams/:team_id/repos/:owner/:repo
         // $url = 'https://api.github.com/teams/' . $groupId . '/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repo->name;
-        $url = 'https://api.github.com/teams/'.$groupId.'/repos/'.config('env.GITHUB_ORG_ID').'/'.$repo->name;
+        $url = 'https://api.github.com/teams/' . $groupId . '/repos/' . config('env.GITHUB_ORG_ID') . '/' . $repo->name;
 
         $this->client->delete($url);
 
