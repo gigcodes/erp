@@ -217,55 +217,23 @@ class BrandController extends Controller
         ]);
 
         /*Generate keyword for Current Brand Only*/
-        $brand_id_array = [$brand->id];
-        $this->generateHashTagKeywords($brand_id_array);
+        // $brand_id_array = [$brand->id]; // If you want to enable string for only single brand then pass brand as array in below function
+        $this->generateHashTagKeywords([]);
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }
 
     public function generateHashTagKeywords($brand_id_array) {
+        $category_postfix_string_list = Category::getCategoryHierarchyString(4);
         /* Initialize queue for add hashtags */
         if(count($brand_id_array) > 0) {
-            $brandList = Brand::where('is_hashtag_generated', 0)->whereIn('id', $brand_id_array)->get();
+            $brandList = Brand::where('is_hashtag_generated', 0)->whereIn('id', $brand_id_array)->pluck('name', 'id')->chunk(1000)->toArray();
         } else {
-            $brandList = Brand::where('is_hashtag_generated', 0)->limit(100)->get();
-        }
-        if (! $brandList->isEmpty()) {
-            ini_set('max_execution_time', '-1');
-            ini_set('max_execution_time', '0'); // for infinite time of execution
-
-            $category_postfix_string_list = Category::getCategoryHierarchyString(4);
-            $string_arr = $processed_brand_id_array = [];
-            foreach ($brandList as $brand) {
-                foreach($category_postfix_string_list as $string) {
-                    $string_data['hashtag'] = $brand->name .' '. $string->combined_string;
-                    $string_data['platforms_id'] = 2;
-                    $string_data['rating'] = 8;
-                    $string_data['created_at'] = $string_data['updated_at'] = date('Y-m-d h:i:s');
-                    $string_data['created_by'] = \Auth::user()->id;
-                    $check_exist = HashTag::where('hashtag', $string_data['hashtag'])->count();
-                    if($check_exist <= 0) {
-                        $string_arr[] = $string_data;
-                    }
-                }
-
-                $chunks = array_chunk($string_arr, 1000);
-                foreach ($chunks as $chunk) {
-                    CreateHashTags::dispatch($chunk)->onQueue('generategooglescraperkeywords');
-                }
-                $string_arr = [];
-                $processed_brand_id_array[] = $brand->id;
-            }
-
-            Brand::updateStatusIsHashtagsGenerated($processed_brand_id_array);
+            $brandList = Brand::where('is_hashtag_generated', 0)->pluck('name','id')->chunk(100)->toArray();
         }
 
-        /*Recursive for generate keyword for all brands*/
-        if(count($brand_id_array) <= 0) {
-            $brandList = Brand::where('is_hashtag_generated', 0)->limit(100)->get();
-            if (! $brandList->isEmpty()) {
-                $this->generateHashTagKeywords([]);
-            }
+        foreach ($brandList as $chunk) {
+            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>Auth::user()->id, 'category_postfix_string_list' =>$category_postfix_string_list, 'type' => 'brand'])->onQueue('generategooglescraperkeywords');
         }
     }
 

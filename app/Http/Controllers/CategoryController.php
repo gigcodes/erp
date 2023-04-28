@@ -115,40 +115,22 @@ class CategoryController extends Controller
 
         Category::create($input);
 
-        /* Initialize queue for add - */
-        $brandList = Brand::getAll();
-        $keywordVariants = KeywordSearchVariants::list();
-        if (!empty($brandList)) {
-            ini_set('max_execution_time', '-1');
-            ini_set('max_execution_time', '0'); // for infinite time of execution
-
-            $string_arr = [];
-            foreach ($brandList as $brand) {
-                foreach($keywordVariants as $keywordVariant) {
-                    $string_data['hashtag'] = $brand .' '. $input['title'] . ' ' . $keywordVariant;
-                    $string_data['platforms_id'] = 2;
-                    $string_data['rating'] = 8;
-                    $string_data['created_at'] = $string_data['updated_at'] = date('Y-m-d h:i:s');
-                    $string_data['created_by'] = \Auth::user()->id;
-                    $check_exist = HashTag::where('hashtag', $string_data['hashtag'])->count();
-                    if($check_exist <= 0) {
-                        $string_arr[] = $string_data;
-                    }
-                }
-
-                $chunks = array_chunk($string_arr, 1000);
-                foreach ($chunks as $chunk) {
-                    CreateHashTags::dispatch($chunk)->onQueue('generategooglescraperkeywords');
-                }
-                $string_arr = [];
-                $processed_brand_id_array[] = $brand->id;
-                /*CreateHashTags::dispatch($string_arr)->onQueue('insert-hash-tags');
-                $string_arr = [];*/
-            }
-            Category::updateStatusIsHashtagsGeneratedCategories();
-        }
+        $this->generateHashTagKeywords();
 
         return back()->with('success', 'New Category added successfully.');
+    }
+
+    public function generateHashTagKeywords() {
+        $brandList = Brand::getAll();
+        $keywordVariants = KeywordSearchVariants::list();
+
+        /* Initialize queue for add hashtags */
+        $categoryList = Category::where('is_hashtag_generated', 0)->pluck('title', 'id')->chunk(1000)->toArray();
+
+
+        foreach ($categoryList as $chunk) {
+            CreateHashTags::dispatch(['data'=>$chunk, 'user_id'=>Auth::user()->id, 'brand_list' => $brandList, 'keyword_variants' => $keywordVariants, 'type' => 'category'])->onQueue('generategooglescraperkeywords');
+        }
     }
 
     public function edit(Category $category, Request $request)
