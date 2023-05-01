@@ -10,7 +10,7 @@
     <tr>
         <td>{{ ++$i }}</td>
         <td style="max-width: 150px">
-            <div data-message="{{$file->file_name}}" data-title="Remark" style="cursor: pointer" class="showFullMessage">
+            <div data-message="{{$file->file_name}}" data-title="File name" style="cursor: pointer" class="showFullMessage">
                 {{ show_short_message($file->file_name, 25) }}
             </div>
         </td>
