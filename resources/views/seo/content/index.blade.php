@@ -73,17 +73,16 @@ $auth = auth()->user();
                             <th>#</th>
                             <th>Website</th>
                             <th>Keywords</th>
-                            <th>Word count</th>
-                            <th>Suggestion</th>
-                            <th>SEO Checklist</th>
-                            <th>Publish Checklist</th>
-                            <th>Document Link</th>
-                            <th>Live Status Link</th>
-                            <th>SEO Status</th>
                             <th>User</th>
                             <th>Price</th>
-                            <th>Publish Date</th>
+                            <th>Document Link</th>
+                            <th>Word count</th>
+                            <th>Suggestion</th>
                             <th>Status</th>
+                            <th>SEO Checklist</th>
+                            <th>Publish Checklist</th>
+                            <th>Live Status Link</th>
+                            <th>Publish Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -168,12 +167,28 @@ $auth = auth()->user();
                     , name: 'keywords'
                 },
                 {
+                    data: 'user_id'
+                    , name: 'user_id'
+                },
+                {
+                    data: 'price'
+                    , name: 'price'
+                },
+                {
+                    data:'documentLink',
+                    name:'documentLink'
+                },
+                {
                     data: 'word_count'
                     , name: 'word_count'
                 },
                 {
                     data: 'suggestion'
                     , name: 'suggestion'
+                },
+                {
+                    data: 'status'
+                    , name: 'status'
                 },
                 {
                     data:'seoChecklist',
@@ -184,32 +199,12 @@ $auth = auth()->user();
                     name:'publishChecklist'
                 },
                 {
-                    data:'documentLink',
-                    name:'documentLink'
-                },
-                {
                     data:'liveStatusLink',
                     name:'liveStatusLink'
-                },
-                {
-                    data:'seoStatus',
-                    name:'seoStatus'
-                }
-                , {
-                    data: 'user_id'
-                    , name: 'user_id'
-                }
-                , {
-                    data: 'price'
-                    , name: 'price'
                 }
                 , {
                     data: 'published_at'
                     , name: 'published_at'
-                }
-                , {
-                    data: 'status'
-                    , name: 'status'
                 }
                 , {
                     data: 'actions'
