@@ -7,13 +7,13 @@ use App\Email;
 use Carbon\Carbon;
 use App\EmailAddress;
 use App\StoreWebsite;
+use App\VirtualminHelper;
 use App\EmailRunHistories;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Exports\EmailFailedReport;
 use Webklex\PHPIMAP\ClientManager;
 use Maatwebsite\Excel\Facades\Excel;
-use App\VirtualminHelper;
 use EmailReplyParser\Parser\EmailParser;
 
 class EmailAddressesController extends Controller
@@ -148,7 +148,7 @@ class EmailAddressesController extends Controller
             EmailAddress::find($id)->update(['signature_image' => $signature_image->getClientOriginalName()]);
         }
 
-        $this->createEmail($id,$data['host'],$data['username'], $data['password']);
+        $this->createEmail($id, $data['host'], $data['username'], $data['password']);
 
         return redirect()->route('email-addresses.index')->withSuccess('You have successfully saved a Email Address!');
     }
@@ -473,18 +473,18 @@ class EmailAddressesController extends Controller
     }
 
     //create email in virtualmin
-    public function createEmail($id, $smtpHost, $user, $password) :string
+    public function createEmail($id, $smtpHost, $user, $password): string
     {
         $mailHelper = new VirtualminHelper();
         $result = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
         $vmHost = $result['host'] ? $result['host'] : '';
-        $status = "failure";
+        $status = 'failure';
         if ($smtpHost == $vmHost) {
             $response = $mailHelper->createMail($smtpHost, $user, $password);
-            $status = "failure";
+            $status = 'failure';
             if ($response['code'] == 200) {
                 $status = $response['data']['status'];
-                EmailAddress::find($id)->update(['username' => $user."@".$smtpHost]);
+                EmailAddress::find($id)->update(['username' => $user . '@' . $smtpHost]);
             }
         }
 
@@ -492,19 +492,19 @@ class EmailAddressesController extends Controller
     }
 
     //update password in virtualmin
-    public function updateEmailPassword($id, $smtpHost, $user, $password) :string
+    public function updateEmailPassword($id, $smtpHost, $user, $password): string
     {
         $mailHelper = new VirtualminHelper();
         $result = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
         $vmHost = $result['host'] ? $result['host'] : '';
-        $status = "failure";
+        $status = 'failure';
         if ($smtpHost == $vmHost) {
             $response = $mailHelper->changeMailPassword($smtpHost, $user, $password);
-            $status = "failure";
+            $status = 'failure';
             if ($response['code'] == 200) {
                 $status = $response['data']['status'];
-                $parts = explode("@",$user);
-                EmailAddress::find($id)->update(['username' => $parts[0]."@".$smtpHost]);
+                $parts = explode('@', $user);
+                EmailAddress::find($id)->update(['username' => $parts[0] . '@' . $smtpHost]);
             }
         }
 
