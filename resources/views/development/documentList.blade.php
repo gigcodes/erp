@@ -31,7 +31,7 @@
           <div class="row full-width" style="width: 100%;">
             <div class="col-md-2 col-sm-12 pd-2">
               <div class="form-group cls_task_subject">
-                <input type="text" name="term_id" placeholder="Search Task Id / Dev Task Id"  class="form-control input-sm" value="{{ !empty($_GET['term'])? $_GET['term'] : '' }}">
+                <input type="text" name="term_id" placeholder="Search Task Id / Dev Task Id"  class="form-control input-sm" value="{{ !empty($_GET['term_id'])? $_GET['term_id'] : '' }}">
               </div>
             </div>
             <div class="col-md-2 col-sm-12 pd-2">
@@ -46,15 +46,16 @@
               <div class="form-group mr-3">
                 <select class="form-control" name="user_id">
                 <option value="" selected disabled>select</option>
+                  
                   @foreach ($users as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    <option value="{{ $user->id }}" {{!empty($_GET['user_id']) ? $user->id == $_GET['user_id'] ? 'selected' : ''  : '' }}>{{ $user->name }}</option>
                   @endforeach
                 </select>
               </div>
             </div>
             <div class="col-md-3 col-sm-12 pr-0">
               <div class='input-group date mr-3' id="date-datetime">
-                <input type='date' class="form-control" name="date" />
+                <input type='date' value="{{ !empty($_GET['date'])? $_GET['date'] : '' }}" class="form-control" name="date" />
 
                 {{--  <span class="input-group-addon">
                   <span class="glyphicon glyphicon-calendar"></span>
@@ -77,31 +78,64 @@
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
             <tr>
-              <th width="5%">Id</th>
-              <th>Type</th>
-              <th width="10%">Subject</th>
-              <th width="10%">Description</th>
-              <th width="10%">Document Link</th>
-              <th width="10%">Created By</th>
-              <th width="10%">Created At</th>
+              <th width="2%">Id</th>
+              <th width="2%">Type</th>
+              <th width="8%">Subject</th>
+              <th width="5%">Description</th>
+              <th width="5%">Created By</th>
+              <th width="5%">Created At</th>
              
             </tr>
 
          
-           @foreach($uploadDocData as $value)
+           @foreach($uploadDocData as $key=> $value)
             <tr>
             <td>{{$value->developer_task_id}}</td>
             <td>{{$value->type}}</td>
-            <td>{{$value->subject}}</td>
-            <td>{{$value->description}}</td>
+            <td> 
+              @php
+              $limitedTextSubject = substr($value->subject, 0, 50); 
+              @endphp
 
-            <td>
-            @php
-            $link = asset($value->disk.'/'.$value->directory.'/'.$value->filename.'.'.$value->extension);
+              @if(strlen($value->subject) > 50)
+
+              <span class="more-detail"  data-id="{{$key}}" >{{$limitedTextSubject}} <button class="btn btn-sm">More Detail..</button></span>
+
+              @else
+              <span  >{{$value->subject}}</span>
+
+              @endif
+              <span id="showdata_{{$key}}" style="display:none;">{{$value->subject}}</span>
             
-            @endphp
-            <a style="color:#212529" href="{{$link}}" target="_blank">Click here</a></td>
-          
+            </td>
+            <td>
+              @php
+              $link = asset($value->disk.'/'.$value->directory.'/'.$value->filename.'.'.$value->extension);
+              $fileName = "$value->filename.$value->extension";
+
+              
+              @endphp
+
+              @php
+              $limitedTextDesc = substr($value->description, 0, 50); 
+              @endphp
+
+              @if(strlen($value->description) > 50)
+
+              <span class="more-detail-desc"  data-id="{{$key}}" >{{$limitedTextDesc}} <button class="btn btn-sm">More Detail..</button></span>
+
+              @else
+              <span>{{$value->description}}</span>
+
+              @endif
+              <span id="showdatadesc_{{$key}}" style="display:none; text-align:justify">{{$value->description}}</span>
+
+             
+
+              <br>
+
+              <a style="color:#212529" href="{{$link}}" target="_blank">{{$fileName}}</a></td>
+            </td>
             <td>{{$value->username}}</td>
             <td>{{$value->created_at}}</td>
             
@@ -125,5 +159,24 @@
 @endsection
 
 @section('scripts')
+
+<script>
+  $(document).on('click','.more-detail',function(){
+    var id =$(this).attr('data-id');
+    $('#showdata_'+id).show();
+    obj = $(this).closest('tr');
+    obj.find('.more-detail').hide();
+  });
+
+  $(document).on('click','.more-detail-desc',function(){
+    var id =$(this).attr('data-id');
+    $('#showdatadesc_'+id).show();
+    obj = $(this).closest('tr');
+    obj.find('.more-detail-desc').hide();
+  });
+
   
+  
+  </script>  
 @endsection
+
