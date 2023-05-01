@@ -81,7 +81,7 @@
               <th width="2%">Id</th>
               <th width="2%">Type</th>
               <th width="8%">Subject</th>
-              <th width="5%">Description</th>
+              <th width="8%">Description</th>
               <th width="5%">Created By</th>
               <th width="5%">Created At</th>
              
