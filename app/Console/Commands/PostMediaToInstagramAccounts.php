@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 //use InstagramAPI\Instagram;
@@ -61,7 +61,7 @@ class PostMediaToInstagramAccounts extends Command
 
                 for ($i = 1; $i < 10; $i++) {
                     echo "FOR $account \n";
-                    $filename = __DIR__.'/images/'.$i.'.jpeg';
+                    $filename = __DIR__ . '/images/' . $i . '.jpeg';
                     $source = imagecreatefromjpeg($filename);
                     [$width, $height] = getimagesize($filename);
 
@@ -71,7 +71,7 @@ class PostMediaToInstagramAccounts extends Command
                     $destination = imagecreatetruecolor($newwidth, $newheight);
                     imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
 
-                    imagejpeg($destination, __DIR__.'/images/'.$i.'.jpeg', 100);
+                    imagejpeg($destination, __DIR__ . '/images/' . $i . '.jpeg', 100);
 
 //                    $instagram->timeline->uploadPhoto($filename);
 

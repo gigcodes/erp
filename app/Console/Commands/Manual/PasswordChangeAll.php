@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CronJobReport;
 use App\User;
-use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Hash;
+use App\CronJobReport;
 use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Hash;
 
 class PasswordChangeAll extends Command
 {
@@ -55,7 +55,7 @@ class PasswordChangeAll extends Command
             $folder = storage_path('framework/sessions');
 
             //Get a list of all of the file names in the folder.
-            $files = glob($folder.'/*');
+            $files = glob($folder . '/*');
 
             //Loop through the file list.
             foreach ($files as $file) {
@@ -80,7 +80,7 @@ class PasswordChangeAll extends Command
                     $user->save();
 
                     // Output new ones
-                    echo $user->name."\t".$user->email."\t".$newPassword."\n";
+                    echo $user->name . "\t" . $user->email . "\t" . $newPassword . "\n";
                 }
             }
 

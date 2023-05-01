@@ -8,19 +8,19 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Database;
 
 use function __;
-use function array_intersect;
-use function array_key_exists;
 use function count;
-use function explode;
-use function htmlspecialchars;
-use function implode;
 use function intval;
+use function strlen;
+use PhpMyAdmin\Util;
+use function explode;
+use function implode;
 use function is_array;
 use function is_string;
-use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
-use function strlen;
+use function array_intersect;
+use function array_key_exists;
+use function htmlspecialchars;
+use PhpMyAdmin\DatabaseInterface;
 
 /**
  * Class to handle database search
@@ -171,19 +171,19 @@ class Search
         $sqlstr_delete = 'DELETE';
         // Table to use
         $sqlstr_from = ' FROM '
-            .Util::backquote($GLOBALS['db']).'.'
-            .Util::backquote($table);
+            . Util::backquote($GLOBALS['db']) . '.'
+            . Util::backquote($table);
         // Gets where clause for the query
         $where_clause = $this->getWhereClause($table);
         // Builds complete queries
         $sql = [];
-        $sql['select_columns'] = $sqlstr_select.' * '.$sqlstr_from
-            .$where_clause;
+        $sql['select_columns'] = $sqlstr_select . ' * ' . $sqlstr_from
+            . $where_clause;
         // here, I think we need to still use the COUNT clause, even for
         // VIEWs, anyway we have a WHERE clause that should limit results
-        $sql['select_count'] = $sqlstr_select.' COUNT(*) AS `count`'
-            .$sqlstr_from.$where_clause;
-        $sql['delete'] = $sqlstr_delete.$sqlstr_from.$where_clause;
+        $sql['select_count'] = $sqlstr_select . ' COUNT(*) AS `count`'
+            . $sqlstr_from . $where_clause;
+        $sql['delete'] = $sqlstr_delete . $sqlstr_from . $where_clause;
 
         return $sql;
     }
@@ -228,12 +228,12 @@ class Search
                     continue;
                 }
 
-                $column = 'CONVERT('.Util::backquote($column['Field'])
-                        .' USING utf8)';
-                $likeClausesPerColumn[] = $column.' '.$like_or_regex.' '
-                    ."'"
-                    .$automatic_wildcard.$search_word.$automatic_wildcard
-                    ."'";
+                $column = 'CONVERT(' . Util::backquote($column['Field'])
+                        . ' USING utf8)';
+                $likeClausesPerColumn[] = $column . ' ' . $like_or_regex . ' '
+                    . "'"
+                    . $automatic_wildcard . $search_word . $automatic_wildcard
+                    . "'";
             }
 
             if (count($likeClausesPerColumn) <= 0) {
@@ -251,8 +251,8 @@ class Search
             $where_clause = ' WHERE FALSE';
         } else {
             $where_clause = ' WHERE ('
-                .implode(') '.$implode_str.' (', $likeClauses)
-                .')';
+                . implode(') ' . $implode_str . ' (', $likeClauses)
+                . ')';
         }
 
         return $where_clause;

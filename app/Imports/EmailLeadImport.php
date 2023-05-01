@@ -3,18 +3,17 @@
 namespace App\Imports;
 
 use App\EmailLead;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\Importable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 
 class EmailLeadImport implements ToModel, ShouldQueue, WithChunkReading, WithValidation
 {
     use Importable;
 
     /**
-     * @param  array  $row
      * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function model(array $row)
@@ -37,9 +36,6 @@ class EmailLeadImport implements ToModel, ShouldQueue, WithChunkReading, WithVal
         return 10;
     }
 
-    /**
-     * @return int
-     */
     public function chunkSize(): int
     {
         return 10;

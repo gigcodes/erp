@@ -8,17 +8,17 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use function __;
-use function htmlspecialchars;
-use function in_array;
-use function mb_strrpos;
-use function mb_strtolower;
-use function mb_substr;
-use PhpMyAdmin\Query\Utilities;
-use function sprintf;
-use function str_replace;
+use function time;
 use function strlen;
 use function strtok;
-use function time;
+use function sprintf;
+use function in_array;
+use function mb_substr;
+use function mb_strrpos;
+use function str_replace;
+use function mb_strtolower;
+use function htmlspecialchars;
+use PhpMyAdmin\Query\Utilities;
 
 /**
  * Functions for the replication GUI
@@ -432,7 +432,7 @@ class ReplicationGui
             $_SESSION['replication']['sr_action_status'] = 'error';
             $_SESSION['replication']['sr_action_info'] = __(
                 'Connection to server is disabled, please enable'
-                .' $cfg[\'AllowArbitraryServer\'] in phpMyAdmin configuration.'
+                . ' $cfg[\'AllowArbitraryServer\'] in phpMyAdmin configuration.'
             );
         } elseif (isset($_POST['replica_changeprimary'])) {
             $result = $this->handleRequestForReplicaChangePrimary();
@@ -475,7 +475,7 @@ class ReplicationGui
             } else {
                 Core::sendHeaderLocation(
                     './index.php?route=/server/replication'
-                    .Url::getCommonRaw($GLOBALS['urlParams'], '&')
+                    . Url::getCommonRaw($GLOBALS['urlParams'], '&')
                 );
             }
         }
@@ -593,7 +593,7 @@ class ReplicationGui
         }
 
         $qStop = $this->replication->replicaControl('STOP', null, DatabaseInterface::CONNECT_USER);
-        $qSkip = $dbi->tryQuery('SET GLOBAL SQL_SLAVE_SKIP_COUNTER = '.$count.';');
+        $qSkip = $dbi->tryQuery('SET GLOBAL SQL_SLAVE_SKIP_COUNTER = ' . $count . ';');
         $qStart = $this->replication->replicaControl('START', null, DatabaseInterface::CONNECT_USER);
 
         return $qStop !== false && $qStop !== -1 &&

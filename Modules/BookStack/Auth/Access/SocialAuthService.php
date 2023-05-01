@@ -3,13 +3,13 @@
 namespace Modules\BookStack\Auth\Access;
 
 use Illuminate\Support\Str;
-use Laravel\Socialite\Contracts\Factory as Socialite;
-use Laravel\Socialite\Contracts\User as SocialUser;
-use Modules\BookStack\Auth\SocialAccount;
 use Modules\BookStack\Auth\UserRepo;
+use Modules\BookStack\Auth\SocialAccount;
+use Laravel\Socialite\Contracts\User as SocialUser;
+use Laravel\Socialite\Contracts\Factory as Socialite;
 use Modules\BookStack\Exceptions\SocialDriverNotConfigured;
-use Modules\BookStack\Exceptions\SocialSignInAccountNotUsed;
 use Modules\BookStack\Exceptions\UserRegistrationException;
+use Modules\BookStack\Exceptions\SocialSignInAccountNotUsed;
 
 class SocialAuthService
 {
@@ -25,8 +25,6 @@ class SocialAuthService
      * SocialAuthService constructor.
      *
      * @param  \BookStack\Auth\UserRepo  $userRepo
-     * @param  Socialite  $socialite
-     * @param  SocialAccount  $socialAccount
      */
     public function __construct(UserRepo $userRepo, Socialite $socialite, SocialAccount $socialAccount)
     {
@@ -68,8 +66,6 @@ class SocialAuthService
     /**
      * Handle the social registration process on callback.
      *
-     * @param  string  $socialDriver
-     * @param  SocialUser  $socialUser
      * @return SocialUser
      *
      * @throws UserRegistrationException
@@ -92,7 +88,6 @@ class SocialAuthService
     /**
      * Get the social user details via the social driver.
      *
-     * @param  string  $socialDriver
      * @return SocialUser
      *
      * @throws SocialDriverNotConfigured
@@ -107,8 +102,6 @@ class SocialAuthService
     /**
      * Handle the login process on a oAuth callback.
      *
-     * @param $socialDriver
-     * @param  SocialUser  $socialUser
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
      * @throws SocialSignInAccountNotUsed
@@ -166,7 +159,6 @@ class SocialAuthService
     /**
      * Ensure the social driver is correct and supported.
      *
-     * @param $socialDriver
      * @return string
      *
      * @throws SocialDriverNotConfigured
@@ -188,14 +180,13 @@ class SocialAuthService
     /**
      * Check a social driver has been configured correctly.
      *
-     * @param $driver
      * @return bool
      */
     private function checkDriverConfigured($driver)
     {
         $lowerName = strtolower($driver);
-        $configPrefix = 'services.'.$lowerName.'.';
-        $config = [config($configPrefix.'client_id'), config($configPrefix.'client_secret'), config('services.callback_url')];
+        $configPrefix = 'services.' . $lowerName . '.';
+        $config = [config($configPrefix . 'client_id'), config($configPrefix . 'client_secret'), config('services.callback_url')];
 
         return ! in_array(false, $config) && ! in_array(null, $config);
     }
@@ -220,34 +211,31 @@ class SocialAuthService
     /**
      * Get the presentational name for a driver.
      *
-     * @param $driver
      * @return mixed
      */
     public function getDriverName($driver)
     {
-        return config('services.'.strtolower($driver).'.name');
+        return config('services.' . strtolower($driver) . '.name');
     }
 
     /**
      * Check if the current config for the given driver allows auto-registration.
      *
-     * @param  string  $driver
      * @return bool
      */
     public function driverAutoRegisterEnabled(string $driver)
     {
-        return config('services.'.strtolower($driver).'.auto_register') === true;
+        return config('services.' . strtolower($driver) . '.auto_register') === true;
     }
 
     /**
      * Check if the current config for the given driver allow email address auto-confirmation.
      *
-     * @param  string  $driver
      * @return bool
      */
     public function driverAutoConfirmEmailEnabled(string $driver)
     {
-        return config('services.'.strtolower($driver).'.auto_confirm') === true;
+        return config('services.' . strtolower($driver) . '.auto_confirm') === true;
     }
 
     /**
@@ -269,7 +257,6 @@ class SocialAuthService
     /**
      * Detach a social account from a user.
      *
-     * @param $socialDriver
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function detachSocialAccount($socialDriver)
@@ -283,7 +270,6 @@ class SocialAuthService
     /**
      * Provide redirect options per service for the Laravel Socialite driver
      *
-     * @param $driverName
      * @return \Laravel\Socialite\Contracts\Provider
      */
     public function getSocialDriver(string $driverName)

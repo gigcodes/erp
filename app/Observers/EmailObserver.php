@@ -2,17 +2,16 @@
 
 namespace App\Observers;
 
-use App\ContentManageentEmail;
 use App\Email;
 use App\GmailDataList;
 use App\GmailDataMedia;
+use App\ContentManageentEmail;
 
 class EmailObserver
 {
     /**
      * Handle the email "created" event.
      *
-     * @param  \App\Email  $email
      * @return void
      */
     public function created(Email $email)
@@ -23,7 +22,6 @@ class EmailObserver
     /**
      * Handle the email "updated" event.
      *
-     * @param  \App\Email  $email
      * @return void
      */
     public function updated(Email $email)
@@ -34,7 +32,6 @@ class EmailObserver
     /**
      * Handle the email "deleted" event.
      *
-     * @param  \App\Email  $email
      * @return void
      */
     public function deleted(Email $email)
@@ -45,7 +42,6 @@ class EmailObserver
     /**
      * Handle the email "restored" event.
      *
-     * @param  \App\Email  $email
      * @return void
      */
     public function restored(Email $email)
@@ -56,7 +52,6 @@ class EmailObserver
     /**
      * Handle the email "force deleted" event.
      *
-     * @param  \App\Email  $email
      * @return void
      */
     public function forceDeleted(Email $email)

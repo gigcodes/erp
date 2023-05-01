@@ -2,38 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use File;
+use Excel;
+use Storage;
+use App\User;
 use App\Brand;
-use App\ChatMessage;
-use App\Customer;
 use App\Email;
-use App\Exports\EnqueryExport;
-use App\Exports\FileExcelExport;
-use App\Helpers;
-use App\Helpers\OrderHelper;
-use App\Imports\CustomerNumberImport;
-use App\InventoryStatus;
-use App\Mails\Manual\PurchaseExport;
 use App\Order;
-use App\OrderProduct;
+use App\Helpers;
 use App\Product;
+use App\Setting;
+use App\Customer;
+use App\Supplier;
+use Carbon\Carbon;
+use App\ChatMessage;
+use App\OrderProduct;
+use App\StoreWebsite;
+use App\InventoryStatus;
 use App\ProductSupplier;
+use App\Helpers\OrderHelper;
+use Illuminate\Http\Request;
 use App\PurchaseProductOrder;
+use App\SupplierDiscountInfo;
+use App\Exports\EnqueryExport;
+use App\SupplierOrderTemplate;
+use App\Exports\FileExcelExport;
+use App\PurchaseProductOrderLog;
+use App\SupplierOrderInquiryData;
+use App\PurchaseProductOrderImage;
+use App\Mails\Manual\PurchaseExport;
+use App\Imports\CustomerNumberImport;
 use App\PurchaseProductOrderExcelFile;
 use App\PurchaseProductOrderExcelFileVersion;
-use App\PurchaseProductOrderImage;
-use App\PurchaseProductOrderLog;
-use App\Setting;
-use App\StoreWebsite;
-use App\Supplier;
-use App\SupplierDiscountInfo;
-use App\SupplierOrderInquiryData;
-use App\SupplierOrderTemplate;
-use App\User;
-use Carbon\Carbon;
-use Excel;
-use File;
-use Illuminate\Http\Request;
-use Storage;
 
 class PurchaseProductController extends Controller
 {
@@ -138,7 +138,7 @@ class PurchaseProductController extends Controller
         }
         $orders = $orders->whereHas('customer', function ($query) use ($filter_customer) {
             if ($filter_customer != '') {
-                return $query->where('name', 'LIKE', '%'.$filter_customer.'%');
+                return $query->where('name', 'LIKE', '%' . $filter_customer . '%');
             }
             //->orWhere('id', 'LIKE', '%'.$filter_customer.'%')
             //->orWhere('email', 'LIKE', '%'.$filter_customer.'%');
@@ -351,7 +351,7 @@ class PurchaseProductController extends Controller
             ->join('order_products', 'order_products.product_id', 'product_suppliers.product_id');
 
         if ($request->term) {
-            $suppliers = $suppliers->where('suppliers.supplier', 'like', '%'.$request->term.'%');
+            $suppliers = $suppliers->where('suppliers.supplier', 'like', '%' . $request->term . '%');
         }
         $suppliers = $suppliers->groupBy('product_suppliers.supplier_id')->orderBy('inquiryproductdata_count', 'desc')
             ->get();
@@ -400,7 +400,7 @@ class PurchaseProductController extends Controller
             // ChatMessage::sendWithChatApi('919825282', null, $message);
 
             $supplier = Supplier::find($supplier_id);
-            $path = 'inquiry_exports/'.Carbon::now()->format('Y-m-d-H-m-s').'_enquiry_exports.xlsx';
+            $path = 'inquiry_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_enquiry_exports.xlsx';
             $subject = 'Product Inquiry';
             $message = 'Please check below products';
             $product_ids = json_decode($request->product_ids, true);
@@ -430,14 +430,14 @@ class PurchaseProductController extends Controller
             $products_data = Product::whereIn('id', $product_ids)->get()->toArray();
             $product_names = array_column($products_data, 'name');
             $products_str = implode(', ', $product_names);
-            $message = 'Please check Product enquiry : '.$products_str;
+            $message = 'Please check Product enquiry : ' . $products_str;
 
             $number = ($supplier->phone ? $supplier->phone : '971569119192');
 
             $send_whatsapp = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
 
             //START - purpose : Add in ChatMessage -DEVTASK-4236
-            $message_chat = ' Inquiry WhatsApp Message : '.$message;
+            $message_chat = ' Inquiry WhatsApp Message : ' . $message;
             $params = [
                 'message' => $message_chat,
                 'supplier_id' => $supplier_id,
@@ -476,7 +476,7 @@ class PurchaseProductController extends Controller
 
         if ($type == 'order') {
             $supplier = Supplier::find($supplier_id);
-            $path = 'order_exports/'.Carbon::now()->format('Y-m-d-H-m-s').'_order_exports.xlsx';
+            $path = 'order_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
             $subject = 'Product order';
             $message = 'Please check below product order request';
             $product_ids = json_decode($request->product_ids, true);
@@ -510,14 +510,14 @@ class PurchaseProductController extends Controller
             $products_data = Product::whereIn('id', $product_ids)->get()->toArray();
             $product_names = array_column($products_data, 'name');
             $products_str = implode(', ', $product_names);
-            $message = 'Please check Product Order : '.$products_str;
+            $message = 'Please check Product Order : ' . $products_str;
 
             $number = ($supplier->phone ? $supplier->phone : '971569119192');
 
             $send_whatsapp = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
 
             //START - purpose : Add in ChatMessage -DEVTASK-4236
-            $message_chat = ' Order WhatsApp Message : '.$message;
+            $message_chat = ' Order WhatsApp Message : ' . $message;
             $params = [
                 'message' => $message_chat,
                 'supplier_id' => $supplier_id,
@@ -580,7 +580,7 @@ class PurchaseProductController extends Controller
 
             // foreach ($order_products_data as $key => $val)
             // {
-            $rand_order_no = rand(999, 9999).'0'.rand(99, 999);
+            $rand_order_no = rand(999, 9999) . '0' . rand(99, 999);
 
             $order_pro_arr[] = [
                 'product_id' => '',
@@ -746,8 +746,8 @@ class PurchaseProductController extends Controller
                 PurchaseProductOrder::where('id', $purchase_pro_id)->update($update);
                 \App\CashFlow::updateOrCreate(['cash_flow_able_id' => $purchase_pro_id, 'user_id' => \Auth::id()], $input);
                 $params['header_name'] = 'Payment Details';
-                $params['replace_from'] = 'Payment Currency : '.$get_data->payment_currency.'<br/> Payment Amount : '.$get_data->payment_amount.' <br/> Payment Mode : '.$get_data->payment_mode;
-                $params['replace_to'] = 'Payment Currency : '.$payment_currency.' <br/> Payment Amount : '.$payment_amount.' <br/> Payment Mode : '.$payment_mode;
+                $params['replace_from'] = 'Payment Currency : ' . $get_data->payment_currency . '<br/> Payment Amount : ' . $get_data->payment_amount . ' <br/> Payment Mode : ' . $get_data->payment_mode;
+                $params['replace_to'] = 'Payment Currency : ' . $payment_currency . ' <br/> Payment Amount : ' . $payment_amount . ' <br/> Payment Mode : ' . $payment_mode;
 
                 $log = PurchaseProductOrderLog::create($params);
 
@@ -762,8 +762,8 @@ class PurchaseProductController extends Controller
                 PurchaseProductOrder::where('id', $purchase_pro_id)->update($update);
 
                 $params['header_name'] = 'Cost';
-                $params['replace_from'] = 'Shipping Cost : '.$get_data->shipping_cost.' Duty Cost : '.$get_data->duty_cost;
-                $params['replace_to'] = 'Shipping Cost : '.$shipping_cost.' Duty Cost : '.$duty_cost;
+                $params['replace_from'] = 'Shipping Cost : ' . $get_data->shipping_cost . ' Duty Cost : ' . $get_data->duty_cost;
+                $params['replace_to'] = 'Shipping Cost : ' . $shipping_cost . ' Duty Cost : ' . $duty_cost;
 
                 $log = PurchaseProductOrderLog::create($params);
 
@@ -1047,7 +1047,7 @@ class PurchaseProductController extends Controller
             $fileNameArray = [];
             foreach ($files as $key => $file) {
                 //echo $file->getClientOriginalName();
-                $fileName = time().$key.'.'.$file->extension();
+                $fileName = time() . $key . '.' . $file->extension();
                 $fileNameArray[] = $fileName;
 
                 $params['order_product_id'] = $order_product_id;
@@ -1072,13 +1072,13 @@ class PurchaseProductController extends Controller
         $order_ids = $request->order_id;
 
         $supplier = Supplier::find($supplier_id);
-        $path = Carbon::now()->format('Y-m-d-H-m-s').'_order_exports.xlsx';
+        $path = Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
         $subject = 'Product order';
         $message = 'Please check below product order request';
         $product_ids = explode(',', $product_ids);
         $order_ids = explode(',', $order_ids);
 
-        return Excel::download(new EnqueryExport($product_ids, $order_ids, $path), Carbon::now()->format('Y-m-d-H-m-s').'_order_exports.xlsx');
+        return Excel::download(new EnqueryExport($product_ids, $order_ids, $path), Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx');
     }
 
     public function getallproducts(Request $request)
@@ -1110,7 +1110,7 @@ class PurchaseProductController extends Controller
         // $products_str = implode(", ",$product_names);
         $products_str = '';
         foreach ($products_data as $key => $val) {
-            $products_str .= "\n".' => Product Name : '.$val['name'].', Brand : '.$val['brand_name'].', SKU : '.$val['sku'].' , Price : '.$val['product_price'];
+            $products_str .= "\n" . ' => Product Name : ' . $val['name'] . ', Brand : ' . $val['brand_name'] . ', SKU : ' . $val['sku'] . ' , Price : ' . $val['product_price'];
         }
         $message = str_replace('{product_data}', $products_str, $template);
         // $message = 'Please check Product Order ::  '.$products_str;
@@ -1131,7 +1131,7 @@ class PurchaseProductController extends Controller
 
         if ($type == 'order' && $send_options != '') {
             $supplier = Supplier::find($supplier_id);
-            $path = 'order_exports/'.Carbon::now()->format('Y-m-d-H-m-s').'_order_exports.xlsx';
+            $path = 'order_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
             $subject = 'Product order';
             $message_chat_data = ($content ? $content : 'Please check below product order request');
 
@@ -1141,7 +1141,7 @@ class PurchaseProductController extends Controller
             if ($send_options == 'email' || $send_options == 'both') {
                 $message = ($content ? $content : 'Please check below product order request');
 
-                $message = str_replace('=>', '<br/>'.' =>', $message);
+                $message = str_replace('=>', '<br/>' . ' =>', $message);
                 $message = str_replace("\n", '<br/>', $message);
 
                 Excel::store(new EnqueryExport($product_ids, $order_ids, $path), $path, 'files');
@@ -1177,14 +1177,14 @@ class PurchaseProductController extends Controller
                 // $message = 'Please check Product Order : '.$products_str;
                 $message = ($content ? $content : 'Please check below product order request');
 
-                $message = str_replace('=>', "\n".' =>', $message);
+                $message = str_replace('=>', "\n" . ' =>', $message);
 
                 $number = ($supplier->phone ? $supplier->phone : '971569119192');
 
                 $send_whatsapp = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
             }
 
-            $message_chat = ' Order WhatsApp Message : '.$message_chat_data;
+            $message_chat = ' Order WhatsApp Message : ' . $message_chat_data;
             $params = [
                 'message' => $message_chat,
                 'supplier_id' => $supplier_id,
@@ -1243,7 +1243,7 @@ class PurchaseProductController extends Controller
 
             // foreach ($order_products_data as $key => $val)
             // {
-            $rand_order_no = rand(999, 9999).'0'.rand(99, 999);
+            $rand_order_no = rand(999, 9999) . '0' . rand(99, 999);
 
             $order_pro_arr[] = [
                 'product_id' => '',
@@ -1276,7 +1276,7 @@ class PurchaseProductController extends Controller
         $order_id = $request->order_id;
 
         $supplier = Supplier::find($supplier_id);
-        $path = 'order_exports/'.Carbon::now()->format('Y-m-d-H-m-s').'_order_exports.xlsx';
+        $path = 'order_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
 
         $product_ids = explode(',', $product_id);
         $order_ids = explode(',', $order_id);
@@ -1308,10 +1308,10 @@ class PurchaseProductController extends Controller
             $name = $log->excel_path;
         }
 
-        $isExists = File::exists(storage_path('app/files/').$name);
+        $isExists = File::exists(storage_path('app/files/') . $name);
         $info = '';
         if ($isExists == true) {
-            $info = new \SplFileInfo(storage_path('app/files/').$name);
+            $info = new \SplFileInfo(storage_path('app/files/') . $name);
         }
 
         $file_found = '';
@@ -1328,7 +1328,7 @@ class PurchaseProductController extends Controller
             foreach ($item as $kk => $vv) {
                 foreach ($vv as $k => $v) {
                     if ($kk != 0) {
-                        $filter_arr['sheet_'.$key.'_'.$kk][$k] = $v;
+                        $filter_arr['sheet_' . $key . '_' . $kk][$k] = $v;
                     }
                 }
             }
@@ -1357,7 +1357,7 @@ class PurchaseProductController extends Controller
         $file_name_data = explode('/', $file_name);
 
         if (count($file_name_data) > 1) {
-            $location = $file_name_data[0].'/';
+            $location = $file_name_data[0] . '/';
         } else {
             $location = '';
         }
@@ -1387,7 +1387,7 @@ class PurchaseProductController extends Controller
             unset($excel_data[$v1]);
         }
 
-        $path = $location.Carbon::now()->format('Y-m-d-H-m-s').'_order_exports.xlsx';
+        $path = $location . Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
 
         $total_sheet = [];
 
@@ -1489,7 +1489,7 @@ class PurchaseProductController extends Controller
     {
         $file = $request->filename;
 
-        return response()->download(storage_path('/app/files/'.$file));
+        return response()->download(storage_path('/app/files/' . $file));
     }
 
     public function get_template(Request $request)
@@ -1530,7 +1530,6 @@ class PurchaseProductController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -1563,7 +1562,6 @@ class PurchaseProductController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -1629,24 +1627,24 @@ class PurchaseProductController extends Controller
 
         $chatFileData = '';
         $chatFileData .= html_entity_decode('Product Supplier Data', ENT_QUOTES, 'UTF-8');
-        $chatFileData .= "\n"."\n";
+        $chatFileData .= "\n" . "\n";
 
         foreach ($supplier_not_exist_product_supplier_table as $k => $v) {
-            $chatFileData .= html_entity_decode('Product Id : '.$v['product_id'], ENT_QUOTES, 'UTF-8');
+            $chatFileData .= html_entity_decode('Product Id : ' . $v['product_id'], ENT_QUOTES, 'UTF-8');
             $chatFileData .= "\n";
-            $chatFileData .= html_entity_decode('Prodcuct Name : '.$v['product_name'], ENT_QUOTES, 'UTF-8');
+            $chatFileData .= html_entity_decode('Prodcuct Name : ' . $v['product_name'], ENT_QUOTES, 'UTF-8');
             $chatFileData .= "\n";
-            $chatFileData .= html_entity_decode('Supplier Id : '.$v['supplier_id'], ENT_QUOTES, 'UTF-8');
-            $chatFileData .= "\n"."\n";
+            $chatFileData .= html_entity_decode('Supplier Id : ' . $v['supplier_id'], ENT_QUOTES, 'UTF-8');
+            $chatFileData .= "\n" . "\n";
         }
 
         $date = date('Y_m_d_H_i_s');
-        $storagelocation = storage_path().'/logs/not_mapping_product_supplier';
+        $storagelocation = storage_path() . '/logs/not_mapping_product_supplier';
         if (! is_dir($storagelocation)) {
             mkdir($storagelocation, 0777, true);
         }
-        $filename = 'not_mapping_supplier_'.$date.'.txt';
-        $file = $storagelocation.'/'.$filename;
+        $filename = 'not_mapping_supplier_' . $date . '.txt';
+        $file = $storagelocation . '/' . $filename;
         $txt = fopen($file, 'w') or exit('Unable to open file!');
 
         fwrite($txt, $chatFileData);

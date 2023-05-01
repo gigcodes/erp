@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server;
 
+use PhpMyAdmin\Url;
 use PhpMyAdmin\Charsets;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\Charsets\Charset;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Charsets\Collation;
 use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
 
 /**
  * Handles viewing character sets and collations

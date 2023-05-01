@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\googleTraslationSettings;
 use Illuminate\Http\Request;
+use App\googleTraslationSettings;
 
 class GoogleTraslationSettingsController extends Controller
 {
@@ -19,10 +19,10 @@ class GoogleTraslationSettingsController extends Controller
 
         if ($request->term) {
             $settings->where(function ($q) use ($request) {
-                $q = $q->orWhere('email', 'LIKE', '%'.$request->term.'%')
-                  ->orWhere('account_json', 'LIKE', '%'.$request->term.'%')
-                  ->orWhere('last_note', 'LIKE', '%'.$request->term.'%')
-                  ->orWhere('project_id', 'LIKE', '%'.$request->term.'%');
+                $q = $q->orWhere('email', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('account_json', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('last_note', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('project_id', 'LIKE', '%' . $request->term . '%');
             });
         }
 
@@ -35,6 +35,7 @@ class GoogleTraslationSettingsController extends Controller
                 // 'count' => $data->total(),
             ], 200);
         }
+
         return view('googleTraslationSettings.index', compact('settings'));
     }
 
@@ -51,13 +52,11 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         try {
-
             $this->validate($request, [
                 'email' => 'required|email',
                 'last_note' => 'required',
@@ -92,7 +91,6 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\googleTraslationSettings  $googleTraslationSettings
      * @return \Illuminate\Http\Response
      */
     public function show(googleTraslationSettings $googleTraslationSettings)
@@ -103,7 +101,6 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\googleTraslationSettings  $googleTraslationSettings
      * @return \Illuminate\Http\Response
      */
     public function edit($id, googleTraslationSettings $googleTraslationSettings)
@@ -116,8 +113,6 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\googleTraslationSettings  $googleTraslationSettings
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, googleTraslationSettings $googleTraslationSettings)
@@ -145,7 +140,7 @@ class GoogleTraslationSettingsController extends Controller
                 'account_json' => $account_json,
                 'status' => $status,
                 'last_note' => $last_note,
-                'project_id'=> $project_id
+                'project_id' => $project_id,
             ]);
 
             return redirect()->route('google-traslation-settings.index')->with('success', 'Setting Update Successfully');

@@ -33,7 +33,7 @@ class CharityConfirmation extends Mailable
      */
     public function build()
     {
-        $subject = 'Charity Confirmation # '.$this->order->order_id;
+        $subject = 'Charity Confirmation # ' . $this->order->order_id;
         $order = $this->order;
         $customer = $order->customer;
         $order_products = $order->order_products;

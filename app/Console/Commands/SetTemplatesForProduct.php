@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
-use App\ProductTemplate;
-use App\Template;
 use DB;
-use Illuminate\Console\Command;
+use App\Product;
+use App\Template;
+use App\ProductTemplate;
 use Plank\Mediable\Media;
+use Illuminate\Console\Command;
 
 class SetTemplatesForProduct extends Command
 {
@@ -54,7 +54,7 @@ class SetTemplatesForProduct extends Command
 
                 Product::chunk(1000, function ($products) use ($totalCount, $template) {
                     foreach ($products as $product) {
-                        $checkTag = 'template_'.$template->id;
+                        $checkTag = 'template_' . $template->id;
                         $mediable = DB::table('mediables')->where('tag', $checkTag)->where('mediable_id', $product->id)->first();
 
                         if ($mediable != null) {

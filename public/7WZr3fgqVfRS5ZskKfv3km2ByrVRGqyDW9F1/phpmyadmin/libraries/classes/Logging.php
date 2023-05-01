@@ -9,16 +9,16 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
-use function closelog;
+use const LOG_PID;
 use function date;
+use function syslog;
+use const LOG_NDELAY;
+use function openlog;
+use const LOG_WARNING;
+use function closelog;
+use const LOG_AUTHPRIV;
 use function error_log;
 use function function_exists;
-use const LOG_AUTHPRIV;
-use const LOG_NDELAY;
-use const LOG_PID;
-use const LOG_WARNING;
-use function openlog;
-use function syslog;
 
 /**
  * Misc logging functions
@@ -58,10 +58,10 @@ class Logging
     public static function getLogMessage($user, $status)
     {
         if ($status === 'ok') {
-            return 'user authenticated: '.$user.' from '.Core::getIp();
+            return 'user authenticated: ' . $user . ' from ' . Core::getIp();
         }
 
-        return 'user denied: '.$user.' ('.$status.') from '.Core::getIp();
+        return 'user denied: ' . $user . ' (' . $status . ') from ' . Core::getIp();
     }
 
     /**
@@ -100,7 +100,7 @@ class Logging
             @error_log($message, 4);
         } else {
             @error_log(
-                date('M d H:i:s').' phpmyadmin: '.$message."\n",
+                date('M d H:i:s') . ' phpmyadmin: ' . $message . "\n",
                 3,
                 $log_file
             );

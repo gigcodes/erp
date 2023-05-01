@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Database;
 
 use function __;
-use function count;
-use function explode;
-use function htmlspecialchars;
-use function in_array;
-use function mb_strtoupper;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Util;
-use function sprintf;
-use function str_contains;
 use function trim;
+use function count;
+use PhpMyAdmin\Util;
+use function explode;
+use function sprintf;
+use function in_array;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use function str_contains;
+use function mb_strtoupper;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 
 /**
  * Functions for trigger management.
@@ -109,15 +109,15 @@ class Triggers
                     // Backup the old trigger, in case something goes wrong
                     $trigger = $this->getDataFromName($_POST['item_original_name']);
                     $create_item = $trigger['create'];
-                    $drop_item = $trigger['drop'].';';
+                    $drop_item = $trigger['drop'] . ';';
                     $result = $this->dbi->tryQuery($drop_item);
                     if (! $result) {
                         $errors[] = sprintf(
                             __('The following query has failed: "%s"'),
                             htmlspecialchars($drop_item)
                         )
-                        .'<br>'
-                        .__('MySQL said: ').$this->dbi->getError();
+                        . '<br>'
+                        . __('MySQL said: ') . $this->dbi->getError();
                     } else {
                         $result = $this->dbi->tryQuery($item_query);
                         if (! $result) {
@@ -125,8 +125,8 @@ class Triggers
                                 __('The following query has failed: "%s"'),
                                 htmlspecialchars($item_query)
                             )
-                            .'<br>'
-                            .__('MySQL said: ').$this->dbi->getError();
+                            . '<br>'
+                            . __('MySQL said: ') . $this->dbi->getError();
                             // We dropped the old item, but were unable to create the
                             // new one. Try to restore the backup query.
                             $result = $this->dbi->tryQuery($create_item);
@@ -141,7 +141,7 @@ class Triggers
                             $message->addParam(
                                 Util::backquote($_POST['item_name'])
                             );
-                            $sql_query = $drop_item.$item_query;
+                            $sql_query = $drop_item . $item_query;
                         }
                     }
                 } else {
@@ -152,8 +152,8 @@ class Triggers
                             __('The following query has failed: "%s"'),
                             htmlspecialchars($item_query)
                         )
-                        .'<br><br>'
-                        .__('MySQL said: ').$this->dbi->getError();
+                        . '<br><br>'
+                        . __('MySQL said: ') . $this->dbi->getError();
                     } else {
                         $message = Message::success(
                             __('Trigger %1$s has been created.')
@@ -169,14 +169,14 @@ class Triggers
             if (count($errors)) {
                 $message = Message::error(
                     '<b>'
-                    .__(
+                    . __(
                         'One or more errors have occurred while processing your request:'
                     )
-                    .'</b>'
+                    . '</b>'
                 );
                 $message->addHtml('<ul>');
                 foreach ($errors as $string) {
-                    $message->addHtml('<li>'.$string.'</li>');
+                    $message->addHtml('<li>' . $string . '</li>');
                 }
 
                 $message->addHtml('</ul>');
@@ -344,7 +344,7 @@ class Triggers
     public function getEditorForm($db, $table, $mode, array $item): string
     {
         $query = 'SELECT `TABLE_NAME` FROM `INFORMATION_SCHEMA`.`TABLES` ';
-        $query .= 'WHERE `TABLE_SCHEMA`=\''.$this->dbi->escapeString($db).'\' ';
+        $query .= 'WHERE `TABLE_SCHEMA`=\'' . $this->dbi->escapeString($db) . '\' ';
         $query .= 'AND `TABLE_TYPE` IN (\'BASE TABLE\', \'SYSTEM VERSIONED\')';
         $tables = $this->dbi->fetchResult($query);
 
@@ -373,8 +373,8 @@ class Triggers
         if (! empty($_POST['item_definer'])) {
             if (str_contains($_POST['item_definer'], '@')) {
                 $arr = explode('@', $_POST['item_definer']);
-                $query .= 'DEFINER='.Util::backquote($arr[0]);
-                $query .= '@'.Util::backquote($arr[1]).' ';
+                $query .= 'DEFINER=' . Util::backquote($arr[0]);
+                $query .= '@' . Util::backquote($arr[1]) . ' ';
             } else {
                 $errors[] = __('The definer must be in the "username@hostname" format!');
             }
@@ -382,19 +382,19 @@ class Triggers
 
         $query .= 'TRIGGER ';
         if (! empty($_POST['item_name'])) {
-            $query .= Util::backquote($_POST['item_name']).' ';
+            $query .= Util::backquote($_POST['item_name']) . ' ';
         } else {
             $errors[] = __('You must provide a trigger name!');
         }
 
         if (! empty($_POST['item_timing']) && in_array($_POST['item_timing'], $this->time)) {
-            $query .= $_POST['item_timing'].' ';
+            $query .= $_POST['item_timing'] . ' ';
         } else {
             $errors[] = __('You must provide a valid timing for the trigger!');
         }
 
         if (! empty($_POST['item_event']) && in_array($_POST['item_event'], $this->event)) {
-            $query .= $_POST['item_event'].' ';
+            $query .= $_POST['item_event'] . ' ';
         } else {
             $errors[] = __('You must provide a valid event for the trigger!');
         }
@@ -428,10 +428,10 @@ class Triggers
         // and now even the backup query does not execute!
         // This should not happen, but we better handle
         // this just in case.
-        $errors[] = __('Sorry, we failed to restore the dropped trigger.').'<br>'
-            .__('The backed up query was:')
-            .'"'.htmlspecialchars($createStatement).'"<br>'
-            .__('MySQL said: ').$this->dbi->getError();
+        $errors[] = __('Sorry, we failed to restore the dropped trigger.') . '<br>'
+            . __('The backed up query was:')
+            . '"' . htmlspecialchars($createStatement) . '"<br>'
+            . __('MySQL said: ') . $this->dbi->getError();
 
         return $errors;
     }
@@ -453,14 +453,14 @@ class Triggers
                 $this->response->addJSON('message', $editor);
                 $this->response->addJSON('title', $title);
             } else {
-                echo "\n\n<h2>".$title."</h2>\n\n".$editor;
+                echo "\n\n<h2>" . $title . "</h2>\n\n" . $editor;
                 unset($_POST);
             }
 
             exit;
         }
 
-        $message = __('Error in processing request:').' ';
+        $message = __('Error in processing request:') . ' ';
         $message .= sprintf(
             __('No trigger with name %1$s found in database %2$s.'),
             htmlspecialchars(Util::backquote($_REQUEST['item_name'])),

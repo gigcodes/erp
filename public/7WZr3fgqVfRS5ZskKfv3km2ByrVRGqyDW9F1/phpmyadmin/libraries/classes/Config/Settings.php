@@ -4,28 +4,28 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Config;
 
-use function array_keys;
+use function min;
+use const TEMP_DIR;
 use function count;
+use const ROOT_PATH;
+use function is_int;
+use function strlen;
 use function defined;
-use const DIRECTORY_SEPARATOR;
-use function get_object_vars;
 use function in_array;
 use function is_array;
-use function is_int;
 use function is_string;
-use function min;
-use PhpMyAdmin\Config\Settings\Console;
+use function array_keys;
+use function get_object_vars;
+use const DIRECTORY_SEPARATOR;
+use const VERSION_CHECK_DEFAULT;
 use PhpMyAdmin\Config\Settings\Debug;
 use PhpMyAdmin\Config\Settings\Export;
 use PhpMyAdmin\Config\Settings\Import;
 use PhpMyAdmin\Config\Settings\Schema;
 use PhpMyAdmin\Config\Settings\Server;
+use PhpMyAdmin\Config\Settings\Console;
 use PhpMyAdmin\Config\Settings\SqlQueryBox;
 use PhpMyAdmin\Config\Settings\Transformations;
-use const ROOT_PATH;
-use function strlen;
-use const TEMP_DIR;
-use const VERSION_CHECK_DEFAULT;
 
 // phpcs:disable Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
 
@@ -2495,7 +2495,7 @@ final class Settings
     {
         if (! isset($settings['CaptchaCsp'])) {
             return 'https://apis.google.com https://www.google.com/recaptcha/'
-                .' https://www.gstatic.com/recaptcha/ https://ssl.gstatic.com/';
+                . ' https://www.gstatic.com/recaptcha/ https://ssl.gstatic.com/';
         }
 
         return (string) $settings['CaptchaCsp'];
@@ -4339,7 +4339,7 @@ final class Settings
      */
     private function setTempDir(array $settings): string
     {
-        $tempDir = ROOT_PATH.'tmp'.DIRECTORY_SEPARATOR;
+        $tempDir = ROOT_PATH . 'tmp' . DIRECTORY_SEPARATOR;
         if (defined('TEMP_DIR')) {
             $tempDir = TEMP_DIR;
         }

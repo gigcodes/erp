@@ -44,7 +44,7 @@ class MagentoReportLog extends Command
             foreach ($storewebsite as $stroewebsite) {
                 foreach ($types as $type) {
                     //$cmd = ' bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server '. $stroewebsite->server_ip .' --type tests --test '. $type;
-                    $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-commands.sh --server '.$stroewebsite->server_ip.' --type tests --test '.$type;
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server ' . $stroewebsite->server_ip . ' --type tests --test ' . $type;
 
                     $allOutput = [];
                     $allOutput[] = $cmd;
@@ -56,7 +56,7 @@ class MagentoReportLog extends Command
                         $ins->sql_query = json_encode($result);
                         $ins->time = date('Y-m-d H:s:i');
                         $ins->website_id = $storewebsite->id ?? '';
-                        $ins->type = 'MagentoLog-'.$type;
+                        $ins->type = 'MagentoLog-' . $type;
                         $ins->save();
                     }
                 }

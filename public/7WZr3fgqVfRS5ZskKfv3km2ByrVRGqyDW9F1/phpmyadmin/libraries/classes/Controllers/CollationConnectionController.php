@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers;
 
-use PhpMyAdmin\Config;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
+use PhpMyAdmin\Config;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
 
 final class CollationConnectionController extends AbstractController
 {
@@ -29,6 +29,6 @@ final class CollationConnectionController extends AbstractController
             'utf8mb4_unicode_ci'
         );
 
-        $this->response->header('Location: index.php?route=/'.Url::getCommonRaw([], '&'));
+        $this->response->header('Location: index.php?route=/' . Url::getCommonRaw([], '&'));
     }
 }

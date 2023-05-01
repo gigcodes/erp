@@ -16,7 +16,7 @@ class AddYoutubeCommentsTable extends Migration
         Schema::create('youtube_comments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('youtube_video_id');
-            $table->string('video_id',128);
+            $table->string('video_id', 128);
             $table->string('comment_id', 128);
             $table->string('title', 564)->nullable();
             $table->integer('like_count')->nullable();

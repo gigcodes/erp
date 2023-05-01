@@ -2,12 +2,12 @@
 
 namespace App\Helpers;
 
+use Storage;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use Storage;
+use GuzzleHttp\RequestOptions;
+use GuzzleHttp\Exception\ClientException;
 
 trait HubstaffTrait
 {
@@ -117,24 +117,24 @@ trait HubstaffTrait
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($startTime, $endTime, $startId, $userIds) {
                     // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
-                    $url = 'https://api.hubstaff.com/v2/organizations/'.config('env.HUBSTAFF_ORG_ID').'/activities?time_slot[start]='.$startTime.'&time_slot[stop]='.$endTime.'&page_start_id='.$startId;
+                    $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
 
                     $q = [];
                     if (! empty($userIds)) {
                         foreach ($userIds as $uid) {
-                            $q[] = 'user_ids[]='.$uid;
+                            $q[] = 'user_ids[]=' . $uid;
                         }
                     }
                     $queryString = implode('&', $q);
-                    $url .= '&'.$queryString;
+                    $url .= '&' . $queryString;
 
-                    \Log::info('Hubstaff url : '.$url.' Token  : '.$accessToken);
+                    \Log::info('Hubstaff url : ' . $url . ' Token  : ' . $accessToken);
 
                     return $this->client->get(
                         $url,
                         [
                             RequestOptions::HEADERS => [
-                                'Authorization' => 'Bearer '.$accessToken,
+                                'Authorization' => 'Bearer ' . $accessToken,
                             ],
                         ]
                     );
@@ -164,7 +164,7 @@ trait HubstaffTrait
                 return $activities;
             }
         } catch (Exception $e) {
-            \Log::info('Hubstaff token issue while fetching activities : '.$e->getMessage());
+            \Log::info('Hubstaff token issue while fetching activities : ' . $e->getMessage());
 
             return false;
         }

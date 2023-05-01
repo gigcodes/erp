@@ -22,7 +22,7 @@ return [
         'uploads',
         'files',
         'adsapi',
-        'google_ads'
+        'google_ads',
     ],
 
     /*

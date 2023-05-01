@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Database;
 
 use function __;
-use function array_merge;
-use function is_array;
-use PhpMyAdmin\Config\PageSettings;
-use PhpMyAdmin\Export;
-use PhpMyAdmin\Export\Options;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Plugins;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
+use function is_array;
+use PhpMyAdmin\Export;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Plugins;
+use PhpMyAdmin\Template;
+use function array_merge;
+use PhpMyAdmin\Export\Options;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Config\PageSettings;
 
 final class ExportController extends AbstractController
 {

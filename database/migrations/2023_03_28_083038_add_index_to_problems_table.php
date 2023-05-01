@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddIndexToProblemsTable extends Migration
 {
@@ -16,8 +16,6 @@ class AddIndexToProblemsTable extends Migration
         Schema::table('problems', function (Blueprint $table) {
             $table->index(['eventid']);
         });
-
-        
     }
 
     /**

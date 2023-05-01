@@ -17,18 +17,18 @@ class ContactTableSeeder extends Seeder
     {
         // Load Faker
         $faker = \Faker\Factory::create();
-        
+
         $userIds = User::get()->pluck('id')->toArray();
 
-        if(!empty($userIds)){
+        if (! empty($userIds)) {
             // Create 1000 contacts
-           for ($i = 0; $i < 5000; $i++) {
-               $contact = new Contact();
-               $contact->user_id = $userIds[array_rand($userIds, 1)];
-               $contact->name = $faker->name;
-               $contact->phone = $faker->phoneNumber;
-               $contact->save();
-           }
-       }
+            for ($i = 0; $i < 5000; $i++) {
+                $contact = new Contact();
+                $contact->user_id = $userIds[array_rand($userIds, 1)];
+                $contact->name = $faker->name;
+                $contact->phone = $faker->phoneNumber;
+                $contact->save();
+            }
+        }
     }
 }

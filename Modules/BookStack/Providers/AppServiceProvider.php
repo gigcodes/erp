@@ -2,20 +2,20 @@
 
 namespace Modules\BookStack\Providers;
 
-use Blade;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\ServiceProvider;
-use Modules\BookStack\Entities\Book;
-use Modules\BookStack\Entities\Bookshelf;
-use Modules\BookStack\Entities\BreadcrumbsViewComposer;
-use Modules\BookStack\Entities\Chapter;
-use Modules\BookStack\Entities\Page;
-use Modules\BookStack\Settings\Setting;
-use Modules\BookStack\Settings\SettingService;
-use Schema;
 use URL;
+use Blade;
+use Schema;
 use Validator;
+use Illuminate\Support\Facades\View;
+use Modules\BookStack\Entities\Book;
+use Modules\BookStack\Entities\Page;
+use Illuminate\Support\ServiceProvider;
+use Modules\BookStack\Entities\Chapter;
+use Modules\BookStack\Settings\Setting;
+use Modules\BookStack\Entities\Bookshelf;
+use Modules\BookStack\Settings\SettingService;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Modules\BookStack\Entities\BreadcrumbsViewComposer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,10 +53,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Blade::directive('exposeTranslations', function ($expression) {
-            return "<?php \$__env->startPush('translations'); ?>".
-                "<?php foreach({$expression} as \$key): ?>".
-                '<meta name="translation" key="<?php echo e($key); ?>" value="<?php echo e(trans($key)); ?>">'."\n".
-                '<?php endforeach; ?>'.
+            return "<?php \$__env->startPush('translations'); ?>" .
+                "<?php foreach({$expression} as \$key): ?>" .
+                '<meta name="translation" key="<?php echo e($key); ?>" value="<?php echo e(trans($key)); ?>">' . "\n" .
+                '<?php endforeach; ?>' .
                 '<?php $__env->stopPush(); ?>';
         });
 
@@ -72,7 +72,7 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/setting-defaults.php',
+            __DIR__ . '/../Config/setting-defaults.php',
             'setting-defaults'
         );
 

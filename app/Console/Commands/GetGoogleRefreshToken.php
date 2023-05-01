@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Google\Auth\CredentialsLoader;
 use Google\Auth\OAuth2;
 use Illuminate\Console\Command;
+use Google\Auth\CredentialsLoader;
 
 class GetGoogleRefreshToken extends Command
 {
@@ -72,8 +72,8 @@ class GetGoogleRefreshToken extends Command
         $PRODUCTS = [
             ['AdWords API', self::ADWORDS_API_SCOPE],
             ['Ad Manager API', self::AD_MANAGER_API_SCOPE],
-            ['AdWords API and Ad Manager API', self::ADWORDS_API_SCOPE.' '
-                .self::AD_MANAGER_API_SCOPE, ],
+            ['AdWords API and Ad Manager API', self::ADWORDS_API_SCOPE . ' '
+                . self::AD_MANAGER_API_SCOPE, ],
         ];
 
         $stdin = fopen('php://stdin', 'r');
@@ -85,30 +85,30 @@ class GetGoogleRefreshToken extends Command
         $clientSecret = trim(fgets($stdin));
 
         echo "Select the API you're using: [0] AdWords API [1] Ad Manager API "
-            .'[2] Both'.PHP_EOL;
+            . '[2] Both' . PHP_EOL;
         $api = trim(fgets($stdin));
 
         while (! is_numeric($api)
             || ! (strval(intval($api)) === $api)
             || ! (intval($api) >= 0 && intval($api) <= 2)) {
-            echo "Please enter a valid number for the API you're using: ".
-                '[0] AdWords API [1] Ad Manager API [2] Both'.PHP_EOL;
+            echo "Please enter a valid number for the API you're using: " .
+                '[0] AdWords API [1] Ad Manager API [2] Both' . PHP_EOL;
             $api = trim(fgets($stdin));
         }
         $api = intval($api);
 
         if ($api === 2) {
             echo '[OPTIONAL] enter any additional OAuth2 scopes as a space '
-                .'delimited string here (the AdWords API and Ad Manager API '
-                .'scopes are already included): ';
+                . 'delimited string here (the AdWords API and Ad Manager API '
+                . 'scopes are already included): ';
         } else {
             printf(
                 '[OPTIONAL] enter any additional OAuth2 scopes as a space '
-                .'delimited string here (the %s scope is already included): ',
+                . 'delimited string here (the %s scope is already included): ',
                 $PRODUCTS[$api][0]
             );
         }
-        $scopes = $PRODUCTS[$api][1].' '.trim(fgets($stdin));
+        $scopes = $PRODUCTS[$api][1] . ' ' . trim(fgets($stdin));
 
         $oauth2 = new OAuth2(
             [
@@ -123,12 +123,12 @@ class GetGoogleRefreshToken extends Command
 
         printf(
             'Log into the Google account you use for %s and visit the following'
-            ." URL:\n%s\n\n",
+            . " URL:\n%s\n\n",
             $PRODUCTS[$api][0],
             $oauth2->buildFullAuthorizationUri()
         );
         echo 'After approving the application, enter the authorization code '
-            .'here: ';
+            . 'here: ';
         $code = trim(fgets($stdin));
         fclose($stdin);
         echo "\n";
@@ -139,8 +139,8 @@ class GetGoogleRefreshToken extends Command
         printf("Your refresh token is: %s\n\n", $authToken['refresh_token']);
         printf(
             "Copy the following lines to your 'adsapi_php.ini' file:\n"
-            ."clientId = \"%s\"\nclientSecret = \"%s\"\n"
-            ."refreshToken = \"%s\"\n",
+            . "clientId = \"%s\"\nclientSecret = \"%s\"\n"
+            . "refreshToken = \"%s\"\n",
             $clientId,
             $clientSecret,
             $authToken['refresh_token']

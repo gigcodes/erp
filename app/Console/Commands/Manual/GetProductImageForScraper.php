@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\Helpers\StatusHelper;
 use App\Product;
-use App\ScrapedProducts;
 use Carbon\Carbon;
+use App\ScrapedProducts;
+use App\Helpers\StatusHelper;
 use Illuminate\Console\Command;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -88,7 +88,7 @@ class GetProductImageForScraper extends Command
                                 $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
 
                                 //save image to media
-                                $media = MediaUploader::fromString($jpg)->toDirectory('/product/'.floor($product->id / 10000).'/'.$product->id)->useFilename($filename)->upload();
+                                $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
                                 $product->attachMedia($media, config('constants.media_tags'));
                                 $countImageUpdated++;
                             }
@@ -96,7 +96,7 @@ class GetProductImageForScraper extends Command
                         if ($countImageUpdated != 0) {
                             // Call status update handler
                             StatusHelper::updateStatus($product, StatusHelper::$autoCrop);
-                            dump('images saved for product ID '.$product->id);
+                            dump('images saved for product ID ' . $product->id);
                         }
                     }
                 }

@@ -53,7 +53,7 @@ class VisitorLogs extends Command
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
                 CURLOPT_HTTPHEADER => [
-                    'Authorization: Basic '.self::LIVE_CHAT_CREDNTIAL,
+                    'Authorization: Basic ' . self::LIVE_CHAT_CREDNTIAL,
                 ],
             ]);
 
@@ -61,7 +61,7 @@ class VisitorLogs extends Command
             $err = curl_error($curl);
 
             if ($err) {
-                echo 'cURL Error #:'.$err;
+                echo 'cURL Error #:' . $err;
             } else {
                 $logs = json_decode($response);
                 if (count($logs) != 0) {
@@ -71,7 +71,7 @@ class VisitorLogs extends Command
                             $logSave = new VisitorLog();
                             $logSave->ip = $log->ip;
                             $logSave->browser = $log->browser;
-                            $logSave->location = $log->city.' '.$log->region.' '.$log->country.' '.$log->country_code;
+                            $logSave->location = $log->city . ' ' . $log->region . ' ' . $log->country . ' ' . $log->country_code;
                             foreach ($log->visit_path as $path) {
                                 $pathArray[] = $path->page;
                             }

@@ -20,16 +20,16 @@ class ReferFriendController extends Controller
             $query = $query->where('id', $request->id);
         }
         if ($request->term) {
-            $query = $query->where('referrer_email', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('referrer_first_name', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('referrer_last_name', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('referrer_phone', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('referee_first_name', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('referee_last_name', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('referee_email', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('referee_phone', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('website', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('status', 'LIKE', '%'.$request->term.'%');
+            $query = $query->where('referrer_email', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('referrer_first_name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('referrer_last_name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('referrer_phone', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('referee_first_name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('referee_last_name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('referee_email', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('referee_phone', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('website', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('status', 'LIKE', '%' . $request->term . '%');
         }
 
         if ($request->for_date) {
@@ -62,7 +62,6 @@ class ReferFriendController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -95,7 +94,6 @@ class ReferFriendController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

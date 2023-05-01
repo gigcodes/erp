@@ -49,7 +49,7 @@ class CashFlow extends Model
 
     public function website()
     {
-        return $this->hasOne(\App\Customer::class, 'id','cash_flow_able_id');
+        return $this->hasOne(\App\Customer::class, 'id', 'cash_flow_able_id');
     }
 
     public function cashFlowAble()
@@ -84,11 +84,11 @@ class CashFlow extends Model
     public function getLink()
     {
         if ($this->cash_flow_able_type == \App\Order::class) {
-            return '<a href="'.route('order.show', $this->cash_flow_able_id).'" class="btn-link">'.$this->cash_flow_able_id.'</a>';
+            return '<a href="' . route('order.show', $this->cash_flow_able_id) . '" class="btn-link">' . $this->cash_flow_able_id . '</a>';
         } elseif ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
-            return '<a href="/voucher" class="btn-link">'.$this->cash_flow_able_id.'</a>';
+            return '<a href="/voucher" class="btn-link">' . $this->cash_flow_able_id . '</a>';
         } else {
-            return '<a href="javascript:;" class="btn-link">'.$this->cash_flow_able_id.'</a>';
+            return '<a href="javascript:;" class="btn-link">' . $this->cash_flow_able_id . '</a>';
         }
     }
 

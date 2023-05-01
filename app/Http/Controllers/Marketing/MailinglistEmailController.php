@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\GmailDataList;
-use App\Http\Controllers\Controller;
 use App\Image;
 use App\Mailinglist;
+use App\GmailDataList;
 use App\MailinglistEmail;
 use App\MailinglistTemplate;
 use App\MailingTemplateFile;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class MailinglistEmailController extends Controller
@@ -77,7 +77,7 @@ class MailinglistEmailController extends Controller
 
                     curl_setopt_array($curl, [
                         //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$list->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
-                        CURLOPT_URL => 'http://165.232.42.174/api/v1/campaign/create/'.$list->remote_id.'?api_token='.config('env.ACELLE_MAIL_API_TOKEN'),
+                        CURLOPT_URL => 'http://165.232.42.174/api/v1/campaign/create/' . $list->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN'),
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
                         CURLOPT_MAXREDIRS => 10,
@@ -118,7 +118,7 @@ class MailinglistEmailController extends Controller
                             CURLOPT_POSTFIELDS => json_encode($data),
                             CURLOPT_HTTPHEADER => [
                                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                                'api-key: '.$api_key,
+                                'api-key: ' . $api_key,
                                 'Content-Type: application/json',
                             ],
                         ]);

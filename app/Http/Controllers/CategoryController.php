@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\BrandCategoryPriceRange;
-use App\Category;
-use App\CategoryCancellationPolicyLog;
-use App\CategorySegment;
-use App\ScrappedCategoryMapping;
 use App\Setting;
+use App\Category;
+use App\CategorySegment;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
+use App\BrandCategoryPriceRange;
+use App\ScrappedCategoryMapping;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\Paginator;
+use App\CategoryCancellationPolicyLog;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryController extends Controller
 {
@@ -36,7 +36,7 @@ class CategoryController extends Controller
         $selected_value = $request->filter;
 
         if (isset($request->filter)) {
-            $categories = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('title', 'like', '%'.$request->filter.'%')->get();
+            $categories = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('title', 'like', '%' . $request->filter . '%')->get();
             $final_cat = [];
 
             foreach ($categories as $key => $cat) {
@@ -167,7 +167,7 @@ class CategoryController extends Controller
             $title = $category->title;
             $category->delete();
 
-            return response()->json(['success-remove' => $title.'category Deleted']);
+            return response()->json(['success-remove' => $title . 'category Deleted']);
         }
 
         if (Category::isParent($category->id)) {
@@ -185,7 +185,7 @@ class CategoryController extends Controller
         $title = $category->title;
         $category->delete();
 
-        return back()->with('success-remove', $title.'Category Deleted');
+        return back()->with('success-remove', $title . 'Category Deleted');
     }
 
     public static function getCategoryTree($id)
@@ -536,7 +536,7 @@ class CategoryController extends Controller
                     parent_id
             from    (select * from categories
                     order by parent_id, id) categories,
-                    (select @pv := '".$id."') initialisation
+                    (select @pv := '" . $id . "') initialisation
             where   find_in_set(parent_id, @pv) > 0
             and     length(@pv := concat(@pv, ',', id))";
         $results = \DB::select($sql);
@@ -554,7 +554,7 @@ class CategoryController extends Controller
             }
         }
 
-        return response()->json(['success-remove' => 'Days Cancelation '.$request->days_cancelation.' updated successfully']);
+        return response()->json(['success-remove' => 'Days Cancelation ' . $request->days_cancelation . ' updated successfully']);
     }
 
     public function getCategoryCancellationPolicyLog(Request $request)
@@ -672,7 +672,7 @@ class CategoryController extends Controller
         ->orderBy('is_skip', 'ASC');
 
         if ($request->search) {
-            $scrapped_category_mapping->where('name', 'LIKE', '%'.$request->search.'%');
+            $scrapped_category_mapping->where('name', 'LIKE', '%' . $request->search . '%');
         }
 
         if (isset($request->is_skipped)) {
@@ -720,11 +720,11 @@ class CategoryController extends Controller
             $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
             $childs = $category->childs;
             foreach ($childs as $child) {
-                $categoryArray[] = ['id' => $child->id, 'value' => $category->title.' > '.$child->title];
+                $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' > ' . $child->title];
                 $grandChilds = $child->childLevelSencond;
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
-                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title.' > '.$child->title.' > '.$grandChild->title];
+                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title];
                     }
                 }
             }
@@ -971,34 +971,34 @@ class CategoryController extends Controller
             $category->title = $request->input('title');
             $category->save();
 
-            return response()->json(['success-remove' => $category->title.' updated successfully']);
+            return response()->json(['success-remove' => $category->title . ' updated successfully']);
         }
 
         if ($request->has('magento_id')) {
             $category->magento_id = $request->input('magento_id');
             $category->save();
 
-            return response()->json(['success-remove' => 'Magneto id of '.$category->title.' updated successfully']);
+            return response()->json(['success-remove' => 'Magneto id of ' . $category->title . ' updated successfully']);
         }
 
         if ($request->has('show_all_id')) {
             $category->show_all_id = $request->input('show_all_id');
             $category->save();
 
-            return response()->json(['success-remove' => 'Show all id of '.$category->title.' updated successfully']);
+            return response()->json(['success-remove' => 'Show all id of ' . $category->title . ' updated successfully']);
         }
         if ($request->has('parent_id')) {
             $category->parent_id = $request->parent_id;
             $category->save();
 
-            return response()->json(['success-remove' => 'Parent category '.$category->title.' updated successfully.Please refresh page']);
+            return response()->json(['success-remove' => 'Parent category ' . $category->title . ' updated successfully.Please refresh page']);
         }
 
         if ($request->has('category_segment_id')) {
             $category->category_segment_id = $request->category_segment_id;
             $category->save();
 
-            return response()->json(['success-remove' => 'Category segment id of '.$category->title.' updated successfully']);
+            return response()->json(['success-remove' => 'Category segment id of ' . $category->title . ' updated successfully']);
         }
 
         if ($request->has('simplyduty_code')) {
@@ -1013,7 +1013,7 @@ class CategoryController extends Controller
             $category->simplyduty_code = $request->simplyduty_code;
             $category->save();
 
-            return response()->json(['success-remove' => 'SH code of '.$category->title.' updated successfully']);
+            return response()->json(['success-remove' => 'SH code of ' . $category->title . ' updated successfully']);
         }
 
         if (isset($request->measurment)) {
@@ -1024,7 +1024,7 @@ class CategoryController extends Controller
             }
             $category->save();
 
-            return response()->json(['success-remove' => 'Check measurement of '.$category->title.' updated successfully']);
+            return response()->json(['success-remove' => 'Check measurement of ' . $category->title . ' updated successfully']);
         }
 
         if (isset($request->checkSize)) {
@@ -1035,7 +1035,7 @@ class CategoryController extends Controller
             }
             $category->save();
 
-            return response()->json(['success-remove' => 'Check size of '.$category->title.' updated successfully']);
+            return response()->json(['success-remove' => 'Check size of ' . $category->title . ' updated successfully']);
         }
 
         if (isset($request->checkSizeChart)) {
@@ -1046,7 +1046,7 @@ class CategoryController extends Controller
             }
             $category->save();
 
-            return response()->json(['success-remove' => 'Check size chart of '.$category->title.' updated successfully']);
+            return response()->json(['success-remove' => 'Check size chart of ' . $category->title . ' updated successfully']);
         }
     }
 

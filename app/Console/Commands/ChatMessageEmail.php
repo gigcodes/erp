@@ -58,6 +58,6 @@ class ChatMessageEmail extends Command
             }
         }
 
-        echo $no.' Customer has been updated with email from chat message';
+        echo $no . ' Customer has been updated with email from chat message';
     }
 }

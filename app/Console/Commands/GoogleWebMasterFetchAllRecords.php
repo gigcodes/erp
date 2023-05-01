@@ -4,13 +4,13 @@
 
 namespace App\Console\Commands;
 
-use App\GoogleClientAccount;
-use App\GoogleClientAccountMail;
-use App\GoogleSearchAnalytics;
-use App\GoogleWebMasters;
 use App\Site;
-use Illuminate\Console\Command;
+use App\GoogleWebMasters;
+use App\GoogleClientAccount;
 use Illuminate\Http\Request;
+use App\GoogleSearchAnalytics;
+use Illuminate\Console\Command;
+use App\GoogleClientAccountMail;
 
 class GoogleWebMasterFetchAllRecords extends Command
 {
@@ -69,7 +69,7 @@ class GoogleWebMasterFetchAllRecords extends Command
                         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                         CURLOPT_CUSTOMREQUEST => 'GET',
                         CURLOPT_HTTPHEADER => [
-                            'authorization:Bearer '.$this->client->getAccessToken()['access_token'],
+                            'authorization:Bearer ' . $this->client->getAccessToken()['access_token'],
                         ],
                     ]);
 
@@ -100,12 +100,12 @@ class GoogleWebMasterFetchAllRecords extends Command
                                 // Create ot update site url
                                 GoogleWebMasters::updateOrCreate(['sites' => $site->siteUrl]);
 
-                                echo 'https://www.googleapis.com/webmasters/v3/sites/'.urlencode($site->siteUrl).'/sitemaps';
+                                echo 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps';
                                 $curl1 = curl_init();
                                 //replace website name with code coming form site list
 
                                 curl_setopt_array($curl1, [
-                                    CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/'.urlencode($site->siteUrl).'/sitemaps',
+                                    CURLOPT_URL => 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps',
                                     CURLOPT_RETURNTRANSFER => true,
                                     CURLOPT_ENCODING => '',
                                     CURLOPT_MAXREDIRS => 10,
@@ -113,7 +113,7 @@ class GoogleWebMasterFetchAllRecords extends Command
                                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                                     CURLOPT_CUSTOMREQUEST => 'GET',
                                     CURLOPT_HTTPHEADER => [
-                                        'authorization: Bearer '.$this->client->getAccessToken()['access_token'],
+                                        'authorization: Bearer ' . $this->client->getAccessToken()['access_token'],
                                     ],
                                 ]);
 
@@ -122,7 +122,7 @@ class GoogleWebMasterFetchAllRecords extends Command
 
                                 if ($err) {
                                     activity('v3_sites')->log($err);
-                                    echo 'cURL Error #:'.$err;
+                                    echo 'cURL Error #:' . $err;
                                 } else {
                                     if (isset(json_decode($response1)->sitemap) && is_array(json_decode($response1)->sitemap)) {
                                         foreach (json_decode($response1)->sitemap as $key => $sitemap) {
@@ -155,7 +155,7 @@ class GoogleWebMasterFetchAllRecords extends Command
 
                 $this->googleToken = $token['access_token'];
 
-                $url_for_sites = 'https://www.googleapis.com/webmasters/v3/sites?key='.$this->apiKey.'<br>';
+                $url_for_sites = 'https://www.googleapis.com/webmasters/v3/sites?key=' . $this->apiKey . '<br>';
 
                 // die;
 
@@ -170,7 +170,7 @@ class GoogleWebMasterFetchAllRecords extends Command
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'GET',
                     CURLOPT_HTTPHEADER => [
-                        'authorization: Bearer '.$this->googleToken,
+                        'authorization: Bearer ' . $this->googleToken,
 
                     ],
                 ]);
@@ -289,7 +289,7 @@ class GoogleWebMasterFetchAllRecords extends Command
 
     public function googleResultForAnaylist($siteUrl, $params)
     {
-        $url = 'https://www.googleapis.com/webmasters/v3/sites/'.urlencode($siteUrl).'/searchAnalytics/query';
+        $url = 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($siteUrl) . '/searchAnalytics/query';
 
         $curl = curl_init();
         //replace website name with code coming form site list
@@ -303,7 +303,7 @@ class GoogleWebMasterFetchAllRecords extends Command
             //  CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => json_encode($params),
             CURLOPT_HTTPHEADER => [
-                'authorization: Bearer '.$this->googleToken,
+                'authorization: Bearer ' . $this->googleToken,
                 'Content-Type:application/json',
             ],
         ]);

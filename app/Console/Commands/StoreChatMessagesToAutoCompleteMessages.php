@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\AutoCompleteMessage;
 use App\ChatMessage;
-use Illuminate\Console\Command;
+use App\AutoCompleteMessage;
 use Illuminate\Support\Carbon;
+use Illuminate\Console\Command;
 
 class StoreChatMessagesToAutoCompleteMessages extends Command
 {

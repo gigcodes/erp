@@ -44,7 +44,7 @@ class SkuErrorCount extends Command
             $logs = ScrapedProducts::where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
             $data = new HistorialData();
             $data->object = 'sku_log';
-            $data->measuring_point = now().' '.$logs;
+            $data->measuring_point = now() . ' ' . $logs;
             $data->value = $logs;
             $data->save();
         } catch (\Exception $e) {

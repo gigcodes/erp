@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Import;
 
-use function function_exists;
-use function ini_get;
-use function json_encode;
-use PhpMyAdmin\Core;
-use function ucwords;
 use function uniqid;
+use PhpMyAdmin\Core;
+use function ini_get;
+use function ucwords;
+use function json_encode;
+use function function_exists;
 
 /**
  * Handles plugins that show the upload progress.
@@ -48,10 +48,10 @@ final class Ajax
 
         // select available plugin
         foreach ($plugins as $plugin) {
-            $check = $plugin.'Check';
+            $check = $plugin . 'Check';
 
             if (self::$check()) {
-                $upload_class = 'PhpMyAdmin\Plugins\Import\Upload\Upload'.ucwords($plugin);
+                $upload_class = 'PhpMyAdmin\Plugins\Import\Upload\Upload' . ucwords($plugin);
                 $_SESSION[$SESSION_KEY]['handler'] = $upload_class;
                 break;
             }

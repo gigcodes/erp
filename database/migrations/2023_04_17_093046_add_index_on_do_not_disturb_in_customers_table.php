@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddIndexOnDoNotDisturbInCustomersTable extends Migration
 {
@@ -14,8 +14,8 @@ class AddIndexOnDoNotDisturbInCustomersTable extends Migration
     public function up()
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->index('do_not_disturb');
-            $table->index('deleted_at');
+            //$table->index('do_not_disturb');
+            //$table->index('deleted_at');
         });
     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MagentoModule\MagentoModuleCronJobHistoryRequest;
 use App\MagentoModuleCronJobHistory;
+use App\Http\Requests\MagentoModule\MagentoModuleCronJobHistoryRequest;
 
 class MagentoModuleCronJobHistoryController extends Controller
 {

@@ -8,12 +8,12 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Navigation;
 
 use function __;
-use function class_exists;
-use const E_USER_ERROR;
-use PhpMyAdmin\Navigation\Nodes\Node;
-use function preg_match;
 use function sprintf;
+use const E_USER_ERROR;
+use function preg_match;
+use function class_exists;
 use function trigger_error;
+use PhpMyAdmin\Navigation\Nodes\Node;
 
 /**
  * Node factory - instantiates Node objects or objects derived from the Node class

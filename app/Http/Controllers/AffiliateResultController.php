@@ -26,13 +26,13 @@ class AffiliateResultController extends Controller
 
         if ($request->term) {
             $query = $query->where(function ($q) use ($request) {
-                $q = $q->orWhere('first_name', 'LIKE', '%'.$request->term.'%')
-                  ->orWhere('last_name', 'LIKE', '%'.$request->term.'%')
-                  ->orWhere('emailaddress', 'LIKE', '%'.$request->term.'%')
-                  ->orWhere('phone', 'LIKE', '%'.$request->term.'%')
-                  ->orWhere('website_name', 'LIKE', '%'.$request->term.'%')
-                  ->orWhere('url', 'LIKE', '%'.$request->term.'%')
-                  ->orWhere('title', 'LIKE', '%'.$request->term.'%');
+                $q = $q->orWhere('first_name', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('last_name', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('emailaddress', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('phone', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('website_name', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('url', 'LIKE', '%' . $request->term . '%')
+                  ->orWhere('title', 'LIKE', '%' . $request->term . '%');
             });
         }
 
@@ -62,7 +62,6 @@ class AffiliateResultController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -97,7 +96,6 @@ class AffiliateResultController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

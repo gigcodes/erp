@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Permission;
 use App\Role;
+use App\Permission;
 use Illuminate\Database\Seeder;
 
 class SeoProcessSeeder extends Seeder

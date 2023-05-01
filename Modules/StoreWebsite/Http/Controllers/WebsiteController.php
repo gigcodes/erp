@@ -2,12 +2,12 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\StoreWebsite;
 use App\Website;
+use App\StoreWebsite;
 use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class WebsiteController extends Controller
@@ -38,8 +38,8 @@ class WebsiteController extends Controller
         // Check for keyword search
         if ($request->keyword != null) {
             $websites = $websites->where(function ($q) use ($request) {
-                $q->where('websites.name', 'like', '%'.$request->keyword.'%')
-                    ->orWhere('websites.code', 'like', '%'.$request->keyword.'%');
+                $q->where('websites.name', 'like', '%' . $request->keyword . '%')
+                    ->orWhere('websites.code', 'like', '%' . $request->keyword . '%');
             });
         }
 
@@ -80,7 +80,7 @@ class WebsiteController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -113,7 +113,6 @@ class WebsiteController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -140,7 +139,6 @@ class WebsiteController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -197,7 +195,7 @@ class WebsiteController extends Controller
 
             if (! empty($countries)) {
                 foreach ($countries as $k => $c) {
-                    $website = Website::where('countries', 'like', '%"'.$k.'"%')->where('store_website_id', $storeWebsiteId)->first();
+                    $website = Website::where('countries', 'like', '%"' . $k . '"%')->where('store_website_id', $storeWebsiteId)->first();
                     if (! $website) {
                         $website = new Website;
                         $website->name = $c;
@@ -206,14 +204,14 @@ class WebsiteController extends Controller
                         $website->store_website_id = $storeWebsiteId;
                         if ($website->save()) {
                             $websiteStore = new WebsiteStore;
-                            $websiteStore->name = $c.' Store';
-                            $websiteStore->code = replaceSpaceWithDash($k).'_store';
+                            $websiteStore->name = $c . ' Store';
+                            $websiteStore->code = replaceSpaceWithDash($k) . '_store';
                             $websiteStore->website_id = $website->id;
                             $websiteStore->save();
                             if ($websiteStore->save()) {
                                 $websiteStoreView = new WebsiteStoreView;
                                 $websiteStoreView->name = 'English';
-                                $websiteStoreView->code = replaceSpaceWithDash(strtolower($k.'_en'));
+                                $websiteStoreView->code = replaceSpaceWithDash(strtolower($k . '_en'));
                                 $websiteStoreView->website_store_id = $websiteStore->id;
                                 $websiteStoreView->save();
                             }
@@ -273,13 +271,13 @@ class WebsiteController extends Controller
             if ($website->save()) {
                 $websiteStore = new WebsiteStore;
                 $websiteStore->name = $groupName;
-                $websiteStore->code = replaceSpaceWithDash($slug).'_store';
+                $websiteStore->code = replaceSpaceWithDash($slug) . '_store';
                 $websiteStore->website_id = $website->id;
                 $websiteStore->save();
                 if ($websiteStore->save()) {
                     $websiteStoreView = new WebsiteStoreView;
                     $websiteStoreView->name = 'English';
-                    $websiteStoreView->code = replaceSpaceWithDash(strtolower($slug.'_en'));
+                    $websiteStoreView->code = replaceSpaceWithDash(strtolower($slug . '_en'));
                     $websiteStoreView->website_store_id = $websiteStore->id;
                     $websiteStoreView->save();
                 }

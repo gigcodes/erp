@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Logging;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Storage;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class WhatsappLogsController extends Controller
 {
@@ -14,7 +14,7 @@ class WhatsappLogsController extends Controller
         // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi(971502609192, 7487848215, 'test data');
         // dd('end');
 
-        $path = base_path().'/';
+        $path = base_path() . '/';
 
         $escaped = str_replace('/', '\/', $path);
 
@@ -31,7 +31,7 @@ class WhatsappLogsController extends Controller
             $total_log = 0;
             $yesterday = strtotime('yesterday');
             $today = strtotime('today');
-            $path = base_path().'/';
+            $path = base_path() . '/';
             $content = Storage::disk('logs')->get($file);
             $escaped = str_replace('/', '\/', $path);
             $matches = [];
@@ -196,7 +196,7 @@ class WhatsappLogsController extends Controller
             $total_log = 0;
             $yesterday = strtotime('yesterday');
             $today = strtotime('today');
-            $path = base_path().'/';
+            $path = base_path() . '/';
             $content = Storage::disk('logs')->get($file);
 //          dd($content);
             $escaped = str_replace('/', '\/', $path);

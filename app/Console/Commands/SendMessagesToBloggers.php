@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\CronJobReport;
-use App\Influencers;
-use App\InfluencersDM;
-use App\InstagramAutomatedMessages;
 use Carbon\Carbon;
+use App\Influencers;
+use App\CronJobReport;
+use App\InfluencersDM;
 use Illuminate\Console\Command;
+use App\InstagramAutomatedMessages;
 
 //use InstagramAPI\Instagram;
 

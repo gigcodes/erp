@@ -7,18 +7,18 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin;
 
+use function ucfirst;
+use function in_array;
 use function array_merge;
-use BaconQrCode\Renderer\ImageRenderer;
 use function class_exists;
 use CodeLts\U2F\U2FServer\U2FServer;
-use function in_array;
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\Plugins\TwoFactor\Application;
-use PhpMyAdmin\Plugins\TwoFactor\Invalid;
 use PhpMyAdmin\Plugins\TwoFactor\Key;
+use PhpMyAdmin\ConfigStorage\Relation;
+use BaconQrCode\Renderer\ImageRenderer;
 use PhpMyAdmin\Plugins\TwoFactorPlugin;
 use PragmaRX\Google2FAQRCode\Google2FA;
-use function ucfirst;
+use PhpMyAdmin\Plugins\TwoFactor\Invalid;
+use PhpMyAdmin\Plugins\TwoFactor\Application;
 
 /**
  * Two factor authentication wrapper class
@@ -97,9 +97,6 @@ class TwoFactor
         return $this->backend;
     }
 
-    /**
-     * @return array
-     */
     public function getAvailable(): array
     {
         return $this->available;
@@ -180,7 +177,7 @@ class TwoFactor
         $result = TwoFactorPlugin::class;
         if (in_array($name, $this->available)) {
             /** @psalm-var class-string $result */
-            $result = 'PhpMyAdmin\\Plugins\\TwoFactor\\'.ucfirst($name);
+            $result = 'PhpMyAdmin\\Plugins\\TwoFactor\\' . ucfirst($name);
         } elseif (! empty($name)) {
             $result = Invalid::class;
         }
@@ -225,7 +222,7 @@ class TwoFactor
      */
     public function render()
     {
-        return $this->backend->getError().$this->backend->render();
+        return $this->backend->getError() . $this->backend->render();
     }
 
     /**
@@ -235,7 +232,7 @@ class TwoFactor
      */
     public function setup()
     {
-        return $this->backend->getError().$this->backend->setup();
+        return $this->backend->getError() . $this->backend->setup();
     }
 
     /**

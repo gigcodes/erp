@@ -19,8 +19,6 @@ class ScheduleList extends Command
 
     /**
      * ScheduleList constructor.
-     *
-     * @param  Schedule  $schedule
      */
     public function __construct(Schedule $schedule)
     {
@@ -70,7 +68,6 @@ class ScheduleList extends Command
     /**
      * If it's an artisan command, strip off the PHP
      *
-     * @param $command
      * @return string
      */
     protected static function fixupCommand($command)

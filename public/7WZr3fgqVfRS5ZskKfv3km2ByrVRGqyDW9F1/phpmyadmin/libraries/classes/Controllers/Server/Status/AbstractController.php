@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server\Status;
 
-use PhpMyAdmin\Controllers\AbstractController as Controller;
+use PhpMyAdmin\Template;
 use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Server\Status\Data;
-use PhpMyAdmin\Template;
+use PhpMyAdmin\Controllers\AbstractController as Controller;
 
 abstract class AbstractController extends Controller
 {

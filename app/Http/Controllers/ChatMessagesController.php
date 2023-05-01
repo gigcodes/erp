@@ -2,29 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\BugTracker;
-use App\ChatMessage;
-use App\Customer;
-use App\CustomerCharity;
-use App\DeveloperTask;
-use App\Document;
-use App\Learning;
 use App\Old;
-use App\Order;
-use App\PaymentReceipt;
-use App\PublicKey;
-use App\SiteDevelopment;
-use App\SocialStrategy;
-use App\StoreSocialContent;
-use App\Supplier;
 use App\Task;
-use App\TestCase;
-use App\TestSuites;
+use App\User;
+use App\Email;
+use App\Order;
+use App\Vendor;
 use App\Tickets;
 use App\Uicheck;
-use App\User;
-use App\Vendor;
+use App\Customer;
+use App\Document;
+use App\Learning;
+use App\Supplier;
+use App\TestCase;
+use App\PublicKey;
 use Carbon\Carbon;
+use App\BugTracker;
+use App\TestSuites;
+use App\ChatMessage;
+use App\DeveloperTask;
+use App\PaymentReceipt;
+use App\SocialStrategy;
+use App\CustomerCharity;
+use App\SiteDevelopment;
+use App\StoreSocialContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -33,7 +34,6 @@ class ChatMessagesController extends Controller
     /**
      * Load more messages from chat_messages
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function loadMoreMessages(Request $request)
@@ -128,6 +128,9 @@ class ChatMessagesController extends Controller
             case 'timedoctor':
                 $object = User::find($request->object_id);
                 break;
+            case 'email':
+                $object = Email::find($request->object_id);
+                break;
             default:
                 $object = Customer::find($request->object);
         }
@@ -179,7 +182,7 @@ class ChatMessagesController extends Controller
         }
 
         if ($request->keyword != null) {
-            $chatMessages = $chatMessages->where('message', 'like', '%'.$request->keyword.'%'); //Purpose - solve issue for search message , Replace form whereDate to where - DEVTASK-4020
+            $chatMessages = $chatMessages->where('message', 'like', '%' . $request->keyword . '%'); //Purpose - solve issue for search message , Replace form whereDate to where - DEVTASK-4020
         }
 
         if ($request->object == 'timedoctor') {
@@ -218,7 +221,7 @@ class ChatMessagesController extends Controller
                 break;
             case 'text_with_incoming_img':
                 $chatMessages = $chatMessages->where(function ($query) use ($object) {
-                    $query->whereRaw('(chat_messages.number = '.$object->phone." and ( media_url is not null
+                    $query->whereRaw('(chat_messages.number = ' . $object->phone . " and ( media_url is not null
                                                 or id in (
                                                 select
                                                     mediable_id
@@ -236,7 +239,7 @@ class ChatMessagesController extends Controller
                 break;
             case 'incoming_img':
                 $chatMessages = $chatMessages->where(function ($query) use ($object) {
-                    $query->whereRaw('(chat_messages.number = '.$object->phone." and ( media_url is not null
+                    $query->whereRaw('(chat_messages.number = ' . $object->phone . " and ( media_url is not null
                                                 or id in (
                                                 select
                                                     mediable_id
@@ -250,7 +253,7 @@ class ChatMessagesController extends Controller
                 break;
             case 'outgoing_img':
                 $chatMessages = $chatMessages->where(function ($query) use ($object) {
-                    $query->whereRaw('((chat_messages.number != '.$object->phone."  or chat_messages.number is null) and ( media_url is not null
+                    $query->whereRaw('((chat_messages.number != ' . $object->phone . "  or chat_messages.number is null) and ( media_url is not null
                                             or id in (
                                             select
                                                 mediable_id
@@ -448,12 +451,12 @@ class ChatMessagesController extends Controller
             if (isset($request->downloadMessages) && $request->downloadMessages == 1) {
                 if ($textMessage != '') {
                     $chatFileData .= html_entity_decode($textMessage, ENT_QUOTES, 'UTF-8');
-                    $chatFileData .= "\n From ".(($isOut) ? 'ERP' : $objectname).' To '.(($isOut) ? $object->name : 'ERP');
-                    $chatFileData .= "\n On ".Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A');
-                    $chatFileData .= "\n"."\n"."\n";
+                    $chatFileData .= "\n From " . (($isOut) ? 'ERP' : $objectname) . ' To ' . (($isOut) ? $object->name : 'ERP');
+                    $chatFileData .= "\n On " . Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A');
+                    $chatFileData .= "\n" . "\n" . "\n";
                 }
             } else {
-                $messages[] = [
+                $arr = [
                     'id' => $chatMessage->id,
                     'type' => $request->object,
                     'object_type_id' => $request->object_id,
@@ -484,17 +487,24 @@ class ChatMessagesController extends Controller
                     'quoted_message_id' => $chatMessage->quoted_message_id,
                     'additional_data' => $additional_data, //Purpose : Add additional data - DEVTASK-4236
                 ];
+
+                if ($chatMessage->message_type == 'email') {
+                    $arr['sendTo'] = $chatMessage->from_email;
+                    $arr['sendBy'] = $chatMessage->to_email;
+                }
+
+                $messages[] = $arr;
             }
         }
 
         // Return JSON
         if (isset($request->downloadMessages) && $request->downloadMessages == 1) {
-            $storagelocation = storage_path().'/chatMessageFiles';
+            $storagelocation = storage_path() . '/chatMessageFiles';
             if (! is_dir($storagelocation)) {
                 mkdir($storagelocation, 0777, true);
             }
-            $filename = $request->object.$request->object_id.'_chat.txt';
-            $file = $storagelocation.'/'.$filename;
+            $filename = $request->object . $request->object_id . '_chat.txt';
+            $file = $storagelocation . '/' . $filename;
             $txt = fopen($file, 'w') or exit('Unable to open file!');
             fwrite($txt, $chatFileData);
             fclose($txt);
@@ -529,7 +539,7 @@ class ChatMessagesController extends Controller
         if ($productImage->size != null) {
             $size = $productImage->size;
         } else {
-            $size = (string) $productImage->lmeasurement.', '.(string) $productImage->hmeasurement.', '.(string) $productImage->dmeasurement;
+            $size = (string) $productImage->lmeasurement . ', ' . (string) $productImage->hmeasurement . ', ' . (string) $productImage->dmeasurement;
         }
 
         return $size;
@@ -555,11 +565,11 @@ class ChatMessagesController extends Controller
     {
         $file = $request->filename;
         header('Content-Description: File Transfer');
-        header('Content-Disposition: attachment; filename='.basename($file));
+        header('Content-Disposition: attachment; filename=' . basename($file));
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
-        header('Content-Length: '.filesize($file));
+        header('Content-Length: ' . filesize($file));
         header('Content-Type: text/plain');
         readfile($file);
         unlink($file);
@@ -666,14 +676,13 @@ class ChatMessagesController extends Controller
             $keywords = [];
         }
         $records = ChatMessage::with('user', 'vendor', 'customer')->where(function ($query) {
-                $query->whereNotNull('vendor_id');
-                $query->orWhereNotNull('user_id');
-                $query->orWhereNotNull('customer_id');
-            });
+            $query->whereNotNull('vendor_id');
+            $query->orWhereNotNull('user_id');
+            $query->orWhereNotNull('customer_id');
+        });
 
-        if($request->get('keyword') != null)
-        {
-            $records->where('message', 'like', '%'.$request->keyword.'%');
+        if ($request->get('keyword') != null) {
+            $records->where('message', 'like', '%' . $request->keyword . '%');
         }
 
         if (! empty($request->user_id)) {

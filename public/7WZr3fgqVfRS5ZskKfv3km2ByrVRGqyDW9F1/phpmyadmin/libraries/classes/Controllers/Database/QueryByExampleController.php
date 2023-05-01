@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Database;
 
-use PhpMyAdmin\ConfigStorage\Relation;
-use PhpMyAdmin\ConfigStorage\RelationCleanup;
-use PhpMyAdmin\Database\Qbe;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Operations;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\SavedSearches;
 use PhpMyAdmin\Sql;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Transformations;
 use PhpMyAdmin\Url;
 use PhpMyAdmin\Util;
 use function stripos;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\Operations;
+use PhpMyAdmin\Database\Qbe;
+use PhpMyAdmin\SavedSearches;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\ConfigStorage\Relation;
+use PhpMyAdmin\ConfigStorage\RelationCleanup;
 
 class QueryByExampleController extends AbstractController
 {

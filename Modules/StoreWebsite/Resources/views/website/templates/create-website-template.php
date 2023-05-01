@@ -36,7 +36,7 @@
 		            	<option value="">-- N/A --</option>
 			            <?php
                             foreach ($countries as $k => $l) {
-                                echo "<option {{if data.countries == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+                                echo "<option {{if data.countries == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
                             }
 		?>
 			         </select>
@@ -48,7 +48,7 @@
 	            	<option value="">-- N/A --</option>
 		            <?php
 		foreach ($storeWebsites as $k => $l) {
-		    echo "<option {{if data.store_website_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+		    echo "<option {{if data.store_website_id == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
 		}
 		?>
 		         </select>

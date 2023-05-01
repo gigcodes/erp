@@ -2,173 +2,173 @@
 
 namespace App\Console;
 
-use App\Console\Commands\AccountHubstaffActivities;
-use App\Console\Commands\AddGroupTheme;
-use App\Console\Commands\AddRoutesToGroups;
-use App\Console\Commands\AssetsManagerPaymentCron;
-use App\Console\Commands\AuthenticateWhatsapp;
-use App\Console\Commands\AutoInterestMessage;
-use App\Console\Commands\AutoMessenger;
-use App\Console\Commands\AutoReminder;
-use App\Console\Commands\BuildStatus;
-use App\Console\Commands\CacheMasterControl;
-use App\Console\Commands\CheckEmailsErrors;
-use App\Console\Commands\CheckLogins;
-use App\Console\Commands\CheckMessagesErrors;
-//use App\Console\Commands\ChangeTesterBasedOnTeamLead;
-use App\Console\Commands\CheckScrapersLog;
-use App\Console\Commands\CheckWhatsAppActive;
-use App\Console\Commands\ConnectGoogleClientAccounts;
-use App\Console\Commands\CreateErpLeadFromCancellationOrder;
-use App\Console\Commands\CreateScrapedProducts;
-use App\Console\Commands\CustomerListToEmailLead;
-use App\Console\Commands\DailyHubstaffActivityLevel;
-use App\Console\Commands\DailyTimeDoctorActivityLevel;
-use App\Console\Commands\DatabaseLogCron;
-use App\Console\Commands\DeleteChatMessages;
-use App\Console\Commands\DeleteGnbProducts;
-use App\Console\Commands\DeleteStoreWebsiteCategory;
-use App\Console\Commands\DeleteWiseProducts;
-use App\Console\Commands\DocumentReciever;
-use App\Console\Commands\DoubleFProductDetailScraper;
-use App\Console\Commands\DoubleFScraper;
-use App\Console\Commands\EnrichWiseProducts;
-use App\Console\Commands\ErrorAlertMessage;
-use App\Console\Commands\FetchAllEmails;
-use App\Console\Commands\FetchEmails;
-use App\Console\Commands\FetchMagentoCronData;
-use App\Console\Commands\FetchStoreWebsiteOrder;
-use App\Console\Commands\FixCategoryNameBySupplier;
-use App\Console\Commands\FlagCustomersIfTheyHaveAComplaint;
-use App\Console\Commands\GenerateProductPricingJson;
-use App\Console\Commands\GetGebnegozionlineProductDetails;
-//use App\Console\Commands\SyncInstagramMessage;
-use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
-use App\Console\Commands\GetGebnegozionlineProductEntries;
-use App\Console\Commands\getLiveChatIncTickets;
-use App\Console\Commands\GetMostUsedWordsInCustomerMessages;
-use App\Console\Commands\GetOrdersFromnMagento;
-use App\Console\Commands\GetPytonLogs;
-use App\Console\Commands\GoogleWebMasterFetchAllRecords;
-use App\Console\Commands\GtMetrixReport;
-//use App\Console\Commands\GrowInstagramAccounts;
-use App\Console\Commands\HubstuffActivityCommand;
-use App\Console\Commands\ImageBarcodeGenerator;
-use App\Console\Commands\IncrementFrequencyWhatsappConfig;
-use App\Console\Commands\InfluencerDescription;
-//use App\Console\Commands\InstagramHandler;
-use App\Console\Commands\InsertPleskEmail;
-
-use App\Console\Commands\IosUsageReport;
-use App\Console\Commands\IosAdsReport;
-use App\Console\Commands\IosSalesReport;
-use App\Console\Commands\IosSubscriptionReport;
-use App\Console\Commands\IosPaymentsReport;
-use App\Console\Commands\IosRatingsReport;
-
-use App\Console\Commands\LogScraperDelete;
-use App\Console\Commands\MagentoReportLog;
-use App\Console\Commands\MagentoSettingAddUpdate;
-use App\Console\Commands\MailingListSendMail;
-use App\Console\Commands\MakeApprovedImagesSchedule;
-use App\Console\Commands\MakeKeywordAndCustomersIndex;
-use App\Console\Commands\MessageScheduler;
-use App\Console\Commands\MonitorCronJobs;
-//use App\Console\Commands\PostScheduledMedia;
-//use App\Console\Commands\ProcessCommentsFromCompetitors;
-use App\Console\Commands\MovePlannedTasks;
-use App\Console\Commands\NegativeCouponResponses;
-use App\Console\Commands\NumberOfImageCroppedCheck;
+use Schema;
 use App\Console\Commands\ParseLog;
-use App\Console\Commands\productActivityStore;
-use App\Console\Commands\ProjectDirectory;
-//use App\Console\Commands\SaveProductsImages;
-
-use App\Console\Commands\ProjectFileManagerDateAndSize;
-use App\Console\Commands\RecieveResourceImages;
-use App\Console\Commands\RemoveScrapperImages;
-use App\Console\Commands\ResetDailyPlanner;
-use App\Console\Commands\RoutesSync;
-use App\Console\Commands\RunErpEvents;
-use App\Console\Commands\RunErpLeads;
-use App\Console\Commands\RunGoogleAnalytics;
-use App\Console\Commands\RunMessageQueue;
-use App\Console\Commands\RunPriorityKeywordSearch;
-use App\Console\Commands\SaveProductsImages;
-use App\Console\Commands\ScheduleList;
 use App\Console\Commands\ScrapLogs;
-use App\Console\Commands\scrappersImages;
-//use App\Console\Commands\SendBroadcastMessageToColdLeads;
-use App\Console\Commands\scrappersImagesDelete;
-use App\Console\Commands\SendActivitiesListing;
-use App\Console\Commands\SendAutoReplyToCustomers;
-use App\Console\Commands\SendDailyLearningReports;
-use App\Console\Commands\SendDailyPlannerNotification;
-use App\Console\Commands\SendDailyPlannerReport;
-use App\Console\Commands\SendDailyReports;
-use App\Console\Commands\SendEmailNewsletter;
-//use App\Console\Commands\SendInstagramMessageInQueue;
-use App\Console\Commands\SendEventNotificationBefore24hr;
-use App\Console\Commands\SendEventNotificationBefore2hr;
-use App\Console\Commands\SendHourlyReports;
-use App\Console\Commands\SendMessageToUserIfTheirTaskIsNotComplete;
-use App\Console\Commands\SendPendingTasksReminders;
-use App\Console\Commands\SendProductSuggestion;
-use App\Console\Commands\SendQueuedMessages;
-use App\Console\Commands\SendQueuePendingChatMessages;
-use App\Console\Commands\SendQueuePendingChatMessagesGroup;
-use App\Console\Commands\SendRecurringTasks;
-use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
-use App\Console\Commands\SendReminderToDevelopmentIfTheyHaventReplied;
-use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
-use App\Console\Commands\SendReminderToSupplierIfTheyHaventReplied;
-//use App\Console\Commands\SendEventNotificationBefore30Min;
-use App\Console\Commands\SendReminderToTaskIfTheyHaventReplied;
-use App\Console\Commands\SendReminderToVendorIfTheyHaventReplied;
-use App\Console\Commands\SendTasksTimeReminder;
-use App\Console\Commands\SendVoucherReminder;
-use App\Console\Commands\SetTemplatesForProduct;
-use App\Console\Commands\SkuErrorCount;
+use App\Console\Commands\RoutesSync;
+use App\Console\Commands\BuildStatus;
+use App\Console\Commands\CheckLogins;
+use App\Console\Commands\FetchEmails;
+use App\Console\Commands\RunErpLeads;
 use App\Console\Commands\StoreBrands;
-use App\Console\Commands\StoreChatMessagesToAutoCompleteMessages;
-use App\Console\Commands\StoreLiveChats;
-use App\Console\Commands\SyncCustomersFromMagento;
-use App\Console\Commands\TwilioCallLogs;
-use App\Console\Commands\TwilioErrors;
-use App\Console\Commands\TwillioMessagesCommand;
-use App\Console\Commands\UpdateCharities;
-use App\Console\Commands\UpdateCronSchedule;
-use App\Console\Commands\UpdateCustomerSizeFromOrder;
-use App\Console\Commands\UpdateDoubleProducts;
-use App\Console\Commands\UpdateGnbPrice;
-use App\Console\Commands\UpdateImageBarcodeGenerator;
-use App\Console\Commands\UpdateInventory;
-use App\Console\Commands\UpdateLanguageToGroup;
-use App\Console\Commands\UpdateMagentoProductStatus;
-use App\Console\Commands\UpdatePricesWithDecimals;
-use App\Console\Commands\UpdateProductInformationFromCsv;
-use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
-use App\Console\Commands\UpdateSkuInGnb;
-use App\Console\Commands\UpdateWiseCategory;
-use App\Console\Commands\UpdateWiseProducts;
-use App\Console\Commands\UploadProductsToMagento;
 use App\Console\Commands\UserPayment;
 use App\Console\Commands\VisitorLogs;
-use App\Console\Commands\WayBillTrackHistories;
-use App\Console\Commands\WebsiteCreateLog;
-use App\Console\Commands\ZabbixHostItems;
-use App\Console\Commands\ZabbixProblemImport;
 use App\Console\Commands\ZabbixStore;
-use App\Console\Commands\ZoomMeetingDeleteRecordings;
-use App\Console\Commands\ZoomMeetingRecordings;
-use App\Console\Commands\SaveZoomMeetingRecordings;
+use App\Console\Commands\AutoReminder;
+//use App\Console\Commands\ChangeTesterBasedOnTeamLead;
 use App\Console\Commands\DevAPIReport;
+use App\Console\Commands\GetPytonLogs;
+use App\Console\Commands\IosAdsReport;
+use App\Console\Commands\RunErpEvents;
+use App\Console\Commands\ScheduleList;
+use App\Console\Commands\TwilioErrors;
+use App\Console\Commands\AddGroupTheme;
+use App\Console\Commands\AutoMessenger;
+use App\Console\Commands\SkuErrorCount;
+use App\Console\Commands\DoubleFScraper;
+use App\Console\Commands\FetchAllEmails;
+use App\Console\Commands\GtMetrixReport;
+use App\Console\Commands\IosSalesReport;
+use App\Console\Commands\IosUsageReport;
+use App\Console\Commands\StoreLiveChats;
+use App\Console\Commands\TwilioCallLogs;
+use App\Console\Commands\UpdateGnbPrice;
+use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\ChannelDataSync;
 use App\Console\Commands\CreateMailBoxes;
-use App\Http\Controllers\Marketing\MailinglistController;
+use App\Console\Commands\DatabaseLogCron;
+use App\Console\Commands\MonitorCronJobs;
+use App\Console\Commands\RunMessageQueue;
+use App\Console\Commands\scrappersImages;
+use App\Console\Commands\UpdateCharities;
+use App\Console\Commands\UpdateInventory;
+//use App\Console\Commands\SyncInstagramMessage;
+use App\Console\Commands\ZabbixHostItems;
+use App\Console\Commands\CheckScrapersLog;
+use App\Console\Commands\DocumentReciever;
+use App\Console\Commands\InsertPleskEmail;
+use App\Console\Commands\IosRatingsReport;
+use App\Console\Commands\LogScraperDelete;
+use App\Console\Commands\MagentoReportLog;
+use App\Console\Commands\MessageScheduler;
+//use App\Console\Commands\GrowInstagramAccounts;
+use App\Console\Commands\MovePlannedTasks;
+use App\Console\Commands\ProjectDirectory;
+use App\Console\Commands\SendDailyReports;
+use App\Console\Commands\WebsiteCreateLog;
+//use App\Console\Commands\InstagramHandler;
+use App\Console\Commands\AddRoutesToGroups;
+
+use App\Console\Commands\CheckEmailsErrors;
+use App\Console\Commands\DeleteGnbProducts;
+use App\Console\Commands\ErrorAlertMessage;
+use App\Console\Commands\IosPaymentsReport;
+use App\Console\Commands\ResetDailyPlanner;
+use App\Console\Commands\SendHourlyReports;
+
 use Illuminate\Console\Scheduling\Schedule;
+use App\Console\Commands\CacheMasterControl;
+use App\Console\Commands\DeleteChatMessages;
+use App\Console\Commands\DeleteWiseProducts;
+use App\Console\Commands\EnrichWiseProducts;
+use App\Console\Commands\RunGoogleAnalytics;
+use App\Console\Commands\SaveProductsImages;
+use App\Console\Commands\SendQueuedMessages;
+//use App\Console\Commands\PostScheduledMedia;
+//use App\Console\Commands\ProcessCommentsFromCompetitors;
+use App\Console\Commands\SendRecurringTasks;
+use App\Console\Commands\UpdateCronSchedule;
+use App\Console\Commands\UpdateWiseCategory;
+use App\Console\Commands\UpdateWiseProducts;
+use App\Console\Commands\AutoInterestMessage;
+use App\Console\Commands\CheckMessagesErrors;
+//use App\Console\Commands\SaveProductsImages;
+
+use App\Console\Commands\CheckWhatsAppActive;
+use App\Console\Commands\MailingListSendMail;
+use App\Console\Commands\SendEmailNewsletter;
+use App\Console\Commands\SendVoucherReminder;
+use App\Console\Commands\ZabbixProblemImport;
+use App\Console\Commands\AuthenticateWhatsapp;
+use App\Console\Commands\FetchMagentoCronData;
+use App\Console\Commands\productActivityStore;
+use App\Console\Commands\RemoveScrapperImages;
+use App\Console\Commands\UpdateDoubleProducts;
+use App\Console\Commands\CreateScrapedProducts;
+use App\Console\Commands\getLiveChatIncTickets;
+use App\Console\Commands\GetOrdersFromnMagento;
+use App\Console\Commands\ImageBarcodeGenerator;
+//use App\Console\Commands\SendBroadcastMessageToColdLeads;
+use App\Console\Commands\InfluencerDescription;
+use App\Console\Commands\IosSubscriptionReport;
+use App\Console\Commands\RecieveResourceImages;
+use App\Console\Commands\scrappersImagesDelete;
+use App\Console\Commands\SendActivitiesListing;
+use App\Console\Commands\SendProductSuggestion;
+use App\Console\Commands\SendTasksTimeReminder;
+use App\Console\Commands\UpdateLanguageToGroup;
+//use App\Console\Commands\SendInstagramMessageInQueue;
+use App\Console\Commands\WayBillTrackHistories;
+use App\Console\Commands\ZoomMeetingRecordings;
+use App\Console\Commands\FetchStoreWebsiteOrder;
+use App\Console\Commands\SendDailyPlannerReport;
+use App\Console\Commands\SetTemplatesForProduct;
+use App\Console\Commands\TwillioMessagesCommand;
+use App\Console\Commands\CustomerListToEmailLead;
+use App\Console\Commands\HubstuffActivityCommand;
+use App\Console\Commands\MagentoSettingAddUpdate;
+use App\Console\Commands\NegativeCouponResponses;
+use App\Console\Commands\UploadProductsToMagento;
+use App\Console\Commands\AssetsManagerPaymentCron;
+use App\Console\Commands\RunPriorityKeywordSearch;
+use App\Console\Commands\SendAutoReplyToCustomers;
+//use App\Console\Commands\SendEventNotificationBefore30Min;
+use App\Console\Commands\SendDailyLearningReports;
+use App\Console\Commands\SyncCustomersFromMagento;
+use App\Console\Commands\UpdatePricesWithDecimals;
+use App\Console\Commands\AccountHubstaffActivities;
+use App\Console\Commands\FixCategoryNameBySupplier;
+use App\Console\Commands\NumberOfImageCroppedCheck;
+use App\Console\Commands\SaveZoomMeetingRecordings;
+use App\Console\Commands\SendPendingTasksReminders;
+use App\Console\Commands\DailyHubstaffActivityLevel;
+use App\Console\Commands\DeleteStoreWebsiteCategory;
+use App\Console\Commands\GenerateProductPricingJson;
+use App\Console\Commands\MakeApprovedImagesSchedule;
+use App\Console\Commands\UpdateMagentoProductStatus;
+use App\Console\Commands\ConnectGoogleClientAccounts;
+use App\Console\Commands\DoubleFProductDetailScraper;
+use App\Console\Commands\UpdateCustomerSizeFromOrder;
+use App\Console\Commands\UpdateImageBarcodeGenerator;
+use App\Console\Commands\ZoomMeetingDeleteRecordings;
+use App\Console\Commands\DailyTimeDoctorActivityLevel;
+use App\Console\Commands\MakeKeywordAndCustomersIndex;
+use App\Console\Commands\SendDailyPlannerNotification;
+use App\Console\Commands\SendQueuePendingChatMessages;
+use App\Console\Commands\ProjectFileManagerDateAndSize;
+use App\Console\Commands\GoogleWebMasterFetchAllRecords;
+use App\Console\Commands\SendEventNotificationBefore2hr;
+use App\Console\Commands\SendEventNotificationBefore24hr;
+use App\Console\Commands\UpdateProductInformationFromCsv;
+use App\Http\Controllers\Marketing\MailinglistController;
+use App\Console\Commands\GetGebnegozionlineProductDetails;
+use App\Console\Commands\GetGebnegozionlineProductEntries;
+use App\Console\Commands\IncrementFrequencyWhatsappConfig;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Schema;
+use App\Console\Commands\FlagCustomersIfTheyHaveAComplaint;
+use App\Console\Commands\SendQueuePendingChatMessagesGroup;
+use App\Console\Commands\CreateErpLeadFromCancellationOrder;
+use App\Console\Commands\GetMostUsedWordsInCustomerMessages;
+use App\Console\Commands\SendReminderToTaskIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToVendorIfTheyHaventReplied;
+use App\Console\Commands\StoreChatMessagesToAutoCompleteMessages;
+use App\Console\Commands\SendMessageToUserIfTheirTaskIsNotComplete;
+use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToSupplierIfTheyHaventReplied;
+use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
+use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
+use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
+use App\Console\Commands\SendReminderToDevelopmentIfTheyHaventReplied;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 
 //use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
@@ -345,7 +345,6 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
@@ -531,7 +530,7 @@ class Kernel extends ConsoleKernel
         // Update the inventory (Daily run cron to update stock 0 at magento store website)
         // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
         // $schedule->command('magento:get-config-value')->dailyAt('00:00')->timezone('Asia/Dubai');
-        
+
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
 
@@ -552,7 +551,7 @@ class Kernel extends ConsoleKernel
 //            $queueStartTime = \App\ChatMessage::getStartTime();
 //            $queueEndTime = \App\ChatMessage::getEndTime();
 //            $queueTime = \App\ChatMessage::getQueueTime();
-            // check if time both is not empty then run the cron
+        // check if time both is not empty then run the cron
 //            if (! empty($queueStartTime) && ! empty($queueEndTime)) {
 //                if (! empty($queueTime)) {
 //                    foreach ($queueTime as $no => $time) {
@@ -565,7 +564,7 @@ class Kernel extends ConsoleKernel
 //                    }
 //                }
 //            }
-            /*if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
+        /*if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
         {
         $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
         $numbers = array_unique($counterNo);
@@ -675,14 +674,13 @@ class Kernel extends ConsoleKernel
         //daily cron for checking due date and add to cashflow
         // $schedule->command('assetsmanagerduedate:pay')->daily();
 
-         //daily cron for checking Ios Report
+        //daily cron for checking Ios Report
         // $schedule->command('IosUsageReport:check')->daily();
         // $schedule->command('IosSalesReport:check')->daily();
         // $schedule->command('IosRatingsReport:check')->daily();
         // $schedule->command('IosAdsReport:check')->daily();
         // $schedule->command('IosPaymentsReport:check')->daily();
         // $schedule->command('IosSubscriptionReport:check')->daily();
-
 
         //for adding due date in asset manager
         // $schedule->command('assetsmanagerpayment:cron Daily')->daily();
@@ -726,14 +724,12 @@ class Kernel extends ConsoleKernel
         // Database log Cron
         // $schedule->command('databaselog:cron')->dailyAt('0:00');
 
-
         //Developer Reporting API Cron
         // $schedule->command('DevAPIReport:check')->hourly();
 
         // Ads history Cron
         // $schedule->command('social:ads-history')->dailyAt('0:00');
         // $schedule->command('save:zoom-meetings')->dailyAt('23:59');
-
 
         //Store Google Ad Reporting Data
         // $schedule->command('store:ads-reporting-data')->hourly();
@@ -752,7 +748,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
         require base_path('routes/console.php');
     }
 }

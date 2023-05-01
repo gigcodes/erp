@@ -72,7 +72,7 @@ class ZabbixProblemImport extends Command
     public function login_api()
     {
         //Get API ENDPOINT response
-        $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
+        $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
         $data = [
             'jsonrpc' => '2.0',
             'method' => 'user.login',
@@ -94,7 +94,7 @@ class ZabbixProblemImport extends Command
         if (isset($results[0]->result)) {
             return $results[0]->result;
         } else {
-            \Log::channel('general')->info(Carbon::now().$results[0]->error->data);
+            \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
 
             return 0;
         }
@@ -106,7 +106,7 @@ class ZabbixProblemImport extends Command
         $hostIds = \App\Host::pluck('hostid');
         $errorArray = [];
         foreach ($hostIds as $val) {
-            $curl = curl_init(env('ZABBIX_HOST').'/api_jsonrpc.php');
+            $curl = curl_init(env('ZABBIX_HOST') . '/api_jsonrpc.php');
             $data = [
                 'jsonrpc' => '2.0',
                 'method' => 'problem.get',

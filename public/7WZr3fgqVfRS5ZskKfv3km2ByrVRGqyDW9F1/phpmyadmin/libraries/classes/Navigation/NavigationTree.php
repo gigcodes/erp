@@ -8,51 +8,51 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Navigation;
 
 use function __;
-use function _ngettext;
-use function array_intersect_key;
-use function array_key_exists;
-use function array_keys;
-use function array_merge;
-use function array_shift;
-use function base64_decode;
+use function sort;
+use function trim;
 use function count;
-use const E_USER_WARNING;
-use function explode;
 use function floor;
-use function get_class;
-use function htmlspecialchars;
+use function usort;
+use PhpMyAdmin\Url;
+use function strlen;
+use function strstr;
+use function substr;
+use PhpMyAdmin\Util;
+use function explode;
+use function is_bool;
+use function sprintf;
+use function strrpos;
 use function in_array;
 use function is_array;
-use function is_bool;
+use function _ngettext;
+use function get_class;
 use function is_object;
 use function mb_strlen;
 use function mb_strpos;
 use function mb_substr;
-use function method_exists;
-use PhpMyAdmin\CheckUserPrivileges;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Html\Generator;
-use PhpMyAdmin\Navigation\Nodes\Node;
-use PhpMyAdmin\Navigation\Nodes\NodeDatabase;
-use PhpMyAdmin\Navigation\Nodes\NodeTable;
-use PhpMyAdmin\Navigation\Nodes\NodeTableContainer;
-use PhpMyAdmin\Navigation\Nodes\NodeViewContainer;
-use PhpMyAdmin\RecentFavoriteTable;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function sort;
-use function sprintf;
+use function array_keys;
 use function strcasecmp;
-use function strlen;
+use PhpMyAdmin\Template;
+use const E_USER_WARNING;
+use function array_merge;
+use function array_shift;
+use function base64_decode;
+use function method_exists;
 use function strnatcasecmp;
-use function strrpos;
-use function strstr;
-use function substr;
 use function trigger_error;
-use function trim;
-use function usort;
+use function array_key_exists;
+use function htmlspecialchars;
+use PhpMyAdmin\Html\Generator;
+use PhpMyAdmin\ResponseRenderer;
+use function array_intersect_key;
+use PhpMyAdmin\DatabaseInterface;
+use PhpMyAdmin\CheckUserPrivileges;
+use PhpMyAdmin\RecentFavoriteTable;
+use PhpMyAdmin\Navigation\Nodes\Node;
+use PhpMyAdmin\Navigation\Nodes\NodeTable;
+use PhpMyAdmin\Navigation\Nodes\NodeDatabase;
+use PhpMyAdmin\Navigation\Nodes\NodeViewContainer;
+use PhpMyAdmin\Navigation\Nodes\NodeTableContainer;
 
 /**
  * Displays a collapsible of database objects in the navigation frame
@@ -171,16 +171,16 @@ class NavigationTree
         } else {
             if (isset($_POST['n0_aPath'])) {
                 $count = 0;
-                while (isset($_POST['n'.$count.'_aPath'])) {
-                    $this->aPath[$count] = $this->parsePath($_POST['n'.$count.'_aPath']);
-                    if (isset($_POST['n'.$count.'_pos2_name'])) {
-                        $this->pos2Name[$count] = $_POST['n'.$count.'_pos2_name'];
-                        $this->pos2Value[$count] = (int) $_POST['n'.$count.'_pos2_value'];
+                while (isset($_POST['n' . $count . '_aPath'])) {
+                    $this->aPath[$count] = $this->parsePath($_POST['n' . $count . '_aPath']);
+                    if (isset($_POST['n' . $count . '_pos2_name'])) {
+                        $this->pos2Name[$count] = $_POST['n' . $count . '_pos2_name'];
+                        $this->pos2Value[$count] = (int) $_POST['n' . $count . '_pos2_value'];
                     }
 
-                    if (isset($_POST['n'.$count.'_pos3_name'])) {
-                        $this->pos3Name[$count] = $_POST['n'.$count.'_pos3_name'];
-                        $this->pos3Value[$count] = (int) $_POST['n'.$count.'_pos3_value'];
+                    if (isset($_POST['n' . $count . '_pos3_name'])) {
+                        $this->pos3Name[$count] = $_POST['n' . $count . '_pos3_name'];
+                        $this->pos3Value[$count] = (int) $_POST['n' . $count . '_pos3_value'];
                     }
 
                     $count++;
@@ -193,8 +193,8 @@ class NavigationTree
         } else {
             if (isset($_POST['n0_vPath'])) {
                 $count = 0;
-                while (isset($_POST['n'.$count.'_vPath'])) {
-                    $this->vPath[$count] = $this->parsePath($_POST['n'.$count.'_vPath']);
+                while (isset($_POST['n' . $count . '_vPath'])) {
+                    $this->vPath[$count] = $this->parsePath($_POST['n' . $count . '_vPath']);
                     $count++;
                 }
             }
@@ -275,7 +275,7 @@ class NavigationTree
         } else {
             $databases = [];
             foreach ($GLOBALS['dbs_to_test'] as $db) {
-                $query = "SHOW DATABASES LIKE '".$db."'";
+                $query = "SHOW DATABASES LIKE '" . $db . "'";
                 $handle = $this->dbi->tryQuery($query);
                 if ($handle === false) {
                     continue;
@@ -308,7 +308,6 @@ class NavigationTree
      * Converts an encoded path to a node in string format to an array
      *
      * @param  string  $string The path to parse
-     * @return array
      */
     private function parsePath($string): array
     {
@@ -761,8 +760,8 @@ class NavigationTree
                 trigger_error(
                     __(
                         'There are large item groups in navigation panel which '
-                        .'may affect the performance. Consider disabling item '
-                        .'grouping in the navigation panel.'
+                        . 'may affect the performance. Consider disabling item '
+                        . 'grouping in the navigation panel.'
                     ),
                     E_USER_WARNING
                 );
@@ -776,7 +775,7 @@ class NavigationTree
                 foreach ($node->children as $child) {
                     $keySeparatorLength = mb_strlen((string) $key) + $separatorLength;
                     $nameSubstring = mb_substr((string) $child->name, 0, $keySeparatorLength);
-                    if (($nameSubstring != $key.$separator && $child->name != $key) || $child->type != Node::OBJECT) {
+                    if (($nameSubstring != $key . $separator && $child->name != $key) || $child->type != Node::OBJECT) {
                         continue;
                     }
 
@@ -819,8 +818,8 @@ class NavigationTree
             // and the new group contains all of the current node's children, combine them
             $class = get_class($node);
             if (count($newChildren) === $numChildren && substr($class, strrpos($class, '\\') + 1) === 'Node') {
-                $node->name .= $separators[0].htmlspecialchars((string) $key);
-                $node->realName .= $separators[0].htmlspecialchars((string) $key);
+                $node->name .= $separators[0] . htmlspecialchars((string) $key);
+                $node->realName .= $separators[0] . htmlspecialchars((string) $key);
                 $node->separatorDepth--;
                 foreach ($newChildren as $newChild) {
                     $node->removeChild($newChild['replaces_name']);
@@ -1069,7 +1068,7 @@ class NavigationTree
                 return '';
             }
 
-            $liClasses = trim($class.' '.$node->classes);
+            $liClasses = trim($class . ' ' . $node->classes);
             $sterile = ['events', 'triggers', 'functions', 'procedures', 'views', 'columns', 'indexes'];
             $parentName = '';
             $parents = $node->parents(false, true);
@@ -1167,7 +1166,7 @@ class NavigationTree
                 $extraClass = ' last';
             }
 
-            $buffer .= $this->renderNode($children[$i], $children[$i]->classes.$extraClass);
+            $buffer .= $this->renderNode($children[$i], $children[$i]->classes . $extraClass);
         }
 
         if (! empty($buffer)) {
@@ -1416,7 +1415,7 @@ class NavigationTree
                     Url::getFromRoute('/navigation'),
                     'frame_navigation',
                     $GLOBALS['cfg']['MaxNavigationItems'],
-                    'pos'.$level.'_value'
+                    'pos' . $level . '_value'
                 );
             }
         }

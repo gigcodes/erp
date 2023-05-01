@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Account;
-use App\ApiKey;
-use App\BroadcastImage;
-use App\Customer;
-use App\ImQueue;
-use App\Marketing\MarketingPlatform;
-use App\Marketing\WhatsappConfig;
-use App\MessageQueue;
-use App\Setting;
 use DB;
 use File;
+use App\ApiKey;
+use App\Account;
+use App\ImQueue;
+use App\Setting;
+use App\Customer;
+use App\MessageQueue;
+use App\BroadcastImage;
 use Illuminate\Http\Request;
+use App\Marketing\WhatsappConfig;
+use App\Marketing\MarketingPlatform;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -153,7 +153,7 @@ class BroadcastMessageController extends Controller
     {
         $customer = Customer::find($id);
         $customer->do_not_disturb = 1;
-        \Log::channel('customerDnd')->debug('(Customer ID '.$customer->id.' line '.$customer->name.' '.$customer->number.': Added To DND');
+        \Log::channel('customerDnd')->debug('(Customer ID ' . $customer->id . ' line ' . $customer->name . ' ' . $customer->number . ': Added To DND');
 
         $customer->save();
 
@@ -271,9 +271,9 @@ class BroadcastMessageController extends Controller
 
             // Check for decent times
             if (date('H', $maxTime) < $whatappConfig->send_start) {
-                $sendAfter = date('Y-m-d 0'.$whatappConfig->send_start.':00:00', $maxTime);
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime);
             } elseif (date('H', $maxTime) > $whatappConfig->send_end) {
-                $sendAfter = date('Y-m-d 0'.$whatappConfig->send_start.':00:00', $maxTime + 86400);
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime + 86400);
             } else {
                 $sendAfter = date('Y-m-d H:i:s', $maxTime);
             }

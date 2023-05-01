@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Setup;
 
 use function __;
+use PhpMyAdmin\Core;
+use function ob_start;
 use function is_string;
 use function ob_get_clean;
-use function ob_start;
+use PhpMyAdmin\Setup\FormProcessing;
 use PhpMyAdmin\Config\Forms\BaseForm;
 use PhpMyAdmin\Config\Forms\Setup\SetupFormList;
-use PhpMyAdmin\Core;
-use PhpMyAdmin\Setup\FormProcessing;
 
 class FormController extends AbstractController
 {

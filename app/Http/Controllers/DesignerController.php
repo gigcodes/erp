@@ -32,7 +32,6 @@ class DesignerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -43,7 +42,6 @@ class DesignerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Designer  $designer
      * @return \Illuminate\Http\Response
      */
     public function show(Designer $designer)
@@ -54,7 +52,6 @@ class DesignerController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Designer  $designer
      * @return \Illuminate\Http\Response
      */
     public function edit(Designer $designer)
@@ -65,8 +62,6 @@ class DesignerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Designer  $designer
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Designer $designer)
@@ -77,7 +72,6 @@ class DesignerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Designer  $designer
      * @return \Illuminate\Http\Response
      */
     public function destroy(Designer $designer)

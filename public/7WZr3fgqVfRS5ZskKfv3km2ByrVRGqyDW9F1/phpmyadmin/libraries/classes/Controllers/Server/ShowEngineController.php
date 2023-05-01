@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Controllers\Server;
 
-use PhpMyAdmin\Controllers\AbstractController;
+use PhpMyAdmin\Url;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\StorageEngine;
+use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Http\ServerRequest;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\StorageEngine;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
+use PhpMyAdmin\Controllers\AbstractController;
 
 /**
  * Displays details about a given Storage Engine.
@@ -27,8 +27,6 @@ final class ShowEngineController extends AbstractController
     }
 
     /**
-     * @param  array  $params
-     *
      * @psalm-param array{engine: string, page?: string} $params
      */
     public function __invoke(ServerRequest $request, array $params): void

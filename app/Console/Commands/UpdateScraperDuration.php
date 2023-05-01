@@ -72,13 +72,13 @@ class UpdateScraperDuration extends Command
                 if (! $scraper->parent_id) {
                     $name = $scraper->scraper_name;
                 } else {
-                    $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                    $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
                 }
 
                 /* This curl need to replace with guzzleHttp but for now i am keeping this. */
 
                 // $url = 'http://' . $scraper->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
-                $url = 'http://'.$scraper->server_id.'.theluxuryunlimited.com:'.config('env.NODE_SERVER_PORT').'/process-list?filename='.$name.'.js';
+                $url = 'http://' . $scraper->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
                 $curl = curl_init();
                 curl_setopt($curl, CURLOPT_URL, $url);
@@ -88,7 +88,7 @@ class UpdateScraperDuration extends Command
                 $duration = json_decode($response);
 
                 if (empty($duration->Process[0])) {
-                    Log::debug('Scrapper Duration Log: => '.$response);
+                    Log::debug('Scrapper Duration Log: => ' . $response);
 
                     continue;
                 }
@@ -100,18 +100,18 @@ class UpdateScraperDuration extends Command
                     $duration = explode(' ', $duration);
                     $text = '';
                     if (in_array('Hours', $duration)) {
-                        $text .= (strlen($duration[0]) == 2 ? $duration[0] : '0'.$duration[0]).':';
-                        $text .= $duration[0].':';
+                        $text .= (strlen($duration[0]) == 2 ? $duration[0] : '0' . $duration[0]) . ':';
+                        $text .= $duration[0] . ':';
                     } else {
                         $text .= '00:';
                     }
                     if (in_array('Miuntes', $duration)) {
-                        $text .= (strlen($duration[array_search('Miuntes', $duration) - 1]) == 2 ? $duration[array_search('Miuntes', $duration) - 1] : '0'.$duration[array_search('Miuntes', $duration) - 1]).':';
+                        $text .= (strlen($duration[array_search('Miuntes', $duration) - 1]) == 2 ? $duration[array_search('Miuntes', $duration) - 1] : '0' . $duration[array_search('Miuntes', $duration) - 1]) . ':';
                     } else {
                         $text .= '00:';
                     }
                     if (in_array('Seconds', $duration)) {
-                        $text .= (strlen($duration[array_search('Seconds', $duration) - 1]) == 2 ? $duration[array_search('Seconds', $duration) - 1] : '0'.$duration[array_search('Seconds', $duration) - 1]);
+                        $text .= (strlen($duration[array_search('Seconds', $duration) - 1]) == 2 ? $duration[array_search('Seconds', $duration) - 1] : '0' . $duration[array_search('Seconds', $duration) - 1]);
                     } else {
                         $text .= '00';
                     }

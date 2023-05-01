@@ -43,7 +43,7 @@ return [
         'uploads' => [
             'driver' => 'local',
             'root' => public_path('uploads'),
-            'url' => env('APP_URL').'/uploads',
+            'url' => env('APP_URL') . '/uploads',
             'visibility' => 'public',
         ],
 
@@ -55,7 +55,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 
@@ -68,14 +68,14 @@ return [
         'files' => [
             'driver' => 'local',
             'root' => storage_path('app/files'),
-            'url' => env('APP_URL').'/storage/files',
+            'url' => env('APP_URL') . '/storage/files',
             'visibility' => 'public',
         ],
 
         'adsapi' => [
             'driver' => 'local',
             'root' => storage_path('app/adsapi'),
-            'url' => env('APP_URL').'/storage/adsapi',
+            'url' => env('APP_URL') . '/storage/adsapi',
             'visibility' => 'public',
         ],
 
@@ -93,7 +93,7 @@ return [
         'google_ads' => [
             'driver' => 'local',
             'root' => storage_path('app/google_ads'),
-            'url' => env('APP_URL').'/storage/google_ads',
+            'url' => env('APP_URL') . '/storage/google_ads',
             'visibility' => 'public',
         ],
 

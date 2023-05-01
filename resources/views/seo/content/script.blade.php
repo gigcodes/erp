@@ -38,7 +38,7 @@
             $($formModal).on('hide.bs.modal', function() {
                 $($formModal).find('.modal-body').html('');
             })
-            $(document).on('click', '.submitBtn', function(e) {
+            $(document).on('click', '.saveFormBtn', function(e) {
                 let $form = $(document).find('#seoForm');
                 if(!$form.valid()) {
                     return false;
@@ -57,6 +57,26 @@
                 });
             })
         })
+
+        let $historyModal = $(document).find('#historyModal');
+        $(document).on('click', '.priceHistoryBtn, .userHistoryBtn', function() {
+            let data = {
+                seoProcessId:$(this).attr('data-id'),
+                seoType:$(this).attr('data-type'),
+                type:"GET_HISTORY",
+            }
+            $.ajax({
+                type: "GET",
+                url: "",
+                data: data,
+                dataType: "json",
+                success: function (response) {
+                    $($historyModal).find('.modal-body').html(response.data);
+                    $($historyModal).find('.modal-title').text(response.title);
+                    $($historyModal).modal('show');
+                }
+            });
+        });
     });
 
 </script>

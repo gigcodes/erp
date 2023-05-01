@@ -3,14 +3,14 @@
 namespace Modules\BookStack\Entities;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Modules\BookStack\Actions\Activity;
-use Modules\BookStack\Actions\Comment;
+use Modules\BookStack\Ownable;
 use Modules\BookStack\Actions\Tag;
 use Modules\BookStack\Actions\View;
-use Modules\BookStack\Auth\Permissions\EntityPermission;
+use Modules\BookStack\Actions\Comment;
+use Modules\BookStack\Actions\Activity;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Modules\BookStack\Auth\Permissions\JointPermission;
-use Modules\BookStack\Ownable;
+use Modules\BookStack\Auth\Permissions\EntityPermission;
 
 /**
  * Class Entity
@@ -54,7 +54,6 @@ class Entity extends Ownable
      * Compares this entity to another given entity.
      * Matches by comparing class and id.
      *
-     * @param $entity
      * @return bool
      */
     public function matches($entity)
@@ -65,7 +64,6 @@ class Entity extends Ownable
     /**
      * Checks if an entity matches or contains another given entity.
      *
-     * @param  Entity  $entity
      * @return bool
      */
     public function matchesOrContains(Entity $entity)
@@ -154,8 +152,6 @@ class Entity extends Ownable
     /**
      * Check if this entity has a specific restriction set against it.
      *
-     * @param $role_id
-     * @param $action
      * @return bool
      */
     public function hasRestriction($role_id, $action)
@@ -178,7 +174,6 @@ class Entity extends Ownable
      * Allows checking of the exact class, Used to check entity type.
      * Cleaner method for is_a.
      *
-     * @param $type
      * @return bool
      */
     public static function isA($type)
@@ -199,7 +194,6 @@ class Entity extends Ownable
     /**
      * Get an instance of an entity of the given type.
      *
-     * @param $type
      * @return Entity
      */
     public static function getEntityInstance($type)
@@ -210,7 +204,7 @@ class Entity extends Ownable
             return null;
         }
 
-        return app('Modules\BookStack\\Entities\\'.$className);
+        return app('Modules\BookStack\\Entities\\' . $className);
     }
 
     /**
@@ -225,7 +219,7 @@ class Entity extends Ownable
             return $this->name;
         }
 
-        return mb_substr($this->name, 0, $length - 3).'...';
+        return mb_substr($this->name, 0, $length - 3) . '...';
     }
 
     /**
@@ -241,14 +235,13 @@ class Entity extends Ownable
     /**
      * Get an excerpt of this entity's descriptive content to the specified length.
      *
-     * @param  int  $length
      * @return mixed
      */
     public function getExcerpt(int $length = 100)
     {
         $text = $this->getText();
         if (mb_strlen($text) > $length) {
-            $text = mb_substr($text, 0, $length - 3).'...';
+            $text = mb_substr($text, 0, $length - 3) . '...';
         }
 
         return trim($text);
@@ -267,7 +260,6 @@ class Entity extends Ownable
     /**
      * Get the url of this entity
      *
-     * @param $path
      * @return string
      */
     public function getUrl($path = '/')

@@ -3,8 +3,8 @@
 namespace App\Repositories;
 
 use App\GTMatrixErrorLog;
-use App\StoreGTMetrixAccount;
 use App\StoreViewsGTMetrix;
+use App\StoreGTMetrixAccount;
 use Entrecore\GTMetrixClient\GTMetrixClient;
 
 class GtMatrixRepository
@@ -35,7 +35,7 @@ class GtMatrixRepository
         ];
         $gtMatrix->update($update);
         if (! $gtMatrix->test_id) {
-            $this->GTMatrixError($gtMatrix->id, 'Store Views GTMetrix', 'Account ', 'Account test_id not found Email : '.$gtAccount->email);
+            $this->GTMatrixError($gtMatrix->id, 'Store Views GTMetrix', 'Account ', 'Account test_id not found Email : ' . $gtAccount->email);
 
             return false;
         }
@@ -48,9 +48,9 @@ class GtMatrixRepository
         $gtmatrixAccount = StoreGTMetrixAccount::where('account_id', $gtMatrix->account_id)->where('status', 'active')->first();
         $gtAccount = $this->getAccount($gtmatrixAccount);
         if (! $gtAccount) {
-            $this->GTMatrixError($gtMatrix->id, 'Store GT Metrix Accoun', 'account_id ', 'Account account_id not found. Not account exist account_id : '.$gtMatrix->account_id);
+            $this->GTMatrixError($gtMatrix->id, 'Store GT Metrix Accoun', 'account_id ', 'Account account_id not found. Not account exist account_id : ' . $gtMatrix->account_id);
 
-            return 'Account account_id not found. Not account exist account_id : '.$gtMatrix->account_id;
+            return 'Account account_id not found. Not account exist account_id : ' . $gtMatrix->account_id;
         }
         $this->getGtMatrixRecord($gtAccount, $gtMatrix);
     }
@@ -60,9 +60,9 @@ class GtMatrixRepository
         if ($this->checkGtmatrixAccountCredit($gtmatrixAccount)) {
             return $gtmatrixAccount;
         }
-        $this->GTMatrixError($gtmatrixAccount->id, 'Store GT Metrix Accoun', 'account_id ', 'Account account_id not found. Not account exist account_id : '.$gtmatrixAccount->account_id);
+        $this->GTMatrixError($gtmatrixAccount->id, 'Store GT Metrix Accoun', 'account_id ', 'Account account_id not found. Not account exist account_id : ' . $gtmatrixAccount->account_id);
 
-        return 'Account account_id not found. Not account exist account_id : '.$gtmatrixAccount->account_id;
+        return 'Account account_id not found. Not account exist account_id : ' . $gtmatrixAccount->account_id;
     }
 
     public function getAvailableAccounts($gtmatrixAccount = null)
@@ -97,7 +97,7 @@ class GtMatrixRepository
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_USERPWD => $gtMatrixAccount->account_id.':'.'',
+            CURLOPT_USERPWD => $gtMatrixAccount->account_id . ':' . '',
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 0,
@@ -108,7 +108,7 @@ class GtMatrixRepository
         $response = curl_exec($curl);
         $err = curl_error($curl);
         if ($err) {
-            $this->GTMatrixError($gtMatrixAccount->account_id, 'gtmetrix', 'API response error', $err.' Repsonce => '.$response);
+            $this->GTMatrixError($gtMatrixAccount->account_id, 'gtmetrix', 'API response error', $err . ' Repsonce => ' . $response);
         }
         curl_close($curl);
         $data = json_decode($response);
@@ -165,16 +165,16 @@ class GtMatrixRepository
     {
         $ch = curl_init($resources);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        curl_setopt($ch, CURLOPT_USERPWD, $gtMatrixAccount->email.':'.$gtMatrixAccount->account_id);
+        curl_setopt($ch, CURLOPT_USERPWD, $gtMatrixAccount->email . ':' . $gtMatrixAccount->account_id);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 0);
         $err = curl_error($ch);
         if ($err) {
-            $this->GTMatrixError($gtMatrixAccount->account_id, 'gtmetrix', 'Getting PDF Report Error', 'Getting PDF Report Error '.$err);
+            $this->GTMatrixError($gtMatrixAccount->account_id, 'gtmetrix', 'Getting PDF Report Error', 'Getting PDF Report Error ' . $err);
         }
         $result = strip_tags(curl_exec($ch));
-        $fileName = '/uploads/gt-matrix/'.$gtmatrix->test_id.$filename;
-        $file = public_path().$fileName;
+        $fileName = '/uploads/gt-matrix/' . $gtmatrix->test_id . $filename;
+        $file = public_path() . $fileName;
         file_put_contents($file, $result);
         $gtmatrix->$field = $fileName;
         $gtmatrix->save();

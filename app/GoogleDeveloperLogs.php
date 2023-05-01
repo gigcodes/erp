@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 class GoogleDeveloperLogs extends Model
 {
     protected $table = 'google_dev_report_logs';
-    
+
     protected $fillable = [
-    
+
         'log_name',
         'api',
         'result',
-      
+
     ];
     // public $timestamps = false;
 }

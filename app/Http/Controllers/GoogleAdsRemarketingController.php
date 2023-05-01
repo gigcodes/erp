@@ -2,33 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\GoogleAdsAccount;
 use App\GoogleAdsCampaign;
-use App\Helpers\GoogleAdsHelper;
-use Exception;
-use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClient;
-use Google\Ads\GoogleAds\Util\FieldMasks;
-use Google\Ads\GoogleAds\Util\V13\ResourceNames;
-use Google\Ads\GoogleAds\V13\Resources\Campaign\ShoppingSetting;
-use Google\Ads\GoogleAds\V13\Common\ManualCpc;
-use Google\Ads\GoogleAds\V13\Enums\AdvertisingChannelTypeEnum\AdvertisingChannelType;
-use Google\Ads\GoogleAds\V13\Enums\BudgetDeliveryMethodEnum\BudgetDeliveryMethod;
-use Google\Ads\GoogleAds\V13\Enums\CampaignStatusEnum\CampaignStatus;
-use Google\Ads\GoogleAds\V13\Resources\Campaign;
-use Google\Ads\GoogleAds\V13\Resources\CampaignBudget;
-use Google\Ads\GoogleAds\V13\Services\CampaignBudgetOperation;
-use Google\Ads\GoogleAds\V13\Services\CampaignOperation;
 use Illuminate\Http\Request;
+use App\Helpers\GoogleAdsHelper;
+use Google\Ads\GoogleAds\Util\FieldMasks;
+use Google\Ads\GoogleAds\V13\Common\ManualCpc;
+use Google\Ads\GoogleAds\Util\V13\ResourceNames;
+use Google\Ads\GoogleAds\V13\Resources\Campaign;
+use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClient;
+use Google\Ads\GoogleAds\V13\Resources\CampaignBudget;
+use Google\Ads\GoogleAds\V13\Services\CampaignOperation;
+use Google\Ads\GoogleAds\V13\Services\CampaignBudgetOperation;
+use Google\Ads\GoogleAds\V13\Resources\Campaign\ShoppingSetting;
+use Google\Ads\GoogleAds\V13\Enums\CampaignStatusEnum\CampaignStatus;
+use Google\Ads\GoogleAds\V13\Enums\BudgetDeliveryMethodEnum\BudgetDeliveryMethod;
+use Google\Ads\GoogleAds\V13\Enums\AdvertisingChannelTypeEnum\AdvertisingChannelType;
 
-/**
- *
- */
 class GoogleAdsRemarketingController extends Controller
 {
     // Create remarketing campaign.
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function createCampaign(Request $request)
@@ -85,34 +82,36 @@ class GoogleAdsRemarketingController extends Controller
 
             $addedCampaign = $response->getResults()[0];
             $addedCampaignResourceName = $addedCampaign->getResourceName();
-            $insert_data['google_campaign_id'] = substr($addedCampaignResourceName, strrpos($addedCampaignResourceName, "/") + 1);
+            $insert_data['google_campaign_id'] = substr($addedCampaignResourceName, strrpos($addedCampaignResourceName, '/') + 1);
             $insert_data['campaign_response'] = json_encode($addedCampaign);
             GoogleAdsCampaign::create($insert_data);
             // Insert google ads log
-            $input = array(
+            $input = [
                 'type' => 'SUCCESS',
                 'module' => 'Campaign',
-                'message' => "Created new campaign",
-                'response' => json_encode($insert_data)
-            );
+                'message' => 'Created new campaign',
+                'response' => json_encode($insert_data),
+            ];
             insertGoogleAdsLog($input);
-            return response()->json(['status' => true, "message" => 'Campaign created successfully']);
+
+            return response()->json(['status' => true, 'message' => 'Campaign created successfully']);
         } catch (Exception $e) {
             // Insert google ads log
-            $input = array(
+            $input = [
                 'type' => 'ERROR',
                 'module' => 'Campaign',
                 'message' => 'Create new campaign > ' . $e->getMessage(),
-            );
+            ];
             insertGoogleAdsLog($input);
-            return response()->json(['status' => false, "message" => $e->getMessage()]);
+
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
         }
     }
 
     // Update remarketing campaign.
     /**
-     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function updateCampaign(Request $request)
@@ -157,26 +156,28 @@ class GoogleAdsRemarketingController extends Controller
 
             $updateCampaign = $response->getResults()[0];
             $updateCampaignResourceName = $updateCampaign->getResourceName();
-            $update_data['google_campaign_id'] = substr($updateCampaignResourceName, strrpos($updateCampaignResourceName, "/") + 1);
+            $update_data['google_campaign_id'] = substr($updateCampaignResourceName, strrpos($updateCampaignResourceName, '/') + 1);
             $update_data['campaign_response'] = json_encode($updateCampaign);
             GoogleAdsCampaign::whereId($campaignDetails->id)->update($update_data);
             // Insert google ads log
-            $input = array(
+            $input = [
                 'type' => 'SUCCESS',
                 'module' => 'Campaign',
                 'message' => 'Updated campaign details for ' . $request->campaignName,
-                'response' => json_encode($update_data)
-            );
+                'response' => json_encode($update_data),
+            ];
             insertGoogleAdsLog($input);
+
             return redirect()->to('google-campaigns?account_id=' . $campaignDetails->account_id)->with('actSuccess', 'Campaign updated successfully');
         } catch (Exception $e) {
             // Insert google ads log
-            $input = array(
+            $input = [
                 'type' => 'ERROR',
                 'module' => 'Campaign',
                 'message' => 'Update campaign > ' . $e->getMessage(),
-            );
+            ];
             insertGoogleAdsLog($input);
+
             return redirect()->to('google-campaigns/update/' . $request->campaignId . '?account_id=' . $campaignDetails->account_id)->with('actError', $e->getMessage());
         }
     }
@@ -184,7 +185,6 @@ class GoogleAdsRemarketingController extends Controller
     // Configures the settings for the shopping campaign.
 
     /**
-     * @param $merchant_id
      * @return ShoppingSetting
      */
     private function getShoppingSettings($merchant_id)
@@ -197,14 +197,13 @@ class GoogleAdsRemarketingController extends Controller
             // available in the campaign. The actual products which serve are based on
             // the products tagged in the user list entry.
             'sales_country' => 'ZZ',
-            'enable_local' => true
+            'enable_local' => true,
         ]);
     }
 
     //get campaign status
 
     /**
-     * @param $status
      * @return int
      */
     private function getCampaignStatus($status)
@@ -227,9 +226,6 @@ class GoogleAdsRemarketingController extends Controller
     // create a campaign single shared budget
 
     /**
-     * @param GoogleAdsClient $googleAdsClient
-     * @param int $customerId
-     * @param $amount
      * @return array|\Google\Ads\GoogleAds\V13\Services\MutateCampaignBudgetsResponse
      */
     public function addCampaignBudget(GoogleAdsClient $googleAdsClient, int $customerId, $amount)
@@ -242,7 +238,7 @@ class GoogleAdsRemarketingController extends Controller
             $budgetArr = [
                 'name' => 'Remarketing campaign Budget #' . $uniqId,
                 'delivery_method' => BudgetDeliveryMethod::STANDARD,
-                'amount_micros' => $amount * 1000000
+                'amount_micros' => $amount * 1000000,
             ];
             $budget = new CampaignBudget($budgetArr);
             // Creates a campaign budget operation.
@@ -258,18 +254,18 @@ class GoogleAdsRemarketingController extends Controller
             $createdBudget = $response->getResults()[0];
             $budgetResourceName = $createdBudget->getResourceName();
 
-            $response = array(
+            $response = [
                 'budget_uniq_id' => $uniqId,
-                'budget_id' => substr($budgetResourceName, strrpos($budgetResourceName, "/") + 1),
+                'budget_id' => substr($budgetResourceName, strrpos($budgetResourceName, '/') + 1),
                 'budget_resource_name' => $budgetResourceName,
-            );
+            ];
         } catch (Exception $e) {
             // Insert google ads log
-            $input = array(
+            $input = [
                 'type' => 'ERROR',
                 'module' => 'Campaign',
                 'message' => 'Create campaign budget > ' . $e->getMessage(),
-            );
+            ];
             insertGoogleAdsLog($input);
         }
 
@@ -279,10 +275,6 @@ class GoogleAdsRemarketingController extends Controller
     // update a campaign single shared budget
 
     /**
-     * @param GoogleAdsClient $googleAdsClient
-     * @param int $customerId
-     * @param $amount
-     * @param $campaignBudgetId
      * @return array|\Google\Ads\GoogleAds\V13\Services\MutateCampaignBudgetsResponse
      */
     public function updateCampaignBudget(GoogleAdsClient $googleAdsClient, int $customerId, $amount, $campaignBudgetId)
@@ -292,7 +284,7 @@ class GoogleAdsRemarketingController extends Controller
             // Update a campaign budget.
             $budget = new CampaignBudget([
                 'resource_name' => ResourceNames::forCampaignBudget($customerId, $campaignBudgetId),
-                'amount_micros' => $amount * 1000000
+                'amount_micros' => $amount * 1000000,
             ]);
 
             // Creates a campaign budget operation.
@@ -309,17 +301,17 @@ class GoogleAdsRemarketingController extends Controller
             $updatedBudget = $response->getResults()[0];
             $budgetResourceName = $updatedBudget->getResourceName();
 
-            $response = array(
-                'budget_id' => substr($budgetResourceName, strrpos($budgetResourceName, "/") + 1),
+            $response = [
+                'budget_id' => substr($budgetResourceName, strrpos($budgetResourceName, '/') + 1),
                 'budget_resource_name' => $budgetResourceName,
-            );
+            ];
         } catch (Exception $e) {
             // Insert google ads log
-            $input = array(
+            $input = [
                 'type' => 'ERROR',
                 'module' => 'Campaign',
                 'message' => 'Update campaign budget > ' . $e->getMessage(),
-            );
+            ];
             insertGoogleAdsLog($input);
         }
 
