@@ -139,12 +139,15 @@ trait GithubTrait
         }
     }
 
-    private function getPullRequestDetail(string $repoId, string $number)
+    private function getPullRequestDetail($userName, $token, string $repoId, string $number)
     {
         $url = 'https://api.github.com/repositories/'.$repoId.'/pulls/'.$number;
 
         try {
-            $response = $this->client->get($url);
+            $githubClient = $this->connectGithubClient($userName, $token);
+
+            $response = $githubClient->get($url);
+
             $pullRequest = json_decode($response->getBody()->getContents());
                 return [
                     'id' => $pullRequest->number,
@@ -163,10 +166,15 @@ trait GithubTrait
 
     private function closePullRequest(string $repositoryId, string $pullNumber)
     {
+        $repository = GithubRepository::find($repositoryId);
+        $organization = $repository->organization;
+
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
         $url = 'https://api.github.com/repositories/'.$repositoryId.'/pulls/'.$pullNumber;
 
         try {
-            $this->client->patch($url,
+            $githubClient->patch($url,
             [
                 'json' => [
                     'state' => "closed"
@@ -181,10 +189,15 @@ trait GithubTrait
     }
     private function deleteBranch(string $repositoryId, string $branchName)
     {
+        $repository = GithubRepository::find($repositoryId);
+        $organization = $repository->organization;
+
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
         $url = 'https://api.github.com/repositories/'.$repositoryId.'/git/refs/heads/'.$branchName;
 
         try {
-            $this->client->delete($url);
+            $githubClient->delete($url);
             $data['status'] = true;
         } catch (Exception $e) {
             $data['status'] = false;
@@ -195,13 +208,18 @@ trait GithubTrait
 
     private function getGithubActionRuns(string $repositoryId, $page = 1, $date = null)
     {
+        $repository = GithubRepository::find($repositoryId);
+        $organization = $repository->organization;
+
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
         $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs?page='.$page;
         if(!empty($date)) {
             $url .= "&created={$date}";
         }
 
         try {
-            $response = $this->client->get($url);
+            $response = $githubClient->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
             return $githubAction;
         } catch (Exception $e) {
@@ -210,10 +228,15 @@ trait GithubTrait
 
     private function getGithubActionRunJobs(string $repositoryId,string $runId)
     {
+        $repository = GithubRepository::find($repositoryId);
+        $organization = $repository->organization;
+
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
         $url = 'https://api.github.com/repositories/'.$repositoryId.'/actions/runs/'.$runId.'/jobs';
 
         try {
-            $response = $this->client->get($url);
+            $response = $githubClient->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
             return $githubAction;
         } catch (Exception $e) {
@@ -225,12 +248,19 @@ trait GithubTrait
      */
     public function getGithubBranches(string $repositoryId, array $inputs)
     {
+        $repository = GithubRepository::find($repositoryId);
+        $organization = $repository->organization;
+
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
         $url = "https://api.github.com/repositories/{$repositoryId}/branches";
+
         try {
-            $response = $this->client->get($url);
+            $response = $githubClient->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
             return $githubAction;
         } catch (Exception $e) {
+            //
         }
     }
 

@@ -59,6 +59,578 @@
             <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right; padding: 7px;">Add New Task </a>
         </div>
     </div>
+
+    @include('development.partials.modal-quick-task')
+    @include('development.partials.modal-remark')
+    @include('partials.flash_messages')
+
+
+    <div id="moveToProgressModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Move To Progress</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Please enter the estimated completion time so that we can alert you when the time is about to end or is expired.
+                    </p>
+                    <div class="form-group">
+                        <input type="date" name="progress_date" id="progress_date" placeholder="Enter Date..." class="form-control" value="<?= date('Y-m-d') ?>">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="progress_hour">Hour</label>
+                            <select class="form-control" name="progress_hour" id="progress_hour">
+                                <option value="13">1 PM</option>
+                                <option value="14">2 PM</option>
+                                <option value="15">3 PM</option>
+                                <option value="16">4 PM</option>
+                                <option value="17">5 PM</option>
+                                <option value="18">6 PM</option>
+                                <option value="19">7 PM</option>
+                                <option value="20">8 PM</option>
+                                <option value="21">9 PM</option>
+                                <option value="22">10 PM</option>
+                                <option value="23">11 PM</option>
+                                <option value="00">12 AM</option>
+                                <option value="01">1 AM</option>
+                                <option value="02">2 AM</option>
+                                <option value="03">3 AM</option>
+                                <option value="04">4 AM</option>
+                                <option value="05">5 AM</option>
+                                <option value="06">6 AM</option>
+                                <option value="07">7 AM</option>
+                                <option value="08">8 AM</option>
+                                <option value="09">9 AM</option>
+                                <option value="10">10 AM</option>
+                                <option value="11">11 AM</option>
+                                <option value="12">12 PM</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="progress_minute">Minutes</label>
+                            <select class="form-control" name="progress_munite" id="progress_minute">
+                                <option value="00">00</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                                <option value="40">40</option>
+                                <option value="50">50</option>
+                                <option value="59">59</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-secondary btn-sm move-to-progress">Move To Progress</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mt-2">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#pending">Planned Tasks</a></li>
+                <li><a data-toggle="tab" href="#progress">Task On Progress</a></li>
+                <li><a data-toggle="tab" href="#done">Completed Tasks</a></li>
+                <li><a data-toggle="tab" href="#modules">Modules</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="pending" class="tab-pane fade in active">
+                    <div class="panel-group" style="margin-top: 10px;">
+                        <div class="panel panel-default" style="display: none;">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse1">
+                                        <strong>Add New Task</strong>
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse1" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <form action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="modal-body">
+                                            @if(auth()->user()->checkPermission('development-list'))
+                                                <div class="form-group">
+                                                    <strong>User:</strong>
+                                                    <select class="form-control" name="user_id" required>
+                                                        @foreach ($users as $id => $name)
+                                                            <option value="{{ $id }}" {{ old('user_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    @if ($errors->has('user_id'))
+                                                        <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                            <div class="form-group">
+                                                <strong>Attach files:</strong>
+                                                <input type="file" name="images[]" class="form-control" multiple>
+                                                @if ($errors->has('images'))
+                                                    <div class="alert alert-danger">{{$errors->first('images')}}</div>
+                                                @endif
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="module_id">Module:</label>
+                                                <br>
+                                                <select class="form-control select2" id="module_id" name="module_id">
+                                                    <option value>Select a Module</option>
+                                                    @foreach ($modules as $module)
+                                                        <option value="{{ $module->id }}" {{ $module->id == old('module_id') ? 'selected' : '' }}>{{ $module->name }}</option>
+                                                    @endforeach
+                                                </select>
+
+                                                @if ($errors->has('module_id'))
+                                                    <div class="alert alert-danger">{{$errors->first('module_id')}}</div>
+                                                @endif
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="priority">Priority:</label>
+                                                <select class="form-control" name="priority" id="priority" required>
+                                                    <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
+                                                    <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
+                                                    <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
+                                                </select>
+
+                                                @if ($errors->has('priority'))
+                                                    <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+                                                @endif
+                                            </div>
+
+                                                <div class="form-group">
+                                                    <label for="priority">Type:</label>
+                                                    <select class="form-control" name="task_type_id" id="task_type_id" required>
+                                                        @foreach($tasksTypes as $taskType)
+                                                            <option value="{{$taskType->id}}">{{$taskType->name}}</option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    @if ($errors->has('priority'))
+                                                        <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+                                                    @endif
+                                                </div>
+
+                                            <div class="form-group">
+                                                <strong>Subject:</strong>
+                                                <input type="text" class="form-control" name="subject" value="{{ old('subject') }}"/>
+                                                </select>
+
+                                                @if ($errors->has('subject'))
+                                                    <div class="alert alert-danger">{{$errors->first('subject')}}</div>
+                                                @endif
+                                            </div>
+
+                                            <div class="form-group">
+                                                <strong>Task:</strong>
+                                                <textarea class="form-control" name="task" rows="8" cols="80" required>{{ old('task') }}</textarea>
+                                                </select>
+
+                                                @if ($errors->has('task'))
+                                                    <div class="alert alert-danger">{{$errors->first('task')}}</div>
+                                                @endif
+                                            </div>
+
+                                            <div class="form-group">
+                                                <strong>Cost:</strong>
+                                                <input type="number" class="form-control" name="cost" value="{{ old('cost') }}"/>
+                                                </select>
+
+                                                @if ($errors->has('cost'))
+                                                    <div class="alert alert-danger">{{$errors->first('cost')}}</div>
+                                                @endif
+                                            </div>
+
+                                            <div class="form-group">
+                                                <strong>Status:</strong>
+                                                <select class="form-control" name="status" required>
+                                                    <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
+                                                    <option value="In Progress" {{ old('status') == 'In Progress' ? 'selected' : '' }}>In Progress</option>
+                                                    <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option>
+                                                </select>
+
+                                                @if ($errors->has('status'))
+                                                    <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                                                @endif
+                                            </div>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-secondary">Add</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="table table-striped table-lg">
+                        <tr>
+                            <th>Task ID</th>
+                            <th>Assignee</th>
+                            <th>Module</th>
+                            <th>Subject</th>
+                            <th>Task Description</th>
+                            <th>Communication</th>
+                            <th>Actions</th>
+                        </tr>
+
+                        @foreach($plannedTasks as $task)
+                            <tr id="tr_{{$task->id}}">
+                                <td>{{ $task->id }}
+                                    @if(auth()->user()->isReviwerLikeAdmin() && $task->status != 'Done')
+                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, isset($priority) ? $priority : []) ? 'checked' : ''}}>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(Auth::user()->isReviwerLikeAdmin())
+                                        @php
+                                            $userId = $task->user_id;
+                                        @endphp
+                                        <select data-id="{{$task->id}}" class="form-control change-assignee" name="user_{{$task->id}}" id="user_{{$task->id}}">
+                                            @foreach($users as $id=>$name)
+                                                <option {{ $id==$userId ? 'selected' : '' }} value="{{ $id }}">{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{ $task->user ? $task->user->name : 'Unassigned' }}
+                                    @endif
+                                </td>
+                                <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
+                                <td>{{ $task->subject ?? 'N/A' }}</td>
+                                <td>
+                                    <div id="task{{ $task->id }}" class="task-line" style="height: 2em; overflow: hidden;">
+                                        {!! nl2br($task->task) !!}
+                                    </div>
+                                    <script>
+                                        $('#task{{ $task->id }}').click(function () {
+                                            if ($(this).hasClass('task-line')) {
+                                                var reducedHeight = $(this).height();
+                                                $(this).css('height', 'auto');
+                                                var fullHeight = $(this).height();
+                                                $(this).height(reducedHeight);
+                                                $(this).animate({height: fullHeight}, 500);
+                                                $(this).removeClass('task-line');
+                                            } else {
+                                                $(this).height('2em');
+                                                $(this).addClass('task-line');
+                                            }
+
+                                        });
+                                    </script>
+                                    <div>
+                                        @foreach($task->getMedia(config('constants.media_tags')) as $media)
+                                            <a href="{{ $media->getUrl() }}" target="_new">
+                                                <img style="width: 25px;" src="{{ asset('images/download.png') }}" alt="Download">
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="panel-group">
+                                        <div class="panel panel-default" style="width: 140px;">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" href="#collapse_{{$task->id}}">Messages ({{ count($task->messages) }})</a>
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button data-toggle="modal" data-target="#moveToProgressModal" class="btn btn-secondary btn-xs move-progress-init" data-id="{{ $task->id }}">Move To Progress</button>
+                                </td>
+                            </tr>
+                            <tr id="tr_{{$task->id}} messages">
+                                <td colspan="7">
+                                    <div id="collapse_{{$task->id}}" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            @foreach($task->messages as $message)
+                                                <p>
+                                                    <b>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }}</b><br />
+                                                    {!! nl2br($message->message) !!}
+                                                </p>
+                                            @endforeach
+                                        </div>
+                                        <div class="panel-footer">
+                                            <textarea name="message" id="message_{{$task->id}}" rows="6" class="form-control send-message" data-id="{{$task->id}}" placeholder="Enter to send.."></textarea>
+                                            <button type="submit" id="submit_message" class="btn btn-secondary ml-3" data-id="{{$task->id}}" style="float: right;margin-top: 2%;">Submit</button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </div>
+                <div id="progress" class="tab-pane fade">
+                    <table class="table table-striped table-lg">
+                        <tr>
+                            <th>Task ID</th>
+                            <th>Assignee</th>
+                            <th>Module</th>
+                            <th>Subject</th>
+                            <th>Task Description</th>
+                            <th>Communication</th>
+                            <th>Estd Completion</th>
+                            <th>Actions</th>
+                        </tr>
+
+                        @foreach($progressTasks as $task)
+                            <tr id="tr_{{$task->id}}">
+                                <td>{{ $task->id }}
+                                    @if($task->status != 'Done')
+                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, isset($priority) ? $priority : []) ? 'checked' : ''}}>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(Auth::user()->isReviwerLikeAdmin())
+                                        @php
+                                            $userId = $task->user_id;
+                                        @endphp
+                                        <select data-id="{{$task->id}}" class="form-control change-assignee" name="user_{{$task->id}}" id="user_{{$task->id}}">
+                                            @foreach($users as $id=>$name)
+                                                <option {{ $id==$userId ? 'selected' : '' }} value="{{ $id }}">{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{ $task->user ? $task->user->name : 'Unassigned' }}
+                                    @endif
+                                </td>
+                                <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
+                                <td>{{ $task->subject ?? 'N/A' }}</td>
+                                <td>
+                                    {{ $task->task }}
+                                    <div>
+                                        @foreach($task->getMedia(config('constants.media_tags')) as $media)
+                                            <a href="{{ $media->getUrl() }}" target="_new">
+                                                <img style="width: 25px;" src="{{ asset('images/download.png') }}" alt="Download">
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="panel-group">
+                                        <div class="panel panel-default" style="width: 140px;">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" href="#collapse_{{$task->id}}">Messages ({{ count($task->messages) }})</a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapse_{{$task->id}}" class="panel-collapse collapse">
+                                                <div class="panel-body">
+                                                    @foreach($task->messages as $message)
+                                                        <li>-{{ $message->message }}</li>
+                                                    @endforeach
+                                                </div>
+                                                <div class="panel-footer">
+                                                    <input type="text" class="form-control send-message" name="message" data-id="{{$task->id}}" placeholder="Enter to send..">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ $task->estimate_minutes }}</td>
+                                <td>
+                                    <button class="btn btn-secondary btn-xs complete-task" data-id="{{ $task->id }}">Mark Complete</button>
+                                    <button class="btn btn-secondary btn-xs relist-task" data-id="{{ $task->id }}">Re-list Task</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </div>
+                <div id="done" class="tab-pane fade">
+                    <table class="table table-striped table-lg">
+                        <tr>
+                            <th>Task ID</th>
+                            <td>Assignee</td>
+                            <th>Module</th>
+                            <th>Subject</th>
+                            <th>Task Description</th>
+                            <th>Communication</th>
+                            <th>Actions</th>
+                        </tr>
+
+                        @foreach($completedTasks as $task)
+                            <tr id="tr_{{$task->id}}">
+                                <td>{{ $task->id }}</td>
+                                <td>
+                                    @if(Auth::user()->isReviwerLikeAdmin())
+                                        @php
+                                            $userId = $task->user_id;
+                                        @endphp
+                                        <select data-id="{{$task->id}}" class="form-control change-assignee" name="user_{{$task->id}}" id="user_{{$task->id}}">
+                                            @foreach($users as $id=>$name)
+                                                <option {{ $id==$userId ? 'selected' : '' }} value="{{ $id }}">{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{ $task->user ? $task->user->name : 'Unassigned' }}
+                                    @endif
+                                </td>
+                                <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
+                                <td>{{ $task->subject ?? 'N/A' }}</td>
+                                <td>
+                                    {{ $task->task }}
+                                    <div>
+                                        @foreach($task->getMedia(config('constants.media_tags')) as $media)
+                                            <a href="{{ $media->getUrl() }}" target="_new">
+                                                <img style="width: 25px;" src="{{ asset('images/download.png') }}" alt="Download">
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="panel-group">
+                                        <div class="panel panel-default" style="width: 140px;">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" href="#collapse_{{$task->id}}">Messages ({{ count($task->messages) }})</a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapse_{{$task->id}}" class="panel-collapse collapse">
+                                                <div class="panel-body">
+                                                    @foreach($task->messages as $message)
+                                                        <li>-{{ $message->message }}</li>
+                                                    @endforeach
+                                                </div>
+                                                <div class="panel-footer">
+                                                    <input type="text" class="form-control send-message" name="message" data-id="{{$task->id}}" placeholder="Enter to send..">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary btn-xs relist-task" data-id="{{ $task->id }}">Re-list Task</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </div>
+                <div id="modules" class="tab-pane fade">
+                    <h3>Modules</h3>
+                    <form class="form-inline" action="{{ route('development.module.store') }}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="name" placeholder="Module" value="{{ old('name') }}" required>
+
+                            @if ($errors->has('name'))
+                                <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                            @endif
+                        </div>
+
+                        <button type="submit" class="btn btn-secondary ml-3">Add Module</button>
+                    </form>
+
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Module</th>
+                                <th>Action</th>
+                            </tr>
+                            @foreach ($modules as $key => $module)
+                                <tr>
+                                    <td>{{ $module->name }}</td>
+                                    <td>
+                                        {!! Form::open(['method' => 'DELETE','route' => ['development.module.destroy', $module->id],'style'=>'display:inline']) !!}
+                                        <button type="submit" class="btn btn-image"><img src="/images/archive.png"/></button>
+                                        {!! Form::close() !!}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<div id="priority_model" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Priority</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="" id="priorityForm" method="POST">
+                @csrf
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-2">
+                                <strong>User:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    @if(auth()->user()->isReviwerLikeAdmin())
+                                        <select class="form-control" name="user_id" id="priority_user_id">
+                                            @foreach ($users as $id => $name)
+                                                <option value="{{ $id }}">{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{auth()->user()->name}}
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-2">
+                                <strong>Remarks:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                @if(auth()->user()->isReviwerLikeAdmin())
+                                     <div class="form-group">
+                                        <textarea cols="45" class="form-control" name="global_remarkes"></textarea>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-bordered table-striped">
+                                <tr>
+                                    <th width="1%">ID</th>
+                                    <th width="5%">Module</th>
+                                    <th width="15%">Subject</th>
+                                    <th width="67%">Task</th>
+                                    <th width="5%">Submitted By</th>
+                                    <th width="2%">Action</th>
+                                </tr>
+                                <tbody class="show_task_priority">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    @if(auth()->user()->isReviwerLikeAdmin())
+                        <button type="submit" class="btn btn-secondary">Confirm</button>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
 @endsection
 
 @section('scripts')

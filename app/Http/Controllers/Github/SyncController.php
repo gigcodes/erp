@@ -89,6 +89,8 @@ class SyncController extends Controller
         // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
         $url = 'https://api.github.com/orgs/'.$organizationId.'/repos?per_page=100';
 
+        $organization = GithubOrganization::where('name', $organizationId)->first();
+
         // $response = $this->client->get($url);
 
         $githubClient = $this->connectGithubClient($userName, $token);
@@ -102,6 +104,7 @@ class SyncController extends Controller
         foreach ($repositories as $repository) {
             $data = [
                 'id' => $repository->id,
+                'github_organization_id' => $organization->id,
                 'name' => $repository->name,
                 'html' => $repository->html_url,
                 'webhook' => $repository->hooks_url,
@@ -203,6 +206,8 @@ class SyncController extends Controller
 
         // $response = $this->client->get($url);
 
+        $organization = GithubOrganization::where('name', $organizationId)->first();
+
         $githubClient = $this->connectGithubClient($userName, $token);
 
         $response = $githubClient->get($url);
@@ -226,6 +231,7 @@ class SyncController extends Controller
                     'github_repositories_id' => $repositoryId,
                 ],
                 [
+                    'github_organization_id' => $organization->id,
                     'github_users_id' => $user->id,
                     'github_repositories_id' => $repositoryId,
                     'rights' => $rights,
@@ -285,6 +291,8 @@ class SyncController extends Controller
 
         // $response = $this->client->get($url);
 
+        $organization = GithubOrganization::where('name', $organizationId)->first();
+
         $githubClient = $this->connectGithubClient($userName, $token);
 
         $response = $githubClient->get($url);
@@ -308,6 +316,7 @@ class SyncController extends Controller
                     'github_groups_id' => $teamId,
                 ],
                 [
+                    'github_organization_id' => $organization->id,
                     'github_repositories_id' => $repo->id,
                     'github_groups_id' => $teamId,
                     'rights' => $rights,

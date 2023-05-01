@@ -8,6 +8,7 @@ class GithubRepository extends Model
 {
     protected $fillable = [
         'id',
+        'github_organization_id',
         'name',
         'html',
         'webhook',

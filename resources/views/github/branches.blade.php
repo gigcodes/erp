@@ -57,6 +57,19 @@
 <div class="container" style="max-width: 100%;width: 100%;" id="branch-section">
     <div class="row mb-3">
         <div class="col-md-3">
+            <!-- Single button -->
+            <label for="" class="form-label">Action on selected Item</label>
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle jq_selected_item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    0 Items Selected <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#"  onclick="confirmDelete()">Delete All</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-3">
             <label for="" class="form-label">Organization</label>
             <select name="organizationId" id="organizationId" class="form-control">
                 @foreach ($githubOrganizations as $githubOrganization)
@@ -71,27 +84,7 @@
                 
             </select>
         </div>
-            <!-- Single button -->
-            <label for="" class="form-label">Action on selected Item</label>
-            <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle jq_selected_item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    0 Items Selected <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="#"  onclick="confirmDelete()">Delete All</a></li>
-                </ul>
-            </div>
-        </div>
 
-       
-        <div class="col-md-3">
-            <label for="" class="form-label">Repository</label>
-            <select name="repoId" class="form-control">
-                @foreach ($repos as $repo)
-                    <option value="{{ $repo->id }}">{{ $repo->name }}</option>
-                @endforeach
-            </select>
-        </div>
         <div class="col-md-3">
             <label for="" class="form-label">Status</label>
             <select name="status" id="status" class="form-control">

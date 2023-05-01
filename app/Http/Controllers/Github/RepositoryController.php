@@ -71,7 +71,7 @@ class RepositoryController extends Controller
                 foreach ($repositories as $repository) {
                     $data = [
                         'id' => $repository->id,
-                        'organization_id' => $organization->id,
+                        'github_organization_id' => $organization->id,
                         'name' => $repository->name,
                         'html' => $repository->html_url,
                         'webhook' => $repository->hooks_url,
@@ -138,6 +138,11 @@ class RepositoryController extends Controller
 
     public function deployBranch($repoId, Request $request)
     {
+        $repository = GithubRepository::find($repoId);
+        $organization = $repository->organization;
+
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
         //dd($repoId);
         $source = 'master';
         $destination = $request->branch;
@@ -148,7 +153,7 @@ class RepositoryController extends Controller
         try {
             // Merge master into branch
             if (empty($pullOnly) || $pullOnly != 1) {
-                $this->client->post(
+                $githubClient->post(
                     $url,
                     [
                         RequestOptions::BODY => json_encode([
@@ -234,8 +239,12 @@ class RepositoryController extends Controller
      */
     public function createGitMigrationErrorLog($repoId, $branchName, $errorLog)
     {
-        $comparison = $this->compareRepoBranches($repoId, $branchName);
+        $repository = GithubRepository::find($repoId);
+        $organization = $repository->organization;
+        
+        $comparison = $this->compareRepoBranches($organization->username, $organization->token, $repoId, $branchName);
         GitMigrationErrorLog::create([
+            'github_organization_id' => $organization->id,
             'repository_id' => $repoId,
             'branch_name' => $branchName,
             'ahead_by' => $comparison['ahead_by'],
@@ -268,12 +277,15 @@ class RepositoryController extends Controller
 
     private function updateBranchState($repoId, $branchName)
     {
-        $comparison = $this->compareRepoBranches($repoId, $branchName);
+        $repository = GithubRepository::find($repoId);
+        $organization = $repository->organization;
+        
+        $comparison = $this->compareRepoBranches($organization->username, $organization->token, $repoId, $branchName);
         $filters = [
             'state' => 'all',
-            'head' => config('env.GITHUB_ORG_ID').":".$branchName
+            'head' => $organization->name.":".$branchName
         ];
-        $pullRequests = $this->pullRequests($repoId,$filters);
+        $pullRequests = $this->pullRequests($organization->username, $organization->token, $repoId, $filters);
         if(!empty($pullRequests) && count($pullRequests) > 0){
             $pullRequest = $pullRequests[0];
         }
@@ -284,6 +296,7 @@ class RepositoryController extends Controller
                 'branch_name' => $branchName,
             ],
             [
+                'github_organization_id' => $organization->id,
                 'repository_id' => $repoId,
                 'branch_name' => $branchName,
                 'status' => !empty($pullRequest) ? $pullRequest['state'] : "",
@@ -356,10 +369,15 @@ class RepositoryController extends Controller
         $destination = $request->destination;
         $pull_request_id = $request->task_id;
 
+        $repository = GithubRepository::find($id);
+        $organization = $repository->organization;
+
+        $githubClient = $this->connectGithubClient($organization->username, $organization->token);
+
         $url = 'https://api.github.com/repositories/'.$id.'/merges';
         
         try {
-            $this->client->post(
+            $githubClient->post(
                 $url,
                 [
                     RequestOptions::BODY => json_encode([
@@ -446,7 +464,7 @@ class RepositoryController extends Controller
         ]);
     }
 
-    private function getPullRequests($repoId, $filters = [])
+    private function getPullRequests($userName, $token, $repoId, $filters = [])
     {
         $addedFilters = !empty($filters) ? Arr::query($filters) : "";
         $pullRequests = [];
@@ -455,7 +473,10 @@ class RepositoryController extends Controller
             $url .= "&".$addedFilters;
         }
         try {
-            $response = $this->client->get($url);
+            $githubClient = $this->connectGithubClient($userName, $token);
+
+            $response = $githubClient->get($url);
+            
             $decodedJson = json_decode($response->getBody()->getContents());
             foreach ($decodedJson as $pullRequest) {
                 $pullRequests[] = [
@@ -479,8 +500,9 @@ class RepositoryController extends Controller
     public function listPullRequests($repoId)
     {
         $repository = GithubRepository::find($repoId);
+        $organization = $repository->organization;
 
-        $pullRequests = $this->getPullRequests($repoId);
+        $pullRequests = $this->getPullRequests($organization->username, $organization->token, $repoId);
 
         $branchNames = array_map(
             function ($pullRequest) {
@@ -531,6 +553,8 @@ class RepositoryController extends Controller
     }
 
     public function githubActionResult($repositoryId, $page, $date = null){
+        ini_set('max_execution_time', -1);
+
         $githubActionRuns = $this->getGithubActionRuns($repositoryId, $page, $date);
         foreach($githubActionRuns->workflow_runs as $key => $runs){
             $githubActionRuns->workflow_runs[$key]->failure_reason = "";
@@ -551,14 +575,18 @@ class RepositoryController extends Controller
     public function listAllPullRequests(Request $request)
     {
         if($request->ajax()) {
-            $repositories = GithubRepository::select('id', 'name')->where('id',  $request->repoId)->get();
+            ini_set('max_execution_time', -1);
+
+            $repositories = GithubRepository::where('id',  $request->repoId)->get();
             $allPullRequests = [];
             
             foreach ($repositories as $repository) {
-                $pullRequests = $this->getPullRequests($repository->id);
+                $organization = $repository->organization;
+                $pullRequests = $this->getPullRequests($organization->username, $organization->token, $repository->id);
+
                 foreach($pullRequests as $key =>  $pullRequest){
                     //Need to execute the detail API as we require the mergeable_state which is only return in the PR detail API.
-                    $pr = $this->getPullRequestDetail($repository->id,$pullRequest['id']);
+                    $pr = $this->getPullRequestDetail($organization->username, $organization->token, $repository->id, $pullRequest['id']);
                     $pullRequests[$key]['mergeable_state'] = $pr['mergeable_state'];
                     $pullRequests[$key]['conflict_exist'] = $pr['mergeable_state'] == "dirty" ? true : false;
                 }

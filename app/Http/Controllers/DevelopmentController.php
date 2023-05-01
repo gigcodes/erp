@@ -78,6 +78,16 @@ class DevelopmentController extends Controller
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
+    private function connectGithubClient($userName, $token)
+    {
+        $githubClientObj = new Client([
+                // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+                'auth' => [$userName, $token],
+            ]);
+
+        return $githubClientObj;
+    }
+
     /*public function index_bkup(Request $request)
     {
         // Set required data
@@ -1914,11 +1924,20 @@ class DevelopmentController extends Controller
     {
         $newBranchName = 'DEVTASK-'.$taskId;
 
+        $githubRepository  = GithubRepository::find($repositoryId);
+        $organization = $githubRepository->organization;
+
+        if(empty($organization)){
+            return false;
+        }
+        
+        $githubClientObj = $this->connectGithubClient($organization->username, $organization->token);
+        
         // get the master branch SHA
         // https://api.github.com/repositories/:repoId/branches/master
         $url = 'https://api.github.com/repositories/'.$repositoryId.'/branches/'.$branchName;
         try {
-            $response = $this->githubClient->get($url);
+            $response = $githubClientObj->get($url);
             $masterSha = json_decode($response->getBody()->getContents())->commit->sha;
         } catch (Exception $e) {
             return false;
@@ -1928,7 +1947,7 @@ class DevelopmentController extends Controller
         // https://api.github.com/repositories/:repo/git/refs
         $url = 'https://api.github.com/repositories/'.$repositoryId.'/git/refs';
         try {
-            $this->githubClient->post(
+            $githubClientObj->post(
                 $url,
                 [
                     RequestOptions::BODY => json_encode([

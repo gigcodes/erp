@@ -226,14 +226,18 @@
 <script>
     var defaultRepositoryId = '{{ $defaultRepositoryId }}';
     
-    getRepositories();
-
-    $('#repository_id').on('select2:select', function (e) {
+    $(document).on("change", "#organizationId", function() {
         getRepositories();
     });
 
     function getRepositories(){
-        $('#repository_id').select2('destroy');
+        var isSelect2Destroy = 0;
+
+        if ($('#repository_id').data('select2')){
+            $('#repository_id').select2('destroy');
+            isSelect2Destroy = 1;
+        }
+
         var repos = $.parseJSON($('#organizationId option:selected').attr('data-repos'));
 
         $('#repository_id').empty();
@@ -244,8 +248,12 @@
             $.each(repos, function (k, v){
                 $('#repository_id').append('<option value="'+v.id+'" '+(defaultRepositoryId == v.id ? 'selected' : '')+'>'+v.name+'</option>');
             });
+        }
 
+        if (isSelect2Destroy == 1){
             $('#repository_id').select2();
         }
     }
+
+    getRepositories();
 </script>

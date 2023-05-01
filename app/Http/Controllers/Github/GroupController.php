@@ -217,7 +217,7 @@ class GroupController extends Controller
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
         
-        // $githubClient->delete($url);
+        $githubClient->delete($url);
 
         GithubGroupMember::where('github_groups_id', $groupId)->where('github_users_id', $userId)->delete();
 

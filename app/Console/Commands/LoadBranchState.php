@@ -101,7 +101,7 @@ class LoadBranchState extends Command
                                 'branch_name' => $branchName,
                             ],
                             [
-                                'github_organization_id' => $organizationId,
+                                'github_organization_id' => $organization->id,
                                 'repository_id' => $repoId,
                                 'branch_name' => $branchName,
                                 'ahead_by' => $comparison['ahead_by'],
