@@ -3211,6 +3211,9 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('google-docs.index') }}">Google
                                                 Docs</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google-drive-screencast.index') }}">Google Drive Screencast</a>
+                                        </li>
                                         <li class="nav-item">
                                             <a class="dropdown-item"
                                                 href="{{ url('/google-traslation-settings') }}">Google Translator
