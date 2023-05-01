@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\TwilioHelper;
 use App\Voip\Twilio;
+use App\Helpers\TwilioHelper;
 use Illuminate\Console\Command;
 
 class TwilioErrors extends Command
@@ -47,12 +47,12 @@ class TwilioErrors extends Command
                 $call_history = \App\TwilioCallData::where(['account_sid' => $_error->account_id])->get();
                 if ($call_history) {
                     foreach ($call_history as $_history) {
-                        $url = 'https://api.twilio.com/2010-04-01/Accounts/'.$_error->account_id.'/Calls/'.$_history->call_sid.'/Notifications.json';
+                        $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $_error->account_id . '/Calls/' . $_history->call_sid . '/Notifications.json';
                         $result = TwilioHelper::curlGetRequest($url, $_error->account_id, $_error->auth_token);
                         $result = json_decode($result);
                         if ($result) {
                             if (isset($result->notifications) && count($result->notifications)) {
-                                foreach($result->notifications as $notification) {
+                                foreach ($result->notifications as $notification) {
                                     $input['sid'] = $notification->sid;
                                     $input['account_sid'] = $notification->account_sid;
                                     $input['call_sid'] = $notification->call_sid;

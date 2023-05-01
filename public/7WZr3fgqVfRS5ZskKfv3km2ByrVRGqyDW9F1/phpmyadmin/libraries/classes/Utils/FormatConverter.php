@@ -7,15 +7,15 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Utils;
 
-use function bin2hex;
-use function hex2bin;
-use function inet_ntop;
-use function inet_pton;
-use function ip2long;
-use function long2ip;
-use PhpMyAdmin\Util;
 use function strpos;
 use function substr;
+use PhpMyAdmin\Util;
+use function bin2hex;
+use function hex2bin;
+use function ip2long;
+use function long2ip;
+use function inet_ntop;
+use function inet_pton;
 
 /**
  * Format converter
@@ -54,7 +54,7 @@ class FormatConverter
     {
         $val = @inet_pton($buffer);
         if ($val !== false) {
-            return '0x'.bin2hex($val);
+            return '0x' . bin2hex($val);
         }
 
         return $buffer;

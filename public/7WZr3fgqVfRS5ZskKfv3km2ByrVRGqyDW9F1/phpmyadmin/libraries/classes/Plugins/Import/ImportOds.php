@@ -12,23 +12,23 @@ namespace PhpMyAdmin\Plugins\Import;
 
 use function __;
 use function count;
-use function implode;
-use const LIBXML_COMPACT;
-use function libxml_disable_entity_loader;
-use const PHP_VERSION_ID;
-use PhpMyAdmin\File;
-use PhpMyAdmin\Import;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\Plugins\ImportPlugin;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
-use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
-use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
-use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
 use function rtrim;
-use function simplexml_load_string;
-use SimpleXMLElement;
 use function strcmp;
 use function strlen;
+use PhpMyAdmin\File;
+use function implode;
+use SimpleXMLElement;
+use PhpMyAdmin\Import;
+use PhpMyAdmin\Message;
+use const LIBXML_COMPACT;
+use const PHP_VERSION_ID;
+use function simplexml_load_string;
+use PhpMyAdmin\Plugins\ImportPlugin;
+use function libxml_disable_entity_loader;
+use PhpMyAdmin\Properties\Options\Items\BoolPropertyItem;
+use PhpMyAdmin\Properties\Plugins\ImportPluginProperties;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyMainGroup;
+use PhpMyAdmin\Properties\Options\Groups\OptionsPropertyRootGroup;
 
 /**
  * Handles the import for the ODS format
@@ -62,8 +62,8 @@ class ImportOds extends ImportPlugin
             'col_names',
             __(
                 'The first line of the file contains the table column names'
-                .' <i>(if this is unchecked, the first line will become part'
-                .' of the data)</i>'
+                . ' <i>(if this is unchecked, the first line will become part'
+                . ' of the data)</i>'
             )
         );
         $generalOptions->addProperty($leaf);

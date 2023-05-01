@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\CaseReceivable;
-use App\Events\CaseReceivableCreated;
 use App\Helpers;
 use App\LegalCase;
+use App\CaseReceivable;
 use Illuminate\Http\Request;
+use App\Events\CaseReceivableCreated;
 
 class CaseReceivableController extends Controller
 {

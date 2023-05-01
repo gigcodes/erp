@@ -19,8 +19,8 @@ $params = [
     'response' => $response,
     'status' => $status,
 ];
-file_put_contents(__DIR__.'/log.txt', json_encode($params));
-file_put_contents(__DIR__.'/status.txt', json_encode($status));
-file_put_contents(__DIR__.'/response.txt', json_encode($response));
+file_put_contents(__DIR__ . '/log.txt', json_encode($params));
+file_put_contents(__DIR__ . '/status.txt', json_encode($status));
+file_put_contents(__DIR__ . '/response.txt', json_encode($response));
 
 curl_close($curl);

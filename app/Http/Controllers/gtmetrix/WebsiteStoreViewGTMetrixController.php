@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\gtmetrix;
 
-use App\GTMetrixCategories;
-use App\Http\Controllers\Controller;
-use App\Repositories\GtMatrixRepository;
 use App\Setting;
-use App\StoreGTMetrixAccount;
-use App\StoreViewsGTMetrix;
-use App\StoreViewsGTMetrixUrl;
 use App\StoreWebsite;
 use App\WebsiteStoreView;
-use Entrecore\GTMetrixClient\GTMetrixClient;
+use App\GTMetrixCategories;
+use App\StoreViewsGTMetrix;
 use Illuminate\Http\Request;
+use App\StoreGTMetrixAccount;
 use Illuminate\Http\Response;
+use App\StoreViewsGTMetrixUrl;
 use Illuminate\Support\Carbon;
+use App\Http\Controllers\Controller;
+use App\Repositories\GtMatrixRepository;
+use Entrecore\GTMetrixClient\GTMetrixClient;
 
 class WebsiteStoreViewGTMetrixController extends Controller
 {
@@ -39,7 +39,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
         if (request('keyword')) {
             $query->where(function ($q) use ($columns) {
                 foreach ($columns as $column) {
-                    $q->orWhere('store_views_gt_metrix.'.$column, 'LIKE', '%'.request('keyword').'%');
+                    $q->orWhere('store_views_gt_metrix.' . $column, 'LIKE', '%' . request('keyword') . '%');
                 }
             });
         }
@@ -77,7 +77,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                 return response()->json(['code' => 200, 'message' => 'Record Deleted Successfully']);
             } catch (\Exception $e) {
-                return response()->json(['code' => 500, 'message' => 'Error :'.$e->getMessage()]);
+                return response()->json(['code' => 500, 'message' => 'Error :' . $e->getMessage()]);
             }
         }
     }
@@ -105,7 +105,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                 return response()->json(['code' => 200, 'message' => 'Processed Successfully']);
             } catch (\Exception $e) {
-                return response()->json(['code' => 500, 'message' => 'Error :'.$e->getMessage()]);
+                return response()->json(['code' => 500, 'message' => 'Error :' . $e->getMessage()]);
             }
         } else {
             $storename = '';
@@ -146,7 +146,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
             $query->whereDate('store_views_gt_metrix_url.created_at', request('date'));
         }
         if (request('website_url') and request('website_url') != null) {
-            $query->where('store_views_gt_metrix_url.website_url', 'like', '%'.request('website_url').'%');
+            $query->where('store_views_gt_metrix_url.website_url', 'like', '%' . request('website_url') . '%');
         }
         if (request('process') and request('process') != null) {
             $process = (request('process') == 'yes') ? 1 : 0;
@@ -301,7 +301,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                     curl_setopt_array($curl, [
                         CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_USERPWD => $gtmatrixAccountData->account_id.':'.'',
+                        CURLOPT_USERPWD => $gtmatrixAccountData->account_id . ':' . '',
                         CURLOPT_ENCODING => '',
                         CURLOPT_MAXREDIRS => 10,
                         CURLOPT_TIMEOUT => 0,
@@ -339,7 +339,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         curl_setopt_array($curl, [
                             CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                             CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_USERPWD => $value['account_id'].':'.'',
+                            CURLOPT_USERPWD => $value['account_id'] . ':' . '',
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
                             CURLOPT_TIMEOUT => 0,
@@ -387,7 +387,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 // ];
                 // $gtmetrix->update($update);
             } catch (\Exception $e) {
-                return response()->json(['code' => 500, 'message' => 'Error :'.$e->getMessage()]);
+                return response()->json(['code' => 500, 'message' => 'Error :' . $e->getMessage()]);
             }
         }
     }
@@ -421,7 +421,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $title = 'PageSpeed';
                 $typeData['type'] = 'GT Metrix';
                 if (! empty($value['pagespeed_json'])) {
-                    $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
+                    $pagespeeddata = strip_tags(file_get_contents(public_path() . $value['pagespeed_json']));
                     $jsondata = json_decode($pagespeeddata, true);
                     foreach ($jsondata['rules'] as $key => $pagespeed) {
                         $data[$key]['name'] = $pagespeed['name'];
@@ -437,7 +437,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $title = 'PageSpeed';
                 $InsightTypeData['type'] = 'PageSpeed Insight';
                 if (! empty($value['pagespeed_insight_json'])) {
-                    $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$value['pagespeed_insight_json']));
+                    $pagespeedInsightdata = strip_tags(file_get_contents(public_path() . $value['pagespeed_insight_json']));
                     $jsondata = json_decode($pagespeedInsightdata, true);
                     foreach ($jsondata['lighthouseResult']['audits'] as $key => $pagespeed) {
                         $Insightdata[$key]['name'] = $pagespeed['id'];
@@ -454,11 +454,11 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $title = 'YSlow';
                 if (! empty($value['yslow_json'])) {
                     $typeData['type'] = 'YSlow';
-                    $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
+                    $yslowdata = strip_tags(file_get_contents(public_path() . $value['yslow_json']));
                     $jsondata = json_decode($yslowdata, true);
                     $i = 0;
                     foreach ($jsondata['g'] as $key => $yslow) {
-                        $data[$i]['name'] = trans('lang.'.$key);
+                        $data[$i]['name'] = trans('lang.' . $key);
                         if (isset($yslow['score'])) {
                             $data[$i]['score'] = $yslow['score'];
                         } else {
@@ -484,7 +484,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
         if ($PageResourcedata) {
             foreach ($PageResourcedata as $value) {
                 if (! empty($value['pagespeed_json'])) {
-                    $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
+                    $pagespeeddata = strip_tags(file_get_contents(public_path() . $value['pagespeed_json']));
                     $jsondata = json_decode($pagespeeddata, true);
                     foreach ($jsondata['rules'] as $key => $pagespeed) {
                         if (! isset($page_data[$pagespeed['name']])) {
@@ -502,17 +502,17 @@ class WebsiteStoreViewGTMetrixController extends Controller
         if ($YslowResourcedata) {
             foreach ($PageResourcedata as $value) {
                 if (! empty($value['yslow_json'])) {
-                    $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
+                    $yslowdata = strip_tags(file_get_contents(public_path() . $value['yslow_json']));
                     $jsondata = json_decode($yslowdata, true);
                     $i = 0;
                     foreach ($jsondata['g'] as $key => $yslow) {
-                        if (! isset($yslow_data[trans('lang.'.$key)])) {
-                            $yslow_data[trans('lang.'.$key)] = [];
+                        if (! isset($yslow_data[trans('lang.' . $key)])) {
+                            $yslow_data[trans('lang.' . $key)] = [];
                         }
                         if (isset($yslow['score'])) {
-                            $yslow_data[trans('lang.'.$key)][] = $yslow['score'];
+                            $yslow_data[trans('lang.' . $key)][] = $yslow['score'];
                         } else {
-                            $yslow_data[trans('lang.'.$key)][] = 'NA';
+                            $yslow_data[trans('lang.' . $key)][] = 'NA';
                         }
                     }
                 }
@@ -547,7 +547,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         curl_setopt_array($curl, [
                             CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                             CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_USERPWD => $gtmatrixAccountData->account_id.':'.'',
+                            CURLOPT_USERPWD => $gtmatrixAccountData->account_id . ':' . '',
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
                             CURLOPT_TIMEOUT => 0,
@@ -585,7 +585,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             curl_setopt_array($curl, [
                                 CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                                 CURLOPT_RETURNTRANSFER => true,
-                                CURLOPT_USERPWD => $value['account_id'].':'.'',
+                                CURLOPT_USERPWD => $value['account_id'] . ':' . '',
                                 CURLOPT_ENCODING => '',
                                 CURLOPT_MAXREDIRS => 10,
                                 CURLOPT_TIMEOUT => 0,
@@ -618,7 +618,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         }
                     }
                 } catch (\Exception $e) {
-                    return response()->json(['code' => 500, 'message' => 'Error :'.$e->getMessage()]);
+                    return response()->json(['code' => 500, 'message' => 'Error :' . $e->getMessage()]);
                 }
             }
         }
@@ -632,7 +632,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
         if ($request->ajax()) {
             $items = GTMetrixCategories::select('id', 'name', 'source');
             if (isset($request->name) && ! empty($request->name)) {
-                $items->where('name', 'Like', '%'.$request->name.'%');
+                $items->where('name', 'Like', '%' . $request->name . '%');
             }
 
             if (isset($request->source) && ! empty($request->source)) {
@@ -652,7 +652,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
             $items = StoreViewsGTMetrix::where('status', 'completed');
 
             if (isset($request->website_url) && ! empty($request->website_url)) {
-                $items->where('website_url', 'Like', '%'.$request->name.'%');
+                $items->where('website_url', 'Like', '%' . $request->name . '%');
             }
 
             if (isset($request->test_id) && ! empty($request->test_id)) {
@@ -683,7 +683,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
         if ($id) {
             $g_typeData['type'] = 'PageSpeed';
             if (! empty($resourcedata['pagespeed_json'])) {
-                $pagespeeddata = strip_tags(file_get_contents(public_path().$resourcedata['pagespeed_json']));
+                $pagespeeddata = strip_tags(file_get_contents(public_path() . $resourcedata['pagespeed_json']));
                 $jsondata = json_decode($pagespeeddata, true);
                 foreach ($jsondata['rules'] as $key => $pagespeed) {
                     $pagespeedData[$key]['name'] = $pagespeed['name'];
@@ -704,7 +704,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
         if ($id) {
             $InsightTypeData['type'] = 'PageSpeed Insight';
             if (! empty($resourcedata['pagespeed_insight_json'])) {
-                $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$resourcedata['pagespeed_insight_json']));
+                $pagespeedInsightdata = strip_tags(file_get_contents(public_path() . $resourcedata['pagespeed_insight_json']));
                 $jsondata = json_decode($pagespeedInsightdata, true);
                 foreach ($jsondata['lighthouseResult']['audits'] as $key => $pagespeed) {
                     $Insightdata[$key]['name'] = $pagespeed['id'];
@@ -733,11 +733,11 @@ class WebsiteStoreViewGTMetrixController extends Controller
         }
         if (! empty($resourcedata['yslow_json'])) {
             $y_typeData['type'] = 'YSlow';
-            $yslowdata = strip_tags(file_get_contents(public_path().$resourcedata['yslow_json']));
+            $yslowdata = strip_tags(file_get_contents(public_path() . $resourcedata['yslow_json']));
             $jsondata = json_decode($yslowdata, true);
             $i = 0;
             foreach ($jsondata['g'] as $key => $yslow) {
-                $yslowData[$i]['name'] = trans('lang.'.$key);
+                $yslowData[$i]['name'] = trans('lang.' . $key);
                 if (isset($yslow['score'])) {
                     $yslowData[$i]['score'] = $yslow['score'];
                 } else {
@@ -764,9 +764,9 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                 $catScrore = [];
                 $catImpact = [];
-                if (! empty($datar['pagespeed_json']) && is_file(public_path().$datar['pagespeed_json'])) {
+                if (! empty($datar['pagespeed_json']) && is_file(public_path() . $datar['pagespeed_json'])) {
                     //if(){
-                    $pagespeeddata1 = strip_tags(file_get_contents(public_path().$datar['pagespeed_json']));
+                    $pagespeeddata1 = strip_tags(file_get_contents(public_path() . $datar['pagespeed_json']));
                     $jsondata = json_decode($pagespeeddata1, true);
                     //dd($jsondata['rules']);
                     if (is_array($jsondata) && ! empty($jsondata['rules'])) {
@@ -795,8 +795,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                 $InsightTypeData['type'] = 'PageSpeed Insight';
                 if (! empty($datar['pagespeed_insight_json'])) {
-                    if (is_file(public_path().$datar['pagespeed_insight_json'])) {
-                        $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$datar['pagespeed_insight_json']));
+                    if (is_file(public_path() . $datar['pagespeed_insight_json'])) {
+                        $pagespeedInsightdata = strip_tags(file_get_contents(public_path() . $datar['pagespeed_insight_json']));
                         $jsondata = json_decode($pagespeedInsightdata, true);
                         if (is_array($jsondata) && ! empty($jsondata['lighthouseResult']['audits'])) {
                             foreach ($jsondata['lighthouseResult']['audits'] as $key => $pagespeed) {
@@ -833,8 +833,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                 if (! empty($datar['yslow_json'])) {
                     $y_typeData['type'] = 'YSlow';
-                    if (is_file(public_path().$datar['yslow_json'])) {
-                        $yslowdata = strip_tags(file_get_contents(public_path().$datar['yslow_json']));
+                    if (is_file(public_path() . $datar['yslow_json'])) {
+                        $yslowdata = strip_tags(file_get_contents(public_path() . $datar['yslow_json']));
                         $jsondata = json_decode($yslowdata, true);
                         if (is_array($jsondata) && ! empty($jsondata['g'])) {
                             $i = 0;
@@ -842,7 +842,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                                 //$iKey++;
                                 $inc++;
                                 //$pagespeedData['name'][$inc] = trans('lang.'.$key);
-                                $catName[] = trans('lang.'.$key);
+                                $catName[] = trans('lang.' . $key);
                                 if (isset($yslow['score'])) {
                                     //$pagespeedData['website'][$iKey][$inc]['score'] = $yslow['score'];
                                     $catScrore[] = $yslow['score'];
@@ -876,7 +876,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                 return response()->json(['code' => 200, 'message' => 'Record Pushed to Queue']);
             } catch (\Exception $e) {
-                return response()->json(['code' => 500, 'message' => 'Error :'.$e->getMessage()]);
+                return response()->json(['code' => 500, 'message' => 'Error :' . $e->getMessage()]);
             }
         }
     }

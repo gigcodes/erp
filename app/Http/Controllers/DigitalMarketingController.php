@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Email;
+use Illuminate\Http\Request;
 use App\DigitalMarketingPlatform;
 use App\DigitalMarketingPlatformFile;
 use App\DigitalMarketingSolutionFile;
-use App\Email;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class DigitalMarketingController extends Controller
@@ -56,7 +56,7 @@ class DigitalMarketingController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -81,7 +81,6 @@ class DigitalMarketingController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -100,7 +99,7 @@ class DigitalMarketingController extends Controller
         $fileNameArray = [];
         foreach ($files as $key => $file) {
             //echo $file->getClientOriginalName();
-            $fileName = time().$key.'.'.$file->extension();
+            $fileName = time() . $key . '.' . $file->extension();
             $fileNameArray[] = $fileName;
             //echo $request->id;
             if ($request->type == 'marketing') {
@@ -119,7 +118,6 @@ class DigitalMarketingController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -198,7 +196,7 @@ class DigitalMarketingController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -259,7 +257,7 @@ class DigitalMarketingController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -350,7 +348,7 @@ class DigitalMarketingController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -411,7 +409,7 @@ class DigitalMarketingController extends Controller
         $records['id'] = $id;
         $records['components'] = \App\DigitalMarketingPlatformFile::where('digital_marketing_platform_id', $id)->get()->transform(function ($files) {
             // $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
-            $files->downloadUrl = config('env.APP_URL').'/digital_marketing/'.$files->file_name;
+            $files->downloadUrl = config('env.APP_URL') . '/digital_marketing/' . $files->file_name;
             $files->user = \App\User::find($files->user_id)->name;
 
             return $files;
@@ -426,7 +424,7 @@ class DigitalMarketingController extends Controller
         $records['id'] = $id;
         $records['components'] = \App\DigitalMarketingSolutionFile::where('digital_marketing_solution_id', $id)->get()->transform(function ($files) {
             // $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
-            $files->downloadUrl = config('env.APP_URL').'/digital_marketing/'.$files->file_name;
+            $files->downloadUrl = config('env.APP_URL') . '/digital_marketing/' . $files->file_name;
             $files->user = \App\User::find($files->user_id)->name;
 
             return $files;

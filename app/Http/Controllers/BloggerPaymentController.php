@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Blogger;
-use App\BloggerPayment;
-use App\Events\BloggerPaymentCreated;
 use App\Helpers;
+use App\BloggerPayment;
 use Illuminate\Http\Request;
+use App\Events\BloggerPaymentCreated;
 
 class BloggerPaymentController extends Controller
 {

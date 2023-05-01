@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\DailyActivity;
-use App\Mails\Manual\SendDailyActivityReport;
 use App\Task;
 use App\User;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\DailyActivity;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use App\Mails\Manual\SendDailyActivityReport;
 
 class SendDailyPlannerReport extends Command
 {

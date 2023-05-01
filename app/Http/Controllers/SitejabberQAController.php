@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Account;
-use App\ActivitiesRoutines;
-use App\BrandReviews;
-use App\NegativeReviews;
-use App\QuickReply;
 use App\Review;
+use App\Account;
 use App\Setting;
+use App\QuickReply;
+use App\BrandReviews;
 use App\SitejabberQA;
 use GuzzleHttp\Client;
+use App\NegativeReviews;
+use App\ActivitiesRoutines;
 use Illuminate\Http\Request;
 
 class SitejabberQAController extends Controller
@@ -41,7 +41,6 @@ class SitejabberQAController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      * STore the question for the sitejabber
      */
@@ -64,7 +63,6 @@ class SitejabberQAController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\SitejabberQA  $sitejabberQA
      * @return \Illuminate\Http\Response
      */
     public function show(SitejabberQA $sitejabberQA)
@@ -116,7 +114,6 @@ class SitejabberQAController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\SitejabberQA  $sitejabberQA
      * @return \Illuminate\Http\Response
      * Updates the Sitejabber question answer reply..
@@ -140,7 +137,6 @@ class SitejabberQAController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SitejabberQA  $sitejabberQA
      * @return \Illuminate\Http\Response
      */
     public function destroy(SitejabberQA $sitejabberQA)
@@ -149,7 +145,6 @@ class SitejabberQAController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
      * This method will simply give all the list of the accounts which falls under the platform sitejabber
      * ALso there are filters for different status for reviews and account itslef which is clearly
@@ -164,7 +159,7 @@ class SitejabberQAController extends Controller
         }
 
         $negativeReviews = NegativeReviews::all();
-        $reviewsPostedToday = Review::whereIn('status', ['posted', 'posted_one'])->whereRaw('DATE(updated_at) = "'.date('Y-m-d').'"')->get();
+        $reviewsPostedToday = Review::whereIn('status', ['posted', 'posted_one'])->whereRaw('DATE(updated_at) = "' . date('Y-m-d') . '"')->get();
         $accounts = Account::where('platform', 'sitejabber');
 
         if ($date !== null) {
@@ -241,7 +236,6 @@ class SitejabberQAController extends Controller
     }
 
     /**
-     * @param $id
      * @return \Illuminate\Http\RedirectResponse
      * Attach reviews to the account which can be posted, and marks the review from review bank as used
      */
@@ -265,7 +259,6 @@ class SitejabberQAController extends Controller
     }
 
     /**
-     * @param $id
      * @return \Illuminate\Http\RedirectResponse
      * Delets the brand reviews..
      */
@@ -279,7 +272,6 @@ class SitejabberQAController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      * The action can be attached/ detached, as per the action value the review is atatched or detached if already attached
      */
@@ -322,7 +314,6 @@ class SitejabberQAController extends Controller
     }
 
     /**
-     * @param $id
      * @return \Illuminate\Http\RedirectResponse
      * This method will comply confirm the review as posted, setting the status to 'posted' status
      */
@@ -336,8 +327,6 @@ class SitejabberQAController extends Controller
     }
 
     /**
-     * @param  Request  $request
-     * @param  Client  $client
      * @return \Illuminate\Http\JsonResponse
      * This method sends the code to post reply to nodejs server, the IP is there which can be changed over time.
      */

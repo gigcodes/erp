@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\Meetings\ZoomMeetings;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SaveZoomMeetingRecordings extends Command
@@ -58,7 +58,7 @@ class SaveZoomMeetingRecordings extends Command
             $date = Carbon::now();
             $meetings->saveRecordings($zoomKey, $zoomSecret, $date, $zoommeetingid, $zoomuserid);
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {                   
+        } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
         exit('Data inserted in db..Now, you can check meetings screen');

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Complaint;
-use App\ComplaintThread;
-use App\StatusChange;
 use Auth;
+use Storage;
+use App\Complaint;
+use App\StatusChange;
+use App\ComplaintThread;
 use Illuminate\Http\Request;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Storage;
 
 class ThreadController extends Controller
 {
@@ -40,7 +40,6 @@ class ThreadController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -108,7 +107,6 @@ class ThreadController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

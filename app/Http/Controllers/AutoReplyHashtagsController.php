@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\AutoCommentHistory;
 use App\AutoReplyHashtags;
+use App\AutoCommentHistory;
 //use App\InstagramAutoComments;
 //use App\Services\Instagram\Hashtags;
 use Illuminate\Http\Request;
@@ -37,7 +37,6 @@ class AutoReplyHashtagsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -88,7 +87,7 @@ class AutoReplyHashtagsController extends Controller
 
             [$medias, $maxId] = $hashtags->getFeed($tag, $maxId[$tag] ?? '', $country, $keywords);
             $media_count = $hashtags->getMediaCount($tag);
-            $alltagsWithCount[] = $tag."($media_count)";
+            $alltagsWithCount[] = $tag . "($media_count)";
             $allCounts[$tag] = $media_count;
             $maxIds[$tag] = $maxId;
             $allMedias = array_merge($allMedias, $medias);
@@ -106,7 +105,6 @@ class AutoReplyHashtagsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\AutoReplyHashtags  $autoReplyHashtags
      * @return \Illuminate\Http\Response
      */
     public function edit(AutoReplyHashtags $autoReplyHashtags)
@@ -117,7 +115,6 @@ class AutoReplyHashtagsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\AutoReplyHashtags  $autoReplyHashtags
      * @return \Illuminate\Http\Response
      */
@@ -131,18 +128,18 @@ class AutoReplyHashtagsController extends Controller
 
         foreach ($medias as $media) {
             $h = new AutoCommentHistory();
-            $h->target = $request->get('hashtag_'.$media);
-            $h->post_code = $request->get('code_'.$media);
+            $h->target = $request->get('hashtag_' . $media);
+            $h->post_code = $request->get('code_' . $media);
             $h->post_id = $media;
-            $h->caption = $request->get('caption_'.$media);
-            $h->gender = $request->get('gender_'.$media);
+            $h->caption = $request->get('caption_' . $media);
+            $h->gender = $request->get('gender_' . $media);
             $h->auto_reply_hashtag_id = 1;
             $h->country = strlen($request->get('country')) > 4 ? $request->get('country') : '';
             $h->status = 0;
             $h->save();
 
             $caption = $h->caption;
-            $caption = str_replace(['#', '@', '!', '-'.'/'], ' ', $caption);
+            $caption = str_replace(['#', '@', '!', '-' . '/'], ' ', $caption);
             $caption = explode(' ', $caption);
 
 //            $comment = InstagramAutoComments::where(function($query) use($caption) {
@@ -174,7 +171,6 @@ class AutoReplyHashtagsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\AutoReplyHashtags  $autoReplyHashtags
      * @return \Illuminate\Http\Response
      */
     public function destroy(AutoReplyHashtags $autoReplyHashtags)

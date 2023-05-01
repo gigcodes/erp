@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\AssetsManager;
 use App\CashFlow;
+use App\AssetsManager;
 use Illuminate\Console\Command;
 
 class AssetsManagerDueDatePayment extends Command
@@ -54,7 +54,7 @@ class AssetsManagerDueDatePayment extends Command
                 //create entry in table cash_flows
                 CashFlow::create(
                     [
-                        'description' => 'Asset Manager Payment for id '.$result->name,
+                        'description' => 'Asset Manager Payment for id ' . $result->name,
                         'date' => date('Y-m-d'),
                         'amount' => $result->amount,
                         'expected' => $result->amount,

@@ -2,21 +2,20 @@
 
 namespace App\Helpers;
 
-use App\GoogleAdsAccount;
-
 use Exception;
+
+use App\GoogleAdsAccount;
 use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
 use Google\Ads\GoogleAds\Lib\V13\GoogleAdsClientBuilder as GoogleAdsClientBuilderV13;
 
 class GoogleAdsHelper
 {
-    public static function getGoogleAdsClient($account_id){
-
+    public static function getGoogleAdsClient($account_id)
+    {
         $account = GoogleAdsAccount::find($account_id);
-        if (!is_null($account)) {
-           try {
-
+        if (! is_null($account)) {
+            try {
                 $clientId = $account->oauth2_client_id;
                 $clientSecret = $account->oauth2_client_secret;
                 $refreshToken = $account->oauth2_refresh_token;
@@ -38,29 +37,27 @@ class GoogleAdsHelper
                                     ->build();
 
                 return $googleAdsClient;
-           } catch (Exception $e) {
-
+            } catch (Exception $e) {
                 // Insert google ads log
-                $input = array(
-                            'type' => 'ERROR',
-                            'module' => 'Google Ads Client',
-                            'message' => 'Create google ads client > '. $e->getMessage(),
-                        );
+                $input = [
+                    'type' => 'ERROR',
+                    'module' => 'Google Ads Client',
+                    'message' => 'Create google ads client > ' . $e->getMessage(),
+                ];
                 insertGoogleAdsLog($input);
 
                 return redirect()->to('/google-campaigns/ads-account')->with('actError', 'Something went to wrong. Please check logs.');
-           }
+            }
         } else {
             return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please fill proper detail in your account.');
         }
     }
 
-    public static function getGoogleAdsClientV13($account_id){
-
+    public static function getGoogleAdsClientV13($account_id)
+    {
         $account = GoogleAdsAccount::find($account_id);
-        if (!is_null($account)) {
+        if (! is_null($account)) {
             try {
-
                 $clientId = $account->oauth2_client_id;
                 $clientSecret = $account->oauth2_client_secret;
                 $refreshToken = $account->oauth2_refresh_token;
@@ -84,11 +81,11 @@ class GoogleAdsHelper
                 return $googleAdsClient;
             } catch (Exception $e) {
                 // Insert google ads log
-                $input = array(
+                $input = [
                     'type' => 'ERROR',
                     'module' => 'Google Ads Client',
-                    'message' => 'Create google ads client > '. $e->getMessage(),
-                );
+                    'message' => 'Create google ads client > ' . $e->getMessage(),
+                ];
                 insertGoogleAdsLog($input);
 
                 return redirect()->to('/google-campaigns/ads-account')->with('actError', 'Something went to wrong. Please check logs.');

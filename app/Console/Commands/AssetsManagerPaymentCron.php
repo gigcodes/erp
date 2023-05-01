@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\AssetsManager;
 use App\CashFlow;
 use Carbon\Carbon;
+use App\AssetsManager;
 use Illuminate\Console\Command;
 
 class AssetsManagerPaymentCron extends Command
@@ -73,7 +73,7 @@ class AssetsManagerPaymentCron extends Command
             $q->whereDate('due_date', date('Y-m-d'))->orWhere('due_date', '=', '')->orWhereNull('due_date');
         })->get();
         if (count($results) == 0) {
-            return $this->info(' no record exist for '.$payment_cycle.' payments ');
+            return $this->info(' no record exist for ' . $payment_cycle . ' payments ');
         }
         $count = count($results);
         $i = 0;
@@ -82,7 +82,7 @@ class AssetsManagerPaymentCron extends Command
             //create entry in table cash_flows
             CashFlow::create(
                 [
-                    'description' => 'Asset Manager Payment for name '.$result->name,
+                    'description' => 'Asset Manager Payment for name ' . $result->name,
                     'date' => date('Y-m-d'),
                     'amount' => $result->amount,
                     'currency' => $result->currency,
@@ -109,7 +109,7 @@ class AssetsManagerPaymentCron extends Command
             }
         }
         if ($success == true) {
-            return $this->info($payment_cycle.' payment added to cashflow successfully ');
+            return $this->info($payment_cycle . ' payment added to cashflow successfully ');
         }
     }
 }

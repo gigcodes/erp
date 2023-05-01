@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Facebook\Facebook;
 use App\SocialTags;
 use Illuminate\Http\Request;
+use App\Services\Facebook\Facebook;
 
 class SocialTagsController extends Controller
 {
@@ -40,7 +40,6 @@ class SocialTagsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -89,7 +88,6 @@ class SocialTagsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

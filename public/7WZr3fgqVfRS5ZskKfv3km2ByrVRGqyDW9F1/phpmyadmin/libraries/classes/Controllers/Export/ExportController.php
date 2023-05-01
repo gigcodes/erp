@@ -5,36 +5,36 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Export;
 
 use function __;
-use function count;
-use function function_exists;
-use function in_array;
-use function ini_set;
-use function is_array;
-use function ob_end_clean;
-use function ob_get_length;
-use function ob_get_level;
 use const PHP_EOL;
-use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\Controllers\Database\ExportController as DatabaseExportController;
+use function time;
+use function count;
+use PhpMyAdmin\Url;
+use function strlen;
 use PhpMyAdmin\Core;
-use PhpMyAdmin\Encoding;
-use PhpMyAdmin\Exceptions\ExportException;
+use PhpMyAdmin\Util;
+use function ini_set;
+use function in_array;
+use function is_array;
 use PhpMyAdmin\Export;
-use PhpMyAdmin\Http\ServerRequest;
 use PhpMyAdmin\Message;
 use PhpMyAdmin\Plugins;
-use PhpMyAdmin\Plugins\ExportPlugin;
-use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Encoding;
 use PhpMyAdmin\Sanitize;
-use PhpMyAdmin\SqlParser\Parser;
-use PhpMyAdmin\SqlParser\Statements\SelectStatement;
-use PhpMyAdmin\SqlParser\Utils\Misc;
 use PhpMyAdmin\Template;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
+use function ob_end_clean;
+use function ob_get_level;
+use function ob_get_length;
+use function function_exists;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\SqlParser\Parser;
+use PhpMyAdmin\Http\ServerRequest;
+use PhpMyAdmin\Plugins\ExportPlugin;
+use PhpMyAdmin\SqlParser\Utils\Misc;
 use function register_shutdown_function;
-use function strlen;
-use function time;
+use PhpMyAdmin\Exceptions\ExportException;
+use PhpMyAdmin\Controllers\AbstractController;
+use PhpMyAdmin\SqlParser\Statements\SelectStatement;
+use PhpMyAdmin\Controllers\Database\ExportController as DatabaseExportController;
 
 final class ExportController extends AbstractController
 {
@@ -468,15 +468,15 @@ final class ExportController extends AbstractController
             }
 
             // Will we need relation & co. setup?
-            $do_relation = isset($GLOBALS[$what.'_relation']);
-            $do_comments = isset($GLOBALS[$what.'_include_comments'])
-                || isset($GLOBALS[$what.'_comments']);
-            $do_mime = isset($GLOBALS[$what.'_mime']);
+            $do_relation = isset($GLOBALS[$what . '_relation']);
+            $do_comments = isset($GLOBALS[$what . '_include_comments'])
+                || isset($GLOBALS[$what . '_comments']);
+            $do_mime = isset($GLOBALS[$what . '_mime']);
 
             // Include dates in export?
-            $do_dates = isset($GLOBALS[$what.'_dates']);
+            $do_dates = isset($GLOBALS[$what . '_dates']);
 
-            $whatStrucOrData = $GLOBALS[$what.'_structure_or_data'];
+            $whatStrucOrData = $GLOBALS[$what . '_structure_or_data'];
 
             if ($export_type === 'raw') {
                 $whatStrucOrData = 'raw';

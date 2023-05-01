@@ -1,1 +1,1 @@
-$.widget.bridge('uiTooltip', $.ui.tooltip);
+$.widget.bridge("uiTooltip", $.ui.tooltip);

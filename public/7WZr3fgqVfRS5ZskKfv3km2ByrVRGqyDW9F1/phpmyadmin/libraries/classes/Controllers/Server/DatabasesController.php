@@ -5,25 +5,25 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Server;
 
 use function __;
-use function array_keys;
-use function array_search;
 use function count;
+use PhpMyAdmin\Url;
+use function strlen;
+use PhpMyAdmin\Util;
 use function in_array;
-use function mb_strtolower;
+use function array_keys;
 use PhpMyAdmin\Charsets;
+use PhpMyAdmin\Template;
+use function array_search;
+use function str_contains;
+use function mb_strtolower;
+use PhpMyAdmin\Query\Utilities;
+use PhpMyAdmin\ReplicationInfo;
+use PhpMyAdmin\Transformations;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\CheckUserPrivileges;
 use PhpMyAdmin\ConfigStorage\RelationCleanup;
 use PhpMyAdmin\Controllers\AbstractController;
-use PhpMyAdmin\DatabaseInterface;
-use PhpMyAdmin\Query\Utilities;
-use PhpMyAdmin\ReplicationInfo;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
-use PhpMyAdmin\Transformations;
-use PhpMyAdmin\Url;
-use PhpMyAdmin\Util;
-use function str_contains;
-use function strlen;
 
 /**
  * Handles viewing and creating and deleting databases
@@ -210,7 +210,6 @@ class DatabasesController extends AbstractController
     /**
      * @param  array  $primaryInfo
      * @param  array  $replicaInfo
-     * @return array
      */
     private function getDatabases($primaryInfo, $replicaInfo): array
     {
@@ -295,8 +294,6 @@ class DatabasesController extends AbstractController
 
     /**
      * Prepares the statistics columns
-     *
-     * @return array
      */
     private function getStatisticsColumns(): array
     {

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Customer;
-use App\ReadOnly\SoloNumbers;
 use App\Setting;
+use App\Customer;
 use Illuminate\Http\Request;
+use App\ReadOnly\SoloNumbers;
 
 class QuickCustomerController extends Controller
 {
@@ -46,12 +46,12 @@ class QuickCustomerController extends Controller
             $customer = $customer->join('chat_messages as cm', 'cm.id', 'cmqs.last_communicated_message_id');
         } elseif ($type == 'last_received') {
             $chatMessagesWhere .= " and message != '' and message is not null and number = c.phone";
-            $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id '.$chatMessagesWhere.' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
+            $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id ' . $chatMessagesWhere . ' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
             $customer = $customer->leftJoin('chat_messages as cm', 'cm.id', '=', 'm_max.max_id');
 //            $customer = $customer->where('cm.id' != 0);
             $customer = $customer->orderBy('cm.created_at', 'desc');
         } elseif ($type == null) {
-            $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id '.$chatMessagesWhere.' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
+            $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id ' . $chatMessagesWhere . ' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
             $customer = $customer->leftJoin('chat_messages as cm', 'cm.id', '=', 'm_max.max_id');
             //$customer = $customer->whereNotNull('cm.id');
         }
@@ -61,7 +61,7 @@ class QuickCustomerController extends Controller
         }
 
         if ($request->customer_name != null) {
-            $customer = $customer->where('customers.name', 'like', '%'.$request->customer_name.'%');
+            $customer = $customer->where('customers.name', 'like', '%' . $request->customer_name . '%');
         }
 
         if ($request->next_action != null) {

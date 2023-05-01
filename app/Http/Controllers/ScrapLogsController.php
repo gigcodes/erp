@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\DatabaseLog;
-use App\SlowLogsEnableDisable;
-use Carbon\Carbon;
 use File;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Response;
+use Carbon\Carbon;
+use App\DatabaseLog;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\SlowLogsEnableDisable;
+use Illuminate\Support\Facades\DB;
 
 class ScrapLogsController extends Controller
 {
@@ -88,12 +88,12 @@ class ScrapLogsController extends Controller
 
             // if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 
-            if (((end($day_of_file) == $date) || (isset($day_of_file[1]) and strtolower($day_of_file[1]) == strtolower($date.$month))) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+            if (((end($day_of_file) == $date) || (isset($day_of_file[1]) and strtolower($day_of_file[1]) == strtolower($date . $month))) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
                 if (! in_array($val->getRelativepath(), $serverArray)) {
                     continue;
                 }
 
-                $file_path_new = env('SCRAP_LOGS_FOLDER').'/'.$val->getRelativepath().'/'.$val->getFilename();
+                $file_path_new = env('SCRAP_LOGS_FOLDER') . '/' . $val->getRelativepath() . '/' . $val->getFilename();
                 //$file_path_new = storage_path(config('env.SCRAP_LOGS_FOLDER'))."/".$val->getRelativepath()."/".$val->getFilename();
 
                 $file = file($file_path_new);
@@ -141,7 +141,7 @@ class ScrapLogsController extends Controller
         //config
         if (strtolower(request('download')) == 'yes') {
             $nameF = 'scraper-log-temp-file.txt';
-            $namefile = storage_path().'/logs/'.$nameF;
+            $namefile = storage_path() . '/logs/' . $nameF;
             $content = implode("\n", $lines);
 
             //save file
@@ -150,7 +150,7 @@ class ScrapLogsController extends Controller
             fclose($file);
 
             //header download
-            header('Content-Disposition: attachment; filename="'.$nameF.'"');
+            header('Content-Disposition: attachment; filename="' . $nameF . '"');
             header('Content-Type: application/force-download');
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
@@ -182,7 +182,7 @@ class ScrapLogsController extends Controller
             $day_of_file = explode('-', $val->getFilename());
             if (Str::contains(end($day_of_file), sprintf('%02d', $date - 1)) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
                 // $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
-                $file_path_new = config('env.SCRAP_LOGS_FOLDER').'/'.$val->getRelativepath().'/'.$val->getFilename();
+                $file_path_new = config('env.SCRAP_LOGS_FOLDER') . '/' . $val->getRelativepath() . '/' . $val->getFilename();
 
                 $file = file($file_path_new);
                 $log_msg = '';
@@ -287,7 +287,7 @@ class ScrapLogsController extends Controller
     public function fileView($filename, $foldername)
     {
         // $path = env('SCRAP_LOGS_FOLDER') . '/' . $foldername . '/' . $filename;
-        $path = config('env.SCRAP_LOGS_FOLDER').'/'.$foldername.'/'.$filename;
+        $path = config('env.SCRAP_LOGS_FOLDER') . '/' . $foldername . '/' . $filename;
 
         return response()->file($path);
     }
@@ -305,7 +305,7 @@ class ScrapLogsController extends Controller
         $databaseLogs = DatabaseLog::orderBy('created_at', 'desc');
         $logBtn = SlowLogsEnableDisable::orderBy('id', 'desc')->first();
         if ($request->search) {
-            $databaseLogs = $databaseLogs->where('log_message', 'Like', '%'.$search.'%')->paginate(25);
+            $databaseLogs = $databaseLogs->where('log_message', 'Like', '%' . $search . '%')->paginate(25);
         } else {
             $databaseLogs = $databaseLogs->paginate(25);
         }
@@ -315,7 +315,7 @@ class ScrapLogsController extends Controller
 
     public function enableMysqlAccess(Request $request)
     {
-        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'mysql-slowlogs.sh -f enable';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql-slowlogs.sh -f enable';
         $allOutput = [];
         $allOutput[] = $cmd;
         $result = exec($cmd, $allOutput);
@@ -336,7 +336,7 @@ class ScrapLogsController extends Controller
 
     public function disableMysqlAccess(Request $request)
     {
-        $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'mysql-slowlogs.sh -f disable';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql-slowlogs.sh -f disable';
         $allOutput = [];
         $allOutput[] = $cmd;
         $result = exec($cmd, $allOutput);

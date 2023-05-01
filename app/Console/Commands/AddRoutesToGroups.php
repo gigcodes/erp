@@ -78,7 +78,7 @@ class AddRoutesToGroups extends Command
                 if (! in_array(str_replace('theme_', '', $g->name), $existing_themes)) {
                     $data = explode('_', $g->name);
                     if (count($data) != 2) {
-                        dump($g->name.' skipped');
+                        dump($g->name . ' skipped');
 
                         continue;
                     }
@@ -114,7 +114,7 @@ class AddRoutesToGroups extends Command
                     }
                     dump($web_name);
                     // Update language to group
-                    $postURL = 'https://api.livechatinc.com/v2/properties/group/'.$g->id;
+                    $postURL = 'https://api.livechatinc.com/v2/properties/group/' . $g->id;
                     $postData = [
                         'language' => $lang_code,
                     ];
@@ -122,14 +122,14 @@ class AddRoutesToGroups extends Command
                     $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'PUT');
                     $response = json_decode($result['response']);
                     if (! isset($response->error)) {
-                        dump($g->id.' '.$g->name.' == '.$lang_code.' lang updated.');
+                        dump($g->id . ' ' . $g->name . ' == ' . $lang_code . ' lang updated.');
                     } else {
-                        dump([$g->id.' '.$g->name.' == '.$lang_code.' lang error.', $response]);
+                        dump([$g->id . ' ' . $g->name . ' == ' . $lang_code . ' lang error.', $response]);
                     }
                     //Create route fo group
                     $postURL = 'https://api.livechatinc.com/v3.3/configuration/action/add_auto_access';
                     $domain_values['value'] = $web_name;
-                    $url_values['value'] = '-'.$data[1];
+                    $url_values['value'] = '-' . $data[1];
                     $postData = [
                         'description' => $g->name,
                         'access' => [
@@ -150,7 +150,7 @@ class AddRoutesToGroups extends Command
                     $response = json_decode($result['response']);
                     dump($response);
                     if (! isset($response->error)) {
-                        dump($g->id.' '.$g->name.' == '.$lang_code.' route updated.');
+                        dump($g->id . ' ' . $g->name . ' == ' . $lang_code . ' route updated.');
                         DB::table('group_routes')->updateOrInsert([
                             'group_id' => $g->id,
                         ], [
@@ -162,7 +162,7 @@ class AddRoutesToGroups extends Command
                         ]);
                     }
                 } else {
-                    dump($g->name.' skipped');
+                    dump($g->name . ' skipped');
                 }
             }
             if (isset($response->error)) {

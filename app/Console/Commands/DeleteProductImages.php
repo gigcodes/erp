@@ -51,7 +51,7 @@ class DeleteProductImages extends Command
                 if (! $medias->isEmpty()) {
                     foreach ($medias as $i => $media) {
                         foreach ($media as $m) {
-                            echo $m->getAbsolutePath().' started to delete';
+                            echo $m->getAbsolutePath() . ' started to delete';
                             $m->delete();
                         }
                     }

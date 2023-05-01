@@ -18,20 +18,20 @@
 
 namespace App\Http\Controllers\GoogleAddWord;
 
+use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use App\Http\Controllers\Controller;
+use Google\Auth\FetchAuthTokenInterface;
 use Google\AdsApi\AdWords\AdWordsServices;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
-use Google\AdsApi\AdWords\Query\v201809\ReportQueryBuilder;
-use Google\AdsApi\AdWords\Query\v201809\ServiceQueryBuilder;
-use Google\AdsApi\AdWords\Reporting\v201809\DownloadFormat;
-use Google\AdsApi\AdWords\Reporting\v201809\ReportDownloader;
 use Google\AdsApi\AdWords\ReportSettingsBuilder;
 use Google\AdsApi\AdWords\v201809\cm\CampaignService;
-use Google\Auth\FetchAuthTokenInterface;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
-use Illuminate\View\View;
+use Google\AdsApi\AdWords\Query\v201809\ReportQueryBuilder;
+use Google\AdsApi\AdWords\Reporting\v201809\DownloadFormat;
+use Google\AdsApi\AdWords\Query\v201809\ServiceQueryBuilder;
+use Google\AdsApi\AdWords\Reporting\v201809\ReportDownloader;
 
 class AdWordsApiController extends Controller
 {
@@ -59,10 +59,6 @@ class AdWordsApiController extends Controller
      * Controls a POST and GET request that is submitted from the "Get All
      * Campaigns" form.
      *
-     * @param  Request  $request
-     * @param  FetchAuthTokenInterface  $oAuth2Credential
-     * @param  AdWordsServices  $adWordsServices
-     * @param  AdWordsSessionBuilder  $adWordsSessionBuilder
      * @return View
      */
     public function getCampaignsAction(
@@ -124,8 +120,6 @@ class AdWordsApiController extends Controller
      * Fetch campaigns using the provided campaign service, selected fields, the
      * number of entries per page and the specified page number.
      *
-     * @param  Request  $request
-     * @param  CampaignService  $campaignService
      * @param  string[]  $selectedFields
      * @param  int  $entriesPerPage
      * @param  int  $pageNo
@@ -164,10 +158,6 @@ class AdWordsApiController extends Controller
      * Controls a POST and GET request that is submitted from the "Download
      * Report" form.
      *
-     * @param  Request  $request
-     * @param  FetchAuthTokenInterface  $oAuth2Credential
-     * @param  AdWordsServices  $adWordsServices
-     * @param  AdWordsSessionBuilder  $adWordsSessionBuilder
      * @return View
      */
     public function downloadReportAction(
@@ -251,7 +241,6 @@ class AdWordsApiController extends Controller
      *
      * @param  string  $reportType
      * @param  string  $reportRange
-     * @param  ReportDownloader  $reportDownloader
      * @param  string[]  $selectedFields
      * @return Collection
      */

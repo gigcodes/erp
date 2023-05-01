@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Setup;
 
 use function __;
-use function array_keys;
 use function is_scalar;
 use function is_string;
-use PhpMyAdmin\Config\ServerConfigChecks;
-use PhpMyAdmin\LanguageManager;
+use function array_keys;
 use PhpMyAdmin\Setup\Index;
+use PhpMyAdmin\LanguageManager;
+use PhpMyAdmin\Config\ServerConfigChecks;
 
 class HomeController extends AbstractController
 {
@@ -38,12 +38,12 @@ class HomeController extends AbstractController
 
         $text = __(
             'You are not using a secure connection; all data (including potentially '
-            .'sensitive information, like passwords) is transferred unencrypted!'
+            . 'sensitive information, like passwords) is transferred unencrypted!'
         );
         $text .= ' <a href="#">';
         $text .= __(
             'If your server is also configured to accept HTTPS requests '
-            .'follow this link to use a secure connection.'
+            . 'follow this link to use a secure connection.'
         );
         $text .= '</a>';
         Index::messagesSet('notice', 'no_https', __('Insecure connection'), $text);
@@ -67,7 +67,7 @@ class HomeController extends AbstractController
             $servers[$id] = [
                 'id' => $id,
                 'name' => $this->config->getServerName($id),
-                'auth_type' => $this->config->getValue('Servers/'.$id.'/auth_type'),
+                'auth_type' => $this->config->getValue('Servers/' . $id . '/auth_type'),
                 'dsn' => $this->config->getServerDSN($id),
                 'params' => [
                     'token' => $_SESSION[' PMA_token '],

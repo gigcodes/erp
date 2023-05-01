@@ -305,6 +305,6 @@ return [
         'Mailer-Daemon@se18.mailspamprotection.com',
         'Mailer-Daemon@se19.mailspamprotection.com',
         'Mailer-Daemon@se20.mailspamprotection.com',
-    ]
+    ],
 
 ];

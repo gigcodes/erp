@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Plugins\Transformations\Abs;
 
 use function __;
-use function htmlspecialchars;
-use PhpMyAdmin\FieldMetadata;
-use PhpMyAdmin\Plugins\TransformationsPlugin;
 use PhpMyAdmin\Sanitize;
 use PhpMyAdmin\Template;
+use PhpMyAdmin\FieldMetadata;
+use function htmlspecialchars;
+use PhpMyAdmin\Plugins\TransformationsPlugin;
 
 /**
  * Provides common methods for all of the image link transformations plugins.
@@ -28,8 +28,8 @@ abstract class TextImageLinkTransformationsPlugin extends TransformationsPlugin
     {
         return __(
             'Displays an image and a link; the column contains the filename. The'
-            .' first option is a URL prefix like "https://www.example.com/". The'
-            .' second and third options are the width and the height in pixels.'
+            . ' first option is a URL prefix like "https://www.example.com/". The'
+            . ' second and third options are the width and the height in pixels.'
         );
     }
 
@@ -45,7 +45,7 @@ abstract class TextImageLinkTransformationsPlugin extends TransformationsPlugin
     {
         $cfg = $GLOBALS['cfg'];
         $options = $this->getOptions($options, $cfg['DefaultTransformations']['TextImageLink']);
-        $url = $options[0].$buffer;
+        $url = $options[0] . $buffer;
         /* Do not allow javascript links */
         if (! Sanitize::checkLink($url, true, true)) {
             return htmlspecialchars($url);

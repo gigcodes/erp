@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\ColdLeads;
-use App\CronJobReport;
 use App\Customer;
-use App\RejectedLeads;
-//use App\Services\Instagram\Automation;
+use App\ColdLeads;
 use Carbon\Carbon;
+use App\CronJobReport;
+//use App\Services\Instagram\Automation;
+use App\RejectedLeads;
 use Illuminate\Console\Command;
 
 class AutomateLeadsAsColdOrCustomers extends Command

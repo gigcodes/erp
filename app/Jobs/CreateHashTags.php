@@ -2,12 +2,11 @@
 
 namespace App\Jobs;
 
-use App\HashTag;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class CreateHashTags implements ShouldQueue
 {
@@ -15,11 +14,8 @@ class CreateHashTags implements ShouldQueue
 
     public $hashTag;
 
-
     /**
      * Create a new job instance.
-     *
-     * @param array $hashTag
      */
     public function __construct(array $hashTag)
     {
@@ -28,17 +24,16 @@ class CreateHashTags implements ShouldQueue
     }
 
     /**
-     * @return bool
      * @throws \Exception
      */
     public function handle(): bool
     {
         try {
-            self::putLog('Job start sizes from erp start time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job start sizes from erp start time : ' . date('Y-m-d H:i:s'));
 
             \DB::table('hash_tags')->insert($this->hashTag);
 
-            self::putLog('Job start sizes from erp end time : '.date('Y-m-d H:i:s'));
+            self::putLog('Job start sizes from erp end time : ' . date('Y-m-d H:i:s'));
 
             return true;
         } catch (\Exception $e) {
@@ -49,6 +44,7 @@ class CreateHashTags implements ShouldQueue
     public static function putLog($message)
     {
         \Log::channel('hashtagAdd')->info($message);
+
         return true;
     }
 }

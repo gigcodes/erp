@@ -70,15 +70,9 @@
     "phpunit/phpunit-mock-objects-php52": "dev-1.1.0-php52"
   },
   "scripts": {
-    "post-install-cmd": [
-      "xrstf\\Composer52\\Generator::onPostInstallCmd"
-    ],
-    "post-update-cmd": [
-      "xrstf\\Composer52\\Generator::onPostInstallCmd"
-    ],
-    "post-autoload-dump": [
-      "xrstf\\Composer52\\Generator::onPostInstallCmd"
-    ]
+    "post-install-cmd": ["xrstf\\Composer52\\Generator::onPostInstallCmd"],
+    "post-update-cmd": ["xrstf\\Composer52\\Generator::onPostInstallCmd"],
+    "post-autoload-dump": ["xrstf\\Composer52\\Generator::onPostInstallCmd"]
   },
   "suggest": {
     "ext-libsodium": "PHP < 7.0: Better performance, password hashing (Argon2i), secure memory management (memzero), and better security.",

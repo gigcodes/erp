@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Cron;
 
-use App\Http\Controllers\Controller;
-use App\MagentoCronData;
 use App\Setting;
 use App\StoreWebsite;
+use App\MagentoCronData;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class ShowMagentoCronDataController extends Controller
 {
@@ -33,7 +33,7 @@ class ShowMagentoCronDataController extends Controller
         if (isset($request->create_at)) {
             $date = \Carbon\Carbon::parse($request->create_at)->format('Y-m-d');
             // $date = date('Y-m-d', strtotime($request->create_at));
-            $data = $data->where('cron_created_at', 'like', $date.'%');
+            $data = $data->where('cron_created_at', 'like', $date . '%');
         }
 
         $data = $data->orderBy('id', 'desc')->skip($skip * Setting::get('pagination'))->limit('25')->get();

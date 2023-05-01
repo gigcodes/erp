@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class UserTableSeeder extends Seeder
 {
@@ -121,14 +121,12 @@ class UserTableSeeder extends Seeder
             $this->createUser($role);
         }
 
-        $this->command->info('Roles '.$input_roles.' added successfully');
+        $this->command->info('Roles ' . $input_roles . ' added successfully');
         $this->createUser('Admin');
     }
 
     /**
      * Create a user with given role
-     *
-     * @param $role
      */
     private function createUser($role)
     {

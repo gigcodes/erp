@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\CaseCost;
-use App\Events\CaseBilled;
-use App\Events\CaseBillPaid;
-use App\Helpers;
-use App\Http\Requests\CreateCaseRequest;
+use App\User;
 use App\Lawyer;
+use App\Helpers;
+use App\CaseCost;
 use App\LegalCase;
 use App\ReplyCategory;
-use App\User;
+use App\Events\CaseBilled;
+use App\Events\CaseBillPaid;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreateCaseRequest;
 
 class CaseController extends Controller
 {
@@ -38,13 +38,13 @@ class CaseController extends Controller
             $term = $request->get('term');
             $this->data['term'] = $term;
             $this->data['cases'] = $this->data['cases']->where(function ($query) use ($term) {
-                $query->where('case_number', 'like', '%'.$term.'%')
-                    ->orWhere('court_detail', 'like', '%'.$term.'%')
-                    ->orWhere('resource', 'like', '%'.$term.'%')
+                $query->where('case_number', 'like', '%' . $term . '%')
+                    ->orWhere('court_detail', 'like', '%' . $term . '%')
+                    ->orWhere('resource', 'like', '%' . $term . '%')
                     ->orWhereHas('lawyer', function ($lawyer) use ($term) {
                         $lawyer->where(function ($lawyer_query) use ($term) {
-                            $lawyer_query->where('name', 'like', '%'.$term.'%')
-                                ->orWhere('email', 'like', '%'.$term.'%');
+                            $lawyer_query->where('name', 'like', '%' . $term . '%')
+                                ->orWhere('email', 'like', '%' . $term . '%');
                         });
                     });
             });
@@ -78,8 +78,6 @@ class CaseController extends Controller
     }
 
     /**
-     * @param  CreateCaseRequest  $request
-     * @param  LegalCase  $case
      * @return mixed
      */
     public function update(CreateCaseRequest $request, LegalCase $case)

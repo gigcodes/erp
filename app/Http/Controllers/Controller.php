@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiResponseMessage;
-use App\GoogleTranslate;
 use App\Language;
+use App\GoogleTranslate;
 use App\WebsiteStoreView;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\ApiResponseMessage;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
  * @SWG\Swagger(

@@ -6,14 +6,15 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class KeywordSearchVariants extends Model
 {
     use HasFactory;
+
     public $fillable = [
-        'keyword'
+        'keyword',
     ];
 
     public static function list()

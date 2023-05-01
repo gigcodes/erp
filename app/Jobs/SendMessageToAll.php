@@ -2,17 +2,17 @@
 
 namespace App\Jobs;
 
-use App\BroadcastImage;
-use App\ChatMessage;
-use App\Customer;
-use App\Http\Controllers\WhatsAppController;
-use App\MessageQueue;
 use App\Product;
+use App\Customer;
+use App\ChatMessage;
+use App\MessageQueue;
+use App\BroadcastImage;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\Http\Controllers\WhatsAppController;
 
 class SendMessageToAll implements ShouldQueue
 {
@@ -34,11 +34,6 @@ class SendMessageToAll implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param  int  $userId
-     * @param  Customer  $customer
-     * @param  array  $content
-     * @param  int  $messageQueueId
      */
     public function __construct(int $userId, Customer $customer, array $content, int $messageQueueId, $groupId = null)
     {
@@ -51,8 +46,6 @@ class SendMessageToAll implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {

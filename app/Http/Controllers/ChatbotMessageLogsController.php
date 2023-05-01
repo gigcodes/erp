@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatbotDialogResponse;
-use App\ChatbotQuestionExample;
-use App\Library\Watson\Model as WatsonManager;
 use App\Setting;
 use App\WatsonJourney;
 use Illuminate\Http\Request;
+use App\ChatbotDialogResponse;
+use App\ChatbotQuestionExample;
 use Illuminate\Support\Facades\Validator;
+use App\Library\Watson\Model as WatsonManager;
 
 class ChatbotMessageLogsController extends Controller
 {
@@ -242,7 +242,7 @@ class ChatbotMessageLogsController extends Controller
             'response_type' => 'standard',
             'previous_sibling' => 0,
             'store_website_id' => $websiteId,
-            'match_condition' => '#'.$name,
+            'match_condition' => '#' . $name,
             'title' => $name,
         ];
 

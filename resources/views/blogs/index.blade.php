@@ -156,6 +156,7 @@
                         <div class="col-md-4">
                             <label class="form-label">Select Plaglarism</label>
                             <select name="plaglarism" class="form-control">
+                                <option selected disabled value="">Select</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
                             </select>
@@ -169,6 +170,7 @@
                             <label class="form-label">Internal link</label>
                          
                              <select name="internal_link" class="form-control">
+                              <option selected disabled value="">Select</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
                             </select>
@@ -188,7 +190,11 @@
                     <div class="row">
                         <div class="col-md-4">
                             <label class="form-label">External link</label>
-                            <input type="text" name="external_link" class="form-control" value="{{ old('external_link') }}">
+                            <select name="external_link" class="form-control">
+                              <option selected disabled value="">Select</option>
+                              <option value="yes">Yes</option>
+                              <option value="no">No</option>
+                            </select>
                             @error('external_link')
                             <div class="alert text-danger">{{ $message }}</div>
                             @enderror
@@ -226,8 +232,11 @@
                           <div class="col-md-4">
                           <label class="form-label">Italic Tag</label>
                             <br>
-                          <input id="activate_tagator2" name="italic_tag" type="text" class="tagator" value="{{ old('italic_tag') }}" data-tagator-show-all-options-on-focus="true" data-tagator-autocomplete={{$tagName}}>
-                        
+                            <select name="italic_tag" class="form-control">
+                              <option selected disabled value="">Select</option>
+                              <option value="yes">Yes</option>
+                              <option value="no">No</option>
+                            </select>
                         </div>
                         
                     </div>
@@ -245,7 +254,11 @@
                         <div class="col-md-4">
                           <label class="form-label">Strong Tag</label>
                             <br>
-                          <input id="activate_tagator2" name="strong_tag" type="text" class="tagator" value="{{ old('strong_tag') }}" data-tagator-show-all-options-on-focus="true" data-tagator-autocomplete={{$tagName}}>
+                            <select name="strong_tag" class="form-control">
+                              <option selected disabled value="">Select</option>
+                              <option value="yes">Yes</option>
+                              <option value="no">No</option>
+                            </select>
                         
                         </div>
 
@@ -347,6 +360,28 @@
                                       <option value="yes">Yes</option>
                                       <option value="no">No</option>
                                   </select>
+                                 
+                        
+                                  </div>
+
+
+                                  
+                    </div> 
+
+                       
+                    <div class="row mt-3">
+                                
+
+                               
+                                  <div class="col-md-4">
+                                 
+                                  <label class="form-label">Select Website</label>
+                                  <select class="browser-default custom-select"  required="required" name="store_website_id" style="height:auto">
+                                    <option disabled value="" selected>---Selecty store websites---</option>
+                                    @foreach($store_website as $sw)
+                                        <option value="{{$sw->id}}" >{{$sw->website}}</option>
+                                    @endforeach
+                                </select>
                                  
                         
                                   </div>
@@ -483,7 +518,14 @@
                                           <img src="{{ asset('social/gogole_icon.png') }}" style="width:50px; height:50px"/>
                                         </div>
                                         <div class="col-md-3">
-                                            <input type='text' name="google" class="form-control" value="" />
+                                          
+                                            
+                                          <select name="google" class="form-control">
+                                            <option selected disabled value="">Select</option>
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                          </select>
+
                                         </div>
                                         <div class="col-md-5">
                                             <div class='input-group date' id='google_date'>
@@ -505,7 +547,11 @@
                                           </label>
                                         </div>
                                         <div class="col-md-3">
-                                            <input type='text' name="bing" class="form-control" value="" />
+                                          <select name="bing" class="form-control">
+                                            <option selected disabled value="">Select</option>
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                        </select>
                                         </div>
                                         <div class="col-md-5">
                                             <div class='input-group date' id='bing_date'>
@@ -591,7 +637,9 @@
                           
                             <th style="width:10px !important;">userName</th>
                             <th>Idea</th>
+                          
                             <th>Keyword</th>
+                            <th>Website</th>
                             <th>Canonical URL</th>
                             <th>CheckMobile Friendliness</th>
                             <th>Content</th>
@@ -672,8 +720,9 @@
                 columns: [                  
                     {data: 'userName', name: 'userName',orderable: false, searchable: true},
                     {data: 'idea', name: 'idea', orderable: false, searchable: true},
-                    
+                   
                     {data: 'keyword', name: 'keyword', orderable: false, searchable: false},
+                    {data: 'store_website_id', name: 'store_website_id', orderable: false, searchable: false},
                     {data: 'canonical_url', name: 'canonical_url', orderable: false, searchable: false},
                     {data: 'checkmobile_friendliness', name: 'checkmobile_friendliness', orderable: false, searchable: false},
                     {data: 'content', name: 'content', orderable: false, searchable: true},
@@ -763,6 +812,7 @@
 
    });
 
+
           $('.refreshTable').click(function(){
              
                 $('#userId').val('');
@@ -817,6 +867,7 @@
 
         $("#addBlog").submit(function(e){
                var content = $('#content').val().trim();
+               
            if(content === ''){
             $('#AddcontentValidation').css('display','block');
               e.preventDefault();

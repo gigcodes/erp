@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Console\Command;
 use Plank\Mediable\Media;
+use Illuminate\Console\Command;
 
 class RemoveUnwantedImages extends Command
 {
@@ -54,16 +54,16 @@ class RemoveUnwantedImages extends Command
                         }
                     }
                     if ($recordExist == false) {
-                        \Log::channel('productUpdates')->info($media->getAbsolutePath().' Deleted With no relation [DELETE_IMAGES]');
+                        \Log::channel('productUpdates')->info($media->getAbsolutePath() . ' Deleted With no relation [DELETE_IMAGES]');
                         $media->delete();
                     }
                 } else {
                     // check file exist or not
-                    \Log::channel('productUpdates')->info($media->getAbsolutePath().' Deleted with no relation mediables [DELETE_IMAGES]');
+                    \Log::channel('productUpdates')->info($media->getAbsolutePath() . ' Deleted with no relation mediables [DELETE_IMAGES]');
                     $media->delete();
                 }
             } else {
-                \Log::channel('productUpdates')->info($media->getAbsolutePath().' Deleted not exist [DELETE_IMAGES]');
+                \Log::channel('productUpdates')->info($media->getAbsolutePath() . ' Deleted not exist [DELETE_IMAGES]');
                 $media->delete();
             }
         }

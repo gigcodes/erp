@@ -3,8 +3,8 @@
 namespace Modules\BookStack\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Modules\BookStack\Auth\Permissions\PermissionsRepo;
 use Modules\BookStack\Exceptions\PermissionsException;
+use Modules\BookStack\Auth\Permissions\PermissionsRepo;
 
 class PermissionController extends Controller
 {
@@ -47,7 +47,6 @@ class PermissionController extends Controller
     /**
      * Store a new role in the system.
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function storeRole(Request $request)
@@ -67,7 +66,6 @@ class PermissionController extends Controller
     /**
      * Show the form for editing a user role.
      *
-     * @param $id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      *
      * @throws PermissionsException
@@ -86,8 +84,6 @@ class PermissionController extends Controller
     /**
      * Updates a user role.
      *
-     * @param $id
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
      * @throws PermissionsException
@@ -110,7 +106,6 @@ class PermissionController extends Controller
      * Show the view to delete a role.
      * Offers the chance to migrate users.
      *
-     * @param $id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function showDeleteRole($id)
@@ -128,8 +123,6 @@ class PermissionController extends Controller
      * Delete a role from the system,
      * Migrate from a previous role if set.
      *
-     * @param $id
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function deleteRole($id, Request $request)

@@ -3,20 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
+use App\Product;
 use App\Category;
-use App\Helpers\StatusHelper;
+use App\StoreWebsite;
+use App\LandingPageStatus;
 use App\Jobs\PushToMagento;
 use App\LandingPageProduct;
-use App\LandingPageStatus;
-use App\Library\Shopify\Client as ShopifyClient;
-use App\Loggers\LogListMagento;
-use App\Product;
-use App\Services\Products\GraphqlService;
-use App\StoreWebsite;
 use Illuminate\Http\Request;
+use App\Helpers\StatusHelper;
 use Illuminate\Support\Carbon;
+use App\Loggers\LogListMagento;
 use Illuminate\Support\Facades\Auth;
+use App\Services\Products\GraphqlService;
 use Illuminate\Support\Facades\Validator;
+use App\Library\Shopify\Client as ShopifyClient;
 
 class LandingPageController extends Controller
 {
@@ -124,7 +124,7 @@ class LandingPageController extends Controller
             $rec->status_name = isset($rec->landing_page_status) ? $rec->landing_page_status->name : $previousVal;
             $rec->brand_name = isset($rec->product->brands->name) ? $rec->product->brands->name : null;
             $rec['stores'] = $store_websites;
-            $rec->short_dec = (strlen($rec->description) > 15) ? substr($rec->description, 0, 15).'..' : $rec->description;
+            $rec->short_dec = (strlen($rec->description) > 15) ? substr($rec->description, 0, 15) . '..' : $rec->description;
             $rec->short_dec = utf8_encode($rec->short_dec);
             $rec->created = explode(' ', $rec->created_at)[0];
             $rec->start_date = Carbon::parse($rec->start_date)->format('Y-m-d');
@@ -165,7 +165,7 @@ class LandingPageController extends Controller
                             ['product_id' => $productId, 'name' => $product->name, 'description' => $product->short_description, 'price' => $product->price]
                         );
                     } else {
-                        $errorMessage[] = 'Product has no category or images : '.$productId;
+                        $errorMessage[] = 'Product has no category or images : ' . $productId;
                     }
                 } else {
                     $errorMessage[] = "Product not found : {$productId}";
@@ -174,7 +174,7 @@ class LandingPageController extends Controller
         }
 
         if (count($errorMessage) > 0) {
-            return redirect()->route('landing-page.index')->withError('There was some issue for given products : '.implode('<br>', $errorMessage));
+            return redirect()->route('landing-page.index')->withError('There was some issue for given products : ' . implode('<br>', $errorMessage));
         }
 
         return redirect()->route('landing-page.index')->withSuccess('You have successfully added landing page!');
@@ -195,7 +195,7 @@ class LandingPageController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -229,7 +229,6 @@ class LandingPageController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -246,7 +245,6 @@ class LandingPageController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {
@@ -270,7 +268,7 @@ class LandingPageController extends Controller
                 $landingPage->stock_status = $request->stock_status;
                 if ($landingPage->stock_status == 1) {
                     $landingPage->start_date = date('Y-m-d H:i:s');
-                    $landingPage->end_date = date('Y-m-d H:i:s', strtotime($landingPage->start_date.' + 1 days'));
+                    $landingPage->end_date = date('Y-m-d H:i:s', strtotime($landingPage->start_date . ' + 1 days'));
                 }
                 $landingPage->save();
             }
@@ -278,7 +276,7 @@ class LandingPageController extends Controller
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
             $productData = $landingPage->getShopifyPushData();
-            LogListMagento::log($landingPageProduct->id, 'Product started to push'.$landingPageProduct->id, 'info', $landingPage->store_website_id, 'started');
+            LogListMagento::log($landingPageProduct->id, 'Product started to push' . $landingPageProduct->id, 'info', $landingPage->store_website_id, 'started');
 
             if ($productData == false) {
                 return response()->json(['code' => 500, 'data' => '', 'message' => 'Pushing Failed: product is not approved']);
@@ -296,22 +294,22 @@ class LandingPageController extends Controller
                 foreach ((array) $response->errors as $key => $message) {
                     if (is_array($message)) {
                         foreach ($message as $msg) {
-                            $errors[] = ucwords($key).' '.$msg;
+                            $errors[] = ucwords($key) . ' ' . $msg;
                         }
                     } else {
-                        $errors[] = ucwords($key).' '.$message;
+                        $errors[] = ucwords($key) . ' ' . $message;
                     }
                 }
             }
 
             if (! empty($errors)) {
-                LogListMagento::log($landingPageProduct->id, 'error '.$landingPageProduct->id, 'info', $landingPage->store_website_id, 'error');
+                LogListMagento::log($landingPageProduct->id, 'error ' . $landingPageProduct->id, 'info', $landingPage->store_website_id, 'error');
 
                 return response()->json(['code' => 500, 'data' => $response, 'message' => implode('<br>', $errors)]);
             }
 
             if (! empty($response->product)) {
-                LogListMagento::log($landingPageProduct->id, 'success '.$landingPageProduct->id, 'info', $landingPage->store_website_id, 'success');
+                LogListMagento::log($landingPageProduct->id, 'success ' . $landingPageProduct->id, 'info', $landingPage->store_website_id, 'success');
                 $landingPage->shopify_id = $response->product->id;
                 $landingPage->save();
 
@@ -354,8 +352,8 @@ class LandingPageController extends Controller
             $product = Product::find($landingPage->product_id);
             $websiteArrays = StoreWebsite::where('id', $landingPage->store_website_id)->first();
             if ($websiteArrays) {
-                \Log::info('Product started website found For website'.$websiteArrays->website);
-                LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $websiteArrays->id);
+                \Log::info('Product started website found For website' . $websiteArrays->website);
+                LogListMagento::log($product->id, 'Start push to magento for product id ' . $product->id, 'info', $websiteArrays->id);
                 PushToMagento::dispatch($product, $websiteArrays)->onQueue($queueName[$i]);
 
                 return response()->json(['code' => 200, 'data' => '', 'message' => 'Success!']);
@@ -373,7 +371,7 @@ class LandingPageController extends Controller
             $landingPage->stock_status = $request->stock_status;
             if ($landingPage->stock_status == 1) {
                 $landingPage->start_date = date('Y-m-d H:i:s');
-                $landingPage->end_date = date('Y-m-d H:i:s', strtotime($landingPage->start_date.' + 1 days'));
+                $landingPage->end_date = date('Y-m-d H:i:s', strtotime($landingPage->start_date . ' + 1 days'));
             }
             $landingPage->save();
 

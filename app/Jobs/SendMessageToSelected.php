@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Http\Controllers\WhatsAppController;
 use App\MessageQueue;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\Http\Controllers\WhatsAppController;
 
 class SendMessageToSelected implements ShouldQueue
 {

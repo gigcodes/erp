@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateAffiliateConversionsTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateAffiliateConversionsTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('affiliate_conversions')) {
+        if (! Schema::hasTable('affiliate_conversions')) {
             Schema::create('affiliate_conversions', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('affiliate_account_id');

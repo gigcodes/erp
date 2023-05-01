@@ -1,10 +1,10 @@
 // global var that holds: 0- if ctrl key is not pressed 1- if ctrl key is pressed
 var ctrlKeyHistory = 0;
 /**
-  * Allows moving around inputs/select by Ctrl+arrows
-  *
-  * @param {object} event data
-  */
+ * Allows moving around inputs/select by Ctrl+arrows
+ *
+ * @param {object} event data
+ */
 
 function onKeyDownArrowsHandler(event) {
   var e = event || window.event;
@@ -14,11 +14,21 @@ function onKeyDownArrowsHandler(event) {
     return;
   }
 
-  if (o.tagName !== 'TEXTAREA' && o.tagName !== 'INPUT' && o.tagName !== 'SELECT') {
+  if (
+    o.tagName !== "TEXTAREA" &&
+    o.tagName !== "INPUT" &&
+    o.tagName !== "SELECT"
+  ) {
     return;
   }
 
-  if (e.which !== 17 && e.which !== 37 && e.which !== 38 && e.which !== 39 && e.which !== 40) {
+  if (
+    e.which !== 17 &&
+    e.which !== 37 &&
+    e.which !== 38 &&
+    e.which !== 39 &&
+    e.which !== 40
+  ) {
     return;
   }
 
@@ -26,13 +36,13 @@ function onKeyDownArrowsHandler(event) {
     return;
   }
 
-  if (e.type === 'keyup') {
+  if (e.type === "keyup") {
     if (e.which === 17) {
       ctrlKeyHistory = 0;
     }
 
     return;
-  } else if (e.type === 'keydown') {
+  } else if (e.type === "keydown") {
     if (e.which === 17) {
       ctrlKeyHistory = 1;
     }
@@ -43,9 +53,9 @@ function onKeyDownArrowsHandler(event) {
   }
 
   e.preventDefault();
-  var pos = o.id.split('_');
+  var pos = o.id.split("_");
 
-  if (pos[0] !== 'field' || typeof pos[2] === 'undefined') {
+  if (pos[0] !== "field" || typeof pos[2] === "undefined") {
     return;
   }
 
@@ -77,21 +87,18 @@ function onKeyDownArrowsHandler(event) {
       return;
   } // eslint-disable-next-line compat/compat
 
-
-  var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox/') > -1;
-  var id = 'field_' + y + '_' + x;
+  var isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox/") > -1;
+  var id = "field_" + y + "_" + x;
   var nO = document.getElementById(id);
 
   if (!nO) {
-    id = 'field_' + y + '_' + x + '_0';
+    id = "field_" + y + "_" + x + "_0";
     nO = document.getElementById(id);
   } // skip non existent fields
-
 
   if (!nO) {
     return;
   } // for firefox select tag
-
 
   var lvalue = o.selectedIndex;
   var nOvalue = nO.selectedIndex;
@@ -102,7 +109,8 @@ function onKeyDownArrowsHandler(event) {
     var ffversion;
 
     for (ffversion = 3; ffversion < 25; ffversion++) {
-      var isFirefoxV24 = navigator.userAgent.toLowerCase().indexOf('firefox/' + ffversion) > -1;
+      var isFirefoxV24 =
+        navigator.userAgent.toLowerCase().indexOf("firefox/" + ffversion) > -1;
 
       if (isFirefoxV24) {
         ffcheck = 1;
@@ -129,22 +137,22 @@ function onKeyDownArrowsHandler(event) {
     }
   }
 
-  if (nO.tagName !== 'SELECT') {
+  if (nO.tagName !== "SELECT") {
     nO.select();
   }
 
   e.returnValue = false;
 }
 
-AJAX.registerTeardown('keyhandler.js', function () {
-  $(document).off('keydown keyup', '#table_columns');
-  $(document).off('keydown keyup', 'table.insertRowTable');
+AJAX.registerTeardown("keyhandler.js", function () {
+  $(document).off("keydown keyup", "#table_columns");
+  $(document).off("keydown keyup", "table.insertRowTable");
 });
-AJAX.registerOnload('keyhandler.js', function () {
-  $(document).on('keydown keyup', '#table_columns', function (event) {
+AJAX.registerOnload("keyhandler.js", function () {
+  $(document).on("keydown keyup", "#table_columns", function (event) {
     onKeyDownArrowsHandler(event.originalEvent);
   });
-  $(document).on('keydown keyup', 'table.insertRowTable', function (event) {
+  $(document).on("keydown keyup", "table.insertRowTable", function (event) {
     onKeyDownArrowsHandler(event.originalEvent);
   });
 });

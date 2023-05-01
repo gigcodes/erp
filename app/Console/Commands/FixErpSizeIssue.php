@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\ProductHelper;
-use App\Helpers\StatusHelper;
 use App\Product;
 use App\ProductSizes;
 use App\ProductSupplier;
 use App\ScrapedProducts;
+use App\Helpers\StatusHelper;
+use App\Helpers\ProductHelper;
 use Illuminate\Console\Command;
 
 class FixErpSizeIssue extends Command
@@ -54,7 +54,7 @@ class FixErpSizeIssue extends Command
 
         if (! $products->isEmpty()) {
             foreach ($products as $product) {
-                $this->info('Started for product id :'.$product->id);
+                $this->info('Started for product id :' . $product->id);
                 $scrapedProduct = ScrapedProducts::where('product_id', $product->id)->where(function ($q) {
                     $q->orWhereNotNull('size')->orWhere('size', '!=', '');
                 })->first();
@@ -93,7 +93,7 @@ class FixErpSizeIssue extends Command
                         $product->save();
 
                         $product->checkExternalScraperNeed();
-                        $this->info('Saved product id :'.$product->id);
+                        $this->info('Saved product id :' . $product->id);
 
                         // check for the auto crop
                         $needToCheckStatus = [

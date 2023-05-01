@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Account;
-use App\Complaint;
-use App\Customer;
-use App\Helpers;
-use App\Instruction;
-use App\Product;
+use Auth;
+use App\User;
 use App\Review;
-use App\ReviewBrandList;
-use App\ReviewSchedule;
+use App\Account;
+use App\Helpers;
+use App\Product;
 use App\Scraper;
 use App\Setting;
+use App\Customer;
+use App\Complaint;
+use App\Instruction;
 use App\StatusChange;
+use App\ReviewSchedule;
 use App\TargetLocation;
-use App\User;
-use Auth;
+use App\ReviewBrandList;
 //use InstagramAPI\Instagram;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -147,7 +147,6 @@ class ReviewController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -260,7 +259,6 @@ class ReviewController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -486,8 +484,8 @@ class ReviewController extends Controller
         $review = new Complaint();
         $review->customer_id = null;
         $review->platform = 'instagram';
-        $review->complaint = '<strong>@'.$request->get('poster').' => '.$request->get('post').'</strong><li>@'.$request->get('commenter').' => '.$request->get('comment').'</li>';
-        $review->link = 'https://instagram.com/p/'.$request->get('code');
+        $review->complaint = '<strong>@' . $request->get('poster') . ' => ' . $request->get('post') . '</strong><li>@' . $request->get('commenter') . ' => ' . $request->get('comment') . '</li>';
+        $review->link = 'https://instagram.com/p/' . $request->get('code');
         $review->status = 'pending';
         $review->plan_of_action = 'instagram_reply';
         $review->where = 'INSTAGRAM_HASHTAG';
@@ -569,7 +567,7 @@ class ReviewController extends Controller
         $serverId = $request->serverId;
 
         // $url = 'http://'.$serverId.'.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
-        $url = 'http://'.$serverId.'.theluxuryunlimited.com:'.config('env.NODE_SERVER_PORT').'/restart-script?filename=reviewScraper/trustPilot.js';
+        $url = 'http://' . $serverId . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
 
         $curl = curl_init();
 

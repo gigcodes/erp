@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Social;
 
-use App\Http\Controllers\Controller;
-use App\Setting;
-use App\Social\SocialCampaign;
-use App\Social\SocialConfig;
-use App\Social\SocialPostLog;
 use Auth;
 use Crypt;
-use Facebook\Facebook;
-use Illuminate\Http\Request;
-use Response;
 use Session;
+use Response;
+use App\Setting;
+use Facebook\Facebook;
+use App\Social\SocialConfig;
+use Illuminate\Http\Request;
 use App\Helpers\SocialHelper;
+use App\Social\SocialPostLog;
+use App\Social\SocialCampaign;
+use App\Http\Controllers\Controller;
 
 class SocialCampaignController extends Controller
 {
@@ -49,51 +49,43 @@ class SocialCampaignController extends Controller
         $websites = \App\StoreWebsite::select('id', 'title')->get();
 
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
-        
-        if(!empty($request->date))
-        {
-            $campaigns->where('created_at', 'LIKE', '%'.$request->date.'%');
+
+        if (! empty($request->date)) {
+            $campaigns->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
 
-        if(!empty($request->config_name))
-        {
+        if (! empty($request->config_name)) {
             $campaigns->whereIn('config_id', $request->config_name);
         }
 
-        if(!empty($request->campaign_name))
-        {
+        if (! empty($request->campaign_name)) {
             $campaigns->where('name', $request->campaign_name);
         }
 
-        if(!empty($request->objective))
-        {
+        if (! empty($request->objective)) {
             $campaigns->whereIn('objective_name', $request->objective);
         }
 
-        if(!empty($request->type))
-        {
+        if (! empty($request->type)) {
             $type = $request->type;
-            $campaigns->where('buying_type', 'LIKE', '%'.$request->type.'%');
+            $campaigns->where('buying_type', 'LIKE', '%' . $request->type . '%');
         }
 
-        if(!empty($request->status))
-        {
+        if (! empty($request->status)) {
             $status = $request->status;
-            $campaigns->where('status', 'LIKE', '%'.$request->status.'%');
+            $campaigns->where('status', 'LIKE', '%' . $request->status . '%');
         }
-
 
         $campaigns = $campaigns->paginate(Setting::get('pagination'));
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.campaigns.data', compact('campaigns', 'configs','campaign_data','type','status'))->render(),
+                'tbody' => view('social.campaigns.data', compact('campaigns', 'configs', 'campaign_data', 'type', 'status'))->render(),
                 'links' => (string) $campaigns->render(),
             ], 200);
         }
 
-        return view('social.campaigns.index', compact('campaigns', 'configs','campaign_data'));
-
+        return view('social.campaigns.index', compact('campaigns', 'configs', 'campaign_data'));
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
@@ -125,7 +117,6 @@ class SocialCampaignController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -164,20 +155,19 @@ class SocialCampaignController extends Controller
             'default_graph_version' => 'v15.0',
         ]);
         $this->user_access_token = $config->token;
-        
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         //$this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
         $this->ad_acc_id = $config->ads_manager;
-        
+
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
                       //      dd($data);
-                    //$this->ad_acc_id = $config->ads_manager; 
+                    //$this->ad_acc_id = $config->ads_manager;
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/campaigns';
+                    $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/campaigns';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -193,7 +183,7 @@ class SocialCampaignController extends Controller
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create campaign', $resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
-                    
+
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
                         $post->save();
@@ -217,7 +207,7 @@ class SocialCampaignController extends Controller
                     //        dd($data);
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v15.0/'.$this->ad_acc_id.'/campaigns';
+                    $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/campaigns';
 
                     // Call to Graph api here
                     $curl = curl_init();
@@ -301,7 +291,6 @@ class SocialCampaignController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\SocialCampaign  $SocialCampaign
      * @return \Illuminate\Http\Response
      */
@@ -340,9 +329,9 @@ class SocialCampaignController extends Controller
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
         }
         if ($response != '') {
             try {
@@ -353,7 +342,7 @@ class SocialCampaignController extends Controller
                     }
                 }
             } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->'.$e->getMessage());
+                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->' . $e->getMessage());
             }
         }
     }
@@ -367,14 +356,14 @@ class SocialCampaignController extends Controller
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
             // $response = $fb->get('/me/adaccounts', $token); //Old
-            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token='.$token); //New using graph API
+            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token=' . $token); //New using graph API
             $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->' . $e->getMessage());
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
+            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->' . $e->getMessage());
         }
         if ($response != '') {
             try {
@@ -383,7 +372,7 @@ class SocialCampaignController extends Controller
                     return $key['id'];
                 }
             } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts id->'.$e->getMessage());
+                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts id->' . $e->getMessage());
             }
         }
     }

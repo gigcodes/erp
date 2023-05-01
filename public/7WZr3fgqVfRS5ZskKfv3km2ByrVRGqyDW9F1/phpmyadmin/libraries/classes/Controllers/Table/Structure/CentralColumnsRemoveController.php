@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers\Table\Structure;
 
 use function __;
+use PhpMyAdmin\Message;
+use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
+use PhpMyAdmin\Database\CentralColumns;
 use PhpMyAdmin\Controllers\Table\AbstractController;
 use PhpMyAdmin\Controllers\Table\StructureController;
-use PhpMyAdmin\Database\CentralColumns;
-use PhpMyAdmin\Message;
-use PhpMyAdmin\ResponseRenderer;
-use PhpMyAdmin\Template;
 
 final class CentralColumnsRemoveController extends AbstractController
 {

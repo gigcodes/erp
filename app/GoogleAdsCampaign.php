@@ -86,7 +86,7 @@ class GoogleAdsCampaign extends Model
 
     public function googleAccount()
     {
-        return $this->belongsTo(GoogleAdsAccount::class,'account_id');
+        return $this->belongsTo(GoogleAdsAccount::class, 'account_id');
     }
 
     public function account()

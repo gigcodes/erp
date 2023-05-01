@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Response;
 use App\DocumentCategory;
 use Illuminate\Http\Request;
-use Response;
 
 class DocuemntCategoryController extends Controller
 {

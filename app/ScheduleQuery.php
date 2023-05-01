@@ -15,4 +15,5 @@ class ScheduleQuery extends Model
      */
     protected $fillable = [
         'schedule_name', 'query', 'description',
-    ];}
+    ];
+}

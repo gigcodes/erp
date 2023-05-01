@@ -17,7 +17,7 @@ class User
 
     public function __construct($accessToken)
     {
-        $this->accessToken = 'Bearer '.$accessToken;
+        $this->accessToken = 'Bearer ' . $accessToken;
 
         return $this;
     }
@@ -37,7 +37,7 @@ class User
 
         $curl->get($url);
         if ($curl->error) {
-            echo 'errorCode'.$curl->error_code;
+            echo 'errorCode' . $curl->error_code;
             exit();
         } else {
             $response = json_decode($curl->response);

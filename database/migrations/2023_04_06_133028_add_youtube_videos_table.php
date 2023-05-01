@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddYoutubeVideosTable extends Migration
 {
@@ -16,7 +16,7 @@ class AddYoutubeVideosTable extends Migration
         Schema::create('youtube_videos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('youtube_channel_id');
-            $table->string('channel_id',256);
+            $table->string('channel_id', 256);
             $table->string('link', 256);
             $table->string('media_id', 128);
             $table->string('title', 564)->nullable();

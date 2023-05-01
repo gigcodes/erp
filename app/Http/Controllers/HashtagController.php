@@ -3,24 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Account;
-use App\CommentsStats;
-//use App\FlaggedInstagramPosts;
-use App\Customer;
 use App\HashTag;
-use App\InfluencerKeyword;
+//use App\FlaggedInstagramPosts;
+use App\Setting;
+use App\Customer;
+use Carbon\Carbon;
 //use App\InstagramPosts;
 //use App\InstagramPostsComments;
 //use App\InstagramUsersList;
-use App\InfluencersHistory;
+use App\CommentsStats;
 //use App\Services\Instagram\Hashtags;
-use App\MailinglistTemplate;
 use App\ScrapInfluencer;
-use App\Setting;
+use Plank\Mediable\Media;
+use App\InfluencerKeyword;
 //use InstagramAPI\Instagram;
 //use InstagramAPI\Signatures;
-use Carbon\Carbon;
+use App\InfluencersHistory;
+use App\MailinglistTemplate;
 use Illuminate\Http\Request;
-use Plank\Mediable\Media;
 
 //Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -86,7 +86,6 @@ class HashtagController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      *
      * Create a new hashtag entry
@@ -154,7 +153,6 @@ class HashtagController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -536,7 +534,7 @@ class HashtagController extends Controller
                 $hashTag->save();
             }
 
-            $cmd = 'ps waux | grep competitors:process-local-users\ '.$id;
+            $cmd = 'ps waux | grep competitors:process-local-users\ ' . $id;
             $export = shell_exec($cmd);
             $export = trim($export);
             //getting username
@@ -544,12 +542,12 @@ class HashtagController extends Controller
             $username = shell_exec($cmd);
             $username = trim($username);
 
-            $re = '/'.$username.'(\s*)(\d*)/m';
+            $re = '/' . $username . '(\s*)(\d*)/m';
 
             preg_match_all($re, $export, $matches, PREG_SET_ORDER, 0);
 
             if (count($matches) == 0 || count($matches) == 1 || count($matches) == 2) {
-                $cmd = 'php '.base_path().'/artisan competitors:process-local-users '.$id.' &';
+                $cmd = 'php ' . base_path() . '/artisan competitors:process-local-users ' . $id . ' &';
                 $export = shell_exec($cmd);
 
                 // $art = \Artisan::call("competitors:process-local-users",['hastagId' => $id]);
@@ -568,7 +566,7 @@ class HashtagController extends Controller
     {
         try {
             $id = $request->id;
-            $cmd = 'ps waux | grep competitors:process-local-users\ '.$id;
+            $cmd = 'ps waux | grep competitors:process-local-users\ ' . $id;
             $export = shell_exec($cmd);
             $export = trim($export);
             //getting username
@@ -576,7 +574,7 @@ class HashtagController extends Controller
             $username = shell_exec($cmd);
             $username = trim($username);
 
-            $re = '/'.$username.'(\s*)(\d*)/m';
+            $re = '/' . $username . '(\s*)(\d*)/m';
 
             preg_match_all($re, $export, $matches, PREG_SET_ORDER, 0);
 
@@ -585,7 +583,7 @@ class HashtagController extends Controller
             } elseif (count($matches) == 3 || count($matches) == 4) {
                 foreach ($matches as $match) {
                     if (isset($match[2])) {
-                        $cmd = 'kill -9 '.$match[2];
+                        $cmd = 'kill -9 ' . $match[2];
                         $export = shell_exec($cmd);
                     }
                 }
@@ -601,7 +599,7 @@ class HashtagController extends Controller
     {
         try {
             $id = $request->id;
-            $cmd = 'ps waux | grep competitors:process-local-users\ '.$id;
+            $cmd = 'ps waux | grep competitors:process-local-users\ ' . $id;
             $export = shell_exec($cmd);
             $export = trim($export);
             //getting username
@@ -609,7 +607,7 @@ class HashtagController extends Controller
             $username = shell_exec($cmd);
             $username = trim($username);
 
-            $re = '/'.$username.'(\s*)(\d*)/m';
+            $re = '/' . $username . '(\s*)(\d*)/m';
 
             preg_match_all($re, $export, $matches, PREG_SET_ORDER, 0);
 
@@ -814,9 +812,9 @@ class HashtagController extends Controller
             $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : getenv('SEND_IN_BLUE_API');
 
             if ($name != '') {
-                $name = $name.'_'.date('d_m_Y');
+                $name = $name . '_' . date('d_m_Y');
             } else {
-                $name = 'WELCOME_LIST_'.date('d_m_Y');
+                $name = 'WELCOME_LIST_' . date('d_m_Y');
             }
             $res = '';
 
@@ -840,7 +838,7 @@ class HashtagController extends Controller
                             CURLOPT_CUSTOMREQUEST => 'POST',
                             CURLOPT_POSTFIELDS => json_encode($data),
                             CURLOPT_HTTPHEADER => [
-                                'api-key: '.$api_key,
+                                'api-key: ' . $api_key,
                                 'Content-Type: application/json',
                             ],
                         ]);
@@ -897,7 +895,7 @@ class HashtagController extends Controller
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_HTTPHEADER => [
-                    'api-key: '.getenv('SEND_IN_BLUE_API'),
+                    'api-key: ' . getenv('SEND_IN_BLUE_API'),
                     'Content-Type: application/json',
                 ],
             ]);
@@ -911,7 +909,7 @@ class HashtagController extends Controller
 
     public function loginstance(Request $request)
     {
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-logs';
+        $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-logs';
         $date = ($request->date != '') ? \Carbon\Carbon::parse($request->date)->format('m-d-Y') : '';
         $id = $request->id;
 
@@ -927,7 +925,7 @@ class HashtagController extends Controller
 
         $data = json_encode($data);
 
-        \Log::info('INFLUENCER_loginstance -->'.$data);
+        \Log::info('INFLUENCER_loginstance -->' . $data);
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');

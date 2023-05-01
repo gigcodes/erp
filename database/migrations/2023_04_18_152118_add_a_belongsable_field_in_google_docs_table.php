@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddABelongsableFieldInGoogleDocsTable extends Migration
 {
@@ -14,11 +14,11 @@ class AddABelongsableFieldInGoogleDocsTable extends Migration
     public function up()
     {
         Schema::table('google_docs', function (Blueprint $table) {
-            $table->unsignedBigInteger("belongable_id")->nullable();
-            $table->string("belongable_type")->nullable();
+            $table->unsignedBigInteger('belongable_id')->nullable();
+            $table->string('belongable_type')->nullable();
         });
     }
-    
+
     /**
      * Reverse the migrations.
      *
@@ -27,8 +27,8 @@ class AddABelongsableFieldInGoogleDocsTable extends Migration
     public function down()
     {
         Schema::table('google_docs', function (Blueprint $table) {
-            $table->dropColumn("belongable_id");
-            $table->dropColumn("belongable_type");
+            $table->dropColumn('belongable_id');
+            $table->dropColumn('belongable_type');
         });
     }
 }

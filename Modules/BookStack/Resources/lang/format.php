@@ -26,10 +26,6 @@ foreach ($fileNames as $fileName) {
 
 /**
  * Format the contents of a single translation file in the given language.
- *
- * @param  string  $lang
- * @param  string  $fileName
- * @return string
  */
 function formatFileContents(string $lang, string $fileName): string
 {
@@ -76,7 +72,7 @@ function formatFileContents(string $lang, string $fileName): string
 
             // Comment
             if (strpos($trimLine, '//') === 0) {
-                $formatted[$index] = "\t".$trimLine;
+                $formatted[$index] = "\t" . $trimLine;
 
                 continue;
             }
@@ -92,7 +88,7 @@ function formatFileContents(string $lang, string $fileName): string
                     continue;
                 }
                 $arrayKeys[] = $matches[1];
-                $formatted[$index] = str_repeat(' ', $indent * 4).str_pad("'{$matches[1]}'", $longestKeyLength).'=> [';
+                $formatted[$index] = str_repeat(' ', $indent * 4) . str_pad("'{$matches[1]}'", $longestKeyLength) . '=> [';
                 if ($arrayEndMatch !== 1) {
                     continue;
                 }
@@ -103,7 +99,7 @@ function formatFileContents(string $lang, string $fileName): string
                 if (isset($formatted[$index])) {
                     $formatted[$index] .= '],';
                 } else {
-                    $formatted[$index] = str_repeat(' ', ($indent - 1) * 4).'],';
+                    $formatted[$index] = str_repeat(' ', ($indent - 1) * 4) . '],';
                 }
 
                 continue;
@@ -161,21 +157,15 @@ function formatFileContents(string $lang, string $fileName): string
 
 /**
  * Format a translation line.
- *
- * @param  string  $key
- * @param  string  $value
- * @param  int  $indent
- * @param  int  $keyPad
- * @return string
  */
 function formatTranslationLine(string $key, string $value, int $indent = 1, int $keyPad = 1): string
 {
-    $start = str_repeat(' ', $indent * 4).str_pad("'{$key}'", $keyPad, ' ');
+    $start = str_repeat(' ', $indent * 4) . str_pad("'{$key}'", $keyPad, ' ');
     if (strpos($value, "\n") !== false) {
-        $escapedValue = '"'.str_replace("\n", '\n', $value).'"';
-        $escapedValue = '"'.str_replace('"', '\"', $escapedValue).'"';
+        $escapedValue = '"' . str_replace("\n", '\n', $value) . '"';
+        $escapedValue = '"' . str_replace('"', '\"', $escapedValue) . '"';
     } else {
-        $escapedValue = "'".str_replace("'", "\\'", $value)."'";
+        $escapedValue = "'" . str_replace("'", "\\'", $value) . "'";
     }
 
     return "{$start} => {$escapedValue},";
@@ -184,9 +174,6 @@ function formatTranslationLine(string $key, string $value, int $indent = 1, int 
 /**
  * Find the longest key in the array and provide the length
  * for all keys to be used when printed.
- *
- * @param  array  $array
- * @return int
  */
 function calculateKeyPadding(array $array): int
 {
@@ -203,10 +190,6 @@ function calculateKeyPadding(array $array): int
  * Format an translation array with the given key.
  * Simply prints as an old-school php array.
  * Used as a last-resort backup to save unused translations.
- *
- * @param  string  $key
- * @param  array  $array
- * @return string
  */
 function formatTranslationArray(string $key, array $array): string
 {
@@ -219,8 +202,6 @@ function formatTranslationArray(string $key, array $array): string
  * Find a string translation value within a multi-dimensional array
  * by traversing the given array of keys.
  *
- * @param  array  $translations
- * @param  array  $keys
  * @return string|array
  */
 function getTranslationByKeys(array $translations, array $keys)
@@ -239,9 +220,6 @@ function getTranslationByKeys(array $translations, array $keys)
 /**
  * Unset an inner item of a multi-dimensional array by
  * traversing the given array of keys.
- *
- * @param  array  $input
- * @param  array  $keys
  */
 function unsetArrayByKeys(array &$input, array $keys)
 {
@@ -260,14 +238,10 @@ function unsetArrayByKeys(array &$input, array $keys)
 
 /**
  * Write the given content to a translation file.
- *
- * @param  string  $lang
- * @param  string  $fileName
- * @param  string  $content
  */
 function writeLangFile(string $lang, string $fileName, string $content)
 {
-    $path = __DIR__."/{$lang}/{$fileName}.php";
+    $path = __DIR__ . "/{$lang}/{$fileName}.php";
     if (! file_exists($path)) {
         errorOut("Expected translation file '{$path}' does not exist");
     }
@@ -276,14 +250,10 @@ function writeLangFile(string $lang, string $fileName, string $content)
 
 /**
  * Load the contents of a language file as an array of text lines.
- *
- * @param  string  $lang
- * @param  string  $fileName
- * @return array
  */
 function loadLangFileLines(string $lang, string $fileName): array
 {
-    $path = __DIR__."/{$lang}/{$fileName}.php";
+    $path = __DIR__ . "/{$lang}/{$fileName}.php";
     if (! file_exists($path)) {
         errorOut("Expected translation file '{$path}' does not exist");
     }
@@ -296,14 +266,10 @@ function loadLangFileLines(string $lang, string $fileName): array
 
 /**
  * Load the contents of a language file
- *
- * @param  string  $lang
- * @param  string  $fileName
- * @return array
  */
 function loadLang(string $lang, string $fileName): array
 {
-    $path = __DIR__."/{$lang}/{$fileName}.php";
+    $path = __DIR__ . "/{$lang}/{$fileName}.php";
     if (! file_exists($path)) {
         errorOut("Expected translation file '{$path}' does not exist");
     }
@@ -315,12 +281,10 @@ function loadLang(string $lang, string $fileName): array
 
 /**
  * Fetch an array containing the names of all translation files without the extension.
- *
- * @return array
  */
 function getTranslationFileNames(): array
 {
-    $dir = __DIR__.'/en';
+    $dir = __DIR__ . '/en';
     if (! file_exists($dir)) {
         errorOut("Expected directory '{$dir}' does not exist");
     }
@@ -337,9 +301,6 @@ function getTranslationFileNames(): array
 
 /**
  * Format a locale to follow the lowercase_UPERCASE standard
- *
- * @param  string  $lang
- * @return string
  */
 function formatLocale(string $lang): string
 {
@@ -351,8 +312,6 @@ function formatLocale(string $lang): string
 
 /**
  * Dump a variable then die.
- *
- * @param $content
  */
 function dd($content)
 {
@@ -362,21 +321,17 @@ function dd($content)
 
 /**
  * Log out some information text in blue
- *
- * @param $text
  */
 function info($text)
 {
-    echo "\e[34m".$text."\e[0m\n";
+    echo "\e[34m" . $text . "\e[0m\n";
 }
 
 /**
  * Log out an error in red and exit.
- *
- * @param $text
  */
 function errorOut($text)
 {
-    echo "\e[31m".$text."\e[0m\n";
+    echo "\e[31m" . $text . "\e[0m\n";
     exit(1);
 }

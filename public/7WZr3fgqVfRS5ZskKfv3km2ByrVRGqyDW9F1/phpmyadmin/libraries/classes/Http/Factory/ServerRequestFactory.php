@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Http\Factory;
 
 use PhpMyAdmin\Http\ServerRequest;
-use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ServerRequestFactoryInterface;
 use Slim\Psr7\Factory\ServerRequestFactory as RequestFactory;
 
 class ServerRequestFactory implements ServerRequestFactoryInterface

@@ -37,11 +37,11 @@ class HubstaffPaymentController extends Controller
         }
 
         if ($request->start_date != null) {
-            $records = $records->whereDate('billing_start', '>=', $request->start_date.' 00:00:00');
+            $records = $records->whereDate('billing_start', '>=', $request->start_date . ' 00:00:00');
         }
 
         if ($request->end_date != null) {
-            $records = $records->whereDate('billing_start', '<=', $request->end_date.' 23:59:59');
+            $records = $records->whereDate('billing_start', '<=', $request->end_date . ' 23:59:59');
         }
 
         $records = $records->select(['hubstaff_payment_accounts.*', 'u.name as user_name'])->get();
@@ -69,7 +69,7 @@ class HubstaffPaymentController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -103,7 +103,6 @@ class HubstaffPaymentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -137,7 +136,6 @@ class HubstaffPaymentController extends Controller
      * Edit Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function edit(Request $request, $id)
     {
@@ -153,7 +151,6 @@ class HubstaffPaymentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -177,7 +174,6 @@ class HubstaffPaymentController extends Controller
      * delete Page
      *
      * @param  Request  $request [description]
-     * @return
      */
     public function delete(Request $request, $id)
     {

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\BackLinking;
 use DB;
+use Storage;
+use Response;
+use App\BackLinking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Response;
-use Storage;
 
 class BackLinkController extends Controller
 {

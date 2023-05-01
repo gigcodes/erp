@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\BugStatus;
-use App\BugStatusHistory;
-use App\BugTracker;
-use App\BugTrackerHistory;
-use App\BugUserHistory;
-use App\ChatMessage;
-use App\SiteDevelopmentCategory;
-use App\StoreWebsite;
-use App\TestCase;
-use App\TestCaseHistory;
-use App\TestCaseStatus;
-use App\TestCaseStatusHistory;
-use App\TestCaseUserHistory;
 use App\User;
+use App\TestCase;
+use App\BugStatus;
+use App\BugTracker;
+use App\ChatMessage;
+use App\StoreWebsite;
+use App\BugUserHistory;
+use App\TestCaseStatus;
+use App\TestCaseHistory;
+use App\BugStatusHistory;
+use App\BugTrackerHistory;
+use Illuminate\Support\Str;
+use App\TestCaseUserHistory;
 use Illuminate\Http\Request;
+use App\TestCaseStatusHistory;
+use App\SiteDevelopmentCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class TestCaseController extends Controller
 {
@@ -85,7 +85,7 @@ class TestCaseController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
 
@@ -311,24 +311,25 @@ class TestCaseController extends Controller
             return response()->json(['code' => 200, 'data' => $testCase, 'message' => 'Deleted successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
-            \Log::error('Test Case Request Delete Error => '.json_decode($e).' #id #'.$request->id ?? '');
+            \Log::error('Test Case Request Delete Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
             $this->BugErrorLog($request->id ?? '', 'Bug Tracker Request Delete Error', $msg, 'bug_tracker');
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
-	
-	public function deleteTestCases(TestCase $testCase, Request $request)
-	{
-		try {
+
+    public function deleteTestCases(TestCase $testCase, Request $request)
+    {
+        try {
             TestCase::whereIn('id', $request->data)->delete();
+
             return response()->json(['code' => 200, 'data' => '', 'message' => 'Deleted successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
-	}
+    }
 
     public function sendMessage(Request $request)
     {

@@ -10,7 +10,7 @@ $(function () {
  * @test-module CommonParams
  */
 
-var CommonParams = function () {
+var CommonParams = (function () {
   /**
    * @var {Object} params An associative array of key value pairs
    * @access private
@@ -31,7 +31,7 @@ var CommonParams = function () {
 
       for (var i in obj) {
         if (params[i] !== undefined && params[i] !== obj[i]) {
-          if (i === 'db' || i === 'table') {
+          if (i === "db" || i === "table") {
             updateNavigation = true;
           }
         }
@@ -39,7 +39,7 @@ var CommonParams = function () {
         params[i] = obj[i];
       }
 
-      if (updateNavigation && $('#pma_navigation_tree').hasClass('synced')) {
+      if (updateNavigation && $("#pma_navigation_tree").hasClass("synced")) {
         Navigation.showCurrent();
       }
     },
@@ -67,13 +67,13 @@ var CommonParams = function () {
     set: function (name, value) {
       var updateNavigation = false;
 
-      if (name === 'db' || name === 'table' && params[name] !== value) {
+      if (name === "db" || (name === "table" && params[name] !== value)) {
         updateNavigation = true;
       }
 
       params[name] = value;
 
-      if (updateNavigation && $('#pma_navigation_tree').hasClass('synced')) {
+      if (updateNavigation && $("#pma_navigation_tree").hasClass("synced")) {
         Navigation.showCurrent();
       }
 
@@ -88,20 +88,30 @@ var CommonParams = function () {
      * @return {string}
      */
     getUrlQuery: function (separator) {
-      var sep = typeof separator !== 'undefined' ? separator : '?';
-      var common = this.get('common_query');
-      var argsep = CommonParams.get('arg_separator');
+      var sep = typeof separator !== "undefined" ? separator : "?";
+      var common = this.get("common_query");
+      var argsep = CommonParams.get("arg_separator");
 
-      if (typeof common === 'string' && common.length > 0) {
+      if (typeof common === "string" && common.length > 0) {
         // If the last char is the separator, do not add it
         // Else add it
-        common = common.substr(common.length - 1, common.length) === argsep ? common : common + argsep;
+        common =
+          common.substr(common.length - 1, common.length) === argsep
+            ? common
+            : common + argsep;
       }
 
-      return Functions.sprintf('%s%sserver=%s' + argsep + 'db=%s' + argsep + 'table=%s', sep, common, encodeURIComponent(this.get('server')), encodeURIComponent(this.get('db')), encodeURIComponent(this.get('table')));
-    }
+      return Functions.sprintf(
+        "%s%sserver=%s" + argsep + "db=%s" + argsep + "table=%s",
+        sep,
+        common,
+        encodeURIComponent(this.get("server")),
+        encodeURIComponent(this.get("db")),
+        encodeURIComponent(this.get("table"))
+      );
+    },
   };
-}();
+})();
 /**
  * Holds common parameters such as server, db, table, etc
  *
@@ -109,7 +119,6 @@ var CommonParams = function () {
  * Response.php and executed by ajax.js
  */
 // eslint-disable-next-line no-unused-vars
-
 
 var CommonActions = {
   /**
@@ -121,10 +130,10 @@ var CommonActions = {
    * @return {void}
    */
   setDb: function (newDb) {
-    if (newDb !== CommonParams.get('db')) {
+    if (newDb !== CommonParams.get("db")) {
       CommonParams.setAll({
-        'db': newDb,
-        'table': ''
+        db: newDb,
+        table: "",
       });
     }
   },
@@ -137,8 +146,8 @@ var CommonActions = {
    * @return {void}
    */
   openDb: function (newDb) {
-    CommonParams.set('db', newDb).set('table', '');
-    this.refreshMain(CommonParams.get('opendb_url'));
+    CommonParams.set("db", newDb).set("table", "");
+    this.refreshMain(CommonParams.get("opendb_url"));
   },
 
   /**
@@ -151,26 +160,33 @@ var CommonActions = {
    * @return {void}
    */
   refreshMain: function (url) {
-    let callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+    let callback =
+      arguments.length > 1 && arguments[1] !== undefined
+        ? arguments[1]
+        : undefined;
     var newUrl = url;
 
     if (!newUrl) {
-      newUrl = $('#selflink').find('a').attr('href') || window.location.pathname;
-      newUrl = newUrl.substring(0, newUrl.indexOf('?'));
+      newUrl =
+        $("#selflink").find("a").attr("href") || window.location.pathname;
+      newUrl = newUrl.substring(0, newUrl.indexOf("?"));
     }
 
-    if (newUrl.indexOf('?') !== -1) {
-      newUrl += CommonParams.getUrlQuery(CommonParams.get('arg_separator'));
+    if (newUrl.indexOf("?") !== -1) {
+      newUrl += CommonParams.getUrlQuery(CommonParams.get("arg_separator"));
     } else {
-      newUrl += CommonParams.getUrlQuery('?');
+      newUrl += CommonParams.getUrlQuery("?");
     }
 
-    $('<a></a>', {
-      href: newUrl
-    }).appendTo('body').trigger('click').remove();
+    $("<a></a>", {
+      href: newUrl,
+    })
+      .appendTo("body")
+      .trigger("click")
+      .remove();
 
-    if (typeof callback !== 'undefined') {
+    if (typeof callback !== "undefined") {
       AJAX.callback = callback;
     }
-  }
+  },
 };

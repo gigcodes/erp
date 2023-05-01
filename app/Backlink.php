@@ -19,29 +19,29 @@ class Backlink extends Model
     {
         $key = env('KEY');
         $apis = [
-            'backlinks_overview' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_overview&target=searchenginejournal.com&target_type=root_domain&export_columns=ascore,total,domains_num,urls_num,ips_num,ipclassc_num,follows_num,nofollows_num,sponsored_num,ugc_num,texts_num,images_num,forms_num,frames_num',
+            'backlinks_overview' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_overview&target=searchenginejournal.com&target_type=root_domain&export_columns=ascore,total,domains_num,urls_num,ips_num,ipclassc_num,follows_num,nofollows_num,sponsored_num,ugc_num,texts_num,images_num,forms_num,frames_num',
 
-            'backlinks' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks&target=searchenginejournal.com&target_type=root_domain&export_columns=page_ascore,source_title,source_url,target_url,anchor,external_num,internal_num,first_seen,last_seen&display_limit=5',
+            'backlinks' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks&target=searchenginejournal.com&target_type=root_domain&export_columns=page_ascore,source_title,source_url,target_url,anchor,external_num,internal_num,first_seen,last_seen&display_limit=5',
 
-            'tld_distribution' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_tld&target=searchenginejournal.com&target_type=root_domain&export_columns=zone,domains_num,backlinks_num&display_limit=5',
+            'tld_distribution' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_tld&target=searchenginejournal.com&target_type=root_domain&export_columns=zone,domains_num,backlinks_num&display_limit=5',
 
-            'anchors' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_anchors&target=searchenginejournal.com&target_type=root_domain&export_columns=anchor,domains_num,backlinks_num,first_seen,last_seen&display_limit=5',
+            'anchors' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_anchors&target=searchenginejournal.com&target_type=root_domain&export_columns=anchor,domains_num,backlinks_num,first_seen,last_seen&display_limit=5',
 
-            'indexed_pages' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_pages&target=searchenginejournal.com&target_type=root_domain&export_columns=source_url,source_title,response_code,backlinks_num,domains_num,last_seen,external_num,internal_num&display_sort=domains_num_desc&display_limit=5',
+            'indexed_pages' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_pages&target=searchenginejournal.com&target_type=root_domain&export_columns=source_url,source_title,response_code,backlinks_num,domains_num,last_seen,external_num,internal_num&display_sort=domains_num_desc&display_limit=5',
 
-            'competitors' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_competitors&target=searchenginejournal.com&target_type=root_domain&export_columns=ascore,neighbour,similarity,common_refdomains,domains_num,backlinks_num&display_limit=5',
+            'competitors' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_competitors&target=searchenginejournal.com&target_type=root_domain&export_columns=ascore,neighbour,similarity,common_refdomains,domains_num,backlinks_num&display_limit=5',
             //doubt
-            'comparison_by_referring_domains' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_matrix&targets[]=searchenginejournal.com&targets[]=searchengineland.com&target_types[]=root_domain&target_types[]=root_domain&export_columns=domain,domain_ascore,matches_num,backlinks_num&display_limit=5',
+            'comparison_by_referring_domains' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_matrix&targets[]=searchenginejournal.com&targets[]=searchengineland.com&target_types[]=root_domain&target_types[]=root_domain&export_columns=domain,domain_ascore,matches_num,backlinks_num&display_limit=5',
 
-            'batch_comparison' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_comparison&targets[]=ebay.com&targets[]=amazon.com&target_types[]=root_domain&target_types[]=root_domain&export_columns=target,target_type,ascore,backlinks_num,domains_num,ips_num,follows_num,nofollows_num,texts_num,images_num,forms_num,frames_num',
+            'batch_comparison' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_comparison&targets[]=ebay.com&targets[]=amazon.com&target_types[]=root_domain&target_types[]=root_domain&export_columns=target,target_type,ascore,backlinks_num,domains_num,ips_num,follows_num,nofollows_num,texts_num,images_num,forms_num,frames_num',
 
-            'authority_score_profile' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_ascore_profile&target=searchenginejournal.com&target_type=root_domain',
+            'authority_score_profile' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_ascore_profile&target=searchenginejournal.com&target_type=root_domain',
 
-            'categories_profile' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_categories_profile&target=searchenginejournal.com&target_type=root_domain&export_columns=category_name,rating&display_limit=5',
+            'categories_profile' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_categories_profile&target=searchenginejournal.com&target_type=root_domain&export_columns=category_name,rating&display_limit=5',
 
-            'categories' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_categories&target=searchenginejournal.com&target_type=root_domain&export_columns=category_name,rating',
+            'categories' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_categories&target=searchenginejournal.com&target_type=root_domain&export_columns=category_name,rating',
 
-            'historical_data' => 'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_historical&target=searchenginejournal.com&target_type=root_domain&export_columns=date,backlinks_num,domains_num&display_limit=5',
+            'historical_data' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_historical&target=searchenginejournal.com&target_type=root_domain&export_columns=date,backlinks_num,domains_num&display_limit=5',
         ];
 
         if ($column == null) {

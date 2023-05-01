@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace PhpMyAdmin\Controllers;
 
 use function __;
-use PhpMyAdmin\Config\PageSettings;
-use PhpMyAdmin\ConfigStorage\Relation;
 use PhpMyAdmin\Message;
-use PhpMyAdmin\Navigation\Navigation;
-use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Template;
+use PhpMyAdmin\ResponseRenderer;
 use PhpMyAdmin\Utils\SessionCache;
+use PhpMyAdmin\Config\PageSettings;
+use PhpMyAdmin\Navigation\Navigation;
+use PhpMyAdmin\ConfigStorage\Relation;
 
 /**
  * The navigation panel

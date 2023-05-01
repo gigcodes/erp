@@ -3,16 +3,16 @@
 namespace App\Console\Commands;
 
 use App\Brand;
-use App\Category;
-use App\CronJobReport;
+use Validator;
 use App\Product;
-use App\ScrapedProducts;
 use App\Setting;
+use App\Category;
 use App\Supplier;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use Validator;
 
 class UpdateCucciniProducts extends Command
 {
@@ -230,9 +230,9 @@ class UpdateCucciniProducts extends Command
                     foreach ($images as $image_name) {
                         // Storage::disk('uploads')->delete('/social-media/' . $image_name);
 
-                        $path = public_path('uploads').'/social-media/'.$image_name;
+                        $path = public_path('uploads') . '/social-media/' . $image_name;
                         $media = MediaUploader::fromSource($path)
-                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                             ->upload();
                         $product->attachMedia($media, config('constants.media_tags'));
                     }

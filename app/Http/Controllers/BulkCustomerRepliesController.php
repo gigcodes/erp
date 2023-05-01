@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\BulkCustomerRepliesKeyword;
-use App\Customer;
-use App\CustomerBulkMessageDND;
 use App\Helpers;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Customer;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\CustomerBulkMessageDND;
+use Illuminate\Support\Facades\DB;
+use App\BulkCustomerRepliesKeyword;
 
 class BulkCustomerRepliesController extends Controller
 {
@@ -148,7 +148,7 @@ class BulkCustomerRepliesController extends Controller
         $keyword->count = 0;
         $keyword->save();
 
-        return redirect()->back()->with('message', Str::title($type).' added successfully!');
+        return redirect()->back()->with('message', Str::title($type) . ' added successfully!');
     }
 
     public function sendMessagesByKeyword(Request $request)
@@ -190,7 +190,6 @@ class BulkCustomerRepliesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -223,7 +222,6 @@ class BulkCustomerRepliesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

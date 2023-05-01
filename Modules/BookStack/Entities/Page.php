@@ -108,10 +108,10 @@ class Page extends Entity
         $idComponent = $this->draft ? $this->id : urlencode($this->slug);
 
         if ($path !== false) {
-            return url('/kb/books/'.urlencode($bookSlug).$midText.$idComponent.'/'.trim($path, '/'));
+            return url('/kb/books/' . urlencode($bookSlug) . $midText . $idComponent . '/' . trim($path, '/'));
         }
 
-        return url('/kb/books/'.urlencode($bookSlug).$midText.$idComponent);
+        return url('/kb/books/' . urlencode($bookSlug) . $midText . $idComponent);
     }
 
     /**
