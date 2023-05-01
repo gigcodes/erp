@@ -7,15 +7,13 @@ use App\Tag;
 use App\User;
 use DataTables;
 use App\Models\Blog;
-use \App\StoreWebsite;
+use App\StoreWebsite;
 use App\Models\BlogTag;
-use Spatie\Sitemap\Sitemap;
 use App\Models\BlogHistory;
-use Spatie\Sitemap\Tags\Url;
+use Spatie\Sitemap\Sitemap;
 use Illuminate\Http\Request;
+use Spatie\Sitemap\Tags\Url;
 use Illuminate\Support\Carbon;
-use Spatie\Sitemap\SitemapIndex;
-use Illuminate\Support\Facades\Response;
 
 class BlogController extends Controller
 {
@@ -57,7 +55,6 @@ class BlogController extends Controller
                     }
                 })
 
-
                 ->addColumn('no_follow', function ($row) {
                     if ($row->no_follow === 1) {
                         return 'Yes';
@@ -70,20 +67,20 @@ class BlogController extends Controller
 
                 ->addColumn('google', function ($row) {
                     if ($row->google == 'yes') {
-                        return "Yes";
+                        return 'Yes';
                     } elseif ($row->google == 'no') {
-                        return "No";
+                        return 'No';
                     } else {
-                        return "";
+                        return '';
                     }
                 })
                 ->addColumn('strong_tag', function ($row) {
                     if ($row->strong_tag == 'yes') {
-                        return "Yes";
+                        return 'Yes';
                     } elseif ($row->strong_tag == 'no') {
-                        return "No";
+                        return 'No';
                     } else {
-                        return "";
+                        return '';
                     }
                 })
                 // ->addColumn('xmldownload', function ($row) {
@@ -100,11 +97,11 @@ class BlogController extends Controller
                 // })
                 ->addColumn('italic_tag', function ($row) {
                     if ($row->italic_tag == 'yes') {
-                        return "Yes";
+                        return 'Yes';
                     } elseif ($row->italic_tag == 'no') {
-                        return "No";
+                        return 'No';
                     } else {
-                        return "";
+                        return '';
                     }
                 })
 
@@ -119,11 +116,11 @@ class BlogController extends Controller
 
                 ->addColumn('bing', function ($row) {
                     if ($row->bing == 'yes') {
-                        return "Yes";
+                        return 'Yes';
                     } elseif ($row->bing == 'no') {
-                        return "No";
+                        return 'No';
                     } else {
-                        return "";
+                        return '';
                     }
                 })
 
@@ -185,17 +182,17 @@ class BlogController extends Controller
                 })
 
                 ->addColumn('publish_blog_date', function ($row) {
+                    $publishDate = ! empty($row->publish_blog_date) ? Carbon::parse($row->publish_blog_date)->format('Y-m-d') : 'N/A';
 
-                    $publishDate = !empty($row->publish_blog_date) ? Carbon::parse($row->publish_blog_date)->format('Y-m-d') : "N/A";
                     return $publishDate;
                 })
                 ->addColumn('plaglarism', function ($row) {
                     if ($row->plaglarism == 'yes') {
-                        return "Yes";
+                        return 'Yes';
                     } elseif ($row->plaglarism == 'no') {
-                        return "No";
+                        return 'No';
                     } else {
-                        return "";
+                        return '';
                     }
                 })
 
@@ -219,8 +216,6 @@ class BlogController extends Controller
 
         return view('blogs.index', compact('users', 'store_website'));
     }
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -299,8 +294,6 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-
-
         $this->validate($request, [
             'user_id' => 'required',
             'idea' => 'nullable|max:524',
@@ -318,11 +311,9 @@ class BlogController extends Controller
         ]);
 
         $blog = Blog::create($request->all());
-        if (!empty($blog)) {
-
+        if (! empty($blog)) {
             $blogId = $blog->id;
-            if (!empty($blog->url_xml) && !empty($blog->store_website_id)) {
-
+            if (! empty($blog->url_xml) && ! empty($blog->store_website_id)) {
                 $this->createSitemap($blog->store_website_id);
             }
 
@@ -344,24 +335,20 @@ class BlogController extends Controller
         }
     }
 
-
     public function createSitemap($websiteId)
     {
         $storeWebsite = StoreWebsite::where('id', $websiteId)->first();
-        if (!empty($storeWebsite)) {
-
+        if (! empty($storeWebsite)) {
             $sitemapUrl = "sitemap/web_$websiteId";
 
-            $baseUrl =   url('/');
+            $baseUrl = url('/');
 
-
-            $blogData  = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->get();
-
+            $blogData = Blog::where('store_website_id', $websiteId)->whereNotNull('url_xml')->get();
 
             $pollsPath = public_path('sitemap/web_' . $websiteId);
             // $indexPath = public_path('sitemap');
 
-            if (!file_exists($pollsPath)) {
+            if (! file_exists($pollsPath)) {
                 mkdir($pollsPath, 0777, true);
             }
 
@@ -374,13 +361,11 @@ class BlogController extends Controller
 
             $pollChildIndex->writeToFile($pollsPath . '/blog.xml');
 
-
             return true;
         }
+
         return true;
     }
-
-
 
     /**
      * Display the specified resource.
@@ -723,20 +708,14 @@ class BlogController extends Controller
 
         $blogUpdate = Blog::where('id', $id)->update($dataUpdate);
 
-
-
         if ($blogUpdate) {
-
-
             $blogupdateData = Blog::where('id', $id)->first();
             $oldXMlUrl = $blog->url_xml;
             $newXmlUrl = $blogupdateData->url_xml;
 
             if ($oldXMlUrl != $newXmlUrl) {
-
                 $this->createSitemap($blogupdateData->store_website_id);
             }
-
 
             BlogHistory::create([
                 'blog_id' => $id,
@@ -795,16 +774,14 @@ class BlogController extends Controller
             return response()->json(['message' => 'Blog Not Found.']);
         }
 
-
         BlogTag::where('blog_id', $id)->delete();
         BlogHistory::where('blog_id', $id)->delete();
 
         $WebsiteId = $blog->store_website_id;
 
-
         $blog = Blog::where('id', $id)->delete();
 
-        if (!empty($WebsiteId)) {
+        if (! empty($WebsiteId)) {
             $this->createSitemap($WebsiteId);
         }
         if ($blog) {

@@ -311,7 +311,6 @@ class GoogleDocController extends Controller
                 'task_type' => ['required'],
             ]);
 
-    
             DB::transaction(function () use ($data, $authUser) {
                 $task = null;
                 $class = null;
@@ -355,8 +354,8 @@ class GoogleDocController extends Controller
             });
 
             return response()->json([
-                "status"=> true,
-                "message"=> "Document created successsfuly."
+                'status' => true,
+                'message' => 'Document created successsfuly.',
             ]);
         } catch (\Exception $e) {
             return response()->json([

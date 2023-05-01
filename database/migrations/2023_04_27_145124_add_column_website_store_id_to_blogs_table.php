@@ -14,7 +14,7 @@ class AddColumnWebsiteStoreIdToBlogsTable extends Migration
     public function up()
     {
         Schema::table('blogs', function (Blueprint $table) {
-            $table->unsignedBigInteger("store_website_id")->after('user_id')->nullable();
+            $table->unsignedBigInteger('store_website_id')->after('user_id')->nullable();
         });
     }
 
