@@ -26,17 +26,17 @@ If you require such an audit before you can use sodium_compat in your projects
 and have the funds for such an audit, please open an issue or contact
 `security at paragonie dot com` so we can help get the ball rolling.
 
-However, sodium_compat has been adopted by high profile open source projects,
+However, sodium*compat has been adopted by high profile open source projects,
 such as [Joomla!](https://github.com/joomla/joomla-cms/blob/459d74686d2a638ec51149d7c44ddab8075852be/composer.json#L40)
 and [Magento](https://github.com/magento/magento2/blob/8fd89cfdf52c561ac0ca7bc20fd38ef688e201b0/composer.json#L44).
 Furthermore, sodium_compat was developed by Paragon Initiative Enterprises, a
-company that _specializes_ in secure PHP development and PHP cryptography, and
+company that \_specializes* in secure PHP development and PHP cryptography, and
 has been informally reviewed by many other security experts who also specialize
 in PHP.
 
 If you'd like to learn more about the defensive security measures we've taken
-to prevent sodium_compat from being a source of vulnerability in your systems,
-please read [_Cryptographically Secure PHP Development_](https://paragonie.com/blog/2017/02/cryptographically-secure-php-development).
+to prevent sodium*compat from being a source of vulnerability in your systems,
+please read [\_Cryptographically Secure PHP Development*](https://paragonie.com/blog/2017/02/cryptographically-secure-php-development).
 
 # Installing Sodium Compat
 
@@ -221,7 +221,7 @@ if (ParagonIE_Sodium_Compat::polyfill_is_fast()) {
 
 ### Help, my PHP only has 32-Bit Integers! It's super slow!
 
-Some features of sodium_compat are **_incredibly slow_ with PHP 5 on Windows**
+Some features of sodium*compat are \*\*\_incredibly slow* with PHP 5 on Windows\*\*
 (in particular: public-key cryptography (encryption and signatures) is
 affected), and there is nothing we can do about that, due to platform
 restrictions on integers.

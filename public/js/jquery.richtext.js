@@ -860,12 +860,10 @@
 
       if (settings.height && settings.height > 0) {
         // set custom editor height
-        $editor
-          .children(".richText-editor, .richText-initial")
-          .css({
-            "min-height": settings.height + "px",
-            height: settings.height + "px",
-          });
+        $editor.children(".richText-editor, .richText-initial").css({
+          "min-height": settings.height + "px",
+          height: settings.height + "px",
+        });
       } else if (settings.heightPercentage && settings.heightPercentage > 0) {
         // set custom editor height in percentage
         var parentHeight = $editor.parent().innerHeight(); // get editor parent height

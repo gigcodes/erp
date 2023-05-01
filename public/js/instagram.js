@@ -17455,20 +17455,17 @@
         if (0 > ka) {
           var a = e(t);
           if (a.scrollX || a.scrollY) {
-            var o = (i = ta
-              .select("body")
-              .append("svg")
-              .style(
-                {
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  margin: 0,
-                  padding: 0,
-                  border: "none",
-                },
-                "important"
-              ))[0][0].getScreenCTM();
+            var o = (i = ta.select("body").append("svg").style(
+              {
+                position: "absolute",
+                top: 0,
+                left: 0,
+                margin: 0,
+                padding: 0,
+                border: "none",
+              },
+              "important"
+            ))[0][0].getScreenCTM();
             (ka = !(o.f || o.e)), i.remove();
           }
         }

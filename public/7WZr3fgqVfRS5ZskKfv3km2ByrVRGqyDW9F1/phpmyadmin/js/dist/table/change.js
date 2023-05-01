@@ -62,7 +62,7 @@ function nullify(theType, urlField, md5Field, multiEdit) {
   } else if (Number(theType) === 6) {
     rowForm.elements["fields" + multiEdit + "[" + md5Field + "]"].value = ""; // Other field types
   } else {
-  /* if (theType === 5)*/
+    /* if (theType === 5)*/
     rowForm.elements["fields" + multiEdit + "[" + md5Field + "]"].value = "";
   } // end if... else if... else
 

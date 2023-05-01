@@ -28,7 +28,7 @@ The campaign module has store budget details, billing detail and other details o
   This location module is used to target/exclude campaigns on the specific.
   - **Create:** It can be created by adding data in the create form. Users have to select country, state, and city and they can add manually any address.
   - **Delete** the option will permanently delete the location from the database as well as the Google Ads account campaign.
-  _API Reference:_ https://developers.google.com/google-ads/api/docs/targeting/location-targeting#php_1
+    _API Reference:_ https://developers.google.com/google-ads/api/docs/targeting/location-targeting#php_1
 
 _API Reference:_ https://developers.google.com/google-ads/api/docs/campaigns/overview
 
